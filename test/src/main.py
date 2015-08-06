@@ -19,6 +19,8 @@ while playing:
 			playing = False
 		if event.type == KEYDOWN and event.key == K_ESCAPE:
 			playing = False
+		if event.type == KEYDOWN and event.key == K_F12:
+			pygame.image.save(window.screen, "screenshot.png")
 	play.think(dt, events)
 	play.draw()
 	ptext.draw("%.1ffps" % clock.get_fps(), fontname = "Oregano", fontsize = F(32),
