@@ -15,7 +15,7 @@ Requirements
 
 To install the requirements on Ubuntu:
 
-	sudo apt-get install python python-pygame
+	sudo apt-get install python python-pygame python-numpy
 
 Running the Game
 ----------------
