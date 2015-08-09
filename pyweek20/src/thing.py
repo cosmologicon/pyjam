@@ -1,5 +1,6 @@
 import math
 from src import window, image
+from src.window import F
 from src.enco import Component
 
 things = {}
@@ -93,21 +94,24 @@ class DrawImage(Component):
 		rect = img.get_rect(center = self.screenpos())
 		window.screen.blit(img, rect)
 
-# First deployment freezes in place
-# Second drops
+# Freezes in place when deployed
 class DeployComm(Component):
-	def init(self, deployment = 0, **kwargs):
-		self.deployment = deployment
+	def init(self, deployed = False, **kwargs):
+		self.deployed = deployed
 	def dump(self, obj):
-		obj["deployment"] = self.deployment
+		obj["deployed"] = self.deployed
 	def deploy(self):
-		self.deployment += 1
+		self.deployed = not self.deployed
 	def think(self, dt):
-		if self.deployment == 1:
+		if self.deployed:
 			self.vx = self.vy = 0
-		if self.deployment == 2:
-			self.vx = 0
-			self.vy -= 10 * dt
+	def draw(self):
+		if self.deployed:
+			dX = 3 * math.sin(4 * self.t) / self.y
+			dy = 3 * math.cos(4 * self.t)
+			px, py = window.screenpos(self.X + dX, self.y + dy)
+			size = F(2)
+			window.screen.fill((255, 255, 255), (px, py, size, size))
 
 
 # Base class for things

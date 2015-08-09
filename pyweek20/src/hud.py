@@ -1,5 +1,5 @@
 from src import window, ptext
-from window import F
+from src.window import F
 
 lines = []
 

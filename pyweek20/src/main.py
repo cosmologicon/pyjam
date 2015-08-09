@@ -24,9 +24,10 @@ while playing:
 		if event.type == KEYDOWN and event.key == K_F12:
 			fname = datetime.datetime.now().strftime("screenshot-%Y%m%d%H%M%S.png")
 			pygame.image.save(window.screen, os.path.join("screenshots", fname))
+		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F3:
+			settings.drawbackground = not settings.drawbackground
 	kpressed = pygame.key.get_pressed()
 	play.think(dt, events, kpressed)
-	window.screen.fill((0, 40, 0))
 	play.draw()
 	if settings.DEBUG:
 		ptext.draw("%.1ffps" % clock.get_fps(), fontsize = F(36), owidth = 2,

@@ -1,11 +1,12 @@
 import pygame, math, random, time
 from pygame.locals import *
-from src import window, thing, settings, state, hud, quest
+from src import window, thing, settings, state, hud, quest, background
 
 
 control = {}
 
 def init():
+	quest.quests["FirstSatellite"].available = True
 	state.you = thing.Skiff(X = 0, y = 100, vx = 8)
 	state.ships = [state.you]
 	state.objs = []
@@ -96,11 +97,15 @@ def jump(kx, ky):
 
 
 def draw():
-	for y in range(10, 200, 10):
-		for jX in range(20):
-			X = math.tau * jX / 20
-			p = window.screenpos(X, y)
-			pygame.draw.circle(window.screen, (0, 100, 0), p, window.F(3))
+#	for y in range(10, 200, 10):
+#		for jX in range(20):
+#			X = math.tau * jX / 20
+#			p = window.screenpos(X, y)
+#			pygame.draw.circle(window.screen, (0, 100, 0), p, window.F(3))
+	if settings.drawbackground:
+		background.draw()
+	else:
+		window.screen.fill((0, 60, 0))
 	for obj in state.objs:
 		obj.draw()
 	for ship in state.ships:
