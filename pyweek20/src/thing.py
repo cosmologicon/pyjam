@@ -1,3 +1,4 @@
+import math
 from src import window, image
 from src.enco import Component
 
@@ -37,6 +38,34 @@ class WorldBound(Component):
 	def screenpos(self):
 		return window.screenpos(self.X, self.y)
 
+class HasVelocity(Component):
+	def init(self, vx = 0, vy = 0, **kwargs):
+		self.vx = vx
+		self.vy = vy
+	def dump(self, obj):
+		obj["vx"] = self.vx
+		obj["vy"] = self.vy
+	def think(self, dt):
+		self.X += self.vx * dt / self.y
+		self.y += self.vy * dt
+	def screenpos(self):
+		return window.screenpos(self.X, self.y)
+
+class FeelsLinearDrag(Component):
+	def __init__(self, beta):
+		self.beta = beta
+	def think(self, dt):
+		if self.vx or self.vy:
+			f = math.exp(-self.beta * dt)
+			self.vx *= f
+			self.vy *= f
+
+class HasMaximumHorizontalVelocity(Component):
+	def __init__(self, vxmax):
+		self.vxmax = vxmax
+	def think(self, dt):
+		self.vx = math.clamp(self.vx, -self.vxmax, self.vxmax)
+
 class DrawImage(Component):
 	def __init__(self, imgname):
 		self.imgname = imgname
@@ -51,10 +80,14 @@ class DrawImage(Component):
 class Thing(object):
 	def __init__(self, **kwargs):
 		self.init(**kwargs)
+		add(self)
 
 @HasId()
 @HasType()
 @WorldBound()
+@HasVelocity()
+# @FeelsLinearDrag(3)
+@HasMaximumHorizontalVelocity(20)
 @DrawImage("skiff")
 class Skiff(Thing):
 	pass

@@ -1,4 +1,4 @@
-import pygame, datetime
+import pygame, datetime, os.path
 from pygame.locals import *
 from src import settings, thing, window, ptext
 from src.window import F
@@ -23,7 +23,7 @@ while playing:
 			window.init()
 		if event.type == KEYDOWN and event.key == K_F12:
 			fname = datetime.datetime.now().strftime("screenshot-%Y%m%d%H%M%S.png")
-			pygame.image.save(window.screen, fname)
+			pygame.image.save(window.screen, os.path.join("screenshots", fname))
 	kpressed = pygame.key.get_pressed()
 	play.think(dt, events, kpressed)
 	window.screen.fill((0, 40, 0))
