@@ -1,4 +1,4 @@
-import pygame, os.path
+import pygame, os.path, random
 from pygame.locals import *
 from src import window, ptext
 
@@ -12,7 +12,7 @@ def get(filename):
 		img = pygame.image.load(filename).convert_alpha()
 	else:
 		img = pygame.Surface((40, 40)).convert_alpha()
-		img.fill((255, 255, 255, 40))
+		img.fill((random.randint(100, 250), random.randint(100, 250), random.randint(100, 250), 80))
 		ptext.drawbox(filename, img.get_rect(), surf = img, owidth = 1)
 	cache[key] = img
 	return img

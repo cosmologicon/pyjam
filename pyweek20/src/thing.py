@@ -28,6 +28,14 @@ class HasType(Component):
 	def dump(self, obj):
 		obj["type"] = self.__class__.__name__
 
+class KeepsTime(Component):
+	def init(self, t = 0, **kwargs):
+		self.t = t
+	def think(self, dt):
+		self.t += dt
+	def dump(self, obj):
+		obj["t"] = self.t
+
 class WorldBound(Component):
 	def init(self, X = 0, y = 0, **kwargs):
 		self.X = X
@@ -66,17 +74,46 @@ class HasMaximumHorizontalVelocity(Component):
 	def think(self, dt):
 		self.vx = math.clamp(self.vx, -self.vxmax, self.vxmax)
 
+# Position appearing on screen is offset horizontally
+class HorizontalOscillation(Component):
+	def __init__(self, xA, xomega):
+		self.xA = xA
+		self.xomega = xomega
+	def screenpos(self):
+		dX = self.xA * math.sin(self.xomega * self.t) / self.y
+		return window.screenpos(self.X + dX, self.y)
+
 class DrawImage(Component):
 	def __init__(self, imgname):
 		self.imgname = imgname
 	def draw(self):
+		if self.y <= 0:
+			return
 		img = image.get(self.imgname)
 		rect = img.get_rect(center = self.screenpos())
 		window.screen.blit(img, rect)
 
+# First deployment freezes in place
+# Second drops
+class DeployComm(Component):
+	def init(self, deployment = 0, **kwargs):
+		self.deployment = deployment
+	def dump(self, obj):
+		obj["deployment"] = self.deployment
+	def deploy(self):
+		self.deployment += 1
+	def think(self, dt):
+		if self.deployment == 1:
+			self.vx = self.vy = 0
+		if self.deployment == 2:
+			self.vx = 0
+			self.vy -= 10 * dt
+
+
 # Base class for things
 @HasId()
 @HasType()
+@KeepsTime()
 class Thing(object):
 	def __init__(self, **kwargs):
 		self.init(**kwargs)
@@ -86,10 +123,31 @@ class Thing(object):
 @HasType()
 @WorldBound()
 @HasVelocity()
+@HorizontalOscillation(2, 1)
+@DrawImage("payload")
+class Payload(Thing):
+	pass
+
+
+@HasId()
+@HasType()
+@WorldBound()
+@HasVelocity()
 # @FeelsLinearDrag(3)
 @HasMaximumHorizontalVelocity(20)
 @DrawImage("skiff")
 class Skiff(Thing):
+	pass
+
+@HasId()
+@HasType()
+@WorldBound()
+@HasVelocity()
+# @FeelsLinearDrag(3)
+@HasMaximumHorizontalVelocity(12)
+@DrawImage("comm")
+@DeployComm()
+class CommShip(Thing):
 	pass
 
 def dump():

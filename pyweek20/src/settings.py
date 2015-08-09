@@ -11,4 +11,7 @@ DEBUG = True
 windowsize = windowsize0
 
 
+jumpcombotime = 0.08
+maxjump = 30
+
 
