@@ -1,16 +1,17 @@
 import pygame, datetime
 from pygame.locals import *
 from src import settings, thing, window, ptext
-from window import F
+from src.window import F
 from src.scenes import play
 
 window.init()
 pygame.display.set_caption(settings.gamename)
+play.init()
 
 clock = pygame.time.Clock()
 playing = True
 while playing:
-	dt = clock.tick(settings.maxfps)
+	dt = clock.tick(settings.maxfps) * 0.001
 	events = list(pygame.event.get())
 	for event in events:
 		if event.type == QUIT:
@@ -23,7 +24,8 @@ while playing:
 		if event.type == KEYDOWN and event.key == K_F12:
 			fname = datetime.datetime.now().strftime("screenshot-%Y%m%d%H%M%S.png")
 			pygame.image.save(window.screen, fname)
-	play.think(dt, events)
+	kpressed = pygame.key.get_pressed()
+	play.think(dt, events, kpressed)
 	window.screen.fill((0, 40, 0))
 	play.draw()
 	if settings.DEBUG:

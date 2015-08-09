@@ -1,5 +1,5 @@
 from __future__ import division
-import pygame
+import pygame, math
 from pygame.locals import *
 from src import settings
 
@@ -25,4 +25,14 @@ def init():
 		sx, sy = smax // sy, smax // sx
 		flags = flags | FULLSCREEN
 	screen = pygame.display.set_mode((sx, sy), flags)
+
+cameraX0 = 0
+cameray0 = 100
+cameraR = 10
+def screenpos(X, y):
+	dX = X - cameraX0
+	px = sx / 2 + math.sin(dX) * y * cameraR
+	py = sy / 2 + (cameray0 - math.cos(dX) * y) * cameraR
+	return int(round(px)), int(round(py))
+
 
