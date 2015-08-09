@@ -7,26 +7,10 @@ control = {}
 
 def init():
 	quest.quests["FirstSatellite"].available = True
-	state.you = thing.Skiff(X = 0, y = 100, vx = 8)
+	state.you = thing.Skiff(X = 0, y = state.R - 10, vx = 1)
 	state.ships = [state.you]
 	state.objs = []
-	for _ in range(100):
-		state.ships.append(thing.Skiff(
-			X = random.uniform(0, math.tau),
-			y = random.uniform(50, 150),
-			vx = random.uniform(-20, 20)
-		))
-		state.ships.append(thing.CommShip(
-			X = random.uniform(0, math.tau),
-			y = random.uniform(50, 150),
-			vx = random.uniform(-20, 20),
-			vy = -0.3
-		))
-	for _ in range(100):
-		state.objs.append(thing.Payload(
-			X = random.uniform(0, math.tau),
-			y = random.uniform(50, 150)
-		))
+	state.filaments = [thing.Filament(ladderps = state.worlddata["filaments"][0])]
 
 def think(dt, events, kpressed):
 	kx = kpressed[K_RIGHT] - kpressed[K_LEFT]
@@ -39,6 +23,13 @@ def think(dt, events, kpressed):
 	hud.think(dt0)
 	quest.think(dt)
 
+	if random.random() < dt:
+		state.ships.append(thing.Skiff(
+			X = random.uniform(-0.03, 0.03),
+			y = state.R,
+			vx = random.uniform(-6, 6)
+		))
+
 	for event in events:
 		if event.type == KEYDOWN and event.key == K_SPACE:
 			control.clear()
@@ -46,11 +37,16 @@ def think(dt, events, kpressed):
 			control["queue"] = {}
 		if event.type == KEYDOWN and event.key == K_LSHIFT:
 			state.you.deploy()
+		if event.type == KEYDOWN and event.key == K_BACKSPACE:
+			state.ships.remove(state.you)
+			thing.kill(state.you)
+			state.you = thing.Skiff(X = 0, y = state.R - 10, vx = 1)
+			state.ships.append(state.you)
 		if event.type == KEYUP:
 			if "queue" in control and event.key in (K_UP, K_LEFT, K_RIGHT, K_DOWN):
 				control["queue"][event.key] = 0
 		if event.type == KEYUP and event.key == K_SPACE:
-			if control["cursor"] != state.you:
+			if control["cursor"] is not state.you:
 				state.you = control["cursor"]
 			control.clear()
 		
@@ -66,16 +62,18 @@ def think(dt, events, kpressed):
 				break
 
 	dvx = kx * dt * 20
-#	dvy = ky * dt * 20
+	dvy = ky * dt * 20
 
-	if dvx:
-		state.you.vx += dvx
+	state.you.vx += dvx
+	state.you.vy = min(state.you.vy + dvy, 0)
 
 	state.you.think(0)  # Clear out any controls that should be overridden
 	for ship in state.ships:
 		ship.think(dt)
 	for obj in state.objs:
 		obj.think(dt)
+	for filament in state.filaments:
+		filament.think(dt)
 
 	window.cameraX0 = state.you.X
 	window.cameray0 = state.you.y
@@ -110,6 +108,8 @@ def draw():
 		obj.draw()
 	for ship in state.ships:
 		ship.draw()
+	for filament in state.filaments:
+		filament.draw()
 	if "cursor" in control:
 		pos = control["cursor"].screenpos()
 		pygame.draw.circle(window.screen, (200, 100, 0), pos, window.F(15), 1)

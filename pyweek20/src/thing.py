@@ -1,5 +1,5 @@
-import math
-from src import window, image
+import math, random, pygame
+from src import window, image, state
 from src.window import F
 from src.enco import Component
 
@@ -11,8 +11,8 @@ def add(thing):
 	return thing.thingid
 def get(thingid):
 	return things[thingid]
-def kill(thingid):
-	del things[thingid]
+def kill(thing):
+	del things[thing.thingid]
 def newid():
 	global nextthingid
 	n = nextthingid
@@ -38,9 +38,11 @@ class KeepsTime(Component):
 		obj["t"] = self.t
 
 class WorldBound(Component):
-	def init(self, X = 0, y = 0, **kwargs):
-		self.X = X
-		self.y = y
+	def init(self, X = None, y = None, pos = None, **kwargs):
+		self.X = X or 0
+		self.y = y or 0
+		if pos is not None:
+			self.X, self.y = pos
 	def dump(self, obj):
 		obj["X"] = self.X
 		obj["y"] = self.y
@@ -60,6 +62,17 @@ class HasVelocity(Component):
 	def screenpos(self):
 		return window.screenpos(self.X, self.y)
 
+class Drifts(Component):
+	def init(self, driftax = 0, **kwargs):
+		self.driftax = driftax
+	def dump(self, obj):
+		obj["driftax"] = self.driftax
+	def think(self, dt):
+		if self is not state.you:
+			self.driftax += dt * random.uniform(-0.3, 0.3)
+			self.driftax = math.clamp(self.driftax, -0.5, 0.5)
+			self.vx += dt * self.driftax
+
 class FeelsLinearDrag(Component):
 	def __init__(self, beta):
 		self.beta = beta
@@ -74,6 +87,12 @@ class HasMaximumHorizontalVelocity(Component):
 		self.vxmax = vxmax
 	def think(self, dt):
 		self.vx = math.clamp(self.vx, -self.vxmax, self.vxmax)
+
+class HasMaximumVerticalVelocity(Component):
+	def __init__(self, vymax):
+		self.vymax = vymax
+	def think(self, dt):
+		self.vy = math.clamp(self.vy, -self.vymax, self.vymax)
 
 # Position appearing on screen is offset horizontally
 class HorizontalOscillation(Component):
@@ -113,6 +132,19 @@ class DeployComm(Component):
 			size = F(2)
 			window.screen.fill((255, 255, 255), (px, py, size, size))
 
+class Laddered(Component):
+	def init(self, ladderps = None, **kwargs):
+		self.ladderps = ladderps
+	def dump(self, obj):
+		obj["ladderps"] = self.ladderps
+
+class DrawFilament(Component):
+	def draw(self):
+		ps = []
+		for j, (X, y) in enumerate(self.ladderps):
+			ps.append(window.screenpos(X, y))
+		pygame.draw.aalines(window.screen, (255, 255, 0), False, ps)
+
 
 # Base class for things
 @HasId()
@@ -123,8 +155,6 @@ class Thing(object):
 		self.init(**kwargs)
 		add(self)
 
-@HasId()
-@HasType()
 @WorldBound()
 @HasVelocity()
 @HorizontalOscillation(2, 1)
@@ -133,25 +163,30 @@ class Payload(Thing):
 	pass
 
 
-@HasId()
-@HasType()
 @WorldBound()
 @HasVelocity()
+@Drifts()
 # @FeelsLinearDrag(3)
 @HasMaximumHorizontalVelocity(20)
+@HasMaximumVerticalVelocity(4)
 @DrawImage("skiff")
 class Skiff(Thing):
 	pass
 
-@HasId()
-@HasType()
 @WorldBound()
 @HasVelocity()
+@Drifts()
 # @FeelsLinearDrag(3)
 @HasMaximumHorizontalVelocity(12)
+@HasMaximumVerticalVelocity(2)
 @DrawImage("comm")
 @DeployComm()
 class CommShip(Thing):
+	pass
+
+@Laddered()
+@DrawFilament()
+class Filament(Thing):
 	pass
 
 def dump():

@@ -1,6 +1,6 @@
 import pygame, datetime, os.path
 from pygame.locals import *
-from src import settings, thing, window, ptext
+from src import settings, thing, window, ptext, state
 from src.window import F
 from src.scenes import play
 
@@ -31,7 +31,9 @@ while playing:
 	play.draw()
 	if settings.DEBUG:
 		ptext.draw("%.1ffps" % clock.get_fps(), fontsize = F(36), owidth = 2,
-			bottomright = (window.sx - 10, window.sy - 10))
+			bottomright = (window.sx - F(10), window.sy - F(10)))
+		ptext.draw("%.4f, %.1f" % (state.you.X, state.you.y), fontsize = F(36), owidth = 2,
+			bottomright = (window.sx - F(10), window.sy - F(50)))
 	pygame.display.flip()
 
 pygame.quit()

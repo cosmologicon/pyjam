@@ -1,4 +1,4 @@
-from src import state, hud
+from src import state, hud, thing
 
 quests = {}
 
@@ -44,6 +44,11 @@ class FirstSatellite(Quest):
 			return
 		self.t += dt
 		if self.progress == 0 and self.t > 1:
+			self.progress = 1
+			state.objs.append(thing.Payload(pos = state.worlddata["payloads"][0]))
+			state.objs.append(thing.Payload(pos = state.worlddata["payloads"][1]))
+			state.objs.append(thing.Payload(pos = state.worlddata["payloads"][2]))
+		if self.progress == 1:
 			hud.show("Find the satellite")
 			
 
