@@ -10,7 +10,7 @@ def F(x, *args):
 	if isinstance(x, (int, float)):
 		return int(f * x)
 	if isinstance(x, (tuple, list)):
-		return type(x)(int(f * a for a in x))
+		return type(x)(int(f * a) for a in x)
 
 def init():
 	global screen, sx, sy, f
@@ -35,4 +35,8 @@ def screenpos(X, y):
 	py = sy / 2 + (cameray0 - math.cos(dX) * y) * cameraR
 	return int(round(px)), int(round(py))
 
+def distance(obj1, obj2):
+	dx = math.Xmod(obj1.X - obj2.X) * 2 / (obj1.y + obj2.y)
+	dy = obj1.y - obj2.y
+	return math.sqrt(dx * dx + dy * dy)
 
