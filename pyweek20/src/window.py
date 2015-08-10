@@ -35,6 +35,16 @@ def screenpos(X, y):
 	py = sy / 2 + (cameray0 - math.cos(dX) * y) * cameraR
 	return int(round(px)), int(round(py))
 
+# Very rough, a lot of false positives
+def onscreen(obj):
+	dmax = (sx + sy) / 2 / cameraR
+	dy = obj.y - cameray0
+	if abs(dy) > dmax:
+		return False
+	if math.Xmod(obj.X - cameraX0) * cameray0 > dmax:
+		return False
+	return True
+
 def distance(obj1, obj2):
 	dx = math.Xmod(obj1.X - obj2.X) * 2 / (obj1.y + obj2.y)
 	dy = obj1.y - obj2.y

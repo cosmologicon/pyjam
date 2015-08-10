@@ -1,9 +1,9 @@
 import src
 
-gamename = "Beyond the green horizon"
+gamename = "Beyond the horizon"
 
 fullscreen = False
-windowsize0 = 854, 480  # Do not set manually. Set windowsize below instead.
+windowsize0 = 854, 480  # Used for aspect ratio. Do not set manually. Set windowsize below instead.
 maxfps = 60
 drawbackground = True
 

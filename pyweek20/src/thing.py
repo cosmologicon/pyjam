@@ -38,6 +38,12 @@ class KeepsTime(Component):
 	def dump(self, obj):
 		obj["t"] = self.t
 
+class Alive(Component):
+	def init(self, alive = True, **kwargs):
+		self.alive = alive
+	def dump(self, obj):
+		obj["alive"] = self.alive
+
 class WorldBound(Component):
 	def init(self, X = None, y = None, pos = None, **kwargs):
 		self.X = X or 0
@@ -49,6 +55,9 @@ class WorldBound(Component):
 		obj["y"] = self.y
 	def screenpos(self):
 		return window.screenpos(self.X, self.y)
+	def think(self, dt):
+		if self.y < 0:
+			self.alive = False
 
 class HasVelocity(Component):
 	def init(self, vx = 0, vy = 0, **kwargs):
@@ -73,6 +82,14 @@ class Drifts(Component):
 			self.driftax += dt * random.uniform(-0.3, 0.3)
 			self.driftax = math.clamp(self.driftax, -0.5, 0.5)
 			self.vx += dt * self.driftax
+
+class VerticalWeight(Component):
+	def __init__(self, vy0):
+		self.vy0 = vy0
+	def think(self, dt):
+		if self is not state.you:
+			vy = -self.vy0 * min(state.R / self.y, 10)
+			self.vy += 0.2 * dt * (vy - self.vy)
 
 class FeelsLinearDrag(Component):
 	def __init__(self, beta):
@@ -183,33 +200,35 @@ class Thing(object):
 		self.init(**kwargs)
 		add(self)
 
+@Alive()
 @WorldBound()
 @HasVelocity()
+class Ship(Thing):  # Need a better name than ship
+	pass
+
 @HorizontalOscillation(2, 1)
 @DrawImage("payload")
-class Payload(Thing):
+class Payload(Ship):
 	pass
 
 
-@WorldBound()
-@HasVelocity()
 @Drifts()
 # @FeelsLinearDrag(3)
 @HasMaximumHorizontalVelocity(20)
+@VerticalWeight(1)
 @HasMaximumVerticalVelocity(10)
 @DrawImage("skiff")
-class Skiff(Thing):
+class Skiff(Ship):
 	pass
 
-@WorldBound()
-@HasVelocity()
 @Drifts()
 # @FeelsLinearDrag(3)
-@HasMaximumHorizontalVelocity(12)
-@HasMaximumVerticalVelocity(2)
+@HasMaximumHorizontalVelocity(8)
+@VerticalWeight(2)
+@HasMaximumVerticalVelocity(10)
 @DrawImage("comm")
 @DeployComm()
-class CommShip(Thing):
+class CommShip(Ship):
 	pass
 
 @Laddered()

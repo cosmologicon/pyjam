@@ -26,7 +26,12 @@ def think(dt, events, kpressed):
 
 	if random.random() < dt:
 		state.ships.append(thing.Skiff(
-			X = random.uniform(-0.03, 0.03),
+			X = random.uniform(0, math.tau),
+			y = state.R,
+			vx = random.uniform(-6, 6)
+		))
+		state.ships.append(thing.CommShip(
+			X = random.uniform(0, math.tau),
 			y = state.R,
 			vx = random.uniform(-6, 6)
 		))
@@ -69,10 +74,24 @@ def think(dt, events, kpressed):
 	state.you.vy = min(state.you.vy + dvy, 0)
 
 	state.you.think(0)  # Clear out any controls that should be overridden
+	nships = []
 	for ship in state.ships:
 		ship.think(dt)
+		if ship.alive:
+			nships.append(ship)
+		else:
+			thing.kill(ship)
+			if ship is state.you:
+				print("TODO: handle dying")
+	state.ships = nships
+	nobjs = []
 	for obj in state.objs:
 		obj.think(dt)
+		if obj.alive:
+			nobjs.append(obj)
+		else:
+			thing.kill(obj)
+	state.obj = nobjs
 	for filament in state.filaments:
 		filament.think(dt)
 
@@ -106,9 +125,11 @@ def draw():
 	else:
 		window.screen.fill((0, 60, 0))
 	for obj in state.objs:
-		obj.draw()
+		if window.onscreen(obj):
+			obj.draw()
 	for ship in state.ships:
-		ship.draw()
+		if window.onscreen(ship):
+			ship.draw()
 	background.drawfilament()
 	if "cursor" in control:
 		pos = control["cursor"].screenpos()

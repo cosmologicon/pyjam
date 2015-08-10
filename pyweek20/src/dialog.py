@@ -34,7 +34,7 @@ def think(dt):
 def draw():
 	if not currentline:
 		return
-	ptext.draw(currentline[2:], fontsize = F(38), width = F(500), owidth = 1,
+	ptext.draw(currentline[2:], fontsize = F(38), width = F(500), owidth = 0, shadow = (1, 1),
 		centerx = window.sx / 2, bottom = window.sy - F(20))
 
 
