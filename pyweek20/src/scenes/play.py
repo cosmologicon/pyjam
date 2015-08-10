@@ -1,6 +1,6 @@
 import pygame, math, random, time
 from pygame.locals import *
-from src import window, thing, settings, state, hud, quest, background
+from src import window, thing, settings, state, hud, quest, background, dialog
 
 
 control = {}
@@ -22,6 +22,7 @@ def think(dt, events, kpressed):
 
 	hud.think(dt0)
 	quest.think(dt)
+	dialog.think(dt0)
 
 	if random.random() < dt:
 		state.ships.append(thing.Skiff(
@@ -112,6 +113,7 @@ def draw():
 	if "cursor" in control:
 		pos = control["cursor"].screenpos()
 		pygame.draw.circle(window.screen, (200, 100, 0), pos, window.F(15), 1)
+	dialog.draw()
 	hud.draw()
 
 

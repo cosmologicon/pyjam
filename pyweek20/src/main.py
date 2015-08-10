@@ -6,6 +6,7 @@ from src.scenes import play
 
 window.init()
 pygame.display.set_caption(settings.gamename)
+pygame.mixer.init()
 play.init()
 
 clock = pygame.time.Clock()
