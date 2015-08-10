@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, numpy, math
 from pygame.locals import *
-from src import window
+from src import window, state
 
 surf = None
 dsurf = None
@@ -30,5 +30,23 @@ def draw():
 	
 	pygame.transform.smoothscale(surf, (dsx, dsy), dsurf)
 	window.screen.blit(dsurf, (0, 0))
+
+fsurf = None
+dfsurf = None
+def drawfilament():
+	global fsurf, dfsurf
+	factor = 5
+	sx, sy = window.screen.get_size()
+	sx = int(math.ceil(sx / factor))
+	sy = int(math.ceil(sy / factor))
+	dsx, dsy = sx * factor, sy * factor
+	if fsurf is None or fsurf.get_size() != (sx, sy):
+		fsurf = pygame.Surface((sx, sy)).convert_alpha()
+		dfsurf = pygame.Surface((dsx, dsy)).convert_alpha()
+	fsurf.fill((0, 0, 0, 0))
+	for filament in state.filaments:
+		filament.draw(fsurf, factor)
+	pygame.transform.smoothscale(fsurf, (dsx, dsy), dfsurf)
+	window.screen.blit(dfsurf, (0, 0))
 	
 

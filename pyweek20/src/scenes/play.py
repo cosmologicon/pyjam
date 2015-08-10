@@ -108,8 +108,7 @@ def draw():
 		obj.draw()
 	for ship in state.ships:
 		ship.draw()
-	for filament in state.filaments:
-		filament.draw()
+	background.drawfilament()
 	if "cursor" in control:
 		pos = control["cursor"].screenpos()
 		pygame.draw.circle(window.screen, (200, 100, 0), pos, window.F(15), 1)

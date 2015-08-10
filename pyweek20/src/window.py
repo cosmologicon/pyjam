@@ -40,3 +40,14 @@ def distance(obj1, obj2):
 	dy = obj1.y - obj2.y
 	return math.sqrt(dx * dx + dy * dy)
 
+def dbycoord(p1, p2):
+	(X1, y1), (X2, y2) = p1, p2
+	dx = math.Xmod(X1 - X2) * 2 / (y1 + y2)
+	dy = y1 - y2
+	return math.sqrt(dx * dx + dy * dy)
+
+def distancefromcamera(X, y):
+	d = dbycoord((X, y), (cameraX0, cameray0))
+	dscreen = math.sqrt(sx ** 2 + sy ** 2) / 2 / cameraR
+	return d / dscreen
+
