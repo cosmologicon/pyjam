@@ -25,10 +25,10 @@ def get(filename, s = 1, angle = 0):
 
 def worlddraw(filename, X, y, r = 1, angle = 0):
 	px, py = window.screenpos(X, y)
-	s = 2 * r * window.cameraR
+	s = 2 * r * window.camera.R
 	if not -s < px < window.sx + s or not -s < py < window.sy + s:
 		return
-	angle += math.degrees(window.cameraX0 - X)
+	angle += math.degrees(window.camera.X0 - X)
 	img = get(filename, s)
 	window.screen.blit(img, img.get_rect(center = (px, py)))
 	

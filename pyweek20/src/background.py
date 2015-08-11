@@ -16,9 +16,9 @@ def draw():
 		surf = pygame.Surface((sx, sy)).convert()
 		dsurf = pygame.Surface((dsx, dsy)).convert()
 	a = numpy.zeros((sx, sy))
-	dx = (numpy.arange(sx).reshape(sx, 1) - sx / 2) * factor / window.cameraR
-	dy = (-numpy.arange(sy).reshape(1, sy) + sy / 2) * factor / window.cameraR + window.cameray0
-	X = numpy.arctan2(dy, dx) - window.cameraX0
+	dx = (numpy.arange(sx).reshape(sx, 1) - sx / 2) * factor / window.camera.R
+	dy = (-numpy.arange(sy).reshape(1, sy) + sy / 2) * factor / window.camera.R + window.camera.y0
+	X = numpy.arctan2(dy, dx) - window.camera.X0
 	y = numpy.sqrt(dx ** 2 + dy ** 2) + 10 * 0.001 * pygame.time.get_ticks()
 	a = 60 + 15 * numpy.cos(X * 20) + 15 * numpy.cos(y * 0.2)
 	

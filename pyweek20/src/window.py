@@ -26,11 +26,42 @@ def init():
 		flags = flags | FULLSCREEN
 	screen = pygame.display.set_mode((sx, sy), flags)
 
-cameraX0 = 0
-cameray0 = 100
-cameraR = 10
+
+class Camera(object):
+	def __init__(self):
+		self.X0 = 0
+		self.y0 = 100
+		self.R = 10
+		self.following = None
+		self.oldX = None
+		self.oldy = None
+		self.tfollow = 0
+	def think(self, dt):
+		self.R = sy / 54
+		if not self.following:
+			return
+		if self.tfollow == 0:
+			self.X0 = self.following.X
+			self.y0 = self.following.y
+		else:
+			self.tfollow = max(self.tfollow - dt, 0)
+			f = self.tfollow / 0.4
+			self.X0 = self.following.X * (1 - f) + self.oldX * f
+			self.y0 = self.following.y * (1 - f) + self.oldy * f
+	def follow(self, obj):
+		oldfollow = self.following
+		self.following = obj
+		self.tfollow = 0.4
+		self.oldX = obj.X + math.Xmod(self.X0 - obj.X)
+		self.oldy = self.y0
+		if oldfollow is None:
+			self.tfollow = 0
+			self.think(0)
+
+camera = Camera()
+
 def screenpos(X, y):
-	return windowpos(X, y, sx, sy, cameraX0, cameray0, cameraR)
+	return windowpos(X, y, sx, sy, camera.X0, camera.y0, camera.R)
 def windowpos(X, y, wsx, wsy, X0, y0, scale):
 	dX = X - X0
 	px = wsx / 2 + math.sin(dX) * y * scale
@@ -41,11 +72,11 @@ def windowpos(X, y, wsx, wsy, X0, y0, scale):
 
 # Very rough, a lot of false positives
 def onscreen(obj):
-	dmax = (sx + sy) / 2 / cameraR
-	dy = obj.y - cameray0
+	dmax = (sx + sy) / 2 / camera.R
+	dy = obj.y - camera.y0
 	if abs(dy) > dmax:
 		return False
-	if math.Xmod(obj.X - cameraX0) * cameray0 > dmax:
+	if abs(math.Xmod(obj.X - camera.X0)) * camera.y0 > dmax:
 		return False
 	return True
 
@@ -61,7 +92,7 @@ def dbycoord(p1, p2):
 	return math.sqrt(dx * dx + dy * dy)
 
 def distancefromcamera(X, y):
-	d = dbycoord((X, y), (cameraX0, cameray0))
-	dscreen = math.sqrt(sx ** 2 + sy ** 2) / 2 / cameraR
+	d = dbycoord((X, y), (camera.X0, camera.y0))
+	dscreen = math.sqrt(sx ** 2 + sy ** 2) / 2 / camera.R
 	return d / dscreen
 

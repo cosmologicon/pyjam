@@ -1,4 +1,4 @@
-from src import state, hud, thing, dialog
+from src import state, hud, thing, dialog, window
 
 quests = {}
 
@@ -44,13 +44,21 @@ class FirstSatellite(Quest):
 			return
 		self.t += dt
 		if self.progress == 0 and self.t > 1:
-			dialog.play("firstsatellite")
+			dialog.play("firstsatellite1")
 			self.progress = 1
 			payload = thing.Payload(pos = state.worlddata["payloads"][0])
 			state.objs.append(payload)
 			state.goals.append(payload)
+			self.goal = payload.thingid
 		if self.progress == 1:
-			hud.show("Find the satellite")
+			payload = thing.get(self.goal)
+			if window.distance(payload, state.you) < 5:
+				dialog.play("firstsatellite2")
+				self.progress = 2
+		if self.progress == 2:
+			if state.you.y >= state.R - 10:
+				dialog.play("firstsatellite3")
+				self.progress = 3
 			
 
 def think(dt):

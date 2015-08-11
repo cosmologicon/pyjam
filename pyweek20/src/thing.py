@@ -143,17 +143,26 @@ class DrawImage(Component):
 			return
 		image.worlddraw(self.imgname, self.X, self.y, self.imgr)
 
+class IgnoresNetwork(Component):
+	def rnetwork(self):
+		return 0
+
 # Freezes in place when deployed
 class DeployComm(Component):
+	def __init__(self, networkreach = 20):
+		self.networkreach = networkreach
 	def init(self, deployed = False, **kwargs):
 		self.deployed = deployed
 	def dump(self, obj):
 		obj["deployed"] = self.deployed
 	def deploy(self):
 		self.deployed = not self.deployed
+		state.buildnetwork()
 	def think(self, dt):
 		if self.deployed:
 			self.vx = self.vy = 0
+	def rnetwork(self):
+		return self.networkreach if self.deployed else 0
 	def draw(self):
 		if self.deployed:
 			dX = 3 * math.sin(4 * self.t) / self.y
@@ -241,21 +250,21 @@ class Ship(WorldThing):
 @VerticalWeight(1)
 @HasMaximumVerticalVelocity(10)
 @DrawImage("skiff")
+@IgnoresNetwork()
 class Skiff(Ship):
 	pass
 
 @Drifts()
-# @FeelsLinearDrag(3)
-@HasMaximumHorizontalVelocity(12)
-@VerticalWeight(2)
-@HasMaximumVerticalVelocity(6)
+@HasMaximumHorizontalVelocity(6)
+@VerticalWeight(3)
+@HasMaximumVerticalVelocity(3)
 @DrawImage("beacon")
+@IgnoresNetwork()
 @DrawMinimap()
 class Beacon(Ship):
 	pass
 
 @Drifts()
-# @FeelsLinearDrag(3)
 @HasMaximumHorizontalVelocity(6)
 @VerticalWeight(2)
 @HasMaximumVerticalVelocity(4)
