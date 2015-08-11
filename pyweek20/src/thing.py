@@ -219,6 +219,23 @@ class DrawMinimap(Component):
 	def drawhud(self):
 		hud.drawminimap()
 
+class DrawGoalArrows(Component):
+	def draw(self):
+		if self is not state.you:
+			return
+		px0, py0 = window.screenpos(self.X, self.y)
+		for obj in state.goals:
+			dx = math.Xmod(obj.X - self.X) * (self.y + obj.y) / 2
+			dy = obj.y - self.y
+			d = math.sqrt(dx ** 2 + dy ** 2)
+			if d < 8:
+				continue
+			dx /= d
+			dy /= d
+			px = px0 + int(window.camera.R * 2 * dx)
+			py = py0 - int(window.camera.R * 2 * dy)
+			pygame.draw.circle(window.screen, (0, 0, 255), (px, py), F(2))
+
 
 # Base class for things
 @HasId()
@@ -260,6 +277,7 @@ class Skiff(Ship):
 @HasMaximumVerticalVelocity(3)
 @DrawImage("beacon")
 @IgnoresNetwork()
+@DrawGoalArrows()
 @DrawMinimap()
 class Beacon(Ship):
 	pass
@@ -276,6 +294,11 @@ class CommShip(Ship):
 @MovesCircularWithConstantSpeed(8, 0.2)
 @DrawImage("tremor", 6)
 class Tremor(WorldThing):
+	pass
+
+@DrawImage("mother", 4)
+@IgnoresNetwork()
+class Mother(WorldThing):
 	pass
 
 

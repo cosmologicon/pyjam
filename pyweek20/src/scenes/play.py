@@ -9,9 +9,10 @@ control = {}
 
 def init():
 	quest.quests["FirstSatellite"].available = True
-	state.you = thing.Beacon(X = 0, y = state.R - 10, vx = 1)
+	state.you = thing.Beacon(X = 0, y = state.R - 5, vx = 1)
 	state.ships = [state.you]
-	state.objs = []
+	state.mother = thing.Mother(X = 0, y = state.R)
+	state.objs = [state.mother]
 	state.filaments = [thing.Filament(ladderps = state.worlddata["filaments"][0])]
 	state.hazards = [
 		thing.Tremor(X = random.uniform(0, math.tau), y = random.uniform(state.Rcore, state.R))
@@ -70,7 +71,7 @@ def think(dt, events, kpressed):
 		if event.type == KEYDOWN and event.key == K_BACKSPACE:
 			state.ships.remove(state.you)
 			thing.kill(state.you)
-			state.you = thing.Skiff(X = 0, y = state.R - 10, vx = 1)
+			state.you = thing.Skiff(X = state.mother.X, y = state.mother.y - 5, vx = 0)
 			state.ships.append(state.you)
 		if event.type == KEYUP:
 			if "queue" in control and event.key in (K_UP, K_LEFT, K_RIGHT, K_DOWN):

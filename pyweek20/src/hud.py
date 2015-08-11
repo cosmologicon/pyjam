@@ -1,5 +1,5 @@
 import pygame, math
-from src import window, ptext, state
+from src import window, ptext, state, image
 from src.window import F
 
 lines = []
@@ -17,6 +17,7 @@ def draw():
 	for line in lines:
 		ptext.draw(line, fontsize = F(40), midtop = F(window.sx / 2, 10), color = "gray",
 			owidth = 1)
+	drawstats()
 
 minimap = None
 def drawminimap():
@@ -42,4 +43,26 @@ def drawminimap():
 		pygame.draw.circle(minimap, color, p, F(2))
 	pygame.draw.rect(minimap, (255, 255, 255, 60), (0, 0, w, w), F(3))
 	window.screen.blit(minimap, minimap.get_rect(right = window.sx - F(10), top = F(10)))
+
+statsbox = None
+def drawstats():
+	global statsbox
+	if not state.you:
+		return
+	w = F(80)
+	if statsbox is None or statsbox.get_size() != (w, w):
+		statsbox = pygame.Surface((w, w)).convert_alpha()
+	statsbox.fill((0, 0, 0, 30))
+	img = image.get(state.you.imgname, s = F(60))
+	statsbox.blit(img, img.get_rect(center = statsbox.get_rect().center))
+	pygame.draw.rect(statsbox, (255, 255, 255, 40), (0, 0, w, w), F(3))
+	window.screen.blit(statsbox, statsbox.get_rect(left = F(10), top = F(10)))
+	text = "\n".join([
+		"Current ship: %s" % state.you.__class__.__name__,
+		"Handling: %s" % "medium",
+		"Special: %s" % None,
+	])
+	ptext.draw(text, topleft = F(10, 96), fontsize = F(16), shadow = (1, 1), lineheight = 1.3, alpha = 0.5)
+
+
 

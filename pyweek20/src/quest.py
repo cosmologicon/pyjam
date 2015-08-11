@@ -56,7 +56,7 @@ class FirstSatellite(Quest):
 				dialog.play("firstsatellite2")
 				self.progress = 2
 		if self.progress == 2:
-			if state.you.y >= state.R - 10:
+			if window.distance(state.mother, state.you) < 8:
 				dialog.play("firstsatellite3")
 				self.progress = 3
 			

@@ -83,7 +83,7 @@ def onscreen(obj):
 def distance(obj1, obj2):
 	dx = math.Xmod(obj1.X - obj2.X) * 2 / (obj1.y + obj2.y)
 	dy = obj1.y - obj2.y
-	return math.sqrt(dx * dx + dy * dy)
+	return math.sqrt(dx ** 2 + dy ** 2)
 
 def dbycoord(p1, p2):
 	(X1, y1), (X2, y2) = p1, p2
