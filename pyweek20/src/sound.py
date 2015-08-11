@@ -1,10 +1,15 @@
-import pygame, random
+import pygame, random, sys
 
 freq = 22050
 
 pygame.mixer.pre_init(freq, -16, 1, 1)
 
-static = "".join([chr(random.randint(1, 255)) for _ in range(freq)] * 60)
+data = [random.randint(1, 255) for _ in range(freq)]
+if sys.version_info >= (3,):
+	static = bytes(data)
+else:
+	static = "".join(map(chr, data))
+static *= 60
 def playstatic(t):
 	nsamp = int(freq * 2 * t)
 	sound = pygame.mixer.Sound(static[:nsamp])

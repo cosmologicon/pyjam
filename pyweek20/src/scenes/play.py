@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame, math, random, time
 from pygame.locals import *
 from src import window, thing, settings, state, hud, quest, background, dialog
@@ -7,10 +8,15 @@ control = {}
 
 def init():
 	quest.quests["FirstSatellite"].available = True
-	state.you = thing.Skiff(X = 0, y = state.R - 10, vx = 1)
+	state.you = thing.Beacon(X = 0, y = state.R - 10, vx = 1)
 	state.ships = [state.you]
 	state.objs = []
 	state.filaments = [thing.Filament(ladderps = state.worlddata["filaments"][0])]
+	state.hazards = [
+		thing.Tremor(X = random.uniform(0, math.tau), y = random.uniform(0, state.R))
+		for _ in range(100)
+	]
+
 
 def think(dt, events, kpressed):
 	kx = kpressed[K_RIGHT] - kpressed[K_LEFT]
@@ -92,11 +98,15 @@ def think(dt, events, kpressed):
 		else:
 			thing.kill(obj)
 	state.obj = nobjs
-	for filament in state.filaments:
-		filament.think(dt)
+	for hazard in state.hazards:
+		hazard.think(dt)
+	state.obj = nobjs
+#	for filament in state.filaments:
+#		filament.think(dt)
 
 	window.cameraX0 = state.you.X
 	window.cameray0 = state.you.y
+	window.cameraR = window.sy / 48
 
 def jump(kx, ky):
 	target = None
@@ -130,11 +140,15 @@ def draw():
 	for ship in state.ships:
 		if window.onscreen(ship):
 			ship.draw()
-	background.drawfilament()
+	for hazard in state.hazards:
+		if window.onscreen(hazard):
+			hazard.draw()
+#	background.drawfilament()
 	if "cursor" in control:
 		pos = control["cursor"].screenpos()
 		pygame.draw.circle(window.screen, (200, 100, 0), pos, window.F(15), 1)
 	dialog.draw()
 	hud.draw()
+	state.you.drawhud()
 
 

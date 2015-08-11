@@ -46,9 +46,9 @@ class FirstSatellite(Quest):
 		if self.progress == 0 and self.t > 1:
 			dialog.play("firstsatellite")
 			self.progress = 1
-			state.objs.append(thing.Payload(pos = state.worlddata["payloads"][0]))
-#			state.objs.append(thing.Payload(pos = state.worlddata["payloads"][1]))
-#			state.objs.append(thing.Payload(pos = state.worlddata["payloads"][2]))
+			payload = thing.Payload(pos = state.worlddata["payloads"][0])
+			state.objs.append(payload)
+			state.goals.append(payload)
 		if self.progress == 1:
 			hud.show("Find the satellite")
 			

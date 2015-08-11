@@ -1,6 +1,6 @@
 from __future__ import division
 import math, random, pygame
-from src import window, image, state
+from src import window, image, state, hud
 from src.window import F
 from src.enco import Component
 
@@ -112,6 +112,19 @@ class HasMaximumVerticalVelocity(Component):
 	def think(self, dt):
 		self.vy = math.clamp(self.vy, -self.vymax, self.vymax)
 
+class MovesCircularWithConstantSpeed(Component):
+	def __init__(self, speed, vomega):
+		self.speed = speed
+		self.vomega = vomega
+	def init(self, vphi = None, **kwargs):
+		self.vphi = random.uniform(0, math.tau) if vphi is None else vphi
+	def dump(self, obj):
+		obj["vphi"] = self.vphi
+	def think(self, dt):
+		self.vphi += self.vomega * dt
+		self.vx = self.speed * math.sin(self.vphi)
+		self.vy = self.speed * math.cos(self.vphi)
+
 # Position appearing on screen is offset horizontally
 class HorizontalOscillation(Component):
 	def __init__(self, xA, xomega):
@@ -122,14 +135,13 @@ class HorizontalOscillation(Component):
 		return window.screenpos(self.X + dX, self.y)
 
 class DrawImage(Component):
-	def __init__(self, imgname):
+	def __init__(self, imgname, imgr = 1):
 		self.imgname = imgname
+		self.imgr = imgr
 	def draw(self):
 		if self.y <= 0:
 			return
-		img = image.get(self.imgname)
-		rect = img.get_rect(center = self.screenpos())
-		window.screen.blit(img, rect)
+		image.worlddraw(self.imgname, self.X, self.y, self.imgr)
 
 # Freezes in place when deployed
 class DeployComm(Component):
@@ -190,6 +202,14 @@ class DrawFilament(Component):
 				rps.append((px / factor, py / factor))
 			pygame.draw.polygon(surf, (255, 255, 0, alpha), ps + rps[::-1], 0)
 
+class EmptyDrawHUD(Component):
+	def drawhud(self):
+		pass
+
+class DrawMinimap(Component):
+	def drawhud(self):
+		hud.drawminimap()
+
 
 # Base class for things
 @HasId()
@@ -203,14 +223,17 @@ class Thing(object):
 @Alive()
 @WorldBound()
 @HasVelocity()
-class Ship(Thing):  # Need a better name than ship
+class WorldThing(Thing):
 	pass
 
 @HorizontalOscillation(2, 1)
 @DrawImage("payload")
-class Payload(Ship):
+class Payload(WorldThing):
 	pass
 
+@EmptyDrawHUD()
+class Ship(WorldThing):
+	pass
 
 @Drifts()
 # @FeelsLinearDrag(3)
@@ -223,13 +246,29 @@ class Skiff(Ship):
 
 @Drifts()
 # @FeelsLinearDrag(3)
-@HasMaximumHorizontalVelocity(8)
+@HasMaximumHorizontalVelocity(12)
 @VerticalWeight(2)
-@HasMaximumVerticalVelocity(10)
+@HasMaximumVerticalVelocity(6)
+@DrawImage("beacon")
+@DrawMinimap()
+class Beacon(Ship):
+	pass
+
+@Drifts()
+# @FeelsLinearDrag(3)
+@HasMaximumHorizontalVelocity(6)
+@VerticalWeight(2)
+@HasMaximumVerticalVelocity(4)
 @DrawImage("comm")
 @DeployComm()
 class CommShip(Ship):
 	pass
+
+@MovesCircularWithConstantSpeed(8, 0.2)
+@DrawImage("tremor", 6)
+class Tremor(WorldThing):
+	pass
+
 
 @Laddered()
 @DrawFilament()

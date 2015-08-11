@@ -30,10 +30,14 @@ cameraX0 = 0
 cameray0 = 100
 cameraR = 10
 def screenpos(X, y):
-	dX = X - cameraX0
-	px = sx / 2 + math.sin(dX) * y * cameraR
-	py = sy / 2 + (cameray0 - math.cos(dX) * y) * cameraR
+	return windowpos(X, y, sx, sy, cameraX0, cameray0, cameraR)
+def windowpos(X, y, wsx, wsy, X0, y0, scale):
+	dX = X - X0
+	px = wsx / 2 + math.sin(dX) * y * scale
+	py = wsy / 2 + (y0 - math.cos(dX) * y) * scale
 	return int(round(px)), int(round(py))
+	
+
 
 # Very rough, a lot of false positives
 def onscreen(obj):
