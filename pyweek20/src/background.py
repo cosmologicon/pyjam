@@ -22,8 +22,9 @@ grady = numpy.reshape(
 
 surf = None
 dsurf = None
+hsurf = None
 def draw():
-	global surf, dsurf
+	global surf, dsurf, hsurf
 	factor = 20
 	sx, sy = window.screen.get_size()
 	sx = int(math.ceil(sx / factor))
@@ -32,6 +33,19 @@ def draw():
 	if surf is None or surf.get_size() != (sx, sy):
 		surf = pygame.Surface((sx, sy)).convert()
 		dsurf = pygame.Surface((dsx, dsy)).convert()
+		hx, hy = window.screen.get_size()
+		hsurf = pygame.Surface((hx, hy)).convert_alpha()
+		dx = (numpy.arange(hx).reshape(hx, 1) - hx / 2) / window.camera.R
+		dy = (-numpy.arange(hy).reshape(1, hy) + hy / 2) / window.camera.R + state.R
+		y = (dx ** 2 + dy ** 2) ** 0.5 - state.R
+		arr = pygame.surfarray.pixels3d(hsurf)
+		arr[:,:,0] = 255 * numpy.minimum(numpy.exp(y), numpy.exp(-12 * y))
+		arr[:,:,1] = 255 * numpy.minimum(1, numpy.exp(-12 * y))
+		arr[:,:,2] = 255 * numpy.minimum(numpy.exp(y), numpy.exp(-12 * y))
+		del arr
+		arr = pygame.surfarray.pixels_alpha(hsurf)
+		arr[:,:] = 255 * numpy.minimum(1, numpy.exp(0.5 * y))
+		del arr
 	a = numpy.zeros((sx, sy))
 	dx = (numpy.arange(sx).reshape(sx, 1) - sx / 2) * factor / window.camera.R
 	dy = (-numpy.arange(sy).reshape(1, sy) + sy / 2) * factor / window.camera.R + window.camera.y0
@@ -63,6 +77,9 @@ def draw():
 	
 	pygame.transform.smoothscale(surf, (dsx, dsy), dsurf)
 	window.screen.blit(dsurf, (0, 0))
+	y = int((state.R - window.camera.y0) * window.camera.R)
+	if y < hsurf.get_height():
+		window.screen.blit(hsurf, (0, -y))
 
 fsurf = None
 dfsurf = None
