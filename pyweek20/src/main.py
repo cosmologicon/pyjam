@@ -1,13 +1,17 @@
+from __future__ import division
 import pygame, datetime, os.path
 from pygame.locals import *
-from src import settings, thing, window, ptext, state
+from src import settings, thing, window, ptext, state, background, scene
 from src.window import F
-from src.scenes import play
+from src.scenes import play, intro, title
 
 window.init()
 pygame.display.set_caption(settings.gamename)
 pygame.mixer.init()
-play.init()
+background.init()
+
+lastscene = None
+scene.current = intro
 
 clock = pygame.time.Clock()
 playing = True
@@ -32,8 +36,12 @@ while playing:
 			print("objs %d" % len(state.objs))
 			print("hazards %d" % len(state.hazards))
 	kpressed = pygame.key.get_pressed()
-	play.think(dt, events, kpressed)
-	play.draw()
+	if scene.current is not lastscene:
+		scene.current.init()
+		lastscene = scene.current
+	s = scene.current
+	s.think(dt, events, kpressed)
+	s.draw()
 	if settings.DEBUG:
 		ptext.draw("%.4f, %.1f" % (state.you.X, state.you.y), fontsize = F(36),
 			bottomright = (window.sx - F(10), window.sy - F(50)), cache = False)

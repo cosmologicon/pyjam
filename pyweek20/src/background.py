@@ -31,8 +31,8 @@ def draw():
 	sy = int(math.ceil(sy / factor))
 	dsx, dsy = sx * factor, sy * factor
 	if surf is None or surf.get_size() != (sx, sy):
-		surf = pygame.Surface((sx, sy)).convert()
-		dsurf = pygame.Surface((dsx, dsy)).convert()
+		surf = pygame.Surface((sx, sy)).convert_alpha()
+		dsurf = pygame.Surface((dsx, dsy)).convert_alpha()
 		hx, hy = window.screen.get_size()
 		hsurf = pygame.Surface((hx, hy)).convert_alpha()
 		dx = (numpy.arange(hx).reshape(hx, 1) - hx / 2) / window.camera.R
@@ -44,13 +44,14 @@ def draw():
 		arr[:,:,2] = 255 * numpy.minimum(numpy.exp(y), numpy.exp(-12 * y))
 		del arr
 		arr = pygame.surfarray.pixels_alpha(hsurf)
-		arr[:,:] = 255 * numpy.minimum(1, numpy.exp(0.5 * y))
+		arr[:,:] = 255 * numpy.minimum(1, numpy.exp(0.2 * y))
 		del arr
 	a = numpy.zeros((sx, sy))
 	dx = (numpy.arange(sx).reshape(sx, 1) - sx / 2) * factor / window.camera.R
 	dy = (-numpy.arange(sy).reshape(1, sy) + sy / 2) * factor / window.camera.R + window.camera.y0
 	x = (numpy.arctan2(dy, dx) - window.camera.X0) * (64 / math.tau) % 16
-	y = (dx ** 2 + dy ** 2) ** 0.5 / 14 % 16
+	y0 = (dx ** 2 + dy ** 2) ** 0.5
+	y = y0 / 14 % 16
 	z = 0.001 * pygame.time.get_ticks() / 4 % 16
 	nx, ny, nz = x.astype(int), y.astype(int), int(z)
 	fx, fy, fz = x % 1, y % 1, z % 1
@@ -74,12 +75,16 @@ def draw():
 	arr[:,:,1] = 54 + 12 * g
 	arr[:,:,2] = 30 - 8 * g
 	del arr
+#	pygame.surfarray.pixels_alpha(surf)[:,:] = 255 * (y0 < state.R)
 	
 	pygame.transform.smoothscale(surf, (dsx, dsy), dsurf)
 	window.screen.blit(dsurf, (0, 0))
-	y = int((state.R - window.camera.y0) * window.camera.R)
-	if y < hsurf.get_height():
-		window.screen.blit(hsurf, (0, -y))
+	y = int((window.camera.y0 - state.R) * window.camera.R)
+	if y > -hsurf.get_height():
+		window.screen.blit(hsurf, (0, y))
+	if y > 0:
+		window.screen.fill((0, 0, 0), (0, 0, hsurf.get_width(), y))
+		
 
 fsurf = None
 dfsurf = None
@@ -103,5 +108,21 @@ def drawfilament():
 	for filament in state.filaments:
 		ps = [window.screenpos(X, y) for X, y in filament.ladderps]
 		pygame.draw.lines(window.screen, (255, 255, 0), False, ps, 3)
-	
+
+stars = [
+	(random.uniform(0.2, 1), random.uniform(0, 100000), random.uniform(0, 100000))
+	for _ in range(10000)
+]
+def drawstars():
+	dstars = stars[:int(window.sx * window.sy / 1000)]
+	t = window.sy * 0.3 * 0.001 * pygame.time.get_ticks()
+	for f, x, y in dstars:
+		px = int(x) % window.sx
+		py = int(y - t * f) % window.sy
+		c = int(255 * f)
+		window.screen.set_at((px, py), (c, c, c))
+
+def init():
+	draw()
+	window.screen.fill((0, 0, 0))
 

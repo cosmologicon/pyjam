@@ -179,6 +179,7 @@ def draw():
 #			p = window.screenpos(X, y)
 #			pygame.draw.circle(window.screen, (0, 100, 0), p, window.F(3))
 	if settings.drawbackground:
+		window.screen.fill((20, 0, 0))
 		background.draw()
 	else:
 		window.screen.fill((0, 60, 0))

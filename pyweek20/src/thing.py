@@ -163,6 +163,21 @@ class DrawImage(Component):
 			return
 		image.worlddraw(self.imgname, self.X, self.y, self.imgr)
 
+class DrawImageOverParent(Component):
+	def __init__(self, imgname, imgr = 1):
+		self.imgname = imgname
+		self.imgr = imgr
+	def init(self, parentid = None, **kwargs):
+		self.parentid = parentid
+	def dump(self, obj):
+		obj["parentid"] = self.parentid
+	def think(self, dt):
+		if get(self.parentid) is state.you:
+			self.alive = False
+	def draw(self):
+		parent = get(self.parentid)
+		image.worlddraw(self.imgname, parent.X, parent.y, self.imgr)
+
 class LeavesCorpse(Component):
 	def die(self):
 		corpse = Corpse(X = self.X, y = self.y, vx = self.vx, vy = self.vy,
@@ -339,6 +354,13 @@ class Payload(WorldThing):
 class Ship(WorldThing):
 	pass
 
+@HasMaximumHorizontalVelocity(6)
+@HasMaximumVerticalVelocity(6)
+@DrawImage("trainer")
+@IgnoresNetwork()
+class Trainer(Ship):
+	pass
+
 @Drifts()
 # @FeelsLinearDrag(3)
 @HasMaximumHorizontalVelocity(20)
@@ -389,6 +411,15 @@ class Filament(Thing):
 @DropsDown(10)
 @DrawCorpse()
 class Corpse(WorldThing):
+	pass
+
+@DrawImage("target")
+class Target(WorldThing):
+	pass
+
+@Alive()
+@DrawImageOverParent("starget", 2)
+class ShipTarget(Thing):
 	pass
 
 def dump():

@@ -6,6 +6,7 @@ Rcore = worlddata["Rcore"]
 
 you = None
 mother = None
+target = None
 ships = []
 objs = []
 filaments = []
