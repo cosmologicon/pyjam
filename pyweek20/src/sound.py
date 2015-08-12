@@ -4,6 +4,7 @@ freq = 22050
 
 pygame.mixer.pre_init(freq, -16, 1, 1)
 
+
 data = [random.randint(1, 255) for _ in range(freq)]
 if sys.version_info >= (3,):
 	static = bytes(data)
