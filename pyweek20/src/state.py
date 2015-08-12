@@ -10,6 +10,9 @@ ships = []
 objs = []
 filaments = []
 hazards = []
+effects = []
+
+network0 = []
 network = []
 
 goals = []

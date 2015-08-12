@@ -13,7 +13,8 @@ def add(thing):
 def get(thingid):
 	return things[thingid]
 def kill(thing):
-	del things[thing.thingid]
+	if thing.thingid in things:
+		del things[thing.thingid]
 def newid():
 	global nextthingid
 	n = nextthingid
@@ -25,6 +26,8 @@ class HasId(Component):
 		self.thingid = newid() if thingid is None else thingid
 	def dump(self, obj):
 		obj["thingid"] = self.thingid
+	def die(self):
+		kill(self)
 
 class HasType(Component):
 	def dump(self, obj):
@@ -43,6 +46,17 @@ class Alive(Component):
 		self.alive = alive
 	def dump(self, obj):
 		obj["alive"] = self.alive
+	def die(self):
+		self.alive = False
+
+class Lifetime(Component):
+	def __init__(self, lifetime = 1):
+		self.lifetime = lifetime
+		self.flife = 0
+	def think(self, dt):
+		if self.t > self.lifetime:
+			self.alive = False
+		self.flife = math.clamp(self.t / self.lifetime, 0, 1)
 
 class WorldBound(Component):
 	def init(self, X = None, y = None, pos = None, **kwargs):
@@ -82,6 +96,12 @@ class Drifts(Component):
 			self.driftax += dt * random.uniform(-0.3, 0.3)
 			self.driftax = math.clamp(self.driftax, -0.5, 0.5)
 			self.vx += dt * self.driftax
+
+class DropsDown(Component):
+	def __init__(self, dropay = 10):
+		self.dropay = dropay
+	def think(self, dt):
+		self.vy -= self.dropay * dt
 
 class VerticalWeight(Component):
 	def __init__(self, vy0):
@@ -143,6 +163,61 @@ class DrawImage(Component):
 			return
 		image.worlddraw(self.imgname, self.X, self.y, self.imgr)
 
+class LeavesCorpse(Component):
+	def die(self):
+		corpse = Corpse(X = self.X, y = self.y, vx = self.vx, vy = self.vy,
+			imgname = self.imgname, imgr = self.imgr)
+		add(corpse)
+		state.effects.append(corpse)
+
+class DrawCorpse(Component):
+	def init(self, imgname = None, imgr = None, imgomega = None, **kwargs):
+		self.imgname = imgname
+		self.imgr = imgr
+		self.imgomega = random.uniform(4, 8) * random.choice([-1, 1]) if imgomega is None else imgomega
+	def dump(self, obj):
+		obj["imgname"] = self.imgname
+		obj["imgr"] = self.imgr
+		obj["imgomega"] = self.imgomega
+	def draw(self):
+		if self.y <= 0:
+			return
+		image.worlddraw(self.imgname, self.X, self.y, self.imgr, angle = self.imgomega * self.t,
+			alpha = 1 - self.flife)
+
+class DrawTremor(Component):
+	def __init__(self):
+		self.nimgs = 20
+		self.timg = 1.5
+	def init(self, imgs = None, **kwargs):
+		self.imgs = imgs or []
+	def dump(self, obj):
+		obj["imgs"] = self.imgs
+	def think(self, dt):
+		while self.imgs and self.t - self.imgs[0][2] > self.timg:
+			self.imgs.pop(0)
+		while len(self.imgs) < self.nimgs:
+			st = self.timg / 2
+			X = random.gauss(self.X + self.vx * st / self.y, 2 / self.y)
+			y = random.gauss(self.y + self.vy * st, 2)
+			t = self.t - (self.nimgs - len(self.imgs) - 1) * self.timg / self.nimgs
+			self.imgs.append((X, y, t))
+	def draw(self):
+		for X, y, t in self.imgs:
+			t = (self.t - t) / self.timg
+			if not 0 < t < 1:
+				continue
+			alpha = t * (1 - t)
+			image.worlddraw("tremor", X, y, 6, rotate = False, alpha = alpha)
+
+# Whether the object is important to the plot, and should not be discarded if it's offscreen.
+class HasSignificance(Component):
+	def init(self, significant = False, **kwargs):
+		self.significant = significant
+	def dump(self, obj):
+		obj["significant"] = self.significant
+
+
 class IgnoresNetwork(Component):
 	def rnetwork(self):
 		return 0
@@ -157,6 +232,7 @@ class DeployComm(Component):
 		obj["deployed"] = self.deployed
 	def deploy(self):
 		self.deployed = not self.deployed
+		self.significant = self.deployed
 		state.buildnetwork()
 	def think(self, dt):
 		if self.deployed:
@@ -258,6 +334,8 @@ class Payload(WorldThing):
 	pass
 
 @EmptyDrawHUD()
+@HasSignificance()
+@LeavesCorpse()
 class Ship(WorldThing):
 	pass
 
@@ -292,7 +370,7 @@ class CommShip(Ship):
 	pass
 
 @MovesCircularWithConstantSpeed(8, 0.2)
-@DrawImage("tremor", 6)
+@DrawTremor()
 class Tremor(WorldThing):
 	pass
 
@@ -305,6 +383,12 @@ class Mother(WorldThing):
 @Laddered()
 @DrawFilament()
 class Filament(Thing):
+	pass
+
+@Lifetime(1)
+@DropsDown(10)
+@DrawCorpse()
+class Corpse(WorldThing):
 	pass
 
 def dump():

@@ -8,7 +8,7 @@ from src.window import F
 control = {}
 
 def init():
-	quest.quests["FirstSatellite"].available = True
+	quest.quests["Act1"].available = True
 	state.you = thing.Beacon(X = 0, y = state.R - 5, vx = 1)
 	state.ships = [state.you]
 	state.mother = thing.Mother(X = 0, y = state.R)
@@ -38,6 +38,7 @@ def init():
 
 
 def think(dt, events, kpressed):
+	global todraw
 	kx = kpressed[K_RIGHT] - kpressed[K_LEFT]
 	ky = kpressed[K_UP] - kpressed[K_DOWN]
 
@@ -69,10 +70,8 @@ def think(dt, events, kpressed):
 		if event.type == KEYDOWN and event.key == K_LSHIFT:
 			state.you.deploy()
 		if event.type == KEYDOWN and event.key == K_BACKSPACE:
-			state.ships.remove(state.you)
-			thing.kill(state.you)
-			state.you = thing.Skiff(X = state.mother.X, y = state.mother.y - 5, vx = 0)
-			state.ships.append(state.you)
+			state.you.die()
+			regenerate()
 		if event.type == KEYUP:
 			if "queue" in control and event.key in (K_UP, K_LEFT, K_RIGHT, K_DOWN):
 				control["queue"][event.key] = 0
@@ -98,6 +97,10 @@ def think(dt, events, kpressed):
 	state.you.vx += dvx
 	state.you.vy = min(state.you.vy + dvy, 0)
 
+	todraw = []
+	scollide = []
+	hcollide = []
+
 	state.you.think(0)  # Clear out any controls that should be overridden
 	nships = []
 	for ship in state.ships:
@@ -107,29 +110,51 @@ def think(dt, events, kpressed):
 		ship.think(dt)
 		if ship.alive:
 			nships.append(ship)
+			todraw.append(ship)
 		else:
-			thing.kill(ship)
+			ship.die()
 			if ship is state.you:
-				print("TODO: handle dying")
+				regenerate()
 	state.ships = nships
 	nobjs = []
 	for obj in state.objs:
 		obj.think(dt)
 		if obj.alive:
 			nobjs.append(obj)
+			todraw.append(obj)
 		else:
-			thing.kill(obj)
+			obj.die()
 	state.obj = nobjs
 	for hazard in state.hazards:
 		if not window.onscreen(hazard):
 			continue
 		hazard.think(dt)
+		todraw.append(hazard)
+		hcollide.append(hazard)
 	state.obj = nobjs
 #	for filament in state.filaments:
 #		filament.think(dt)
 
+	for effect in state.effects:
+		effect.think(dt)
+		if effect.alive:
+			todraw.append(effect)
+		else:
+			effect.die()
+
+	scollide = [state.you]
+	for h in hcollide:
+		for s in scollide:
+			if window.distance(h, s) < 4:
+				s.alive = False
+
 	window.camera.follow(state.you)
 	window.camera.think(dt)
+
+def regenerate():
+	state.you = thing.Skiff(X = state.mother.X, y = state.mother.y - 5, vx = 0)
+	state.ships.append(state.you)
+
 
 def jump(kx, ky):
 	target = None
@@ -157,22 +182,15 @@ def draw():
 		background.draw()
 	else:
 		window.screen.fill((0, 60, 0))
-	for obj in state.objs:
-		if window.onscreen(obj):
-			obj.draw()
-	for ship in state.ships:
-		if window.onscreen(ship):
-			ship.draw()
-	for hazard in state.hazards:
-		if window.onscreen(hazard):
-			hazard.draw()
+	for obj in todraw:
+		obj.draw()
 
 	for ship0, ship1 in state.network:
 		p0 = window.screenpos(ship0.X, ship0.y)
 		p1 = window.screenpos(ship1.X, ship1.y)
 		pygame.draw.line(window.screen, (255, 255, 0), p0, p1, F(3))
 
-#	background.drawfilament()
+	background.drawfilament()
 	if "cursor" in control:
 		pos = control["cursor"].screenpos()
 		pygame.draw.circle(window.screen, (200, 100, 0), pos, window.F(15), 1)

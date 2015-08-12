@@ -1,7 +1,16 @@
+# We use the polar coordinate system (X, y) that I originally used in Twondy and Zoop.
+# X is the angle in radians and y is the distance from the center.
+# This approaches a rectangular coordinate system (x, y) in the limit as y goes to infinity,
+# with x = Xy. We never use x directly, but for infinitesimal changes, dx = y dX. So for instance,
+# objects have x-velocity, and their X coordinate is updates appropriately as dX = v_x dt / y.
+# For finite changes, we use the approximation delta-x = y delta-X. This is good for most purposes,
+# as long as you don't get too close to the singularity at y = 0.
+
 from __future__ import division
 import pygame, math
 from pygame.locals import *
 from src import settings
+
 
 f = 1.0
 def F(x, *args):
@@ -80,8 +89,17 @@ def onscreen(obj):
 		return False
 	return True
 
+def nearscreen(obj):
+	dmax = (sx + sy) / 2 / camera.R * 3
+	dy = obj.y - camera.y0
+	if abs(dy) > dmax:
+		return False
+	if abs(math.Xmod(obj.X - camera.X0)) * camera.y0 > dmax:
+		return False
+	return True
+
 def distance(obj1, obj2):
-	dx = math.Xmod(obj1.X - obj2.X) * 2 / (obj1.y + obj2.y)
+	dx = math.Xmod(obj1.X - obj2.X) * (obj1.y + obj2.y) / 2
 	dy = obj1.y - obj2.y
 	return math.sqrt(dx ** 2 + dy ** 2)
 

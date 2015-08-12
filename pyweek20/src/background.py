@@ -36,7 +36,7 @@ def draw():
 	dx = (numpy.arange(sx).reshape(sx, 1) - sx / 2) * factor / window.camera.R
 	dy = (-numpy.arange(sy).reshape(1, sy) + sy / 2) * factor / window.camera.R + window.camera.y0
 	x = (numpy.arctan2(dy, dx) - window.camera.X0) * (64 / math.tau) % 16
-	y = (dx ** 2 + dy ** 2) ** 0.35 / 14 % 16
+	y = (dx ** 2 + dy ** 2) ** 0.5 / 14 % 16
 	z = 0.001 * pygame.time.get_ticks() / 4 % 16
 	nx, ny, nz = x.astype(int), y.astype(int), int(z)
 	fx, fy, fz = x % 1, y % 1, z % 1
@@ -81,5 +81,10 @@ def drawfilament():
 		filament.draw(fsurf, factor)
 	pygame.transform.smoothscale(fsurf, (dsx, dsy), dfsurf)
 	window.screen.blit(dfsurf, (0, 0))
+	
+def drawfilament():
+	for filament in state.filaments:
+		ps = [window.screenpos(X, y) for X, y in filament.ladderps]
+		pygame.draw.lines(window.screen, (255, 255, 0), False, ps, 3)
 	
 

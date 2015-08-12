@@ -34,9 +34,8 @@ class Intro(Quest):
 				else:
 					pass
 					# choose new target
-		
 
-class FirstSatellite(Quest):
+class Act1(Quest):
 	def __init__(self):
 		Quest.__init__(self)
 	def think(self, dt):
@@ -59,14 +58,14 @@ class FirstSatellite(Quest):
 			if window.distance(state.mother, state.you) < 8:
 				dialog.play("firstsatellite3")
 				self.progress = 3
-			
+		
 
 def think(dt):
 	for quest in quests.values():
 		quest.think(dt)
 
 Intro()
-FirstSatellite()
+Act1()
 
 def dump():
 	data = {}
