@@ -1,6 +1,6 @@
 from __future__ import division
 import random
-from src import state, hud, thing, dialog, window, scene
+from src import state, hud, thing, dialog, window, scene, sound
 
 quests = {}
 
@@ -40,12 +40,11 @@ class Intro(Quest):
 		self.t += dt
 		if self.progress == 0 and self.t > 1:
 			self.progress += 1
-			dx, dy = self.tps[1]
-			state.target = thing.Target(X = dx / window.camera.y0, y = window.camera.y0 + dy)
+			self.settarget()
 			state.effects.append(state.target)
-			hud.show("Use arrow keys or WASD to move.")
 		if self.progress in (1, 2, 3, 5, 6, 8):
 			if window.distance(state.you, state.target) < 1:
+				hud.hide("Hold space/enter and use arrows to teleport.")
 				state.target.die()
 				self.progress += 1
 				self.settarget()
@@ -53,11 +52,29 @@ class Intro(Quest):
 			if state.target is state.you:
 				self.progress += 1
 				self.settarget()
-		if self.progress == 3:
-			self.done = True
-			from src.scenes import title
-			scene.current = title
+		elif self.progress == 10:
+			if not dialog.currentline:
+				from src.scenes import title
+				scene.current = title
 	def settarget(self):
+		if self.progress > 1:
+			sound.play("yes")
+	
+		if self.progress == 1:
+			hud.show("Use arrow keys or WASD to move.")
+			dialog.play("intro1")
+		elif self.progress == 2:
+			hud.clear()
+		elif self.progress == 4:
+			hud.show("Hold space/enter and use arrows to teleport.")
+			dialog.play("intro2")
+		elif self.progress == 5:
+			hud.clear()
+		elif self.progress == 6:
+			dialog.play("intro3")
+		elif self.progress == 10:
+			dialog.play("intro4")
+
 		if self.progress in (1, 2, 3, 5, 6, 8):
 			dx, dy = self.tps[self.progress]
 			state.target = thing.Target(X = dx / window.camera.y0, y = window.camera.y0 - dy)

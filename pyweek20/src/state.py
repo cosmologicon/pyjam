@@ -40,7 +40,7 @@ def buildnetwork():
 		network.append((thing.get(id0), thing.get(id1)))
 
 def save():
-	import window, thing, quest, dialog
+	import window, thing, quest, dialog, hud
 	def getids(x):
 		if x is None:
 			return None
@@ -63,16 +63,18 @@ def save():
 		"thing": thing.dump(),
 		"quest": quest.dump(),
 		"dialog": dialog.dump(),
+		"hud": hud.dump(),
 	}
 	json.dump(savestate, open(settings.savename, "w"))
 
 def load():
-	import window, thing, quest, dialog
+	import window, thing, quest, dialog, hud
 	savestate = json.load(open(settings.savename))
 	thing.load(savestate["thing"])
 	window.camera.load(savestate["camera"])
 	quest.load(savestate["quest"])
 	dialog.load(savestate["dialog"])
+	hud.load(savestate["hud"])
 	def getthings(x):
 		if x is None:
 			return None

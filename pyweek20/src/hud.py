@@ -8,17 +8,29 @@ lines = []
 def clear():
 	del lines[:]
 
-def show(line):
-	lines.append(line)
+def show(line, t0 = None):
+	lines.append([line, t0, 0])
+def hide(line):
+	lines[:] = [[l, t0, t] for l, t0, t in lines if l != line]
 
 def think(dt):
-	clear()
+	nlines = []
+	for line, t0, t in lines:
+		t += dt
+		if t0 is None or t < t0:
+			nlines.append([line, t0, t])
+	lines[:] = nlines
 
 def draw():
-	for line in lines:
-		ptext.draw(line, fontsize = F(40), midtop = F(window.sx / 2, 10), color = "gray",
-			owidth = 1)
-	drawstats()
+	for line, t0, t in lines:
+		alpha = min(2 * t, 1, (2 * (t0 - t) if t0 is not None else 1))
+		ptext.draw(line, fontsize = F(32), midtop = F(854 / 2, 10), color = "gray",
+			owidth = 1, alpha = alpha)
+
+def dump():
+	return lines
+def load(obj):
+	lines[:] = obj
 
 minimap = None
 def drawminimap():

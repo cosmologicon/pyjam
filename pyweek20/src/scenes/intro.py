@@ -108,6 +108,6 @@ def draw():
 		pos = control["cursor"].screenpos()
 		pygame.draw.circle(window.screen, (200, 100, 0), pos, window.F(15), 1)
 	dialog.draw()
-#	hud.draw()
+	hud.draw()
 
 
