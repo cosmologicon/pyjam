@@ -12,13 +12,16 @@ objs = []
 filaments = []
 hazards = []
 beacons = []  # Deployed beacons
+shields = []  # Deployed shields
 effects = []
+convergences = []
 
 network0 = []
 network = []
 
 goals = []
 
+quickteleport = True
 
 def buildnetwork():
 	from src import thing, window

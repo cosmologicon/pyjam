@@ -16,4 +16,7 @@ jumpcombotime = 0.08
 maxjump = 30
 
 beacondetect = 8
+rshield = 14
+vqteleport = 25
+rqteleport = 50
 

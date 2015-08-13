@@ -13,11 +13,25 @@ def init():
 	state.ships = [state.you]
 	state.mother = thing.Mother(X = 0, y = state.R)
 	state.objs = [state.mother]
-	state.filaments = [thing.Filament(ladderps = state.worlddata["filaments"][0])]
-	state.hazards = [
-		thing.Tremor(X = random.uniform(0, math.tau), y = random.uniform(state.Rcore, state.R))
+	state.objs += [
+		thing.Bubbler(X = random.uniform(0, math.tau), y = random.uniform(state.Rcore, state.R))
 		for _ in range(500)
 	]
+	state.convergences = [
+		thing.Convergence(X = 0, y = 440),
+	]
+	state.filaments = [thing.Filament(ladderps = state.worlddata["filaments"][0])]
+	state.hazards = [
+		thing.Slash(X = random.uniform(0, math.tau), y = random.uniform(state.Rcore, state.R))
+		for _ in range(500)
+	]
+	for j in range(len(state.worlddata["filaments"][0]) - 1):
+		X0, y0 = state.worlddata["filaments"][0][j]
+		X1, y1 = state.worlddata["filaments"][0][j+1]
+		state.hazards.append(thing.Rung(X = X0, y = y0))
+		state.hazards.append(thing.Rung(X = (X0 + X1) / 3, y = (y0 + y1) / 3))
+		state.hazards.append(thing.Rung(X = (X0 + X1) * 2 / 3, y = (y0 + y1) * 2 / 3))
+
 	for _ in range(400):
 		state.ships.append(thing.Skiff(
 			X = random.uniform(0, math.tau),
@@ -25,11 +39,6 @@ def init():
 			vx = random.uniform(-6, 6)
 		))
 		state.ships.append(thing.Beacon(
-			X = random.uniform(0, math.tau),
-			y = state.R * math.sqrt(random.random()),
-			vx = random.uniform(-6, 6)
-		))
-		state.ships.append(thing.CommShip(
 			X = random.uniform(0, math.tau),
 			y = state.R * math.sqrt(random.random()),
 			vx = random.uniform(-6, 6)
@@ -49,6 +58,7 @@ def think(dt, events, kpressed):
 	hud.think(dt0)
 	quest.think(dt)
 	dialog.think(dt0)
+	background.think(dt)
 
 	if 1e10 * random.random() < dt:
 		state.ships.append(thing.Skiff(
@@ -61,47 +71,82 @@ def think(dt, events, kpressed):
 			y = state.R,
 			vx = random.uniform(-6, 6)
 		))
+	nbubble = int(dt * 30) + (random.random() < dt * 30 % 1)
+	nbubble = 0
+	for _ in range(nbubble):
+		X = random.gauss(state.you.X, 30 / state.you.y)
+		y = random.gauss(state.you.y, 30)
+		if y < state.R - 10:
+			state.effects.append(thing.Bubble(X = X, y = y))
+
+	for c in state.convergences:
+		N = math.clamp(100 / window.distance(state.you, c), 0.5, 3)
+		nbubble = int(dt * N) + (random.random() < dt * N % 1)
+		for _ in range(nbubble):
+			X = random.gauss(state.you.X, 30 / state.you.y)
+			y = random.gauss(state.you.y, 30)
+			if state.Rcore < y < state.R - 20:
+				state.effects.append(thing.BubbleChain(X = X, y = y, X0 = c.X, y0 = c.y))
+
 
 	for event in events:
 		if event.type == KEYDOWN and event.key == K_SPACE:
 			control.clear()
 			control["cursor"] = state.you
 			control["queue"] = {}
+			control["qtarget"] = [state.you.X, state.you.y]
 		if event.type == KEYDOWN and event.key == K_LSHIFT:
 			state.you.deploy()
 		if event.type == KEYDOWN and event.key == K_BACKSPACE:
 			state.you.die()
 			regenerate()
 		if event.type == KEYUP:
-			if "queue" in control and event.key in (K_UP, K_LEFT, K_RIGHT, K_DOWN):
+			if not state.quickteleport and "queue" in control and event.key in (K_UP, K_LEFT, K_RIGHT, K_DOWN):
 				control["queue"][event.key] = 0
-		if event.type == KEYUP and event.key == K_SPACE:
+		if event.type == KEYUP and event.key == K_SPACE and "cursor" in control:
 			if control["cursor"] is not state.you:
 				state.you = control["cursor"]
 			control.clear()
 		
 	if kpressed[K_SPACE]:
-		q = control["queue"]
-		for key in q:
-			q[key] += dt0
-			if q[key] >= settings.jumpcombotime:
-				dx = (K_RIGHT in q) - (K_LEFT in q)
-				dy = (K_UP in q) - (K_DOWN in q)
-				jump(dx, dy)
-				q.clear()
-				break
-
-	dvx = kx * dt * 20
-	dvy = ky * dt * 20
-
-	state.you.vx += dvx
-	state.you.vy = min(state.you.vy + dvy, 0)
+		if state.quickteleport:
+			control["qtarget"][0] += kx * dt0 * settings.vqteleport / control["qtarget"][1]
+			control["qtarget"][1] += ky * dt0 * settings.vqteleport
+			dx = math.Xmod(control["qtarget"][0] - state.you.X) * state.you.y
+			dy = control["qtarget"][1] - state.you.y
+			f = math.sqrt(dx ** 2 + dy ** 2) / settings.rqteleport
+			if f > 1:
+				dx /= f
+				dy /= f
+				control["qtarget"] = [state.you.X + dx / state.you.y, state.you.y + dy]
+			retarget()
+		else:
+			q = control["queue"]
+			for key in q:
+				q[key] += dt0
+				if q[key] >= settings.jumpcombotime:
+					dx = (K_RIGHT in q) - (K_LEFT in q)
+					dy = (K_UP in q) - (K_DOWN in q)
+					jump(dx, dy)
+					q.clear()
+					break
+	else:
+		dvx = kx * dt * 20
+		dvy = ky * dt * 20
+		state.you.vx += dvx
+		state.you.vy = min(state.you.vy + dvy, 0)
 
 	todraw = []
 	scollide = []
 	hcollide = []
 
 	state.you.think(0)  # Clear out any controls that should be overridden
+
+	for convergence in state.convergences:
+		if window.onscreen(convergence):
+			convergence.think(dt)
+			todraw.append(convergence)
+
 	nships = []
 	for ship in state.ships:
 		if not window.onscreen(ship):
@@ -118,6 +163,9 @@ def think(dt, events, kpressed):
 	state.ships = nships
 	nobjs = []
 	for obj in state.objs:
+		if not window.onscreen(obj):
+			nobjs.append(obj)
+			continue
 		obj.think(dt)
 		if obj.alive:
 			nobjs.append(obj)
@@ -135,21 +183,33 @@ def think(dt, events, kpressed):
 #	for filament in state.filaments:
 #		filament.think(dt)
 
+	neffects = []
 	for effect in state.effects:
 		effect.think(dt)
 		if effect.alive:
 			todraw.append(effect)
+			neffects.append(effect)
 		else:
 			effect.die()
+	state.effects = neffects
 
 	scollide = [state.you]
-	for h in hcollide:
-		for s in scollide:
-			if window.distance(h, s) < 4:
-				s.alive = False
+	for s in scollide:
+		if not s.vulnerable():
+			continue
+		for h in hcollide:
+			if window.distance(h, s) < h.hazardsize:
+				s.takedamage(1)
 
-	window.camera.follow(state.you)
-	window.camera.think(dt)
+	if state.quickteleport and "qtarget" in control:
+		X, y = control["qtarget"]
+		dX = math.Xmod(X - state.you.X)
+		dy = y - state.you.y
+		window.camera.X0 = state.you.X + dX * 0.5
+		window.camera.y0 = state.you.y + dy * 0.5
+	else:
+		window.camera.follow(state.you)
+		window.camera.think(dt)
 
 def regenerate():
 	state.you = thing.Skiff(X = state.mother.X, y = state.mother.y - 5, vx = 0)
@@ -168,6 +228,21 @@ def jump(kx, ky):
 			if abs(math.Xmod(math.atan2(kx, ky) - math.atan2(dx, dy))) < math.tau / 11:
 				target = ship
 				d2 = dx * dx + dy * dy
+	if target:
+		control["cursor"] = target
+
+def retarget():
+	target = None
+	d2 = 4 * settings.rqteleport ** 2
+	X, y = control["qtarget"]
+	for ship in state.ships:
+		if window.distance(ship, state.you) > settings.rqteleport:
+			continue
+		dx = math.Xmod(ship.X - X) * (ship.y + y) / 2
+		dy = ship.y - y
+		if dx ** 2 + dy ** 2 < d2:
+			target = ship
+			d2 = dx ** 2 + dy ** 2
 	if target:
 		control["cursor"] = target
 
@@ -191,10 +266,13 @@ def draw():
 		p1 = window.screenpos(ship1.X, ship1.y)
 		pygame.draw.line(window.screen, (255, 255, 0), p0, p1, F(3))
 
-	background.drawfilament()
+#	background.drawfilament()
 	if "cursor" in control:
 		pos = control["cursor"].screenpos()
 		pygame.draw.circle(window.screen, (200, 100, 0), pos, window.F(15), 1)
+	if "qtarget" in control:
+		pos = window.screenpos(*control["qtarget"])
+		pygame.draw.circle(window.screen, (100, 0, 200), pos, window.F(6), 1)
 	dialog.draw()
 	hud.draw()
 	state.you.drawhud()

@@ -63,6 +63,10 @@ def drawstats():
 		"Special: %s" % None,
 	])
 	ptext.draw(text, topleft = F(10, 96), fontsize = F(16), shadow = (1, 1), lineheight = 1.3, alpha = 0.5)
+	x0, y0, w, h, dx, thick = F(104, 10, 16, 20, 20, 2)
+	for j in range(state.you.maxhp):
+		pygame.draw.rect(window.screen, (0, 100, 0),
+			(x0 + j * dx, y0, w, h), (0 if j < state.you.hp else thick))
 
 
 

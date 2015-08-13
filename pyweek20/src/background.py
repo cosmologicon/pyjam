@@ -20,6 +20,12 @@ grady = numpy.reshape(
 	for x in range(17) for y in range(17) for z in range(17)],
 	(17, 17, 17))
 
+flowt = 0
+def think(dt):
+	global flowt
+	dt *= 6 / (1 + 5 * state.you.y / state.R)
+	flowt += dt
+
 surf = None
 dsurf = None
 hsurf = None
@@ -39,9 +45,9 @@ def draw():
 		dy = (-numpy.arange(hy).reshape(1, hy) + hy / 2) / window.camera.R + state.R
 		y = (dx ** 2 + dy ** 2) ** 0.5 - state.R
 		arr = pygame.surfarray.pixels3d(hsurf)
-		arr[:,:,0] = 255 * numpy.minimum(numpy.exp(y), numpy.exp(-12 * y))
-		arr[:,:,1] = 255 * numpy.minimum(1, numpy.exp(-12 * y))
-		arr[:,:,2] = 255 * numpy.minimum(numpy.exp(y), numpy.exp(-12 * y))
+		arr[:,:,0] = 255 * numpy.exp(numpy.minimum(y, -12 * y))
+		arr[:,:,1] = 255 * numpy.exp(numpy.minimum(0, -12 * y))
+		arr[:,:,2] = 255 * numpy.exp(numpy.minimum(y, -12 * y))
 		del arr
 		arr = pygame.surfarray.pixels_alpha(hsurf)
 		arr[:,:] = 255 * numpy.minimum(1, numpy.exp(0.2 * y))
@@ -52,7 +58,7 @@ def draw():
 	x = (numpy.arctan2(dy, dx) - window.camera.X0) * (64 / math.tau) % 16
 	y0 = (dx ** 2 + dy ** 2) ** 0.5
 	y = y0 / 14 % 16
-	z = 0.001 * pygame.time.get_ticks() / 4 % 16
+	z = flowt / 4 % 16
 	nx, ny, nz = x.astype(int), y.astype(int), int(z)
 	fx, fy, fz = x % 1, y % 1, z % 1
 	ax = (3 - 2 * fx) * fx ** 2
@@ -70,10 +76,12 @@ def draw():
 					grady[nx + dx, ny + dy, nz + dz] * (fy if dy else gy)
 				) * (axy * (az if dz else bz))
 	
+	c = numpy.exp(-numpy.maximum(0, y0 / 15 - 2))
+	c2 = (1 - c)
 	arr = pygame.surfarray.pixels3d(surf)
-	arr[:,:,0] = 0
-	arr[:,:,1] = 54 + 12 * g
-	arr[:,:,2] = 30 - 8 * g
+	arr[:,:,0] = c * 255
+	arr[:,:,1] = c * 255 + c2 * (54 + 12 * g)
+	arr[:,:,2] = c * 255 + c2 * (30 - 8 * g)
 	del arr
 #	pygame.surfarray.pixels_alpha(surf)[:,:] = 255 * (y0 < state.R)
 	

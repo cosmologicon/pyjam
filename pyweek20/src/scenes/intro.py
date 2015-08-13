@@ -40,11 +40,11 @@ def think(dt, events, kpressed):
 		if event.type == KEYUP:
 			if "queue" in control and event.key in (K_UP, K_LEFT, K_RIGHT, K_DOWN):
 				control["queue"][event.key] = 0
-		if event.type == KEYUP and event.key == K_SPACE:
+		if event.type == KEYUP and event.key == K_SPACE and "cursor" in control:
 			if control["cursor"] is not state.you:
 				state.you = control["cursor"]
 			control.clear()
-		
+
 	if kpressed[K_SPACE]:
 		q = control["queue"]
 		for key in q:

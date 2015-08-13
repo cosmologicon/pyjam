@@ -1,6 +1,6 @@
 from __future__ import division
 import math, random, pygame
-from src import window, image, state, hud, sound
+from src import window, image, state, hud, sound, settings
 from src.window import F
 from src.enco import Component
 
@@ -49,6 +49,27 @@ class Alive(Component):
 	def die(self):
 		self.alive = False
 
+class HasHealth(Component):
+	def __init__(self, maxhp):
+		self.maxhp = maxhp
+	def init(self, hp = None, tflash = 0, **kwargs):
+		self.hp = self.maxhp if hp is None else hp
+		self.tflash = tflash
+	def dump(self, obj):
+		obj["hp"] = self.hp
+		obj["tflash"] = self.tflash
+	def vulnerable(self):
+		return self.tflash == 0
+	def think(self, dt):
+		self.tflash = max(self.tflash - dt, 0)
+	def takedamage(self, dhp):
+		if not self.vulnerable():
+			return
+		self.hp -= dhp
+		self.tflash = 1
+		if self.hp <= 0:
+			self.die()
+
 class Lifetime(Component):
 	def __init__(self, lifetime = 1):
 		self.lifetime = lifetime
@@ -73,6 +94,11 @@ class WorldBound(Component):
 		if self.y < 0:
 			self.alive = False
 
+class DiesAtCore(Component):
+	def think(self, dt):
+		if self.y <= state.Rcore:
+			self.die()
+
 class HasVelocity(Component):
 	def init(self, vx = 0, vy = 0, **kwargs):
 		self.vx = vx
@@ -85,6 +111,26 @@ class HasVelocity(Component):
 		self.y += self.vy * dt
 	def screenpos(self):
 		return window.screenpos(self.X, self.y)
+
+class Converges(Component):
+	def __init__(self, v = 20):
+		self.v = v
+	def init(self, X0, y0, **kwargs):
+		self.X0 = X0
+		self.y0 = y0
+	def dump(self, obj):
+		obj["X0"] = self.X0
+		obj["y0"] = self.y0
+	def think(self, dt):
+		dx = math.Xmod(self.X0 - self.X) * self.y0
+		dy = self.y0 - self.y
+		d = math.sqrt(dx ** 2 + dy ** 2)
+		if d < 5:
+			self.die()
+		else:
+			f = min(dt * self.v / d, 1)
+			self.X += dx * f / self.y0
+			self.y += dy * f
 
 class Drifts(Component):
 	def init(self, driftax = 0, **kwargs):
@@ -163,17 +209,28 @@ class DrawImage(Component):
 			return
 		image.worlddraw(self.imgname, self.X, self.y, self.imgr)
 
-class DrawHiddenImage(Component):
+class DrawImageFlash(Component):
 	def __init__(self, imgname, imgr = 1):
 		self.imgname = imgname
 		self.imgr = imgr
+	def draw(self):
+		if self.y <= 0:
+			return
+		if self.tflash:
+			if self.tflash * 10 % 2 > 1:
+				return
+		image.worlddraw(self.imgname, self.X, self.y, self.imgr)
+
+class Hidden(Component):
+	def __init__(self, rdetect = None):
+		self.rdetect = rdetect or settings.beacondetect
 	def init(self, tvisible = 0, **kwargs):
 		self.tvisible = tvisible
 	def dump(self, obj):
 		obj["tvisible"] = self.tvisible
 	def isvisible(self):
 		for obj in state.beacons:
-			if window.distance(obj, self) < settings.beacondetect:
+			if window.distance(obj, self) < self.rdetect:
 				return True
 		return False		
 	def think(self, dt):
@@ -181,10 +238,15 @@ class DrawHiddenImage(Component):
 			self.tvisible += dt
 		else:
 			self.tvisible = 0
+
+class DrawHiddenImage(Component):
+	def __init__(self, imgname, imgr = 1):
+		self.imgname = imgname
+		self.imgr = imgr
 	def draw(self):
 		if self.y <= 0:
 			return
-		if not self.isvisible():
+		if not self.tvisible:
 			return
 		alpha = min(self.tvisible, 0.5 * math.sin(self.t))
 		image.worlddraw(self.imgname, self.X, self.y, self.imgr, alpha = alpha)
@@ -251,6 +313,56 @@ class DrawTremor(Component):
 			alpha = t * (1 - t)
 			image.worlddraw("tremor", X, y, 6, rotate = False, alpha = alpha)
 
+class DrawSlash(Component):
+	def __init__(self):
+		self.nimgs = 10
+		self.timg = 2.5
+	def init(self, imgs = None, **kwargs):
+		self.imgs = imgs or []
+	def dump(self, obj):
+		obj["imgs"] = self.imgs
+	def think(self, dt):
+		while self.imgs and self.t - self.imgs[0][3] > self.timg:
+			self.imgs.pop(0)
+		while len(self.imgs) < self.nimgs:
+			st = self.timg / 2
+			X = random.gauss(self.X + self.vx * st / self.y, 2 / self.y)
+			y = random.gauss(self.y + self.vy * st, 2)
+			t = self.t - (self.nimgs - len(self.imgs) - 1) * self.timg / self.nimgs
+			self.imgs.append((X, y, random.uniform(0, 360), t))
+	def draw(self):
+		for X, y, angle, t in self.imgs:
+			t = (self.t - t) / self.timg
+			if not 0 < t < 1:
+				continue
+			alpha = t * (1 - t)
+			image.worlddraw("slash", X, y, 6, angle = angle, alpha = alpha)
+
+class DrawRung(Component):
+	def __init__(self):
+		self.nimgs = 5
+		self.timg = 2.5
+	def init(self, imgs = None, **kwargs):
+		self.imgs = imgs or []
+	def dump(self, obj):
+		obj["imgs"] = self.imgs
+	def think(self, dt):
+		while self.imgs and self.t - self.imgs[0][3] > self.timg:
+			self.imgs.pop(0)
+		while len(self.imgs) < self.nimgs:
+			st = self.timg / 2
+			X = random.gauss(self.X + self.vx * st / self.y, 10 / self.y)
+			y = random.gauss(self.y + self.vy * st, 10)
+			t = self.t - (self.nimgs - len(self.imgs) - 1) * self.timg / self.nimgs
+			self.imgs.append((X, y, random.uniform(0, 360), t))
+	def draw(self):
+		for X, y, angle, t in self.imgs:
+			t = (self.t - t) / self.timg
+			if not 0 < t < 1:
+				continue
+			alpha = t * (1 - t)
+			image.worlddraw("slash", X, y, 16, angle = angle, alpha = alpha)
+
 # Whether the object is important to the plot, and should not be discarded if it's offscreen.
 class HasSignificance(Component):
 	def init(self, significant = False, **kwargs):
@@ -282,7 +394,6 @@ class DeployFreeze(Component):
 		if self.deployed:
 			self.vx = self.vy = 0
 
-# Freezes in place when deployed
 class DeployComm(Component):
 	def __init__(self, networkreach = 20):
 		self.networkreach = networkreach
@@ -297,6 +408,25 @@ class DeployComm(Component):
 			px, py = window.screenpos(self.X + dX, self.y + dy)
 			size = F(2)
 			window.screen.fill((255, 255, 255), (px, py, size, size))
+
+class BeaconDeploy(Component):
+	def deploy(self):
+		if self in state.beacons:
+			state.beacons.remove(self)
+		if self.deployed:
+			state.beacons.append(self)
+		state.buildnetwork()
+
+class DeployShield(Component):
+	def deploy(self):
+		if self in state.shields:
+			state.shields.remove(self)
+		if self.deployed:
+			state.shields.append(self)
+	def draw(self):
+		if self.deployed:
+			image.worlddraw("shield", self.X, self.y, settings.rshield, rotate = False,
+				alpha = 0.6 + 0.4 * math.sin(self.t))
 
 class Laddered(Component):
 	def init(self, ladderps = None, **kwargs):
@@ -346,14 +476,6 @@ class DrawMinimap(Component):
 	def drawhud(self):
 		hud.drawminimap()
 
-class BeaconDeploy(Component):
-	def deploy(self):
-		if self in state.beacons:
-			state.beacons.remove(self)
-		if self.deployed:
-			state.beacons.append(self)
-		state.buildnetwork()
-
 class DrawGoalArrows(Component):
 	def draw(self):
 		if not self.deployed:
@@ -371,6 +493,77 @@ class DrawGoalArrows(Component):
 			py = py0 - int(window.camera.R * 2 * dy)
 			pygame.draw.circle(window.screen, (0, 0, 255), (px, py), F(2))
 
+class DrawBubbles(Component):
+	def init(self, bubble = None, **kwargs):
+		self.bubble = bubble
+	def think(self, dt):
+		if self.bubble is None:
+			X = random.gauss(self.X, 15 / self.y)
+			y = random.gauss(self.y, 15)
+			self.bubble = X, y, self.t
+			if self.bubble[1] >= state.R:
+				self.bubble = None
+		if self.bubble and self.t - self.bubble[2] > 1:
+			self.bubble = None
+	def draw(self):
+		if not self.bubble:
+			return
+		X, y, t = self.bubble
+		t = self.t - t
+		p = window.screenpos(X, y)
+		r = max(F(6 * t), F(1))
+		pygame.draw.circle(window.screen, (0, 60, 30), p, r, F(1))
+
+
+class DrawConvergence(Component):
+	def __init__(self):
+		self.nimgs = 30
+		self.timg = 2.5
+	def init(self, imgs = None, **kwargs):
+		self.imgs = imgs or []
+	def dump(self, obj):
+		obj["imgs"] = self.imgs
+	def think(self, dt):
+		while self.imgs and self.t - self.imgs[0][2] > self.timg:
+			self.imgs.pop(0)
+		while len(self.imgs) < self.nimgs:
+			st = self.timg / 2
+			r = random.uniform(0, 20)
+			theta = random.uniform(0, math.tau)
+			X = self.X + r * math.sin(theta) / self.y
+			y = self.y + r * math.cos(theta)
+			t = self.t - (self.nimgs - len(self.imgs) - 1) * self.timg / self.nimgs
+			s = random.uniform(6, 12)
+			color = random.choice(["white", "red", "yellow", "orange", "green", "blue", "purple"])
+			self.imgs.append((X, y, t, s, "tremor-" + color))
+	def draw(self):
+		if not self.tvisible:
+			return
+		for X, y, t, s, iname in self.imgs:
+			t = (self.t - t) / self.timg
+			if not 0 < t < 1:
+				continue
+			alpha = min(self.tvisible, 2 * t * (1 - t))
+			image.worlddraw(iname, X, y, s, rotate = False, alpha = alpha)
+
+class DrawBubble(Component):
+	def init(self, color = None, **kwargs):
+		self.color = color or (0, random.uniform(40, 100), random.uniform(20, 70))
+	def dump(self, obj):
+		obj["color"] = self.color
+	def draw(self):
+		p = window.screenpos(self.X, self.y)
+		r = max(F(10 * self.flife), 1)
+		pygame.draw.circle(window.screen, self.color, p, r, F(1))
+
+class DrawBubbleChain(Component):
+	def think(self, dt):
+		if random.random() * 0.15 < dt:
+			X = random.gauss(self.X, 2 / self.y)
+			y = random.gauss(self.y, 2)
+			state.effects.append(Bubble(X = X, y = y))
+	def draw(self):
+		pass
 
 # Base class for things
 @HasId()
@@ -388,16 +581,19 @@ class WorldThing(Thing):
 	pass
 
 @HorizontalOscillation(2, 1)
+@Hidden(8)
 @DrawHiddenImage("payload")
 class Payload(WorldThing):
 	pass
 
 @EmptyDrawHUD()
 @HasSignificance()
+@DiesAtCore()
 @LeavesCorpse()
 class Ship(WorldThing):
 	pass
 
+@HasHealth(5)
 @HasMaximumHorizontalVelocity(6)
 @HasMaximumVerticalVelocity(6)
 @DrawImage("trainer")
@@ -405,22 +601,24 @@ class Ship(WorldThing):
 class Trainer(Ship):
 	pass
 
+@HasHealth(3)
 @Drifts()
 # @FeelsLinearDrag(3)
 @HasMaximumHorizontalVelocity(20)
 @VerticalWeight(1)
 @HasMaximumVerticalVelocity(10)
-@DrawImage("skiff")
+@DrawImageFlash("skiff")
 @IgnoresNetwork()
 @CantDeploy()
 class Skiff(Ship):
 	pass
 
+@HasHealth(4)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
 @VerticalWeight(3)
 @HasMaximumVerticalVelocity(3)
-@DrawImage("beacon")
+@DrawImageFlash("beacon")
 @IgnoresNetwork()
 @DrawGoalArrows()
 @DrawMinimap()
@@ -430,21 +628,56 @@ class Skiff(Ship):
 class Beacon(Ship):
 	pass
 
+@HasHealth(6)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
 @VerticalWeight(2)
 @HasMaximumVerticalVelocity(4)
-@DrawImage("comm")
+@DrawImageFlash("comm")
 @CanDeploy()
 @DeployFreeze()
 @DeployComm()
 class CommShip(Ship):
 	pass
 
+@HasHealth(10)
+@Drifts()
+@HasMaximumHorizontalVelocity(6)
+@VerticalWeight(3)
+@HasMaximumVerticalVelocity(3)
+@DrawImageFlash("shielder")
+@IgnoresNetwork()
+@CanDeploy()
+@DeployFreeze()
+@DeployShield()
+class Shielder(Ship):
+	pass
+
+@HasHealth(10)
+@Drifts()
+@HasMaximumHorizontalVelocity(6)
+@VerticalWeight(3)
+@HasMaximumVerticalVelocity(3)
+@DrawImageFlash("heavy")
+@IgnoresNetwork()
+@CantDeploy()
+class Heavy(Ship):
+	pass
+
+
 @MovesCircularWithConstantSpeed(8, 0.2)
 @DrawTremor()
 class Tremor(WorldThing):
-	pass
+	hazardsize = 4
+
+@MovesCircularWithConstantSpeed(8, 0.2)
+@DrawSlash()
+class Slash(WorldThing):
+	hazardsize = 4
+
+@DrawRung()
+class Rung(WorldThing):
+	hazardsize = 7
 
 @DrawImage("mother", 4)
 @IgnoresNetwork()
@@ -470,6 +703,26 @@ class Target(WorldThing):
 @Alive()
 @DrawImageOverParent("starget", 2)
 class ShipTarget(Thing):
+	pass
+
+@DrawBubbles()
+class Bubbler(WorldThing):
+	pass
+
+@Hidden(20)
+@DrawConvergence()
+class Convergence(WorldThing):
+	pass
+
+@Lifetime(1)
+@DrawBubble()
+class Bubble(WorldThing):
+	pass
+
+@Lifetime(1)
+@Converges()
+@DrawBubbleChain()
+class BubbleChain(WorldThing):
 	pass
 
 def dump():

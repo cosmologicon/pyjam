@@ -5,7 +5,10 @@ from src import window, ptext
 
 cache = {}
 def get(filename, s = 1, angle = 0, alpha = 1):
-	angle = int(round(angle)) % 360
+	if filename == "slash":
+		angle = int(round(angle / 5)) * 5 % 90
+	else:
+		angle = int(round(angle)) % 360
 	alpha = int(round(alpha * 16)) / 16
 	key = filename, s, angle, alpha
 	if key in cache:
