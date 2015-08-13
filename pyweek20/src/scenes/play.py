@@ -9,7 +9,7 @@ control = {}
 
 def init():
 	quest.quests["Act1"].available = True
-	state.you = thing.Beacon(X = 0, y = state.R - 5, vx = 1)
+	state.you = thing.Skiff(X = 0, y = state.R - 5, vx = 1)
 	state.ships = [state.you]
 	state.mother = thing.Mother(X = 0, y = state.R)
 	state.objs = [state.mother]

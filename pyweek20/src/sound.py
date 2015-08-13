@@ -18,4 +18,11 @@ def playstatic(t):
 	sound.play()
 	return sound
 
+sounds = {}
+def play(name):
+	if name not in sounds:
+		print("Missing sound: " + name)
+		sounds[name] = None
+
+
 

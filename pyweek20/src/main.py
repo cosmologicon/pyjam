@@ -11,7 +11,7 @@ pygame.mixer.init()
 background.init()
 
 lastscene = None
-scene.current = intro
+scene.current = play
 
 clock = pygame.time.Clock()
 playing = True

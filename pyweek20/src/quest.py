@@ -84,13 +84,18 @@ class Act1(Quest):
 			self.goal = payload.thingid
 		if self.progress == 1:
 			payload = thing.get(self.goal)
-			if window.distance(payload, state.you) < 5:
+			if window.distance(payload, state.you) < 20:
 				dialog.play("firstsatellite2")
 				self.progress = 2
 		if self.progress == 2:
-			if window.distance(state.mother, state.you) < 8:
+			payload = thing.get(self.goal)
+			if payload.isvisible():
 				dialog.play("firstsatellite3")
 				self.progress = 3
+		if self.progress == 3:
+			if window.distance(state.mother, state.you) < 8:
+				dialog.play("firstsatellite4")
+				self.progress = 4
 		
 
 def think(dt):

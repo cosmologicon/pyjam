@@ -1,6 +1,6 @@
 from __future__ import division
 import math, random, pygame
-from src import window, image, state, hud
+from src import window, image, state, hud, sound
 from src.window import F
 from src.enco import Component
 
@@ -163,6 +163,32 @@ class DrawImage(Component):
 			return
 		image.worlddraw(self.imgname, self.X, self.y, self.imgr)
 
+class DrawHiddenImage(Component):
+	def __init__(self, imgname, imgr = 1):
+		self.imgname = imgname
+		self.imgr = imgr
+	def init(self, tvisible = 0, **kwargs):
+		self.tvisible = tvisible
+	def dump(self, obj):
+		obj["tvisible"] = self.tvisible
+	def isvisible(self):
+		for obj in state.beacons:
+			if window.distance(obj, self) < settings.beacondetect:
+				return True
+		return False		
+	def think(self, dt):
+		if self.isvisible():
+			self.tvisible += dt
+		else:
+			self.tvisible = 0
+	def draw(self):
+		if self.y <= 0:
+			return
+		if not self.isvisible():
+			return
+		alpha = min(self.tvisible, 0.5 * math.sin(self.t))
+		image.worlddraw(self.imgname, self.X, self.y, self.imgr, alpha = alpha)
+
 class DrawImageOverParent(Component):
 	def __init__(self, imgname, imgr = 1):
 		self.imgname = imgname
@@ -237,10 +263,7 @@ class IgnoresNetwork(Component):
 	def rnetwork(self):
 		return 0
 
-# Freezes in place when deployed
-class DeployComm(Component):
-	def __init__(self, networkreach = 20):
-		self.networkreach = networkreach
+class CanDeploy(Component):
 	def init(self, deployed = False, **kwargs):
 		self.deployed = deployed
 	def dump(self, obj):
@@ -248,10 +271,23 @@ class DeployComm(Component):
 	def deploy(self):
 		self.deployed = not self.deployed
 		self.significant = self.deployed
-		state.buildnetwork()
+		sound.play("chirpup" if self.deployed else "chirpdown")
+
+class CantDeploy(Component):
+	def deploy(self):
+		sound.play("splat")
+
+class DeployFreeze(Component):
 	def think(self, dt):
 		if self.deployed:
 			self.vx = self.vy = 0
+
+# Freezes in place when deployed
+class DeployComm(Component):
+	def __init__(self, networkreach = 20):
+		self.networkreach = networkreach
+	def deploy(self):
+		state.buildnetwork()
 	def rnetwork(self):
 		return self.networkreach if self.deployed else 0
 	def draw(self):
@@ -310,9 +346,17 @@ class DrawMinimap(Component):
 	def drawhud(self):
 		hud.drawminimap()
 
+class BeaconDeploy(Component):
+	def deploy(self):
+		if self in state.beacons:
+			state.beacons.remove(self)
+		if self.deployed:
+			state.beacons.append(self)
+		state.buildnetwork()
+
 class DrawGoalArrows(Component):
 	def draw(self):
-		if self is not state.you:
+		if not self.deployed:
 			return
 		px0, py0 = window.screenpos(self.X, self.y)
 		for obj in state.goals:
@@ -344,7 +388,7 @@ class WorldThing(Thing):
 	pass
 
 @HorizontalOscillation(2, 1)
-@DrawImage("payload")
+@DrawHiddenImage("payload")
 class Payload(WorldThing):
 	pass
 
@@ -368,6 +412,7 @@ class Trainer(Ship):
 @HasMaximumVerticalVelocity(10)
 @DrawImage("skiff")
 @IgnoresNetwork()
+@CantDeploy()
 class Skiff(Ship):
 	pass
 
@@ -379,6 +424,9 @@ class Skiff(Ship):
 @IgnoresNetwork()
 @DrawGoalArrows()
 @DrawMinimap()
+@CanDeploy()
+@DeployFreeze()
+@BeaconDeploy()
 class Beacon(Ship):
 	pass
 
@@ -387,6 +435,8 @@ class Beacon(Ship):
 @VerticalWeight(2)
 @HasMaximumVerticalVelocity(4)
 @DrawImage("comm")
+@CanDeploy()
+@DeployFreeze()
 @DeployComm()
 class CommShip(Ship):
 	pass

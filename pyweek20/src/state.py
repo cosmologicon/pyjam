@@ -11,6 +11,7 @@ ships = []
 objs = []
 filaments = []
 hazards = []
+beacons = []  # Deployed beacons
 effects = []
 
 network0 = []

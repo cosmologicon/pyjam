@@ -21,7 +21,10 @@ def get(filename, s = 1, angle = 0, alpha = 1):
 	else:
 		path = os.path.join("data", "img", filename + ".png")
 		if os.path.exists(path):
-			img = pygame.image.load(path).convert_alpha()
+			img = pygame.image.load(path)
+			if filename in ("skiff"):
+				img.set_colorkey((255, 255, 255))
+			img = img.convert_alpha()
 		else:
 			img = pygame.Surface((40, 40)).convert_alpha()
 			img.fill((random.randint(100, 250), random.randint(100, 250), random.randint(100, 250), 80))

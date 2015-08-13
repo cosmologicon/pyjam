@@ -15,4 +15,5 @@ windowsize = windowsize0
 jumpcombotime = 0.08
 maxjump = 30
 
+beacondetect = 8
 
