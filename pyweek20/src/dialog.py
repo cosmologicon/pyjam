@@ -18,6 +18,12 @@ def play(name):
 	played[name] = True
 	queue.extend(lines[name])
 
+def dump():
+	return [played, queue]
+def load(obj):
+	global played, queue
+	played, queue = obj
+
 playing = None
 playingends = 0
 currentline = None

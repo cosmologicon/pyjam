@@ -11,8 +11,13 @@ pygame.display.set_caption(settings.gamename)
 pygame.mixer.init()
 background.init()
 
-lastscene = None
-scene.current = play
+if os.path.exists(settings.savename):
+	scene.current = play
+	lastscene = play
+	state.load()
+else:
+	scene.current = intro
+	lastscene = None
 
 clock = pygame.time.Clock()
 playing = True
@@ -45,6 +50,10 @@ while playing:
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F4:
 			state.you.y = 100
 			state.you.hp += 100
+		if event.type == KEYDOWN and event.key == K_F5 and scene.current is play:
+			state.save()
+		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F6:
+			scene.current = play
 	kpressed = pygame.key.get_pressed()
 	if scene.current is not lastscene:
 		scene.current.init()
@@ -71,5 +80,7 @@ while playing:
 			bottomright = (window.sx - F(10), window.sy - F(10)), cache = False)
 	pygame.display.flip()
 
+if scene.current is play and settings.autosave:
+	state.save()
 pygame.quit()
 

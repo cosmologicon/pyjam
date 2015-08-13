@@ -98,6 +98,15 @@ class Act1(Quest):
 				self.progress = 4
 		
 
+class Act2(Quest):
+	def __init__(self):
+		Quest.__init__(self)
+	def think(self, dt):
+		if self.done or not self.available:
+			return
+		self.t += dt
+		
+
 def think(dt):
 	for quest in quests.values():
 		quest.think(dt)
@@ -112,5 +121,5 @@ def dump():
 	return data
 def load(obj):
 	for qname, quest in quests.items():
-		quest.load(data[qname])
+		quest.load(obj[qname])
 

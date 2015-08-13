@@ -1,5 +1,5 @@
 from __future__ import division
-import pygame, math, sys, os.path, json
+import pygame, math, sys, os.path, json, random
 from pygame.locals import *
 sys.path.insert(1, sys.path[0] + "/..")
 from src import ptext
@@ -7,9 +7,27 @@ from src import ptext
 tau = 2 * math.pi
 
 R = 500
-Rcore = 50
+Rcore = 30
 payloads = []
 filaments = []
+convergences = []
+
+for j in range(6):
+	X0 = (j / 6 + 0.5) * tau
+	y0 = [100, 240, 180, 300, 130, 250][j]
+	convergences.extend([
+		(X0, y0),
+		(X0 + 0.15, y0 + 100),
+		(X0 - 0.2, y0 + 130),
+	])
+
+convergences = [
+	(random.uniform(0, tau), random.uniform(Rcore + 30, R - 30))
+	for _ in range(20)
+]
+convergences = [
+	(tau / 1.618 * j, 100 * math.sqrt(j)) for j in range(1, 21)
+]
 
 if os.path.exists("data/worlddata.json"):
 	data = json.load(open("data/worlddata.json", "r"))
@@ -68,6 +86,8 @@ while playing:
 	pygame.draw.circle(screen, (0, 60, 0), screenpos(0, 0), int(340 * scale), 1)
 	for X, y in payloads:
 		pygame.draw.circle(screen, (255, 0, 255), screenpos(X, y), 2)
+	for X, y in convergences:
+		pygame.draw.circle(screen, (255, 255, 255), screenpos(X, y), 2)
 	for filament in filaments:
 		if len(filament) > 1:
 			pygame.draw.lines(screen, (255, 255, 0), False, [screenpos(X, y) for X, y in filament])
@@ -79,6 +99,7 @@ obj = {
 	"Rcore": Rcore,
 	"payloads": payloads,
 	"filaments": filaments,
+	"convergences": convergences,
 }
 json.dump(obj, open("data/worlddata.json", "w"))
 

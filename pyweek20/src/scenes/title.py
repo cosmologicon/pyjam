@@ -32,6 +32,7 @@ def think(dt, events, kpressed):
 	hud.think(dt)
 	quest.think(dt)
 	dialog.think(dt)
+	background.flowt += 4 * dt
 
 	for event in (events or []):
 		if event.type == KEYUP and event.key == K_SPACE:

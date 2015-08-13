@@ -248,7 +248,7 @@ class DrawHiddenImage(Component):
 			return
 		if not self.tvisible:
 			return
-		alpha = min(self.tvisible, 0.5 * math.sin(self.t))
+		alpha = min(self.tvisible, 0.5 + 0.4 * math.sin(self.t))
 		image.worlddraw(self.imgname, self.X, self.y, self.imgr, alpha = alpha)
 
 class DrawImageOverParent(Component):
@@ -315,7 +315,7 @@ class DrawTremor(Component):
 
 class DrawSlash(Component):
 	def __init__(self):
-		self.nimgs = 10
+		self.nimgs = 15
 		self.timg = 2.5
 	def init(self, imgs = None, **kwargs):
 		self.imgs = imgs or []
@@ -476,6 +476,13 @@ class DrawMinimap(Component):
 	def drawhud(self):
 		hud.drawminimap()
 
+class MapperDeploy(Component):
+	def drawhud(self):
+		if self.deployed:
+			hud.drawmap()
+		else:
+			hud.drawminimap()
+
 class DrawGoalArrows(Component):
 	def draw(self):
 		if not self.deployed:
@@ -559,8 +566,8 @@ class DrawBubble(Component):
 class DrawBubbleChain(Component):
 	def think(self, dt):
 		if random.random() * 0.15 < dt:
-			X = random.gauss(self.X, 2 / self.y)
-			y = random.gauss(self.y, 2)
+			X = random.gauss(self.X, 1 / self.y)
+			y = random.gauss(self.y, 1)
 			state.effects.append(Bubble(X = X, y = y))
 	def draw(self):
 		pass
@@ -613,6 +620,19 @@ class Trainer(Ship):
 class Skiff(Ship):
 	pass
 
+@HasHealth(3)
+@Drifts()
+@HasMaximumHorizontalVelocity(6)
+@VerticalWeight(3)
+@HasMaximumVerticalVelocity(3)
+@DrawImageFlash("mapper")
+@IgnoresNetwork()
+@CanDeploy()
+@DeployFreeze()
+@MapperDeploy()
+class Mapper(Ship):
+	pass
+
 @HasHealth(4)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
@@ -620,8 +640,6 @@ class Skiff(Ship):
 @HasMaximumVerticalVelocity(3)
 @DrawImageFlash("beacon")
 @IgnoresNetwork()
-@DrawGoalArrows()
-@DrawMinimap()
 @CanDeploy()
 @DeployFreeze()
 @BeaconDeploy()
@@ -719,7 +737,7 @@ class Convergence(WorldThing):
 class Bubble(WorldThing):
 	pass
 
-@Lifetime(1)
+@Lifetime(5)
 @Converges()
 @DrawBubbleChain()
 class BubbleChain(WorldThing):

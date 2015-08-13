@@ -8,6 +8,8 @@ maxfps = 60
 drawbackground = True
 
 DEBUG = True
+autosave = False
+savename = "data/savegame.json"
 
 windowsize = windowsize0
 

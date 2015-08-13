@@ -13,24 +13,22 @@ def init():
 	state.ships = [state.you]
 	state.mother = thing.Mother(X = 0, y = state.R)
 	state.objs = [state.mother]
-	state.objs += [
-		thing.Bubbler(X = random.uniform(0, math.tau), y = random.uniform(state.Rcore, state.R))
-		for _ in range(500)
-	]
 	state.convergences = [
-		thing.Convergence(X = 0, y = 440),
+		thing.Convergence(X = X, y = y)
+		for X, y in state.worlddata["convergences"]
 	]
-	state.filaments = [thing.Filament(ladderps = state.worlddata["filaments"][0])]
+#	state.filaments = [thing.Filament(ladderps = state.worlddata["filaments"][0])]
 	state.hazards = [
 		thing.Slash(X = random.uniform(0, math.tau), y = random.uniform(state.Rcore, state.R))
 		for _ in range(500)
 	]
-	for j in range(len(state.worlddata["filaments"][0]) - 1):
-		X0, y0 = state.worlddata["filaments"][0][j]
-		X1, y1 = state.worlddata["filaments"][0][j+1]
-		state.hazards.append(thing.Rung(X = X0, y = y0))
-		state.hazards.append(thing.Rung(X = (X0 + X1) / 3, y = (y0 + y1) / 3))
-		state.hazards.append(thing.Rung(X = (X0 + X1) * 2 / 3, y = (y0 + y1) * 2 / 3))
+	for filament in state.worlddata["filaments"]:
+		for j in range(len(filament) - 1):
+			X0, y0 = filament[j]
+			X1, y1 = filament[j+1]
+			state.hazards.append(thing.Rung(X = X0, y = y0))
+			state.hazards.append(thing.Rung(X = (X0 + X1) / 3, y = (y0 + y1) / 3))
+			state.hazards.append(thing.Rung(X = (X0 + X1) * 2 / 3, y = (y0 + y1) * 2 / 3))
 
 	for _ in range(400):
 		state.ships.append(thing.Skiff(
@@ -39,6 +37,11 @@ def init():
 			vx = random.uniform(-6, 6)
 		))
 		state.ships.append(thing.Beacon(
+			X = random.uniform(0, math.tau),
+			y = state.R * math.sqrt(random.random()),
+			vx = random.uniform(-6, 6)
+		))
+		state.ships.append(thing.Mapper(
 			X = random.uniform(0, math.tau),
 			y = state.R * math.sqrt(random.random()),
 			vx = random.uniform(-6, 6)
@@ -72,7 +75,6 @@ def think(dt, events, kpressed):
 			vx = random.uniform(-6, 6)
 		))
 	nbubble = int(dt * 30) + (random.random() < dt * 30 % 1)
-	nbubble = 0
 	for _ in range(nbubble):
 		X = random.gauss(state.you.X, 30 / state.you.y)
 		y = random.gauss(state.you.y, 30)
@@ -80,7 +82,7 @@ def think(dt, events, kpressed):
 			state.effects.append(thing.Bubble(X = X, y = y))
 
 	for c in state.convergences:
-		N = math.clamp(100 / window.distance(state.you, c), 0.5, 3)
+		N = math.clamp((200 / window.distance(state.you, c)) ** 2, 0.1, 6)
 		nbubble = int(dt * N) + (random.random() < dt * N % 1)
 		for _ in range(nbubble):
 			X = random.gauss(state.you.X, 30 / state.you.y)
@@ -248,11 +250,6 @@ def retarget():
 
 
 def draw():
-#	for y in range(10, 200, 10):
-#		for jX in range(20):
-#			X = math.tau * jX / 20
-#			p = window.screenpos(X, y)
-#			pygame.draw.circle(window.screen, (0, 100, 0), p, window.F(3))
 	if settings.drawbackground:
 		window.screen.fill((20, 0, 0))
 		background.draw()
@@ -261,12 +258,6 @@ def draw():
 	for obj in todraw:
 		obj.draw()
 
-	for ship0, ship1 in state.network:
-		p0 = window.screenpos(ship0.X, ship0.y)
-		p1 = window.screenpos(ship1.X, ship1.y)
-		pygame.draw.line(window.screen, (255, 255, 0), p0, p1, F(3))
-
-#	background.drawfilament()
 	if "cursor" in control:
 		pos = control["cursor"].screenpos()
 		pygame.draw.circle(window.screen, (200, 100, 0), pos, window.F(15), 1)

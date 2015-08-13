@@ -1,4 +1,5 @@
 import json, os.path
+from src import settings
 
 worlddata = json.load(open(os.path.join("data", "worlddata.json")))
 R = worlddata["R"]
@@ -9,15 +10,10 @@ mother = None
 target = None
 ships = []
 objs = []
-filaments = []
 hazards = []
-beacons = []  # Deployed beacons
-shields = []  # Deployed shields
 effects = []
+beacons = []
 convergences = []
-
-network0 = []
-network = []
 
 goals = []
 
@@ -42,4 +38,58 @@ def buildnetwork():
 	# TODO: remove triangles
 	for id0, id1 in ds:
 		network.append((thing.get(id0), thing.get(id1)))
+
+def save():
+	import window, thing, quest, dialog
+	def getids(x):
+		if x is None:
+			return None
+		if isinstance(x, list):
+			return [a.thingid for a in x]
+		return x.thingid
+	savestate = {
+		"you": getids(you),
+		"mother": getids(mother),
+		"target": getids(target),
+		"ships": getids(ships),
+		"objs": getids(objs),
+		"hazards": getids(hazards),
+		"beacons": getids(beacons),
+		"effects": getids(effects),
+		"convergences": getids(convergences),
+		"goals": getids(goals),
+		"quickteleport": quickteleport,
+		"camera": window.camera.dump(),
+		"thing": thing.dump(),
+		"quest": quest.dump(),
+		"dialog": dialog.dump(),
+	}
+	json.dump(savestate, open(settings.savename, "w"))
+
+def load():
+	import window, thing, quest, dialog
+	savestate = json.load(open(settings.savename))
+	thing.load(savestate["thing"])
+	window.camera.load(savestate["camera"])
+	quest.load(savestate["quest"])
+	dialog.load(savestate["dialog"])
+	def getthings(x):
+		if x is None:
+			return None
+		if isinstance(x, list):
+			return [thing.get(a) for a in x]
+		return thing.get(x)
+	global you, mother, target, ships, objs, hazards, beacons, effects, convergences, goals, quickteleport
+	you = getthings(savestate["you"])
+	mother = getthings(savestate["mother"])
+	target = getthings(savestate["target"])
+	ships = getthings(savestate["ships"])
+	objs = getthings(savestate["objs"])
+	hazards = getthings(savestate["hazards"])
+	beacons = getthings(savestate["beacons"])
+	effects = getthings(savestate["effects"])
+	convergences = getthings(savestate["convergences"])
+	goals = getthings(savestate["goals"])
+	quickteleport = savestate["quickteleport"]
+
 

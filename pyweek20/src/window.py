@@ -66,6 +66,14 @@ class Camera(object):
 		if oldfollow is None:
 			self.tfollow = 0
 			self.think(0)
+	def dump(self):
+		return [self.X0, self.y0, self.R, (self.following.thingid if self.following else None),
+			self.oldX, self.oldy, self.tfollow]
+	def load(self, obj):
+		from src import thing
+		(self.X0, self.y0, self.R, self.following, self.oldX, self.oldy, self.tfollow) = obj
+		if self.following is not None:
+			self.following = thing.get(self.following)
 
 camera = Camera()
 
