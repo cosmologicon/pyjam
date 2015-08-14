@@ -35,9 +35,8 @@ def think(dt, events, kpressed):
 	background.flowt += 4 * dt
 
 	for event in (events or []):
-		if event.type == KEYUP and event.key == K_SPACE:
-			if t > 6:
-				scene.current = play
+		if event.type == KEYUP and event.key == "go" and t > 6:
+			scene.current = play
 		
 	for ship in state.ships:
 		ship.think(dt)

@@ -411,11 +411,14 @@ class DeployComm(Component):
 
 class BeaconDeploy(Component):
 	def deploy(self):
+		nvis0 = sum(obj.nvisible() for obj in state.goals + state.convergences)
 		if self in state.beacons:
 			state.beacons.remove(self)
 		if self.deployed:
 			state.beacons.append(self)
-		state.buildnetwork()
+		nvis1 = sum(obj.nvisible() for obj in state.goals + state.convergences)
+		if nvis1 > nvis0:
+			sound.play("reveal")
 
 class DeployShield(Component):
 	def deploy(self):
@@ -571,6 +574,19 @@ class DrawBubbleChain(Component):
 			state.effects.append(Bubble(X = X, y = y))
 	def draw(self):
 		pass
+
+class DrawTeleport(Component):
+	def init(self, targetid, **kwargs):
+		self.targetid = targetid
+	def dump(self, obj):
+		obj["targetid"] = self.targetid
+	def draw(self):
+		target = get(self.targetid)
+		if not target:
+			return
+		X = self.X + self.flife * (target.X - self.X)
+		y = self.y + self.flife * (target.y - self.y)
+		image.worlddraw("teleport", X, y, 1)
 
 # Base class for things
 @HasId()
@@ -741,6 +757,11 @@ class Bubble(WorldThing):
 @Converges()
 @DrawBubbleChain()
 class BubbleChain(WorldThing):
+	pass
+
+@Lifetime(0.25)
+@DrawTeleport()
+class Teleport(WorldThing):
 	pass
 
 def dump():

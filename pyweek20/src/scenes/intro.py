@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, math, random, time
 from pygame.locals import *
-from src import window, thing, settings, state, hud, quest, background, dialog
+from src import window, thing, settings, state, hud, quest, background, dialog, sound
 from src.window import F
 
 
@@ -21,46 +21,63 @@ def init():
 	state.hazards = []
 
 def think(dt, events, kpressed):
-	kx = kpressed[K_RIGHT] - kpressed[K_LEFT]
-	ky = kpressed[K_UP] - kpressed[K_DOWN]
+	kx = kpressed["right"] - kpressed["left"]
+	ky = kpressed["up"] - kpressed["down"]
 
 	dt0 = dt
-	if kpressed[K_SPACE]:
+	if kpressed["go"] and control:
 		dt *= 0.3
 
 	hud.think(dt0)
 	quest.think(dt)
 	dialog.think(dt0)
+	background.flowt += dt
 
 	for event in events:
-		if event.type == KEYDOWN and event.key == K_SPACE:
+		if event.type == KEYDOWN and event.key == "go":
 			control.clear()
 			control["cursor"] = state.you
 			control["queue"] = {}
+			control["qtarget"] = [state.you.X, state.you.y]
 		if event.type == KEYUP:
-			if "queue" in control and event.key in (K_UP, K_LEFT, K_RIGHT, K_DOWN):
+			if not state.quickteleport and "queue" in control and event.key in ("up", "left", "right", "down"):
 				control["queue"][event.key] = 0
-		if event.type == KEYUP and event.key == K_SPACE and "cursor" in control:
+		if event.type == KEYUP and event.key == "go" and "cursor" in control:
 			if control["cursor"] is not state.you:
+				state.effects.append(
+					thing.Teleport(X = state.you.X, y = state.you.y, targetid = control["cursor"].thingid)
+				)
+				sound.play("teleport")
 				state.you = control["cursor"]
 			control.clear()
 
-	if kpressed[K_SPACE]:
-		q = control["queue"]
-		for key in q:
-			q[key] += dt0
-			if q[key] >= settings.jumpcombotime:
-				dx = (K_RIGHT in q) - (K_LEFT in q)
-				dy = (K_UP in q) - (K_DOWN in q)
-				jump(dx, dy)
-				q.clear()
-				break
-
-	dvx = kx * dt * 20
-	dvy = ky * dt * 20
-
-	state.you.vx += dvx
-	state.you.vy += dvy
+	if kpressed["go"] and control:
+		if state.quickteleport:
+			control["qtarget"][0] += kx * dt0 * settings.vqteleport / control["qtarget"][1]
+			control["qtarget"][1] += ky * dt0 * settings.vqteleport
+			dx = math.Xmod(control["qtarget"][0] - state.you.X) * state.you.y
+			dy = control["qtarget"][1] - state.you.y
+			f = math.sqrt(dx ** 2 + dy ** 2) / settings.rqteleport
+			if f > 1:
+				dx /= f
+				dy /= f
+				control["qtarget"] = [state.you.X + dx / state.you.y, state.you.y + dy]
+			retarget()
+		else:
+			q = control["queue"]
+			for key in q:
+				q[key] += dt0
+				if q[key] >= settings.jumpcombotime:
+					dx = ("right" in q) - ("left" in q)
+					dy = ("up" in q) - ("down" in q)
+					jump(dx, dy)
+					q.clear()
+					break
+	else:
+		dvx = kx * dt * 20
+		dvy = ky * dt * 20
+		state.you.vx += dvx
+		state.you.vy += dvy
 
 	state.you.think(0)  # Clear out any controls that should be overridden
 	for ship in state.ships:
@@ -96,6 +113,20 @@ def jump(kx, ky):
 	if target:
 		control["cursor"] = target
 
+def retarget():
+	target = None
+	d2 = 4 * settings.rqteleport ** 2
+	X, y = control["qtarget"]
+	for ship in state.ships:
+		if window.distance(ship, state.you) > settings.rqteleport:
+			continue
+		dx = math.Xmod(ship.X - X) * (ship.y + y) / 2
+		dy = ship.y - y
+		if dx ** 2 + dy ** 2 < d2:
+			target = ship
+			d2 = dx ** 2 + dy ** 2
+	if target:
+		control["cursor"] = target
 
 def draw():
 	window.screen.fill((0, 0, 0))
@@ -107,6 +138,9 @@ def draw():
 	if "cursor" in control:
 		pos = control["cursor"].screenpos()
 		pygame.draw.circle(window.screen, (200, 100, 0), pos, window.F(15), 1)
+	if "qtarget" in control:
+		pos = window.screenpos(*control["qtarget"])
+		pygame.draw.circle(window.screen, (100, 0, 200), pos, window.F(6), 1)
 	dialog.draw()
 	hud.draw()
 

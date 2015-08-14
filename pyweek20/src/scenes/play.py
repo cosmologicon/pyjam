@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, math, random, time
 from pygame.locals import *
-from src import window, thing, settings, state, hud, quest, background, dialog
+from src import window, thing, settings, state, hud, quest, background, dialog, sound
 from src.window import F
 
 
@@ -51,11 +51,11 @@ def init():
 
 def think(dt, events, kpressed):
 	global todraw
-	kx = kpressed[K_RIGHT] - kpressed[K_LEFT]
-	ky = kpressed[K_UP] - kpressed[K_DOWN]
+	kx = kpressed["right"] - kpressed["left"]
+	ky = kpressed["up"] - kpressed["down"]
 
 	dt0 = dt
-	if kpressed[K_SPACE]:
+	if kpressed["go"] and control:
 		dt *= 0.3
 
 	hud.think(dt0)
@@ -92,25 +92,32 @@ def think(dt, events, kpressed):
 
 
 	for event in events:
-		if event.type == KEYDOWN and event.key == K_SPACE:
+		if event.type == KEYDOWN and event.key == "go":
 			control.clear()
 			control["cursor"] = state.you
 			control["queue"] = {}
 			control["qtarget"] = [state.you.X, state.you.y]
-		if event.type == KEYDOWN and event.key == K_LSHIFT:
-			state.you.deploy()
-		if event.type == KEYDOWN and event.key == K_BACKSPACE:
+			control["t0"] = 0.001 * pygame.time.get_ticks()
+		if event.type == KEYDOWN and event.key == "abort":
 			state.you.die()
 			regenerate()
 		if event.type == KEYUP:
-			if not state.quickteleport and "queue" in control and event.key in (K_UP, K_LEFT, K_RIGHT, K_DOWN):
+			if not state.quickteleport and "queue" in control and event.key in ("up", "left", "right", "down"):
 				control["queue"][event.key] = 0
-		if event.type == KEYUP and event.key == K_SPACE and "cursor" in control:
+		if event.type == KEYUP and event.key == "go" and "cursor" in control:
 			if control["cursor"] is not state.you:
+				state.effects.append(
+					thing.Teleport(X = state.you.X, y = state.you.y, targetid = control["cursor"].thingid)
+				)
+				sound.play("teleport")
 				state.you = control["cursor"]
+			elif 0.001 * pygame.time.get_ticks() - control["t0"] < settings.tactivate:
+				state.you.deploy()
 			control.clear()
 		
-	if kpressed[K_SPACE]:
+	if kpressed["go"] and control:
+		if any(kpressed[x] for x in ("left", "right", "up", "down")):
+			control["t0"] = -1000
 		if state.quickteleport:
 			control["qtarget"][0] += kx * dt0 * settings.vqteleport / control["qtarget"][1]
 			control["qtarget"][1] += ky * dt0 * settings.vqteleport
@@ -127,8 +134,8 @@ def think(dt, events, kpressed):
 			for key in q:
 				q[key] += dt0
 				if q[key] >= settings.jumpcombotime:
-					dx = (K_RIGHT in q) - (K_LEFT in q)
-					dy = (K_UP in q) - (K_DOWN in q)
+					dx = ("right" in q) - ("left" in q)
+					dy = ("up" in q) - ("down" in q)
 					jump(dx, dy)
 					q.clear()
 					break
@@ -216,6 +223,7 @@ def think(dt, events, kpressed):
 def regenerate():
 	state.you = thing.Skiff(X = state.mother.X, y = state.mother.y - 5, vx = 0)
 	state.ships.append(state.you)
+	sound.play("longteleport")
 
 
 def jump(kx, ky):
@@ -266,6 +274,7 @@ def draw():
 		pygame.draw.circle(window.screen, (100, 0, 200), pos, window.F(6), 1)
 	dialog.draw()
 	hud.draw()
+	hud.drawstats()
 	state.you.drawhud()
 
 

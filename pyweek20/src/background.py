@@ -123,7 +123,7 @@ stars = [
 ]
 def drawstars():
 	dstars = stars[:int(window.sx * window.sy / 1000)]
-	t = window.sy * 0.3 * 0.001 * pygame.time.get_ticks()
+	t = window.sy * 0.3 * flowt
 	for f, x, y in dstars:
 		px = int(x) % window.sx
 		py = int(y - t * f) % window.sy

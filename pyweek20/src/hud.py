@@ -73,7 +73,7 @@ def drawmap():
 		X = math.tau * j / 48
 		p1 = window.windowpos(X, r0, w, w, 0, 0, scale)
 		p2 = window.windowpos(X, state.R, w, w, 0, 0, scale)
-		pygame.draw.line(fullmap, (255, 255, 255, 60), p1, p2, F(1))
+		pygame.draw.line(fullmap, (30, 60, 30), p1, p2, F(1))
 	objs = []
 	if 0.001 * pygame.time.get_ticks() % 0.5 < 0.25:
 		objs += [(state.you, (200, 200, 200))]

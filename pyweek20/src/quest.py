@@ -88,30 +88,31 @@ class Intro(Quest):
 class Act1(Quest):
 	def __init__(self):
 		Quest.__init__(self)
+		self.goals = []
 	def think(self, dt):
 		if self.done or not self.available:
 			return
 		self.t += dt
 		if self.progress == 0 and self.t > 1:
-			dialog.play("firstsatellite1")
+			dialog.play("act1-1")
 			self.progress = 1
-			payload = thing.Payload(pos = state.worlddata["payloads"][0])
-			state.objs.append(payload)
-			state.goals.append(payload)
-			self.goal = payload.thingid
+			payloads = [
+				thing.Payload(pos = pos) for pos in state.worlddata["payloads"][:3]
+			]
+			state.objs.extend(payloads)
+			state.goals.extend(payloads)
+			self.goals = [p.thingid for p in payloads]
 		if self.progress == 1:
-			payload = thing.get(self.goal)
-			if window.distance(payload, state.you) < 20:
-				dialog.play("firstsatellite2")
+			if any(window.distance(thing.get(goal), state.you) < 20 for goal in self.goals):
+				dialog.play("act1-2")
 				self.progress = 2
-		if self.progress == 2:
-			payload = thing.get(self.goal)
-			if payload.isvisible():
-				dialog.play("firstsatellite3")
+		if self.progress >= 2:
+			nvisible = sum(thing.get(goal).isvisible() for goal in self.goals)
+			if self.progress == 2 and nvisible >= 2:
+				dialog.play("act1-3")
 				self.progress = 3
-		if self.progress == 3:
-			if window.distance(state.mother, state.you) < 8:
-				dialog.play("firstsatellite4")
+			if self.progress == 3 and nvisible == 3:
+				dialog.play("act1-4")
 				self.progress = 4
 		
 
