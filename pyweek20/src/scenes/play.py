@@ -30,24 +30,46 @@ def init():
 			state.hazards.append(thing.Rung(X = (X0 + X1) / 3, y = (y0 + y1) / 3))
 			state.hazards.append(thing.Rung(X = (X0 + X1) * 2 / 3, y = (y0 + y1) * 2 / 3))
 
-	for _ in range(400):
-		state.ships.append(thing.Skiff(
-			X = random.uniform(0, math.tau),
-			y = state.R * math.sqrt(random.random()),
-			vx = random.uniform(-6, 6)
-		))
-		state.ships.append(thing.Beacon(
-			X = random.uniform(0, math.tau),
-			y = state.R * math.sqrt(random.random()),
-			vx = random.uniform(-6, 6)
-		))
-		state.ships.append(thing.Mapper(
-			X = random.uniform(0, math.tau),
-			y = state.R * math.sqrt(random.random()),
-			vx = random.uniform(-6, 6)
-		))
+	window.camera.follow(state.you)
+	window.camera.think(0)
 
+	state.shipyard = {
+		"Skiff": 2000,
+		"Mapper": 0,
+	}
+	populatefull()
 
+def clearfull():
+	state.ships = [ship for ship in state.ships if ship is state.you or ship.significant]
+
+def populatefull():
+	for shiptype, number in state.shipyard.items():
+		shiptype = getattr(thing, shiptype)
+		for _ in range(number):
+			X = random.uniform(0, math.tau)
+			y = math.sqrt(random.random()) * state.R
+			if not state.Rcore + 1 < y < state.R - 1:
+				continue
+			state.ships.append(shiptype(X = X, y = y, vx = random.uniform(-6, 6)))
+
+def repopulateslice():
+	cam = window.camera
+	fraction = (cam.Cy1 ** 2 - cam.Cy0 ** 2) / state.R ** 2 * cam.CdX * 2 / math.tau
+	for shiptype, number in state.shipyard.items():
+		shiptype = getattr(thing, shiptype)
+		for _ in range(int(number * fraction)):
+			X = random.uniform(-1, 1) * cam.CdX + cam.X0
+			y = math.sqrt(random.uniform(cam.Cy0 ** 2, cam.Cy1 ** 2))
+			if not state.Rcore + 1 < y < state.R - 1:
+				continue
+			ship = shiptype(X = X, y = y, vx = random.uniform(-6, 6))
+			if window.camera.on(ship):
+				thing.kill(ship)
+				continue
+			else:
+				ship.vy = ship.targetvy()
+				state.ships.append(ship)
+	
 
 def think(dt, events, kpressed):
 	global todraw
@@ -81,14 +103,15 @@ def think(dt, events, kpressed):
 		if y < state.R - 10:
 			state.effects.append(thing.Bubble(X = X, y = y))
 
-	for c in state.convergences:
-		N = math.clamp((200 / window.distance(state.you, c)) ** 2, 0.1, 6)
-		nbubble = int(dt * N) + (random.random() < dt * N % 1)
-		for _ in range(nbubble):
-			X = random.gauss(state.you.X, 30 / state.you.y)
-			y = random.gauss(state.you.y, 30)
-			if state.Rcore < y < state.R - 20:
-				state.effects.append(thing.BubbleChain(X = X, y = y, X0 = c.X, y0 = c.y))
+	if sum(isinstance(effect, thing.BubbleChain) for effect in state.effects) < 10:
+		for c in state.convergences:
+			N = math.clamp((100 / window.distance(state.you, c)) ** 2, 0.05, 1)
+			nbubble = int(dt * N) + (random.random() < dt * N % 1)
+			for _ in range(nbubble):
+				X = random.gauss(state.you.X, 30 / state.you.y)
+				y = random.gauss(state.you.y, 30)
+				if state.Rcore < y < state.R - 20:
+					state.effects.append(thing.BubbleChain(X = X, y = y, X0 = c.X, y0 = c.y))
 
 
 	for event in events:
@@ -152,27 +175,46 @@ def think(dt, events, kpressed):
 	state.you.think(0)  # Clear out any controls that should be overridden
 
 	for convergence in state.convergences:
-		if window.onscreen(convergence):
+		if window.camera.near(convergence):
 			convergence.think(dt)
 			todraw.append(convergence)
 
-	nships = []
-	for ship in state.ships:
-		if not window.onscreen(ship):
-			nships.append(ship)
-			continue
-		ship.think(dt)
-		if ship.alive:
-			nships.append(ship)
-			todraw.append(ship)
-		else:
-			ship.die()
-			if ship is state.you:
-				regenerate()
-	state.ships = nships
+
+	repopulating = (dt + state.you.t % 1) // 1
+	if repopulating:
+		nships = []
+		for ship in state.ships:
+			if not window.camera.on(ship) and ship is not state.you and not ship.significant:
+				continue
+			ship.think(dt)
+			if ship.alive:
+				nships.append(ship)
+				todraw.append(ship)
+			else:
+				ship.die()
+				if ship is state.you:
+					regenerate()
+		state.ships = nships
+		repopulateslice()
+	else:
+		nships = []
+		for ship in state.ships:
+			if not window.camera.near(ship):
+				nships.append(ship)
+				continue
+			ship.think(dt)
+			if ship.alive:
+				nships.append(ship)
+				if window.camera.on(ship):
+					todraw.append(ship)
+			else:
+				ship.die()
+				if ship is state.you:
+					regenerate()
+		state.ships = nships
 	nobjs = []
 	for obj in state.objs:
-		if not window.onscreen(obj):
+		if not window.camera.on(obj):
 			nobjs.append(obj)
 			continue
 		obj.think(dt)
@@ -183,7 +225,7 @@ def think(dt, events, kpressed):
 			obj.die()
 	state.obj = nobjs
 	for hazard in state.hazards:
-		if not window.onscreen(hazard):
+		if not window.camera.on(hazard):
 			continue
 		hazard.think(dt)
 		todraw.append(hazard)
@@ -223,6 +265,8 @@ def think(dt, events, kpressed):
 def regenerate():
 	state.you = thing.Skiff(X = state.mother.X, y = state.mother.y - 5, vx = 0)
 	state.ships.append(state.you)
+	clearfull()
+	populatefull()
 	sound.play("longteleport")
 
 

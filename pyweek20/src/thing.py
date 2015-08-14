@@ -66,7 +66,9 @@ class HasHealth(Component):
 		if not self.vulnerable():
 			return
 		self.hp -= dhp
-		self.tflash = 1
+		if self is state.you and self.hp > 0:
+			sound.play("ouch")
+		self.tflash = settings.thurtinvulnerability
 		if self.hp <= 0:
 			self.die()
 
@@ -113,7 +115,7 @@ class HasVelocity(Component):
 		return window.screenpos(self.X, self.y)
 
 class Converges(Component):
-	def __init__(self, v = 20):
+	def __init__(self, v = 8):
 		self.v = v
 	def init(self, X0, y0, **kwargs):
 		self.X0 = X0
@@ -122,14 +124,14 @@ class Converges(Component):
 		obj["X0"] = self.X0
 		obj["y0"] = self.y0
 	def think(self, dt):
-		dx = math.Xmod(self.X0 - self.X) * self.y0
+		dx = math.Xmod(self.X0 - self.X) * self.y
 		dy = self.y0 - self.y
 		d = math.sqrt(dx ** 2 + dy ** 2)
 		if d < 5:
 			self.die()
 		else:
 			f = min(dt * self.v / d, 1)
-			self.X += dx * f / self.y0
+			self.X += dx * f / self.y
 			self.y += dy * f
 
 class Drifts(Component):
@@ -148,14 +150,6 @@ class DropsDown(Component):
 		self.dropay = dropay
 	def think(self, dt):
 		self.vy -= self.dropay * dt
-
-class VerticalWeight(Component):
-	def __init__(self, vy0):
-		self.vy0 = vy0
-	def think(self, dt):
-		if self is not state.you:
-			vy = -self.vy0 * min(state.R / self.y, 10)
-			self.vy += 0.2 * dt * (vy - self.vy)
 
 class FeelsLinearDrag(Component):
 	def __init__(self, beta):
@@ -177,6 +171,13 @@ class HasMaximumVerticalVelocity(Component):
 		self.vymax = vymax
 	def think(self, dt):
 		self.vy = math.clamp(self.vy, -self.vymax, self.vymax)
+
+class VerticalWeight(Component):
+	def targetvy(self):
+		return -self.vymax * (2 * state.Rcore / self.y)
+	def think(self, dt):
+		if self is not state.you:
+			self.vy += 0.2 * dt * (self.targetvy() - self.vy)
 
 class MovesCircularWithConstantSpeed(Component):
 	def __init__(self, speed, vomega):
@@ -332,6 +333,8 @@ class DrawSlash(Component):
 			self.imgs.append((X, y, random.uniform(0, 360), t))
 	def draw(self):
 		for X, y, angle, t in self.imgs:
+			if not state.Rcore + 5 < y < state.R - 5:
+				continue
 			t = (self.t - t) / self.timg
 			if not 0 < t < 1:
 				continue
@@ -486,6 +489,16 @@ class MapperDeploy(Component):
 		else:
 			hud.drawminimap()
 
+class WarpDeploy(Component):
+	def deploy(self):
+		sound.play("warp")
+		self.X += math.tau / 1.618
+		window.camera.X0 += math.tau / 1.618
+		self.X %= math.tau
+		window.camera.X0 %= math.tau
+		self.tflash = settings.twarpinvulnerability
+		state.effects.append(WarpEffect(X = self.X, y = self.y))
+
 class DrawGoalArrows(Component):
 	def draw(self):
 		if not self.deployed:
@@ -563,17 +576,25 @@ class DrawBubble(Component):
 		obj["color"] = self.color
 	def draw(self):
 		p = window.screenpos(self.X, self.y)
-		r = max(F(10 * self.flife), 1)
+		r = F(max(10 * self.flife, 1))
 		pygame.draw.circle(window.screen, self.color, p, r, F(1))
+
+class DrawWarpEffect(Component):
+	def draw(self):
+		p = window.screenpos(self.X, self.y)
+		for d in (10, 20, 30):
+			r = F(max(1, abs(40 * self.flife - d)))
+			pygame.draw.circle(window.screen, (255, 255, 127), p, r, F(1))
 
 class DrawBubbleChain(Component):
 	def think(self, dt):
 		if random.random() * 0.15 < dt:
-			X = random.gauss(self.X, 1 / self.y)
-			y = random.gauss(self.y, 1)
+			X = random.gauss(self.X, 0.3 / self.y)
+			y = random.gauss(self.y, 0.3)
 			state.effects.append(Bubble(X = X, y = y))
 	def draw(self):
 		pass
+#		image.worlddraw("chain", self.X, self.y, 3)
 
 class DrawTeleport(Component):
 	def init(self, targetid, **kwargs):
@@ -628,7 +649,7 @@ class Trainer(Ship):
 @Drifts()
 # @FeelsLinearDrag(3)
 @HasMaximumHorizontalVelocity(20)
-@VerticalWeight(1)
+@VerticalWeight()
 @HasMaximumVerticalVelocity(10)
 @DrawImageFlash("skiff")
 @IgnoresNetwork()
@@ -639,7 +660,7 @@ class Skiff(Ship):
 @HasHealth(3)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
-@VerticalWeight(3)
+@VerticalWeight()
 @HasMaximumVerticalVelocity(3)
 @DrawImageFlash("mapper")
 @IgnoresNetwork()
@@ -652,7 +673,7 @@ class Mapper(Ship):
 @HasHealth(4)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
-@VerticalWeight(3)
+@VerticalWeight()
 @HasMaximumVerticalVelocity(3)
 @DrawImageFlash("beacon")
 @IgnoresNetwork()
@@ -662,10 +683,21 @@ class Mapper(Ship):
 class Beacon(Ship):
 	pass
 
+@HasHealth(2)
+@Drifts()
+@HasMaximumHorizontalVelocity(12)
+@VerticalWeight()
+@HasMaximumVerticalVelocity(6)
+@DrawImageFlash("warp")
+@IgnoresNetwork()
+@WarpDeploy()
+class WarpShip(Ship):
+	pass
+
 @HasHealth(6)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
-@VerticalWeight(2)
+@VerticalWeight()
 @HasMaximumVerticalVelocity(4)
 @DrawImageFlash("comm")
 @CanDeploy()
@@ -677,7 +709,7 @@ class CommShip(Ship):
 @HasHealth(10)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
-@VerticalWeight(3)
+@VerticalWeight()
 @HasMaximumVerticalVelocity(3)
 @DrawImageFlash("shielder")
 @IgnoresNetwork()
@@ -690,7 +722,7 @@ class Shielder(Ship):
 @HasHealth(10)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
-@VerticalWeight(3)
+@VerticalWeight()
 @HasMaximumVerticalVelocity(3)
 @DrawImageFlash("heavy")
 @IgnoresNetwork()
@@ -751,6 +783,11 @@ class Convergence(WorldThing):
 @Lifetime(1)
 @DrawBubble()
 class Bubble(WorldThing):
+	pass
+
+@Lifetime(1)
+@DrawWarpEffect()
+class WarpEffect(WorldThing):
 	pass
 
 @Lifetime(5)

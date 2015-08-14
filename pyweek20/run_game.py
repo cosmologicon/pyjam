@@ -1,3 +1,5 @@
+# Yeah that's right, I tack my numerical utility functions right onto the math module. Who's gonna
+# stop me?
 import math
 math.tau = 2 * math.pi
 # Modulo an angle in radians toward zero

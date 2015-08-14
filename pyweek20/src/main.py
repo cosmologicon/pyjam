@@ -49,10 +49,10 @@ while playing:
 			fname = datetime.datetime.now().strftime("screenshot-%Y%m%d%H%M%S.png")
 			pygame.image.save(window.screen, os.path.join("screenshots", fname))
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F2:
-			print("ships %d" % len(state.ships))
-			print("objs %d" % len(state.objs))
-			print("hazards %d" % len(state.hazards))
-			print("effects %d" % len(state.effects))
+			print("ships %d %d" % (len(state.ships), sum(map(window.camera.on, state.ships))))
+			print("objs %d %d" % (len(state.objs), sum(map(window.camera.on, state.objs))))
+			print("hazards %d %d" % (len(state.hazards), sum(map(window.camera.on, state.hazards))))
+			print("effects %d %d" % (len(state.effects), sum(map(window.camera.on, state.effects))))
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F3:
 			settings.drawbackground = not settings.drawbackground
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F4:

@@ -7,6 +7,7 @@ Rcore = worlddata["Rcore"]
 
 you = None
 mother = None
+shipyard = {}
 target = None
 ships = []
 objs = []
@@ -51,6 +52,7 @@ def save():
 		"you": getids(you),
 		"mother": getids(mother),
 		"target": getids(target),
+		"shipyard": shipyard,
 		"ships": getids(ships),
 		"objs": getids(objs),
 		"hazards": getids(hazards),
@@ -81,11 +83,14 @@ def load():
 		if isinstance(x, list):
 			return [thing.get(a) for a in x]
 		return thing.get(x)
-	global you, mother, target, ships, objs, hazards, beacons, effects, convergences, goals, quickteleport
+	global you, mother, target, goals
+	global ships, shipyard, objs, hazards, beacons, effects, convergences, quickteleport
+	
 	you = getthings(savestate["you"])
 	mother = getthings(savestate["mother"])
 	target = getthings(savestate["target"])
 	ships = getthings(savestate["ships"])
+	shipyard = savestate["shipyard"]
 	objs = getthings(savestate["objs"])
 	hazards = getthings(savestate["hazards"])
 	beacons = getthings(savestate["beacons"])

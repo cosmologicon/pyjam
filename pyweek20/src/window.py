@@ -5,6 +5,9 @@
 # objects have x-velocity, and their X coordinate is updates appropriately as dX = v_x dt / y.
 # For finite changes, we use the approximation delta-x = y delta-X. This is good for most purposes,
 # as long as you don't get too close to the singularity at y = 0.
+# X in general is not normalized to the interval [0, tau) or anything like that. When checking
+# whether two objects are near each other, we need to always be aware that their X-coordinates may
+# be some multiple of tau apart. (Hence the Xmod function.)
 
 from __future__ import division
 import pygame, math
@@ -22,18 +25,20 @@ def F(x, *args):
 		return type(x)(int(f * a) for a in x)
 
 def init():
-	global screen, sx, sy, f
+	global screen, sx, sy, f, camera
 	sx, sy = settings.windowsize
-	sx0, sy0 = settings.windowsize0
 	flags = 0
-	f = 1.0
 	if settings.fullscreen:
-		sxmax, symax = max(pygame.display.list_modes())
-		f = min(sxmax / sx, symax / sy)
-		smax = min(sxmax * sy, symax * sx)
+		modes = list(pygame.display.list_modes())
+		if settings.fullscreenmaxwidth:
+			modes = [(x, y) for x, y in modes if x <= settings.fullscreenmaxwidth]
+		sxmax, symax = max(modes)
+		smax = min(sxmax * 9, symax * 16)
 		sx, sy = smax // sy, smax // sx
 		flags = flags | FULLSCREEN
+	f = sy / 480
 	screen = pygame.display.set_mode((sx, sy), flags)
+	camera = Camera()
 
 
 class Camera(object):
@@ -45,6 +50,26 @@ class Camera(object):
 		self.oldX = None
 		self.oldy = None
 		self.tfollow = 0
+		self.setlimits()
+	def setlimits(self):
+		buff = 4  # border around the screen
+		a = sx / 2 / self.R + buff
+		b = sy / 2 / self.R + buff
+		ymin = self.y0 - b
+		ymax = math.sqrt((self.y0 + b) ** 2 + a ** 2)
+		
+		self.By0 = ymin
+		self.By1 = ymax
+		self.BdX = math.atan(a / ymin) if ymin > 1 else math.tau / 2
+		self.Cy0 = ymin - settings.regionbuffer
+		self.Cy1 = ymax + settings.regionbuffer
+		self.CdX = self.BdX + settings.regionbuffer / ymin if self.Cy1 > 1 else math.tau / 2
+	# within region B
+	def on(self, obj):
+		return self.By0 <= obj.y <= self.By1 and abs(math.Xmod(self.X0 - obj.X)) <= self.BdX
+	# within region C
+	def near(self, obj):
+		return self.Cy0 <= obj.y <= self.Cy1 and abs(math.Xmod(self.X0 - obj.X)) <= self.CdX
 	def think(self, dt):
 		self.R = sy / 54
 		if not self.following:
@@ -57,6 +82,7 @@ class Camera(object):
 			f = self.tfollow / 0.4
 			self.X0 = self.following.X * (1 - f) + self.oldX * f
 			self.y0 = self.following.y * (1 - f) + self.oldy * f
+		self.setlimits()
 	def follow(self, obj):
 		oldfollow = self.following
 		self.following = obj
@@ -74,8 +100,7 @@ class Camera(object):
 		(self.X0, self.y0, self.R, self.following, self.oldX, self.oldy, self.tfollow) = obj
 		if self.following is not None:
 			self.following = thing.get(self.following)
-
-camera = Camera()
+		self.setlimits()
 
 def screenpos(X, y):
 	return windowpos(X, y, sx, sy, camera.X0, camera.y0, camera.R)
@@ -85,26 +110,6 @@ def windowpos(X, y, wsx, wsy, X0, y0, scale):
 	py = wsy / 2 + (y0 - math.cos(dX) * y) * scale
 	return int(round(px)), int(round(py))
 	
-
-
-# Very rough, a lot of false positives
-def onscreen(obj):
-	dmax = (sx + sy) / 2 / camera.R
-	dy = obj.y - camera.y0
-	if abs(dy) > dmax:
-		return False
-	if abs(math.Xmod(obj.X - camera.X0)) * camera.y0 > dmax:
-		return False
-	return True
-
-def nearscreen(obj):
-	dmax = (sx + sy) / 2 / camera.R * 3
-	dy = obj.y - camera.y0
-	if abs(dy) > dmax:
-		return False
-	if abs(math.Xmod(obj.X - camera.X0)) * camera.y0 > dmax:
-		return False
-	return True
 
 def distance(obj1, obj2):
 	dx = math.Xmod(obj1.X - obj2.X) * (obj1.y + obj2.y) / 2

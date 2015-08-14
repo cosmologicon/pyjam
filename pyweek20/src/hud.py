@@ -88,6 +88,7 @@ shipdata = {
 	"Skiff": ("Skiff", "fast", None),
 	"Mapper": ("Survey", "slow", "view map"),
 	"Beacon": ("Detector", "slow", "find hidden"),
+	"WarpShip": ("Warp Ship", "medium", "warp"),
 }
 
 
@@ -108,7 +109,7 @@ def drawstats():
 	text = "\n".join([
 		"Current ship: %s" % shipname,
 		"Handling: %s" % handling,
-		"Press Shift: %s" % special if special is not None else "",
+		"Tap space: %s" % special if special is not None else "",
 	])
 	ptext.draw(text, topleft = F(104, 40), fontsize = F(16), shadow = (1, 1), lineheight = 1.3, alpha = 0.5)
 	x0, y0, w, h, dx, thick = F(104, 10, 16, 20, 20, 2)
