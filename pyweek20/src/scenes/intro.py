@@ -19,6 +19,7 @@ def init():
 	state.objs = []
 	state.filaments = []
 	state.hazards = []
+	sound.playmusic("intro")
 
 def think(dt, events, kpressed):
 	kx = kpressed["right"] - kpressed["left"]

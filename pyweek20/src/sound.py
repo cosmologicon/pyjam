@@ -24,5 +24,12 @@ def play(name):
 		print("Missing sound: " + name)
 		sounds[name] = None
 
+currentmusic = None
+def playmusic(name):
+	if name not in sounds:
+		sounds[name] = pygame.mixer.Sound(open("data/music/%s.wav" % name))
+	sounds[name].play(-1)
+
+
 
 
