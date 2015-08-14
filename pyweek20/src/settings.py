@@ -36,7 +36,7 @@ keycodes = {
 	"right": [K_RIGHT, K_d, K_e],
 	"up": [K_UP, K_w, K_COMMA],
 	"down": [K_DOWN, K_s, K_o],
-	"go": [K_SPACE, K_RETURN],
+	"go": [K_SPACE, K_RETURN, K_LSHIFT, K_RSHIFT, K_z],
 	"abort": [K_BACKSPACE],
 	"quit": [K_ESCAPE],
 	"save": [K_F5],

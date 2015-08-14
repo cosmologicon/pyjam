@@ -18,7 +18,7 @@ convergences = []
 
 goals = []
 
-quickteleport = False
+quickteleport = True
 
 def buildnetwork():
 	from src import thing, window

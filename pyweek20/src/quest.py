@@ -44,7 +44,7 @@ class Intro(Quest):
 			state.effects.append(state.target)
 		if self.progress in (1, 2, 3, 5, 6, 8):
 			if window.distance(state.you, state.target) < 1:
-				hud.hide("Hold space/enter and use arrows to teleport.")
+				hud.hide("Hold space (or enter, shift, or Z) and use arrows to teleport.")
 				state.target.die()
 				self.progress += 1
 				self.settarget()
@@ -67,7 +67,7 @@ class Intro(Quest):
 		elif self.progress == 2:
 			hud.clear()
 		elif self.progress == 4:
-			hud.show("Hold space/enter and use arrows to teleport.")
+			hud.show("Hold space (or enter, shift, or Z) and use arrows to teleport.")
 			dialog.play("intro2")
 		elif self.progress == 5:
 			hud.clear()

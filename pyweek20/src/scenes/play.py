@@ -258,6 +258,7 @@ def think(dt, events, kpressed):
 		dy = y - state.you.y
 		window.camera.X0 = state.you.X + dX * 0.5
 		window.camera.y0 = state.you.y + dy * 0.5
+		window.camera.setlimits()
 	else:
 		window.camera.follow(state.you)
 		window.camera.think(dt)
