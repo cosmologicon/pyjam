@@ -268,6 +268,7 @@ def regenerate():
 	clearfull()
 	populatefull()
 	sound.play("longteleport")
+	control.clear()
 
 
 def jump(kx, ky):
@@ -313,7 +314,7 @@ def draw():
 	if "cursor" in control:
 		pos = control["cursor"].screenpos()
 		pygame.draw.circle(window.screen, (200, 100, 0), pos, window.F(15), 1)
-	if "qtarget" in control:
+	if "qtarget" in control and state.quickteleport:
 		pos = window.screenpos(*control["qtarget"])
 		pygame.draw.circle(window.screen, (100, 0, 200), pos, window.F(6), 1)
 	dialog.draw()

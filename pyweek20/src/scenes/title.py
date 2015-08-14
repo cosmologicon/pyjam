@@ -78,9 +78,9 @@ def draw():
 	a1 = math.clamp((t - 4) / 2, 0, 1)
 	a2 = math.clamp((t - 6) / 2, 0, 1)
 	ptext.draw(settings.gamename, fontsize = F(70), center = F(427, 200),
-		owidth = 2, color = "#AAFFCC", alpha = a1)
+		owidth = 2, color = "#AAFFCC", alpha = a1, fontname = "Audiowide")
 	ptext.draw("by Christopher Night", fontsize = F(32), midtop = F(427, 250),
-		owidth = 1, color = "gray", alpha = a2)
+		owidth = 1, color = "gray", alpha = a2, fontname = "Audiowide")
 #	ptext.draw("music: Mary Bichner", fontsize = F(32), midtop = F(220, 290),
 #		owidth = 1, color = "gray")
 #	ptext.draw("testing: ???", fontsize = F(32), midtop = F(220, 340),

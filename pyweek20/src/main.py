@@ -6,6 +6,8 @@ from src import settings, thing, window, ptext, state, background, scene
 from src.window import F
 from src.scenes import play, intro, title
 
+ptext.FONT_NAME_TEMPLATE = os.path.join("data", "fonts", "%s.ttf")
+
 window.init()
 pygame.display.set_caption(settings.gamename)
 pygame.mixer.init()
@@ -61,6 +63,8 @@ while playing:
 		if event.type == KEYDOWN and event.key == "save" and scene.current is play:
 			state.save()
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F6:
+			scene.current = title
+		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F7:
 			scene.current = play
 	kpressed = pygame.key.get_pressed()
 	kpressed = {
@@ -75,8 +79,8 @@ while playing:
 		if tconfirmfull == 10:
 			s.think(0, events, kpressed)
 		s.draw()
-		ptext.draw("Press space to\nconfirm fullscreen", fontsize = 100, owidth = 1,
-			center = window.screen.get_rect().center)
+		ptext.draw("Press space to\nconfirm fullscreen", fontsize = F(50), owidth = 1,
+			center = window.screen.get_rect().center, fontname = "Orbitron", color = "orange")
 		tconfirmfull -= dt
 		if tconfirmfull <= 0:
 			settings.fullscreen = False

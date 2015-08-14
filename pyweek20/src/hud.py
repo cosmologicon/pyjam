@@ -25,7 +25,7 @@ def draw():
 	for line, t0, t in lines:
 		alpha = min(2 * t, 1, (2 * (t0 - t) if t0 is not None else 1))
 		ptext.draw(line, fontsize = F(32), midtop = F(854 / 2, 10), color = "gray",
-			owidth = 1, alpha = alpha)
+			owidth = 1, alpha = alpha, fontname = "Orbitron")
 
 def dump():
 	return lines
@@ -111,7 +111,8 @@ def drawstats():
 		"Handling: %s" % handling,
 		"Tap space: %s" % special if special is not None else "",
 	])
-	ptext.draw(text, topleft = F(104, 40), fontsize = F(16), shadow = (1, 1), lineheight = 1.3, alpha = 0.5)
+	ptext.draw(text, topleft = F(104, 40), fontsize = F(16), shadow = (1, 1),
+		lineheight = 1.3, alpha = 0.5, fontname = "Exo")
 	x0, y0, w, h, dx, thick = F(104, 10, 16, 20, 20, 2)
 	for j in range(state.you.maxhp):
 		pygame.draw.rect(window.screen, (0, 100, 0),

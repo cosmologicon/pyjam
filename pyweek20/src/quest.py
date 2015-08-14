@@ -56,6 +56,7 @@ class Intro(Quest):
 			if not dialog.currentline:
 				from src.scenes import title
 				scene.current = title
+				self.done = True
 	def settarget(self):
 		if self.progress > 1:
 			sound.play("yes")

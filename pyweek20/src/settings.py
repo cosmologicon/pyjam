@@ -10,7 +10,7 @@ windowsize = 854, 480
 # Whether to start up in fullscreen mode. Can enter fullscreen in-game with F11.
 fullscreen = False
 # Maximum horizontal resolution to use in fullscreen mode (e.g. 1280). None to use maximum resolution.
-fullscreenmaxwidth = None
+fullscreenmaxwidth = 1440
 
 maxfps = 60
 drawbackground = True

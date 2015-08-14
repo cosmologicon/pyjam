@@ -34,7 +34,7 @@ def init():
 			modes = [(x, y) for x, y in modes if x <= settings.fullscreenmaxwidth]
 		sxmax, symax = max(modes)
 		smax = min(sxmax * 9, symax * 16)
-		sx, sy = smax // sy, smax // sx
+		sx, sy = smax // 9, smax // 16
 		flags = flags | FULLSCREEN
 	f = sy / 480
 	screen = pygame.display.set_mode((sx, sy), flags)

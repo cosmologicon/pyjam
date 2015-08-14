@@ -37,10 +37,18 @@ def think(dt):
 			playing = sound.playstatic(t)
 			playingends = pygame.time.get_ticks() + 1000 * playing.get_length()
 
+style = {
+	"A": ("NovaSquare", 38, "white"),
+	"B": ("BlackOps", 38, "white"),
+	"E": ("PermanentMarker", 38, "white"),
+	"K": ("Exo", 38, "white"),
+}
+
 def draw():
 	if not currentline:
 		return
-	ptext.draw(currentline[2:], fontsize = F(38), width = F(500), owidth = 0, shadow = (1, 1),
-		centerx = window.sx / 2, bottom = window.sy - F(20))
+	fontname, fontsize, color = style[currentline[0]]
+	ptext.draw(currentline[2:], fontsize = F(fontsize), width = F(500), owidth = 0, shadow = (1, 1),
+		centerx = window.sx / 2, bottom = window.sy - F(20), fontname = fontname, color = color)
 
 
