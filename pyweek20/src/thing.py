@@ -664,7 +664,6 @@ class DrawFirstConvergence(Component):
 		from src.scenes import act2cutscene
 		act2cutscene.playing = True
 		background.wash()
-		dialog.play("convo9")
 	
 
 class DrawBubble(Component):

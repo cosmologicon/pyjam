@@ -24,8 +24,9 @@ def think(dt, events, kpressed):
 	if playing:
 		tplay += dt
 		background.flowt += dt * 4
-		if tplay > 6:
+		if tplay > 3:
 			dialog.play("convo9")
+		if tplay > 6:
 			background.wash()
 			from src import scene
 			from src.scenes import play
