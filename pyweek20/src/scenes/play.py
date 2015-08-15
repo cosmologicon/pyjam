@@ -17,7 +17,7 @@ def init():
 
 	state.you = thing.Skiff(X = 0, y = state.R - 5, vx = 1)
 	state.ships = [state.you]
-	state.mother = thing.Mother(X = 0, y = state.R)
+	state.mother = thing.Mother(X = 0, y = state.R + 8)
 	state.objs = [state.mother]
 #	state.filaments = [thing.Filament(ladderps = state.worlddata["filaments"][0])]
 	state.hazards = [
@@ -267,7 +267,7 @@ def think(dt, events, kpressed):
 		window.camera.think(dt)
 
 def regenerate():
-	state.you = thing.Skiff(X = state.mother.X, y = state.mother.y - 5, vx = 0)
+	state.you = thing.Skiff(X = state.mother.X, y = state.mother.y - 11, vx = 0)
 	state.ships.append(state.you)
 	clearfull()
 	populatefull()

@@ -35,4 +35,6 @@ Source code is by Christopher Night, released CC0.
 Asset License
 -------------
 
+http://opengameart.org/content/basic-airship
+
 

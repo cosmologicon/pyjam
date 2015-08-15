@@ -8,6 +8,7 @@ timg = pygame.Surface((s, s)).convert_alpha()
 simg = pygame.Surface((s, s)).convert_alpha()
 himg = pygame.Surface((s, s)).convert_alpha()
 eimg = pygame.Surface((s, s)).convert_alpha()
+cimg = pygame.Surface((s, s)).convert_alpha()
 tau = 2 * math.pi
 
 for px in range(s):

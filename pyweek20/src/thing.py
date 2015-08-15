@@ -252,6 +252,18 @@ class DrawHiddenImage(Component):
 		alpha = min(self.tvisible, 0.5 + 0.4 * math.sin(self.t))
 		image.worlddraw(self.imgname, self.X, self.y, self.imgr, alpha = alpha)
 
+class DrawHiddenRotatingImage(Component):
+	def __init__(self, imgname, imgr = 1):
+		self.imgname = imgname
+		self.imgr = imgr
+	def draw(self):
+		if self.y <= 0:
+			return
+		if not self.tvisible:
+			return
+		alpha = min(self.tvisible, 0.5 + 0.4 * math.sin(self.t))
+		image.worlddraw(self.imgname, self.X, self.y, self.imgr, alpha = alpha, angle = self.t)
+
 class DrawTarget(Component):
 	def draw(self):
 		p = window.screenpos(self.X, self.y)
@@ -694,13 +706,13 @@ class WorldThing(Thing):
 
 @HorizontalOscillation(2, 1)
 @Hidden(settings.beacondetect)
-@DrawHiddenImage("payload")
+@DrawHiddenRotatingImage("payload", 2.5)
 class Payload(WorldThing):
 	pass
 
 @HorizontalOscillation(2, 1)
 @Hidden(settings.beacondetect)
-@DrawHiddenImage("batesship")
+@DrawHiddenImage("batesship", 3)
 class BatesShip(WorldThing):
 	pass
 
@@ -882,7 +894,7 @@ class Rung(WorldThing):
 	hazardsize = 7
 	dhp = 3
 
-@DrawImage("mother", 4)
+@DrawImage("mother", 6)
 @IgnoresNetwork()
 class Mother(WorldThing):
 	pass
