@@ -1,6 +1,9 @@
 import pygame, json, os.path
-import cPickle as pickle
 from src import settings, ptext
+try:
+	import cPickle as pickle
+except ImportError:
+	import pickle
 
 worlddata = json.load(open(os.path.join("data", "worlddata.json")))
 R = worlddata["R"]

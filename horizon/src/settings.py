@@ -8,8 +8,13 @@ windowsize = 854, 480
 # windowsize = 1280, 720
 # windowsize = 1920, 1080
 
+if "--720" in sys.argv:
+	windowsize = 1280, 720
+if "--1080" in sys.argv:
+	windowsize = 1920, 1080
+
 # Whether to start up in fullscreen mode. Can enter fullscreen in-game with F11.
-fullscreen = False
+fullscreen = "--fullscreen" in sys.argv
 # Maximum horizontal resolution to use in fullscreen mode (e.g. 1280). None to use maximum resolution.
 fullscreenmaxwidth = None
 
@@ -42,7 +47,6 @@ twarpinvulnerability = 3
 thurtinvulnerability = 1
 tcutsceneinvulnerability = 5
 beaconsforfinale = 10
-
 
 keycodes = {
 	"left": [K_LEFT, K_a],
