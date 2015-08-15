@@ -202,16 +202,16 @@ class HorizontalOscillation(Component):
 		return window.screenpos(self.X + dX, self.y)
 
 class DrawImage(Component):
-	def __init__(self, imgname, imgr = 1):
+	def __init__(self, imgname, imgr = settings.usershipsize):
 		self.imgname = imgname
 		self.imgr = imgr
 	def draw(self):
 		if self.y <= 0:
 			return
-		image.worlddraw(self.imgname, self.X, self.y, self.imgr)
+		image.worlddraw(self.imgname, self.X, self.y, self.imgr, angle = -self.vx)
 
 class DrawImageFlash(Component):
-	def __init__(self, imgname, imgr = 1):
+	def __init__(self, imgname, imgr = settings.usershipsize):
 		self.imgname = imgname
 		self.imgr = imgr
 	def draw(self):
@@ -220,7 +220,7 @@ class DrawImageFlash(Component):
 		if self.tflash:
 			if self.tflash * 10 % 2 > 1:
 				return
-		image.worlddraw(self.imgname, self.X, self.y, self.imgr)
+		image.worlddraw(self.imgname, self.X, self.y, self.imgr, angle = -self.vx)
 
 class Hidden(Component):
 	def __init__(self, rdetect = None):

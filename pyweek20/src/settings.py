@@ -15,7 +15,7 @@ fullscreenmaxwidth = None
 maxfps = 60
 drawbackground = True
 
-DEBUG = False
+DEBUG = True
 autosave = False
 savename = "data/savegame.json"
 
@@ -24,6 +24,7 @@ jumpcombotime = 0.08
 tactivate = 0.25
 maxjump = 30
 
+usershipsize = 1.5
 beacondetect = 12
 # rshield = 14
 vqteleport = 25
