@@ -89,6 +89,8 @@ def think(dt, events, kpressed):
 	sound.epicness = 2 - (state.you.y - 100) / 140
 	sound.think(dt)
 
+	oldX, oldy = state.you.X, state.you.y
+
 	if 1e10 * random.random() < dt:
 		state.ships.append(thing.Skiff(
 			X = random.uniform(0, math.tau),
@@ -126,7 +128,8 @@ def think(dt, events, kpressed):
 			control["qtarget"] = [state.you.X, state.you.y]
 			control["t0"] = 0.001 * pygame.time.get_ticks()
 		if event.type == KEYDOWN and event.key == "abort":
-			state.you.die()
+			if not state.you.significant:
+				state.you.die()
 			regenerate()
 		if event.type == KEYUP:
 			if not state.quickteleport and "queue" in control and event.key in ("up", "left", "right", "down"):
@@ -254,6 +257,10 @@ def think(dt, events, kpressed):
 		for h in hcollide:
 			if window.distance(h, s) < h.hazardsize:
 				s.takedamage(h.dhp)
+
+	if window.dbycoord((oldX, oldy), (state.you.X, state.you.y)) > settings.rqteleport + 10:
+		clearfull()
+		populatefull()
 
 	if state.quickteleport and "qtarget" in control:
 		X, y = control["qtarget"]

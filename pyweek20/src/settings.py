@@ -23,6 +23,8 @@ saveonemergency = True
 # Set it to savegame.json if you prefer to save as json. I think it's slower, though.
 savename = "data/savegame.pkl"
 
+musicvolume = 0.2, 0.5
+musiccrossfadetime = 1
 
 jumpcombotime = 0.08
 tactivate = 0.25
@@ -38,7 +40,6 @@ thurtinvulnerability = 1
 tcutsceneinvulnerability = 5
 beaconsforfinale = 10
 
-musiccrossfadetime = 1
 
 keycodes = {
 	"left": [K_LEFT, K_a],

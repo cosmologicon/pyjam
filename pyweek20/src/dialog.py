@@ -35,11 +35,11 @@ def think(dt):
 		currentline = None
 		if queue:
 			currentline, filename = queue.pop(0)
-			volume = 0.25 if currentline[0] == "C" else 0.4 if currentline[0] == "A" else 1
+			volume = 0.25 if currentline[0] == "C" else 0.25 if currentline[0] == "A" else 1
 			sound.playline(filename, volume = volume)
 
 style = {
-	"A": ("NovaSquare", 38, "white"),
+	"A": ("NovaSquare", 20, "#77AAAA"),
 	"B": ("BlackOps", 20, "#AA4444"),
 	"E": ("PermanentMarker", 38, "white"),
 	"K": ("Exo", 20, "#AAAA77"),
@@ -54,7 +54,7 @@ def draw():
 	fontname, fontsize, color = style[currentline[0]]
 	ptext.draw(currentline[2:], fontsize = F(fontsize), width = F(640), owidth = 0, shadow = (1, 1),
 		left = F(180), bottom = window.sy - F(10), fontname = fontname, color = color)
-	img = image.get("avatar-" + currentline[0] + ".bmp", s = F(110))
-	window.screen.blit(img, img.get_rect(center = F(100, 400)))
+	img = image.get("avatar-" + currentline[0] + ".bmp", s = F(150))
+	window.screen.blit(img, img.get_rect(center = F(90, 390)))
 
 

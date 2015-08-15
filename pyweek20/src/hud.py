@@ -125,9 +125,9 @@ shipdata = {
 	"Heavy": ("Armored", None),
 	"HeavySkiff": ("Armored Cutter", None),
 
-	"Mapper": ("Survey Ship", "view map"),
-	"HeavyMapper": ("Armored Survey", "view map"),
-	"HeavyMapperSkiff": ("Armored Survey Cutter", "view map"),
+	"Mapper": ("Survey Ship", "toggle map"),
+	"HeavyMapper": ("Armored Survey", "toggle map"),
+	"HeavyMapperSkiff": ("Armored Survey Cutter", "toggle map"),
 
 	"Beacon": ("Detector", "find hidden"),
 	"BeaconSkiff": ("Cutter-Detector", "find hidden"),

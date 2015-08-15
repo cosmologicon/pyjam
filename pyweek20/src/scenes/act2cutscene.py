@@ -9,7 +9,6 @@ def init():
 	global playing, tplay
 	state.effects.append(thing.FirstConvergence(X = state.you.X, y = state.you.y))
 	sound.epicness = 2
-	dialog.play("convo9")
 	sound.play("reveal")
 	playing = False
 	tplay = 0
@@ -26,6 +25,7 @@ def think(dt, events, kpressed):
 		tplay += dt
 		background.flowt += dt * 4
 		if tplay > 6:
+			dialog.play("convo9")
 			background.wash()
 			from src import scene
 			from src.scenes import play

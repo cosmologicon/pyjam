@@ -73,7 +73,6 @@ def playmusic(name):
 	sounds[name].play(-1)
 
 musicmode = None
-musicvolume = 0.6
 epicness = 0
 epictarget = 0
 def playintromusic():
@@ -112,6 +111,8 @@ def think(dt):
 			epictarget = 2
 		elif epictarget == 2 and epicness < 1.25:
 			epictarget = 1
+	musicvolume = settings.musicvolume[0] if lineplaying() else settings.musicvolume[1]
+
 	dvmax = dt / settings.musiccrossfadetime
 	for j in (0, 1, 2):
 		goalvolume = musicvolume if j == epictarget else 0

@@ -1,6 +1,6 @@
 from __future__ import division
 import random
-from src import state, hud, thing, dialog, window, scene, sound
+from src import state, hud, thing, dialog, window, scene, sound, settings
 
 quests = {}
 
@@ -298,10 +298,11 @@ class Finale(Quest):
 		n = sum(beacon.y - state.Rcore < 20 for beacon in state.beacons)
 		if n > self.progress:
 			self.progress = n
-			if n >= settings.beaconsforfinale:
-				hud.draw("Beacon placement: %d/%d" % (n, settings.beaconsforfinale), 5)
+			if n < settings.beaconsforfinale:
+				hud.show("Detector placement: %d/%d" % (n, settings.beaconsforfinale), 5)
+				sound.play("reveal")
 			else:
-				hud.draw("Beacon placement complete. Proceed through data horizon.", 6)
+				hud.show("Detector placement complete. Proceed through data horizon.", 6)
 				self.done = True
 
 def think(dt):

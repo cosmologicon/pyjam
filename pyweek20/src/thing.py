@@ -136,7 +136,7 @@ class Converges(Component):
 		dx = math.Xmod(self.X0 - self.X) * self.y
 		dy = self.y0 - self.y
 		d = math.sqrt(dx ** 2 + dy ** 2)
-		if d < 5:
+		if d < 2:
 			self.die()
 		else:
 			f = min(dt * self.v / d, 1)
@@ -481,6 +481,10 @@ class BeaconDeploy(Component):
 			X = self.X + r * math.sin(a) / self.y
 			y = self.y + r * math.cos(a)
 			pygame.draw.circle(window.screen, (200, 200, 50), window.screenpos(X, y), F(2))
+	def die(self):
+		if self in state.beacons:
+			state.beacons.remove(self)
+
 
 class DeployShield(Component):
 	def deploy(self):
@@ -809,7 +813,7 @@ class Beacon(Ship):
 class Warp(Ship):
 	pass
 
-@HasHealth(10)
+@HasHealth(11)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
 @VerticalWeight()
@@ -833,7 +837,18 @@ class Heavy(Ship):
 class BeaconSkiff(Ship):
 	pass
 
-@HasHealth(10)
+@HasHealth(11)
+@Drifts()
+@HasMaximumHorizontalVelocity(20)
+@VerticalWeight()
+@HasMaximumVerticalVelocity(10)
+@DrawImageFlash("heavy")
+@IgnoresNetwork()
+@CantDeploy()
+class HeavySkiff(Ship):
+	pass
+
+@HasHealth(11)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
 @VerticalWeight()
@@ -857,7 +872,7 @@ class HeavyMapper(Ship):
 class WarpSkiff(Ship):
 	pass
 
-@HasHealth(10)
+@HasHealth(11)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
 @VerticalWeight()
@@ -870,7 +885,7 @@ class WarpSkiff(Ship):
 class HeavyBeacon(Ship):
 	pass
 
-@HasHealth(10)
+@HasHealth(11)
 @Drifts()
 @HasMaximumHorizontalVelocity(20)
 @VerticalWeight()
@@ -881,7 +896,7 @@ class HeavyBeacon(Ship):
 class HeavyWarpSkiff(Ship):
 	pass
 
-@HasHealth(10)
+@HasHealth(11)
 @Drifts()
 @HasMaximumHorizontalVelocity(20)
 @VerticalWeight()
@@ -894,7 +909,7 @@ class HeavyWarpSkiff(Ship):
 class HeavyBeaconSkiff(Ship):
 	pass
 
-@HasHealth(10)
+@HasHealth(11)
 @Drifts()
 @HasMaximumHorizontalVelocity(20)
 @VerticalWeight()
