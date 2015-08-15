@@ -28,7 +28,7 @@ clock = pygame.time.Clock()
 playing = True
 tconfirmfull = 0
 while playing:
-	dt = min(clock.tick(settings.maxfps) * 0.001, 0.15)
+	dt = min(clock.tick(settings.maxfps) * 0.001, 1 / settings.minfps)
 	class Event(object):
 		def __init__(self, event):
 			self.type = event.type

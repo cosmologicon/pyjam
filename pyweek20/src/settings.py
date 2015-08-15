@@ -13,6 +13,7 @@ fullscreen = False
 fullscreenmaxwidth = None
 
 maxfps = 60
+minfps = 6
 drawbackground = True
 
 DEBUG = True

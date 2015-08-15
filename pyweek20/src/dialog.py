@@ -1,5 +1,5 @@
 import pygame, os.path
-from src import ptext, window, sound
+from src import ptext, window, sound, image
 from src.window import F
 
 lines = {}
@@ -42,15 +42,18 @@ style = {
 	"B": ("BlackOps", 20, "#AA4444"),
 	"E": ("PermanentMarker", 38, "white"),
 	"K": ("Exo", 20, "#AAAA77"),
+	"C": ("BlackOps", 20, "#AA4444"),
 }
 
 def draw():
 	if not currentline:
 		return
-	if currentline[0] == "E":
+	if currentline[0] == "E" or currentline[0] == "C":
 		return
 	fontname, fontsize, color = style[currentline[0]]
 	ptext.draw(currentline[2:], fontsize = F(fontsize), width = F(640), owidth = 0, shadow = (1, 1),
 		left = F(180), bottom = window.sy - F(10), fontname = fontname, color = color)
+	img = image.get("avatar-" + currentline[0] + ".jpg", s = F(110))
+	window.screen.blit(img, img.get_rect(center = F(100, 400)))
 
 

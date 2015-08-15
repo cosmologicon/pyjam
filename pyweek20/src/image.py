@@ -4,7 +4,7 @@ from pygame.locals import *
 from src import window, ptext
 
 cache = {}
-def get(filename, s = 1, angle = 0, alpha = 1):
+def get(filename, s = None, angle = 0, alpha = 1):
 	if filename == "slash":
 		angle = int(round(angle / 5)) * 5 % 90
 	else:
@@ -18,11 +18,17 @@ def get(filename, s = 1, angle = 0, alpha = 1):
 		arr = pygame.surfarray.pixels_alpha(img)
 		arr *= alpha
 		del arr
-	elif s != 1 or angle != 0:
+	elif s is not None and angle == 0:
+		img = get(filename)
+		a = int(round(s))
+		img = pygame.transform.smoothscale(img, (a, a))
+	elif s is not None or angle != 0:
 		img = get(filename)
 		img = pygame.transform.rotozoom(img, angle, s / img.get_width())
 	else:
-		path = os.path.join("data", "img", filename + ".png")
+		if "." not in filename:
+			filename = filename + ".png"
+		path = os.path.join("data", "img", filename)
 		if os.path.exists(path):
 			img = pygame.image.load(path)
 			if filename in ("skiff"):
