@@ -94,6 +94,8 @@ while playing:
 
 
 	kpressed = pygame.key.get_pressed()
+	if settings.DEBUG and kpressed[K_1]:
+		dt *= 3
 	kpressed = {
 		keyname: any(kpressed[code] for code in codes)
 		for keyname, codes in settings.keycodes.items()

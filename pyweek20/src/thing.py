@@ -66,7 +66,7 @@ class HasHealth(Component):
 		if not self.vulnerable():
 			return
 		self.hp -= dhp
-		if self is state.you and self.hp > 0:
+		if self is state.you:
 			sound.play("ouch")
 		self.tflash = settings.thurtinvulnerability
 		if self.hp <= 0:
@@ -374,7 +374,7 @@ class DrawSlash(Component):
 
 class DrawRung(Component):
 	def __init__(self):
-		self.nimgs = 5
+		self.nimgs = 12
 		self.timg = 2.5
 	def init(self, imgs = None, **kwargs):
 		self.imgs = imgs or []
@@ -385,20 +385,20 @@ class DrawRung(Component):
 			self.imgs.pop(0)
 		while len(self.imgs) < self.nimgs:
 			st = self.timg / 2
-			X = random.gauss(self.X + self.vx * st / self.y, 10 / self.y)
-			y = random.gauss(self.y + self.vy * st, 10)
+			X = random.gauss(self.X + self.vx * st / self.y, 3 / self.y)
+			y = random.gauss(self.y + self.vy * st, 3)
 			t = self.t - (self.nimgs - len(self.imgs) - 1) * self.timg / self.nimgs
 			color = "red"
 			self.imgs.append((X, y, random.uniform(0, 360), t, color))
 	def draw(self):
 		for X, y, angle, t, color in self.imgs:
-			if not state.Rcore + 14 < y < state.R - 14:
+			if not state.Rcore + 7 < y < state.R - 7:
 				continue
 			t = (self.t - t) / self.timg
 			if not 0 < t < 1:
 				continue
 			alpha = t * (1 - t)
-			image.worlddraw("slash-" + color, X, y, 16, angle = angle, alpha = alpha)
+			image.worlddraw("slash-" + color, X, y, 6, angle = angle, alpha = alpha)
 
 # Whether the object is important to the plot, and should not be discarded if it's offscreen.
 class HasSignificance(Component):
@@ -921,7 +921,7 @@ class Slash(WorldThing):
 @DrawRung()
 class Rung(WorldThing):
 	hazardsize = 7
-	dhp = 3
+	dhp = 2
 
 @DrawImage("mother", 6)
 @IgnoresNetwork()
