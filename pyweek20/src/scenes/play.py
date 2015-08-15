@@ -32,9 +32,10 @@ def init():
 		for j in range(len(filament) - 1):
 			X0, y0 = filament[j]
 			X1, y1 = filament[j+1]
+			dX, dy = X1 - X0, y1 - y0
 			state.hazards.append(thing.Rung(X = X0, y = y0))
-			state.hazards.append(thing.Rung(X = (X0 + X1) / 3, y = (y0 + y1) / 3))
-			state.hazards.append(thing.Rung(X = (X0 + X1) * 2 / 3, y = (y0 + y1) * 2 / 3))
+			state.hazards.append(thing.Rung(X = X0 + dX / 3, y = y0 + dy / 3))
+			state.hazards.append(thing.Rung(X = X0 + dX * 2 / 3, y = y0 + dy * 2 / 3))
 
 	window.camera.follow(state.you)
 	window.camera.think(0)
@@ -227,11 +228,12 @@ def think(dt, events, kpressed):
 			obj.die()
 	state.obj = nobjs
 	for hazard in state.hazards:
-		if not window.camera.on(hazard):
+		if not window.camera.near(hazard):
 			continue
 		hazard.think(dt)
 		todraw.append(hazard)
-		hcollide.append(hazard)
+		if window.camera.on(hazard):
+			hcollide.append(hazard)
 	state.obj = nobjs
 #	for filament in state.filaments:
 #		filament.think(dt)

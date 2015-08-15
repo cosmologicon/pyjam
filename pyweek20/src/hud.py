@@ -67,6 +67,9 @@ def drawmap():
 		grid = pygame.Surface((w, w)).convert()
 		grid.fill((0, 0, 0))
 		p0 = w // 2, w // 2
+		for filament in state.worlddata["filaments"]:
+			ps = [window.windowpos(X, y, w, w, 0, 0, scale) for X, y in filament]
+			pygame.draw.lines(grid, (40, 40, 0), False, ps, F(6))
 		for r in range(25, state.R + 25, 25):
 			pygame.draw.circle(grid, (10, 40, 10), p0, int(scale * r), F(1))
 		for j in range(48):

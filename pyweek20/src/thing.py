@@ -388,6 +388,19 @@ class CanDeploy(Component):
 		self.significant = self.deployed
 		sound.play("chirpup" if self.deployed else "chirpdown")
 
+class CanDeployOnce(Component):
+	def init(self, deployed = False, **kwargs):
+		self.deployed = deployed
+	def dump(self, obj):
+		obj["deployed"] = self.deployed
+	def deploy(self):
+		if self.deployed:
+			sound.play("no")
+		else:
+			self.deployed = True
+			self.significant = True
+			sound.play("chirpup")
+
 class CantDeploy(Component):
 	def deploy(self):
 		sound.play("splat")
@@ -422,6 +435,15 @@ class BeaconDeploy(Component):
 		nvis1 = sum(obj.isvisible() for obj in state.goals + state.convergences)
 		if nvis1 > nvis0:
 			sound.play("reveal")
+	def draw(self):
+		if not self.deployed:
+			return
+		r = settings.beacondetect - 1
+		for j in range(3):
+			a = 4 * self.t + j * math.tau / 3
+			X = self.X + r * math.sin(a) / self.y
+			y = self.y + r * math.cos(a)
+			pygame.draw.circle(window.screen, (200, 200, 50), window.screenpos(X, y), F(2))
 
 class DeployShield(Component):
 	def deploy(self):
@@ -683,7 +705,7 @@ class Mapper(Ship):
 @HasMaximumVerticalVelocity(3)
 @DrawImageFlash("beacon")
 @IgnoresNetwork()
-@CanDeploy()
+@CanDeployOnce()
 @DeployFreeze()
 @BeaconDeploy()
 class Beacon(Ship):
