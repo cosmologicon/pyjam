@@ -35,7 +35,8 @@ def think(dt):
 		currentline = None
 		if queue:
 			currentline, filename = queue.pop(0)
-			sound.playline(filename)
+			volume = 0.25 if currentline[0] == "C" else 0.4 if currentline[0] == "A" else 1
+			sound.playline(filename, volume = volume)
 
 style = {
 	"A": ("NovaSquare", 38, "white"),

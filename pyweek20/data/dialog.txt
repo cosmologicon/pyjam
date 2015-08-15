@@ -19,15 +19,15 @@ B When you're onboard a Survey ship, you can activate it to pull up a map.
 K You know you'll never get these ships back out, right? Are you sure it's okay to send so many in like this?
 B Ships are cheap. Finding the data cores is all that matters. Let me tell you, all of us outside are rooting for you. Good luck, you brave idiot.
 K What's the matter, Besnik? Never teleported before?
-B A few times, when I've had to. But I've never met someone who liked getting converted into data and beamed across space.
+B A few times, when I've had to. But I've never met anyone who liked getting converted into data and beamed across space.
 
 convo3:
 K I think I'm getting close to one of the cores.
-B Great.  Activate a detector right next to it so we can lock in on it.
+B Great. Activate a detector right next to it so we can lock in on it.
 
 convo4:
 K Core location confirmed.
-B Okay.  The connection's good!  The data's already on its way up. Great work, Kendry.
+B Okay. The connection's good! The data's already on its way up. Great work, Kendry.
 B Just two more to go, then we can get out of here.
 
 convo5:
@@ -46,12 +46,12 @@ K Core number two located. Time to look for the last one.
 convo8:
 B That's all three! Let's get out of here.
 K Besnik, wait. I heard a distress call.
-B What?  What are you talking about? We didn't receive any distress call.
+B What? What are you talking about? We didn't receive any distress call.
 K It was only when I went far down enough. That means it's coming from inside Charybdis.
-B Uh-huh.  And let me guess. You want to go after it.
-B Kendry, even if there is something giving off a signal, there's no way anyone is alive down there.
+B Uh-huh. And let me guess. You want to go after it.
+B Kendry, even if there is something giving off a signal, there's no way anyone's alive down there.
 K I've got to find out. I just don't know how far I can make it without taking damage.
-B ...all right.  I'll have the shipyard start putting out heavy ships. That should get you a little farther. But be careful!
+B ...all right. I'll have the shipyard start putting out heavy ships. That should get you a little farther. But be careful!
 
 convo9:
 E FREE
@@ -96,14 +96,14 @@ convo13:
 K Besnik, are you seeing this?
 B Yeah, and I don't like it.
 K It's amazing. What do you think it is?
-B Whatever it is, it's completely foreign.  I mean it - we've got sensors for everything.  This thing's off the charts for things I didn't even know we had charts for.
+B Whatever it is, it's completely foreign. I mean it - we've got sensors for everything. This thing's off the charts for things I didn't even know we had charts for.
 B Anyway, leave the detector there. We're getting a lot of good data from it.
 B We may be able to use it to build ships that can travel through the anomaly even better.
 K I think this is not the only one. I'm going to keep looking.
 
 convo14:
 K I'm getting close to the data horizon!
-B Kendry!  You shouldn't be down that far! If you were to pass the data horizon, there's no teleporting out.
+B Kendry! You shouldn't be down that far! If you were to pass the data horizon, there's no teleporting out.
 K I know, but nobody has ever been this close! Where's your sense of adventure?
 B Never being seen or heard from again? Not my idea of fun.
 B Just to be safe, your ship will send you back if you get too close!
@@ -121,13 +121,13 @@ E BECOME
 echo4:
 K I'm trying!
 
-echo5
+echo5:
 K Who are you?!
 E DESCEND. YOU WILL BE UNHARMED.
 
 convo15:
 K Besnik, I've got to go down. I've got to go through the data horizon.
-B What?  Are you, crazy? Absolutely not. You've been down there too long. You're starting to sound like Almana.
+B What? Are you, crazy? Absolutely not. You've been down there too long. You're starting to sound like Almana.
 K What if I put some detectors just outside the data horizon? You should be able to follow me through a little of the way.
 B Yeah, a little. One wrong move and you go too deep, and it's all over.
 K I can do this! You have to trust me! It's the only way to know!

@@ -60,7 +60,8 @@ def play(name):
 	else:
 		channels[7].play(sounds[name])
 
-def playline(name):
+def playline(name, volume = 1):
+	channels[4].set_volume(volume)
 	channels[4].play(pygame.mixer.Sound(open("data/dialog/%s.wav" % name)))
 def lineplaying():
 	return channels[4].get_busy()

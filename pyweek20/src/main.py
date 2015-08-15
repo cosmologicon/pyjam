@@ -21,13 +21,15 @@ if os.path.exists(settings.savename):
 	background.wash()
 	state.load()
 else:
-	sound.playgamemusic()
-	from src import quest
-	quest.quests["Finale"].setup()
-	scene.current = finalcutscene
-	scene.toinit = finalcutscene
-	scene.current = endtitle
-	scene.toinit = endtitle
+#	sound.playgamemusic()
+#	from src import quest
+#	quest.quests["Finale"].setup()
+#	scene.current = finalcutscene
+#	scene.toinit = finalcutscene
+#	scene.current = endtitle
+#	scene.toinit = endtitle
+	scene.current = intro
+	scene.toinit = intro
 
 clock = pygame.time.Clock()
 playing = True
