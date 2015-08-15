@@ -252,10 +252,15 @@ class DrawHiddenImage(Component):
 		alpha = min(self.tvisible, 0.5 + 0.4 * math.sin(self.t))
 		image.worlddraw(self.imgname, self.X, self.y, self.imgr, alpha = alpha)
 
-class DrawImageOverParent(Component):
-	def __init__(self, imgname, imgr = 1):
-		self.imgname = imgname
-		self.imgr = imgr
+class DrawTarget(Component):
+	def draw(self):
+		p = window.screenpos(self.X, self.y)
+		color = tuple(int(a * (0.8 + 0.2 * math.sin(8 * self.t))) for a in (255, 128, 128))
+		pygame.draw.circle(window.screen, color, p, F(5), 0)
+		pygame.draw.circle(window.screen, color, p, F(10), F(1))
+		pygame.draw.circle(window.screen, color, p, F(15), F(1))
+
+class DrawTargetOverParent(Component):
 	def init(self, parentid = None, **kwargs):
 		self.parentid = parentid
 	def dump(self, obj):
@@ -265,7 +270,11 @@ class DrawImageOverParent(Component):
 			self.alive = False
 	def draw(self):
 		parent = get(self.parentid)
-		image.worlddraw(self.imgname, parent.X, parent.y, self.imgr)
+		p = window.screenpos(parent.X, parent.y)
+		color = tuple(int(a * (0.8 + 0.2 * math.sin(8 * self.t))) for a in (128, 255, 128))
+		pygame.draw.circle(window.screen, color, p, F(5), 0)
+		pygame.draw.circle(window.screen, color, p, F(10), F(1))
+		pygame.draw.circle(window.screen, color, p, F(15), F(1))
 
 class LeavesCorpse(Component):
 	def die(self):
@@ -662,9 +671,11 @@ class DrawTeleport(Component):
 		target = get(self.targetid)
 		if not target:
 			return
-		X = self.X + self.flife * (target.X - self.X)
-		y = self.y + self.flife * (target.y - self.y)
-		image.worlddraw("teleport", X, y, 1)
+		for d, s in [(-0.1, 3), (-0.05, 6), (0, 8), (0.05, 6), (0.1, 3)]:
+			f = math.clamp(self.flife + d, 0, 1)
+			X = self.X + f * (target.X - self.X)
+			y = self.y + f * (target.y - self.y)
+			pygame.draw.circle(window.screen, (255, 128, 255), window.screenpos(X, y), F(s), 0)
 
 # Base class for things
 @HasId()
@@ -888,12 +899,12 @@ class Filament(Thing):
 class Corpse(WorldThing):
 	pass
 
-@DrawImage("target")
+@DrawTarget()
 class Target(WorldThing):
 	pass
 
 @Alive()
-@DrawImageOverParent("starget", 2)
+@DrawTargetOverParent()
 class ShipTarget(Thing):
 	pass
 

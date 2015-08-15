@@ -1,5 +1,5 @@
 from __future__ import division
-import pygame, math
+import pygame, math, random
 
 s = 200
 
@@ -7,6 +7,7 @@ screen = pygame.display.set_mode((s, s))
 timg = pygame.Surface((s, s)).convert_alpha()
 simg = pygame.Surface((s, s)).convert_alpha()
 himg = pygame.Surface((s, s)).convert_alpha()
+eimg = pygame.Surface((s, s)).convert_alpha()
 tau = 2 * math.pi
 
 for px in range(s):
@@ -32,6 +33,12 @@ for px in range(s):
 		
 		timg.set_at((px, py), (c, c, c, a))
 
+		c1, c2, c3 = [random.choice([0, 255]) for _ in range(3)]
+		ye = y * 2
+		re = math.sqrt(x ** 2 + ye ** 2)
+		a = int(120 * (3 - 2 * (1-re)) * (1-re)**2) if re < 1 else 0
+		eimg.set_at((px, py), (c1, c2, c3, a))
+
 
 		c = 200
 		p = min(math.sqrt((x - x0) ** 2 + (y - y0) ** 2) for x0 in (-1, 1) for y0 in (-1, 1))
@@ -41,6 +48,7 @@ for px in range(s):
 		c = 100
 		a = int(min(10 + 10 * math.exp(3 * (r - 1)), 10 * math.exp(-20 * (r - 1))))
 		himg.set_at((px, py), (c, c, c, a))
+
 		
 
 screen.fill((0, 100, 0))
@@ -49,6 +57,7 @@ pygame.display.flip()
 pygame.image.save(timg, "data/img/tremor.png")
 pygame.image.save(simg, "data/img/slash.png")
 pygame.image.save(himg, "data/img/shield.png")
+pygame.image.save(eimg, "data/img/teleport.png")
 
 colors = [
 	("white", 1, 1, 1),

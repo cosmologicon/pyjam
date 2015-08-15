@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, math, random, time
 from pygame.locals import *
-from src import window, thing, settings, state, hud, quest, background, dialog, sound
+from src import window, thing, settings, state, hud, quest, background, dialog, sound, image
 from src.window import F
 
 
@@ -137,11 +137,12 @@ def draw():
 	for effect in state.effects:
 		effect.draw()
 	if "cursor" in control:
-		pos = control["cursor"].screenpos()
-		pygame.draw.circle(window.screen, (200, 100, 0), pos, window.F(15), 1)
+		image.worlddraw("cursor", control["cursor"].X, control["cursor"].y, 1.6,
+			angle = pygame.time.get_ticks() * 0.15)
 	if "qtarget" in control:
-		pos = window.screenpos(*control["qtarget"])
-		pygame.draw.circle(window.screen, (100, 0, 200), pos, window.F(6), 1)
+		X, y = control["qtarget"]
+		image.worlddraw("qtarget", X, y, 1,
+			angle = -pygame.time.get_ticks() * 0.15)
 	dialog.draw()
 	hud.draw()
 

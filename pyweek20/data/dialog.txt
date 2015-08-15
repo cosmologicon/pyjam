@@ -11,7 +11,6 @@ K I won't be able to fly any ships upward, only left, right, and down. The only 
 intro4:
 K Here we go.
 
-
 convo2:
 K I'm below the Charybdis horizon. Besnik, you've got to see this place.
 B Copy that, Kendry. I'll stay up here if it's all the same to you.
@@ -22,13 +21,120 @@ B Ships are cheap. Finding the data cores is all that matters. Let me tell you, 
 K What's the matter, Besnik? Never teleported before?
 B A few times, when I've had to. But I've never met someone who liked getting converted into data and beamed across space.
 
-act1-2:
-K I think I'm getting close
+convo3:
+K I think I'm getting close to one of the cores.
+B Great.  Activate a detector right next to it so we can lock in on it.
 
-act1-3:
-A get back up to the surface
+convo4:
+K Core location confirmed.
+B Okay.  The connection's good!  The data's already on its way up. Great work, Kendry.
+B Just two more to go, then we can get out of here.
 
-act1-4:
-A we're starting to send out relay ships
+convo5:
+B By the way, you should know that every ship is equipped with a single-use emergency transmitter.
+B You can use it at any time and teleport all the way back to the mothership. It'll also save your game.
+B But that ship's battery will completely drain. It won't even have enough power left for life support or station keeping.
+K So only use it when I'm sure I'm done with a ship, got it.
+B It'll also activate automatically if your ship is destroyed. So you don't need to worry about dying down there... probably.
 
+convo6:
+C Repeat... this is an automated distress call. Ship in distress. Please respond.
+
+convo7:
+K Core number two located. Time to look for the last one.
+
+convo8:
+B that's all three! Let's get out of here.
+K Besnik, wait. I heard a distress call.
+B What?  What are you talking about? We didn't receive any distress call.
+K It was only when I went far down enough. That means it's coming from inside Charybdis.
+B Uh-huh.  And let me guess. You want to go after it.
+B Kendry, even if there is something giving off a signal, there's no way anyone is alive down there.
+K I've got to find out. I just don't know how far I can make it without taking damage.
+B ...all right.  I'll have the shipyard start putting out heavy ships. That should get you a little farther. But be careful!
+
+convo9:
+E FREE
+B Kendry, do you read me? I repeat, Kendry, are you there? Come in Kendry!
+K I'm here! I'm here. What happened?
+B You weren't on your ship, or any other ship we could see. Where were you?
+K I'm not sure. It's almost as if something was coming for me. There was a... convergence.
+B If it happens again, activate a detector at the convergence point. If there's something there, we'll find it.
+
+convo10:
+K Unidentified ship, do you read me? I'm Kendry. I'm here to rescue you.
+A Wow, it's my lucky day! I never thought I'd see another person again.
+A But... rescue me? Aren't we trapped here?
+K I have a teleporter that can convert you to data and bring you outside, beyond the horizon.
+A But how is that possible? I thought even light couldn't escape a black hole.
+K It's not light. We don't use electromagnetic radiation to transmit the data....
+K and did you call it a “black hole”? They haven't been called that in a long time. How long have you been here?
+
+convo11:
+B Almana, right? Welcome back. I bet you never thought you'd see this side of the horizon again.
+B I found a record of your mission. Do you have any idea how long you've been missing?
+A Time... I stopped counting time. I've almost forgotten what it even means.
+B Ooookay....
+B So Kendry, you ready to come back up? You're a straight-up hero, you know that? Rescuing someone from the Charybdis anomaly....
+K I don't know, I'm starting to like it down here. Anyway, I need to find out what that thing was.
+K Just imagine what we could learn about the anomaly if we understood it....
+B I don't know. We've finished our mission. You really want us to stick around here?  This isn't exactly the nicest place to be.
+A Don't you think we owe her?
+B All right.  But if something goes wrong, and you don't make it back up, I don't want your data patterns haunting me for the rest of my life.
+
+convo12:
+A Kendry, do you ever wonder, when you teleport, do you really come out as the same person?
+A Or are you someone completely new, who just has the same memories?
+K Ha, back in your time, I suppose that was a good question to ask. But no, nobody thinks like that anymore.
+K See, the data we use in teleportation isn't digital. It's a membrane reflection based on the holographic principle.
+K Your data pattern is already stored at the edge of the universe. We just access it.
+K It's really just another way of viewing reality, just one that's easier to move around.
+A You've really thought this through.
+B *laughter* Nobody cares about what it means to be data more than Kendry does.
+
+convo13
+K Besnik, are you seeing this?
+B Yeah, and I don't like it.
+K It's amazing. What do you think it is?
+B Whatever it is, it's completely foreign.  I mean it - we've got sensors for everything.  This thing's off the charts for things I didn't even know we had charts for.
+B Anyway, leave the detector there. We're getting a lot of good data from it.
+B We may be able to use it to build ships that can travel through the anomaly even better.
+K I think this is not the only one. I'm going to keep looking.
+
+convo14:
+K I'm getting close to the data horizon!
+B Kendry!  You shouldn't be down that far! If you were to pass the data horizon, there's no teleporting out.
+K I know, but nobody has ever been this close! Where's your sense of adventure?
+B Never being seen or heard from again? Not my idea of fun.
+B Just to be safe, your ship will send you back if you get too close!
+K Aww...
+
+echo1:
+E DATA DATA DATA
+
+echo2:
+E FREE YOURSELF
+
+echo3:
+E BECOME
+
+echo4:
+K I'm trying!
+
+echo5
+K Who are you?!
+E DESCEND. YOU WILL BE UNHARMED.
+
+convo15:
+K Besnik, I've got to go down. I've got to go through the data horizon.
+B What?  Are you, crazy? Absolutely not. You've been down there too long. You're starting to sound like Almana.
+K What if I put some detectors just outside the data horizon? You should be able to follow me through a little of the way.
+B Yeah, a little. One wrong move and you go too deep, and it's all over.
+K I can do this! You have to trust me! It's the only way to know!
+B Know what?!
+K It's the only way....
+
+convo16:
+E WELCOME TO THE REAL WORLD
+B Kendry no!
 

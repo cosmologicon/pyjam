@@ -47,6 +47,8 @@ style = {
 def draw():
 	if not currentline:
 		return
+	if currentline[0] == "E":
+		return
 	fontname, fontsize, color = style[currentline[0]]
 	ptext.draw(currentline[2:], fontsize = F(fontsize), width = F(640), owidth = 0, shadow = (1, 1),
 		left = F(180), bottom = window.sy - F(10), fontname = fontname, color = color)

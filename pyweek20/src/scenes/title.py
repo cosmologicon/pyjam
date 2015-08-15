@@ -70,11 +70,9 @@ def draw():
 		window.camera.y0 *= R / state.R
 		window.camera.R /= 2.5
 
-	if t < 8:
+	if t < 5:
 		for ship in state.ships:
 			ship.draw()
-		for effect in state.effects:
-			effect.draw()
 	px, py = window.screenpos(0, 0)
 #	r = int(window.camera.R * R)
 #	if py - r < window.sy:
