@@ -1,10 +1,18 @@
-Game Title
+Beyond the Horizon
 ==========
 
-Entry in PyWeek ##  <http://www.pyweek.org/##/>
-URL: https://www.pyweek.org/e/unifac##/
-Team: Universe Factory ##
-Members: Christopher Night (Cosmologicon)
+Entry in PyWeek 20  <http://www.pyweek.org/20/>
+
+Universe Factory 20 <https://www.pyweek.org/e/unifac20/>
+
+Members:
+Christopher Night (Cosmologicon)
+Mary Bichner (marybee)
+Charles McPillan
+Leo Stein
+Molly Zenobia
+Randy Parcel
+
 License: see below
 
 Requirements
@@ -35,6 +43,9 @@ Source code is by Christopher Night, released CC0.
 Asset License
 -------------
 
-http://opengameart.org/content/basic-airship
+Fonts from Google Web Fonts. See the data/fonts directory for individual font licenses.
 
+http://opengameart.org/content/basic-airship CC-BY
+
+Sound effects from as3sfxr
 

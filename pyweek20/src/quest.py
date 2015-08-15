@@ -91,10 +91,10 @@ class Act1(Quest):
 	def __init__(self):
 		Quest.__init__(self)
 		self.goals = []
+		self.distressed = False
 	def think(self, dt):
 		if self.done or not self.available:
 			return
-		# TODO: play distress call (convo6)
 		self.t += dt
 		if self.progress == 0 and self.t > 1:
 			dialog.play("convo2")
@@ -122,7 +122,8 @@ class Act1(Quest):
 				self.progress = 5
 				self.done = True
 				quests["Act2"].setup()
-				# TODO: stop playing distress call
+		if not self.distressed and state.you.y < 270:
+			dialog.play("distress")
 
 
 class Act2(Quest):
@@ -174,13 +175,52 @@ class Seek(Quest):
 			thing.Convergence(X = X, y = y)
 			for X, y in state.worlddata["convergences"]
 		]
+		self.chooserandomgoal()
+		self.chooserandomgoal()
+		self.tquiet = 0
+		self.cindices = { convergence.thingid: j for j, convergence in enumerate(state.convergences) }
+	def chooserandomgoal(self):
+		candidates = [convergence for convergence in state.convergences if convergence not in state.goals]
+		if candidates:
+			state.goals.append(random.choice(candidates))
 	def think(self, dt):
 		if self.done or not self.available:
 			return
 		self.t += dt
 		nvis = sum(convergence.isvisible() for convergence in state.convergences)
 		if nvis > self.progress:
+			self.chooserandomgoal()
 			self.updateprogress(nvis)
+			if self.progress == 1:
+				dialog.play("convo13")
+			self.tquiet = 0
+		if dialog.queue or dialog.currentline:
+			self.tquiet = 0
+		else:
+			self.tquiet += dt
+
+
+		if self.progress == 0 and self.tquiet > 10:
+			dialog.play("convo11")
+		if self.progress >= 1 and self.tquiet > 11:
+			dialog.play("convo12")
+		if self.progress >= 2 and self.tquiet > 12:
+			dialog.play("echo1")
+		if self.progress >= 3 and self.tquiet > 13:
+			dialog.play("echo2")
+		if self.progress >= 3 and self.tquiet > 60:
+			dialog.play("echo3")
+			dialog.play("echo4")
+		if self.progress >= 4 and self.tquiet > 15:
+			dialog.play("echo5")
+		if self.progress >= 5 and self.tquiet > 16 and "convo14" in dialog.played:
+			dialog.play("convo15")
+			quests["Finale"].setup()
+		
+		if state.you.y - state.Rcore < 30 and self.tquiet > 10:
+			dialog.play("convo14")
+
+
 	def updateprogress(self, nprogress):
 		self.progress = nprogress
 		if nprogress == 1:
@@ -244,7 +284,24 @@ class Seek(Quest):
 				"HeavyWarpSkiff": 600,
 			}
 			hud.show("Armored Survey Cutter unlocked", 5)
+		elif nprogress >= 9:
+			hud.show("Nothing else to unlock. Proceed to the data horizon.", 10)
 
+class Finale(Quest):
+	def setup(self):
+		self.available = True
+	def think(self, dt):
+		if self.done or not self.available:
+			return
+		self.t += dt
+		n = sum(beacon.y - state.Rcore < 20 for beacon in state.beacons)
+		if n > self.progress:
+			self.progress = n
+			if n >= settings.beaconsforfinale:
+				hud.draw("Beacon placement: %d/%d" % (n, settings.beaconsforfinale), 5)
+			else:
+				hud.draw("Beacon placement complete. Proceed through data horizon.", 6)
+				self.done = True
 
 def think(dt):
 	for quest in quests.values():

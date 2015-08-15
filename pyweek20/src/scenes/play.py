@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, math, random, time
 from pygame.locals import *
-from src import window, thing, settings, state, hud, quest, background, dialog, sound, image
+from src import window, thing, settings, state, hud, quest, background, dialog, sound, image, ptext
 from src.window import F
 
 
@@ -20,10 +20,11 @@ def init():
 	state.mother = thing.Mother(X = 0, y = state.R + 8)
 	state.objs = [state.mother]
 #	state.filaments = [thing.Filament(ladderps = state.worlddata["filaments"][0])]
-	state.hazards = [
-		thing.Slash(X = random.uniform(0, math.tau), y = random.uniform(state.Rcore, state.R))
-		for _ in range(500)
-	]
+	state.hazards = []
+	for _ in range(500):
+		X = random.uniform(0, math.tau)
+		y = math.sqrt(random.uniform(state.Rcore ** 2, state.R ** 2))
+		state.hazards.append(thing.Slash(X = X, y = y))
 	for filament in state.worlddata["filaments"]:
 		for j in range(len(filament) - 1):
 			X0, y0 = filament[j]
@@ -326,6 +327,11 @@ def draw():
 	hud.draw()
 	hud.drawstats()
 	state.you.drawhud()
+	dy = state.you.y - state.Rcore
+	if dy < 36:
+		alpha = pygame.time.get_ticks() * 0.001 % 1
+		ptext.draw("Warning: Approaching data horizon", midtop = F(854/2, 100), color = "#FF7777",
+			owidth = 1, fontsize = F(36), fontname = "NovaSquare", alpha = alpha)
 	background.drawwash()
 
 

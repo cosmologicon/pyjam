@@ -11,7 +11,7 @@ def add(thing):
 	things[thing.thingid] = thing
 	return thing.thingid
 def get(thingid):
-	return things[thingid]
+	return things.get(thingid, None)
 def kill(thing):
 	if thing.thingid in things:
 		del things[thing.thingid]
@@ -100,6 +100,15 @@ class DiesAtCore(Component):
 	def think(self, dt):
 		if self.y <= state.Rcore:
 			self.die()
+
+class WinsAtCore(Component):
+	def think(self, dt):
+		from src import quest, scene
+		if self.y <= state.Rcore and quest.quests["Finale"].done:
+			from src.scenes import finalcutscene
+			scene.current = finalcutscene
+			scene.toinit = finalcutscene
+			quest.quests["Finale"].winner = self.__class__.__name__
 
 class HasVelocity(Component):
 	def init(self, vx = 0, vy = 0, **kwargs):
@@ -347,10 +356,11 @@ class DrawSlash(Component):
 		while self.imgs and self.t - self.imgs[0][3] > self.timg:
 			self.imgs.pop(0)
 		while len(self.imgs) < self.nimgs:
-			st = self.timg / 2
+			t0 = (self.nimgs - len(self.imgs) - 1) * self.timg / self.nimgs
+			st = t0 + self.timg / 2
 			X = random.gauss(self.X + self.vx * st / self.y, 2 / self.y)
 			y = random.gauss(self.y + self.vy * st, 2)
-			t = self.t - (self.nimgs - len(self.imgs) - 1) * self.timg / self.nimgs
+			t = self.t - t0
 			self.imgs.append((X, y, random.uniform(0, 360), t))
 	def draw(self):
 		for X, y, angle, t in self.imgs:
@@ -360,7 +370,7 @@ class DrawSlash(Component):
 			if not 0 < t < 1:
 				continue
 			alpha = t * (1 - t)
-			image.worlddraw("slash", X, y, 6, angle = angle, alpha = alpha)
+			image.worlddraw("slash-red", X, y, 6, angle = angle, alpha = alpha)
 
 class DrawRung(Component):
 	def __init__(self):
@@ -378,14 +388,17 @@ class DrawRung(Component):
 			X = random.gauss(self.X + self.vx * st / self.y, 10 / self.y)
 			y = random.gauss(self.y + self.vy * st, 10)
 			t = self.t - (self.nimgs - len(self.imgs) - 1) * self.timg / self.nimgs
-			self.imgs.append((X, y, random.uniform(0, 360), t))
+			color = random.choice(["gray", "black"])
+			self.imgs.append((X, y, random.uniform(0, 360), t, color))
 	def draw(self):
-		for X, y, angle, t in self.imgs:
+		for X, y, angle, t, color in self.imgs:
+			if not state.Rcore + 14 < y < state.R - 14:
+				continue
 			t = (self.t - t) / self.timg
 			if not 0 < t < 1:
 				continue
 			alpha = t * (1 - t)
-			image.worlddraw("slash", X, y, 16, angle = angle, alpha = alpha)
+			image.worlddraw("slash-" + color, X, y, 16, angle = angle, alpha = alpha)
 
 # Whether the object is important to the plot, and should not be discarded if it's offscreen.
 class HasSignificance(Component):
@@ -672,7 +685,6 @@ class DrawBubbleChain(Component):
 			state.effects.append(Bubble(X = X, y = y))
 	def draw(self):
 		pass
-#		image.worlddraw("chain", self.X, self.y, 3)
 
 class DrawTeleport(Component):
 	def init(self, targetid, **kwargs):
@@ -719,6 +731,7 @@ class BatesShip(WorldThing):
 @EmptyDrawHUD()
 @HasSignificance()
 @DiesAtCore()
+@WinsAtCore()
 @LeavesCorpse()
 class Ship(WorldThing):
 	pass
@@ -935,6 +948,7 @@ class FirstConvergence(WorldThing):
 	pass
 
 @Lifetime(1)
+@DiesAtCore()
 @DrawBubble()
 class Bubble(WorldThing):
 	pass

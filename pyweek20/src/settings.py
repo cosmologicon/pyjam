@@ -17,7 +17,7 @@ minfps = 6
 drawbackground = True
 
 DEBUG = True
-autosave = False
+autosave = True  # Save the game when it's closed.
 savename = "data/savegame.json"
 
 
@@ -33,6 +33,7 @@ rqteleport = 50
 twarpinvulnerability = 3
 thurtinvulnerability = 1
 tcutsceneinvulnerability = 5
+beaconsforfinale = 10
 
 musiccrossfadetime = 1
 

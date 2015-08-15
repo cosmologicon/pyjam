@@ -44,7 +44,7 @@ for px in range(s):
 		c = 200
 		p = min(math.sqrt((x - x0) ** 2 + (y - y0) ** 2) for x0 in (-1, 1) for y0 in (-1, 1))
 		a = min(max(int(300 * (p - 1)), 0), 255)
-		simg.set_at((px, py), (c, 0, 0, a))
+		simg.set_at((px, py), (c, c, c, a))
 
 		c = 100
 		a = int(min(10 + 10 * math.exp(3 * (r - 1)), 10 * math.exp(-20 * (r - 1))))
@@ -77,6 +77,26 @@ for cname, r, g, b in colors:
 	arr[:,:,2] *= b
 	del arr
 	pygame.image.save(img, "data/img/tremor-%s.png" % cname)
+
+colors = [
+	("white", 1, 1, 1),
+	("red", 1, 0, 0),
+	("green", 0, 1, 0),
+	("blue", 0, 0, 1),
+	("yellow", 0.8, 0.8, 0),
+	("purple", 0.8, 0, 0.8),
+	("orange", 0.8, 0.4, 0),
+	("gray", 0.4, 0.4, 0.4),
+	("black", 0, 0, 0),
+]
+for cname, r, g, b in colors:
+	img = simg.copy()
+	arr = pygame.surfarray.pixels3d(img)
+	arr[:,:,0] *= r
+	arr[:,:,1] *= g
+	arr[:,:,2] *= b
+	del arr
+	pygame.image.save(img, "data/img/slash-%s.png" % cname)
 
 
 
