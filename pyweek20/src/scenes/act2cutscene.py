@@ -10,6 +10,7 @@ def init():
 	state.effects.append(thing.FirstConvergence(X = state.you.X, y = state.you.y))
 	sound.epicness = 2
 	dialog.play("convo9")
+	sound.play("reveal")
 	playing = False
 	tplay = 0
 
@@ -19,6 +20,7 @@ def think(dt, events, kpressed):
 	quest.think(dt)
 	dialog.think(dt)
 	background.think(dt)
+	sound.think(dt)
 
 	if playing:
 		tplay += dt
@@ -28,6 +30,7 @@ def think(dt, events, kpressed):
 			from src import scene
 			from src.scenes import play
 			scene.current = play
+			state.you.tflash = settings.tcutsceneinvulnerability
 		return
 
 	nbubble = int(dt * 30) + (random.random() < dt * 30 % 1)

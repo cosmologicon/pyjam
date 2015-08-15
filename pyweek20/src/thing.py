@@ -689,8 +689,8 @@ class Payload(WorldThing):
 
 @HorizontalOscillation(2, 1)
 @Hidden(settings.beacondetect)
-@DrawHiddenImage("payload")
-class Payload(WorldThing):
+@DrawHiddenImage("batesship")
+class BatesShip(WorldThing):
 	pass
 
 @EmptyDrawHUD()
@@ -733,7 +733,7 @@ class Skiff(Ship):
 class Mapper(Ship):
 	pass
 
-@HasHealth(4)
+@HasHealth(3)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
 @VerticalWeight()
@@ -746,40 +746,15 @@ class Mapper(Ship):
 class Beacon(Ship):
 	pass
 
-@HasHealth(2)
-@Drifts()
-@HasMaximumHorizontalVelocity(12)
-@VerticalWeight()
-@HasMaximumVerticalVelocity(6)
-@DrawImageFlash("warp")
-@IgnoresNetwork()
-@WarpDeploy()
-class WarpShip(Ship):
-	pass
-
-@HasHealth(6)
-@Drifts()
-@HasMaximumHorizontalVelocity(6)
-@VerticalWeight()
-@HasMaximumVerticalVelocity(4)
-@DrawImageFlash("comm")
-@CanDeploy()
-@DeployFreeze()
-@DeployComm()
-class CommShip(Ship):
-	pass
-
-@HasHealth(10)
+@HasHealth(3)
 @Drifts()
 @HasMaximumHorizontalVelocity(6)
 @VerticalWeight()
 @HasMaximumVerticalVelocity(3)
-@DrawImageFlash("shielder")
+@DrawImageFlash("warp")
 @IgnoresNetwork()
-@CanDeploy()
-@DeployFreeze()
-@DeployShield()
-class Shielder(Ship):
+@WarpDeploy()
+class Warp(Ship):
 	pass
 
 @HasHealth(10)
@@ -793,6 +768,92 @@ class Shielder(Ship):
 class Heavy(Ship):
 	pass
 
+@HasHealth(3)
+@Drifts()
+@HasMaximumHorizontalVelocity(20)
+@VerticalWeight()
+@HasMaximumVerticalVelocity(10)
+@DrawImageFlash("beaconskiff")
+@IgnoresNetwork()
+@CanDeployOnce()
+@DeployFreeze()
+@BeaconDeploy()
+class BeaconSkiff(Ship):
+	pass
+
+@HasHealth(10)
+@Drifts()
+@HasMaximumHorizontalVelocity(6)
+@VerticalWeight()
+@HasMaximumVerticalVelocity(3)
+@DrawImageFlash("heavymapper")
+@IgnoresNetwork()
+@CanDeploy()
+@DeployFreeze()
+@MapperDeploy()
+class HeavyMapper(Ship):
+	pass
+
+@HasHealth(3)
+@Drifts()
+@HasMaximumHorizontalVelocity(20)
+@VerticalWeight()
+@HasMaximumVerticalVelocity(10)
+@DrawImageFlash("warpskiff")
+@IgnoresNetwork()
+@WarpDeploy()
+class WarpSkiff(Ship):
+	pass
+
+@HasHealth(10)
+@Drifts()
+@HasMaximumHorizontalVelocity(6)
+@VerticalWeight()
+@HasMaximumVerticalVelocity(3)
+@DrawImageFlash("heavybeacon")
+@IgnoresNetwork()
+@CanDeployOnce()
+@DeployFreeze()
+@BeaconDeploy()
+class HeavyBeacon(Ship):
+	pass
+
+@HasHealth(10)
+@Drifts()
+@HasMaximumHorizontalVelocity(20)
+@VerticalWeight()
+@HasMaximumVerticalVelocity(10)
+@DrawImageFlash("heavywarpskiff")
+@IgnoresNetwork()
+@WarpDeploy()
+class HeavyWarpSkiff(Ship):
+	pass
+
+@HasHealth(10)
+@Drifts()
+@HasMaximumHorizontalVelocity(20)
+@VerticalWeight()
+@HasMaximumVerticalVelocity(10)
+@DrawImageFlash("heavybeaconskiff")
+@IgnoresNetwork()
+@CanDeployOnce()
+@DeployFreeze()
+@BeaconDeploy()
+class HeavyBeaconSkiff(Ship):
+	pass
+
+@HasHealth(10)
+@Drifts()
+@HasMaximumHorizontalVelocity(20)
+@VerticalWeight()
+@HasMaximumVerticalVelocity(10)
+@DrawImageFlash("heavymapperskiff")
+@IgnoresNetwork()
+@CanDeploy()
+@DeployFreeze()
+@MapperDeploy()
+class HeavyMapperSkiff(Ship):
+	pass
 
 @MovesCircularWithConstantSpeed(8, 0.2)
 @DrawTremor()
@@ -803,10 +864,12 @@ class Tremor(WorldThing):
 @DrawSlash()
 class Slash(WorldThing):
 	hazardsize = 4
+	dhp = 1
 
 @DrawRung()
 class Rung(WorldThing):
 	hazardsize = 7
+	dhp = 3
 
 @DrawImage("mother", 4)
 @IgnoresNetwork()

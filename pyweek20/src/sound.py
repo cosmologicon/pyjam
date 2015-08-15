@@ -72,9 +72,9 @@ def playgamemusic():
 	channel_volumes[0] = 1
 	channel_volumes[1] = 0
 	channel_volumes[2] = 0
-	channels[0].play(sounds["epic0"])
-	channels[1].play(sounds["epic1"])
-	channels[2].play(sounds["epic2"])
+	channels[0].play(sounds["epic0"], -1)
+	channels[1].play(sounds["epic1"], -1)
+	channels[2].play(sounds["epic2"], -1)
 	
 def think(dt):
 	global epictarget

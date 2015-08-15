@@ -96,10 +96,22 @@ def drawmap():
 	window.screen.blit(fullmap, fullmap.get_rect(center = window.screen.get_rect().center))
 
 shipdata = {
-	"Skiff": ("Skiff", "fast", None),
-	"Mapper": ("Survey", "slow", "view map"),
-	"Beacon": ("Detector", "slow", "find hidden"),
-	"WarpShip": ("Warp Ship", "medium", "warp"),
+	"Skiff": ("Cutter", None),
+	"Heavy": ("Armored", None),
+	"HeavySkiff": ("Armored Cutter", None),
+
+	"Mapper": ("Survey Ship", "view map"),
+	"HeavyMapper": ("Armored Survey", "view map"),
+	"HeavyMapperSkiff": ("Armored Survey Cutter", "view map"),
+
+	"Beacon": ("Detector", "find hidden"),
+	"BeaconSkiff": ("Cutter-Detector", "find hidden"),
+	"HeavyBeacon": ("Armored Detector", "find hidden"),
+	"HeavyBeaconSkiff": ("Armored Cutter-Detector", "find hidden"),
+
+	"Warp": ("Warp Ship", "warp"),
+	"WarpSkiff": ("Warp Cutter", "warp"),
+	"HeavyWarpSkiff": ("Armored Warp Cutter", "warp"),
 }
 
 
@@ -116,13 +128,12 @@ def drawstats():
 	statsbox.blit(img, img.get_rect(center = statsbox.get_rect().center))
 	pygame.draw.rect(statsbox, (255, 255, 255, 40), (0, 0, w, w), F(3))
 	window.screen.blit(statsbox, statsbox.get_rect(left = F(10), top = F(10)))
-	shipname, handling, special = shipdata[state.you.__class__.__name__]
+	shipname, special = shipdata[state.you.__class__.__name__]
 	text = "\n".join([
 		"Current ship: %s" % shipname,
-		"Handling: %s" % handling,
 		"Tap space: %s" % special if special is not None else "",
 	])
-	ptext.draw(text, topleft = F(104, 40), fontsize = F(16), shadow = (1, 1),
+	ptext.draw(text, topleft = F(10, 104), fontsize = F(16), shadow = (1, 1),
 		lineheight = 1.3, alpha = 0.5, fontname = "Exo")
 	x0, y0, w, h, dx, thick = F(104, 10, 16, 20, 20, 2)
 	for j in range(state.you.maxhp):

@@ -11,18 +11,14 @@ def init():
 	quest.quests["Act1"].available = True
 	state.shipyard = {
 		"Skiff": 600,
-		"Mapper": 400,
-		"Beacon": 400,
+		"Mapper": 600,
+		"Beacon": 600,
 	}
 
 	state.you = thing.Skiff(X = 0, y = state.R - 5, vx = 1)
 	state.ships = [state.you]
 	state.mother = thing.Mother(X = 0, y = state.R)
 	state.objs = [state.mother]
-	state.convergences = [
-		thing.Convergence(X = X, y = y)
-		for X, y in state.worlddata["convergences"]
-	]
 #	state.filaments = [thing.Filament(ladderps = state.worlddata["filaments"][0])]
 	state.hazards = [
 		thing.Slash(X = random.uniform(0, math.tau), y = random.uniform(state.Rcore, state.R))
@@ -257,7 +253,7 @@ def think(dt, events, kpressed):
 			continue
 		for h in hcollide:
 			if window.distance(h, s) < h.hazardsize:
-				s.takedamage(1)
+				s.takedamage(h.dhp)
 
 	if state.quickteleport and "qtarget" in control:
 		X, y = control["qtarget"]

@@ -36,8 +36,9 @@ def think(dt, events, kpressed):
 	background.flowt += 4 * dt
 
 	for event in (events or []):
-		if event.type == KEYUP and event.key == "go" and t > 6:
+		if event.type == KEYUP and event.key == "go" and t > 8:
 			scene.current = play
+			play.init()
 			background.wash()
 		
 	for ship in state.ships:
@@ -49,7 +50,8 @@ def think(dt, events, kpressed):
 
 	dt = max(dt, 0.1)
 	window.camera.X0 = 0
-	window.camera.y0 += (1 - math.exp(-0 * dt)) * (R - window.camera.y0)
+	factor = 0.005 * t
+	window.camera.y0 += (1 - math.exp(-factor * dt)) * (R - 300 - window.camera.y0)
 	
 	Rwin = window.sy / 1600
 	window.camera.R += (1 - math.exp(-0.3 * dt)) * (Rwin - window.camera.R)
@@ -68,26 +70,32 @@ def draw():
 		window.camera.y0 *= R / state.R
 		window.camera.R /= 2.5
 
-	for ship in state.ships:
-		ship.draw()
-	for effect in state.effects:
-		effect.draw()
+	if t < 8:
+		for ship in state.ships:
+			ship.draw()
+		for effect in state.effects:
+			effect.draw()
 	px, py = window.screenpos(0, 0)
 #	r = int(window.camera.R * R)
 #	if py - r < window.sy:
 #		pygame.draw.circle(window.screen, (0, 40, 20), (px, py), r)
 	dialog.draw()
 	a1 = math.clamp((t - 4) / 2, 0, 1)
-	a2 = math.clamp((t - 6) / 2, 0, 1)
-	ptext.draw(settings.gamename, fontsize = F(70), center = F(427, 200),
-		owidth = 2, color = "#AAFFCC", alpha = a1, fontname = "Audiowide")
-	ptext.draw("by Christopher Night", fontsize = F(32), midtop = F(427, 250),
-		owidth = 1, color = "gray", alpha = a2, fontname = "Audiowide")
-#	ptext.draw("music: Mary Bichner", fontsize = F(32), midtop = F(220, 290),
-#		owidth = 1, color = "gray")
-#	ptext.draw("testing: ???", fontsize = F(32), midtop = F(220, 340),
-#		owidth = 1, color = "gray")
-#	ptext.draw("production: ???", fontsize = F(32), midtop = F(854-220, 290),
-#		owidth = 1, color = "gray")
+	a2 = math.clamp((t - 5.5) / 2, 0, 1)
+	a3 = math.clamp((t - 6.5) / 2, 0, 1)
+	a4 = math.clamp((t - 8) / 2, 0, 1)
+	ptext.draw(settings.gamename, fontsize = F(70), center = F(427, 140),
+		owidth = 2, color = "#44FF77", gcolor = "#AAFFCC", alpha = a1, fontname = "Audiowide")
+	ptext.draw("by Christopher Night", fontsize = F(26), midtop = F(427, 180),
+		owidth = 2, color = "#7777FF", gcolor = "#AAAAFF", alpha = a2, fontname = "Audiowide")
+	ptext.draw("MUSIC\nPRODUCTION\nTESTING\nARTWORK\nVOICE",
+		fontsize = F(24), topright = F(427 - 10, 240), lineheight = 1.24,
+		owidth = 2, color = "#7777FF", gcolor = "#AAAAFF", alpha = a2, fontname = "Audiowide")
+	ptext.draw("Mary Bichner\nCharles McPillan\nLeo Stein\nMolly Zenobia\nRandy Parcel",
+		fontsize = F(24), topleft = F(427 + 10, 240), lineheight = 1.24,
+		owidth = 2, color = "#7777FF", gcolor = "#AAAAFF", alpha = a2, fontname = "Audiowide")
+	ptext.draw("Press space to begin",
+		fontsize = F(24), midtop = F(427, 440),
+		owidth = 2, color = "#777777", gcolor = "#AAAAAA", alpha = a3, fontname = "Audiowide")
 
 

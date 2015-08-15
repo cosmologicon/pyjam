@@ -30,8 +30,9 @@ vqteleport = 25
 rqteleport = 50
 twarpinvulnerability = 3
 thurtinvulnerability = 1
+tcutsceneinvulnerability = 5
 
-musiccrossfadetime = 3
+musiccrossfadetime = 1
 
 keycodes = {
 	"left": [K_LEFT, K_a],

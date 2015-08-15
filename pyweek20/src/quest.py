@@ -52,8 +52,8 @@ class Intro(Quest):
 			if state.target is state.you:
 				self.progress += 1
 				self.settarget()
-		elif self.progress == 10:
-			if not dialog.currentline:
+		if self.progress == 10:
+			if not dialog.queue and not dialog.currentline:
 				from src.scenes import title
 				scene.current = title
 				title.init()
@@ -116,7 +116,7 @@ class Act1(Quest):
 				self.progress = 3
 			if self.progress == 3 and nvisible >= 2:
 				dialog.play("convo7")
-				self.progress = 3
+				self.progress = 4
 			if self.progress == 4 and nvisible == 3:
 				dialog.play("convo8")
 				self.progress = 5
@@ -124,29 +124,127 @@ class Act1(Quest):
 				quests["Act2"].setup()
 				# TODO: stop playing distress call
 
+
 class Act2(Quest):
 	def __init__(self):
 		Quest.__init__(self)
 	def setup(self):
 		self.available = True
+		self.cutscened = False
+		self.tquiet = 0
 		payload = thing.BatesShip(pos = state.worlddata["payloads"][3])
 		state.objs.append(payload)
 		state.goals.append(payload)
 		self.goal = payload.thingid
 		state.shipyard = {
 			"Skiff": 500,
-			"Mapper": 300,
-			"Beacon": 300,
-			"HeavyShip": 400,
+			"Mapper": 500,
+			"Beacon": 500,
+			"Heavy": 500,
 		}
+		hud.show("Armored Ship unlocked", 4)
 	def think(self, dt):
 		if self.done or not self.available:
 			return
 		self.t += dt
-		if self.progress == 0 and thing.get(self.payload).isvisible():
+		if not self.cutscened:
+			if dialog.queue or dialog.currentline:
+				self.tquiet = 0
+			else:
+				self.tquiet += dt
+			if self.tquiet > 5:
+				self.cutscened = True
+				from src.scenes import act2cutscene
+				from src import scene
+				scene.current = act2cutscene
+				act2cutscene.init()
+		if self.progress == 0 and thing.get(self.goal).isvisible():
 			dialog.play("convo10")
 			self.progress = 1
-		
+
+		if self.progress == 1 and self.cutscened:
+			self.done = True
+			quests["Seek"].setup()
+
+
+class Seek(Quest):
+	def setup(self):
+		self.available = True
+		state.convergences = [
+			thing.Convergence(X = X, y = y)
+			for X, y in state.worlddata["convergences"]
+		]
+	def think(self, dt):
+		if self.done or not self.available:
+			return
+		self.t += dt
+		nvis = sum(convergence.isvisible() for convergence in state.convergences)
+		if nvis > self.progress:
+			self.updateprogress(nvis)
+	def updateprogress(self, nprogress):
+		self.progress = nprogress
+		if nprogress == 1:
+			state.shipyard = {
+				"Mapper": 600,
+				"BeaconSkiff": 800,
+				"Heavy": 600,
+			}
+			hud.show("Cutter-Detector unlocked", 5)
+		if nprogress == 2:
+			state.shipyard = {
+				"Mapper": 600,
+				"BeaconSkiff": 800,
+				"Heavy": 600,
+				"Warp": 600,
+			}
+			hud.show("Warp ship unlocked", 5)
+		elif nprogress == 3:
+			state.shipyard = {
+				"HeavyMapper": 800,
+				"BeaconSkiff": 800,
+				"Warp": 600,
+			}
+			hud.show("Armored Survey ship unlocked", 5)
+		elif nprogress == 4:
+			state.shipyard = {
+				"HeavyMapper": 600,
+				"BeaconSkiff": 600,
+				"HeavySkiff": 600,
+				"WarpSkiff": 600,
+			}
+			hud.show("Warp Cutter unlocked", 5)
+		elif nprogress == 5:
+			state.shipyard = {
+				"HeavyMapper": 600,
+				"HeavyBeacon": 600,
+				"BeaconSkiff": 600,
+				"HeavySkiff": 600,
+				"WarpSkiff": 600,
+			}
+			hud.show("Armored Detector unlocked", 5)
+		elif nprogress == 6:
+			state.shipyard = {
+				"HeavyMapper": 600,
+				"HeavyBeacon": 600,
+				"BeaconSkiff": 600,
+				"HeavyWarpSkiff": 600,
+			}
+			hud.show("Armored Warp Cutter unlocked", 5)
+		elif nprogress == 7:
+			state.shipyard = {
+				"HeavyMapper": 600,
+				"HeavyBeaconSkiff": 600,
+				"HeavyWarpSkiff": 600,
+			}
+			hud.show("Armored Cutter-Detector unlocked", 5)
+		elif nprogress == 8:
+			state.shipyard = {
+				"HeavyMapperSkiff": 600,
+				"HeavyBeaconSkiff": 600,
+				"HeavyWarpSkiff": 600,
+			}
+			hud.show("Armored Survey Cutter unlocked", 5)
+
 
 def think(dt):
 	for quest in quests.values():
@@ -155,6 +253,7 @@ def think(dt):
 Intro()
 Act1()
 Act2()
+Seek()
 
 def dump():
 	data = {}
