@@ -842,7 +842,7 @@ class BeaconSkiff(Ship):
 @HasMaximumHorizontalVelocity(20)
 @VerticalWeight()
 @HasMaximumVerticalVelocity(10)
-@DrawImageFlash("heavy")
+@DrawImageFlash("heavyskiff")
 @IgnoresNetwork()
 @CantDeploy()
 class HeavySkiff(Ship):

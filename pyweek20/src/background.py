@@ -32,8 +32,10 @@ def think(dt):
 surf = None
 dsurf = None
 hsurf = None
-def draw(factor = settings.backgroundfactor):
+def draw(factor = None):
 	global surf, dsurf, hsurf
+	if factor is None:
+		factor = settings.backgroundfactor
 	sx, sy = window.screen.get_size()
 	sx = int(math.ceil(sx / factor))
 	sy = int(math.ceil(sy / factor))
@@ -94,7 +96,7 @@ def draw(factor = settings.backgroundfactor):
 		window.screen.blit(hsurf, (0, y))
 	if y > 0:
 		window.screen.fill((0, 0, 0), (0, 0, hsurf.get_width(), y))
-		
+
 
 fsurf = None
 dfsurf = None

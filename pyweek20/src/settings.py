@@ -27,7 +27,7 @@ musicvolume = 0.2, 0.5
 musiccrossfadetime = 1
 
 # Set lower for higher-resolution lava lamp effects (takes more CPU).
-backgroundfactor = 20
+backgroundfactor = 16
 
 jumpcombotime = 0.08
 tactivate = 0.25

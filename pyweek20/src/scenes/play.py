@@ -86,7 +86,7 @@ def think(dt, events, kpressed):
 	quest.think(dt)
 	dialog.think(dt0)
 	background.think(dt)
-	sound.epicness = 2 - (state.you.y - 100) / 140
+	sound.epicness = 2 - (state.you.y - 100) / 160
 	sound.think(dt)
 
 	oldX, oldy = state.you.X, state.you.y
