@@ -86,6 +86,7 @@ def think(dt, events, kpressed):
 	quest.think(dt)
 	dialog.think(dt0)
 	background.think(dt)
+	sound.epicness = 2 - (state.you.y - 100) / 140
 	sound.think(dt)
 
 	if 1e10 * random.random() < dt:
@@ -269,12 +270,18 @@ def think(dt, events, kpressed):
 
 def regenerate():
 	state.you = thing.Skiff(X = state.mother.X, y = state.mother.y - 11, vx = 0)
+	window.camera.X0 = state.you.X
+	window.camera.y0 = state.you.y
 	state.ships.append(state.you)
 	clearfull()
 	populatefull()
 	sound.play("longteleport")
 	control.clear()
 	dialog.play("convo5")
+	background.wash()
+	background.drawwash()
+	if settings.saveonemergency:
+		state.save()
 
 
 def jump(kx, ky):

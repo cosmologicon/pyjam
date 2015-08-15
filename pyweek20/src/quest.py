@@ -290,6 +290,7 @@ class Seek(Quest):
 class Finale(Quest):
 	def setup(self):
 		self.available = True
+		self.winner = "Skiff"
 	def think(self, dt):
 		if self.done or not self.available:
 			return
@@ -311,6 +312,7 @@ Intro()
 Act1()
 Act2()
 Seek()
+Finale()
 
 def dump():
 	data = {}

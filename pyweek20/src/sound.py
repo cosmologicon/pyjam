@@ -84,6 +84,7 @@ def playtitlemusic():
 	channels[1].set_volume(1)
 	channels[1].play(sounds["title"], -1)
 	channels[0].stop()
+	channels[2].stop()
 def playgamemusic():
 	global musicmode, epicness, epictarget
 	musicmode = "game"

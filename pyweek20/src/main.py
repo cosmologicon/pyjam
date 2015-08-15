@@ -4,7 +4,7 @@ import pygame, datetime, os.path
 from pygame.locals import *
 from src import settings, thing, window, ptext, state, background, scene, sound
 from src.window import F
-from src.scenes import play, intro, title
+from src.scenes import play, intro, title, finalcutscene, endtitle
 
 ptext.FONT_NAME_TEMPLATE = os.path.join("data", "fonts", "%s.ttf")
 
@@ -21,8 +21,13 @@ if os.path.exists(settings.savename):
 	background.wash()
 	state.load()
 else:
-	scene.current = intro
-	scene.toinit = intro
+	sound.playgamemusic()
+	from src import quest
+	quest.quests["Finale"].setup()
+	scene.current = finalcutscene
+	scene.toinit = finalcutscene
+	scene.current = endtitle
+	scene.toinit = endtitle
 
 clock = pygame.time.Clock()
 playing = True
@@ -94,6 +99,8 @@ while playing:
 		scene.toinit.init()
 		scene.toinit = None
 	s = scene.current
+	if not s:
+		break
 	if tconfirmfull:
 		if tconfirmfull == 10:
 			s.think(0, events, kpressed)
@@ -109,13 +116,14 @@ while playing:
 		s.think(dt, events, kpressed)
 		s.draw()
 	if settings.DEBUG:
-		ptext.draw("%.4f, %.1f" % (state.you.X, state.you.y), fontsize = F(36),
-			bottomright = (window.sx - F(10), window.sy - F(50)), cache = False)
+		if state.you:
+			ptext.draw("%.4f, %.1f" % (state.you.X, state.you.y), fontsize = F(36),
+				bottomright = (window.sx - F(10), window.sy - F(50)), cache = False)
 		ptext.draw("%.1ffps" % clock.get_fps(), fontsize = F(36),
 			bottomright = (window.sx - F(10), window.sy - F(10)), cache = False)
 	pygame.display.flip()
 
-if scene.current is play and settings.autosave:
+if scene.current is play and settings.saveonquit:
 	state.save()
 pygame.quit()
 

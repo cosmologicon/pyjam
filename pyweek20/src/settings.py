@@ -1,6 +1,7 @@
 from pygame.locals import *
+import sys
 
-gamename = "Beyond the horizon"
+gamename = "Beyond the Horizon"
 
 # Must have a 16x9 aspect ratio.
 windowsize = 854, 480
@@ -16,8 +17,9 @@ maxfps = 60
 minfps = 6
 drawbackground = True
 
-DEBUG = True
-autosave = True  # Save the game when it's closed.
+DEBUG = "--debug" in sys.argv
+saveonquit = True
+saveonemergency = True
 savename = "data/savegame.json"
 
 

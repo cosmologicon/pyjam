@@ -271,7 +271,7 @@ class DrawHiddenRotatingImage(Component):
 		if not self.tvisible:
 			return
 		alpha = min(self.tvisible, 0.5 + 0.4 * math.sin(self.t))
-		image.worlddraw(self.imgname, self.X, self.y, self.imgr, alpha = alpha, angle = self.t)
+		image.worlddraw(self.imgname, self.X, self.y, self.imgr, alpha = alpha, angle = 200 * self.t)
 
 class DrawTarget(Component):
 	def draw(self):
@@ -701,6 +701,19 @@ class DrawTeleport(Component):
 			y = self.y + f * (target.y - self.y)
 			pygame.draw.circle(window.screen, (255, 128, 255), window.screenpos(X, y), F(s), 0)
 
+class DrawSlowTeleport(Component):
+	def init(self, X1, y1, **kwargs):
+		self.X1 = X1
+		self.y1 = y1
+	def dump(self, obj):
+		obj["targetid"] = self.targetid
+	def draw(self):
+		for d, s in [(-0.1, 3), (-0.05, 6), (0, 8), (0.05, 6), (0.1, 3)]:
+			f = math.clamp(self.flife + d, 0, 1)
+			X = self.X + f * (self.X1 - self.X)
+			y = self.y + f * (self.y1 - self.y)
+			pygame.draw.circle(window.screen, (255, 128, 255), window.screenpos(X, y), F(s), 0)
+
 # Base class for things
 @HasId()
 @HasType()
@@ -973,6 +986,12 @@ class BubbleChain(WorldThing):
 @DrawTeleport()
 class Teleport(WorldThing):
 	pass
+
+@Lifetime(5)
+@DrawSlowTeleport()
+class SlowTeleport(WorldThing):
+	pass
+
 
 def dump():
 	obj = {}

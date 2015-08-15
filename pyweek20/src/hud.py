@@ -72,12 +72,24 @@ def drawmap():
 			pygame.draw.lines(grid, (40, 40, 0), False, ps, F(6))
 		for r in range(25, state.R + 25, 25):
 			pygame.draw.circle(grid, (10, 40, 10), p0, int(scale * r), F(1))
+		pygame.draw.circle(grid, (200, 0, 0), p0, int(scale * state.R), F(1))
+		pygame.draw.circle(grid, (200, 0, 0), p0, int(scale * state.Rcore), F(1))
 		for j in range(48):
 			r0 = 25 * (8 if j % 2 else 4 if j % 4 else 2 if j % 8 else 1)
 			X = math.tau * j / 48
 			p1 = window.windowpos(X, r0, w, w, 0, 0, scale)
 			p2 = window.windowpos(X, state.R, w, w, 0, 0, scale)
 			pygame.draw.line(grid, (10, 40, 10), p1, p2, F(1))
+		ptext.draw("The Charybdis\nAnomaly", fontname = "Exo", fontsize = F(19),
+			bottomleft = F(10, 410), owidth = 2, surf = grid)
+		ptext.draw("OUTER HORIZON", fontname = "Exo", fontsize = F(14),
+			center = F(70, 70), angle = 45, color = (200, 0, 0), owidth = 2, surf = grid)
+		ptext.draw("OUTER HORIZON", fontname = "Exo", fontsize = F(14),
+			center = F(420-70, 70), angle = -45, color = (200, 0, 0), owidth = 2, surf = grid)
+		ptext.draw("OUTER HORIZON", fontname = "Exo", fontsize = F(14),
+			center = F(420-70, 420-70), angle = 45, color = (200, 0, 0), owidth = 2, surf = grid)
+		ptext.draw("DATA\nHORIZON", fontname = "Exo", fontsize = F(14),
+			center = F(210, 210), color = (200, 0, 0), owidth = 2, surf = grid)
 		grid.set_alpha(180)
 	window.screen.blit(grid, grid.get_rect(center = window.screen.get_rect().center))
 

@@ -39,6 +39,7 @@ def init():
 	f = sy / 480
 	screen = pygame.display.set_mode((sx, sy), flags)
 	camera = Camera()
+	pygame.mouse.set_visible(not settings.fullscreen)
 
 
 class Camera(object):

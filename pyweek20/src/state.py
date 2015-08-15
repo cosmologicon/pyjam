@@ -1,5 +1,5 @@
-import json, os.path
-from src import settings
+import pygame, json, os.path
+from src import settings, ptext
 
 worlddata = json.load(open(os.path.join("data", "worlddata.json")))
 R = worlddata["R"]
@@ -41,7 +41,12 @@ def buildnetwork():
 		network.append((thing.get(id0), thing.get(id1)))
 
 def save():
-	import window, thing, quest, dialog, hud
+	from src import window, thing, quest, dialog, hud
+	from src.window import F
+	ptext.draw("Saving...", fontname = "Audiowide", fontsize = F(70), color = "orange",
+		gcolor = "white", owidth = 2, center = window.screen.get_rect().center)
+	pygame.display.flip()
+
 	def getids(x):
 		if x is None:
 			return None
@@ -71,6 +76,10 @@ def save():
 
 def load():
 	import window, thing, quest, dialog, hud
+	from src.window import F
+	ptext.draw("Loading...", fontname = "Audiowide", fontsize = F(70), color = "orange",
+		gcolor = "white", owidth = 2, center = window.screen.get_rect().center)
+	pygame.display.flip()
 	savestate = json.load(open(settings.savename))
 	thing.load(savestate["thing"])
 	window.camera.load(savestate["camera"])
