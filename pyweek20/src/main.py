@@ -30,6 +30,7 @@ else:
 #	scene.toinit = endtitle
 	scene.current = intro
 	scene.toinit = intro
+	title.drawtitle()
 
 clock = pygame.time.Clock()
 playing = True

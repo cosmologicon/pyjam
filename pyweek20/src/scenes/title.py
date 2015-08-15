@@ -11,9 +11,11 @@ y0 = R + 400
 
 control = {}
 
+t = 0
 def init():
 	global t
 	t = 0
+
 	dy = y0 - window.camera.y0
 	dX = window.camera.y0 / y0
 	for ship in state.ships:
@@ -78,6 +80,9 @@ def draw():
 #	if py - r < window.sy:
 #		pygame.draw.circle(window.screen, (0, 40, 20), (px, py), r)
 	dialog.draw()
+	drawtitle()
+
+def drawtitle():
 	a1 = math.clamp((t - 4) / 2, 0, 1)
 	a2 = math.clamp((t - 5.5) / 2, 0, 1)
 	a3 = math.clamp((t - 6.5) / 2, 0, 1)

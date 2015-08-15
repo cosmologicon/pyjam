@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, numpy, math, random
 from pygame.locals import *
-from src import window, state
+from src import window, state, settings
 
 def rgrad():
 	x, y = random.gauss(0, 1), random.gauss(0, 1)
@@ -32,7 +32,7 @@ def think(dt):
 surf = None
 dsurf = None
 hsurf = None
-def draw(factor = 20):
+def draw(factor = settings.backgroundfactor):
 	global surf, dsurf, hsurf
 	sx, sy = window.screen.get_size()
 	sx = int(math.ceil(sx / factor))

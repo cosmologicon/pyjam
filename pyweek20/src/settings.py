@@ -26,6 +26,9 @@ savename = "data/savegame.pkl"
 musicvolume = 0.2, 0.5
 musiccrossfadetime = 1
 
+# Set lower for higher-resolution lava lamp effects (takes more CPU).
+backgroundfactor = 20
+
 jumpcombotime = 0.08
 tactivate = 0.25
 maxjump = 30
