@@ -2,7 +2,7 @@ from __future__ import division
 # import vidcap
 import pygame, datetime, os.path
 from pygame.locals import *
-from src import settings, thing, window, ptext, state, background, scene
+from src import settings, thing, window, ptext, state, background, scene, sound
 from src.window import F
 from src.scenes import play, intro, title
 
@@ -12,15 +12,16 @@ window.init()
 pygame.display.set_caption(settings.gamename)
 pygame.mixer.init()
 background.init()
+sound.init()
 
 if os.path.exists(settings.savename):
 	scene.current = play
+	sound.playgamemusic()
 	background.wash()
-	lastscene = play
 	state.load()
 else:
 	scene.current = intro
-	lastscene = None
+	intro.init()
 
 clock = pygame.time.Clock()
 playing = True
@@ -48,7 +49,7 @@ while playing:
 			window.init()
 		if event.type == KEYUP and event.key == "go":
 			tconfirmfull = 0
-		if event.type == KEYDOWN and event.key == K_F12:
+		if event.type == KEYDOWN and event.key == "screenshot":
 			fname = datetime.datetime.now().strftime("screenshot-%Y%m%d%H%M%S.png")
 			pygame.image.save(window.screen, os.path.join("screenshots", fname))
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F2:
@@ -65,17 +66,29 @@ while playing:
 			state.save()
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F6:
 			scene.current = title
+			title.init()
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F7:
 			scene.current = play
+			play.init()
 			background.wash()
+		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F9:
+			from src.scenes import act2cutscene
+			from src import scene
+			scene.current = act2cutscene
+			act2cutscene.init()
+		if settings.DEBUG and event.type == KEYDOWN and event.key == K_KP0:
+			sound.epicness = 0
+		if settings.DEBUG and event.type == KEYDOWN and event.key == K_KP1:
+			sound.epicness = 1
+		if settings.DEBUG and event.type == KEYDOWN and event.key == K_KP2:
+			sound.epicness = 2
+
+
 	kpressed = pygame.key.get_pressed()
 	kpressed = {
 		keyname: any(kpressed[code] for code in codes)
 		for keyname, codes in settings.keycodes.items()
 	}
-	if scene.current is not lastscene:
-		scene.current.init()
-		lastscene = scene.current
 	s = scene.current
 	if tconfirmfull:
 		if tconfirmfull == 10:

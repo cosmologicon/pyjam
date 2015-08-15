@@ -16,7 +16,8 @@ def play(name):
 	if name in played:
 		return
 	played[name] = True
-	queue.extend(lines[name])
+#	queue.extend(lines[name])
+	queue.append("K dialogue: " + name)
 
 def dump():
 	return [played, queue]

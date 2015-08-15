@@ -56,6 +56,7 @@ class Intro(Quest):
 			if not dialog.currentline:
 				from src.scenes import title
 				scene.current = title
+				title.init()
 				self.done = True
 	def settarget(self):
 		if self.progress > 1:
@@ -93,10 +94,10 @@ class Act1(Quest):
 	def think(self, dt):
 		if self.done or not self.available:
 			return
-		# TODO: play distress call
+		# TODO: play distress call (convo6)
 		self.t += dt
 		if self.progress == 0 and self.t > 1:
-			dialog.play("act1-1")
+			dialog.play("convo2")
 			self.progress = 1
 			payloads = [
 				thing.Payload(pos = pos) for pos in state.worlddata["payloads"][:3]
@@ -106,16 +107,19 @@ class Act1(Quest):
 			self.goals = [p.thingid for p in payloads]
 		if self.progress == 1:
 			if any(window.distance(thing.get(goal), state.you) < 20 for goal in self.goals):
-				dialog.play("act1-2")
+				dialog.play("convo3")
 				self.progress = 2
 		if self.progress >= 2:
 			nvisible = sum(thing.get(goal).isvisible() for goal in self.goals)
-			if self.progress == 2 and nvisible >= 2:
-				dialog.play("act1-3")
+			if self.progress == 2 and nvisible >= 1:
+				dialog.play("convo4")
 				self.progress = 3
-			if self.progress == 3 and nvisible == 3:
-				dialog.play("act1-4")
-				self.progress = 4
+			if self.progress == 3 and nvisible >= 2:
+				dialog.play("convo7")
+				self.progress = 3
+			if self.progress == 4 and nvisible == 3:
+				dialog.play("convo8")
+				self.progress = 5
 				self.done = True
 				quests["Act2"].setup()
 				# TODO: stop playing distress call
@@ -128,7 +132,7 @@ class Act2(Quest):
 		payload = thing.BatesShip(pos = state.worlddata["payloads"][3])
 		state.objs.append(payload)
 		state.goals.append(payload)
-		self.goal = payload
+		self.goal = payload.thingid
 		state.shipyard = {
 			"Skiff": 500,
 			"Mapper": 300,
@@ -139,15 +143,9 @@ class Act2(Quest):
 		if self.done or not self.available:
 			return
 		self.t += dt
-		if self.progress == 0 and self.t > 1:
-			dialog.play("act1-1")
+		if self.progress == 0 and thing.get(self.payload).isvisible():
+			dialog.play("convo10")
 			self.progress = 1
-			payloads = [
-				thing.Payload(pos = pos) for pos in state.worlddata["payloads"][:3]
-			]
-			state.objs.extend(payloads)
-			state.goals.extend(payloads)
-			self.goals = [p.thingid for p in payloads]
 		
 
 def think(dt):

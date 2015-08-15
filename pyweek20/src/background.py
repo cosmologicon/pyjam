@@ -32,9 +32,8 @@ def think(dt):
 surf = None
 dsurf = None
 hsurf = None
-def draw():
+def draw(factor = 20):
 	global surf, dsurf, hsurf
-	factor = 20
 	sx, sy = window.screen.get_size()
 	sx = int(math.ceil(sx / factor))
 	sy = int(math.ceil(sy / factor))

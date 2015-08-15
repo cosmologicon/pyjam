@@ -41,6 +41,8 @@ def init():
 	window.camera.think(0)
 
 	populatefull()
+	
+	sound.playgamemusic()
 
 def clearfull():
 	state.ships = [ship for ship in state.ships if ship is state.you or ship.significant]
@@ -87,6 +89,7 @@ def think(dt, events, kpressed):
 	quest.think(dt)
 	dialog.think(dt0)
 	background.think(dt)
+	sound.think(dt)
 
 	if 1e10 * random.random() < dt:
 		state.ships.append(thing.Skiff(
@@ -274,6 +277,7 @@ def regenerate():
 	populatefull()
 	sound.play("longteleport")
 	control.clear()
+	dialog.play("convo5")
 
 
 def jump(kx, ky):
@@ -309,7 +313,6 @@ def retarget():
 
 def draw():
 	if settings.drawbackground:
-		window.screen.fill((20, 0, 0))
 		background.draw()
 	else:
 		window.screen.fill((0, 60, 0))

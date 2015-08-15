@@ -1,6 +1,6 @@
 from __future__ import division
 import math, random, pygame
-from src import window, image, state, hud, sound, settings
+from src import window, image, state, hud, sound, settings, background, dialog
 from src.window import F
 from src.enco import Component
 
@@ -591,6 +591,41 @@ class DrawConvergence(Component):
 			alpha = min(self.tvisible, 2 * t * (1 - t))
 			image.worlddraw(iname, X, y, s, rotate = False, alpha = alpha)
 
+class DrawBlob(Component):
+	def init(self, s = None, **kwargs):
+		self.s = s or random.uniform(3, 6)
+	def dump(self, obj):
+		obj["s"] = self.s
+	def draw(self):
+		alpha = 2 * self.flife * (1 - self.flife)
+		image.worlddraw("tremor-white", self.X, self.y, self.s, rotate = False, alpha = alpha)
+
+class DrawFirstConvergence(Component):
+	def __init__(self):
+		self.nspoke = 32
+	def init(self, ds = None, **kwargs):
+		self.ds = ds or [random.uniform(40, 80) for _ in range(self.nspoke)]
+	def dump(self, obj):
+		obj["ds"] = self.ds
+	def think(self, dt):
+		targett = self.lifetime - self.t
+		targetX = state.you.X + state.you.vx * targett / state.you.y
+		targety = state.you.y + state.you.vy * targett
+		for jspoke, d in enumerate(self.ds):
+			if random.random() * 0.5 < dt:
+				a = jspoke * math.tau / self.nspoke
+				dX = d * (1 - self.flife) * math.sin(a) / state.you.y
+				dy = d * (1 - self.flife) * math.cos(a)
+				state.effects.append(Blob(X = targetX + dX, y = targety + dy))
+	def draw(self):
+		pass
+	def die(self):
+		from src.scenes import act2cutscene
+		act2cutscene.playing = True
+		background.wash()
+		dialog.play("convo9")
+	
+
 class DrawBubble(Component):
 	def init(self, color = None, **kwargs):
 		self.color = color or (0, random.uniform(40, 100), random.uniform(20, 70))
@@ -808,9 +843,19 @@ class Bubbler(WorldThing):
 class Convergence(WorldThing):
 	pass
 
+@Lifetime(5)
+@DrawFirstConvergence()
+class FirstConvergence(WorldThing):
+	pass
+
 @Lifetime(1)
 @DrawBubble()
 class Bubble(WorldThing):
+	pass
+
+@Lifetime(2)
+@DrawBlob()
+class Blob(WorldThing):
 	pass
 
 @Lifetime(1)

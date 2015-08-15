@@ -1,4 +1,11 @@
-import pygame, random, sys
+# Intro music plays on channel 0
+# Title music plays on channel 1
+
+# Gameplay music plays on channels 0/1/2
+
+from __future__ import division
+import pygame, random, sys, math
+from src import settings
 
 freq = 22050
 
@@ -14,11 +21,22 @@ static *= 60
 def playstatic(t):
 	nsamp = int(freq * 2 * t)
 	sound = pygame.mixer.Sound(static[:nsamp])
-	sound.set_volume(0.05)
+	sound.set_volume(0.01)
 	sound.play()
 	return sound
 
 sounds = {}
+channels = {}
+channel_volumes = {}
+def init():
+	for n in range(8):
+		channels[n] = pygame.mixer.Channel(n)
+	sounds["intro"] = pygame.mixer.Sound(open("data/music/intro.wav"))
+	sounds["title"] = pygame.mixer.Sound(open("data/music/title.wav"))
+	sounds["epic0"] = pygame.mixer.Sound(open("data/music/epic.wav"))
+	sounds["epic1"] = pygame.mixer.Sound(open("data/music/epicer.wav"))
+	sounds["epic2"] = pygame.mixer.Sound(open("data/music/epicest.wav"))
+	
 def play(name):
 	if name not in sounds:
 		print("Missing sound: " + name)
@@ -30,6 +48,52 @@ def playmusic(name):
 		sounds[name] = pygame.mixer.Sound(open("data/music/%s.wav" % name))
 	sounds[name].play(-1)
 
-
+musicmode = None
+musicvolume = 0.6
+epicness = 0
+epictarget = 0
+def playintromusic():
+	global musicmode
+	musicmode = "intro"
+	channels[0].set_volume(1)
+	channels[0].play(sounds["intro"], -1)
+def playtitlemusic():
+	channels[1].set_volume(1)
+	channels[1].play(sounds["title"], -1)
+	channels[0].stop()
+def playgamemusic():
+	global musicmode, epicness, epictarget
+	musicmode = "game"
+	epicness = 0
+	epictarget = 0
+	channels[0].set_volume(1)
+	channels[1].set_volume(0)
+	channels[2].set_volume(0)
+	channel_volumes[0] = 1
+	channel_volumes[1] = 0
+	channel_volumes[2] = 0
+	channels[0].play(sounds["epic0"])
+	channels[1].play(sounds["epic1"])
+	channels[2].play(sounds["epic2"])
+	
+def think(dt):
+	global epictarget
+	if musicmode == "game":
+		if epictarget == 0 and epicness > 0.75:
+			epictarget = 1
+		elif epictarget == 1 and epicness < 0.25:
+			epictarget = 0
+		elif epictarget == 1 and epicness > 1.75:
+			epictarget = 2
+		elif epictarget == 2 and epicness < 1.25:
+			epictarget = 1
+	dvmax = dt / settings.musiccrossfadetime
+	for j in (0, 1, 2):
+		goalvolume = musicvolume if j == epictarget else 0
+		if channel_volumes[j] != goalvolume:
+			dv = math.clamp(goalvolume - channel_volumes[j], -dvmax, dvmax)
+			channel_volumes[j] += dv
+			channels[j].set_volume(channel_volumes[j])
+#	print [channels[j].get_volume() for j in (0, 1, 2)]
 
 

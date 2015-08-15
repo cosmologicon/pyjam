@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, math, random, time
 from pygame.locals import *
-from src import window, thing, settings, state, hud, quest, background, dialog, ptext, scene
+from src import window, thing, settings, state, hud, quest, background, dialog, ptext, scene, sound
 from src.scenes import play
 from src.window import F
 
@@ -24,6 +24,7 @@ def init():
 		effect.y += dy
 	window.camera.y0 = y0
 	window.camera.X0 = 0
+	sound.playtitlemusic()
 
 def think(dt, events, kpressed):
 	global t

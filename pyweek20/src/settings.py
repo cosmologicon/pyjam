@@ -31,6 +31,8 @@ rqteleport = 50
 twarpinvulnerability = 3
 thurtinvulnerability = 1
 
+musiccrossfadetime = 3
+
 keycodes = {
 	"left": [K_LEFT, K_a],
 	"right": [K_RIGHT, K_d, K_e],
@@ -40,6 +42,7 @@ keycodes = {
 	"abort": [K_BACKSPACE],
 	"quit": [K_ESCAPE],
 	"save": [K_F5],
+	"screenshot": [K_F12],
 }
 
 
