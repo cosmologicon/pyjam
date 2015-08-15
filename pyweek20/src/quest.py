@@ -56,7 +56,7 @@ class Intro(Quest):
 			if not dialog.queue and not dialog.currentline:
 				from src.scenes import title
 				scene.current = title
-				title.init()
+				scene.toinit = title
 				self.done = True
 	def settarget(self):
 		if self.progress > 1:
@@ -157,7 +157,7 @@ class Act2(Quest):
 				from src.scenes import act2cutscene
 				from src import scene
 				scene.current = act2cutscene
-				act2cutscene.init()
+				scene.toinit = act2cutscene
 		if self.progress == 0 and thing.get(self.goal).isvisible():
 			dialog.play("convo10")
 			self.progress = 1

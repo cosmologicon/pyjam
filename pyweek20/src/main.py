@@ -16,12 +16,13 @@ sound.init()
 
 if os.path.exists(settings.savename):
 	scene.current = play
+	scene.toinit = None
 	sound.playgamemusic()
 	background.wash()
 	state.load()
 else:
 	scene.current = intro
-	intro.init()
+	scene.toinit = intro
 
 clock = pygame.time.Clock()
 playing = True
@@ -66,7 +67,7 @@ while playing:
 			state.save()
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F6:
 			scene.current = title
-			title.init()
+			scene.toinit = title
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F7:
 			scene.current = play
 			play.init()
@@ -75,7 +76,7 @@ while playing:
 			from src.scenes import act2cutscene
 			from src import scene
 			scene.current = act2cutscene
-			act2cutscene.init()
+			scene.toinit = act2cutscene
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_KP0:
 			sound.epicness = 0
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_KP1:
@@ -89,6 +90,9 @@ while playing:
 		keyname: any(kpressed[code] for code in codes)
 		for keyname, codes in settings.keycodes.items()
 	}
+	if scene.toinit:
+		scene.toinit.init()
+		scene.toinit = None
 	s = scene.current
 	if tconfirmfull:
 		if tconfirmfull == 10:

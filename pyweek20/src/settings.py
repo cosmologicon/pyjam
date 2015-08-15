@@ -15,7 +15,7 @@ fullscreenmaxwidth = None
 maxfps = 60
 drawbackground = True
 
-DEBUG = True
+DEBUG = False
 autosave = False
 savename = "data/savegame.json"
 

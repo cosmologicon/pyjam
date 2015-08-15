@@ -38,7 +38,7 @@ def think(dt, events, kpressed):
 	for event in (events or []):
 		if event.type == KEYUP and event.key == "go" and t > 8:
 			scene.current = play
-			play.init()
+			scene.toinit = play
 			background.wash()
 		
 	for ship in state.ships:
