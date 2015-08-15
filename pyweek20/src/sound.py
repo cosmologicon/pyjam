@@ -4,9 +4,10 @@
 # Gameplay music plays on channels 0/1/2
 
 # Dialog on line 4
+# Channels 5/6/7 for sound effects
 
 from __future__ import division
-import pygame, random, sys, math
+import pygame, random, sys, math, os
 from src import settings
 
 freq = 22050
@@ -38,11 +39,26 @@ def init():
 	sounds["epic0"] = pygame.mixer.Sound(open("data/music/epic.wav"))
 	sounds["epic1"] = pygame.mixer.Sound(open("data/music/epicer.wav"))
 	sounds["epic2"] = pygame.mixer.Sound(open("data/music/epicest.wav"))
-	
+
 def play(name):
 	if name not in sounds:
-		print("Missing sound: " + name)
-		sounds[name] = None
+		path = os.path.join("data", "sound", name + ".wav")
+		if not os.path.exists(path):
+			print("Missing sound: " + name)
+			sounds[name] = None
+		else:
+			sounds[name] = pygame.mixer.Sound(open(path))
+			sounds[name].set_volume({
+				"teleport": 0.5,
+			}.get(name, 1))
+	if sounds[name] is None:
+		return
+	if not channels[5].get_busy():
+		channels[5].play(sounds[name])
+	elif not channels[6].get_busy():
+		channels[6].play(sounds[name])
+	else:
+		channels[7].play(sounds[name])
 
 def playline(name):
 	channels[4].play(pygame.mixer.Sound(open("data/dialog/%s.wav" % name)))

@@ -412,7 +412,7 @@ class CanDeployOnce(Component):
 
 class CantDeploy(Component):
 	def deploy(self):
-		sound.play("splat")
+		sound.play("no")
 
 class DeployFreeze(Component):
 	def think(self, dt):
