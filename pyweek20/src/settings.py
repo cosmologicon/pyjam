@@ -20,7 +20,8 @@ drawbackground = True
 DEBUG = "--debug" in sys.argv
 saveonquit = True
 saveonemergency = True
-savename = "data/savegame.json"
+# Set it to savegame.json if you prefer to save as json. I think it's slower, though.
+savename = "data/savegame.pkl"
 
 
 jumpcombotime = 0.08

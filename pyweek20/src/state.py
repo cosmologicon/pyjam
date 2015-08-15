@@ -1,4 +1,5 @@
 import pygame, json, os.path
+import cPickle as pickle
 from src import settings, ptext
 
 worlddata = json.load(open(os.path.join("data", "worlddata.json")))
@@ -72,7 +73,10 @@ def save():
 		"dialog": dialog.dump(),
 		"hud": hud.dump(),
 	}
-	json.dump(savestate, open(settings.savename, "w"))
+	if settings.savename.endswith(".pkl"):
+		pickle.dump(savestate, open(settings.savename, "w"))
+	else:
+		json.dump(savestate, open(settings.savename, "w"))
 
 def load():
 	import window, thing, quest, dialog, hud
@@ -80,7 +84,10 @@ def load():
 	ptext.draw("Loading...", fontname = "Audiowide", fontsize = F(70), color = "orange",
 		gcolor = "white", owidth = 2, center = window.screen.get_rect().center)
 	pygame.display.flip()
-	savestate = json.load(open(settings.savename))
+	if settings.savename.endswith(".pkl"):
+		savestate = pickle.load(open(settings.savename))
+	else:
+		savestate = json.load(open(settings.savename))
 	thing.load(savestate["thing"])
 	window.camera.load(savestate["camera"])
 	quest.load(savestate["quest"])

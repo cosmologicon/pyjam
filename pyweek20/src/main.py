@@ -61,6 +61,7 @@ while playing:
 			fname = datetime.datetime.now().strftime("screenshot-%Y%m%d%H%M%S.png")
 			pygame.image.save(window.screen, os.path.join("screenshots", fname))
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F2:
+			print("things %d" % (len(thing.things)))
 			print("ships %d %d" % (len(state.ships), sum(map(window.camera.on, state.ships))))
 			print("objs %d %d" % (len(state.objs), sum(map(window.camera.on, state.objs))))
 			print("hazards %d %d" % (len(state.hazards), sum(map(window.camera.on, state.hazards))))

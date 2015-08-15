@@ -388,7 +388,7 @@ class DrawRung(Component):
 			X = random.gauss(self.X + self.vx * st / self.y, 10 / self.y)
 			y = random.gauss(self.y + self.vy * st, 10)
 			t = self.t - (self.nimgs - len(self.imgs) - 1) * self.timg / self.nimgs
-			color = random.choice(["gray", "black"])
+			color = "red"
 			self.imgs.append((X, y, random.uniform(0, 360), t, color))
 	def draw(self):
 		for X, y, angle, t, color in self.imgs:
@@ -469,6 +469,9 @@ class BeaconDeploy(Component):
 		nvis1 = sum(obj.isvisible() for obj in state.goals + state.convergences)
 		if nvis1 > nvis0:
 			sound.play("reveal")
+	def think(self, dt):
+		if self.deployed:
+			self.hp = 1000
 	def draw(self):
 		if not self.deployed:
 			return

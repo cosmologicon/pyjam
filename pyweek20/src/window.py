@@ -64,7 +64,7 @@ class Camera(object):
 		self.BdX = math.atan(a / ymin) if ymin > 1 else math.tau / 2
 		self.Cy0 = ymin - settings.regionbuffer
 		self.Cy1 = ymax + settings.regionbuffer
-		self.CdX = self.BdX + settings.regionbuffer / ymin if self.Cy1 > 1 else math.tau / 2
+		self.CdX = self.BdX + settings.regionbuffer / ymin if self.Cy0 > 1 and ymin > 1 else math.tau
 	# within region B
 	def on(self, obj):
 		return self.By0 <= obj.y <= self.By1 and abs(math.Xmod(self.X0 - obj.X)) <= self.BdX
