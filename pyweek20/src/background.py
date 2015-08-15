@@ -21,10 +21,13 @@ grady = numpy.reshape(
 	(17, 17, 17))
 
 flowt = 0
+washt = 0
 def think(dt):
-	global flowt
+	global flowt, washt
 	dt *= 6 / (1 + 5 * state.you.y / state.R)
 	flowt += dt
+	if washt:
+		washt = max(washt - dt, 0)
 
 surf = None
 dsurf = None
@@ -129,6 +132,16 @@ def drawstars():
 		py = int(y - t * f) % window.sy
 		c = int(255 * f)
 		window.screen.set_at((px, py), (c, c, c))
+
+def wash():
+	global washt
+	washt = 1
+def drawwash():
+	if not washt:
+		return
+	alpha = washt
+	dsurf.fill((255, 255, 255, int(255 * alpha)))
+	window.screen.blit(dsurf, (0, 0))
 
 def init():
 	draw()

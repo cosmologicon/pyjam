@@ -59,28 +59,36 @@ def drawminimap():
 
 fullmap = None
 def drawmap():
-	global fullmap
+	global fullmap, grid
 	w = F(420)
-	scale = 200 / state.R
+	scale = F(200) / state.R
 	if fullmap is None or fullmap.get_size() != (w, w):
 		fullmap = pygame.Surface((w, w)).convert_alpha()
-	fullmap.fill((0, 0, 0, 120))
-	p0 = w // 2, w // 2
-	for r in range(25, state.R + 25, 25):
-		pygame.draw.circle(fullmap, (255, 255, 255, 60), p0, int(scale * r), F(1))
-	for j in range(48):
-		r0 = 25 * (8 if j % 2 else 4 if j % 4 else 2 if j % 8 else 1)
-		X = math.tau * j / 48
-		p1 = window.windowpos(X, r0, w, w, 0, 0, scale)
-		p2 = window.windowpos(X, state.R, w, w, 0, 0, scale)
-		pygame.draw.line(fullmap, (30, 60, 30), p1, p2, F(1))
+		grid = pygame.Surface((w, w)).convert()
+		grid.fill((0, 0, 0))
+		p0 = w // 2, w // 2
+		for r in range(25, state.R + 25, 25):
+			pygame.draw.circle(grid, (10, 40, 10), p0, int(scale * r), F(1))
+		for j in range(48):
+			r0 = 25 * (8 if j % 2 else 4 if j % 4 else 2 if j % 8 else 1)
+			X = math.tau * j / 48
+			p1 = window.windowpos(X, r0, w, w, 0, 0, scale)
+			p2 = window.windowpos(X, state.R, w, w, 0, 0, scale)
+			pygame.draw.line(grid, (10, 40, 10), p1, p2, F(1))
+		grid.set_alpha(180)
+	window.screen.blit(grid, grid.get_rect(center = window.screen.get_rect().center))
+
+	fullmap.fill((0, 0, 0, 0))
 	objs = []
 	if 0.001 * pygame.time.get_ticks() % 0.5 < 0.25:
-		objs += [(state.you, (200, 200, 200))]
-	objs += [(g, (200, 0, 200)) for g in state.goals]
-	for obj, color in objs:
+		objs += [(state.you, (200, 200, 200), False)]
+	objs += [(g, (200, 0, 200), g.isvisible()) for g in state.goals]
+	for obj, color, outline in objs:
 		p = window.windowpos(obj.X, obj.y, w, w, 0, 0, scale)
 		pygame.draw.circle(fullmap, color, p, F(2))
+		if outline:
+			pygame.draw.circle(fullmap, color, p, F(5), F(1))
+			pygame.draw.circle(fullmap, color, p, F(8), F(1))
 	pygame.draw.rect(fullmap, (255, 255, 255, 120), (0, 0, w, w), F(3))
 	window.screen.blit(fullmap, fullmap.get_rect(center = window.screen.get_rect().center))
 

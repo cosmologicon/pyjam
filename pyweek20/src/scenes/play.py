@@ -9,6 +9,12 @@ control = {}
 
 def init():
 	quest.quests["Act1"].available = True
+	state.shipyard = {
+		"Skiff": 600,
+		"Mapper": 400,
+		"Beacon": 400,
+	}
+
 	state.you = thing.Skiff(X = 0, y = state.R - 5, vx = 1)
 	state.ships = [state.you]
 	state.mother = thing.Mother(X = 0, y = state.R)
@@ -33,10 +39,6 @@ def init():
 	window.camera.follow(state.you)
 	window.camera.think(0)
 
-	state.shipyard = {
-		"Skiff": 2000,
-		"Mapper": 0,
-	}
 	populatefull()
 
 def clearfull():
@@ -322,5 +324,6 @@ def draw():
 	hud.draw()
 	hud.drawstats()
 	state.you.drawhud()
+	background.drawwash()
 
 

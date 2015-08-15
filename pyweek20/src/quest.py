@@ -93,6 +93,7 @@ class Act1(Quest):
 	def think(self, dt):
 		if self.done or not self.available:
 			return
+		# TODO: play distress call
 		self.t += dt
 		if self.progress == 0 and self.t > 1:
 			dialog.play("act1-1")
@@ -115,15 +116,38 @@ class Act1(Quest):
 			if self.progress == 3 and nvisible == 3:
 				dialog.play("act1-4")
 				self.progress = 4
-		
+				self.done = True
+				quests["Act2"].setup()
+				# TODO: stop playing distress call
 
 class Act2(Quest):
 	def __init__(self):
 		Quest.__init__(self)
+	def setup(self):
+		self.available = True
+		payload = thing.BatesShip(pos = state.worlddata["payloads"][3])
+		state.objs.append(payload)
+		state.goals.append(payload)
+		self.goal = payload
+		state.shipyard = {
+			"Skiff": 500,
+			"Mapper": 300,
+			"Beacon": 300,
+			"HeavyShip": 400,
+		}
 	def think(self, dt):
 		if self.done or not self.available:
 			return
 		self.t += dt
+		if self.progress == 0 and self.t > 1:
+			dialog.play("act1-1")
+			self.progress = 1
+			payloads = [
+				thing.Payload(pos = pos) for pos in state.worlddata["payloads"][:3]
+			]
+			state.objs.extend(payloads)
+			state.goals.extend(payloads)
+			self.goals = [p.thingid for p in payloads]
 		
 
 def think(dt):
@@ -132,6 +156,7 @@ def think(dt):
 
 Intro()
 Act1()
+Act2()
 
 def dump():
 	data = {}

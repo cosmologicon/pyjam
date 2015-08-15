@@ -414,12 +414,12 @@ class DeployComm(Component):
 
 class BeaconDeploy(Component):
 	def deploy(self):
-		nvis0 = sum(obj.nvisible() for obj in state.goals + state.convergences)
+		nvis0 = sum(obj.isvisible() for obj in state.goals + state.convergences)
 		if self in state.beacons:
 			state.beacons.remove(self)
 		if self.deployed:
 			state.beacons.append(self)
-		nvis1 = sum(obj.nvisible() for obj in state.goals + state.convergences)
+		nvis1 = sum(obj.isvisible() for obj in state.goals + state.convergences)
 		if nvis1 > nvis0:
 			sound.play("reveal")
 
@@ -625,7 +625,13 @@ class WorldThing(Thing):
 	pass
 
 @HorizontalOscillation(2, 1)
-@Hidden(8)
+@Hidden(settings.beacondetect)
+@DrawHiddenImage("payload")
+class Payload(WorldThing):
+	pass
+
+@HorizontalOscillation(2, 1)
+@Hidden(settings.beacondetect)
 @DrawHiddenImage("payload")
 class Payload(WorldThing):
 	pass

@@ -79,11 +79,13 @@ class Camera(object):
 			self.y0 = self.following.y
 		else:
 			self.tfollow = max(self.tfollow - dt, 0)
-			f = self.tfollow / 0.4
+			f = (self.tfollow / 0.4) ** 2
 			self.X0 = self.following.X * (1 - f) + self.oldX * f
 			self.y0 = self.following.y * (1 - f) + self.oldy * f
 		self.setlimits()
 	def follow(self, obj):
+		if obj is self.following:
+			return
 		oldfollow = self.following
 		self.following = obj
 		self.tfollow = 0.4

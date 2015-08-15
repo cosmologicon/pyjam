@@ -15,6 +15,7 @@ background.init()
 
 if os.path.exists(settings.savename):
 	scene.current = play
+	background.wash()
 	lastscene = play
 	state.load()
 else:
@@ -66,6 +67,7 @@ while playing:
 			scene.current = title
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F7:
 			scene.current = play
+			background.wash()
 	kpressed = pygame.key.get_pressed()
 	kpressed = {
 		keyname: any(kpressed[code] for code in codes)
