@@ -3,6 +3,8 @@
 
 # Gameplay music plays on channels 0/1/2
 
+# Dialog on line 4
+
 from __future__ import division
 import pygame, random, sys, math
 from src import settings
@@ -41,6 +43,11 @@ def play(name):
 	if name not in sounds:
 		print("Missing sound: " + name)
 		sounds[name] = None
+
+def playline(name):
+	channels[4].play(pygame.mixer.Sound(open("data/dialog/%s.wav" % name)))
+def lineplaying():
+	return channels[4].get_busy()
 
 currentmusic = None
 def playmusic(name):
