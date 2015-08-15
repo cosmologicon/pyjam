@@ -90,6 +90,12 @@ def drawmap():
 			center = F(420-70, 420-70), angle = 45, color = (200, 0, 0), owidth = 2, surf = grid)
 		ptext.draw("DATA\nHORIZON", fontname = "Exo", fontsize = F(14),
 			center = F(210, 210), color = (200, 0, 0), owidth = 2, surf = grid)
+		ptext.draw("DANGER", fontname = "Exo", fontsize = F(14),
+			center = F(160, 126), angle = -5, color = (100, 100, 0), owidth = 2, surf = grid)
+		ptext.draw("DANGER", fontname = "Exo", fontsize = F(14),
+			center = F(270, 244), angle = 6, color = (100, 100, 0), owidth = 2, surf = grid)
+		ptext.draw("DANGER", fontname = "Exo", fontsize = F(14),
+			center = F(295, 70), angle = -70, color = (100, 100, 0), owidth = 2, surf = grid)
 		grid.set_alpha(180)
 	window.screen.blit(grid, grid.get_rect(center = window.screen.get_rect().center))
 
@@ -104,6 +110,13 @@ def drawmap():
 		if outline:
 			pygame.draw.circle(fullmap, color, p, F(5), F(1))
 			pygame.draw.circle(fullmap, color, p, F(8), F(1))
+		name = "YOU" if obj is state.you else {
+			"Payload": "DATA CORE",
+			"BatesShip": "DISTRESS\nCALL",
+			"Convergence": "???",
+		}[obj.__class__.__name__]
+		ptext.draw(name, fontname = "Exo", fontsize = F(12), owidth = 2, surf = fullmap,
+			color = color, centerx = p[0], top = p[1] + F(1))
 	pygame.draw.rect(fullmap, (255, 255, 255, 120), (0, 0, w, w), F(3))
 	window.screen.blit(fullmap, fullmap.get_rect(center = window.screen.get_rect().center))
 
@@ -143,10 +156,12 @@ def drawstats():
 	shipname, special = shipdata[state.you.__class__.__name__]
 	text = "\n".join([
 		"Current ship: %s" % shipname,
+		"Hold space: teleport",
 		"Tap space: %s" % special if special is not None else "",
+		"Backspace: emergency teleport",
 	])
 	ptext.draw(text, topleft = F(10, 104), fontsize = F(16), shadow = (1, 1),
-		lineheight = 1.3, alpha = 0.5, fontname = "Exo")
+		lineheight = 1.1, alpha = 0.5, fontname = "Exo")
 	x0, y0, w, h, dx, thick = F(104, 10, 16, 20, 20, 2)
 	for j in range(state.you.maxhp):
 		pygame.draw.rect(window.screen, (0, 100, 0),
