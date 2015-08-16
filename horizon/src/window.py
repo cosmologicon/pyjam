@@ -26,6 +26,7 @@ def F(x, *args):
 
 def init():
 	global screen, sx, sy, f, camera
+	pygame.display.init()
 	sx, sy = settings.windowsize
 	flags = 0
 	if settings.fullscreen:
