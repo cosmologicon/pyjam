@@ -28,17 +28,20 @@ def playstatic(t):
 	sound.play()
 	return sound
 
+def loadsound(filename):
+	return pygame.mixer.Sound(filename)
+
 sounds = {}
 channels = {}
 channel_volumes = {}
 def init():
 	for n in range(8):
 		channels[n] = pygame.mixer.Channel(n)
-	sounds["intro"] = pygame.mixer.Sound(open("data/music/intro.wav"))
-	sounds["title"] = pygame.mixer.Sound(open("data/music/title.wav"))
-	sounds["epic0"] = pygame.mixer.Sound(open("data/music/epic.wav"))
-	sounds["epic1"] = pygame.mixer.Sound(open("data/music/epicer.wav"))
-	sounds["epic2"] = pygame.mixer.Sound(open("data/music/epicest.wav"))
+	sounds["intro"] = loadsound("data/music/intro.wav")
+	sounds["title"] = loadsound("data/music/title.wav")
+	sounds["epic0"] = loadsound("data/music/epic.wav")
+	sounds["epic1"] = loadsound("data/music/epicer.wav")
+	sounds["epic2"] = loadsound("data/music/epicest.wav")
 
 def play(name):
 	if name not in sounds:
@@ -47,7 +50,7 @@ def play(name):
 			print("Missing sound: " + name)
 			sounds[name] = None
 		else:
-			sounds[name] = pygame.mixer.Sound(open(path))
+			sounds[name] = loadsound(path)
 			sounds[name].set_volume({
 				"teleport": 0.5,
 			}.get(name, 1))
@@ -62,14 +65,14 @@ def play(name):
 
 def playline(name, volume = 1):
 	channels[4].set_volume(volume)
-	channels[4].play(pygame.mixer.Sound(open("data/dialog/%s.wav" % name)))
+	channels[4].play(loadsound("data/dialog/%s.wav" % name))
 def lineplaying():
 	return channels[4].get_busy()
 
 currentmusic = None
 def playmusic(name):
 	if name not in sounds:
-		sounds[name] = pygame.mixer.Sound(open("data/music/%s.wav" % name))
+		sounds[name] = loadsound("data/music/%s.wav" % name)
 	sounds[name].play(-1)
 
 musicmode = None

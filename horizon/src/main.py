@@ -56,6 +56,8 @@ while playing:
 			if settings.fullscreen:
 				tconfirmfull = 10
 			window.init()
+			if scene.current == intro:
+				title.drawtitle()
 		if event.type == KEYUP and event.key == "go":
 			tconfirmfull = 0
 		if event.type == KEYDOWN and event.key == "screenshot":

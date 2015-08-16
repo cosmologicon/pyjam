@@ -13,7 +13,7 @@ control = {}
 
 t = 0
 def init():
-	global t
+	global t, Rfactor
 	t = 0
 
 	dy = y0 - window.camera.y0
@@ -27,9 +27,10 @@ def init():
 	window.camera.y0 = y0
 	window.camera.X0 = 0
 	sound.playtitlemusic()
+	Rfactor = window.camera.R / window.sy
 
 def think(dt, events, kpressed):
-	global t
+	global t, Rfactor
 	t += dt
 
 	hud.think(dt)
@@ -55,9 +56,9 @@ def think(dt, events, kpressed):
 	factor = 0.005 * t
 	window.camera.y0 += (1 - math.exp(-factor * dt)) * (R - 300 - window.camera.y0)
 	
-	Rwin = window.sy / 1600
-	window.camera.R += (1 - math.exp(-0.3 * dt)) * (Rwin - window.camera.R)
-	
+	Rfactor += (1 - math.exp(-0.3 * dt)) * (1 / 1600 - Rfactor)
+	window.camera.R = window.sy * Rfactor
+
 def draw():
 	window.screen.fill((0, 0, 0))
 	if t < 1.5:

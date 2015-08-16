@@ -77,18 +77,18 @@ def save():
 		"hud": hud.dump(),
 	}
 	if settings.savename.endswith(".pkl"):
-		pickle.dump(savestate, open(settings.savename, "w"))
+		pickle.dump(savestate, open(settings.savename, "wb"))
 	else:
 		json.dump(savestate, open(settings.savename, "w"))
 
 def load():
-	import window, thing, quest, dialog, hud
+	from src import window, thing, quest, dialog, hud
 	from src.window import F
 	ptext.draw("Loading...", fontname = "Audiowide", fontsize = F(70), color = "orange",
 		gcolor = "white", owidth = 2, center = window.screen.get_rect().center)
 	pygame.display.flip()
 	if settings.savename.endswith(".pkl"):
-		savestate = pickle.load(open(settings.savename))
+		savestate = pickle.load(open(settings.savename, "rb"))
 	else:
 		savestate = json.load(open(settings.savename))
 	thing.load(savestate["thing"])

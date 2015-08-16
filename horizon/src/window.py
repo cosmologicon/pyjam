@@ -73,7 +73,7 @@ class Camera(object):
 	def near(self, obj):
 		return self.Cy0 <= obj.y <= self.Cy1 and abs(math.Xmod(self.X0 - obj.X)) <= self.CdX
 	def think(self, dt):
-		self.R = sy / 54
+		self.R = sy / settings.logicalscreensize
 		if not self.following:
 			return
 		if self.tfollow == 0:

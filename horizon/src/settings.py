@@ -47,6 +47,7 @@ twarpinvulnerability = 3
 thurtinvulnerability = 1
 tcutsceneinvulnerability = 5
 beaconsforfinale = 10
+logicalscreensize = 54
 
 keycodes = {
 	"left": [K_LEFT, K_a],
