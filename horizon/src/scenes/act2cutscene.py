@@ -18,15 +18,17 @@ def think(dt, events, kpressed):
 	hud.think(dt)
 	quest.think(dt)
 	dialog.think(dt)
-	background.think(dt)
+	if playing:
+		background.think(dt, 13)
+	else:
+		background.think(dt, 6 / (1 + 5 * state.you.y / state.R))
 	sound.think(dt)
 
 	if playing:
 		tplay += dt
-		background.flowt += dt * 4
-		if tplay > 3:
+		if tplay > 5:
 			dialog.play("convo9")
-		if tplay > 6:
+		if tplay > 8:
 			background.wash()
 			from src import scene
 			from src.scenes import play
@@ -97,10 +99,7 @@ def draw():
 		drawscene()
 		return
 
-	if settings.drawbackground:
-		background.draw()
-	else:
-		window.screen.fill((0, 60, 0))
+	background.draw()
 	for obj in todraw:
 		obj.draw()
 
@@ -111,13 +110,11 @@ def draw():
 	background.drawwash()
 
 def drawscene():
-	window.screen.fill((20, 0, 0))
-	R, X0, y0 = window.camera.R, window.camera.X0, window.camera.y0
-	window.camera.R = window.sy / 54 * math.clamp(3 * (tplay - 4), 0.3, 2)
-	window.camera.y0 = random.uniform(-1, 1)
-	window.camera.X0 = tplay * 0.1
-	background.draw(factor = 8)
-	window.camera.R, window.camera.X0, window.camera.y0 = R, X0, y0
+	class camera:
+		R = window.sy / 54 * math.clamp(3 * (tplay - 6), 0.3 + 0.015 * tplay, 5)
+		y0 = 0
+		X0 = tplay * 0.1
+	background.draw(factor = min(settings.backgroundfactor, 8), camera = camera, hradius = -1)
 	background.drawwash()
 	
 	

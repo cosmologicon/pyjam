@@ -28,6 +28,8 @@ saveonemergency = True
 # Set it to savegame.json if you prefer to save as json. I think it's slower, though.
 savename = "data/savegame.pkl"
 
+soundext = "wav"
+
 musicvolume = 0.2, 0.5
 musiccrossfadetime = 1
 

@@ -36,7 +36,7 @@ def think(dt, events, kpressed):
 	hud.think(dt)
 	quest.think(dt)
 	dialog.think(dt)
-	background.flowt += 4 * dt
+	background.think(dt, 4)
 
 	for event in (events or []):
 		if event.type == KEYUP and event.key == "go" and t > 8:
@@ -51,12 +51,13 @@ def think(dt, events, kpressed):
 	state.effects = [e for e in state.effects if e.alive]
 
 
-	dt = max(dt, 0.1)
+	dt = min(dt, 0.1)
 	window.camera.X0 = 0
-	factor = 0.005 * t
-	window.camera.y0 += (1 - math.exp(-factor * dt)) * (R - 300 - window.camera.y0)
+	factor = 0.002 * t ** 3
+	window.camera.y0 += (1 - math.exp(-factor * dt)) * (R - 80 - window.camera.y0)
 	
-	Rfactor += (1 - math.exp(-0.3 * dt)) * (1 / 1600 - Rfactor)
+	factor = max(0.3, 0.2 * t ** 2)
+	Rfactor += (1 - math.exp(-factor * dt)) * (1 / 1600 - Rfactor)
 	window.camera.R = window.sy * Rfactor
 
 def draw():
@@ -67,11 +68,11 @@ def draw():
 		surf.fill((0, 0, 0, int(255 * t / 1.5)))
 		window.screen.blit(surf, (0, 0))
 	else:
-		window.camera.y0 /= R / state.R
-		window.camera.R *= 2.5
-		background.draw()
-		window.camera.y0 *= R / state.R
-		window.camera.R /= 2.5
+		class camera:
+			y0 = window.camera.y0 * state.R / R
+			X0 = 0
+			R = window.camera.R * 10
+		background.draw(camera = camera, hradius = 6)
 
 	if t < 5:
 		for ship in state.ships:

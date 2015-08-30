@@ -21,13 +21,6 @@ if os.path.exists(settings.savename):
 	background.wash()
 	state.load()
 else:
-#	sound.playgamemusic()
-#	from src import quest
-#	quest.quests["Finale"].setup()
-#	scene.current = finalcutscene
-#	scene.toinit = finalcutscene
-#	scene.current = endtitle
-#	scene.toinit = endtitle
 	scene.current = intro
 	scene.toinit = intro
 	title.drawtitle()
@@ -83,6 +76,12 @@ while playing:
 			scene.current = play
 			play.init()
 			background.wash()
+		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F8:
+			sound.playgamemusic()
+			from src import quest
+			quest.quests["Finale"].setup()
+			scene.current = finalcutscene
+			scene.toinit = finalcutscene
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_F9:
 			from src.scenes import act2cutscene
 			from src import scene

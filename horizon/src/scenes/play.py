@@ -86,7 +86,7 @@ def think(dt, events, kpressed):
 	hud.think(dt0)
 	quest.think(dt)
 	dialog.think(dt0)
-	background.think(dt)
+	background.think(dt, 6 / (1 + 5 * state.you.y / state.R))
 	sound.epicness = 2 - (state.you.y - 100) / 160
 	sound.think(dt)
 

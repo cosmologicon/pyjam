@@ -32,7 +32,7 @@ def think(dt, events, kpressed):
 	hud.think(dt0)
 	quest.think(dt)
 	dialog.think(dt0)
-	background.flowt += dt
+	background.think(dt, 1)
 
 	for event in events:
 		if event.type == KEYDOWN and event.key == "go":

@@ -28,8 +28,12 @@ def playstatic(t):
 	sound.play()
 	return sound
 
-def loadsound(filename):
-	return pygame.mixer.Sound(filename)
+def loadsound(*args):
+	path = os.path.join(*args) + "." + settings.soundext
+	if not os.path.exists(path):
+		print("Missing sound: " + name)
+		return None
+	return pygame.mixer.Sound(path)
 
 sounds = {}
 channels = {}
@@ -37,20 +41,16 @@ channel_volumes = {}
 def init():
 	for n in range(8):
 		channels[n] = pygame.mixer.Channel(n)
-	sounds["intro"] = loadsound("data/music/intro.wav")
-	sounds["title"] = loadsound("data/music/title.wav")
-	sounds["epic0"] = loadsound("data/music/epic.wav")
-	sounds["epic1"] = loadsound("data/music/epicer.wav")
-	sounds["epic2"] = loadsound("data/music/epicest.wav")
+	sounds["intro"] = loadsound("data", "music", "intro")
+	sounds["title"] = loadsound("data", "music", "title")
+	sounds["epic0"] = loadsound("data", "music", "epic")
+	sounds["epic1"] = loadsound("data", "music", "epicer")
+	sounds["epic2"] = loadsound("data", "music", "epicest")
 
 def play(name):
 	if name not in sounds:
-		path = os.path.join("data", "sound", name + ".wav")
-		if not os.path.exists(path):
-			print("Missing sound: " + name)
-			sounds[name] = None
-		else:
-			sounds[name] = loadsound(path)
+		sounds[name] = loadsound("data", "sound", name)
+		if sounds[name] is not None:
 			sounds[name].set_volume({
 				"teleport": 0.5,
 			}.get(name, 1))
@@ -65,14 +65,14 @@ def play(name):
 
 def playline(name, volume = 1):
 	channels[4].set_volume(volume)
-	channels[4].play(loadsound("data/dialog/%s.wav" % name))
+	channels[4].play(loadsound("data", "dialog", name))
 def lineplaying():
 	return channels[4].get_busy()
 
 currentmusic = None
 def playmusic(name):
 	if name not in sounds:
-		sounds[name] = loadsound("data/music/%s.wav" % name)
+		sounds[name] = loadsound("data", "music", name)
 	sounds[name].play(-1)
 
 musicmode = None
@@ -87,7 +87,7 @@ def playtitlemusic():
 	channels[1].set_volume(1)
 	channels[1].play(sounds["title"], -1)
 	channels[0].stop()
-	channels[2].stop()
+	channels[2].fadeout(1000)
 def playgamemusic():
 	global musicmode, epicness, epictarget
 	musicmode = "game"

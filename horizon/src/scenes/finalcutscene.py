@@ -20,11 +20,10 @@ def init():
 def think(dt, events, kpressed):
 	global todraw, tplay
 	dialog.think(dt)
-	background.think(dt)
+	background.think(dt, 2)
 	sound.think(dt)
 
 	tplay += dt
-	background.flowt += dt * 2
 
 	state.you.y -= 1 * dt
 	if tplay > 7 and state.you.alive:
@@ -57,19 +56,15 @@ def think(dt, events, kpressed):
 
 def draw():
 	window.screen.fill((255, 255, 255))
-	R, X0, y0 = window.camera.R, window.camera.X0, window.camera.y0
-	window.camera.R = window.sy / 48 * (1 + tplay / 10)
-	window.camera.y0 = state.Rcore - 5
-	window.camera.X0 = tplay * 0.1
-	background.draw(factor = 8)
-	window.camera.R, window.camera.X0, window.camera.y0 = R, X0, y0
+	class camera:
+		R = window.sy / 48 * (1 + tplay / 10)
+		y0 = state.Rcore - 5
+		X0 = tplay * 0.1
+	background.draw(factor = min(settings.backgroundfactor, 8), camera = camera, hradius = -1)
+	background.drawwash()
 	if state.you.alive:
 		state.you.draw()
 	for effect in state.effects:
 		effect.draw()
 	background.drawwash()
 	
-	
-
-
-
