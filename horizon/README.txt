@@ -18,10 +18,10 @@ License: see below
 Requirements
 ------------
 
-	python 2.7+
-	pygame 1.9+
+Requires Python and Pygame (with surfarray support). Pygame requires numpy, SDL_image, and
+SDL_mixer.
 
-Pygame requires numpy, SDL_image, and SDL_mixer.
+Tested on Ubuntu Linux with Python 2.7.6 + Pygame 1.9.1release, and Python 3.4.0 + Pygame 1.9.2a0.
 
 To install the requirements on Ubuntu:
 

@@ -8,6 +8,7 @@ from src.window import F
 control = {}
 
 def init():
+	image.cache.clear()
 	quest.quests["Act1"].available = True
 	state.shipyard = {
 		"Skiff": 600,

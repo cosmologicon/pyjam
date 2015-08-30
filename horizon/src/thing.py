@@ -262,16 +262,17 @@ class DrawHiddenImage(Component):
 		image.worlddraw(self.imgname, self.X, self.y, self.imgr, alpha = alpha)
 
 class DrawHiddenRotatingImage(Component):
-	def __init__(self, imgname, imgr = 1):
+	def __init__(self, imgname, imgr = 1, omega = 200):
 		self.imgname = imgname
 		self.imgr = imgr
+		self.omega = omega
 	def draw(self):
 		if self.y <= 0:
 			return
 		if not self.tvisible:
 			return
 		alpha = min(self.tvisible, 0.5 + 0.4 * math.sin(self.t))
-		image.worlddraw(self.imgname, self.X, self.y, self.imgr, alpha = alpha, angle = 200 * self.t)
+		image.worlddraw(self.imgname, self.X, self.y, self.imgr, alpha = alpha, angle = self.omega * self.t)
 
 class DrawTarget(Component):
 	def draw(self):
@@ -619,7 +620,7 @@ class DrawConvergence(Component):
 			X = self.X + r * math.sin(theta) / self.y
 			y = self.y + r * math.cos(theta)
 			t = self.t - (self.nimgs - len(self.imgs) - 1) * self.timg / self.nimgs
-			s = random.uniform(6, 12)
+			s = random.choice([6, 8, 10, 12])
 			color = random.choice(["white", "red", "yellow", "orange", "green", "blue", "purple"])
 			self.imgs.append((X, y, t, s, "tremor-" + color))
 	def draw(self):
@@ -634,7 +635,7 @@ class DrawConvergence(Component):
 
 class DrawBlob(Component):
 	def init(self, s = None, **kwargs):
-		self.s = s or random.uniform(3, 6)
+		self.s = s or random.choice([3, 4.5, 6])
 	def dump(self, obj):
 		obj["s"] = self.s
 	def draw(self):
@@ -737,7 +738,7 @@ class WorldThing(Thing):
 
 @HorizontalOscillation(2, 1)
 @Hidden(settings.beacondetect)
-@DrawHiddenRotatingImage("payload", 2.5)
+@DrawHiddenRotatingImage("payload", imgr = 2.5, omega = 50)
 class Payload(WorldThing):
 	pass
 

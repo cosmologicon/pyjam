@@ -31,6 +31,9 @@ savename = "data/savegame.pkl"
 musicvolume = 0.2, 0.5
 musiccrossfadetime = 1
 
+smoothrotozoom = True
+angleresolution = 1
+
 # Set lower for higher-resolution lava lamp effects (takes more CPU).
 backgroundfactor = 16
 
@@ -61,9 +64,8 @@ keycodes = {
 	"screenshot": [K_F12],
 }
 
-
 regionbuffer = 10
 
-
+alpharesolution = 16
 
 
