@@ -9,6 +9,8 @@ control = {}
 
 def init():
 	image.cache.clear()
+	hud.clear()
+
 	quest.quests["Act1"].available = True
 	state.shipyard = {
 		"Skiff": 600,
@@ -80,7 +82,11 @@ def think(dt, events, kpressed):
 	ky = kpressed["up"] - kpressed["down"]
 
 	dt0 = dt
-	if kpressed["go"] and control:
+	regenerating = isinstance(state.you, thing.SlowTeleport)
+	if regenerating:
+		dt *= 0.4
+		events = []
+	elif kpressed["go"] and control:
 		dt *= 0.3
 
 	hud.think(dt0)
@@ -132,6 +138,7 @@ def think(dt, events, kpressed):
 			if not state.you.significant:
 				state.you.die()
 			regenerate()
+			return
 		if event.type == KEYUP:
 			if not state.quickteleport and "queue" in control and event.key in ("up", "left", "right", "down"):
 				control["queue"][event.key] = 0
@@ -145,7 +152,7 @@ def think(dt, events, kpressed):
 			elif 0.001 * pygame.time.get_ticks() - control["t0"] < settings.tactivate:
 				state.you.deploy()
 			control.clear()
-		
+
 	if kpressed["go"] and control:
 		if any(kpressed[x] for x in ("left", "right", "up", "down")):
 			control["t0"] = -1000
@@ -188,7 +195,7 @@ def think(dt, events, kpressed):
 			todraw.append(convergence)
 
 
-	repopulating = (dt + state.you.t % 1) // 1
+	repopulating = not regenerating and (dt + state.you.t % 1) // 1
 	if repopulating:
 		nships = []
 		for ship in state.ships:
@@ -216,8 +223,13 @@ def think(dt, events, kpressed):
 			else:
 				ship.die()
 		state.ships = nships
-	if not state.you.alive:
+
+	if regenerating and state.you.flife > 0.6:
+		endregenerate()
+		return
+	elif not state.you.alive:
 		regenerate()
+		return
 	nobjs = []
 	for obj in state.objs:
 		if not window.camera.on(obj):
@@ -251,7 +263,7 @@ def think(dt, events, kpressed):
 			effect.die()
 	state.effects = neffects
 
-	scollide = [state.you]
+	scollide = [] if regenerating else [state.you]
 	for s in scollide:
 		if not s.vulnerable():
 			continue
@@ -263,7 +275,9 @@ def think(dt, events, kpressed):
 		clearfull()
 		populatefull()
 
-	if state.quickteleport and "qtarget" in control:
+	if regenerating:
+		pass
+	elif state.quickteleport and "qtarget" in control:
 		X, y = control["qtarget"]
 		dX = math.Xmod(X - state.you.X)
 		dy = y - state.you.y
@@ -275,15 +289,20 @@ def think(dt, events, kpressed):
 		window.camera.think(dt)
 
 def regenerate():
-	state.you = thing.Skiff(X = state.mother.X, y = state.mother.y - 11, vx = 0)
-	window.camera.X0 = state.you.X
-	window.camera.y0 = state.you.y
-	state.ships.append(state.you)
-	clearfull()
-	populatefull()
+	target = thing.Skiff(X = state.mother.X, y = state.mother.y - 11, vx = 0)
+	state.you = thing.SlowTeleport(X = state.you.X, y = state.you.y, targetid = target.thingid)
+	state.ships.append(target)
+	state.effects.append(state.you)
 	sound.play("longteleport")
 	control.clear()
 	dialog.play("convo5")
+
+def endregenerate():
+	state.you = thing.get(state.you.targetid)
+	window.camera.X0 = state.you.X
+	window.camera.y0 = state.you.y
+	clearfull()
+	populatefull()
 	background.wash()
 	background.drawwash()
 	if settings.saveonemergency:
@@ -328,6 +347,7 @@ def draw():
 		window.screen.fill((0, 60, 0))
 	for obj in todraw:
 		obj.draw()
+	regenerating = isinstance(state.you, thing.SlowTeleport)
 
 	if "cursor" in control:
 		image.worlddraw("cursor", control["cursor"].X, control["cursor"].y, 1.6,
@@ -338,13 +358,14 @@ def draw():
 			angle = -pygame.time.get_ticks() * 0.15)
 	dialog.draw()
 	hud.draw()
-	hud.drawstats()
-	state.you.drawhud()
-	dy = state.you.y - state.Rcore
-	if dy < 36:
-		alpha = pygame.time.get_ticks() * 0.001 % 1
-		ptext.draw("Warning: Approaching data horizon", midtop = F(854/2, 100), color = "#FF7777",
-			owidth = 1, fontsize = F(36), fontname = "NovaSquare", alpha = alpha)
+	if regenerating:
+		hud.drawnotice("Emergency transmitter activated")
+	else:
+		hud.drawstats()
+		state.you.drawhud()
+		dy = state.you.y - state.Rcore
+		if dy < 36:
+			hud.drawnotice("Warning: Approaching data horizon")
 	background.drawwash()
 
 

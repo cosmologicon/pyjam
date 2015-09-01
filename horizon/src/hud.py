@@ -167,5 +167,9 @@ def drawstats():
 		pygame.draw.rect(window.screen, (0, 100, 0),
 			(x0 + j * dx, y0, w, h), (0 if j < state.you.hp else thick))
 
+def drawnotice(text):
+	alpha = pygame.time.get_ticks() * 0.001 % 1
+	ptext.draw(text, midtop = F(854/2, 100), color = "#FF7777",
+		owidth = 1, fontsize = F(36), fontname = "NovaSquare", alpha = alpha)
 
 

@@ -189,6 +189,7 @@ def drawwash():
 	window.screen.blit(surf, (0, 0))
 
 def init():
-	draw()
+	getsurfs(window.screen.get_size(), settings.backgroundfactor)
+	gethsurf(window.screen.get_size(), 6)
 	window.screen.fill((0, 0, 0))
 

@@ -299,7 +299,14 @@ class DrawTargetOverParent(Component):
 		pygame.draw.circle(window.screen, color, p, F(15), F(1))
 
 class LeavesCorpse(Component):
+	def init(self, corpsed = False, **kwargs):
+		self.corpsed = corpsed
+	def dump(self, obj):
+		obj["corpsed"] = self.corpsed
 	def die(self):
+		if self.corpsed:
+			return
+		self.corpsed = True
 		corpse = Corpse(X = self.X, y = self.y, vx = self.vx, vy = self.vy,
 			imgname = self.imgname, imgr = self.imgr)
 		add(corpse)
@@ -702,24 +709,43 @@ class DrawTeleport(Component):
 		target = get(self.targetid)
 		if not target:
 			return
-		for d, s in [(-0.1, 3), (-0.05, 6), (0, 8), (0.05, 6), (0.1, 3)]:
-			f = math.clamp(self.flife + d, 0, 1)
+		ds = [-0.02 * j for j in range(8, -1, -1)]
+		ss = [2, 2, 2, 3.2, 3.2, 3.2, 4, 4, 4]
+		for d, s in zip(ds, ss):
+			f = math.clamp((self.flife + d) * 1.2 - 0.1, 0, 1)
+			if not 0 < f < 1:
+				continue
+			f = (3 - 2 * f) * f ** 2
 			X = self.X + f * (target.X - self.X)
 			y = self.y + f * (target.y - self.y)
-			pygame.draw.circle(window.screen, (255, 128, 255), window.screenpos(X, y), F(s), 0)
+			r = 10 * f * (1 - f)
+			a = -25 * self.t + 45 * d + j * math.tau / 6
+			image.worlddraw("slash-white", X + r/y * math.sin(a), y + r * math.cos(a), s, rotate = False)
 
 class DrawSlowTeleport(Component):
-	def init(self, X1, y1, **kwargs):
-		self.X1 = X1
-		self.y1 = y1
+	def init(self, targetid, **kwargs):
+		self.targetid = targetid
 	def dump(self, obj):
 		obj["targetid"] = self.targetid
 	def draw(self):
-		for d, s in [(-0.1, 3), (-0.05, 6), (0, 8), (0.05, 6), (0.1, 3)]:
-			f = math.clamp(self.flife + d, 0, 1)
-			X = self.X + f * (self.X1 - self.X)
-			y = self.y + f * (self.y1 - self.y)
-			pygame.draw.circle(window.screen, (255, 128, 255), window.screenpos(X, y), F(s), 0)
+		target = get(self.targetid)
+		if not target:
+			return
+		ds = [-0.02 * j for j in range(8, -1, -1)]
+		ss = [2, 2, 2, 3.2, 3.2, 3.2, 4, 4, 4]
+		for d, s in zip(ds, ss):
+			f = math.clamp((self.flife + d) * 1.1, 0, 1)
+			if not 0 < f < 1:
+				continue
+			fp = math.clamp(f * 1.3 - 0.3, 0, 1)
+			f = (3 - 2 * f) * f ** 2
+			fp = (3 - 2 * fp) * fp ** 2
+			X = self.X + fp * (target.X - self.X)
+			y = self.y + fp * (target.y - self.y)
+			r = 10 * f * (1 - f)
+			a = 25 * self.t + 45 * d + j * math.tau / 6
+			image.worlddraw("slash-white", X + r/y * math.sin(a), y + r * math.cos(a), s, rotate = False)
+
 
 # Base class for things
 @HasId()
@@ -1000,12 +1026,12 @@ class WarpEffect(WorldThing):
 class BubbleChain(WorldThing):
 	pass
 
-@Lifetime(0.25)
+@Lifetime(0.5)
 @DrawTeleport()
 class Teleport(WorldThing):
 	pass
 
-@Lifetime(5)
+@Lifetime(2)
 @DrawSlowTeleport()
 class SlowTeleport(WorldThing):
 	pass
@@ -1027,5 +1053,11 @@ def load(obj):
 	nextthingid = obj["nextthingid"]
 	for thingid, data in obj["things"].items():
 		things[thingid] = globals()[data["type"]](**data)
+
+def pkldump():
+	return nextthingid, things
+def pklload(obj):
+	global nextthingid, things
+	nextthingid, things = obj
 
 

@@ -51,12 +51,16 @@ def save():
 		gcolor = "white", owidth = 2, center = window.screen.get_rect().center)
 	pygame.display.flip()
 
+	pklsave = settings.savename.endswith(".pkl")
+
 	def getids(x):
 		if x is None:
 			return None
 		if isinstance(x, list):
 			return [a.thingid for a in x]
 		return x.thingid
+	if pklsave:
+		getids = lambda x: x
 	savestate = {
 		"you": getids(you),
 		"mother": getids(mother),
@@ -71,12 +75,12 @@ def save():
 		"goals": getids(goals),
 		"quickteleport": quickteleport,
 		"camera": window.camera.dump(),
-		"thing": thing.dump(),
+		"thing": thing.pkldump() if pklsave else thing.dump(),
 		"quest": quest.dump(),
 		"dialog": dialog.dump(),
 		"hud": hud.dump(),
 	}
-	if settings.savename.endswith(".pkl"):
+	if pklsave:
 		pickle.dump(savestate, open(settings.savename, "wb"))
 	else:
 		json.dump(savestate, open(settings.savename, "w"))
@@ -87,21 +91,24 @@ def load():
 	ptext.draw("Loading...", fontname = "Audiowide", fontsize = F(70), color = "orange",
 		gcolor = "white", owidth = 2, center = window.screen.get_rect().center)
 	pygame.display.flip()
-	if settings.savename.endswith(".pkl"):
+	pklsave = settings.savename.endswith(".pkl")
+	if pklsave:
 		savestate = pickle.load(open(settings.savename, "rb"))
+		thing.pklload(savestate["thing"])
+		getthings = lambda x: x
 	else:
 		savestate = json.load(open(settings.savename))
-	thing.load(savestate["thing"])
+		thing.load(savestate["thing"])
+		def getthings(x):
+			if pklsave or x is None:
+				return x
+			if isinstance(x, list):
+				return [thing.get(a) for a in x]
+			return thing.get(x)
 	window.camera.load(savestate["camera"])
 	quest.load(savestate["quest"])
 	dialog.load(savestate["dialog"])
 	hud.load(savestate["hud"])
-	def getthings(x):
-		if x is None:
-			return None
-		if isinstance(x, list):
-			return [thing.get(a) for a in x]
-		return thing.get(x)
 	global you, mother, target, goals
 	global ships, shipyard, objs, hazards, beacons, effects, convergences, quickteleport
 	

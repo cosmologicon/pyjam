@@ -6,7 +6,7 @@ from src import window, ptext, settings
 cache = {}
 def get(filename, s = None, angle = 0, alpha = 1):
 	aresolution, asymmetry = settings.angleresolution, 1
-	if filename == "slash-red":
+	if filename == "slash-red" or filename == "slash-white":
 		aresolution = 15
 		asymmetry = 4
 	elif filename == "payload":
