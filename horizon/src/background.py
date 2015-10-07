@@ -65,9 +65,9 @@ def gethsurf(size, radius, _cache={}):
 	dy = (-numpy.arange(hy).reshape(1, hy) + hy / 2) / hx
 	y = (dx ** 2 + (dy + radius) ** 2) ** 0.5 / radius - 1
 	arr = pygame.surfarray.pixels3d(hsurf)
-	arr[:,:,0] = 255 * numpy.exp(numpy.minimum(100 * y, -1000 * y))
-	arr[:,:,1] = 255 * numpy.exp(numpy.minimum(0, -1000 * y))
-	arr[:,:,2] = 255 * numpy.exp(numpy.minimum(100 * y, -1000 * y))
+	arr[:,:,0] = 255 * numpy.exp(numpy.minimum(100 * y, -2400 * y))
+	arr[:,:,1] = 255 * numpy.exp(numpy.minimum(0, -2400 * y))
+	arr[:,:,2] = 255 * numpy.exp(numpy.minimum(100 * y, -2400 * y))
 	del arr
 	arr = pygame.surfarray.pixels_alpha(hsurf)
 	arr[:,:] = 255 * numpy.exp(numpy.minimum(0, 300 * y))

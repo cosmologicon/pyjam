@@ -22,21 +22,23 @@ def play(name):
 		print("Missing dialog: %s" % name)
 
 def dump():
-	return [played, queue]
+	return [played, queue, tquiet]
 def load(obj):
-	global played, queue
-	played, queue = obj
+	global played, queue, tquiet
+	played, queue, tquiet = obj
 
 playing = None
 currentline = None
+tquiet = 0
 def think(dt):
-	global playing, currentline, playingends
+	global playing, currentline, playingends, tquiet
 	if not sound.lineplaying():
 		currentline = None
 		if queue:
 			currentline, filename = queue.pop(0)
 			volume = 0.25 if currentline[0] == "C" else 0.25 if currentline[0] == "A" else 1
 			sound.playline(filename, volume = volume)
+	tquiet = 0 if queue or currentline else tquiet + dt
 
 style = {
 	"A": ("NovaSquare", 20, "#77AAAA"),

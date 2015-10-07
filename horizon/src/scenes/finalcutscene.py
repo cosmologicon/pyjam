@@ -5,17 +5,20 @@ from src import window, thing, settings, state, hud, quest, background, dialog, 
 from src.window import F
 
 def init():
-	global tplay
+	global tplay, tspawn
 
 	window.camera.X0 = 0
 	window.camera.y0 = 500
 	window.camera.R = window.sy / 40
 	sound.epicness = 2
-	dialog.play("convo16")
+	dialog.play("finale")
 	tplay = 0
 	background.wash()
 	state.you = getattr(thing, quest.quests["Finale"].winner)(X = 0, y = window.camera.y0 + 20)
 	state.effects = []
+	frange = lambda x, y, a = 1.0: [n * a for n in range(int(x / a), int(y / a))]
+	tspawn = frange(12, 30, 2) + frange(14.5, 30, 1.11) + frange(19.27, 30, 0.28)
+	tspawn.sort()
 
 def think(dt, events, kpressed):
 	global todraw, tplay
@@ -29,10 +32,11 @@ def think(dt, events, kpressed):
 	if tplay > 7 and state.you.alive:
 		state.you.die()
 		state.effects.append(
-			thing.SlowTeleport(X = 0, y = state.you.y, X1 = 0, y1 = window.camera.y0 - 20)
+			thing.CutsceneTeleport(X = 0, y = state.you.y, X1 = 0, y1 = window.camera.y0 - 20, color = "gray")
 		)
-	if tplay > 10 and random.random() / (0.1 * tplay) < dt:
-		state.effects.append(thing.SlowTeleport(
+	while tspawn and tplay > tspawn[0]:
+		tspawn.pop(0)
+		state.effects.append(thing.CutsceneTeleport(
 			X = random.gauss(0, 20 / window.camera.y0),
 			y = random.gauss(window.camera.y0 - 14, 20),
 			X1 = random.gauss(0, 20 / window.camera.y0),

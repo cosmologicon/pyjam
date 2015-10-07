@@ -1,6 +1,6 @@
 from __future__ import division
 import math, random, pygame
-from src import window, image, state, hud, sound, settings, background, dialog
+from src import window, image, state, hud, sound, settings, background, dialog, ptext
 from src.window import F
 from src.enco import Component
 
@@ -292,11 +292,18 @@ class DrawTargetOverParent(Component):
 			self.alive = False
 	def draw(self):
 		parent = get(self.parentid)
-		p = window.screenpos(parent.X, parent.y)
+		if not parent:
+			return
+		p = px, py = window.screenpos(parent.X, parent.y)
 		color = tuple(int(a * (0.8 + 0.2 * math.sin(8 * self.t))) for a in (128, 255, 128))
 		pygame.draw.circle(window.screen, color, p, F(5), 0)
 		pygame.draw.circle(window.screen, color, p, F(10), F(1))
 		pygame.draw.circle(window.screen, color, p, F(15), F(1))
+		dx = F(90 * math.clamp(self.t * 0.6 - 0.2, 0, 1))
+		pygame.draw.line(window.screen, color, p, (px + dx, py), F(1))
+		ptext.draw("TELEPORT TO\nTHIS SHIP", fontsize = F(12), color = (128, 255, 128),
+			owidth = 1, fontname = "Exo", midleft = (px + F(20), py),
+			alpha = math.clamp(self.t - 1, 0, 1))
 
 class LeavesCorpse(Component):
 	def init(self, corpsed = False, **kwargs):
@@ -746,6 +753,33 @@ class DrawSlowTeleport(Component):
 			a = 25 * self.t + 45 * d + j * math.tau / 6
 			image.worlddraw("slash-white", X + r/y * math.sin(a), y + r * math.cos(a), s, rotate = False)
 
+class DrawCutsceneTeleport(Component):
+	def init(self, X1, y1, color = None, **kwargs):
+		self.X1 = X1
+		self.y1 = y1
+		self.color = color or random.choice([
+			"white", "yellow", "orange", "blue", "purple", "black", "gray", "green"
+		])
+	def dump(self, obj):
+		obj["X1"] = self.X1
+		obj["y1"] = self.y1
+		obj["colors"] = self.colors
+	def draw(self):
+		ds = [-0.02 * j for j in range(8, -1, -1)]
+		ss = [2, 2, 2, 3.2, 3.2, 3.2, 4, 4, 4]
+		for d, s in zip(ds, ss):
+			f = math.clamp((self.flife + d) * 1.1, 0, 1)
+			if not 0 < f < 1:
+				continue
+			fp = math.clamp(f * 1.3 - 0.3, 0, 1)
+			f = (3 - 2 * f) * f ** 2
+			fp = (3 - 2 * fp) * fp ** 2
+			X = self.X + fp * (self.X1 - self.X)
+			y = self.y + fp * (self.y1 - self.y)
+			r = 10 * f * (1 - f)
+			a = 25 * self.t + 45 * d + j * math.tau / 6
+			image.worlddraw("slash-" + self.color, X + r/y * math.sin(a), y + r * math.cos(a), s, rotate = False)
+
 
 # Base class for things
 @HasId()
@@ -1034,6 +1068,11 @@ class Teleport(WorldThing):
 @Lifetime(2)
 @DrawSlowTeleport()
 class SlowTeleport(WorldThing):
+	pass
+
+@Lifetime(2)
+@DrawCutsceneTeleport()
+class CutsceneTeleport(WorldThing):
 	pass
 
 

@@ -44,7 +44,7 @@ class Intro(Quest):
 			state.effects.append(state.target)
 		if self.progress in (1, 2, 3, 5, 6, 8):
 			if window.distance(state.you, state.target) < 1:
-				hud.hide("Hold space (or enter, shift, or Z) and use arrows to teleport.")
+				hud.hide("Hold space (or enter, shift, or Z) and use arrows to teleport between ships.")
 				state.target.die()
 				self.progress += 1
 				self.settarget()
@@ -68,7 +68,7 @@ class Intro(Quest):
 		elif self.progress == 2:
 			hud.clear()
 		elif self.progress == 4:
-			hud.show("Hold space (or enter, shift, or Z) and use arrows to teleport.")
+			hud.show("Hold space (or enter, shift, or Z) and use arrows to teleport between ships.")
 			dialog.play("intro2")
 		elif self.progress == 5:
 			hud.clear()
@@ -83,6 +83,9 @@ class Intro(Quest):
 			state.effects.append(state.target)
 		elif self.progress in (4, 7, 9):
 			state.target = None
+			# better chance of getting something not obscured by the HUD
+			if self.progress == 4:
+				state.target = state.ships[-1]
 			while state.target in (None, state.you):
 				state.target = random.choice(state.ships)
 			state.effects.append(thing.ShipTarget(parentid = state.target.thingid))
@@ -92,12 +95,14 @@ class Act1(Quest):
 		Quest.__init__(self)
 		self.goals = []
 		self.distressed = False
+		self.mappertargetid = None
 	def think(self, dt):
 		if self.done or not self.available:
 			return
 		self.t += dt
-		if self.progress == 0 and self.t > 1:
-			dialog.play("convo2")
+		inmapper = isinstance(state.you, thing.Mapper)
+		showingmap = inmapper and state.you.deployed
+		if self.progress == 0:
 			self.progress = 1
 			payloads = [
 				thing.Payload(pos = pos) for pos in state.worlddata["payloads"][:3]
@@ -105,21 +110,43 @@ class Act1(Quest):
 			state.objs.extend(payloads)
 			state.goals.extend(payloads)
 			self.goals = [p.thingid for p in payloads]
-		if self.progress == 1:
+		if self.progress == 1 and self.t > 2:
+			dialog.play("start1")
+		if self.progress == 1 and self.t > 3 and dialog.tquiet and not inmapper:
+			mappers = [ship for ship in state.ships if isinstance(ship, thing.Mapper)]
+			nearestid = min(mappers, key = lambda obj: window.distance(obj, state.you)).thingid if mappers else None
+			if not self.mappertargetid or thing.get(self.mappertargetid).parentid != nearestid:
+				if self.mappertargetid:
+					thing.get(self.mappertargetid).die()
+				if nearestid:
+					mappertarget = thing.ShipTarget(parentid = nearestid)
+					state.effects.append(mappertarget)
+					self.mappertargetid = mappertarget.thingid
+		if self.progress > 1 and self.mappertargetid:
+			thing.get(self.mappertargetid).die()
+			self.mappertargetid = None
+		if self.progress == 1 and inmapper:
+			self.progress = 2
+			dialog.play("start2")
+		if self.progress == 2 and showingmap:
+			self.progress = 3
+		if self.progress == 3 and not showingmap and dialog.tquiet > 5:
+			dialog.play("start3")
+		if self.progress >= 1:
 			if any(window.distance(thing.get(goal), state.you) < 20 for goal in self.goals):
 				dialog.play("convo3")
-				self.progress = 2
-		if self.progress >= 2:
-			nvisible = sum(thing.get(goal).isvisible() for goal in self.goals)
-			if self.progress == 2 and nvisible >= 1:
-				dialog.play("convo4")
-				self.progress = 3
-			if self.progress == 3 and nvisible >= 2:
-				dialog.play("convo7")
 				self.progress = 4
-			if self.progress == 4 and nvisible == 3:
-				dialog.play("convo8")
+		if self.progress >= 4:
+			nvisible = sum(thing.get(goal).isvisible() for goal in self.goals)
+			if self.progress == 4 and nvisible >= 1:
+				dialog.play("convo4")
 				self.progress = 5
+			if self.progress == 5 and nvisible >= 2:
+				dialog.play("convo7")
+				self.progress = 6
+			if self.progress == 6 and nvisible == 3:
+				dialog.play("convo8")
+				self.progress = 7
 				self.done = True
 				quests["Act2"].setup()
 		if not self.distressed and state.you.y < 270:
@@ -132,7 +159,6 @@ class Act2(Quest):
 	def setup(self):
 		self.available = True
 		self.cutscened = False
-		self.tquiet = 0
 		payload = thing.BatesShip(pos = state.worlddata["payloads"][3])
 		state.objs.append(payload)
 		state.goals.append(payload)
@@ -149,11 +175,7 @@ class Act2(Quest):
 			return
 		self.t += dt
 		if not self.cutscened:
-			if dialog.queue or dialog.currentline:
-				self.tquiet = 0
-			else:
-				self.tquiet += dt
-			if self.tquiet > 5:
+			if dialog.tquiet > 5:
 				self.cutscened = True
 				from src.scenes import act2cutscene
 				from src import scene
@@ -177,7 +199,6 @@ class Seek(Quest):
 		]
 		self.chooserandomgoal()
 		self.chooserandomgoal()
-		self.tquiet = 0
 		self.cindices = { convergence.thingid: j for j, convergence in enumerate(state.convergences) }
 	def chooserandomgoal(self):
 		candidates = [convergence for convergence in state.convergences if convergence not in state.goals]
@@ -193,31 +214,25 @@ class Seek(Quest):
 			self.updateprogress(nvis)
 			if self.progress == 1:
 				dialog.play("convo13")
-			self.tquiet = 0
-		if dialog.queue or dialog.currentline:
-			self.tquiet = 0
-		else:
-			self.tquiet += dt
 
-
-		if self.progress == 0 and self.tquiet > 10:
+		if self.progress == 0 and dialog.tquiet > 10:
 			dialog.play("convo11")
-		if self.progress >= 1 and self.tquiet > 11:
+		if self.progress >= 1 and dialog.tquiet > 11:
 			dialog.play("convo12")
-		if self.progress >= 2 and self.tquiet > 12:
+		if self.progress >= 2 and dialog.tquiet > 12:
 			dialog.play("echo1")
-		if self.progress >= 3 and self.tquiet > 13:
+		if self.progress >= 3 and dialog.tquiet > 13:
 			dialog.play("echo2")
-		if self.progress >= 3 and self.tquiet > 60:
+		if self.progress >= 3 and dialog.tquiet > 60:
 			dialog.play("echo3")
 			dialog.play("echo4")
-		if self.progress >= 4 and self.tquiet > 15:
+		if self.progress >= 4 and dialog.tquiet > 15:
 			dialog.play("echo5")
-		if self.progress >= 5 and self.tquiet > 16 and "convo14" in dialog.played:
+		if self.progress >= 5 and dialog.tquiet > 16 and "convo14" in dialog.played:
 			dialog.play("convo15")
 			quests["Finale"].setup()
 		
-		if state.you.y - state.Rcore < 30 and self.tquiet > 10:
+		if state.you.y - state.Rcore < 30 and dialog.tquiet > 10:
 			dialog.play("convo14")
 
 
