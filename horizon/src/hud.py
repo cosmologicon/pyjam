@@ -24,8 +24,14 @@ def think(dt):
 def draw():
 	for line, t0, t in lines:
 		alpha = min(2 * t, 1, (2 * (t0 - t) if t0 is not None else 1))
-		ptext.draw(line, fontsize = F(24), midtop = F(854 / 2, 80), width = F(460), color = "gray",
+		ptext.draw(line, fontsize = F(24), midtop = F(854 / 2, 40), width = F(460), color = "gray",
 			owidth = 1, alpha = alpha, fontname = "Orbitron", lineheight = 1.2)
+
+def drawnotice(text):
+	alpha = pygame.time.get_ticks() * 0.001 % 1
+	ptext.draw(text, midtop = F(854/2, 100), color = "#FF7777",
+		owidth = 1, fontsize = F(36), fontname = "NovaSquare", alpha = alpha)
+
 
 def dump():
 	return lines

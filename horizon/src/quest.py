@@ -123,7 +123,8 @@ class Act1(Quest):
 					state.effects.append(mappertarget)
 					self.mappertargetid = mappertarget.thingid
 		if self.progress > 1 and self.mappertargetid:
-			thing.get(self.mappertargetid).die()
+			if thing.get(self.mappertargetid):
+				thing.get(self.mappertargetid).die()
 			self.mappertargetid = None
 		if self.progress == 1 and inmapper:
 			self.progress = 2
@@ -175,7 +176,7 @@ class Act2(Quest):
 			return
 		self.t += dt
 		if not self.cutscened:
-			if dialog.tquiet > 5:
+			if self.t > 15 and dialog.tquiet > 15:
 				self.cutscened = True
 				from src.scenes import act2cutscene
 				from src import scene

@@ -53,10 +53,10 @@ def think(dt, events, kpressed):
 
 	dt = min(dt, 0.1)
 	window.camera.X0 = 0
-	factor = 0.002 * t ** 3
+	factor = 0.003 * t ** 3
 	window.camera.y0 += (1 - math.exp(-factor * dt)) * (R - 80 - window.camera.y0)
 	
-	factor = max(0.3, 0.2 * t ** 2)
+	factor = 0.3 + 0.1 * t ** 2
 	Rfactor += (1 - math.exp(-factor * dt)) * (1 / 1600 - Rfactor)
 	window.camera.R = window.sy * Rfactor
 

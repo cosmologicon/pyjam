@@ -1,5 +1,9 @@
 from __future__ import division
-# import vidcap
+from src import settings
+if settings.vidcap:
+	import vidcap
+	vidcap.drawmouse = False
+	vidcap.stop()
 import pygame, datetime, os.path
 from pygame.locals import *
 from src import settings, thing, window, ptext, state, background, scene, sound
@@ -93,6 +97,8 @@ while playing:
 			sound.epicness = 1
 		if settings.DEBUG and event.type == KEYDOWN and event.key == K_KP2:
 			sound.epicness = 2
+		if settings.vidcap and event.type == KEYDOWN and event.key == K_TAB:
+			vidcap.toggle()
 
 
 	kpressed = pygame.key.get_pressed()

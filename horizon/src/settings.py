@@ -23,6 +23,7 @@ minfps = 6
 drawbackground = True
 
 DEBUG = "--debug" in sys.argv
+vidcap = "--vidcap" in sys.argv
 saveonquit = True
 saveonemergency = True
 # Set it to savegame.json if you prefer to save as json. I think it's slower, though.

@@ -63,11 +63,16 @@ def play(name):
 	else:
 		channels[7].play(sounds[name])
 
+
+tlineend = -100
 def playline(name, volume = 1):
+	global tlineend
 	channels[4].set_volume(volume)
-	channels[4].play(loadsound("data", "dialog", name))
+	line = loadsound("data", "dialog", name)
+	tlineend = pygame.time.get_ticks() * 0.001 + line.get_length()
+	channels[4].play(line)
 def lineplaying():
-	return channels[4].get_busy()
+	return pygame.time.get_ticks() * 0.001 <= tlineend
 
 currentmusic = None
 def playmusic(name):
