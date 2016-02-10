@@ -5,7 +5,7 @@ Entry in PyWeek ##  <http://www.pyweek.org/##/>
 URL: https://www.pyweek.org/e/unifac##/
 Team: Universe Factory ##
 Members: Christopher Night (Cosmologicon)
-License: see below
+License: see LICENSE.txt
 
 Requirements
 ------------
@@ -22,17 +22,4 @@ Running the Game
 
 Open a terminal / console and "cd" to the game directory and run:
 
-  python run_game.py
-
-
-
-Source Code License
--------------------
-
-Source code is by Christopher Night, released CC0.
-
-
-Asset License
--------------
-
-
+    python run_game.py
