@@ -12,7 +12,9 @@ Notes for myself.
 
 Begin by creating the directory:
 
+	git clean -f -X skellington
     cp -r skellington pyweek##
+    git add pyweek##
 
 Update `pyweek##/README.txt` to change references (`##`) to the appropriate number.
 
