@@ -31,12 +31,23 @@ Modules may be executed as standalone scripts from the command line:
 
     python -m src.module1
 
+### End of development
+
+Check the list of pygame tips to make sure you didn't make any cross-platform mistakes:
+
+	https://github.com/cosmologicon/pyjam/wiki/pygame-notes-and-tricks
+
 ### After the deadline (packaging)
 
 Rename the directory to reflect the game name.
 
+Make sure DEBUG mode is off by default in the checkin.
+
+Make sure music and data is pointing to the correct place.
+
 Update the README and LICENSE files in the game directory to reflect the game name.
 
 	tar czf gamename.tgz gamename/
+
 
 TODO: avoid temp files

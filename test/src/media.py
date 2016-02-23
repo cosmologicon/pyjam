@@ -53,7 +53,7 @@ def colorfilter(img):
 	surf = pygame.surfarray.pixels3d(img)
 	sx, sy = img.get_rect().size
 	surf[sx//2:,:sy//2,2] *= 0
-	surf[:sx//2,:sy//2,:3] *= 0.5
+	surf[:sx//2,:sy//2,:3] = (surf[:sx//2,:sy//2,:3] * 0.5).astype(surf.dtype)
 	surf[sx//2:,sy//2:,0] *= 0
 	return img
 
