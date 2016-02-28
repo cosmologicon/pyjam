@@ -1,0 +1,30 @@
+Blender notes
+
+Positioning camera:
+* right-click on camera object
+* press N
+* Set transform location to (0, -5, 8.3333)
+* Set transform rotation to (30d, 0, 0)
+
+Poisition the light source:
+* right-click on light object
+* Set transform location to (-2, -4, 8)
+
+Set render properties
+* On the right-hand panel, under Shading, set Alpha to transparent
+* Click on the film projector, and under Lens choose Orthographic, orthographic scale = 5
+* Under Post-processing click Edge
+* Under Dimensions pick X = 800, Y = 800, End frame = 16
+* Under Output, set the path to: /home/christopher/projects/pyjam/pyweek21/data/ships/shipname-
+
+* Change Default at the top to Animation, select Channel > Extrapolation Mode > Linear Extrapolation
+
+
+
+Alt-M: merge at center
+GSR+XYZ: glide, scale, rotate along x/y/z axis
+
+
+
+
+

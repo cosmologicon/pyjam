@@ -18,4 +18,5 @@ DEBUG = True
 
 shadecolor = 40, 40, 40
 yscalefactor = 0.5  # 0.5 = isometric
+shipframes = 16
 
