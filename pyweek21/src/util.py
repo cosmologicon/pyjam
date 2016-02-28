@@ -13,5 +13,5 @@ def F(x, *z):
 def debug(*args):
 	if not settings.DEBUG:
 		return
-	print(*args)
+	print(args)
 

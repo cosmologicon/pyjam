@@ -4,6 +4,8 @@ from . import settings, util
 
 screen = None
 sx, sy = None, None
+x0, y0 = 0, 0
+Z = 10
 
 def init():
 	setwindow()
@@ -18,7 +20,7 @@ def setwindow():
 		sy = settings.resolution
 		sx = int(math.ceil(16 / 9 * sy))
 		screen = pygame.display.set_mode((sx, sy))
-	util.f = sy / settings.resolution
+	util.f = sy / settings.resolution0
 
 def screenshot():
 	if not os.path.exists("screenshots"):
@@ -29,4 +31,22 @@ def screenshot():
 def togglefullscreen():
 	settings.fullscreen = not settings.fullscreen
 	setwindow()
+
+# center of screen
+px0 = settings.resolution0 * (16 / 9) / 2
+py0 = settings.resolution0 / 2
+fy = 0.5
+fz = math.sqrt(1 - fy ** 2)
+def worldtoscreen(x, y, z):
+	px = px0 + (x - x0) * Z
+	py = py0 - (fy * (y - y0) + fz * z) * Z
+	return util.F(px, py)
+
+def getstate():
+	return x0, y0
+
+def setstate(obj):
+	global x0, y0
+	x0, y0 = obj
+
 
