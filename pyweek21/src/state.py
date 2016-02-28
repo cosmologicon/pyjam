@@ -9,6 +9,7 @@ class State(object):
 		self.team = []
 		self.buildings = []
 		self.blocks = defaultdict(list)
+		self.effects = []
 		self.cursor = None
 
 	def nextcursor(self):
@@ -29,14 +30,15 @@ class State(object):
 	def draw(self):
 		for t in self.ships:
 			t.drawshadow()
-		things = self.ships + self.buildings
+		things = self.ships + self.buildings + self.effects
 		things.sort(key = lambda obj: -obj.y * window.fz + obj.z * window.fy)
 		for t in things:
 			t.draw()
 
 	def think(self, dt):
-		for t in self.ships + self.buildings:
+		for t in self.ships + self.buildings + self.effects:
 			t.think(dt)
+		self.effects = [e for e in self.effects if e.alive]
 
 	def addtoteam(self, ship):
 		self.ships.append(ship)

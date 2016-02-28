@@ -1,4 +1,5 @@
-import math, random
+from __future__ import division
+import math, random, pygame
 from . import window, ptext, state, image, settings
 from .enco import Component
 from .util import F
@@ -11,6 +12,15 @@ class WorldBound(Component):
 			self.x, self.y, self.z = obj["pos"]
 	def screenpos(self, dz = 0):
 		return window.worldtoscreen(self.x, self.y, self.z + dz)
+
+class Lifetime(Component):
+	def __init__(self, lifetime = 1):
+		self.lifetime = lifetime
+		self.f = 0
+	def think(self, dt):
+		self.f = min(self.t / self.lifetime, 1)
+		if self.f == 1:
+			self.die()
 
 class DrawName(Component):
 	def __init__(self, hoverdz = 0):
@@ -123,15 +133,36 @@ class BuildTarget(Component):
 			state.state.buildings.append(self.btarget)
 			self.btarget = None
 
+class DrawEllipses(Component):
+	def __init__(self, r = 1, color = (255, 0, 255)):
+		self.rellipse = r
+		self.color = color
+	def draw(self):
+		for dr in (0, 0.2, 0.4):
+			r = (self.f * 1.4 - dr)
+			if r > 1:
+				continue
+			r *= self.rellipse * window.Z
+			w, h = F(r, r * window.fy)
+			thick = F(1)
+			if h <= 2 * thick:
+				continue
+			rect = pygame.Rect((0, 0, w, h))
+			rect.center = self.screenpos()
+			pygame.draw.ellipse(window.screen, self.color, rect, thick)
+
 @WorldBound()
 class Thing(object):
 	def __init__(self, **kwargs):
 		self.init(kwargs)
 		self.t = 0
+		self.alive = True
 	def draw(self):
 		pass
 	def think(self, dt):
 		self.t += dt
+	def die(self):
+		self.alive = False
 
 @ApproachesTarget()
 @BuildTarget()
@@ -146,4 +177,8 @@ class You(Thing):
 class Building(Thing):
 	brange = 30
 
+@Lifetime(0.7)
+@DrawEllipses(r = 5)
+class GoIndicator(Thing):
+	pass
 

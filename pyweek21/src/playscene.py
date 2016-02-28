@@ -25,6 +25,7 @@ def think(dt, estate):
 #		state.state.ships[-1].setbuildtarget(building)
 		if state.state.cursor:
 			state.state.cursor.settarget((x, y))
+			state.state.effects.append(thing.GoIndicator(pos = [x, y, 0]))
 	if estate["rclick"]:
 		x, y = window.screentoworld(*estate["mpos"])
 		window.targetpos(x, y)
