@@ -13,7 +13,9 @@ for x in range(mx):
 		pos = x - mx // 2, my // 2 - y
 		if color == (0, 255, 0):
 			data["start"] = pos
-		elif color == (0, 127, 0):
+		if color == (0, 0, 255):
+			data["beta"] = pos
+		if color == (0, 127, 0):
 			data["activated"].append(pos)
 
 import json

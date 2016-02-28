@@ -6,7 +6,9 @@ def getcstate(estate):
 def onpush():
 	x, y = gamedata.data["start"]
 	you = thing.You(pos = [x, y, 4])
-	state.state.ships.append(you)
+	state.state.addtoteam(you)
+	x, y = gamedata.data["beta"]
+	state.state.addtoteam(thing.You(pos = [x, y, 4]))
 	window.snapto(you)
 	for x, y in gamedata.data["activated"]:
 		building = thing.Building(pos = [x, y, 0], needpower = 10)
@@ -17,12 +19,14 @@ def think(dt, estate):
 		x, y = window.screentoworld(*estate["mpos"])
 #		building = thing.Building(pos = [x, y, 0])
 #		state.state.ships[-1].setbuildtarget(building)
-		state.state.ships[-1].settarget((x, y))
+		if state.state.cursor:
+			state.state.cursor.settarget((x, y))
 	if estate["rclick"]:
 		x, y = window.screentoworld(*estate["mpos"])
 		window.targetpos(x, y)
 	if estate["cycle"]:
-		ship = state.state.ships[-1]
+		ship = state.state.nextcursor()
+		state.state.cursor = ship
 		window.targetpos(ship.x, ship.y, ship.z)
 
 	state.state.think(dt)

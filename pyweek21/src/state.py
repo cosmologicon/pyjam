@@ -6,8 +6,15 @@ from . import settings, window
 class State(object):
 	def __init__(self):
 		self.ships = []
+		self.team = []
 		self.buildings = []
 		self.blocks = defaultdict(list)
+		self.cursor = None
+
+	def nextcursor(self):
+		if not self.cursor:
+			return self.team[0]
+		return self.team[(self.team.index(self.cursor) + 1) % len(self.team)]
 
 	def draw(self):
 		for t in self.ships:
@@ -20,6 +27,10 @@ class State(object):
 	def think(self, dt):
 		for t in self.ships + self.buildings:
 			t.think(dt)
+
+	def addtoteam(self, ship):
+		self.ships.append(ship)
+		self.team.append(ship)
 
 	def addbuilding(self, building):
 		bx0 = int(math.floor((building.x - building.brange) / settings.blocksize))
@@ -40,6 +51,7 @@ class State(object):
 		return [
 			window.getstate(),
 			self.ships,
+			self.team,
 			self.buildings,
 		]
 
@@ -47,6 +59,7 @@ class State(object):
 		[
 			windowstate,
 			self.ships,
+			self.team,
 			buildings,
 		] = obj
 		window.setstate(windowstate)
