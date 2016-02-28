@@ -8,10 +8,11 @@ assembling = False
 curtain = -1
 def onpush():
 	x, y = gamedata.data["start"]
-	you = thing.You(pos = [x, y, 4])
+	you = thing.AlphaShip(pos = [x, y, 4])
+	background.reveal(x, y, 15)
 	state.state.addtoteam(you)
 	x, y = gamedata.data["beta"]
-	state.state.addtoteam(thing.You(pos = [x, y, 4]))
+	state.state.addtoteam(thing.BetaShip(pos = [x, y, 4]))
 	window.snapto(you)
 	for x, y in gamedata.data["activated"]:
 		building = thing.Building(pos = [x, y, 0], needpower = 10)

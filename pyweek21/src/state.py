@@ -1,3 +1,4 @@
+from __future__ import division
 import math, random
 import cPickle as pickle
 from collections import defaultdict
@@ -47,8 +48,8 @@ class State(object):
 	def addbuilding(self, building):
 		bx0 = int(math.floor((building.x - building.brange) / settings.blocksize))
 		by0 = int(math.floor((building.y - building.brange) / settings.blocksize))
-		bx1 = int(math.ceil((building.x + building.brange) / settings.blocksize))
-		by1 = int(math.ceil((building.y + building.brange) / settings.blocksize))
+		bx1 = int(math.ceil((building.x + building.brange) / settings.blocksize)) + 1
+		by1 = int(math.ceil((building.y + building.brange) / settings.blocksize)) + 1
 		for bx in range(bx0, bx1):
 			for by in range(by0, by1):
 				self.blocks[(bx, by)].append(building)

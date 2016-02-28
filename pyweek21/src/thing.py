@@ -1,6 +1,6 @@
 from __future__ import division
 import math, random, pygame
-from . import window, ptext, state, image, settings
+from . import window, ptext, state, image, settings, background
 from .enco import Component
 from .util import F
 
@@ -75,6 +75,8 @@ class Rechargeable(Component):
 		for k, v in chargerates.items():
 			if k in self.needs and self.needs[k] > 0:
 				self.needs[k] = max(self.needs[k] - dt * v, 0)
+				if self.needs[k] == 0:
+					self.oncharge(k)
 	def draw(self):
 		for k, v in self.needs.items():
 			if not v:
@@ -82,6 +84,8 @@ class Rechargeable(Component):
 			pos = self.screenpos(dz = -1)
 			text = "%s: %d/%d" % (k, int(self.needmax[k] - v), self.needmax[k])
 			ptext.draw(text, center = pos, color = "yellow", fontsize = F(24), owidth = 1)
+	def oncharge(self, needtype):
+		background.reveal(self.x, self.y, 20)
 
 
 class Charges(Component):
@@ -164,12 +168,20 @@ class Thing(object):
 	def die(self):
 		self.alive = False
 
-@ApproachesTarget()
+@ApproachesTarget(speed = 4)
+@BuildTarget()
+@FacesForward()
+@DrawShip("test")
+@Charges({"power": 10})
+class AlphaShip(Thing):
+	pass
+
+@ApproachesTarget(speed = 8)
 @BuildTarget()
 @FacesForward()
 @DrawShip("test")
 @Charges({"power": 1})
-class You(Thing):
+class BetaShip(Thing):
 	pass
 
 @DrawName()
