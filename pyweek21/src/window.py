@@ -6,7 +6,7 @@ screen = None
 sx, sy = None, None
 x0, y0 = 0, 0
 target = None
-Z = 10
+Z = 20
 
 def init():
 	setwindow()
@@ -36,7 +36,7 @@ def togglefullscreen():
 # center of screen
 px0 = settings.resolution0 * (16 / 9) / 2
 py0 = settings.resolution0 / 2
-fy = 0.5
+fy = settings.yscalefactor
 fz = math.sqrt(1 - fy ** 2)
 def worldtoscreen(x, y, z):
 	px = px0 + (x - x0) * Z

@@ -1,10 +1,16 @@
-from . import settings, state, thing, background, window
+from . import settings, state, thing, background, window, gamedata
 
 def getcstate(estate):
 	return {}
 
 def onpush():
-	state.state.ships.append(thing.You(pos = [5, 5, 10]))
+	x, y = gamedata.data["start"]
+	you = thing.You(pos = [x, y, 10])
+	state.state.ships.append(you)
+	window.snapto(you)
+	for x, y in gamedata.data["activated"]:
+		building = thing.Building(pos = [x, y, 0])
+		state.state.buildings.append(building)
 
 def think(dt, estate):
 	if estate["lclick"]:
