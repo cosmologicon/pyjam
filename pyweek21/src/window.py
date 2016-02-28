@@ -41,6 +41,19 @@ def worldtoscreen(x, y, z):
 	px = px0 + (x - x0) * Z
 	py = py0 - (fy * (y - y0) + fz * z) * Z
 	return util.F(px, py)
+def screentoworld(px, py):  # at z = 0
+	return [
+		x0 + (px - px0) / (util.f * Z),
+		y0 - (py - py0) / (util.f * fy * Z),
+	]
+
+def snapto(obj):
+	snaptopos(obj.x, obj.y, obj.z)
+def snaptopos(x, y, z):
+	global x0, y0
+	x0 = x
+	y0 = y + z * fz / fy
+
 
 def getstate():
 	return x0, y0
