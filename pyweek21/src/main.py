@@ -1,11 +1,12 @@
 import pygame
-from . import settings, window, ptext, scene, playscene
+from . import settings, window, ptext, scene, playscene, background
 from .util import F
 
 
 scene.push(playscene)
 
 window.init()
+background.init()
 clock = pygame.time.Clock()
 playing = True
 

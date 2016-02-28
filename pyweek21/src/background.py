@@ -4,7 +4,13 @@ from .util import F, debug
 
 tilesize = 20
 tiles = {}
-T = 40
+T = 20
+
+mapimg = None
+def init():
+	global mapimg
+	mapimg = pygame.image.load("/tmp/map.png").convert()
+
 
 def randomtile():
 	surf = pygame.Surface((tilesize, tilesize)).convert()
@@ -19,9 +25,18 @@ def randomtile():
 def gettile(ntile):
 	if ntile in tiles:
 		return tiles[ntile]
-	tiles[ntile] = randomtile()
+	X, Y = ntile
+	surf = pygame.Surface((tilesize, tilesize)).convert()
+	surf.fill((0, 0, 0))
+	mx, my = mapimg.get_size()
+	px, py = mx // 2 + X * tilesize, my // 2 - Y * tilesize
+	surf.blit(mapimg, (-px, -py))
+	fuzz = randomtile()
+	fuzz.set_alpha(100)
+	surf.blit(fuzz, (0, 0))
+	tiles[ntile] = surf
 	debug("background tile size %d" % len(tiles))
-	return tiles[ntile]
+	return surf
 
 land = {}
 def getland(ntile):
