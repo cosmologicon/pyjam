@@ -1,5 +1,5 @@
 import math
-from . import window, ptext
+from . import window, ptext, state
 from .enco import Component
 from .util import F
 
@@ -9,12 +9,15 @@ class WorldBound(Component):
 	def init(self, obj):
 		if "pos" in obj:
 			self.x, self.y, self.z = obj["pos"]
-	def screenpos(self):
-		return window.worldtoscreen(self.x, self.y, self.z)
+	def screenpos(self, dz = 0):
+		return window.worldtoscreen(self.x, self.y, self.z + dz)
 
 class DrawName(Component):
+	def __init__(self, hoverdz = 0):
+		self.hoverdz = hoverdz
 	def draw(self):
-		ptext.draw(self.__class__.__name__, center = self.screenpos(), color = "red", fontsize = F(18), ocolor = "black")
+		pos = self.screenpos(dz = self.hoverdz * math.sin(2 * self.t))
+		ptext.draw(self.__class__.__name__, center = pos, color = "red", fontsize = F(24), owidth = 1)
 
 class ApproachesTarget(Component):
 	def __init__(self, speed = 2):
@@ -36,16 +39,35 @@ class ApproachesTarget(Component):
 			self.x += f * dx
 			self.y += f * dy
 
+class BuildTarget(Component):
+	def __init__(self):
+		self.btarget = None
+	def setbuildtarget(self, btarget):
+		self.target = btarget.x, btarget.y
+		self.btarget = btarget
+	def think(self, dt):
+		if self.btarget and not self.target:
+			state.state.buildings.append(self.btarget)
+			self.btarget = None
+
 @WorldBound()
 class Thing(object):
 	def __init__(self, **kwargs):
 		self.init(kwargs)
+		self.t = 0
 	def draw(self):
 		pass
 	def think(self, dt):
-		pass
+		self.t += dt
+
+@DrawName(0.5)
+@ApproachesTarget()
+@BuildTarget()
+class You(Thing):
+	pass
 
 @DrawName()
-@ApproachesTarget()
-class You(Thing):
-	pass		
+class Building(Thing):
+	pass
+
+

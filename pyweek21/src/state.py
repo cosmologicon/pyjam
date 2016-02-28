@@ -1,28 +1,31 @@
 import cPickle as pickle
-from . import settings, thing
+from . import settings, window
 
 class State(object):
 	def __init__(self):
-		self.things = []
+		self.ships = []
+		self.buildings = []
 
 	def draw(self):
-		for t in self.things:
+		for t in self.ships + self.buildings:
 			t.draw()
 
 	def think(self, dt):
-		for t in self.things:
+		for t in self.ships + self.buildings:
 			t.think(dt)
 
 	def get(self):
 		return [
 			window.getstate(),
-			self.things,
+			self.ships,
+			self.buildings,
 		]
 
 	def set(self, obj):
 		[
 			windowstate,
-			self.things,
+			self.ships,
+			self.buildings
 		] = obj
 		window.setstate(windowstate)
 

@@ -1,5 +1,6 @@
 import pygame, random, math, util
 from . import window
+from .util import F, debug
 
 tilesize = 20
 tiles = {}
@@ -19,6 +20,7 @@ def gettile(ntile):
 	if ntile in tiles:
 		return tiles[ntile]
 	tiles[ntile] = randomtile()
+	debug("background tile size %d" % len(tiles))
 	return tiles[ntile]
 
 land = {}
@@ -27,10 +29,11 @@ def getland(ntile):
 	if key in land:
 		return land[key]
 	tile = gettile(ntile)
-	w = int(math.ceil(window.Z * T))
-	h = int(math.ceil(window.Z * T * window.fy))
+	w = F(math.ceil(window.Z * T))
+	h = F(math.ceil(window.Z * T * window.fy))
 	surf = pygame.transform.smoothscale(tile, (w, h))
 	land[key] = surf
+	debug("background land size %d" % len(land))
 	return surf
 
 def draw():

@@ -5,6 +5,7 @@ from . import settings, util
 screen = None
 sx, sy = None, None
 x0, y0 = 0, 0
+target = None
 Z = 10
 
 def init():
@@ -43,7 +44,7 @@ def worldtoscreen(x, y, z):
 	return util.F(px, py)
 def screentoworld(px, py):  # at z = 0
 	return [
-		x0 + (px - px0) / (util.f * Z),
+		x0 + (px - px0) / (util.f * Z),  # TODO: this is wrong for f != 1
 		y0 - (py - py0) / (util.f * fy * Z),
 	]
 
@@ -53,6 +54,21 @@ def snaptopos(x, y, z):
 	global x0, y0
 	x0 = x
 	y0 = y + z * fz / fy
+def targetpos(x, y, z = 0):
+	global target
+	target = x, y + z * fz / fy
+def think(dt):
+	global target, x0, y0
+	if target is not None:
+		tx, ty = target
+		dx, dy = tx - x0, ty - y0
+		if dx ** 2 + dy ** 2 < 0.1:
+			x0, y0 = target
+			target = None
+		else:
+			f = 1 - math.exp(-8 * dt)
+			x0 += f * dx
+			y0 += f * dy
 
 
 def getstate():
