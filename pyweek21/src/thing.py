@@ -28,6 +28,9 @@ class DrawShip(Component):
 		frame = int(round(self.angle * n / 360)) % n
 		imgname = "data/ships/%s-%04d.png" % (self.imgname, frame + 1)
 		image.draw(imgname, pos, scale = 3)
+	def drawshadow(self):
+		pos = window.worldtoscreen(self.x, self.y, 0)
+		image.draw("data/shadow.png", pos, scale = 1)
 
 class FacesForward(Component):
 	def __init__(self):
@@ -45,6 +48,36 @@ class FacesForward(Component):
 			else:
 				self.angle = self.targetangle
 
+class Rechargeable(Component):
+	def __init__(self, needmax):
+		self.needmax = needmax
+	def init(self, obj):
+		self.needs = { k: 0 for k in self.needmax }
+		for k, v in obj.items():
+			if k.startswith("need"):
+				self.needs[k[4:]] = v
+	def charge(self, dt, chargerates):
+		for k, v in chargerates.items():
+			if k in self.needs and self.needs[k] > 0:
+				self.needs[k] = max(self.needs[k] - dt * v, 0)
+	def draw(self):
+		for k, v in self.needs.items():
+			if not v:
+				continue
+			pos = self.screenpos(dz = -1)
+			text = "%s: %d/%d" % (k, int(self.needmax[k] - v), self.needmax[k])
+			ptext.draw(text, center = pos, color = "yellow", fontsize = F(24), owidth = 1)
+
+
+class Charges(Component):
+	def __init__(self, chargerates):
+		self.chargerates = chargerates
+	def think(self, dt):
+		for building in state.state.buildingsnear(self.x, self.y):
+			dx = building.x - self.x
+			dy = building.y - self.y
+			if dx ** 2 + dy ** 2 < 2 ** 2:
+				building.charge(dt, self.chargerates)
 
 
 class ApproachesTarget(Component):
@@ -99,11 +132,13 @@ class Thing(object):
 @BuildTarget()
 @FacesForward()
 @DrawShip("test")
+@Charges({"power": 1})
 class You(Thing):
 	pass
 
 @DrawName()
+@Rechargeable({"power": 10})
 class Building(Thing):
-	pass
+	brange = 30
 
 

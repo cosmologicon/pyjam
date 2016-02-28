@@ -8,9 +8,11 @@ tiles = {}
 T = 20
 
 mapimg = None
+cloudimgs = []
 def init():
 	global mapimg
-	mapimg = pygame.image.load("/tmp/map.png").convert()
+	mapimg = pygame.image.load("data/map.png").convert()
+	cloudimgs.append(pygame.image.load("data/clouds-0.png").convert_alpha())
 
 
 def randomtile():
@@ -48,8 +50,9 @@ def getland(ntile):
 	if key in land:
 		return land[key]
 	tile = gettile(ntile)
-	w0 = F(math.ceil(window.Z * T * tile.get_width() / tilesize))
-	h0 = F(math.ceil(window.Z * T * window.fy * tile.get_height() / tilesize))
+	# Note: the -1 in the following equations was hard come by. I should do a writeup on it.
+	w0 = F(math.ceil(window.Z * T * (tile.get_width() - 1) / tilesize))
+	h0 = F(math.ceil(window.Z * T * window.fy * (tile.get_height() - 1) / tilesize))
 	surf0 = pygame.transform.smoothscale(tile, (w0, h0))
 	w = F(math.ceil(window.Z * T))
 	h = F(math.ceil(window.Z * T * window.fy))
@@ -59,6 +62,21 @@ def getland(ntile):
 	land[key] = surf
 	debug("background land size:", len(land))
 	return surf
+
+clouds = {}
+def getcloud(layer):
+	key = layer, util.f
+	if key in clouds:
+		return clouds[key]
+	w = F(math.ceil(window.Z * 50))
+	h = F(math.ceil(window.Z * 50 * window.fy))
+	surf = pygame.transform.smoothscale(cloudimgs[0], (w, h))
+	clouds[key] = surf
+	debug("background cloud size:", len(clouds))
+	return clouds[key]
+
+
+
 
 shade = {}
 def getshade():
@@ -90,4 +108,6 @@ def draw():
 			window.screen.blit(surf, pos)
 	window.screen.blit(getshade(), (0, 0))
 
+def drawclouds():
+	window.screen.blit(getcloud(0), (0, 0))
 

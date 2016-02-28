@@ -5,18 +5,19 @@ def getcstate(estate):
 
 def onpush():
 	x, y = gamedata.data["start"]
-	you = thing.You(pos = [x, y, 10])
+	you = thing.You(pos = [x, y, 4])
 	state.state.ships.append(you)
 	window.snapto(you)
 	for x, y in gamedata.data["activated"]:
-		building = thing.Building(pos = [x, y, 0])
-		state.state.buildings.append(building)
+		building = thing.Building(pos = [x, y, 0], needpower = 10)
+		state.state.addbuilding(building)
 
 def think(dt, estate):
 	if estate["lclick"]:
 		x, y = window.screentoworld(*estate["mpos"])
-		building = thing.Building(pos = [x, y, 0])
-		state.state.ships[-1].setbuildtarget(building)
+#		building = thing.Building(pos = [x, y, 0])
+#		state.state.ships[-1].setbuildtarget(building)
+		state.state.ships[-1].settarget((x, y))
 	if estate["rclick"]:
 		x, y = window.screentoworld(*estate["mpos"])
 		window.targetpos(x, y)
@@ -31,5 +32,6 @@ def think(dt, estate):
 def draw():
 	background.draw()
 	state.state.draw()
+#	background.drawclouds()
 
 
