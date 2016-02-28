@@ -8,6 +8,7 @@ savename = "data/savegame.pkl"
 keys = {
 	"quit": [K_ESCAPE],
 	"cycle": [K_TAB],
+	"assemble": [K_a],
 }
 
 

@@ -3,6 +3,9 @@ from . import settings, state, thing, background, window, gamedata
 def getcstate(estate):
 	return {}
 
+
+assembling = False
+curtain = -1
 def onpush():
 	x, y = gamedata.data["start"]
 	you = thing.You(pos = [x, y, 4])
@@ -15,6 +18,7 @@ def onpush():
 		state.state.addbuilding(building)
 
 def think(dt, estate):
+	global assembling, curtain
 	if estate["lclick"]:
 		x, y = window.screentoworld(*estate["mpos"])
 #		building = thing.Building(pos = [x, y, 0])
@@ -28,6 +32,16 @@ def think(dt, estate):
 		ship = state.state.nextcursor()
 		state.state.cursor = ship
 		window.targetpos(ship.x, ship.y, ship.z)
+	if estate["assemble"] and not assembling and curtain == 1:
+		assembling = True
+
+	if assembling:
+		curtain -= 6 * dt
+		if curtain < -0.5:
+			state.state.assemble(window.x0, window.y0)
+			assembling = False
+	else:
+		curtain = min(curtain + 6 * dt, 1)
 
 	state.state.think(dt)
 	window.think(dt)
@@ -37,5 +51,10 @@ def draw():
 	background.draw()
 	state.state.draw()
 #	background.drawclouds()
-
+	if curtain <= 0:
+		window.screen.fill((0, 0, 0))
+	elif curtain < 1:
+		h = int(window.sy / 2 * (1 - curtain))
+		window.screen.fill((0, 0, 0), (0, 0, window.sx, h))
+		window.screen.fill((0, 0, 0), (0, window.sy - h, window.sx, h))
 

@@ -1,4 +1,4 @@
-import math
+import math, random
 import cPickle as pickle
 from collections import defaultdict
 from . import settings, window
@@ -15,6 +15,16 @@ class State(object):
 		if not self.cursor:
 			return self.team[0]
 		return self.team[(self.team.index(self.cursor) + 1) % len(self.team)]
+
+	def assemble(self, x, y):
+		team = sorted(self.team, key = lambda ship: (ship.x - x) ** 2 + (ship.y - y) ** 2)
+		for j, ship in enumerate(team, 1):
+			r, theta = 2 * math.sqrt(j), 1.62 * j
+			ship.x = x + r * math.sin(theta)
+			ship.y = y + r * math.cos(theta) - 3
+			ship.target = None
+			ship.btarget = None
+		window.snaptopos(x, y, 0)
 
 	def draw(self):
 		for t in self.ships:

@@ -1,4 +1,4 @@
-import math
+import math, random
 from . import window, ptext, state, image, settings
 from .enco import Component
 from .util import F
@@ -22,8 +22,11 @@ class DrawName(Component):
 class DrawShip(Component):
 	def __init__(self, imgname):
 		self.imgname = imgname
+	def init(self, obj):
+		self.hphi0 = random.uniform(0, 100)
+		self.homega = random.uniform(1.6, 2.3)
 	def draw(self):
-		pos = self.screenpos(dz = 0.5 * math.sin(2 * self.t))
+		pos = self.screenpos(dz = 0.5 * math.sin(self.homega * self.t + self.hphi0))
 		n = settings.shipframes
 		frame = int(round(self.angle * n / 360)) % n
 		imgname = "data/ships/%s-%04d.png" % (self.imgname, frame + 1)
@@ -37,6 +40,8 @@ class FacesForward(Component):
 		self.angle = 0
 		self.targetangle = 0
 		self.omega = 500
+	def init(self, obj):
+		self.angle = self.targetangle = random.uniform(0, 360)
 	def think(self, dt):
 		if self.vx or self.vy:
 			self.targetangle = math.degrees(math.atan2(self.vx, self.vy)) % 360
