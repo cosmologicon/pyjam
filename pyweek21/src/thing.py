@@ -39,6 +39,9 @@ class DrawShip(Component):
 		pos = self.screenpos(dz = 0.5 * math.sin(self.homega * self.t + self.hphi0))
 		n = settings.shipframes
 		frame = int(round(self.angle * n / 360)) % n
+		if self is state.state.cursor:
+			imgname = "data/ships/%s-%04d-outline.png" % (self.imgname, frame + 1)
+			image.draw(imgname, pos, scale = 3)
 		imgname = "data/ships/%s-%04d.png" % (self.imgname, frame + 1)
 		image.draw(imgname, pos, scale = 3)
 	def drawshadow(self):
