@@ -1,5 +1,5 @@
 import pygame
-from . import state, window, state
+from . import state, window, state, sound, background
 from .util import F
 
 cursor = []
@@ -23,9 +23,13 @@ def think(dt, estate):
 	if estate["rdown"]:
 		from . import thing
 		x, y = window.screentoworld(*estate["mpos"])
-		for ship in cursor:
-			ship.settarget((x, y))
-			state.state.effects.append(thing.GoIndicator(pos = [x, y, 0]))
+		if background.revealed(x, y):
+			sound.play("go")
+			for ship in cursor:
+				ship.settarget((x, y))
+				state.state.effects.append(thing.GoIndicator(pos = [x, y, 0]))
+		else:
+			sound.play("cantgo")
 #	if estate["rdown"]:
 #		x, y = window.screentoworld(*estate["mpos"])
 #		window.targetpos(x, y)

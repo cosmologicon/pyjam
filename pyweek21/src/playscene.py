@@ -18,7 +18,7 @@ def onpush():
 def think(dt, estate):
 	global curtain
 	control.think(dt, estate)
-	dialogue.playonce("test1")
+#	dialogue.playonce("test1")
 
 	if control.assembling:
 		curtain -= 6 * dt
@@ -33,6 +33,11 @@ def think(dt, estate):
 	window.think(dt)
 	dialogue.think(dt)
 #	window.snapto(state.state.things[-1])
+	x, y = window.screentoworld(*estate["mpos"])
+	if background.revealed(x, y):
+		pygame.mouse.set_cursor(*pygame.cursors.arrow)
+	else:
+		pygame.mouse.set_cursor(*pygame.cursors.broken_x)
 
 def draw():
 	background.draw()

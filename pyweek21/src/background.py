@@ -96,6 +96,16 @@ def reveal(x, y, r):
 		if X0 <= X <= X1 and Y0 <= Y <= Y1:
 			del land[key]
 
+def revealed(x, y):
+	mx, my = maskimg.get_size()
+	px = int(round(mx // 2 + x))
+	py = int(round(my // 2 - y))
+	if not 0 <= px < mx or not 0 <= py < my:
+		return False
+	r, g, b, a = maskimg.get_at((px, py))
+	return a < 200
+
+
 clouds = {}
 def getcloud(layer):
 	key = layer, util.f
