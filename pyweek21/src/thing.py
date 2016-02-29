@@ -1,6 +1,6 @@
 from __future__ import division
 import math, random, pygame
-from . import window, ptext, state, image, settings, background
+from . import window, ptext, state, image, settings, background, control
 from .enco import Component
 from .util import F
 
@@ -39,7 +39,7 @@ class DrawShip(Component):
 		pos = self.screenpos(dz = 0.5 * math.sin(self.homega * self.t + self.hphi0))
 		n = settings.shipframes
 		frame = int(round(self.angle * n / 360)) % n
-		if self is state.state.cursor:
+		if control.isselected(self):
 			imgname = "data/ships/%s-%04d-outline.png" % (self.imgname, frame + 1)
 			image.draw(imgname, pos, scale = 3)
 		imgname = "data/ships/%s-%04d.png" % (self.imgname, frame + 1)

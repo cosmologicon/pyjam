@@ -11,12 +11,6 @@ class State(object):
 		self.buildings = []
 		self.blocks = defaultdict(list)
 		self.effects = []
-		self.cursor = None
-
-	def nextcursor(self):
-		if not self.cursor:
-			return self.team[0]
-		return self.team[(self.team.index(self.cursor) + 1) % len(self.team)]
 
 	def assemble(self, x, y):
 		team = sorted(self.team, key = lambda ship: (ship.x - x) ** 2 + (ship.y - y) ** 2)

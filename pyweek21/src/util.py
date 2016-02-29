@@ -5,13 +5,13 @@ f = None
 
 def F(x, *z):
 	if z:
-		return tuple(int(round(f * a)) for a in (x,) + z)
+		return tuple(F(a) for a in (x,) + z)
 	if isinstance(x, collections.Iterable):
-		return tuple(int(round(f * a)) for a in x)
-	return int(round(f * x))
+		return tuple(F(a) for a in x)
+	return int(round(f * x)) if x <= 0 else max(int(round(f * x)), 1)
 
 def debug(*args):
 	if not settings.DEBUG:
 		return
-	print(args)
+	print(" ".join(map(str, args)))
 

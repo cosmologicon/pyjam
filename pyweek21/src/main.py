@@ -12,8 +12,12 @@ playing = True
 def handleevents():
 	estate = {
 		"mpos": pygame.mouse.get_pos(),
-		"lclick": False,
-		"rclick": False,
+		"ldown": False,
+		"mdown": False,
+		"rdown": False,
+		"lup": False,
+		"mup": False,
+		"rup": False,
 	}
 	for kname in settings.keys:
 		estate[kname] = False
@@ -29,10 +33,11 @@ def handleevents():
 				if event.key in keys:
 					estate[kname] = True
 		if event.type == pygame.MOUSEBUTTONDOWN:
-			if event.button == 1:
-				estate["lclick"] = True
-			if event.button == 3:
-				estate["rclick"] = True
+			if event.button in (1,2,3):
+				estate[" lmr"[event.button] + "down"] = True
+		if event.type == pygame.MOUSEBUTTONUP:
+			if event.button in (1,2,3):
+				estate[" lmr"[event.button] + "up"] = True
 	return estate
 
 
