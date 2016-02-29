@@ -1,5 +1,5 @@
 import pygame
-from . import settings, state, thing, background, window, gamedata, control, dialogue
+from . import settings, state, thing, background, window, gamedata, control, dialogue, quest, hud
 from .util import F
 
 curtain = -1
@@ -29,8 +29,10 @@ def think(dt, estate):
 	else:
 		curtain = min(curtain + 6 * dt, 1)
 
+	hud.clear()
 	state.state.think(dt)
 	window.think(dt)
+	quest.think(dt)
 	dialogue.think(dt)
 #	window.snapto(state.state.things[-1])
 	x, y = window.screentoworld(*estate["mpos"])
@@ -57,5 +59,6 @@ def draw():
 		rect.center = F(32 + 64 * j, 32)
 		color = (200, 0, 200) if control.isselected(ship) else (60, 60, 60)
 		window.screen.fill(color, rect)
+	hud.draw()
 
 

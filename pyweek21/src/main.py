@@ -1,9 +1,10 @@
 import pygame
-from . import settings, window, ptext, scene, playscene, background
+from . import settings, window, ptext, scene, playscene, background, quest
 from .util import F
 
 window.init()
 background.init()
+quest.init()
 pygame.mixer.init()
 
 scene.push(playscene)

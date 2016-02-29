@@ -55,16 +55,22 @@ class State(object):
 		return self.blocks[(bx, by)]
 
 	def get(self):
+		from . import quest, dialogue
 		return [
 			window.getstate(),
+			quest.quests,
+			dialogue.played,
 			self.ships,
 			self.team,
 			self.buildings,
 		]
 
 	def set(self, obj):
+		from . import quest
 		[
 			windowstate,
+			quest.quests,
+			dialogue.played,
 			self.ships,
 			self.team,
 			buildings,
