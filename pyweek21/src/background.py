@@ -15,7 +15,7 @@ def init():
 	global mapimg, maskimg
 	mapimg = pygame.image.load("data/map.png").convert()
 	maskimg = mapimg.convert_alpha()
-	maskimg.fill((0, 0, 0, 255))
+	maskimg.fill(settings.shadecolor + (255,))
 	cloudimgs.append(pygame.image.load("data/clouds-0.png").convert_alpha())
 
 def randomtile():
@@ -58,8 +58,8 @@ def getland(ntile):
 	w0 = F(math.ceil(window.Z * (tile.get_width() - 1)))
 	h0 = F(math.ceil(window.Z * window.fy * (tile.get_height() - 1)))
 	surf0 = pygame.transform.smoothscale(tile, (w0, h0))
-	w = F(math.ceil(window.Z * tilesize))
-	h = F(math.ceil(window.Z * tilesize * window.fy))
+	w = F(math.ceil(window.Z * tilesize)) + 1
+	h = F(math.ceil(window.Z * tilesize * window.fy)) + 1
 	surf = pygame.Surface((w, h)).convert()
 	surf.blit(surf0, ((w - w0) // 2, (h - h0) // 2))
 	land[key] = surf

@@ -44,8 +44,8 @@ def worldtoscreen(x, y, z):
 	return util.F(px, py)
 def screentoworld(px, py):  # at z = 0
 	return [
-		x0 + (px - px0) / (util.f * Z),  # TODO: this is wrong for f != 1
-		y0 - (py - py0) / (util.f * fy * Z),
+		x0 + (px / util.f - px0) / Z,
+		y0 - (py / util.f - py0) / (fy * Z),
 	]
 
 def snapto(obj):
