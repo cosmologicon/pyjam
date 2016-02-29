@@ -1,5 +1,5 @@
 import pygame
-from . import settings, state, thing, background, window, gamedata, control
+from . import settings, state, thing, background, window, gamedata, control, dialogue
 from .util import F
 
 curtain = -1
@@ -18,6 +18,7 @@ def onpush():
 def think(dt, estate):
 	global curtain
 	control.think(dt, estate)
+	dialogue.playonce("test1")
 
 	if control.assembling:
 		curtain -= 6 * dt
@@ -30,12 +31,14 @@ def think(dt, estate):
 
 	state.state.think(dt)
 	window.think(dt)
+	dialogue.think(dt)
 #	window.snapto(state.state.things[-1])
 
 def draw():
 	background.draw()
 	state.state.draw()
 #	background.drawclouds()
+	dialogue.draw()
 	control.drawselection()
 	if curtain <= 0:
 		window.screen.fill((0, 0, 0))

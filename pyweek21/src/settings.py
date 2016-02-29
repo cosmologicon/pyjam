@@ -5,6 +5,8 @@ maxfps = 60
 fullscreen = False
 resolution = 480
 savename = "data/savegame.pkl"
+mixerfreq = 44100
+mixerbuffer = 0
 keys = {
 	"quit": [K_ESCAPE],
 	"cycle": [K_TAB],

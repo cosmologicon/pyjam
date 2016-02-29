@@ -4,6 +4,7 @@ from .util import F
 
 window.init()
 background.init()
+pygame.mixer.init()
 
 scene.push(playscene)
 clock = pygame.time.Clock()
