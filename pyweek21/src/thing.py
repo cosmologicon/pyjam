@@ -88,6 +88,17 @@ class HasPad(Component):
 	def onexit(self, ship):
 		pass
 
+# Effects that bridge a building and a ship
+class SeverableConnection(Component):
+	def init(self, obj):
+		self.building = obj["building"]
+		self.ship = obj["ship"]
+	def think(self, dt):
+		self.x = (self.building.x + self.ship.x) / 2
+		self.y = (self.building.y + self.ship.y) / 2
+		self.z = (self.building.z + self.ship.z) / 2
+		if not self.building.isnear(self.ship):
+			self.die()
 
 class Rechargeable(Component):
 	def __init__(self, needmax):
@@ -115,6 +126,10 @@ class Rechargeable(Component):
 			ptext.draw(text, center = pos, color = "yellow", fontsize = F(24), owidth = 1)
 	def oncharge(self, needtype):
 		pass
+	def onenter(self, ship):
+		for k, v in ship.chargerates.items():
+			if k in self.needs and self.needs[k] > 0:
+				state.state.effects.append(ChargeEffect(building = self, ship = ship, chargetype = k))
 
 class RevealsOnCharge(Component):
 	def __init__(self, rreveal = 20):
@@ -125,6 +140,11 @@ class RevealsOnCharge(Component):
 class Charges(Component):
 	def __init__(self, chargerates):
 		self.chargerates = chargerates
+
+class SeversOnCharge(Component):
+	def think(self, dt):
+		if not any(k in self.building.needs and self.building.needs[k] > 0 for k in self.ship.chargerates):
+			self.die()
 
 # Keeps track of how much of the team is nearby
 class TracksProximity(Component):
@@ -195,6 +215,16 @@ class DrawEllipses(Component):
 			rect.center = self.screenpos()
 			pygame.draw.ellipse(window.screen, self.color, rect, thick)
 
+class DrawChargeEffect(Component):
+	def init(self, obj):
+		self.chargetype = obj["chargetype"]
+	def draw(self):
+		p0 = self.ship.screenpos()
+		p1 = self.building.screenpos()
+		pygame.draw.line(window.screen, (255, 127, 0), p0, p1, F(1))
+		
+
+
 @WorldBound()
 class Thing(object):
 	def __init__(self, **kwargs):
@@ -249,5 +279,11 @@ class ObjectiveXTower(Thing):
 @Lifetime(0.7)
 @DrawEllipses(r = 5)
 class GoIndicator(Thing):
+	pass
+
+@SeverableConnection()
+@SeversOnCharge()
+@DrawChargeEffect()
+class ChargeEffect(Thing):
 	pass
 

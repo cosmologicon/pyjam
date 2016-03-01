@@ -17,6 +17,9 @@ for x in range(mx):
 			data["beta"] = pos
 		if color == (0, 127, 0):
 			data["activated"].append(pos)
+		if color == (255, 255, 255):
+			data["objectivex"] = pos
+
 
 import json
 json.dump(data, open("../data/gamedata.json", "w"))

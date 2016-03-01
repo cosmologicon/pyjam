@@ -1,13 +1,13 @@
 from __future__ import division
 import pygame, math
-from . import settings, state, thing, background, window, gamedata, control, dialogue, quest, hud
+from . import settings, state, thing, background, window, gamedata, control, dialogue, quest, hud, scene, mapscene
 from .util import F
 
 curtain = -1
 def onpush():
 	x, y = gamedata.data["start"]
 	you = thing.AlphaShip(pos = [x, y, 4])
-	background.reveal(x, y, 15)
+	background.reveal(x, y, 40)
 	state.state.addtoteam(you)
 	x, y = gamedata.data["beta"]
 	state.state.addtoteam(thing.BetaShip(pos = [x, y, 4]))
@@ -23,6 +23,9 @@ def think(dt, estate):
 	dx = 35 * dt * (estate["iskright"] - estate["iskleft"])
 	dy = 35 * dt * (estate["iskup"] - estate["iskdown"])
 	window.scoot(dx, dy)
+	if estate["map"]:
+		scene.push(mapscene)
+
 #	dialogue.playonce("test1")
 
 	if control.assembling:
@@ -34,6 +37,7 @@ def think(dt, estate):
 	else:
 		curtain = min(curtain + 6 * dt, 1)
 
+
 	hud.clear()
 	state.state.think(dt)
 	window.think(dt)
@@ -41,7 +45,7 @@ def think(dt, estate):
 	dialogue.think(dt)
 #	window.snapto(state.state.things[-1])
 	x, y = window.screentoworld(*estate["mpos"])
-	if background.revealed(x, y):
+	if background.revealed(x, y) and background.island(x, y):
 		pygame.mouse.set_cursor(*pygame.cursors.arrow)
 	else:
 		pygame.mouse.set_cursor(*pygame.cursors.broken_x)

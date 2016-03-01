@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, random, math, util, numpy
-from . import window, settings
+from . import window, settings, ptext
 from .util import F, debug
 
 tilesize = 20
@@ -8,12 +8,15 @@ tiles = {}
 
 #T = 20
 
+worldmaps = {}
 mapimg = None
 maskimg = None
+watermask = None
 cloudimgs = []
 def init():
-	global mapimg, maskimg
+	global mapimg, maskimg, watermask
 	mapimg = pygame.image.load("data/map.png").convert()
+	watermask = pygame.mask.from_threshold(pygame.image.load("data/watermask.png"), (255, 255, 255), (127, 127, 127))
 	maskimg = mapimg.convert_alpha()
 	maskimg.fill(settings.shadecolor + (255,))
 	cloudimgs.append(pygame.image.load("data/clouds-0.png").convert_alpha())
@@ -95,6 +98,7 @@ def reveal(x, y, r):
 		(X, Y), f = key
 		if X0 <= X <= X1 and Y0 <= Y <= Y1:
 			del land[key]
+	worldmaps.clear()
 
 def revealed(x, y):
 	mx, my = maskimg.get_size()
@@ -105,6 +109,13 @@ def revealed(x, y):
 	r, g, b, a = maskimg.get_at((px, py))
 	return a < 200
 
+def island(x, y):
+	mx, my = maskimg.get_size()
+	px = int(round(mx // 2 + x))
+	py = int(round(my // 2 - y))
+	if not 0 <= px < mx or not 0 <= py < my:
+		return False
+	return watermask.get_at((px, py))
 
 clouds = {}
 def getcloud(layer):
@@ -153,4 +164,16 @@ def draw():
 
 def drawclouds():
 	window.screen.blit(getcloud(0), (0, 0))
+
+
+def drawmap():
+	size = window.sx, window.sy
+	if size not in worldmaps:
+		surf = mapimg.copy()
+		surf.blit(maskimg, (0, 0))
+		worldmaps[size] = pygame.transform.smoothscale(surf, size)
+	window.screen.blit(worldmaps[size], (0, 0))
+	ptext.draw("World\nMap", bottomleft = F(10, 470), color = "yellow", owidth = 1.5, ocolor = "#442200",
+		fontsize = F(48))
+
 
