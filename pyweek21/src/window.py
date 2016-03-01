@@ -69,6 +69,10 @@ def think(dt):
 			f = 1 - math.exp(-8 * dt)
 			x0 += f * dx
 			y0 += f * dy
+def scoot(dx, dy):
+	global x0, y0
+	x0 += dx
+	y0 += dy
 
 
 def getstate():

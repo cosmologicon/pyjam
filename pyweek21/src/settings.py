@@ -10,7 +10,11 @@ mixerbuffer = 0
 keys = {
 	"quit": [K_ESCAPE],
 	"cycle": [K_TAB],
-	"assemble": [K_a],
+	"kleft": [K_a, K_LEFT],
+	"kright": [K_d, K_e, K_RIGHT],
+	"kup": [K_w, K_COMMA, K_UP],
+	"kdown": [K_s, K_o, K_DOWN],
+	"assemble": [K_BACKSPACE],
 }
 
 

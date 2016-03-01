@@ -1,6 +1,6 @@
 from __future__ import division
 import math, random, pygame
-from . import window, ptext, state, image, settings, background, control
+from . import window, ptext, state, image, settings, background, control, sound
 from .enco import Component
 from .util import F
 
@@ -66,6 +66,29 @@ class FacesForward(Component):
 			else:
 				self.angle = self.targetangle
 
+# A pad is a circular region around a building. Ships entering the pad can interact with the building.
+class HasPad(Component):
+	def __init__(self, rpad):
+		self.rpad = rpad
+	def init(self, obj):
+		self.visitors = []
+	def isnear(self, ship):	
+		return (self.x - ship.x) ** 2 + (self.y - ship.y) ** 2 <= self.rpad ** 2
+	def think(self, dt):
+		visitors = list(filter(self.isnear, state.state.team))
+		for ship in visitors:
+			if ship not in self.visitors:
+				self.onenter(ship)
+		for ship in self.visitors:
+			if ship not in visitors:
+				self.onexit(ship)
+		self.visitors = visitors
+	def onenter(self, ship):
+		pass
+	def onexit(self, ship):
+		pass
+
+
 class Rechargeable(Component):
 	def __init__(self, needmax):
 		self.needmax = needmax
@@ -80,6 +103,9 @@ class Rechargeable(Component):
 				self.needs[k] = max(self.needs[k] - dt * v, 0)
 				if self.needs[k] == 0:
 					self.oncharge(k)
+	def think(self, dt):
+		for ship in self.visitors:
+			self.charge(dt, ship.chargerates)
 	def draw(self):
 		for k, v in self.needs.items():
 			if not v:
@@ -88,19 +114,30 @@ class Rechargeable(Component):
 			text = "%s: %d/%d" % (k, int(self.needmax[k] - v), self.needmax[k])
 			ptext.draw(text, center = pos, color = "yellow", fontsize = F(24), owidth = 1)
 	def oncharge(self, needtype):
-		background.reveal(self.x, self.y, 20)
+		pass
 
+class RevealsOnCharge(Component):
+	def __init__(self, rreveal = 20):
+		self.rreveal = rreveal
+	def oncharge(self, needtype):		
+		background.reveal(self.x, self.y, self.rreveal)
 
 class Charges(Component):
 	def __init__(self, chargerates):
 		self.chargerates = chargerates
-	def think(self, dt):
-		for building in state.state.buildingsnear(self.x, self.y):
-			dx = building.x - self.x
-			dy = building.y - self.y
-			if dx ** 2 + dy ** 2 < 2 ** 2:
-				building.charge(dt, self.chargerates)
 
+# Keeps track of how much of the team is nearby
+class TracksProximity(Component):
+	def draw(self):
+		text = "nprox: %d" % len(self.visitors)
+		pos = self.screenpos(dz = -1)
+		ptext.draw(text, center = pos, color = "yellow", fontsize = F(24), owidth = 1)
+	def onenter(self, ship):
+		self.chime(len(self.visitors) + 1)
+	def onexit(self, ship):
+		self.chime(len(self.visitors) - 1)
+	def chime(self, nprox):
+		sound.play("proxchime-%d" % nprox)
 
 class ApproachesTarget(Component):
 	def __init__(self, speed = 2):
@@ -187,10 +224,27 @@ class AlphaShip(Thing):
 class BetaShip(Thing):
 	pass
 
+# Buildings
+
 @DrawName()
+@HasPad(4)
 @Rechargeable({"power": 10})
+@RevealsOnCharge(25)
 class Building(Thing):
 	brange = 30
+
+@DrawName()
+@HasPad(10)
+@TracksProximity()
+class ObjectiveX(Thing):
+	brange = 50
+
+@DrawName()
+class ObjectiveXTower(Thing):
+	brange = 50
+
+
+# Effects
 
 @Lifetime(0.7)
 @DrawEllipses(r = 5)

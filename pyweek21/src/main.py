@@ -21,8 +21,10 @@ def handleevents():
 		"mup": False,
 		"rup": False,
 	}
-	for kname in settings.keys:
+	kpressed = pygame.key.get_pressed()
+	for kname, keys in settings.keys.items():
 		estate[kname] = False
+		estate["is" + kname] = any(kpressed[key] for key in keys)
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			estate["quit"] = True

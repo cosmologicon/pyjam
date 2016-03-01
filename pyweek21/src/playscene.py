@@ -1,4 +1,5 @@
-import pygame
+from __future__ import division
+import pygame, math
 from . import settings, state, thing, background, window, gamedata, control, dialogue, quest, hud
 from .util import F
 
@@ -14,10 +15,14 @@ def onpush():
 	for x, y in gamedata.data["activated"]:
 		building = thing.Building(pos = [x, y, 0], needpower = 10)
 		state.state.addbuilding(building)
+		
 
 def think(dt, estate):
 	global curtain
 	control.think(dt, estate)
+	dx = 35 * dt * (estate["iskright"] - estate["iskleft"])
+	dy = 35 * dt * (estate["iskup"] - estate["iskdown"])
+	window.scoot(dx, dy)
 #	dialogue.playonce("test1")
 
 	if control.assembling:

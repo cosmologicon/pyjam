@@ -36,7 +36,8 @@ class State(object):
 		self.effects = [e for e in self.effects if e.alive]
 
 	def addtoteam(self, ship):
-		self.ships.append(ship)
+		if ship not in self.ships:
+			self.ships.append(ship)
 		self.team.append(ship)
 
 	def addbuilding(self, building):
