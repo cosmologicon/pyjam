@@ -19,7 +19,10 @@ def init():
 	watermask = pygame.mask.from_threshold(pygame.image.load("data/watermask.png"), (255, 255, 255), (127, 127, 127))
 	maskimg = mapimg.convert_alpha()
 	maskimg.fill(settings.shadecolor + (255,))
-	cloudimgs.append(pygame.image.load("data/clouds-0.png").convert_alpha())
+	cloudimgs.append(pygame.image.load("data/clouds-0.png").convert())
+	cloudimgs.append(pygame.image.load("data/clouds-1.png").convert())
+	for img in cloudimgs:
+		img.set_alpha(20)
 
 def randomtile():
 	surf = pygame.Surface((tilesize, tilesize)).convert()
@@ -53,7 +56,7 @@ def gettile(ntile):
 
 land = {}
 def getland(ntile):
-	key = ntile, util.f
+	key = ntile, util.f, window.Z
 	if key in land:
 		return land[key]
 	tile = gettile(ntile)
@@ -119,7 +122,7 @@ def island(x, y):
 
 clouds = {}
 def getcloud(layer):
-	key = layer, util.f
+	key = layer, util.f, window.Z
 	if key in clouds:
 		return clouds[key]
 	w = F(math.ceil(window.Z * 50))
@@ -160,10 +163,25 @@ def draw():
 			surf = getland((X, Y))
 			pos = window.worldtoscreen(X * tilesize - 0.5, (Y + 1) * tilesize + 0.5, 0)
 			window.screen.blit(surf, pos)
-	window.screen.blit(getshade(), (0, 0))
+#	window.screen.blit(getshade(), (0, 0))
 
 def drawclouds():
-	window.screen.blit(getcloud(0), (0, 0))
+	fcloud = 1.6
+	t = 0.001 * pygame.time.get_ticks()
+	for layer in [0, 1]:
+		vx = [3, -2][layer]
+		vy = [3, 2][layer]
+		cloud = getcloud(layer)
+		cx, cy = cloud.get_size()
+		x0s = [-(int((fcloud * window.x0 + vx * t) * util.f * window.Z) % cx)]
+		y0s = [-(int((fcloud * -window.y0 + vy * t) * util.f * window.Z * window.fy) % cy)]
+		while x0s[-1] + cx < window.sx:
+			x0s.append(x0s[-1] + cx)
+		while y0s[-1] + cy < window.sy:
+			y0s.append(y0s[-1] + cy)
+		for x0 in x0s:
+			for y0 in y0s:
+				window.screen.blit(cloud, (x0, y0))
 
 
 def drawmap():

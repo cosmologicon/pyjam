@@ -53,7 +53,7 @@ def think(dt, estate):
 def draw():
 	background.draw()
 	state.state.draw()
-#	background.drawclouds()
+	background.drawclouds()
 	dialogue.draw()
 	control.drawselection()
 	if curtain <= 0:
