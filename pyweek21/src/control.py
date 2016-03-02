@@ -38,7 +38,11 @@ def think(dt, estate):
 		cursor = [ship]
 		window.targetpos(ship.x, ship.y, ship.z)
 	if estate["assemble"]:
-		assembling = True
+		assemble(window.x0, window.y0)
+
+def assemble(x, y):
+	global assembling
+	assembling = x, y
 	
 
 def nextcursor():

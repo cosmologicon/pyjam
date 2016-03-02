@@ -1,5 +1,5 @@
 import math
-from . import state, hud, control, gamedata, thing, background
+from . import state, hud, control, gamedata, thing, background, sound
 
 quests = {}
 def init():
@@ -47,12 +47,20 @@ class Act3Quest(Quest):
 		state.state.addbuilding(self.objective)
 		background.reveal(x, y, 50)
 		for j in range(5):
-			r, theta = 32, 1 + 2 * math.pi * j / 5
+			r, theta = 24, 1 + 2 * math.pi * j / 5
 			building = thing.ObjectiveXTower(pos = [x + r * math.sin(theta), y + r * math.cos(theta), 0])
 			state.state.addbuilding(building)
+		state.state.effects.append(thing.BallLightning(pos = [x, y, 5]))
 	def think(self, dt):
 		Quest.think(self, dt)
 		if self.progress == 0:
-			len(self.objective.visitors)
+			if len(self.objective.visitors) >= 5:
+				sound.play("startact3")
+				self.advance()
+		elif self.progress == 1:
+			if self.tstep >= 1:
+				control.assemble(self.objective.x + 6, self.objective.y + 6)
+				self.advance()
 
+				
 

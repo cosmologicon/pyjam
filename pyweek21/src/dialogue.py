@@ -27,6 +27,8 @@ playqueue = []
 tquiet = 0
 currentline = None
 def play(dname):
+	global tquiet
+	tquiet = 0
 	playqueue.extend(convos[dname])
 	playqueue.append(("end", dname))
 

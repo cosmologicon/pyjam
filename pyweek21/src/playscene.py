@@ -1,6 +1,7 @@
 from __future__ import division
 import pygame, math
-from . import settings, state, thing, background, window, gamedata, control, dialogue, quest, hud, scene, mapscene
+from . import settings, state, thing, background, window, gamedata, control, dialogue, quest, hud
+from . import image, scene, mapscene
 from .util import F
 
 curtain = -1
@@ -9,8 +10,15 @@ def onpush():
 	you = thing.AlphaShip(pos = [x, y, 4])
 	background.reveal(x, y, 40)
 	state.state.addtoteam(you)
+
+	for j in range(3):
+		r, theta = 20, j
+		dx, dy = r * math.sin(theta), r * math.cos(theta)
+		state.state.addtoteam(thing.BetaShip(pos = [x + dx, y + dy, 4]))
+
 	x, y = gamedata.data["beta"]
 	state.state.addtoteam(thing.BetaShip(pos = [x, y, 4]))
+
 	window.snapto(you)
 	for x, y in gamedata.data["activated"]:
 		building = thing.Building(pos = [x, y, 0], needpower = 10)
@@ -31,7 +39,7 @@ def think(dt, estate):
 	if control.assembling:
 		curtain -= 6 * dt
 		if curtain < -0.5:
-			state.state.assemble(window.x0, window.y0)
+			state.state.assemble(*control.assembling)
 			control.assembling = False
 			control.cursor = []
 	else:
@@ -53,7 +61,7 @@ def think(dt, estate):
 def draw():
 	background.draw()
 	state.state.draw()
-	background.drawclouds()
+#	background.drawclouds()
 	dialogue.draw()
 	control.drawselection()
 	if curtain <= 0:
@@ -64,10 +72,7 @@ def draw():
 		window.screen.fill((0, 0, 0), (0, window.sy - h, window.sx, h))
 
 	for j, ship in enumerate(state.state.team):
-		rect = pygame.Rect(F(0, 0, 60, 60))
-		rect.center = F(32 + 64 * j, 32)
-		color = (200, 0, 200) if control.isselected(ship) else (60, 60, 60)
-		window.screen.fill(color, rect)
+		image.draw("avatar-" + ship.letter, F(32 + 64 * j, 32), size = F(60))
 	hud.draw()
 
 

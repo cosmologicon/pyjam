@@ -98,7 +98,7 @@ def reveal(x, y, r):
 		if X0 <= X <= X1 and Y0 <= Y <= Y1:
 			del tiles[key]
 	for key in list(land):
-		(X, Y), f = key
+		(X, Y), f, Z = key
 		if X0 <= X <= X1 and Y0 <= Y <= Y1:
 			del land[key]
 	worldmaps.clear()

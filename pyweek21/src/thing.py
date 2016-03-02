@@ -104,6 +104,7 @@ class Rechargeable(Component):
 	def __init__(self, needmax):
 		self.needmax = needmax
 	def init(self, obj):
+		# self.needs[None] is an unfulfillable need.
 		self.needs = { k: 0 for k in self.needmax }
 		for k, v in obj.items():
 			if k.startswith("need"):
@@ -119,7 +120,7 @@ class Rechargeable(Component):
 			self.charge(dt, ship.chargerates)
 	def draw(self):
 		for k, v in self.needs.items():
-			if not v:
+			if k is None or not v:
 				continue
 			pos = self.screenpos(dz = -1)
 			text = "%s: %d/%d" % (k, int(self.needmax[k] - v), self.needmax[k])
@@ -222,6 +223,28 @@ class DrawChargeEffect(Component):
 		p0 = self.ship.screenpos()
 		p1 = self.building.screenpos()
 		pygame.draw.line(window.screen, (255, 127, 0), p0, p1, F(1))
+
+class DrawBallLightning(Component):
+	def init(self, obj):
+		self.arcs = []
+	def think(self, dt):
+		self.arcs = [arc for arc in self.arcs if 0.06 * random.random() > dt]
+		colors = [(255, 255, 0), (200, 200, 200), (255, 127, 127)]
+		while len(self.arcs) < 200:
+			color = random.choice(colors)
+			dr = random.uniform(200, 500)
+			self.arcs.append([color, self.t, dr, random.uniform(0, 1000), 0, 0])
+		for arc in self.arcs:
+			arc[3] += random.uniform(-20, 20) * dt
+	def draw(self):
+		for arc in self.arcs:
+			color, t0, dr, theta, dx0, dy0 = arc
+			r = dr * (self.t - t0)
+			dx1 = F(r * math.sin(theta))
+			dy1 = F(r * math.cos(theta))
+			arc[4:6] = dx1, dy1
+			x, y = self.screenpos()
+			pygame.draw.line(window.screen, color, (x + dx0, y + dy0), (x + dx1, y + dy1), F(1))
 		
 
 
@@ -244,7 +267,7 @@ class Thing(object):
 @DrawShip("test")
 @Charges({"power": 10})
 class AlphaShip(Thing):
-	pass
+	letter = "A"
 
 @ApproachesTarget(speed = 8)
 @BuildTarget()
@@ -252,7 +275,7 @@ class AlphaShip(Thing):
 @DrawShip("test")
 @Charges({"power": 1})
 class BetaShip(Thing):
-	pass
+	letter = "B"
 
 # Buildings
 
@@ -286,4 +309,9 @@ class GoIndicator(Thing):
 @DrawChargeEffect()
 class ChargeEffect(Thing):
 	pass
+
+@DrawBallLightning()
+class BallLightning(Thing):
+	pass
+
 
