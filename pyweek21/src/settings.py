@@ -17,6 +17,12 @@ keys = {
 	"kdown": [K_s, K_o, K_DOWN],
 	"assemble": [K_BACKSPACE],
 }
+ncolors = [
+	Color("yellow"),
+	Color("red"),
+	Color("blue"),
+]
+
 
 
 resolution0 = 480  # do not change - logical (not actual) resolution of screen

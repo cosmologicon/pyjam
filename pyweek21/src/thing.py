@@ -10,6 +10,8 @@ class WorldBound(Component):
 	def init(self, obj):
 		if "pos" in obj:
 			self.x, self.y, self.z = obj["pos"]
+	def pos(self):
+		return self.x, self.y, self.z
 	def screenpos(self, dz = 0):
 		return window.worldtoscreen(self.x, self.y, self.z + dz)
 
@@ -107,8 +109,16 @@ class Rechargeable(Component):
 		# self.needs[None] is an unfulfillable need.
 		self.needs = { k: 0 for k in self.needmax }
 		for k, v in obj.items():
-			if k.startswith("need"):
-				self.needs[k[4:]] = v
+			if k == "need":
+				self.needs[None] = v
+			if k == "need0":
+				self.needs[0] = v
+			if k == "need1":
+				self.needs[1] = v
+			if k == "need2":
+				self.needs[2] = v
+	def addneed(self, needtype, amount):
+		self.needs[needtype] = self.needs.get(needtype, 0) + amount
 	def charge(self, dt, chargerates):
 		for k, v in chargerates.items():
 			if k in self.needs and self.needs[k] > 0:
@@ -123,8 +133,8 @@ class Rechargeable(Component):
 			if k is None or not v:
 				continue
 			pos = self.screenpos(dz = -1)
-			text = "%s: %d/%d" % (k, int(self.needmax[k] - v), self.needmax[k])
-			ptext.draw(text, center = pos, color = "yellow", fontsize = F(24), owidth = 1)
+			text = "need%s: %d/%d" % (k, int(self.needmax[k] - v), self.needmax[k])
+			ptext.draw(text, center = pos, color = settings.ncolors[k], fontsize = F(24), owidth = 1)
 	def oncharge(self, needtype):
 		pass
 	def onenter(self, ship):
@@ -199,9 +209,10 @@ class BuildTarget(Component):
 			self.btarget = None
 
 class DrawEllipses(Component):
-	def __init__(self, r = 1, color = (255, 0, 255)):
+	def __init__(self, r = 1, color = (255, 0, 255), width = 1):
 		self.rellipse = r
 		self.color = color
+		self.width = width
 	def draw(self):
 		for dr in (0, 0.2, 0.4):
 			r = (self.f * 1.4 - dr)
@@ -209,12 +220,16 @@ class DrawEllipses(Component):
 				continue
 			r *= self.rellipse * window.Z
 			w, h = F(r, r * window.fy)
-			thick = F(1)
+			thick = F(self.width)
 			if h <= 2 * thick:
 				continue
 			rect = pygame.Rect((0, 0, w, h))
 			rect.center = self.screenpos()
 			pygame.draw.ellipse(window.screen, self.color, rect, thick)
+
+class NeedColored(Component):
+	def init(self, obj):
+		self.color = settings.ncolors[obj["needtype"]]
 
 class DrawChargeEffect(Component):
 	def init(self, obj):
@@ -222,7 +237,8 @@ class DrawChargeEffect(Component):
 	def draw(self):
 		p0 = self.ship.screenpos()
 		p1 = self.building.screenpos()
-		pygame.draw.line(window.screen, (255, 127, 0), p0, p1, F(1))
+		color = settings.ncolors[self.chargetype]
+		pygame.draw.line(window.screen, color, p0, p1, F(1))
 
 class DrawBallLightning(Component):
 	def init(self, obj):
@@ -265,7 +281,7 @@ class Thing(object):
 @BuildTarget()
 @FacesForward()
 @DrawShip("test")
-@Charges({"power": 10})
+@Charges({0: 10})
 class AlphaShip(Thing):
 	letter = "A"
 
@@ -273,7 +289,7 @@ class AlphaShip(Thing):
 @BuildTarget()
 @FacesForward()
 @DrawShip("test")
-@Charges({"power": 1})
+@Charges({0: 1})
 class BetaShip(Thing):
 	letter = "B"
 
@@ -281,10 +297,16 @@ class BetaShip(Thing):
 
 @DrawName()
 @HasPad(4)
-@Rechargeable({"power": 10})
+@Rechargeable({0: 10})
 @RevealsOnCharge(25)
 class Building(Thing):
 	brange = 30
+
+@DrawName()
+@HasPad(4)
+@Rechargeable({0: 100, 1: 100, 2: 100})
+class ObjectiveQTower(Thing):
+	brange = 50
 
 @DrawName()
 @HasPad(10)
@@ -312,6 +334,19 @@ class ChargeEffect(Thing):
 
 @DrawBallLightning()
 class BallLightning(Thing):
+	pass
+
+@Lifetime(1.7)
+@DrawEllipses(r = 30, width = 3)
+@NeedColored()
+class NeedIndicator(Thing):
+	pass
+
+
+# Decorations
+
+@DrawName()
+class Tree(Thing):
 	pass
 
 

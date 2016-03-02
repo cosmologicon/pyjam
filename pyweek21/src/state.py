@@ -11,6 +11,8 @@ class State(object):
 		self.buildings = []
 		self.blocks = defaultdict(list)
 		self.effects = []
+		self.decorations = []
+		self.dblocks = defaultdict(list)
 
 	def assemble(self, x, y):
 		team = sorted(self.team, key = lambda ship: (ship.x - x) ** 2 + (ship.y - y) ** 2)
@@ -25,7 +27,7 @@ class State(object):
 	def draw(self):
 		for t in self.ships:
 			t.drawshadow()
-		things = self.ships + self.buildings + self.effects
+		things = self.ships + self.buildings + self.effects + self.decorationsnear()
 		things.sort(key = lambda obj: -obj.y * window.fz + obj.z * window.fy)
 		for t in things:
 			t.draw()
@@ -50,10 +52,27 @@ class State(object):
 				self.blocks[(bx, by)].append(building)
 		self.buildings.append(building)
 
+
+	def adddecoration(self, decoration):
+		drange = 50
+		bx0 = int(math.floor((decoration.x - drange) / settings.blocksize))
+		by0 = int(math.floor((decoration.y - drange) / settings.blocksize))
+		bx1 = int(math.ceil((decoration.x + drange) / settings.blocksize)) + 1
+		by1 = int(math.ceil((decoration.y + drange) / settings.blocksize)) + 1
+		for bx in range(bx0, bx1):
+			for by in range(by0, by1):
+				self.dblocks[(bx, by)].append(decoration)
+		self.decorations.append(decoration)
+
 	def buildingsnear(self, x, y):
 		bx = int(x / settings.blocksize)
 		by = int(y / settings.blocksize)
 		return self.blocks[(bx, by)]
+
+	def decorationsnear(self):
+		bx = int(window.x0 / settings.blocksize)
+		by = int(window.y0 / settings.blocksize)
+		return self.dblocks[(bx, by)]
 
 	def get(self):
 		from . import quest, dialogue

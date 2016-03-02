@@ -1,5 +1,5 @@
 from __future__ import division
-import pygame, math
+import pygame, math, random
 from . import settings, state, thing, background, window, gamedata, control, dialogue, quest, hud
 from . import image, scene, mapscene
 from .util import F
@@ -19,9 +19,14 @@ def onpush():
 	x, y = gamedata.data["beta"]
 	state.state.addtoteam(thing.BetaShip(pos = [x, y, 4]))
 
+	for j in range(10000):
+		x = random.uniform(-1000, 1000)
+		y = random.uniform(-1000, 1000)
+		state.state.adddecoration(thing.Tree(pos = [x, y, 0]))
+
 	window.snapto(you)
 	for x, y in gamedata.data["activated"]:
-		building = thing.Building(pos = [x, y, 0], needpower = 10)
+		building = thing.Building(pos = [x, y, 0], need0 = 10)
 		state.state.addbuilding(building)
 		
 
