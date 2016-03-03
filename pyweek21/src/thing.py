@@ -125,7 +125,7 @@ class Rechargeable(Component):
 		for k, v in chargerates.items():
 			if k in self.needs and self.needs[k] > 0:
 				self.needs[k] = max(self.needs[k] - dt * v, 0)
-				if self.needs[k] == 0:
+				if sum(self.needs.values()) == 0:
 					self.oncharge(k)
 	def think(self, dt):
 		for ship in self.visitors:
@@ -135,7 +135,7 @@ class Rechargeable(Component):
 			if k is None or not v:
 				continue
 			pos = self.screenpos(dz = 0)
-			f = 0.4 + 0.6 * (1 - v / self.needmax[k])
+			f = 0.4 + 0.55 * (1 - v / self.needmax[k])
 			outline = self.t % 1 > 0.5
 			color = tuple(settings.ncolors[k])
 			black = 0, 0, 0
@@ -165,6 +165,31 @@ class RevealsOnCharge(Component):
 		self.rreveal = rreveal
 	def oncharge(self, needtype):		
 		background.reveal(self.x, self.y, self.rreveal)
+
+class HasTowers(Component):
+	def init(self, obj):
+		self.towers = []
+	def addtowers(self, towers):
+		self.towers.extend(towers)
+class RevealsOnAllCharged(Component):
+	def __init__(self, rreveal = 20, rreward = 1):
+		self.rreveal = rreveal
+		self.rreward = rreward
+		self.allcharged = False
+		self.dischargerate = 5
+	def init(self, obj):
+		self.needtype = obj["needtype"]
+		self.needs[self.needtype] = self.needmax[self.needtype]
+	def think(self, dt):
+		if self.allcharged:
+			return
+		k = self.needtype
+		if not any(k in ship.chargerates for ship in self.visitors):
+			self.needs[k] = min(self.needs[k] + dt * self.dischargerate, self.needmax[k])
+		if not any(any(tower.needs.values()) for tower in self.towers):
+			self.allcharged = True
+			background.reveal(self.x, self.y, self.rreveal)
+			state.state.reward(self.rreward)
 
 class RewardsOnCharge(Component):
 	def __init__(self, rreward = 1):
@@ -384,6 +409,14 @@ class BigBuilding(Thing):
 @HasPad(12)
 @Rechargeable({0: 100, 1: 100, 2: 100})
 class ObjectiveQTower(Thing):
+	brange = 50
+
+@DrawName()
+@HasPad(12)
+@HasTowers()
+@Rechargeable({0: 20, 1: 20, 2: 20})
+@RevealsOnAllCharged(125, 5)
+class ObjectivePTower(Thing):
 	brange = 50
 
 @DrawName()

@@ -6,8 +6,9 @@ quests = {}
 def init():
 	quests["credits"] = CreditsQuest()
 	quests["intro"] = IntroQuest()
+	quests["objp"] = ObjectivePQuest()
 #	quests["objq"] = ObjectiveQQuest()
-#	quests["act3"] = Act3Quest()
+	quests["act3"] = Act3Quest()
 def think(dt):
 	for qname, quest in sorted(quests.items()):
 		quest.think(dt)
@@ -80,6 +81,20 @@ class IntroQuest(Quest):
 			if control.isselected(state.state.team[0]):
 				self.advance()
 
+class ObjectivePQuest(Quest):
+	goal = 1
+	def __init__(self):
+		Quest.__init__(self)
+		self.towers = [
+			thing.ObjectivePTower(pos = [x, y, 0], needtype = j)
+			for j, (x, y) in enumerate(gamedata.data["p"])
+		]
+		for j, tower in enumerate(self.towers):
+			state.state.addbuilding(tower)
+			tower.addtowers(self.towers)
+	def think(self, dt):
+		Quest.think(self, dt)
+
 class ObjectiveQQuest(Quest):
 	goal = 1
 	def __init__(self):
@@ -103,13 +118,13 @@ class Act3Quest(Quest):
 	goal = 99
 	def __init__(self):
 		Quest.__init__(self)
-		x, y = gamedata.data["objectivex"]
+		x, y = gamedata.data["x"]
 		self.objective = thing.ObjectiveX(pos = [x, y, 0])
 		state.state.addbuilding(self.objective)
 		background.reveal(x, y, 50)
 		self.towers = []
 		for j in range(5):
-			r, theta = 24, 1 + 2 * math.pi * j / 5
+			r, theta = 60, 1 + 2 * math.pi * j / 5
 			tower = thing.ObjectiveXTower(pos = [x + r * math.sin(theta), y + r * math.cos(theta), 0])
 			state.state.addbuilding(tower)
 			self.towers.append(tower)

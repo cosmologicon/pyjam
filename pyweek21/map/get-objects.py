@@ -3,6 +3,7 @@ import pygame
 data = {
 	"b": [],
 	"you": {},
+	"p": [],  # objective P
 }
 
 pygame.display.set_mode((100, 100))
@@ -32,6 +33,11 @@ for x in range(mx):
 			data["you"]["a"] = px, py
 		if color == (0, 100, 255):
 			data["you"]["b"] = px, py
+
+		if color == (0, 100, 100):
+			data["p"].append((px, py))
+		if color == (255, 255, 255):
+			data["x"] = px, py
 
 import json
 json.dump(data, open("../data/gamedata.json", "w"))

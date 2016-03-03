@@ -27,7 +27,11 @@ def screenshot():
 	if not os.path.exists("screenshots"):
 		os.mkdir("screenshots")
 	filename = datetime.datetime.now().strftime("screenshots/screenshot-%Y%m%d%H%M%S.png")
-	pygame.image.save(screen, filename)
+	try:
+		pygame.image.save(screen, filename)
+	except pygame.error:
+		filename = datetime.datetime.now().strftime("screenshots/screenshot-%Y%m%d%H%M%S.bmp")
+		pygame.image.save(screen, filename)
 
 def togglefullscreen():
 	settings.fullscreen = not settings.fullscreen

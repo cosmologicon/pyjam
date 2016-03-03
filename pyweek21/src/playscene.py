@@ -16,10 +16,10 @@ def onpush():
 	x, y = gamedata.data["you"]["b"]
 	you = thing.ShipB(pos = [x, y, 4])
 
-#	state.state.addtoteam(thing.ShipB(pos = [x + 5, y + 5, 3]))
-#	state.state.addtoteam(thing.ShipC(pos = [x - 5, y - 5, 5]))
-#	state.state.addtoteam(thing.ShipB(pos = [x - 5, y + 5, 3]))
-#	state.state.addtoteam(thing.ShipC(pos = [x + 5, y - 5, 5]))
+	state.state.addtoteam(thing.ShipB(pos = [5, 5, 3]))
+	state.state.addtoteam(thing.ShipC(pos = [5, 5, 5]))
+	state.state.addtoteam(thing.ShipB(pos = [5, 5, 3]))
+	state.state.addtoteam(thing.ShipC(pos = [5, 5, 5]))
 
 
 #	x, y = gamedata.data["beta"]
@@ -45,6 +45,8 @@ def think(dt, estate):
 	control.think(dt, estate)
 	dx = 120 * dt * (estate["iskright"] - estate["iskleft"])
 	dy = 120 * dt * (estate["iskup"] - estate["iskdown"])
+	if dx or dy:
+		window.target = None
 	window.scoot(dx, dy)
 	if estate["map"]:
 		scene.push(mapscene)

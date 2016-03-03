@@ -1,5 +1,5 @@
 import pygame
-from . import settings, window, ptext, scene, playscene, background, quest
+from . import settings, window, ptext, scene, playscene, background, quest, control, state
 from .util import F
 
 window.init()
@@ -48,6 +48,13 @@ def handleevents():
 
 def jumptoact3():
 	background.revealall()
+	obj = quest.quests["act3"].objective
+	for ship in state.state.ships:
+		if ship not in state.state.team:
+			state.state.addtoteam(ship)
+	x, y = obj.x, obj.y
+	control.assemble(x + 25, y + 25)
+	
 
 
 while playing:
