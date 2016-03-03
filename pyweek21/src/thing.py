@@ -1,6 +1,6 @@
 from __future__ import division
 import math, random, pygame
-from . import window, ptext, state, image, settings, background, control, sound
+from . import window, ptext, state, image, settings, background, control, sound, util
 from .enco import Component
 from .util import F
 
@@ -261,7 +261,28 @@ class DrawBallLightning(Component):
 			arc[4:6] = dx1, dy1
 			x, y = self.screenpos()
 			pygame.draw.line(window.screen, color, (x + dx0, y + dy0), (x + dx1, y + dy1), F(1))
-		
+
+class DrawSmoke(Component):
+	def init(self, obj):
+		self.plumes = []		
+	def think(self, dt):
+		self.plumes = [p for p in self.plumes if self.t - p[0] < p[1]]
+		while len(self.plumes) < 20:
+			angle = random.choice(list(range(10)))
+			size = random.choice([2, 3, 4])
+			dx = random.uniform(-30, 30)
+			dy = random.uniform(-30, -80)
+			t = random.uniform(2, 6)
+			self.plumes.append((self.t, t, angle, size, dx, dy))
+	def draw(self):
+		for plume in self.plumes:
+			t0, t, angle, s, dx, dy = plume
+			dt = self.t - t0
+			f = dt / t
+			alpha = 1 * min(1 - f, 4 * f)
+			x, y = self.screenpos()
+			pos = x + F(dt * dx), y + F(dt * dy)
+			image.draw("data/smoke.png", pos, scale = s, alpha = alpha)
 
 
 @WorldBound()
@@ -348,6 +369,10 @@ class BallLightning(Thing):
 @DrawEllipses(r = 30, width = 3)
 @NeedColored()
 class NeedIndicator(Thing):
+	pass
+
+@DrawSmoke()
+class Smoke(Thing):
 	pass
 
 

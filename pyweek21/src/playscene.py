@@ -13,6 +13,8 @@ def onpush():
 	state.state.addtoteam(thing.ShipB(pos = [x + 5, y + 5, 3]))
 	state.state.addtoteam(thing.ShipC(pos = [x - 5, y - 5, 5]))
 
+	state.state.effects.append(thing.Smoke(pos = [x, y, 0]))
+
 #	x, y = gamedata.data["beta"]
 #	state.state.addtoteam(thing.BetaShip(pos = [x, y, 4]))
 
