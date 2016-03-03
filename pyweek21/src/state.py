@@ -1,6 +1,9 @@
 from __future__ import division
 import math, random
-import cPickle as pickle
+try:
+	import cPickle as pickle
+except ImportError:
+	import pickle
 from collections import defaultdict
 from . import settings, window
 
