@@ -6,7 +6,7 @@ screen = None
 sx, sy = None, None
 x0, y0 = 0, 0
 target = None
-Z = 20
+Z = 10
 
 def init():
 	setwindow()

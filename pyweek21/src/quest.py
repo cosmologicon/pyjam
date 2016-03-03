@@ -6,8 +6,8 @@ quests = {}
 def init():
 	quests["credits"] = CreditsQuest()
 	quests["intro"] = IntroQuest()
-	quests["objq"] = ObjectiveQQuest()
-	quests["act3"] = Act3Quest()
+#	quests["objq"] = ObjectiveQQuest()
+#	quests["act3"] = Act3Quest()
 def think(dt):
 	for qname, quest in sorted(quests.items()):
 		quest.think(dt)

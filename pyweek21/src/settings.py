@@ -22,6 +22,7 @@ ncolors = [
 	Color("red"),
 	Color("blue"),
 ]
+minimapscale = 0.3
 
 
 

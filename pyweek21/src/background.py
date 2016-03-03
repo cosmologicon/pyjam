@@ -1,9 +1,9 @@
 from __future__ import division
 import pygame, random, math, numpy
-from . import window, settings, ptext, util
+from . import window, settings, ptext, util, state
 from .util import F, debug
 
-tilesize = 20
+tilesize = 40
 tiles = {}
 
 #T = 20
@@ -102,6 +102,7 @@ def reveal(x, y, r):
 		if X0 <= X <= X1 and Y0 <= Y <= Y1:
 			del land[key]
 	worldmaps.clear()
+	minimaps.clear()
 
 def revealed(x, y):
 	mx, my = maskimg.get_size()
@@ -131,6 +132,7 @@ def getcloud(layer):
 	clouds[key] = surf
 	debug("background cloud size:", len(clouds))
 	return clouds[key]
+
 
 
 
@@ -182,6 +184,45 @@ def drawclouds():
 		for x0 in x0s:
 			for y0 in y0s:
 				window.screen.blit(cloud, (x0, y0))
+
+def minimaprect():
+	rect = pygame.Rect(F(0, 0, 140, 140))
+	rect.bottomright = F(854 - 8, 480 - 8)
+	return rect
+
+minimaps = {}
+minishades = {}
+def drawminimap():
+	from . import control
+	K = settings.minimapscale
+	key = util.f
+	if key not in minimaps:
+		surf = mapimg.copy()
+		surf.blit(maskimg, (0, 0))
+		s = F(surf.get_width() * K)
+		minimaps[key] = pygame.transform.smoothscale(surf, (s, s))
+		minishades[key] = pygame.Surface(minimaprect().size).convert_alpha()
+		minishades[key].fill((20, 20, 20, 200))
+	surf = pygame.Surface(minimaprect().size).convert_alpha()
+	surf.fill((0, 0, 0))
+	x = (surf.get_width() - minimaps[key].get_width()) // 2 - F(window.x0 * K)
+	y = (surf.get_height() - minimaps[key].get_height()) // 2 + F(window.y0 * K)
+	surf.blit(minimaps[key], (x, y))
+	surf.blit(minishades[key], (0, 0))
+	objs = []
+	for ship in state.state.team:
+		color = (255, 0, 255) if control.isselected(ship) else (200, 200, 200)
+		objs.append([ship.x, ship.y, 3, color])
+	for building in state.state.buildings:
+		if building.revealed():
+			color = (255, 255, 0)
+			objs.append([building.x, building.y, 2, color])
+	for x, y, r, color in objs:
+		px = surf.get_width() // 2 + F((x - window.x0) * K)
+		py = surf.get_height() // 2 - F((y - window.y0) * K)
+		pygame.draw.circle(surf, color, (px, py), F(r))
+	pygame.draw.rect(surf, (120, 120, 120), surf.get_rect(), F(2))
+	window.screen.blit(surf, minimaprect())
 
 
 def drawmap():

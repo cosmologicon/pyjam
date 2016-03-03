@@ -14,6 +14,8 @@ class WorldBound(Component):
 		return self.x, self.y, self.z
 	def screenpos(self, dz = 0):
 		return window.worldtoscreen(self.x, self.y, self.z + dz)
+	def revealed(self):
+		return background.revealed(self.x, self.y)
 
 class Lifetime(Component):
 	def __init__(self, lifetime = 1):
@@ -29,7 +31,8 @@ class DrawName(Component):
 		self.hoverdz = hoverdz
 	def draw(self):
 		pos = self.screenpos(dz = self.hoverdz * math.sin(2 * self.t))
-		ptext.draw(self.__class__.__name__, center = pos, color = "red", fontsize = F(24), owidth = 1)
+		color = "red" if self.revealed() else "#770000"
+		ptext.draw(self.__class__.__name__, center = pos, color = color, fontsize = F(24), owidth = 1)
 
 class DrawShip(Component):
 	def __init__(self, imgname):
@@ -42,12 +45,12 @@ class DrawShip(Component):
 		frame = int(round(self.angle / 10)) % 36 * 10
 		if control.isselected(self):
 			imgname = "data/ships/%s-%04d-outline.png" % (self.imgname, frame)
-			image.draw(imgname, pos, scale = 3)
+			image.draw(imgname, pos, scale = 5)
 		imgname = "data/ships/%s-%04d.png" % (self.imgname, frame)
-		image.draw(imgname, pos, scale = 3)
+		image.draw(imgname, pos, scale = 5)
 	def drawshadow(self):
 		pos = window.worldtoscreen(self.x, self.y, 0)
-		image.draw("data/shadow.png", pos, scale = 1.6)
+		image.draw("data/shadow.png", pos, scale = 2.4)
 
 class FacesForward(Component):
 	def __init__(self):
@@ -319,15 +322,15 @@ class Thing(object):
 	def die(self):
 		self.alive = False
 
-@ApproachesTarget(speed = 4)
+@ApproachesTarget(speed = 12)
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori")
-@Charges({0: 1})
+@Charges({0: 5})
 class ShipA(Thing):
 	letter = "A"
 
-@ApproachesTarget(speed = 8)
+@ApproachesTarget(speed = 24)
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori")
@@ -347,10 +350,18 @@ class ShipC(Thing):
 
 @DrawName()
 @HasPad(4)
-@Rechargeable({0: 10})
+@Rechargeable({0: 10, 1: 10, 2: 10})
 @Discharges()
-@RevealsOnCharge(25)
+@RevealsOnCharge(125)
 class Building(Thing):
+	brange = 30
+
+@DrawName()
+@HasPad(4)
+@Rechargeable({0: 30, 1: 30, 2: 30})
+@Discharges()
+@RevealsOnCharge(125)
+class BigBuilding(Thing):
 	brange = 30
 
 @DrawName()
