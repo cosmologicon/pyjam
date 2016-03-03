@@ -1,4 +1,4 @@
-import math
+import math, random
 from . import state, hud, control, gamedata, thing, background, sound, ptext, dialogue, settings
 from .util import F
 
@@ -125,20 +125,29 @@ class Act3Quest(Quest):
 				control.assemble(self.objective.x + 6, self.objective.y + 6)
 				self.advance()
 		elif self.progress == 2:
-			if self.tstep > 5 and dialog.tquiet > 1:
+			if self.tstep > 5 and dialogue.tquiet > 1:
 				self.startpart1()
 				self.advance()
 		elif self.progress == 3:
-			self.playpart1()
-			if self.tstep > 60:
+			self.playpart1(dt)
+			if self.tstep > 120:
 				self.advance()
 
-
 	def startpart1(self):
-		self.lightning = state.state.effects.append(thing.BallLightning(pos = [x, y, 5]))
+		x, y = self.objective.x, self.objective.y
+		self.lightning = thing.BallLightning(pos = [x, y, 5])
+		state.state.effects.append(self.lightning)
+		self.lastneed = 0
 
-	def playpart1(self):
-#		state.state.effects.append(thing.NeedIndicator(pos = [x, y, 0], need = 0))
-		pass
-
+	def playpart1(self, dt):
+		self.lastneed += dt
+		if self.lastneed > 8:
+			self.lastneed = 0
+			n = random.choice(range(5))
+			needtype = random.choice(range(3))
+			tower = self.towers[n]
+			tower.addneed(needtype, 1)
+			state.state.effects.append(thing.NeedIndicator(pos = tower.pos(), needtype = needtype))
+			state.state.effects.append(thing.NeedConnector(pos0 = self.lightning.pos(), pos1 = tower.pos(), needtype = needtype))
+		
 

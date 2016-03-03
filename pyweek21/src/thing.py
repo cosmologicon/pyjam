@@ -117,7 +117,7 @@ class Rechargeable(Component):
 			if k == "need2":
 				self.needs[2] = v
 	def addneed(self, needtype, amount):
-		self.needs[needtype] = self.needs.get(needtype, 0) + amount
+		self.needs[needtype] = min(self.needs.get(needtype, 0) + amount, self.needmax[needtype])
 	def charge(self, dt, chargerates):
 		for k, v in chargerates.items():
 			if k in self.needs and self.needs[k] > 0:
@@ -140,6 +140,14 @@ class Rechargeable(Component):
 		for k, v in ship.chargerates.items():
 			if k in self.needs and self.needs[k] > 0:
 				state.state.effects.append(ChargeEffect(building = self, ship = ship, chargetype = k))
+
+class Discharges(Component):
+	def __init__(self, dischargerate = 1):
+		self.dischargerate = dischargerate
+	def think(self, dt):
+		for k, v in self.needs.items():
+			if v and not any(k in ship.chargerates for ship in self.visitors):
+				self.needs[k] = min(self.needs[k] + dt * self.dischargerate, self.needmax[k])
 
 class RevealsOnCharge(Component):
 	def __init__(self, rreveal = 20):
@@ -261,6 +269,20 @@ class DrawBallLightning(Component):
 			x, y = self.screenpos()
 			pygame.draw.line(window.screen, color, (x + dx0, y + dy0), (x + dx1, y + dy1), F(1))
 
+class DrawShakyConnection(Component):
+	def __init__(self, thick = 1):
+		self.thick = thick
+	def init(self, obj):
+		self.pos0 = obj["pos0"]
+		self.pos1 = obj["pos1"]
+	def draw(self):
+		dx0, dy0, dz0, dx1, dy1, dz1 = [random.gauss(0, 0.6) for _ in range(6)]
+		x0, y0, z0 = self.pos0
+		x1, y1, z1 = self.pos1
+		p0 = window.worldtoscreen(x0 + dx0, y0 + dy0, z0 + dz0)
+		p1 = window.worldtoscreen(x1 + dx1, y1 + dy1, z1 + dz1)
+		pygame.draw.line(window.screen, self.color, p0, p1, F(self.thick))
+
 class DrawSmoke(Component):
 	def init(self, obj):
 		self.plumes = []		
@@ -326,6 +348,7 @@ class ShipC(Thing):
 @DrawName()
 @HasPad(4)
 @Rechargeable({0: 10})
+@Discharges()
 @RevealsOnCharge(25)
 class Building(Thing):
 	brange = 30
@@ -343,6 +366,9 @@ class ObjectiveX(Thing):
 	brange = 50
 
 @DrawName()
+@HasPad(4)
+@Discharges()
+@Rechargeable({0: 20, 1: 20, 2: 20})
 class ObjectiveXTower(Thing):
 	brange = 50
 
@@ -362,6 +388,12 @@ class ChargeEffect(Thing):
 
 @DrawBallLightning()
 class BallLightning(Thing):
+	pass
+
+@Lifetime(0.6)
+@NeedColored()
+@DrawShakyConnection(thick = 3)
+class NeedConnector(Thing):
 	pass
 
 @Lifetime(1.7)

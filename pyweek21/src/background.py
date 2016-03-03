@@ -1,6 +1,6 @@
 from __future__ import division
-import pygame, random, math, util, numpy
-from . import window, settings, ptext
+import pygame, random, math, numpy
+from . import window, settings, ptext, util
 from .util import F, debug
 
 tilesize = 20

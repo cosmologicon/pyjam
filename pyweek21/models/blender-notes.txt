@@ -50,6 +50,10 @@ camera > animation
 
 Copy over the 0'frames
 cd pyweek21/data/ships
+cp ../../models/frames/*-???0.png .
+
+Make outlines
+for img in *-0??0.png ; do  convert $img \( -clone 0 -alpha extract -threshold 0 \) \( -clone 1 -blur 5x65000 -threshold 0 \) \( -clone 2 -fill magenta -opaque white \) -delete 0,1 +swap -alpha off -compose copy_opacity -composite $(basename "${img/.png}")-outline.png ; done
 
 
 

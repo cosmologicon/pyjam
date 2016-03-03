@@ -19,7 +19,6 @@ def getimg(imgname, size = None, alpha = None):
 	if alpha != 1:
 		surf = getimg(imgname, size).convert_alpha()
 		arr = pygame.surfarray.pixels_alpha(surf)
-		print alpha
 		arr[:,:] = (arr[:,:] * alpha).astype(arr.dtype)
 		del arr
 	elif size is not None:

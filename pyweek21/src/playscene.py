@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, math, random
 from . import settings, state, thing, background, window, gamedata, control, dialogue, quest, hud
-from . import image, scene, mapscene
+from . import image, scene, mapscene, ptext
 from .util import F
 
 curtain = -1
@@ -12,6 +12,8 @@ def onpush():
 	state.state.addtoteam(you)
 	state.state.addtoteam(thing.ShipB(pos = [x + 5, y + 5, 3]))
 	state.state.addtoteam(thing.ShipC(pos = [x - 5, y - 5, 5]))
+	state.state.addtoteam(thing.ShipB(pos = [x - 5, y + 5, 3]))
+	state.state.addtoteam(thing.ShipC(pos = [x + 5, y - 5, 5]))
 
 	state.state.effects.append(thing.Smoke(pos = [x, y, 0]))
 
@@ -77,6 +79,8 @@ def draw():
 			rect = pygame.Rect(0, 0, size, size)
 			rect.center = pos
 			pygame.draw.rect(window.screen, (255, 0, 255), rect, F(3))
+		charges = sorted(ship.chargerates)
+		ptext.draw(" ".join(map(str, charges)), centerx = pos[0] + F(0), centery = pos[1] + F(25))
 	hud.draw()
 
 	quest.quests["credits"].draw()
