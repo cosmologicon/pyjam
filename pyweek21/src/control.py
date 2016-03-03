@@ -1,4 +1,4 @@
-import pygame
+import pygame, math
 from . import state, window, state, sound, background
 from .util import F
 
@@ -37,6 +37,18 @@ def think(dt, estate):
 		if background.revealed(x, y) and background.island(x, y):
 			sound.play("go")
 			for ship in cursor:
+				r = 8
+				for building in state.state.buildings:
+					dx = x - building.x
+					dy = y - building.y
+					if dx ** 2 + dy ** 2 > r ** 2:
+						continue
+					if not dx and not dy:
+						x += r
+					else:
+						d = math.sqrt(dx ** 2 + dy ** 2)
+						x += r / d * dx
+						y += r / d * dy
 				ship.settarget((x, y))
 				state.state.effects.append(thing.GoIndicator(pos = [x, y, 0]))
 		else:
@@ -47,6 +59,9 @@ def think(dt, estate):
 	if estate["cycle"]:
 		ship = nextcursor()
 		cursor = [ship]
+#		window.targetpos(ship.x, ship.y, ship.z)
+	if estate["snap"] and cursor:
+		ship = cursor[0]
 		window.targetpos(ship.x, ship.y, ship.z)
 	if estate["assemble"]:
 		assemble(window.x0, window.y0)

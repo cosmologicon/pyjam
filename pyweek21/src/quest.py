@@ -8,7 +8,10 @@ def init():
 	quests["intro"] = IntroQuest()
 	quests["objp"] = ObjectivePQuest()
 #	quests["objq"] = ObjectiveQQuest()
-	quests["act3"] = Act3Quest()
+#	quests["objr"] = ObjectiveRQuest()
+#	quests["objs"] = ObjectiveSQuest()
+	quests["island"] = IslandQuest()
+#	quests["act3"] = Act3Quest()
 def think(dt):
 	for qname, quest in sorted(quests.items()):
 		quest.think(dt)
@@ -31,6 +34,14 @@ class Quest(object):
 	def think(self, dt):
 		self.t += dt
 		self.tstep += dt
+
+class IslandQuest(Quest):
+	goal = 1
+	def think(self, dt):
+		Quest.think(self, dt)
+		if self.progress == 0 and len(state.state.team) >= 3:
+			background.reveal(600, 660, 180)
+			self.advance()
 
 class CreditsQuest(Quest):
 	goal = 10
@@ -72,14 +83,30 @@ class CreditsQuest(Quest):
 
 
 class IntroQuest(Quest):
-	goal = 1
+	goal = 2
+	def __init__(self):
+		Quest.__init__(self)
+		x, y = gamedata.data["you"]["b"]
+		self.shipb = thing.ShipB(pos = [x, y, 4])
+		state.state.ships.append(self.shipb)
+		x, y = gamedata.data["you"]["c"]
+		self.shipc = thing.ShipC(pos = [x, y, 4])
+		state.state.ships.append(self.shipc)
 	def think(self, dt):
 		Quest.think(self, dt)
 		if self.progress == 0:
-			if self.tstep > 3:
-				hud.show("Select your ship")
-			if control.isselected(state.state.team[0]):
+			if self.shipb not in state.state.team and self.shipb.revealed():
+				state.state.addtoteam(self.shipb)
+				background.reveal(self.shipb.x, self.shipb.y, 125)
+				# dialogue.play("meetb")
 				self.advance()
+		if self.progress == 1:
+			if self.shipc not in state.state.team and self.shipc.revealed():
+				state.state.addtoteam(self.shipc)
+				background.reveal(self.shipc.x, self.shipc.y, 125)
+				# dialogue.play("meetc")
+				self.advance()
+		
 
 class ObjectivePQuest(Quest):
 	goal = 1
@@ -99,19 +126,21 @@ class ObjectiveQQuest(Quest):
 	goal = 1
 	def __init__(self):
 		Quest.__init__(self)
-		self.x0, self.y0 = gamedata.data["start"]
 		self.towers = [
-			thing.ObjectiveQTower(pos = [self.x0 + 10, self.y0, 0]),
-			thing.ObjectiveQTower(pos = [self.x0 - 10, self.y0, 0]),
+			thing.ObjectiveQTower(pos = [x, y, 0])
+			for j, (x, y) in enumerate(gamedata.data["p"])
 		]
 		for tower in self.towers:
 			state.state.addbuilding(tower)
+			tower.addtowers(self.towers)
+		x, y = gamedata.data["you"]["e"]
+		self.shipb = thing.ShipE(pos = [x, y, 4])
 	def think(self, dt):
 		Quest.think(self, dt)
-		if self.progress == 0:
-			self.towers[0].addneed(0, 50)
-			state.state.effects.append(thing.NeedIndicator(pos = self.towers[0].pos(), needtype = 0))
-			self.advance()
+#		if self.progress == 0:
+#			self.towers[0].addneed(0, 50)
+#			state.state.effects.append(thing.NeedIndicator(pos = self.towers[0].pos(), needtype = 0))
+#			self.advance()
 
 
 class Act3Quest(Quest):
@@ -121,7 +150,6 @@ class Act3Quest(Quest):
 		x, y = gamedata.data["x"]
 		self.objective = thing.ObjectiveX(pos = [x, y, 0])
 		state.state.addbuilding(self.objective)
-		background.reveal(x, y, 50)
 		self.towers = []
 		for j in range(5):
 			r, theta = 60, 1 + 2 * math.pi * j / 5

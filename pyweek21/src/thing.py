@@ -41,13 +41,15 @@ class DrawShip(Component):
 		self.hphi0 = random.uniform(0, 100)
 		self.homega = random.uniform(1.6, 2.3)
 	def draw(self):
+		if not self.revealed():
+			return
 		pos = self.screenpos(dz = 0.5 * math.sin(self.homega * self.t + self.hphi0))
 		frame = int(round(self.angle / 10)) % 36 * 10
 		if control.isselected(self):
 			imgname = "data/ships/%s-%04d-outline.png" % (self.imgname, frame)
-			image.draw(imgname, pos, scale = 5)
+			image.draw(imgname, pos, scale = 10)
 		imgname = "data/ships/%s-%04d.png" % (self.imgname, frame)
-		image.draw(imgname, pos, scale = 5)
+		image.draw(imgname, pos, scale = 10)
 	def drawshadow(self):
 		pos = window.worldtoscreen(self.x, self.y, 0)
 		image.draw("data/shadow.png", pos, scale = 2.4)
@@ -130,20 +132,29 @@ class Rechargeable(Component):
 	def think(self, dt):
 		for ship in self.visitors:
 			self.charge(dt, ship.chargerates)
-	def draw(self):
-		for k, v in self.needs.items():
+	def drawbolt(self):
+		if not self.revealed():
+			return
+		todraw = []
+		for k, v in sorted(self.needs.items()):
 			if k is None or not v:
 				continue
-			pos = self.screenpos(dz = 0)
+			todraw.append((k, v))
+		if not todraw:
+			return
+		x, y = self.screenpos(dz = 0)
+		x -= F((len(todraw) - 1) * 10)
+		for k, v in todraw:
 			f = 0.4 + 0.55 * (1 - v / self.needmax[k])
 			outline = self.t % 1 > 0.5
 			color = tuple(settings.ncolors[k])
 			black = 0, 0, 0
 			white = 255, 255, 255
 			boltinfo = (white if self.t % 1 > 0.5 else black), None, True
-			image.draw("bolt", pos, scale = 2, boltinfo = boltinfo)
+			image.draw("bolt", (x, y), scale = 5, boltinfo = boltinfo)
 			boltinfo = color, f, False
-			image.draw("bolt", pos, scale = 2, boltinfo = boltinfo)
+			image.draw("bolt", (x, y), scale = 5, boltinfo = boltinfo)
+			x += F(20)
 	def oncharge(self, needtype):
 		pass
 	def onenter(self, ship):
@@ -284,10 +295,14 @@ class DrawChargeEffect(Component):
 	def init(self, obj):
 		self.chargetype = obj["chargetype"]
 	def draw(self):
-		p0 = self.ship.screenpos()
-		p1 = self.building.screenpos()
+		x0, y0 = self.ship.screenpos()
+		x1, y1 = self.building.screenpos()
 		color = settings.ncolors[self.chargetype]
-		pygame.draw.line(window.screen, color, p0, p1, F(1))
+		f = self.t * 10 % 1
+		x = int(x0 + f * (x1 - x0))
+		y = int(y0 + f * (y1 - y0))
+		pygame.draw.circle(window.screen, color, (x, y), F(5), F(2))
+
 
 class DrawBallLightning(Component):
 	def init(self, obj):
@@ -361,34 +376,58 @@ class Thing(object):
 	def die(self):
 		self.alive = False
 
+@ApproachesTarget(speed = 25)
+@BuildTarget()
+@FacesForward()
+@DrawShip("tori")
+@Charges({0: 10})
+class ShipA(Thing):
+	letter = "A"
+
+@ApproachesTarget(speed = 50)
+@BuildTarget()
+@FacesForward()
+@DrawShip("tori")
+@Charges({1: 3})
+class ShipB(Thing):
+	letter = "B"
+
+@ApproachesTarget(speed = 28)
+@BuildTarget()
+@FacesForward()
+@DrawShip("tori")
+@Charges({2: 3})
+class ShipC(Thing):
+	letter = "C"
+
 @ApproachesTarget(speed = 12)
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori")
-@Charges({0: 5})
-class ShipA(Thing):
-	letter = "A"
+@Charges({1: 3})
+class ShipD(Thing):
+	letter = "D"
 
 @ApproachesTarget(speed = 24)
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori")
-@Charges({1: 1})
-class ShipB(Thing):
-	letter = "B"
+@Charges({2: 3})
+class ShipE(Thing):
+	letter = "E"
 
 @ApproachesTarget(speed = 6)
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori")
-@Charges({2: 1})
-class ShipC(Thing):
-	letter = "C"
+@Charges({0: 1, 1: 1, 2: 1})
+class ShipF(Thing):
+	letter = "F"
 
 # Buildings
 
 @DrawName()
-@HasPad(12)
+@HasPad(20)
 @Rechargeable({0: 10, 1: 10, 2: 10})
 @Discharges()
 @RevealsOnCharge(125)
@@ -397,7 +436,7 @@ class Building(Thing):
 	brange = 30
 
 @DrawName()
-@HasPad(12)
+@HasPad(20)
 @Rechargeable({0: 30, 1: 30, 2: 30})
 @Discharges()
 @RevealsOnCharge(125)
@@ -406,13 +445,13 @@ class BigBuilding(Thing):
 	brange = 30
 
 @DrawName()
-@HasPad(12)
-@Rechargeable({0: 100, 1: 100, 2: 100})
+@HasPad(20)
+@Rechargeable({0: 30, 1: 30, 2: 30})
 class ObjectiveQTower(Thing):
 	brange = 50
 
 @DrawName()
-@HasPad(12)
+@HasPad(20)
 @HasTowers()
 @Rechargeable({0: 20, 1: 20, 2: 20})
 @RevealsOnAllCharged(125, 5)

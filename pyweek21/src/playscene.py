@@ -13,13 +13,9 @@ def onpush():
 	window.snapto(you)
 	state.state.effects.append(thing.Smoke(pos = [x, y, 0]))
 
-	x, y = gamedata.data["you"]["b"]
-	you = thing.ShipB(pos = [x, y, 4])
-
-	state.state.addtoteam(thing.ShipB(pos = [5, 5, 3]))
-	state.state.addtoteam(thing.ShipC(pos = [5, 5, 5]))
-	state.state.addtoteam(thing.ShipB(pos = [5, 5, 3]))
-	state.state.addtoteam(thing.ShipC(pos = [5, 5, 5]))
+#	state.state.addtoteam(thing.ShipD(pos = [5, 5, 5]))
+#	state.state.addtoteam(thing.ShipE(pos = [5, 5, 3]))
+#	state.state.addtoteam(thing.ShipF(pos = [5, 5, 5]))
 
 
 #	x, y = gamedata.data["beta"]
@@ -43,8 +39,8 @@ def onpush():
 def think(dt, estate):
 	global curtain
 	control.think(dt, estate)
-	dx = 120 * dt * (estate["iskright"] - estate["iskleft"])
-	dy = 120 * dt * (estate["iskup"] - estate["iskdown"])
+	dx = 200 * dt * (estate["iskright"] - estate["iskleft"])
+	dy = 200 * dt * (estate["iskup"] - estate["iskdown"])
 	if dx or dy:
 		window.target = None
 	window.scoot(dx, dy)
@@ -94,11 +90,11 @@ def draw():
 			pygame.draw.rect(window.screen, (255, 0, 255), rect, F(3))
 		for k, charge in enumerate(sorted(ship.chargerates)):
 			x, y = pos
-			x += F((len(ship.chargerates) - k - 1) * 20)
+			x += F((len(ship.chargerates) / 2 - k - 1 / 2) * 14)
 			y += F(25)
 			color = tuple(settings.ncolors[charge])
 			boltinfo = color, None, True
-			image.draw("bolt", pos = (x, y), scale = 1.2, boltinfo = boltinfo)
+			image.draw("bolt", pos = (x, y), scale = 2.5, boltinfo = boltinfo)
 	hud.draw()
 
 	quest.quests["credits"].draw()

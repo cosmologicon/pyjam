@@ -33,8 +33,16 @@ def handleevents():
 				window.togglefullscreen()
 			if event.key == pygame.K_F12:
 				window.screenshot()
+			if settings.DEBUG and event.key == pygame.K_F1:
+				jumptop()
+			if settings.DEBUG and event.key == pygame.K_F2:
+				jumptoq()
+			if settings.DEBUG and event.key == pygame.K_F3:
+				jumptor()
 			if settings.DEBUG and event.key == pygame.K_F4:
-				jumptoact3()
+				jumptos()
+			if settings.DEBUG and event.key == pygame.K_F5:
+				jumptox()
 			for kname, keys in settings.keys.items():
 				if event.key in keys:
 					estate[kname] = True
@@ -46,7 +54,7 @@ def handleevents():
 				estate[" lmr"[event.button] + "up"] = True
 	return estate
 
-def jumptoact3():
+def jumptox():
 	background.revealall()
 	obj = quest.quests["act3"].objective
 	for ship in state.state.ships:
@@ -55,6 +63,14 @@ def jumptoact3():
 	x, y = obj.x, obj.y
 	control.assemble(x + 25, y + 25)
 	
+def jumptop():
+	background.revealall()
+	obj = quest.quests["objp"].towers[0]
+	x, y = obj.x, obj.y
+	for ship in state.state.ships:
+		if ship not in state.state.team and len(state.state.team) < 3:
+			state.state.addtoteam(ship)
+	control.assemble(x + 25, y + 25)
 
 
 while playing:

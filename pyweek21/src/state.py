@@ -30,11 +30,15 @@ class State(object):
 
 	def draw(self):
 		for t in self.ships:
-			t.drawshadow()
+			if t.revealed():
+				t.drawshadow()
 		things = self.ships + self.buildings + self.effects + self.decorationsnear()
 		things.sort(key = lambda obj: -obj.y * window.fz + obj.z * window.fy)
 		for t in things:
 			t.draw()
+		for b in self.buildings:
+			if hasattr(b, "drawbolt"):
+				b.drawbolt()
 
 	def think(self, dt):
 		for t in self.ships + self.buildings + self.effects:
