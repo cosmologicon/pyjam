@@ -12,7 +12,7 @@ result.png <--- result
 # my version
 
 pushd ../data/ships
-for img in *-00??.png ; do 
+for img in *-0??0.png ; do 
 	convert $img \
 		\( -clone 0 -alpha extract -threshold 0 \) \
 		\( -clone 1 -blur 5x65000 -threshold 0 \) \

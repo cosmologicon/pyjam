@@ -9,18 +9,21 @@ Positioning camera:
 Poisition the light source:
 * right-click on light object
 * Set transform location to (-2, -4, 8)
+* Pick on light in the list, then on the lighting tab, then switch to hemi with an energy of 0.4
+
+Creating materials:
+
 
 Set render properties
 * On the right-hand panel, under Shading, set Alpha to transparent
-* Click on the film projector, and under Lens choose Orthographic, orthographic scale = 5
+* Pick Camera, Click on the film projector, and under Lens choose Orthographic, orthographic scale = 5
 * Under Post-processing click Edge
-* Under Dimensions pick X = 800, Y = 800, End frame = 16
-* Under Output, set the path to: /home/christopher/projects/pyjam/pyweek21/data/ships/shipname-
-
+* Under Dimensions pick X = 800, Y = 800, End frame = 360
+* Under Output, set the path to: /home/christopher/projects/pyjam/pyweek21/models/frames/shipname-
 * Change Default at the top to Animation, select Channel > Extrapolation Mode > Linear Extrapolation
 
 
-Mirror modifier: wrench icon, add modifier, uncheck X, check Y
+Mirror modifier: wrench icon, add modifier, leave X checked
 
 Handy sculpting:
 
@@ -28,8 +31,30 @@ Alt-M: merge at center
 GSR+XYZ: glide, scale, rotate along x/y/z axis
 Shift + numpad: orient view
 Space > snap cursor to center
+Space > smooth for Shade smooth
+
+
+Object mode
+Wrench > Apply modifier
+Start frame 0
+End frame 360
+Go to frame 0
+I > Rotation
+>>| arrow to advance to frame 360
+RZ + ctrl to rotate 360 to the right
+I > Rotation
+camera > animation
 
 
 
+
+Copy over the 0'frames
+cd pyweek21/data/ships
+
+
+
+
+animated gif makin
+convert -delay 6 -loop 0 -dispose 2 potter-0??0.png -resize 200x200 potter.gif
 
 

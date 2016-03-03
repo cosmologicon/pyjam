@@ -39,16 +39,15 @@ class DrawShip(Component):
 		self.homega = random.uniform(1.6, 2.3)
 	def draw(self):
 		pos = self.screenpos(dz = 0.5 * math.sin(self.homega * self.t + self.hphi0))
-		n = settings.shipframes
-		frame = int(round(self.angle * n / 360)) % n
+		frame = int(round(self.angle / 10)) % 36 * 10
 		if control.isselected(self):
-			imgname = "data/ships/%s-%04d-outline.png" % (self.imgname, frame + 1)
+			imgname = "data/ships/%s-%04d-outline.png" % (self.imgname, frame)
 			image.draw(imgname, pos, scale = 3)
-		imgname = "data/ships/%s-%04d.png" % (self.imgname, frame + 1)
+		imgname = "data/ships/%s-%04d.png" % (self.imgname, frame)
 		image.draw(imgname, pos, scale = 3)
 	def drawshadow(self):
 		pos = window.worldtoscreen(self.x, self.y, 0)
-		image.draw("data/shadow.png", pos, scale = 1)
+		image.draw("data/shadow.png", pos, scale = 1.6)
 
 class FacesForward(Component):
 	def __init__(self):
@@ -301,7 +300,7 @@ class Thing(object):
 @ApproachesTarget(speed = 4)
 @BuildTarget()
 @FacesForward()
-@DrawShip("test")
+@DrawShip("tori")
 @Charges({0: 1})
 class ShipA(Thing):
 	letter = "A"
@@ -309,7 +308,7 @@ class ShipA(Thing):
 @ApproachesTarget(speed = 8)
 @BuildTarget()
 @FacesForward()
-@DrawShip("test")
+@DrawShip("tori")
 @Charges({1: 1})
 class ShipB(Thing):
 	letter = "B"
@@ -317,7 +316,7 @@ class ShipB(Thing):
 @ApproachesTarget(speed = 6)
 @BuildTarget()
 @FacesForward()
-@DrawShip("test")
+@DrawShip("tori")
 @Charges({2: 1})
 class ShipC(Thing):
 	letter = "C"
