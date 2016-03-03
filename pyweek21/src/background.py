@@ -8,6 +8,9 @@ tiles = {}
 
 #T = 20
 
+reveallog = []
+
+
 worldmaps = {}
 mapimg = None
 maskimg = None
@@ -74,7 +77,8 @@ def getland(ntile):
 
 
 unmasks = {}
-def reveal(x, y, r):
+def reveal(x, y, r, update = True):
+	reveallog.append((x, y, r))
 	R = r + 2
 	if r not in unmasks:
 		unmasks[r] = numpy.zeros(shape = (2 * R, 2 * R)).astype(numpy.int16)
@@ -88,6 +92,8 @@ def reveal(x, y, r):
 	ax, ay = maskimg.get_width() // 2 + int(x) - R, maskimg.get_height() // 2 - int(y) - R
 	arr[ax:ax+2*R,ay:ay+2*R] = numpy.maximum(arr[ax:ax+2*R,ay:ay+2*R] - unmask, 0)
 	del arr
+	if not update:
+		return
 
 	X0 = int(math.floor((x - R - 1) / tilesize))
 	X1 = int(math.ceil((x + R + 1) / tilesize))
@@ -103,6 +109,32 @@ def reveal(x, y, r):
 			del land[key]
 	worldmaps.clear()
 	minimaps.clear()
+
+def revealall():
+	reveallog[:] = [None]
+	maskimg.fill(settings.shadecolor + (0,))
+	tiles.clear()
+	land.clear()
+	worldmaps.clear()
+	minimaps.clear()
+
+def getstate():
+	return reveallog
+
+def setstate(reveals):
+	maskimg.fill(settings.shadecolor + (255,))
+	reveallog[:] = reveals
+	if None in reveallog:
+		revealall()
+	else:
+		for x, y, r in reveallog:
+			reveal(x, y, r)
+	tiles.clear()
+	land.clear()
+	worldmaps.clear()
+	minimaps.clear()
+	
+
 
 def revealed(x, y):
 	mx, my = maskimg.get_size()
@@ -232,7 +264,7 @@ def drawmap():
 		surf.blit(maskimg, (0, 0))
 		worldmaps[size] = pygame.transform.smoothscale(surf, size)
 	window.screen.blit(worldmaps[size], (0, 0))
-	ptext.draw("World\nMap", bottomleft = F(10, 470), color = "yellow", owidth = 1.5, ocolor = "#442200",
+	ptext.draw("World\nMap", topleft = F(10, 10), color = "yellow", owidth = 1.5, ocolor = "#442200",
 		fontsize = F(48))
 
 

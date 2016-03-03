@@ -11,6 +11,7 @@ def onpush():
 	background.reveal(x, y, 80)
 	state.state.addtoteam(you)
 	window.snapto(you)
+	state.state.effects.append(thing.Smoke(pos = [x, y, 0]))
 
 	x, y = gamedata.data["you"]["b"]
 	you = thing.ShipB(pos = [x, y, 4])
@@ -20,7 +21,6 @@ def onpush():
 #	state.state.addtoteam(thing.ShipB(pos = [x - 5, y + 5, 3]))
 #	state.state.addtoteam(thing.ShipC(pos = [x + 5, y - 5, 5]))
 
-#	state.state.effects.append(thing.Smoke(pos = [x, y, 0]))
 
 #	x, y = gamedata.data["beta"]
 #	state.state.addtoteam(thing.BetaShip(pos = [x, y, 4]))
@@ -90,8 +90,13 @@ def draw():
 			rect = pygame.Rect(0, 0, size, size)
 			rect.center = pos
 			pygame.draw.rect(window.screen, (255, 0, 255), rect, F(3))
-		charges = sorted(ship.chargerates)
-		ptext.draw(" ".join(map(str, charges)), centerx = pos[0] + F(0), centery = pos[1] + F(25))
+		for k, charge in enumerate(sorted(ship.chargerates)):
+			x, y = pos
+			x += F((len(ship.chargerates) - k - 1) * 20)
+			y += F(25)
+			color = tuple(settings.ncolors[charge])
+			boltinfo = color, None, True
+			image.draw("bolt", pos = (x, y), scale = 1.2, boltinfo = boltinfo)
 	hud.draw()
 
 	quest.quests["credits"].draw()

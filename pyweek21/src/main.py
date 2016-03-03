@@ -33,6 +33,8 @@ def handleevents():
 				window.togglefullscreen()
 			if event.key == pygame.K_F12:
 				window.screenshot()
+			if settings.DEBUG and event.key == pygame.K_F4:
+				jumptoact3()
 			for kname, keys in settings.keys.items():
 				if event.key in keys:
 					estate[kname] = True
@@ -43,6 +45,9 @@ def handleevents():
 			if event.button in (1,2,3):
 				estate[" lmr"[event.button] + "up"] = True
 	return estate
+
+def jumptoact3():
+	background.revealall()
 
 
 while playing:

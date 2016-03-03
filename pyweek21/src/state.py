@@ -5,7 +5,7 @@ try:
 except ImportError:
 	import pickle
 from collections import defaultdict
-from . import settings, window
+from . import settings, window, sound
 
 class State(object):
 	def __init__(self):
@@ -16,6 +16,7 @@ class State(object):
 		self.effects = []
 		self.decorations = []
 		self.dblocks = defaultdict(list)
+		self.bank = 0
 
 	def assemble(self, x, y):
 		team = sorted(self.team, key = lambda ship: (ship.x - x) ** 2 + (ship.y - y) ** 2)
@@ -77,28 +78,37 @@ class State(object):
 		by = int(window.y0 / settings.blocksize)
 		return self.dblocks[(bx, by)]
 
+	def reward(self, amount):
+		sound.play("reward")
+		self.bank += amount
+
 	def get(self):
 		from . import quest, dialogue
 		return [
 			window.getstate(),
+			background.getstate(),
 			quest.quests,
 			dialogue.played,
 			self.ships,
 			self.team,
 			self.buildings,
+			self.bank,
 		]
 
 	def set(self, obj):
 		from . import quest
 		[
 			windowstate,
+			backgroundstate,
 			quest.quests,
 			dialogue.played,
 			self.ships,
 			self.team,
 			buildings,
+			self.bank,
 		] = obj
 		window.setstate(windowstate)
+		background.setstate(backgroundstate)
 		for building in buildings:
 			self.addbuilding(building)
 

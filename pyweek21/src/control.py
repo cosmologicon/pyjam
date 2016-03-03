@@ -5,19 +5,30 @@ from .util import F
 cursor = []
 selection = None
 assembling = False
+tclick = 0
+dragged = False
 
 def think(dt, estate):
-	global cursor, selection, assembling
+	global cursor, selection, assembling, tclick, dragged
 	if estate["ldown"]:
 		selection = pygame.Rect(estate["mpos"], (0, 0))
+		tclick = 0
+		dragged = False
 	if selection is not None:
+		tclick += dt
 		selection.width = estate["mpos"][0] - selection.x
 		selection.height = estate["mpos"][1] - selection.y
 		nselect = pygame.Rect(selection)
 		nselect.normalize()
-		cursor[:] = [ship for ship in state.state.team if nselect.collidepoint(ship.screenpos())]
+		if nselect.width > 5 or nselect.height > 5 or tclick > 0.5:
+			dragged = True
+		if dragged:
+			cursor[:] = [ship for ship in state.state.team if nselect.collidepoint(ship.screenpos())]
 	if estate["lup"]:
 		selection = None
+		if not dragged:
+			if background.minimaprect().collidepoint(estate["mpos"]):
+				estate["map"] = True
 #		building = thing.Building(pos = [x, y, 0])
 #		state.state.ships[-1].setbuildtarget(building)
 	if estate["rdown"]:

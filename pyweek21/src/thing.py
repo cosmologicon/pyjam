@@ -134,14 +134,22 @@ class Rechargeable(Component):
 		for k, v in self.needs.items():
 			if k is None or not v:
 				continue
-			pos = self.screenpos(dz = -1)
-			text = "need%s: %d/%d" % (k, int(self.needmax[k] - v), self.needmax[k])
-			ptext.draw(text, center = pos, color = settings.ncolors[k], fontsize = F(24), owidth = 1)
+			pos = self.screenpos(dz = 0)
+			f = 0.4 + 0.6 * (1 - v / self.needmax[k])
+			outline = self.t % 1 > 0.5
+			color = tuple(settings.ncolors[k])
+			black = 0, 0, 0
+			white = 255, 255, 255
+			boltinfo = (white if self.t % 1 > 0.5 else black), None, True
+			image.draw("bolt", pos, scale = 2, boltinfo = boltinfo)
+			boltinfo = color, f, False
+			image.draw("bolt", pos, scale = 2, boltinfo = boltinfo)
 	def oncharge(self, needtype):
 		pass
 	def onenter(self, ship):
 		for k, v in ship.chargerates.items():
 			if k in self.needs and self.needs[k] > 0:
+				sound.play("charging")
 				state.state.effects.append(ChargeEffect(building = self, ship = ship, chargetype = k))
 
 class Discharges(Component):
@@ -157,6 +165,12 @@ class RevealsOnCharge(Component):
 		self.rreveal = rreveal
 	def oncharge(self, needtype):		
 		background.reveal(self.x, self.y, self.rreveal)
+
+class RewardsOnCharge(Component):
+	def __init__(self, rreward = 1):
+		self.rreward = rreward
+	def oncharge(self, needtype):	
+		state.state.reward(self.rreward)
 
 class Charges(Component):
 	def __init__(self, chargerates):
@@ -293,7 +307,7 @@ class DrawSmoke(Component):
 		self.plumes = [p for p in self.plumes if self.t - p[0] < p[1]]
 		while len(self.plumes) < 20:
 			angle = random.choice(list(range(10)))
-			size = random.choice([2, 3, 4])
+			size = random.choice([4, 6, 8])
 			dx = random.uniform(-30, 30)
 			dy = random.uniform(-30, -80)
 			t = random.uniform(2, 6)
@@ -349,35 +363,37 @@ class ShipC(Thing):
 # Buildings
 
 @DrawName()
-@HasPad(4)
+@HasPad(12)
 @Rechargeable({0: 10, 1: 10, 2: 10})
 @Discharges()
 @RevealsOnCharge(125)
+@RewardsOnCharge(1)
 class Building(Thing):
 	brange = 30
 
 @DrawName()
-@HasPad(4)
+@HasPad(12)
 @Rechargeable({0: 30, 1: 30, 2: 30})
 @Discharges()
 @RevealsOnCharge(125)
+@RewardsOnCharge(5)
 class BigBuilding(Thing):
 	brange = 30
 
 @DrawName()
-@HasPad(4)
+@HasPad(12)
 @Rechargeable({0: 100, 1: 100, 2: 100})
 class ObjectiveQTower(Thing):
 	brange = 50
 
 @DrawName()
-@HasPad(10)
+@HasPad(20)
 @TracksProximity()
 class ObjectiveX(Thing):
 	brange = 50
 
 @DrawName()
-@HasPad(4)
+@HasPad(12)
 @Discharges()
 @Rechargeable({0: 20, 1: 20, 2: 20})
 class ObjectiveXTower(Thing):
