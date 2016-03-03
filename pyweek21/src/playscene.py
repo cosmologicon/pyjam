@@ -7,17 +7,14 @@ from .util import F
 curtain = -1
 def onpush():
 	x, y = gamedata.data["start"]
-	you = thing.AlphaShip(pos = [x, y, 4])
+	you = thing.ShipA(pos = [x, y, 4])
 	background.reveal(x, y, 40)
 	state.state.addtoteam(you)
+	state.state.addtoteam(thing.ShipB(pos = [x + 5, y + 5, 3]))
+	state.state.addtoteam(thing.ShipC(pos = [x - 5, y - 5, 5]))
 
-	for j in range(3):
-		r, theta = 20, j
-		dx, dy = r * math.sin(theta), r * math.cos(theta)
-		state.state.addtoteam(thing.BetaShip(pos = [x + dx, y + dy, 4]))
-
-	x, y = gamedata.data["beta"]
-	state.state.addtoteam(thing.BetaShip(pos = [x, y, 4]))
+#	x, y = gamedata.data["beta"]
+#	state.state.addtoteam(thing.BetaShip(pos = [x, y, 4]))
 
 	for j in range(10000):
 		x = random.uniform(-1000, 1000)
@@ -69,15 +66,23 @@ def draw():
 #	background.drawclouds()
 	dialogue.draw()
 	control.drawselection()
+
+	for j, ship in enumerate(state.state.team):
+		pos = F(32 + 64 * j, 32)
+		size = F(60)
+		image.draw("avatar-" + ship.letter, pos, size = size)
+		if control.isselected(ship):
+			rect = pygame.Rect(0, 0, size, size)
+			rect.center = pos
+			pygame.draw.rect(window.screen, (255, 0, 255), rect, F(3))
+	hud.draw()
+
+	quest.quests["credits"].draw()
+
 	if curtain <= 0:
 		window.screen.fill((0, 0, 0))
 	elif curtain < 1:
 		h = int(window.sy / 2 * (1 - curtain))
 		window.screen.fill((0, 0, 0), (0, 0, window.sx, h))
 		window.screen.fill((0, 0, 0), (0, window.sy - h, window.sx, h))
-
-	for j, ship in enumerate(state.state.team):
-		image.draw("avatar-" + ship.letter, F(32 + 64 * j, 32), size = F(60))
-	hud.draw()
-
 

@@ -1,8 +1,10 @@
 import math
-from . import state, hud, control, gamedata, thing, background, sound
+from . import state, hud, control, gamedata, thing, background, sound, ptext, dialogue, settings
+from .util import F
 
 quests = {}
 def init():
+	quests["credits"] = CreditsQuest()
 	quests["intro"] = IntroQuest()
 	quests["objq"] = ObjectiveQQuest()
 	quests["act3"] = Act3Quest()
@@ -28,6 +30,45 @@ class Quest(object):
 	def think(self, dt):
 		self.t += dt
 		self.tstep += dt
+
+class CreditsQuest(Quest):
+	goal = 10
+	def __init__(self):
+		Quest.__init__(self)
+	def think(self, dt):
+		Quest.think(self, dt)
+		if self.progress == 0:
+			if dialogue.tquiet > 4:
+				self.advance()
+		if self.progress == 1:
+			if self.tstep > 4:
+				self.advance()
+		if self.progress == 2:
+			if self.tstep > 1 and dialogue.tquiet > 4:
+				self.advance()
+		if self.progress == 3:
+			if self.tstep > 4:
+				self.advance()
+
+	def draw(self):
+		if self.done:
+			return
+		if self.progress in (1,3):
+			alpha = min(max(self.tstep, 0), 1)
+		elif self.progress in (2,4):
+			alpha = min(max(1 - self.tstep, 0), 1)
+		else:
+			return
+		if alpha == 0:
+			return
+		if self.progress in (1, 2):
+			ptext.draw(settings.gamename.upper(), fontsize = F(70), alpha = alpha, 
+				midright = F(840, 240), shadow = (1, 1))
+		if self.progress in (3, 4):
+			ptext.draw("by Christopher Night", fontsize = F(48), alpha = alpha, 
+				color = "yellow",
+				midright = F(840, 240), shadow = (1, 1))
+
 
 class IntroQuest(Quest):
 	goal = 1

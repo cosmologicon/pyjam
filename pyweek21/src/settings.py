@@ -26,7 +26,7 @@ ncolors = [
 
 
 resolution0 = 480  # do not change - logical (not actual) resolution of screen
-gamename = "pyweek21"
+gamename = "The Aftermath"
 DEBUG = True
 
 

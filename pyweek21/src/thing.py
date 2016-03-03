@@ -281,17 +281,25 @@ class Thing(object):
 @BuildTarget()
 @FacesForward()
 @DrawShip("test")
-@Charges({0: 10})
-class AlphaShip(Thing):
+@Charges({0: 1})
+class ShipA(Thing):
 	letter = "A"
 
 @ApproachesTarget(speed = 8)
 @BuildTarget()
 @FacesForward()
 @DrawShip("test")
-@Charges({0: 1})
-class BetaShip(Thing):
+@Charges({1: 1})
+class ShipB(Thing):
 	letter = "B"
+
+@ApproachesTarget(speed = 6)
+@BuildTarget()
+@FacesForward()
+@DrawShip("test")
+@Charges({2: 1})
+class ShipC(Thing):
+	letter = "C"
 
 # Buildings
 
