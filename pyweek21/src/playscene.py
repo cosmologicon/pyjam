@@ -97,8 +97,10 @@ def draw():
 			image.draw("bolt", pos = (x, y), scale = 2.5, boltinfo = boltinfo)
 	hud.draw()
 
-	quest.quests["credits"].draw()
-	quest.quests["act3"].draw()
+	if "credits" in quest.quests:
+		quest.quests["credits"].draw()
+	if "act3" in quest.quests:
+		quest.quests["act3"].draw()
 
 	if curtain <= 0:
 		window.screen.fill((0, 0, 0))

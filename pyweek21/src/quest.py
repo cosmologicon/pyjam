@@ -45,9 +45,19 @@ class IslandQuest(Quest):
 			self.advance()
 
 class CreditsQuest(Quest):
-	goal = 10
+	goal = 20
 	def __init__(self):
 		Quest.__init__(self)
+		self.credits = [
+			("Programming", "Christopher Night"),
+			("Music", "Mary Bichner"),
+			("Dialogue", "Charles McPillan\nChristopher Night"),
+			("3d modeling", "Charles McPillan\nChristopher Night"),
+			("Character art", "Molly Zenobia"),
+			("Audio production", "Mary Bichner"),
+			("Voice acting", "Randy Parcel\nMonica Vargas\nCharles McPillan\nMary Bichner"),
+			("Play testing", "John Pilman"),
+		]
 	def think(self, dt):
 		Quest.think(self, dt)
 		if self.progress == 0:
@@ -56,19 +66,19 @@ class CreditsQuest(Quest):
 		if self.progress == 1:
 			if self.tstep > 4:
 				self.advance()
-		if self.progress == 2:
+		if self.progress in (2,4,6,8,10,12,14,16,18):
 			if self.tstep > 1 and dialogue.tquiet > 4:
 				self.advance()
-		if self.progress == 3:
+		if self.progress in (3,5,7,9,11,13,15,17,19):
 			if self.tstep > 4:
 				self.advance()
 
 	def draw(self):
 		if self.done:
 			return
-		if self.progress in (1,3):
+		if self.progress in (3,5,7,9,11,13,15,17,19):
 			alpha = min(max(self.tstep, 0), 1)
-		elif self.progress in (2,4):
+		elif self.progress in (2,4,6,8,10,12,14,16,18):
 			alpha = min(max(1 - self.tstep, 0), 1)
 		else:
 			return
@@ -77,14 +87,18 @@ class CreditsQuest(Quest):
 		if self.progress in (1, 2):
 			ptext.draw(settings.gamename.upper(), fontsize = F(70), alpha = alpha, 
 				midright = F(840, 240), shadow = (1, 1))
-		if self.progress in (3, 4):
-			ptext.draw("by Christopher Night", fontsize = F(48), alpha = alpha, 
+		if 3 <= self.progress < 17:
+			category, names = self.credits[(self.progress - 3) // 2]
+			ptext.draw(category, fontsize = F(48), alpha = alpha, 
+				color = "white",
+				bottomright = F(840, 210), shadow = (1, 1))
+			ptext.draw(names, fontsize = F(48), alpha = alpha, 
 				color = "yellow",
-				midright = F(840, 240), shadow = (1, 1))
+				topright = F(840, 210), shadow = (1, 1))
 
 
 class IntroQuest(Quest):
-	goal = 2
+	goal = 3
 	def __init__(self):
 		Quest.__init__(self)
 		x, y = gamedata.data["you"]["b"]
@@ -95,19 +109,21 @@ class IntroQuest(Quest):
 		state.state.ships.append(self.shipc)
 	def think(self, dt):
 		Quest.think(self, dt)
-		if self.progress == 0:
+		if self.progress == 0 and self.tstep > 1:
+			dialogue.play("MEETA")
+			self.advance()
+		if self.progress == 1:
 			if self.shipb not in state.state.team and self.shipb.revealed():
 				state.state.addtoteam(self.shipb)
 				background.reveal(self.shipb.x, self.shipb.y, 125)
-				# dialogue.play("meetb")
+				dialogue.play("MEETB")
 				self.advance()
-		if self.progress == 1:
+		if self.progress == 2:
 			if self.shipc not in state.state.team and self.shipc.revealed():
 				state.state.addtoteam(self.shipc)
 				background.reveal(self.shipc.x, self.shipc.y, 125)
-				# dialogue.play("meetc")
+				dialogue.play("MEETC")
 				self.advance()
-		
 
 class ObjectivePQuest(Quest):
 	goal = 1

@@ -36,7 +36,6 @@ class State(object):
 		things.sort(key = lambda obj: -obj.y * window.fz + obj.z * window.fy)
 		for t in things:
 			t.draw()
-		return
 		for b in self.buildings:
 			if hasattr(b, "drawbolt"):
 				b.drawbolt()
