@@ -1,5 +1,6 @@
 import math, random
 from . import state, hud, control, gamedata, thing, background, sound, ptext, dialogue, settings
+from . import window
 from .util import F
 
 quests = {}
@@ -9,7 +10,7 @@ def init():
 	quests["objp"] = ObjectivePQuest()
 	quests["objq"] = ObjectiveQQuest()
 	quests["objr"] = ObjectiveRQuest()
-#	quests["objs"] = ObjectiveSQuest()
+	quests["objs"] = ObjectiveSQuest()
 	quests["island"] = IslandQuest()
 #	quests["act3"] = Act3Quest()
 def think(dt):
@@ -40,7 +41,7 @@ class IslandQuest(Quest):
 	def think(self, dt):
 		Quest.think(self, dt)
 		if self.progress == 0 and len(state.state.team) >= 3:
-			background.reveal(600, -660, 180)
+			background.reveal(750, -860, 180)
 			self.advance()
 
 class CreditsQuest(Quest):
@@ -143,6 +144,29 @@ class ObjectiveRQuest(Quest):
 			self.advance()
 		if self.progress == 1 and self.tstep > 4:
 			state.state.addtoteam(self.ship)
+			window.targetpos(self.ship.x, self.ship.y, self.ship.z)
+			self.advance()
+
+class ObjectiveSQuest(Quest):
+	goal = 2
+	def __init__(self):
+		Quest.__init__(self)
+		self.towers = [
+			thing.ObjectivePTower(pos = [x, y, 0], needtype = j)
+			for j, (x, y) in enumerate(gamedata.data["s"])
+		]
+		for j, tower in enumerate(self.towers):
+			state.state.addbuilding(tower)
+			tower.addtowers(self.towers)
+		x, y = gamedata.data["you"]["f"]
+		self.ship = thing.ShipF(pos = [x, y, 4])
+	def think(self, dt):
+		Quest.think(self, dt)
+		if self.progress == 0 and self.towers[0].allcharged:
+			self.advance()
+		if self.progress == 1 and self.tstep > 4:
+			state.state.addtoteam(self.ship)
+			window.targetpos(self.ship.x, self.ship.y, self.ship.z)
 			self.advance()
 
 class ObjectiveQQuest(Quest):
@@ -181,6 +205,7 @@ class ObjectiveQQuest(Quest):
 		elif self.progress == 1:
 			if self.tstep > 4:
 				state.state.addtoteam(self.ship)
+				window.targetpos(self.ship.x, self.ship.y, self.ship.z)
 				self.advance()
 
 

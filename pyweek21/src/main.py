@@ -63,32 +63,38 @@ def jumptox():
 			state.state.addtoteam(ship)
 	x, y = obj.x, obj.y
 	control.assemble(x + 25, y + 25)
-	
+
+def unlockcoreteam():
+	for ship in state.state.ships:
+		if ship not in state.state.team and len(state.state.team) < 3:
+			state.state.addtoteam(ship)
+
 def jumptop():
 	obj = quest.quests["objp"].towers[0]
 	x, y = obj.x, obj.y
 	background.reveal(x, y, 160)
-	for ship in state.state.ships:
-		if ship not in state.state.team and len(state.state.team) < 3:
-			state.state.addtoteam(ship)
+	unlockcoreteam()
 	control.assemble(x + 25, y + 25)
 
 def jumptoq():
 	obj = quest.quests["objq"].towers[0]
 	x, y = obj.x, obj.y
 	background.reveal(x, y, 160)
-	for ship in state.state.ships:
-		if ship not in state.state.team and len(state.state.team) < 3:
-			state.state.addtoteam(ship)
+	unlockcoreteam()
 	control.assemble(x + 25, y + 25)
 
 def jumptor():
 	obj = quest.quests["objr"].towers[0]
 	x, y = obj.x, obj.y
 	background.reveal(x, y, 200)
-	for ship in state.state.ships:
-		if ship not in state.state.team and len(state.state.team) < 3:
-			state.state.addtoteam(ship)
+	unlockcoreteam()
+	control.assemble(x + 25, y + 25)
+
+def jumptos():
+	for obj in quest.quests["objs"].towers:
+		x, y = obj.x, obj.y
+		background.reveal(x, y, 160)
+	unlockcoreteam()
 	control.assemble(x + 25, y + 25)
 
 while playing:
