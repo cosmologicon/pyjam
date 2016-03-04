@@ -12,7 +12,7 @@ def init():
 	quests["objr"] = ObjectiveRQuest()
 	quests["objs"] = ObjectiveSQuest()
 	quests["island"] = IslandQuest()
-#	quests["act3"] = Act3Quest()
+	quests["act3"] = Act3Quest()
 def think(dt):
 	for qname, quest in sorted(quests.items()):
 		quest.think(dt)
@@ -218,8 +218,10 @@ class Act3Quest(Quest):
 		state.state.addbuilding(self.objective)
 		self.towers = []
 		for j in range(5):
-			r, theta = 60, 1 + 2 * math.pi * j / 5
-			tower = thing.ObjectiveXTower(pos = [x + r * math.sin(theta), y + r * math.cos(theta), 0])
+			r, theta = 60, 2 * math.pi * j / 5
+			tower = thing.ObjectiveXTower(pos = [x + r * math.cos(theta), y + r * math.sin(theta), 0])
+			tower.rot = j
+			tower.addneed(None, 1)
 			state.state.addbuilding(tower)
 			self.towers.append(tower)
 		self.lightning = None
@@ -231,7 +233,7 @@ class Act3Quest(Quest):
 				self.advance()
 		elif self.progress == 1:
 			if self.tstep >= 1:
-				control.assemble(self.objective.x + 6, self.objective.y + 6)
+				control.assemble(self.objective.x + 20, self.objective.y + 20)
 				self.advance()
 		elif self.progress == 2:
 			if self.tstep > 5 and dialogue.tquiet > 1:
@@ -241,22 +243,55 @@ class Act3Quest(Quest):
 			self.playpart1(dt)
 			if self.tstep > 120:
 				self.advance()
+				self.startpart2()
+		elif self.progress == 4:
+			self.playpart2()
+
+	def draw(self):
+		if self.progress == 3:
+			ntower = sum(tower.ischarged() for tower in self.towers)
+			ptext.draw("Charge cycle: %.1f/120" % self.tstep, fontsize = F(30),
+				color = "red", owidth = 1.5, midbottom = F(854 - 200, 460))
+			ptext.draw("Towers charged: %d/5" % ntower, fontsize = F(30),
+				color = "yellow", owidth = 1.5, midbottom = F(854 + 200, 460))
 
 	def startpart1(self):
 		x, y = self.objective.x, self.objective.y
-		self.lightning = thing.BallLightning(pos = [x, y, 5])
+		self.lightning = thing.BallLightning(pos = [x, y, 26])
 		state.state.effects.append(self.lightning)
-		self.lastneed = 0
+		self.tneed = 0
+		for tower in self.towers:
+			tower.addcharge(None, 10000)
 
 	def playpart1(self, dt):
-		self.lastneed += dt
-		if self.lastneed > 8:
-			self.lastneed = 0
+		self.tneed += dt
+		if self.tneed > 12:
+			self.tneed = 0
 			n = random.choice(range(5))
 			needtype = random.choice(range(3))
 			tower = self.towers[n]
 			tower.addneed(needtype, 1)
 			state.state.effects.append(thing.NeedIndicator(pos = tower.pos(), needtype = needtype))
 			state.state.effects.append(thing.NeedConnector(pos0 = self.lightning.pos(), pos1 = tower.pos(), needtype = needtype))
-		
+		ntower = sum(tower.ischarged() for tower in self.towers)
+		if ntower < 3:
+			self.restart()
+			sound.play("restartx")
+
+	def startpart2(self):
+		sound.play("startx2")
+		for tower in self.towers:
+			tower.fullycharge()
+
+	def playpart2(self):
+		pass
+
+	def restart(self):
+		for tower in self.towers:
+			tower.addneed(None, 1)
+		if self.lightning is not None:
+			state.state.effects.remove(self.lightning)
+			self.lightning = None
+		control.assemble(self.objective.x + 20, self.objective.y + 20)
+
 

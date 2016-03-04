@@ -98,6 +98,7 @@ def draw():
 	hud.draw()
 
 	quest.quests["credits"].draw()
+	quest.quests["act3"].draw()
 
 	if curtain <= 0:
 		window.screen.fill((0, 0, 0))

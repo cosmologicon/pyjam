@@ -44,6 +44,8 @@ def handleevents():
 				jumptos()
 			if settings.DEBUG and event.key == pygame.K_F5:
 				jumptox()
+			if settings.DEBUG and event.key == pygame.K_F6:  # Objective X second form
+				quest.quests["act3"].tstep = 1000
 			for kname, keys in settings.keys.items():
 				if event.key in keys:
 					estate[kname] = True
@@ -57,16 +59,19 @@ def handleevents():
 
 def jumptox():
 	background.revealall()
+	unlockentireteam()
 	obj = quest.quests["act3"].objective
-	for ship in state.state.ships:
-		if ship not in state.state.team:
-			state.state.addtoteam(ship)
 	x, y = obj.x, obj.y
 	control.assemble(x + 25, y + 25)
 
 def unlockcoreteam():
 	for ship in state.state.ships:
 		if ship not in state.state.team and len(state.state.team) < 3:
+			state.state.addtoteam(ship)
+
+def unlockentireteam():
+	for ship in state.state.ships + [quest.quests["obj" + a].ship for a in "qrs"]:
+		if ship not in state.state.team:
 			state.state.addtoteam(ship)
 
 def jumptop():

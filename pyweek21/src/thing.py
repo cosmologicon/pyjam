@@ -129,6 +129,12 @@ class Rechargeable(Component):
 				self.needs[k] = max(self.needs[k] - dt * v, 0)
 				if sum(self.needs.values()) == 0:
 					self.oncharge(k)
+	def addcharge(self, k, amount):
+		if k in self.needs and self.needs[k] > 0:
+			self.needs[k] = max(self.needs[k] - amount, 0)
+	def fullycharge(self):
+		for k in self.needs:
+			self.needs[k] = 0
 	def think(self, dt):
 		for ship in self.visitors:
 			self.charge(dt, ship.chargerates)
@@ -463,18 +469,25 @@ class ObjectiveQTower(Thing):
 	brange = 50
 
 
-@DrawName()
-@HasPad(20)
+@HasPad(30)
 @TracksProximity()
 class ObjectiveX(Thing):
 	brange = 50
+	def draw(self):
+		nprox = min(max(len(self.visitors), 0), 5)
+		imgname = "data/objx%d.png" % nprox
+		image.draw(imgname, self.screenpos(), scale = 20)
 
-@DrawName()
 @HasPad(12)
 @Discharges()
-@Rechargeable({0: 20, 1: 20, 2: 20})
+@Rechargeable({None: 1, 0: 20, 1: 20, 2: 20})
 class ObjectiveXTower(Thing):
 	brange = 50
+	def ischarged(self):
+		return not self.needs[None] and all(self.needs[k] < self.needmax[k] for k in self.needs)
+	def draw(self):
+		imgname = "data/objxtower%d.png" % self.rot
+		image.draw(imgname, self.screenpos(), scale = 14)
 
 
 # Effects
