@@ -21,7 +21,7 @@ class State(object):
 	def assemble(self, x, y):
 		team = sorted(self.team, key = lambda ship: (ship.x - x) ** 2 + (ship.y - y) ** 2)
 		for j, ship in enumerate(team, 1):
-			r, theta = 2 * math.sqrt(j), 1.62 * j
+			r, theta = 10 * math.sqrt(j), 1.62 * j
 			ship.x = x + r * math.sin(theta)
 			ship.y = y + r * math.cos(theta) - 3
 			ship.target = None
@@ -32,10 +32,11 @@ class State(object):
 		for t in self.ships:
 			if t.revealed():
 				t.drawshadow()
-		things = self.ships + self.buildings + self.effects + self.decorationsnear()
+		things = self.ships + self.buildingsnear(window.x0, window.y0) + self.effects + self.decorationsnear()
 		things.sort(key = lambda obj: -obj.y * window.fz + obj.z * window.fy)
 		for t in things:
 			t.draw()
+		return
 		for b in self.buildings:
 			if hasattr(b, "drawbolt"):
 				b.drawbolt()
@@ -51,10 +52,11 @@ class State(object):
 		self.team.append(ship)
 
 	def addbuilding(self, building):
-		bx0 = int(math.floor((building.x - building.brange) / settings.blocksize))
-		by0 = int(math.floor((building.y - building.brange) / settings.blocksize))
-		bx1 = int(math.ceil((building.x + building.brange) / settings.blocksize)) + 1
-		by1 = int(math.ceil((building.y + building.brange) / settings.blocksize)) + 1
+		r = max(building.brange, 1.1 * settings.resolution0 / window.Z)
+		bx0 = int(math.floor((building.x - r) / settings.blocksize))
+		by0 = int(math.floor((building.y - r) / settings.blocksize))
+		bx1 = int(math.ceil((building.x + r) / settings.blocksize)) + 1
+		by1 = int(math.ceil((building.y + r) / settings.blocksize)) + 1
 		for bx in range(bx0, bx1):
 			for by in range(by0, by1):
 				self.blocks[(bx, by)].append(building)
