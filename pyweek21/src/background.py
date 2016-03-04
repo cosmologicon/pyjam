@@ -89,8 +89,16 @@ def reveal(x, y, r, update = True):
 				unmasks[r][ax,ay] = a
 	unmask = unmasks[r]
 	arr = pygame.surfarray.pixels_alpha(maskimg)
-	ax, ay = maskimg.get_width() // 2 + int(x) - R, maskimg.get_height() // 2 - int(y) - R
-	arr[ax:ax+2*R,ay:ay+2*R] = numpy.maximum(arr[ax:ax+2*R,ay:ay+2*R] - unmask, 0)
+	x0, y0 = maskimg.get_width() // 2 + int(x) - R, maskimg.get_height() // 2 - int(y) - R
+	x1, y1 = x0 + 2 * R, y0 + 2 * R
+	print unmask.shape
+	print x0, y0, x1, y1
+	if x0 < 0:
+		unmask = unmask[-x0:,:]
+		x0 = 0
+	print unmask.shape
+	print x0, y0, x1, y1
+	arr[x0:x1,y0:y1] = numpy.maximum(arr[x0:x1,y0:y1] - unmask, 0)
 	del arr
 	if not update:
 		return

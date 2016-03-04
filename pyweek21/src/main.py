@@ -82,6 +82,15 @@ def jumptoq():
 			state.state.addtoteam(ship)
 	control.assemble(x + 25, y + 25)
 
+def jumptor():
+	obj = quest.quests["objr"].towers[0]
+	x, y = obj.x, obj.y
+	background.reveal(x, y, 200)
+	for ship in state.state.ships:
+		if ship not in state.state.team and len(state.state.team) < 3:
+			state.state.addtoteam(ship)
+	control.assemble(x + 25, y + 25)
+
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	estate = handleevents()
