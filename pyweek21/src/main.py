@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame
 from . import settings, window, ptext, scene, playscene, background, quest, control, state
 from .util import F
@@ -64,17 +65,25 @@ def jumptox():
 	control.assemble(x + 25, y + 25)
 	
 def jumptop():
-	background.revealall()
 	obj = quest.quests["objp"].towers[0]
 	x, y = obj.x, obj.y
+	background.reveal(x, y, 160)
 	for ship in state.state.ships:
 		if ship not in state.state.team and len(state.state.team) < 3:
 			state.state.addtoteam(ship)
 	control.assemble(x + 25, y + 25)
 
+def jumptoq():
+	obj = quest.quests["objq"].towers[0]
+	x, y = obj.x, obj.y
+	background.reveal(x, y, 160)
+	for ship in state.state.ships:
+		if ship not in state.state.team and len(state.state.team) < 3:
+			state.state.addtoteam(ship)
+	control.assemble(x + 25, y + 25)
 
 while playing:
-	dt = 0.001 * clock.tick(settings.maxfps)
+	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	estate = handleevents()
 	if estate["quit"]:
 		playing = False

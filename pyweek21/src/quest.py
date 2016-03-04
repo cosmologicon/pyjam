@@ -7,7 +7,7 @@ def init():
 	quests["credits"] = CreditsQuest()
 	quests["intro"] = IntroQuest()
 	quests["objp"] = ObjectivePQuest()
-#	quests["objq"] = ObjectiveQQuest()
+	quests["objq"] = ObjectiveQQuest()
 #	quests["objr"] = ObjectiveRQuest()
 #	quests["objs"] = ObjectiveSQuest()
 	quests["island"] = IslandQuest()
@@ -123,24 +123,42 @@ class ObjectivePQuest(Quest):
 		Quest.think(self, dt)
 
 class ObjectiveQQuest(Quest):
-	goal = 1
+	goal = 2
 	def __init__(self):
 		Quest.__init__(self)
 		self.towers = [
-			thing.ObjectiveQTower(pos = [x, y, 0])
-			for j, (x, y) in enumerate(gamedata.data["p"])
+			thing.ObjectiveQTower(pos = [x, y, 0], needtype = None)
+			for j, (x, y) in enumerate(gamedata.data["q"])
 		]
 		for tower in self.towers:
 			state.state.addbuilding(tower)
 			tower.addtowers(self.towers)
+			for needtype in (0, 1, 2):
+				tower.addneed(needtype, 1000)
 		x, y = gamedata.data["you"]["e"]
-		self.shipb = thing.ShipE(pos = [x, y, 4])
+		self.ship = thing.ShipE(pos = [x, y, 4])
+		self.tneed = 0
+		self.jneed = 0
 	def think(self, dt):
 		Quest.think(self, dt)
-#		if self.progress == 0:
-#			self.towers[0].addneed(0, 50)
-#			state.state.effects.append(thing.NeedIndicator(pos = self.towers[0].pos(), needtype = 0))
-#			self.advance()
+		if self.progress == 0:
+			if self.towers[0].allcharged:
+				self.advance()
+			elif any(tower.visitors for tower in self.towers):
+				self.tneed += dt
+				if self.tneed > 6:
+					self.tneed = 0
+					needtype = random.choice((0, 1, 2))
+					jtower = random.choice((0, 1))
+					needtype = self.jneed % 3
+					jtower = self.jneed % 2
+					self.towers[jtower].addneed(needtype, 50)
+					state.state.effects.append(thing.NeedIndicator(pos = self.towers[jtower].pos(), needtype = needtype))
+					self.jneed += 1
+		elif self.progress == 1:
+			if self.tstep > 4:
+				state.state.addtoteam(self.ship)
+				self.advance()
 
 
 class Act3Quest(Quest):

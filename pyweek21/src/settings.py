@@ -2,6 +2,7 @@ from pygame.locals import *
 
 
 maxfps = 60
+minfps = 10
 fullscreen = False
 resolution = 480
 savename = "data/savegame.pkl"

@@ -183,20 +183,22 @@ class HasTowers(Component):
 	def addtowers(self, towers):
 		self.towers.extend(towers)
 class RevealsOnAllCharged(Component):
-	def __init__(self, rreveal = 20, rreward = 1):
+	def __init__(self, rreveal = 20, rreward = 1, dischargerate = 1):
 		self.rreveal = rreveal
 		self.rreward = rreward
 		self.allcharged = False
-		self.dischargerate = 5
+		self.dischargerate = dischargerate
 	def init(self, obj):
 		self.needtype = obj["needtype"]
-		self.needs[self.needtype] = self.needmax[self.needtype]
+		if self.needtype is not None:
+			self.needs[self.needtype] = self.needmax[self.needtype]
 	def think(self, dt):
 		if self.allcharged:
 			return
 		k = self.needtype
-		if not any(k in ship.chargerates for ship in self.visitors):
-			self.needs[k] = min(self.needs[k] + dt * self.dischargerate, self.needmax[k])
+		if k is not None:
+			if not any(k in ship.chargerates for ship in self.visitors):
+				self.needs[k] = min(self.needs[k] + dt * self.dischargerate, self.needmax[k])
 		if not any(any(tower.needs.values()) for tower in self.towers):
 			self.allcharged = True
 			background.reveal(self.x, self.y, self.rreveal)
@@ -446,17 +448,20 @@ class BigBuilding(Thing):
 
 @DrawName()
 @HasPad(20)
-@Rechargeable({0: 30, 1: 30, 2: 30})
-class ObjectiveQTower(Thing):
+@HasTowers()
+@Rechargeable({0: 20, 1: 20, 2: 20})
+@RevealsOnAllCharged(125, 5, 5)
+class ObjectivePTower(Thing):
 	brange = 50
 
 @DrawName()
 @HasPad(20)
 @HasTowers()
-@Rechargeable({0: 20, 1: 20, 2: 20})
-@RevealsOnAllCharged(125, 5)
-class ObjectivePTower(Thing):
+@Rechargeable({0: 30, 1: 30, 2: 30})
+@RevealsOnAllCharged(125, 5, 2)
+class ObjectiveQTower(Thing):
 	brange = 50
+
 
 @DrawName()
 @HasPad(20)
