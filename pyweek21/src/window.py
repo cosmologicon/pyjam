@@ -16,6 +16,10 @@ def setwindow():
 	global screen, sx, sy
 	if settings.fullscreen:
 		sx, sy = max(pygame.display.list_modes())
+		if 16 * sy > 9 * sx:
+			sy = int(round(sx * 9 / 16))
+		else:
+			sx = int(round(sy * 16 / 9))
 		screen = pygame.display.set_mode((sx, sy), pygame.FULLSCREEN)
 	else:
 		sy = settings.resolution
