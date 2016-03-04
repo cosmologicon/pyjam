@@ -158,6 +158,8 @@ class ObjectiveSQuest(Quest):
 		for j, tower in enumerate(self.towers):
 			state.state.addbuilding(tower)
 			tower.addtowers(self.towers)
+			tower.imgname = "objs"
+			tower.scale = 20
 		x, y = gamedata.data["you"]["f"]
 		self.ship = thing.ShipF(pos = [x, y, 4])
 	def think(self, dt):
@@ -182,6 +184,7 @@ class ObjectiveQQuest(Quest):
 			tower.addtowers(self.towers)
 			for needtype in (0, 1, 2):
 				tower.addneed(needtype, 1000)
+		self.towers[1].imgname = "objq1"
 		x, y = gamedata.data["you"]["e"]
 		self.ship = thing.ShipE(pos = [x, y, 4])
 		self.tneed = 0

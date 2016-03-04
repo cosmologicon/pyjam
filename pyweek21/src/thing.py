@@ -34,6 +34,27 @@ class DrawName(Component):
 		color = "red" if self.revealed() else "#770000"
 		ptext.draw(self.__class__.__name__, center = pos, color = color, fontsize = F(24), owidth = 1)
 
+
+class DrawBuilding(Component):
+	def __init__(self, scale = 10):
+		self.scale = scale
+	def init(self, obj):
+		self.imgname = "data/building-%04d.png" % random.choice(range(26))
+	def draw(self):
+		if not self.revealed():
+			return
+		image.draw(self.imgname, self.screenpos(), scale = self.scale)
+
+class DrawImage(Component):
+	def __init__(self, imgname, scale = 10):
+		self.imgname = imgname
+		self.scale = scale
+	def draw(self):
+		if not self.revealed():
+			return
+		imgname = "data/%s.png" % (self.imgname,)
+		image.draw(imgname, self.screenpos(), scale = self.scale)
+
 class DrawShip(Component):
 	def __init__(self, imgname):
 		self.imgname = imgname
@@ -434,7 +455,7 @@ class ShipF(Thing):
 
 # Buildings
 
-@DrawName()
+@DrawBuilding(12)
 @HasPad(20)
 @Rechargeable({0: 10, 1: 10, 2: 10})
 @Discharges()
@@ -443,7 +464,7 @@ class ShipF(Thing):
 class Building(Thing):
 	brange = 30
 
-@DrawName()
+@DrawBuilding(20)
 @HasPad(20)
 @Rechargeable({0: 30, 1: 30, 2: 30})
 @Discharges()
@@ -452,7 +473,7 @@ class Building(Thing):
 class BigBuilding(Thing):
 	brange = 30
 
-@DrawName()
+@DrawImage("objp", 12)
 @HasPad(20)
 @HasTowers()
 @Rechargeable({0: 20, 1: 20, 2: 20})
@@ -460,7 +481,7 @@ class BigBuilding(Thing):
 class ObjectivePTower(Thing):
 	brange = 50
 
-@DrawName()
+@DrawImage("objq0", 20)
 @HasPad(20)
 @HasTowers()
 @Rechargeable({0: 30, 1: 30, 2: 30})
