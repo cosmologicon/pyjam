@@ -426,7 +426,7 @@ class Thing(object):
 @TravelsOnLand()
 @BuildTarget()
 @FacesForward()
-@DrawShip("forky")
+@DrawShip("forky", 14)
 @Charges({0: 10})
 class ShipA(Thing):
 	letter = "A"
@@ -435,7 +435,7 @@ class ShipA(Thing):
 @TravelsOnLand()
 @BuildTarget()
 @FacesForward()
-@DrawShip("tori")
+@DrawShip("blimpy", 14)
 @Charges({1: 3})
 class ShipB(Thing):
 	letter = "B"
@@ -444,7 +444,7 @@ class ShipB(Thing):
 @TravelsOnLand()
 @BuildTarget()
 @FacesForward()
-@DrawShip("odart")
+@DrawShip("odart", 11)
 @Charges({2: 3})
 class ShipC(Thing):
 	letter = "C"
@@ -453,7 +453,7 @@ class ShipC(Thing):
 @TravelsOnLand()
 @BuildTarget()
 @FacesForward()
-@DrawShip("tori")
+@DrawShip("potter", 10)
 @Charges({1: 3})
 class ShipD(Thing):
 	letter = "D"
@@ -462,7 +462,7 @@ class ShipD(Thing):
 @TravelsOnLandOrWater()
 @BuildTarget()
 @FacesForward()
-@DrawShip("tori")
+@DrawShip("tori", 9)
 @Charges({2: 3})
 class ShipE(Thing):
 	letter = "E"
@@ -471,7 +471,7 @@ class ShipE(Thing):
 @TravelsOnLand()
 @BuildTarget()
 @FacesForward()
-@DrawShip("tori")
+@DrawShip("sandwich", 12)
 @Charges({0: 1, 1: 1, 2: 1})
 class ShipF(Thing):
 	letter = "F"

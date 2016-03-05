@@ -46,8 +46,8 @@ class CreditsQuest(Quest):
 			("3d modeling", "Charles McPillan\nChristopher Night"),
 			("Character art", "Molly Zenobia"),
 			("Audio production", "Mary Bichner"),
-			("Voice acting", "Randy Parcel\nMonica Vargas\nCharles McPillan\nMary Bichner"),
-			("Play testing", "John Pilman"),
+			("Voices", "Randy Parcel\nMonica Vargas\nCharles McPillan\nMary Bichner"),
+			("Testing", "John Pilman"),
 		]
 	def think(self, dt):
 		Quest.think(self, dt)
@@ -78,7 +78,7 @@ class CreditsQuest(Quest):
 		if self.progress in (1, 2):
 			ptext.draw(settings.gamename.upper(), fontsize = F(70), alpha = alpha, 
 				midright = F(840, 240), shadow = (1, 1))
-		if 3 <= self.progress < 17:
+		if 3 <= self.progress < 19:
 			category, names = self.credits[(self.progress - 3) // 2]
 			ptext.draw(category, fontsize = F(48), alpha = alpha, 
 				color = "white",

@@ -65,6 +65,12 @@ def think(dt):
 def draw():
 	if currentline:
 		who, line = currentline
-		image.draw("avatar-%s" % who, F(100, 420), size = F(100))
-		ptext.draw(line, F(160, 370), fontsize = F(30), width = F(640), shadow = (1, 1))
+		n = "Mel Scamp Ignatius Ruby Hallan Pax".split().index(who[:-1])
+		letter = "ABCDEF"[n]
+		image.draw("avatar-%s" % letter, F(100, 420), size = F(100))
+		ptext.draw(who[:-1].upper(), midleft = F(50, 370), fontsize = F(26), color = "yellow", owidth = 2)
+		ptext.draw(line, bottomleft = F(160, 470), fontsize = F(30), width = F(540), shadow = (1, 1))
+
+
+
 
