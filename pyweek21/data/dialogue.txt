@@ -92,3 +92,45 @@ Scamp: We're about progress, not destruction.
 Pax: But if the future isn't coming fast enough for you, you decide to make it happen, no matter what that takes?
 Mel: Come on now! We can't turn against each other now!
 
+X2:
+ifF:Pax: Don't you think it's time you came clean about that tower, Scamp?
+nfF:Hallan: Come off it, Scamp. we know you know about the tower. We're all in this together now. When are you going to fill us in?
+Scamp: OK, fine! It's a device developed by Seeker scientists in secret over the last several years.
+Scamp: Most of us in the movement didn't even know much about it. Just called it the Gateway.
+Scamp: All we were told is that the Gateway is the key to achieving our goals. I never knew what it did until now.
+Mel: So what is it?
+ifF:Pax: A bomb, right?
+ifD:Ruby: Poison?
+ifE:Hallan: A mind-control device?
+Ignatius: A drill to the center of the planet?
+Scamp: No. It's the gateway to the future. It's a time machine.
+ifD:Ruby: What?! So this thing went off and sent everyone to some other time?
+nfD:Pax: What?! So this thing went off and sent everyone to some other time?
+Scamp: Not everyone. Just us. We're in the future now.
+Ignatius: Of course! Why didn't I think of it sooner? According to stellar drift, we must have travelled... over 100 years?!
+ifF:Pax: What kind of future do you call this? Everyone's dead.
+Mel: Something terrible must have happened after we left. If only we could go back....
+Scamp: But I think we can. Using the Gateway!
+
+X3:
+ifF:Pax: That doesn't look like any time machine I ever saw.
+ifE:Hallan: This thing can really send us back in time? 
+ifD:Ruby: Well what are we waiting for? Where's the on switch??
+Scamp: According to the inscription, there's a startup sequence. We'll need to keep the outer towers charged.
+Ignatius: I calculate that if at least three of the five towers remain charged for the entire cycle, a sufficient time charge will build up to open a time portal.
+Mel: Let's do this!
+
+X4:
+Ignatius: The charge cycle is complete!
+Scamp: Okay, the time charge needs to be transferred to the discharge station to the west.
+Mel: We need to form a bridge! Time to work together.
+ifD:Ruby: Let's hope this works!
+
+X5:
+Ignatius: Charge cycle complete! The time portal is opening!
+Scamp: See you all in the past!
+ifD:Ruby: I can't wait to get out of here... I mean, out of now.
+ifE:Hallan: So long future. You won't be missed.
+Mel: We'll just have to make sure this is a future that never happens.
+ifF:Pax: We can make another future, working together.
+

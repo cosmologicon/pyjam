@@ -62,7 +62,7 @@ def think(dt, estate):
 						sound.play("buy")
 					else:
 						sound.play("cantbuy")
-				if u1.collidepoint(estate["mpos"]):
+				if u2.collidepoint(estate["mpos"]):
 					clicked = True
 					clickedhud = True
 					if state.state.bank >= ship.up2cost():
@@ -134,7 +134,7 @@ def think(dt, estate):
 	if estate["issnap"] and cursor:
 		ship = cursor[0]
 		window.targetpos(ship.x, ship.y, ship.z)
-	if estate["assemble"]:
+	if settings.DEBUG and estate["assemble"]:
 		assemble(window.x0, window.y0)
 
 def assemble(x, y):

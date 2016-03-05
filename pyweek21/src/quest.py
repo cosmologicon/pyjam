@@ -1,4 +1,4 @@
-import math, random
+import math, random, pygame
 from . import state, hud, control, gamedata, thing, background, sound, ptext, dialogue, settings
 from . import window
 from .util import F
@@ -285,6 +285,11 @@ class Act3Quest(Quest):
 			tower.addneed(None, 1)
 			state.state.addbuilding(tower)
 			self.towers.append(tower)
+		# WHERE'S THE BUG?!
+		self.xmits = [thing.ObjectiveXTransmit(pos = [100, 100, 0]) for x, y in gamedata.data["xmit"]]
+		for (x, y), xmit in zip(gamedata.data["xmit"], self.xmits):
+			xmit.x = x
+			xmit.y = y
 		self.lightning = None
 	def think(self, dt):
 		Quest.think(self, dt)
@@ -301,9 +306,15 @@ class Act3Quest(Quest):
 			if len(self.objective.visitors) >= 5 and dialogue.tquiet > 3:
 				sound.play("startact3")
 				self.advance()
+				background.revealall()
+				state.state.final = True
+				for k, v in list(quests.items()):
+					if v is not self:
+						del quests[k]
 		elif self.progress == 3:
 			if self.tstep >= 1:
 				control.assemble(self.objective.x + 20, self.objective.y + 20)
+				dialogue.play("X3")
 				self.advance()
 		elif self.progress == 4:
 			if self.tstep > 5 and dialogue.tquiet > 1:
@@ -312,18 +323,42 @@ class Act3Quest(Quest):
 		elif self.progress == 5:
 			self.playpart1(dt)
 			if self.tstep > 120:
+				dialogue.play("X4")
 				self.advance()
 				self.startpart2()
 		elif self.progress == 6:
 			self.playpart2()
+			if all(xmit.active for xmit in self.xmits):
+				self.advance()
+		elif self.progress == 7:
+			self.shake()
+			if self.tstep > 3:
+				from . import scene, endscene
+				scene.swap(endscene)
+				dialogue.play("X5")
+				self.advance()
+		elif self.progress == 8:
+			self.shake()
 
 	def draw(self):
 		if self.progress == 5:
 			ntower = sum(tower.ischarged() for tower in self.towers)
 			ptext.draw("Charge cycle: %.1f/120" % self.tstep, fontsize = F(30),
-				color = "red", owidth = 1.5, midbottom = F(854 - 200, 460))
+				color = "red", owidth = 1.5, midbottom = F(854/2 - 200, 460))
 			ptext.draw("Towers charged: %d/5" % ntower, fontsize = F(30),
-				color = "yellow", owidth = 1.5, midbottom = F(854 + 200, 460))
+				color = "yellow", owidth = 1.5, midbottom = F(854/2 + 200, 460))
+		if self.progress == 6:
+			for a, b in self.pairs:
+				color = random.choice([(255, 255, 0), (200, 200, 200), (255, 127, 127)])
+				thick = random.uniform(1, 4)
+				dx0, dy0, dz0, dx1, dy1, dz1 = [random.gauss(0, 0.6) for _ in range(6)]
+				x0, y0, z0 = a.pos()
+				z0 += a.centerdz()
+				x1, y1, z1 = b.pos()
+				z1 += b.centerdz()
+				p0 = window.worldtoscreen(x0 + dx0, y0 + dy0, z0 + dz0)
+				p1 = window.worldtoscreen(x1 + dx1, y1 + dy1, z1 + dz1)
+				pygame.draw.line(window.screen, color, p0, p1, F(thick))
 
 	def startpart1(self):
 		x, y = self.objective.x, self.objective.y
@@ -335,14 +370,17 @@ class Act3Quest(Quest):
 
 	def playpart1(self, dt):
 		self.tneed += dt
-		if self.tneed > 12:
+		if self.tneed > 8:
 			self.tneed = 0
-			n = random.choice(range(5))
-			needtype = random.choice(range(3))
-			tower = self.towers[n]
-			tower.addneed(needtype, 1)
-			state.state.effects.append(thing.NeedIndicator(pos = tower.pos(), needtype = needtype))
-			state.state.effects.append(thing.NeedConnector(pos0 = self.lightning.pos(), pos1 = tower.pos(), needtype = needtype))
+			ns = set()
+			while len(ns) < (1 if self.tstep < 20 else 2 if self.tstep < 50 else 3):
+				ns.add(random.choice(range(5)))
+			for n in ns:
+				needtype = random.choice(range(3))
+				tower = self.towers[n]
+				tower.addneed(needtype, 30)
+				state.state.effects.append(thing.NeedIndicator(pos = tower.pos(), needtype = needtype))
+				state.state.effects.append(thing.NeedConnector(pos0 = self.lightning.pos(), pos1 = tower.pos(), needtype = needtype))
 		ntower = sum(tower.ischarged() for tower in self.towers)
 		if ntower < 3:
 			self.restart()
@@ -350,18 +388,48 @@ class Act3Quest(Quest):
 
 	def startpart2(self):
 		sound.play("startx2")
+		self.lightning.charged = True
 		for tower in self.towers:
 			tower.fullycharge()
+		for xmit in self.xmits:
+			state.state.addbuilding(xmit)
+			print xmit.x, xmit.y
+		self.pairs = []
+		self.dx, self.dy = 0, 0
 
 	def playpart2(self):
-		pass
+		ons = [self.objective] + [xmit for xmit in self.xmits if xmit.active]
+		offs = state.state.team + [xmit for xmit in self.xmits if not xmit.active]
+		def close(obj1, obj2):
+			return (obj1.x - obj2.x) ** 2 + (obj1.y - obj2.y) ** 2 < 28 ** 2
+		self.pairs = []
+		while any(close(a, b) for a in ons for b in offs):
+			for b in list(offs):
+				closes = [a for a in ons if close(a, b)]
+				if closes:
+					ons.append(b)
+					offs.remove(b)
+					self.pairs.extend([a, b] for a in closes)
+		for xmit in self.xmits:
+			if not xmit.active and xmit in ons:
+				xmit.active = True
+				sound.play("xmiton")
+		self.shake()
+
+	def shake(self):
+		ndx, ndy = random.uniform(-1.2, 1.2), random.uniform(-1.2, 1.2)
+		window.x0 += ndx - self.dx
+		window.y0 += ndy - self.dy
+		self.dx, self.dy = ndx, ndy
+
 
 	def restart(self):
+		self.tstep = 0
 		for tower in self.towers:
 			tower.addneed(None, 1)
-		if self.lightning is not None:
-			state.state.effects.remove(self.lightning)
-			self.lightning = None
 		control.assemble(self.objective.x + 20, self.objective.y + 20)
+		self.tneed = 0
+		for tower in self.towers:
+			tower.fullycharge()
 
 

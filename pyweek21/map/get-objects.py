@@ -9,6 +9,7 @@ data = {
 	"s": [],  # objective S
 	"dec": [],  # decorations
 	"smoke": [],
+	"xmit": [],  # objective X transmitters
 }
 
 
@@ -68,6 +69,8 @@ for x in range(mx):
 			data["s"].append((px, py))
 		if color == (255, 255, 255):
 			data["x"] = px, py
+		if color == (240, 240, 240):
+			data["xmit"].append((px, py))
 
 
 elevation = open("data/elevation.data", "rb").read()
@@ -77,6 +80,7 @@ ndec = 400
 objs = set()
 objs |= set((x, y) for x, y in data["you"].values())
 objs |= set(tuple(p) for a in "pqrs" for p in data[a])
+objs |= set(tuple(p) for p in data["xmit"])
 objs |= set([data["x"]])
 objs |= set((x, y) for x, y, _, _ in data["b"])
 while len(data["dec"]) < ndec:

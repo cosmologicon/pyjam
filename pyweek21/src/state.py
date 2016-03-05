@@ -17,6 +17,7 @@ class State(object):
 		self.decorations = []
 		self.dblocks = defaultdict(list)
 		self.bank = 0
+		self.final = False
 
 	def assemble(self, x, y):
 		team = sorted(self.team, key = lambda ship: (ship.x - x) ** 2 + (ship.y - y) ** 2)
@@ -126,6 +127,8 @@ class State(object):
 state = State()
 
 def save():
+	if state.final:
+		return
 	pickle.dump(state.get(), open(settings.savename, "wb"))
 
 def load():

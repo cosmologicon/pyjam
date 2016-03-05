@@ -5,13 +5,11 @@ from .util import F
 def onpush():
 	global t
 	t = 0
-	sound.play("bomb", 1)
+	sound.play("bomb")
 
 def think(dt, estate):
 	global t
 	t += dt
-#	if not pygame.mixer.Channel(1).get_busy():
-#		scene.swap(bombscene)
 	if t > 10:
 		scene.swap(playscene)
 

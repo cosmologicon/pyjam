@@ -48,6 +48,8 @@ def maybeplay(dname, tsince = 1):
 	if tquiet > tsince:
 		play(dname)
 
+names = "Mel Scamp Ignatius Ruby Hallan Pax".split()
+
 def think(dt):
 	global tquiet, currentline
 	channel = pygame.mixer.Channel(0)
@@ -60,6 +62,22 @@ def think(dt):
 				played.add(line)
 				currentline = None
 			else:
+				from . import state
+				if who.startswith("if"):  # only play if a certain character is unlocked
+					if any(ship.letter == who[2] for ship in state.state.team):
+						who = who[4:]
+						currentline = fname, who, line
+					else:
+						currentline = None
+						return
+				elif who.startswith("nf"):  # only play if a certain character is not unlocked
+					if not any(ship.letter == who[2] for ship in state.state.team):
+						who = who[4:]
+						currentline = fname, who, line
+					else:
+						currentline = None
+						return
+
 				if os.path.exists(fname):
 					sound = pygame.mixer.Sound(fname)
 				else:
@@ -70,10 +88,18 @@ def think(dt):
 			currentline = None
 			tquiet += dt
 
+def clear():
+	global currentline
+	while playqueue:
+		fname, who, line = playqueue.pop(0)
+		if fname == "end":
+			played.add(line)
+			currentline = None
+
 def draw():
 	if currentline:
 		_, who, line = currentline
-		n = "Mel Scamp Ignatius Ruby Hallan Pax".split().index(who[:-1])
+		n = names.index(who[:-1])
 		letter = "ABCDEF"[n]
 		image.draw("avatar-%s" % letter, F(100, 420), size = F(100))
 		ptext.draw(who[:-1].upper(), midleft = F(50, 370), fontsize = F(26), color = "yellow", owidth = 2)

@@ -14,7 +14,7 @@ def think(dt, estate):
 	if dx or dy:
 		window.target = None
 	window.scoot(dx, dy)
-	if estate["map"]:
+	if estate["map"] and not state.state.final:
 		scene.push(mapscene)
 
 #	dialogue.playonce("test1")
@@ -42,7 +42,7 @@ def think(dt, estate):
 			pygame.mouse.set_cursor(*pygame.cursors.arrow)
 		else:
 			pygame.mouse.set_cursor(*pygame.cursors.broken_x)
-	if "act3" in quest.quests and quest.quests["act3"].progress >= 2:
+	if state.state.final:
 		sound.playmusic(1, 1)
 	else:
 		sound.playmusic(0, 1)
@@ -55,7 +55,8 @@ def draw():
 	dialogue.draw()
 	control.drawselection()
 
-	background.drawminimap()
+	if not state.state.final:
+		background.drawminimap()
 
 	avatarrects = [pygame.Rect(F(4 + 64 * j, 4, 60, 60)) for j in range(len(state.state.team))]
 	up1rects = [pygame.Rect(F(4 + 64 * j, 68, 28, 28)) for j in range(len(state.state.team))]

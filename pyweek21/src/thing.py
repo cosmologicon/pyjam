@@ -89,8 +89,10 @@ class DrawShip(Component):
 		image.draw(imgname, pos, scale = self.scale)
 		if settings.DEBUG:
 			pygame.draw.rect(window.screen, (255, 127, 0), self.selectrect(), F(1))
+	def centerdz(self):
+		return 4 if self.letter == "B" else 2 if self.letter in "AF" else 0
 	def selectrect(self):
-		dz = 4 if self.letter == "B" else 2 if self.letter in "AF" else 0
+		dz = self.centerdz()
 		rect = pygame.Rect(F(0, 0, settings.sbox, settings.sbox))
 		rect.center = self.screenpos(dz)
 		return rect
@@ -128,7 +130,7 @@ class Upgradable(Component):
 		self.level1 += 1
 	def up2(self):
 		self.level2 += 1
-		for k, v in self.chargerates:
+		for k, v in self.chargerates.items():
 			if v:
 				self.chargerates[k] += 1
 	def getspeed(self):
@@ -317,6 +319,9 @@ class TracksProximity(Component):
 	def onexit(self, ship):
 		self.chime(len(self.visitors) - 1)
 	def chime(self, nprox):
+		from . import state
+		if state.state.final:
+			return
 		sound.play("proxchime-%d" % nprox)
 
 class ApproachesTarget(Component):
@@ -408,6 +413,8 @@ class DrawChargeEffect(Component):
 class DrawBallLightning(Component):
 	def init(self, obj):
 		self.arcs = []
+		self.lines = []
+		self.charged = False
 	def think(self, dt):
 		self.arcs = [arc for arc in self.arcs if 0.06 * random.random() > dt]
 		colors = [(255, 255, 0), (200, 200, 200), (255, 127, 127)]
@@ -425,7 +432,14 @@ class DrawBallLightning(Component):
 			dy1 = F(r * math.cos(theta))
 			arc[4:6] = dx1, dy1
 			x, y = self.screenpos()
-			pygame.draw.line(window.screen, color, (x + dx0, y + dy0), (x + dx1, y + dy1), F(1))
+			thick = 1
+			if self.charged:
+				dx0 *= 10
+				dy0 *= 10
+				dx1 *= 10
+				dy1 *= 10
+				thick *= 2
+			pygame.draw.line(window.screen, color, (x + dx0, y + dy0), (x + dx1, y + dy1), F(thick))
 
 class DrawShakyConnection(Component):
 	def __init__(self, thick = 1):
@@ -593,14 +607,19 @@ class ObjectiveX(Thing):
 		if not self.revealed():
 			return
 		nprox = min(max(len(self.visitors), 0), 5)
+		from . import state
+		if state.state.final:
+			nprox = 5
 		imgname = "data/objx%d.png" % nprox
 		image.draw(imgname, self.screenpos(), scale = 20)
 	def getcolor(self):
 		return 255, 255, 255
+	def centerdz(self):
+		return 14
 
-@HasPad(12)
+@HasPad(30)
 @Discharges()
-@Rechargeable({None: 1, 0: 20, 1: 20, 2: 20})
+@Rechargeable({None: 1, 0: 45, 1: 45, 2: 45})
 class ObjectiveXTower(Thing):
 	brange = 50
 	mapr = None
@@ -614,6 +633,20 @@ class ObjectiveXTower(Thing):
 	def getcolor(self):
 		return None
 
+@HasPad(30)
+class ObjectiveXTransmit(Thing):
+	brange = 50
+	mapr = None
+	def init(self, obj):
+		self.active = False
+	def draw(self):
+		rot = 14 if not self.active else int(self.t * 20 % 18)
+		imgname = "data/xmit-%04d.png" % rot
+		image.draw(imgname, self.screenpos(), scale = 24)
+	def getcolor(self):
+		return None
+	def centerdz(self):
+		return 10
 
 # Effects
 
@@ -638,7 +671,7 @@ class BallLightning(Thing):
 class NeedConnector(Thing):
 	pass
 
-@Lifetime(1.7)
+@Lifetime(0.7)
 @DrawEllipses(r = 30, width = 3)
 @NeedColored()
 class NeedIndicator(Thing):

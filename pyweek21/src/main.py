@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, os
-from . import settings, window, ptext, background, quest, control, state
+from . import settings, window, ptext, background, quest, control, state, dialogue
 from . import scene, playscene, crawlscene
 from .util import F
 
@@ -54,8 +54,12 @@ def handleevents():
 				jumptos()
 			if settings.DEBUG and event.key == pygame.K_F5:
 				jumptox()
-			if settings.DEBUG and event.key == pygame.K_F6:  # Objective X second form
-				quest.quests["act3"].tstep = 1000
+			if settings.DEBUG and event.key == pygame.K_F6:
+				jumptox2()
+			if settings.DEBUG and event.key == pygame.K_F7:
+				state.state.bank += 100
+			if settings.DEBUG and event.key == pygame.K_F8:
+				dialogue.clear()
 			if settings.DEBUG and event.key == pygame.K_F10:
 				state.save()
 			for kname, keys in settings.keys.items():
@@ -75,6 +79,12 @@ def jumptox():
 	obj = quest.quests["act3"].objective
 	x, y = obj.x, obj.y
 	control.assemble(x + 25, y + 25)
+
+def jumptox2():
+	quest.quests["act3"].progress = 6
+	quest.quests["act3"].startpart1()
+#	quest.quests["act3"].playpart1(0)
+	quest.quests["act3"].startpart2()
 
 def unlockcoreteam():
 	for ship in state.state.ships:
