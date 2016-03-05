@@ -114,6 +114,9 @@ class IntroQuest(Quest):
 		x, y = gamedata.data["you"]["c"]
 		self.shipc = thing.ShipC(pos = [x, y, settings.shipheight])
 		state.state.ships.append(self.shipc)
+		for x, y in gamedata.data["dec"]:
+			state.state.adddecoration(thing.Decoration(pos = [x, y, 0]))
+
 	def think(self, dt):
 		Quest.think(self, dt)
 		if self.progress == 0 and self.tstep > 1:

@@ -55,6 +55,21 @@ class DrawImage(Component):
 		imgname = "data/%s.png" % (self.imgname,)
 		image.draw(imgname, self.screenpos(), scale = self.scale)
 
+class DrawDecoration(Component):
+	def init(self, obj):
+		self.n = random.choice(range(14))
+		self.imgname = "data/debris%d.png" % self.n
+		self.scale = 14
+		self.phi0 = random.uniform(0, 1000)
+	def draw(self):
+		if not self.revealed():
+			return
+		scale = self.scale
+#		if self.n in (2,3,8,9):
+#			scale *= 1 + 0.1 * math.sin(self.phi0 + pygame.time.get_ticks() * 0.001)
+#			scale = round(scale, 1)
+		image.draw(self.imgname, self.screenpos(), scale = scale)
+
 class DrawShip(Component):
 	def __init__(self, imgname, scale = 10):
 		self.imgname = imgname
@@ -595,8 +610,8 @@ class Smoke(Thing):
 
 # Decorations
 
-@DrawName()
-class Tree(Thing):
+@DrawDecoration()
+class Decoration(Thing):
 	pass
 
 

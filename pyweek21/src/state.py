@@ -63,7 +63,7 @@ class State(object):
 
 
 	def adddecoration(self, decoration):
-		drange = 50
+		drange = 100
 		bx0 = int(math.floor((decoration.x - drange) / settings.blocksize))
 		by0 = int(math.floor((decoration.y - drange) / settings.blocksize))
 		bx1 = int(math.ceil((decoration.x + drange) / settings.blocksize)) + 1

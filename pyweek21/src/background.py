@@ -58,7 +58,9 @@ def gettile(ntile):
 	return surf
 
 land = {}
+landsize = 0
 def getland(ntile):
+	global landsize
 	key = ntile, util.f, window.Z
 	if key in land:
 		return land[key]
@@ -72,6 +74,11 @@ def getland(ntile):
 	surf = pygame.Surface((w, h)).convert()
 	surf.blit(surf0, ((w - w0) // 2, (h - h0) // 2))
 	land[key] = surf
+	landsize += 4 * surf.get_width() * surf.get_height()
+	if landsize > 100 << 20:  # 100 MB
+		landsize = 0
+		debug("reducing land usage")
+		land.clear()
 	debug("background land size:", len(land))
 	return surf
 
@@ -279,5 +286,8 @@ def drawmap():
 	window.screen.blit(worldmaps[size], (0, 0))
 	ptext.draw("World\nMap", topleft = F(10, 10), color = "yellow", owidth = 1.5, ocolor = "#442200",
 		fontsize = F(48))
-
+	for obj in state.state.decorations:
+		px = int((obj.x + 1024) / 2048 * window.sx)
+		py = int((-obj.y + 1024) / 2048 * window.sy)
+		pygame.draw.circle(window.screen, (255, 255, 255), (px, py), 4, 0)
 

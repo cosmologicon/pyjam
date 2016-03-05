@@ -1,13 +1,15 @@
-import pygame
+import pygame, random
 
 data = {
 	"b": [],
 	"you": {},
 	"p": [],  # objective P
-	"q": [],  # objective P
-	"r": [],  # objective P
-	"s": [],  # objective P
+	"q": [],  # objective Q
+	"r": [],  # objective R
+	"s": [],  # objective S
+	"dec": [],  # decorations
 }
+
 
 pygame.display.set_mode((100, 100))
 objmap = pygame.image.load("map-objects.png")
@@ -66,6 +68,29 @@ for x in range(mx):
 		if color == (255, 255, 255):
 			data["x"] = px, py
 
+
+elevation = open("data/elevation.data", "rb").read()
+
+ndec = 400
+objs = set()
+objs |= set((x, y) for x, y in data["you"].values())
+objs |= set(tuple(p) for a in "pqrs" for p in data[a])
+objs |= set([data["x"]])
+objs |= set((x, y) for x, y, _, _ in data["b"])
+while len(data["dec"]) < ndec:
+	x, y = random.randint(0, 2047), random.randint(0, 2047)
+	c = ord(elevation[y + x * 2048])
+	if c < 10:
+		continue
+	x -= 1024
+	y = 1024 - y
+	if any((obj[0] - x) ** 2 + (obj[1] - y) ** 2 < 30 ** 2 for obj in objs):
+		continue
+	if any((data["x"][0] - x) ** 2 + (data["x"][1] - y) ** 2 < 100 ** 2 for obj in objs):
+		continue
+	data["dec"].append((x, y))
+	objs.add((x, y))
+
 import json
 json.dump(data, open("../data/gamedata.json", "w"))
-			
+
