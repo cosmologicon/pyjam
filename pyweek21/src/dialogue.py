@@ -2,6 +2,8 @@ import pygame, numpy, random, math, os
 from . import settings, image, ptext
 from .util import F
 
+# Channel 0 reserved for dialogue
+
 pygame.mixer.pre_init(settings.mixerfreq, -16, 2, settings.mixerbuffer)
 
 convos = {}

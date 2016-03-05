@@ -1,6 +1,7 @@
 from __future__ import division
 import pygame, os
-from . import settings, window, ptext, scene, playscene, background, quest, control, state
+from . import settings, window, ptext, background, quest, control, state
+from . import scene, playscene, crawlscene
 from .util import F
 
 window.init()
@@ -12,7 +13,12 @@ if settings.restart:
 	state.deletesave()
 if os.path.exists(settings.savename):
 	state.load()
-scene.push(playscene)
+	scene.push(playscene)
+else:
+	if settings.DEBUG:
+		scene.push(playscene)
+	else:
+		scene.push(crawlscene)
 clock = pygame.time.Clock()
 playing = True
 
