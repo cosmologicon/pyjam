@@ -1,4 +1,4 @@
-import pygame, numpy, random, math
+import pygame, numpy, random, math, os
 from . import settings, image, ptext
 from .util import F
 
@@ -9,9 +9,11 @@ for line in open("data/dialogue.txt"):
 	line = line.strip()
 	if line.endswith(":"):
 		currentconvo = convos[line.rstrip(":")] = []
+		convoname = line[:-1]
 	elif line:
 		words = line.split()
-		currentconvo.append((words[0], " ".join(words[1:])))
+		name = "data/dialogue/%s-%d.wav" % (convoname, 1 + len(currentconvo))
+		currentconvo.append((name, words[0], " ".join(words[1:])))
 
 
 def fakeline(line):
@@ -30,7 +32,7 @@ def play(dname):
 	global tquiet
 	tquiet = 0
 	playqueue.extend(convos[dname])
-	playqueue.append(("end", dname))
+	playqueue.append(("end", None, dname))
 
 def playonce(dname):
 	if dname in played:
@@ -51,12 +53,16 @@ def think(dt):
 		tquiet = 0
 	else:
 		if playqueue:
-			who, line = currentline = playqueue.pop(0)
-			if who == "end":
+			fname, who, line = currentline = playqueue.pop(0)
+			if fname == "end":
 				played.add(line)
 				currentline = None
 			else:
-				sound = fakeline(line)
+				print fname, os.path.exists(fname)
+				if os.path.exists(fname):
+					sound = pygame.mixer.Sound(fname)
+				else:
+					sound = fakeline(line)
 				channel.play(sound)
 		else:
 			currentline = None
@@ -64,7 +70,7 @@ def think(dt):
 
 def draw():
 	if currentline:
-		who, line = currentline
+		_, who, line = currentline
 		n = "Mel Scamp Ignatius Ruby Hallan Pax".split().index(who[:-1])
 		letter = "ABCDEF"[n]
 		image.draw("avatar-%s" % letter, F(100, 420), size = F(100))
