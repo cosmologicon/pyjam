@@ -25,11 +25,11 @@ def drawyouinfo(letter):
 		"F": "Nicholas Pax",
 	}[letter]
 	byline = {
-		"A": "Has their own ship. Pretty cool, huh?",
+		"A": "Has their own ship. Pretty cool, huh?\nSpecial ability: fast charging",
 		"B": "Has their own ship. Pretty cool, huh?",
 		"C": "Has their own ship. Pretty cool, huh?",
 		"D": "Has their own ship. Pretty cool, huh?",
-		"E": "Has their own ship. Pretty cool, huh?",
+		"E": "Has their own ship. Pretty cool, huh?\nSpecial ability: fly over water",
 		"F": "Has their own ship. Pretty cool, huh?",
 	}[letter]
 	ptext.draw(name, topleft = F(28, 110), width = F(400), color = "#AAAAAA", owidth = 1.3,

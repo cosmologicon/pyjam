@@ -87,6 +87,13 @@ class DrawShip(Component):
 			image.draw(imgname, pos, scale = self.scale)
 		imgname = "data/ships/%s-%04d.png" % (self.imgname, frame)
 		image.draw(imgname, pos, scale = self.scale)
+		if settings.DEBUG:
+			pygame.draw.rect(window.screen, (255, 127, 0), self.selectrect(), F(1))
+	def selectrect(self):
+		dz = 4 if self.letter == "B" else 2 if self.letter in "AF" else 0
+		rect = pygame.Rect(F(0, 0, settings.sbox, settings.sbox))
+		rect.center = self.screenpos(dz)
+		return rect
 	def drawshadow(self):
 		pos = window.worldtoscreen(self.x, self.y, 0)
 		image.draw("data/shadow.png", pos, scale = 6)

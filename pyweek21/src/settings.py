@@ -13,12 +13,19 @@ keys = {
 	"quit": [K_ESCAPE],
 	"cycle": [K_TAB],
 	"snap": [K_SPACE],
+	"kmulti": [K_LSHIFT, K_LCTRL],
 	"map": [K_m],
 	"kleft": [K_a, K_LEFT],
 	"kright": [K_d, K_e, K_RIGHT],
 	"kup": [K_w, K_COMMA, K_UP],
 	"kdown": [K_s, K_o, K_DOWN],
 	"assemble": [K_BACKSPACE],
+}
+volumes = {
+	"ack": 0.5,
+	"music": 0.5,
+	"dialogue": 1,
+
 }
 ncolors = [
 	Color("yellow"),
@@ -30,6 +37,9 @@ shipheight = 1
 shipspacing = 12
 buildingspacing = 14
 restart = "--restart" in sys.argv  # delete existing saved game on startup
+dialogueext = "wav"
+sbox = 50  # selection box size
+
 
 
 resolution0 = 480  # do not change - logical (not actual) resolution of screen

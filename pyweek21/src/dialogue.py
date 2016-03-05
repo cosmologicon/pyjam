@@ -14,7 +14,7 @@ for line in open("data/dialogue.txt"):
 		convoname = line[:-1]
 	elif line:
 		words = line.split()
-		name = "data/dialogue/%s-%d.wav" % (convoname, 1 + len(currentconvo))
+		name = "data/dialogue/%s-%d.%s" % (convoname, 1 + len(currentconvo), settings.dialogueext)
 		currentconvo.append((name, words[0], " ".join(words[1:])))
 
 
@@ -65,6 +65,7 @@ def think(dt):
 					sound = pygame.mixer.Sound(fname)
 				else:
 					sound = fakeline(line)
+				sound.set_volume(settings.volumes["dialogue"])
 				channel.play(sound)
 		else:
 			currentline = None
