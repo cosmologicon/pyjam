@@ -1,5 +1,5 @@
 import pygame, numpy, random, math, os
-from . import settings, image, ptext
+from . import settings, image, ptext, window
 from .util import F
 
 # Channel 0 reserved for dialogue
@@ -101,7 +101,10 @@ def draw():
 		_, who, line = currentline
 		n = names.index(who[:-1])
 		letter = "ABCDEF"[n]
-		image.draw("avatar-%s" % letter, F(100, 420), size = F(100))
+		rect = pygame.Rect(F(0, 0, 100, 100))
+		rect.center = F(100, 420)
+		window.screen.fill((0, 0, 0), rect)
+		image.draw("avatar-%s" % letter, F(100, 420), size = F(92))
 		ptext.draw(who[:-1].upper(), midleft = F(50, 370), fontsize = F(26), color = "yellow",
 			fontname = "Oswald", owidth = 2)
 		fontname = "PassionOne Salsa FrancoisOne Boogaloo SansitaOne Anton".split()[n]

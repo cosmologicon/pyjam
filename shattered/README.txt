@@ -1,5 +1,5 @@
-Game Title
-==========
+Shattered World
+===============
 
 Entry in PyWeek 21  <http://www.pyweek.org/21/>
 URL: https://www.pyweek.org/e/unifac21/

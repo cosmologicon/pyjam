@@ -13,7 +13,7 @@ def draw():
 			fontsize = F(32))
 	if state.state.bank:
 		ptext.draw("upgradons: %d" % state.state.bank, topright = F(844, 10), color = "white", shadow = (1, 1),
-			fontsize = F(28), fontname = "Oswald")
+			gcolor = "gray", fontsize = F(28), fontname = "Oswald")
 
 def drawyouinfo(letter):
 	name = {
@@ -33,9 +33,9 @@ def drawyouinfo(letter):
 		"F": "The anteater with an attitude.",
 	}[letter]
 	ptext.draw(name, topleft = F(28, 110), width = F(400), color = "#CCCCCC", shadow = (1, 1),
-		fontsize = F(26), fontname = "Righteous")
+		fontsize = F(26), fontname = "Righteous", gcolor = "#999999")
 	ptext.draw(byline, topleft = F(28, 144), width = F(400), color = "#FFAAAA", shadow = (1, 1),
-		fontsize = F(26), fontname = "Righteous")
+		fontsize = F(26), fontname = "Righteous", gcolor = "#FF7777")
 
 def drawup1info(letter, cost, canbuy):
 	name = {

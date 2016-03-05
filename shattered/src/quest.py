@@ -78,14 +78,14 @@ class CreditsQuest(Quest):
 			return
 		if self.progress in (1, 2):
 			ptext.draw(settings.gamename.upper(), fontsize = F(70), fontname = "Oswald", alpha = alpha, 
-				midright = F(840, 240), shadow = (1, 1))
+				midright = F(840, 240), shadow = (1, 1), gcolor = "#FFFFAA")
 		if 3 <= self.progress < 19:
 			category, names = self.credits[(self.progress - 3) // 2]
 			ptext.draw(category, fontsize = F(28), alpha = alpha, 
-				color = "white", fontname = "Righteous",
+				color = "white", gcolor = "#888888", fontname = "Righteous",
 				bottomright = F(840, 210), shadow = (1, 1))
 			ptext.draw(names, fontsize = F(28), alpha = alpha,
-				color = "yellow", fontname = "Righteous",
+				color = "#FFFF00", gcolor = "#AAAA00", fontname = "Righteous",
 				topright = F(840, 210), shadow = (1, 1))
 
 class ControlsQuest(Quest):

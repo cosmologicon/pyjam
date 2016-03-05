@@ -63,13 +63,15 @@ def draw():
 	up2rects = [pygame.Rect(F(34 + 64 * j, 68, 28, 28)) for j in range(len(state.state.team))]
 
 	for rect, up1r, up2r, ship in zip(avatarrects, up1rects, up2rects, state.state.team):
-		image.draw("avatar-" + ship.letter, rect.center, size = rect.width)
 		canup1 = ship.up1cost() <= state.state.bank
 		canup2 = ship.up2cost() <= state.state.bank
 		image.draw(("data/upgrade.png" if canup1 else "data/upgrade-no.png"), up1r.center, size = up1r.width)
 		image.draw(("data/upgrade.png" if canup2 else "data/upgrade-no.png"), up2r.center, size = up2r.width)
 		if control.isselected(ship):
-			pygame.draw.rect(window.screen, (255, 0, 255), rect, F(3))
+			window.screen.fill((255, 0, 255), rect)
+		else:
+			window.screen.fill((0, 0, 0), rect)
+		image.draw("avatar-" + ship.letter, rect.center, size = rect.width - F(6))
 		for k, charge in enumerate(sorted(ship.chargerates)):
 			x, y = rect.center
 			x += F((len(ship.chargerates) / 2 - k - 1 / 2) * 14)
