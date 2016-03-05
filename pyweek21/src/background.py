@@ -263,12 +263,12 @@ def drawminimap():
 	surf.blit(minishades[key], (0, 0))
 	objs = []
 	for ship in state.state.team:
-		color = (255, 0, 255) if control.isselected(ship) else (200, 200, 200)
+		color = (255, 0, 255) if control.isselected(ship) and pygame.time.get_ticks() * 0.001 % 1 > 0.3 else (200, 200, 200)
 		objs.append([ship.x, ship.y, 3, color])
 	for building in state.state.buildings:
-		if building.revealed():
+		if building.revealed() and building.mapr is not None and building.getcolor() is not None:
 			color = (255, 255, 0)
-			objs.append([building.x, building.y, 2, color])
+			objs.append([building.x, building.y, building.mapr, building.getcolor()])
 	for x, y, r, color in objs:
 		px = surf.get_width() // 2 + F((x - window.x0) * K)
 		py = surf.get_height() // 2 - F((y - window.y0) * K)

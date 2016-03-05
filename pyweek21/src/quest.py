@@ -96,13 +96,13 @@ class ControlsQuest(Quest):
 			self.advance()
 		if self.progress == 1:
 			hud.show("Select: left-click\nGo: right-click or Enter")
-			if self.tstep > 5:
+			if self.tstep > 8:
 				self.advance()
 		if self.progress == 2 and dialogue.tquiet > 4 and self.tstep > 1:
 			self.advance()
 		if self.progress == 3:
 			hud.show("Pan: arrows or WASD\nHold space: follow ship")
-			if self.tstep > 5:
+			if self.tstep > 8:
 				self.advance()
 		if self.progress == 4 and dialogue.tquiet > 4 and len(state.state.team) > 1:
 			self.advance()
@@ -110,7 +110,10 @@ class ControlsQuest(Quest):
 			hud.show("Select multiple: Left drag\nAdd to selection: Ctrl+click or Shift+click\nCycle selection: Tab")
 			if self.tstep > 8:
 				self.advance()
-
+		if self.progress == 6:
+			hud.show("Select all: double click\nCycle selection: Tab")
+			if self.tstep > 8:
+				self.advance()
 
 class IntroQuest(Quest):
 	goal = 5

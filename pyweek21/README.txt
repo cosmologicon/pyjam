@@ -35,6 +35,7 @@ Controls
 * Right click or Enter to send ships to cursor
 
 * Arrow keys or WASD to move the camera
+* Middle drag to move the camera
 * Space to pan the camera to the current ship
 * Hold space to follow current ship
 

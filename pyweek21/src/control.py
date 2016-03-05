@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import state, window, state, sound, background, settings, dialogue
+from . import state, window, state, sound, background, settings, dialogue, util
 from .util import F
 
 cursor = []
@@ -7,9 +7,11 @@ selection = None
 assembling = False
 tclick = 0
 dragged = False
+lastclick = None
+mdrag = None
 
 def think(dt, estate):
-	global cursor, selection, assembling, tclick, dragged, oldcursor
+	global cursor, selection, assembling, tclick, dragged, oldcursor, lastclick, mdrag
 	if estate["ldown"]:
 		selection = pygame.Rect(estate["mpos"], (0, 0))
 		tclick = 0
@@ -50,7 +52,12 @@ def think(dt, estate):
 				clickedhud = True
 			for r, u1, u2, ship in zip(avatarrects, up1rects, up2rects, state.state.team):
 				if r.collidepoint(estate["mpos"]):
-					newcursor = [ship]
+					t = pygame.time.get_ticks() * 0.001
+					if lastclick is not None and t - lastclick < settings.doubleclicktime:
+						newcursor = list(state.state.team)
+					else:
+						newcursor = [ship]
+					lastclick = t
 					clicked = True
 					clickedhud = True
 				if u1.collidepoint(estate["mpos"]):
@@ -74,8 +81,13 @@ def think(dt, estate):
 			if not clicked:
 				clicks = [ship for ship in state.state.team if ship.selectrect().collidepoint(estate["mpos"])]
 				if clicks:
-					ship = min(clicks, key = lambda ship: ship.y)
-					newcursor = [ship]
+					t = pygame.time.get_ticks() * 0.001
+					if lastclick is not None and t - lastclick < settings.doubleclicktime:
+						newcursor = list(state.state.team)
+					else:
+						ship = min(clicks, key = lambda ship: ship.y)
+						newcursor = [ship]
+					lastclick = t
 					clicked = True
 			# click on the HUD but didn't select a new character
 			if clickedhud and not newcursor:
@@ -126,6 +138,15 @@ def think(dt, estate):
 #	if estate["rdown"]:
 #		x, y = window.screentoworld(*estate["mpos"])
 #		window.targetpos(x, y)
+	if estate["mdown"]:
+		mdrag = estate["mpos"]
+	if mdrag is not None:
+		dx = estate["mpos"][0] - mdrag[0]
+		dy = estate["mpos"][1] - mdrag[1]
+		mdrag = estate["mpos"]
+		window.scoot(-dx / (window.Z * util.f), dy / (window.Z * util.f * window.fy))
+	if estate["mup"]:
+		mdrag = None
 	if estate["cycle"]:
 		ship = nextcursor()
 		selectack(ship.letter)

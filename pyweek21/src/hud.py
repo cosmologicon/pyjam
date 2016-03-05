@@ -18,19 +18,19 @@ def draw():
 def drawyouinfo(letter):
 	name = {
 		"A": "Mel Bovus",
-		"B": "Martina Scamp",
+		"B": "Renee Scamp",
 		"C": "Ignatius Pturner",
-		"D": "Ruby Jade",
+		"D": "Ruby Jewell",
 		"E": "Hallan Waterby",
 		"F": "Nicholas Pax",
 	}[letter]
 	byline = {
-		"A": "Has their own ship. Pretty cool, huh?\nSpecial ability: fast charging",
-		"B": "Has their own ship. Pretty cool, huh?",
-		"C": "Has their own ship. Pretty cool, huh?",
-		"D": "Has their own ship. Pretty cool, huh?",
-		"E": "Has their own ship. Pretty cool, huh?\nSpecial ability: fly over water",
-		"F": "Has their own ship. Pretty cool, huh?",
+		"A": "Postapocalyptic cowboy.\nSpecial ability: fast charging",
+		"B": "Rebel with a cause. Also paws.",
+		"C": "Indubitable!",
+		"D": "The Road Worrier.\nSpecial ability: while Ruby is selected, all ships have a speed boost",
+		"E": "Thankful for all the fish.\nSpecial ability: can fly over water",
+		"F": "The anteater with an attitude.",
 	}[letter]
 	ptext.draw(name, topleft = F(28, 110), width = F(400), color = "#AAAAAA", owidth = 1.3,
 		fontsize = F(26), fontname = "Righteous")

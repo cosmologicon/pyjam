@@ -134,7 +134,10 @@ class Upgradable(Component):
 			if v:
 				self.chargerates[k] += 1
 	def getspeed(self):
-		return self.speed + 4 * self.level1
+		speed = self.speed + 4 * self.level1
+		if any(ship.letter == "D" for ship in control.cursor):
+			speed += 10
+		return speed
 
 # A pad is a circular region around a building. Ships entering the pad can interact with the building.
 class HasPad(Component):
@@ -415,22 +418,28 @@ class DrawBallLightning(Component):
 		self.arcs = []
 		self.lines = []
 		self.charged = False
+		self.extrat = 0
 	def think(self, dt):
-		self.arcs = [arc for arc in self.arcs if 0.06 * random.random() > dt]
+		self.extrat += dt
 		colors = [(255, 255, 0), (200, 200, 200), (255, 127, 127)]
-		while len(self.arcs) < 200:
-			color = random.choice(colors)
-			dr = random.uniform(200, 500)
-			self.arcs.append([color, self.t, dr, random.uniform(0, 1000), 0, 0])
-		for arc in self.arcs:
-			arc[3] += random.uniform(-20, 20) * dt
+		self.lines = []
+		while self.extrat > 0.01:
+			self.extrat -= 0.01
+			self.arcs = [arc for arc in self.arcs if 0.06 * random.random() > 0.01]
+			while len(self.arcs) < 60:
+				color = random.choice(colors)
+				dr = random.uniform(200, 500)
+				self.arcs.append([color, self.t, dr, random.uniform(0, 1000), 0, 0])
+			for arc in self.arcs:
+				color, t0, dr, theta, dx0, dy0 = arc
+				theta += random.uniform(-20, 20) * 0.01
+				r = dr * (self.t - t0)
+				dx1 = F(r * math.sin(theta))
+				dy1 = F(r * math.cos(theta))
+				arc[:] = color, t0, dr, theta, dx1, dy1
+				self.lines.append([color, dx0, dy0, dx1, dy1])
 	def draw(self):
-		for arc in self.arcs:
-			color, t0, dr, theta, dx0, dy0 = arc
-			r = dr * (self.t - t0)
-			dx1 = F(r * math.sin(theta))
-			dy1 = F(r * math.cos(theta))
-			arc[4:6] = dx1, dy1
+		for color, dx0, dy0, dx1, dy1 in self.lines:
 			x, y = self.screenpos()
 			thick = 1
 			if self.charged:
@@ -439,7 +448,7 @@ class DrawBallLightning(Component):
 				dx1 *= 10
 				dy1 *= 10
 				thick *= 2
-			pygame.draw.line(window.screen, color, (x + dx0, y + dy0), (x + dx1, y + dy1), F(thick))
+			pygame.draw.line(window.screen, color, (x + F(dx0), y + F(dy0)), (x + F(dx1), y + F(dy1)), F(thick))
 
 class DrawShakyConnection(Component):
 	def __init__(self, thick = 1):

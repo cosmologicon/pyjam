@@ -64,8 +64,10 @@ def draw():
 
 	for rect, up1r, up2r, ship in zip(avatarrects, up1rects, up2rects, state.state.team):
 		image.draw("avatar-" + ship.letter, rect.center, size = rect.width)
-		image.draw("avatar-UP1", up1r.center, size = up1r.width)
-		image.draw("avatar-UP2", up2r.center, size = up2r.width)
+		canup1 = ship.up1cost() <= state.state.bank
+		canup2 = ship.up2cost() <= state.state.bank
+		image.draw(("data/upgrade.png" if canup1 else "data/upgrade-no.png"), up1r.center, size = up1r.width)
+		image.draw(("data/upgrade.png" if canup2 else "data/upgrade-no.png"), up2r.center, size = up2r.width)
 		if control.isselected(ship):
 			pygame.draw.rect(window.screen, (255, 0, 255), rect, F(3))
 		for k, charge in enumerate(sorted(ship.chargerates)):
@@ -78,9 +80,9 @@ def draw():
 		if rect.collidepoint(*pygame.mouse.get_pos()):
 			hud.drawyouinfo(ship.letter)
 		if up1r.collidepoint(*pygame.mouse.get_pos()):
-			hud.drawup1info(ship.letter, ship.up1cost(), ship.up1cost() <= state.state.bank)
+			hud.drawup1info(ship.letter, ship.up1cost(), canup1)
 		if up2r.collidepoint(*pygame.mouse.get_pos()):
-			hud.drawup2info(ship.letter, ship.up2cost(), ship.up2cost() <= state.state.bank)
+			hud.drawup2info(ship.letter, ship.up2cost(), canup2)
 	hud.draw()
 
 	if "credits" in quest.quests:

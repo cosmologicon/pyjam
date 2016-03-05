@@ -11,6 +11,7 @@ mixerfreq = 44100
 mixerbuffer = 0
 keys = {
 	"quit": [K_ESCAPE],
+	"remulate": [K_RETURN],
 	"cycle": [K_TAB],
 	"snap": [K_SPACE],
 	"kmulti": [K_LSHIFT, K_LCTRL],
@@ -43,7 +44,7 @@ dialogueext = "wav"
 musicext = "wav"
 sfxext = "wav"
 sbox = 50  # selection box size
-
+doubleclicktime = 0.4
 
 
 resolution0 = 480  # do not change - logical (not actual) resolution of screen

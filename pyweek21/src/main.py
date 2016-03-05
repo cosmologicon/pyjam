@@ -66,6 +66,11 @@ def handleevents():
 			for kname, keys in settings.keys.items():
 				if event.key in keys:
 					estate[kname] = True
+					if keys == "remulate":
+						estate["rdown"] = True
+		if event.type == pygame.KEYUP:
+			if event.key in settings.keys["remulate"]:
+				estate["rup"] = True
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			if event.button in (1,2,3):
 				estate[" lmr"[event.button] + "down"] = True
