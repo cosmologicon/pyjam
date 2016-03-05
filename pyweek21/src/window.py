@@ -15,6 +15,7 @@ def init():
 def setwindow():
 	global screen, sx, sy
 	if settings.fullscreen:
+		pygame.display.init()
 		sx, sy = max(pygame.display.list_modes())
 		if 16 * sy > 9 * sx:
 			sy = int(round(sx * 9 / 16))

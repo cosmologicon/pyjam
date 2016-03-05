@@ -211,12 +211,13 @@ class Rechargeable(Component):
 		if not self.revealed():
 			return
 		todraw = []
-		for k, v in sorted(self.needs.items()):
+		for k, v in self.needs.items():
 			if k is None or not v:
 				continue
 			todraw.append((k, v))
 		if not todraw:
 			return
+		todraw.sort()
 		x, y = self.screenpos(dz = 0)
 		x -= F((len(todraw) - 1) * 10)
 		for k, v in todraw:

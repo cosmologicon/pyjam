@@ -4,8 +4,17 @@ from pygame.locals import *
 
 maxfps = 60
 minfps = 10
-fullscreen = False
+fullscreen = "--fullscreen" in sys.argv
 resolution = 480
+for arg in sys.argv:
+	if arg.startswith("--res="):
+		resolution = int(arg[6:])
+if "--small" in sys.argv or "--360" in sys.argv:
+	resolution = 360
+if "--large" in sys.argv or "--720" in sys.argv:
+	resolution = 720
+if "--huge" in sys.argv or "--1080" in sys.argv:
+	resolution = 1080
 savename = "data/savegame.pkl"
 keys = {
 	"quit": [K_ESCAPE],

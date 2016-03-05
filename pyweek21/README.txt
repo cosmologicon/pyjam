@@ -4,7 +4,7 @@ Game Title
 Entry in PyWeek 21  <http://www.pyweek.org/21/>
 URL: https://www.pyweek.org/e/unifac21/
 Team: Universe Factory 21
-Members: Christopher Night (Cosmologicon)
+Members: Christopher Night (Cosmologicon), Mary Bichner (marybee), John Pilman (typhonic), Charles McPillan, Molly Zenobia, Randy Parcel, Monica Vargas
 License: see LICENSE.txt
 
 Requirements
@@ -39,3 +39,19 @@ Controls
 * Space to pan the camera to the current ship
 * Hold space to follow current ship
 
+* M to bring up the map
+
+* Esc to quit
+
+Command-line arguments
+----------------------
+
+    --restart : delete saved game and start over
+    --small : 640x360 resolution (default is 854x480)
+    --large : 1280x720 resoultion
+    --huge : 1920x1080 resolution
+    --lowres : don't draw a couple special effects
+    --fullscreen : start in fullscreen mode
+
+Please see settings.py for accessibility options. The keys may be specified with the `keys`
+variable, and the in-game colors may be specified with the `ncolors` variable.
