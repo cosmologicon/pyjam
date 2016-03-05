@@ -66,10 +66,12 @@ def think(dt, estate):
 	dialogue.think(dt)
 #	window.snapto(state.state.things[-1])
 	x, y = window.screentoworld(*estate["mpos"])
-	if background.revealed(x, y) and background.island(x, y):
-		pygame.mouse.set_cursor(*pygame.cursors.arrow)
-	else:
-		pygame.mouse.set_cursor(*pygame.cursors.broken_x)
+
+	if False:
+		if background.revealed(x, y) and background.island(x, y):
+			pygame.mouse.set_cursor(*pygame.cursors.arrow)
+		else:
+			pygame.mouse.set_cursor(*pygame.cursors.broken_x)
 
 def draw():
 	background.draw()

@@ -34,7 +34,8 @@ def think(dt, estate):
 	if estate["rdown"]:
 		from . import thing
 		x, y = window.screentoworld(*estate["mpos"])
-		if background.revealed(x, y) and background.island(x, y):
+#		if background.revealed(x, y) and background.island(x, y):
+		if True:
 			sound.play("go")
 			for ship in cursor:
 				ship.settarget((x, y))

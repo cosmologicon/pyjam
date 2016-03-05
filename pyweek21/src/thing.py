@@ -285,11 +285,23 @@ class ApproachesTarget(Component):
 		self.vx = f * dx / dt
 		self.vy = f * dy / dt
 		if f >= 1:
-			self.x, self.y = self.target
+			nx, ny = self.target
 			self.target = None
 		else:
-			self.x += f * dx
-			self.y += f * dy
+			nx = self.x + f * dx
+			ny = self.y + f * dy
+		if self.cango(self.x, self.y) and not self.cango(nx, ny):
+			self.target = None
+		else:
+			self.x, self.y = nx, ny
+
+class TravelsOnLand(Component):
+	def cango(self, x, y):
+		return background.revealed(x, y) and background.island(x, y)
+
+class TravelsOnLandOrWater(Component):
+	def cango(self, x, y):
+		return background.revealed(x, y)
 
 class BuildTarget(Component):
 	def __init__(self):
@@ -411,6 +423,7 @@ class Thing(object):
 		self.alive = False
 
 @ApproachesTarget(speed = 26)
+@TravelsOnLand()
 @BuildTarget()
 @FacesForward()
 @DrawShip("forky")
@@ -419,6 +432,7 @@ class ShipA(Thing):
 	letter = "A"
 
 @ApproachesTarget(speed = 40)
+@TravelsOnLand()
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori")
@@ -427,6 +441,7 @@ class ShipB(Thing):
 	letter = "B"
 
 @ApproachesTarget(speed = 28)
+@TravelsOnLand()
 @BuildTarget()
 @FacesForward()
 @DrawShip("odart")
@@ -435,6 +450,7 @@ class ShipC(Thing):
 	letter = "C"
 
 @ApproachesTarget(speed = 38)
+@TravelsOnLand()
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori")
@@ -443,6 +459,7 @@ class ShipD(Thing):
 	letter = "D"
 
 @ApproachesTarget(speed = 32)
+@TravelsOnLandOrWater()
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori")
@@ -451,6 +468,7 @@ class ShipE(Thing):
 	letter = "E"
 
 @ApproachesTarget(speed = 30)
+@TravelsOnLand()
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori")

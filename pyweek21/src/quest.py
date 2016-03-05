@@ -11,7 +11,6 @@ def init():
 	quests["objq"] = ObjectiveQQuest()
 	quests["objr"] = ObjectiveRQuest()
 	quests["objs"] = ObjectiveSQuest()
-	quests["island"] = IslandQuest()
 	quests["act3"] = Act3Quest()
 def think(dt):
 	for qname, quest in sorted(quests.items()):
@@ -35,14 +34,6 @@ class Quest(object):
 	def think(self, dt):
 		self.t += dt
 		self.tstep += dt
-
-class IslandQuest(Quest):
-	goal = 1
-	def think(self, dt):
-		Quest.think(self, dt)
-		if self.progress == 0 and len(state.state.team) >= 3:
-			background.reveal(1712 - 1024, 1024 - 1784)
-			self.advance()
 
 class CreditsQuest(Quest):
 	goal = 20
