@@ -423,20 +423,22 @@ class DrawBallLightning(Component):
 		self.extrat += dt
 		colors = [(255, 255, 0), (200, 200, 200), (255, 127, 127)]
 		self.lines = []
+		narcs = 10 if settings.lowres else 60
 		while self.extrat > 0.01:
 			self.extrat -= 0.01
 			self.arcs = [arc for arc in self.arcs if 0.06 * random.random() > 0.01]
-			while len(self.arcs) < 60:
+			while len(self.arcs) < narcs:
 				color = random.choice(colors)
 				dr = random.uniform(200, 500)
-				self.arcs.append([color, self.t, dr, random.uniform(0, 1000), 0, 0])
+				self.arcs.append([color, 0, dr, random.uniform(0, 1000), 0, 0])
 			for arc in self.arcs:
-				color, t0, dr, theta, dx0, dy0 = arc
+				color, t, dr, theta, dx0, dy0 = arc
 				theta += random.uniform(-20, 20) * 0.01
-				r = dr * (self.t - t0)
+				t += 0.01
+				r = dr * t
 				dx1 = F(r * math.sin(theta))
 				dy1 = F(r * math.cos(theta))
-				arc[:] = color, t0, dr, theta, dx1, dy1
+				arc[:] = color, t, dr, theta, dx1, dy1
 				self.lines.append([color, dx0, dy0, dx1, dy1])
 	def draw(self):
 		for color, dx0, dy0, dx1, dy1 in self.lines:
@@ -468,6 +470,8 @@ class DrawSmoke(Component):
 	def init(self, obj):
 		self.plumes = []		
 	def think(self, dt):
+		if settings.lowres:
+			return
 		self.plumes = [p for p in self.plumes if self.t - p[0] < p[1]]
 		while len(self.plumes) < 20:
 			angle = random.choice(list(range(10)))
@@ -477,6 +481,8 @@ class DrawSmoke(Component):
 			t = random.uniform(2, 6)
 			self.plumes.append((self.t, t, angle, size, dx, dy))
 	def draw(self):
+		if settings.lowres:
+			return
 		if not self.revealed():
 			return
 		for plume in self.plumes:

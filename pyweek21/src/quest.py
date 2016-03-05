@@ -362,12 +362,12 @@ class Act3Quest(Quest):
 	def draw(self):
 		if self.progress == 5:
 			ntower = sum(tower.ischarged() for tower in self.towers)
-			ptext.draw("Charge cycle: %.1f/120" % self.tstep, fontsize = F(30),
+			ptext.draw("Charge cycle: %d/120" % int(self.tstep), fontsize = F(30),
 				fontname = "Oswald",
-				color = "red", owidth = 1.5, midbottom = F(854/2 - 200, 460))
+				color = "#FFAAAA", shadow = (1, 1), midbottom = F(854/2 - 200, 460))
 			ptext.draw("Towers charged: %d/5" % ntower, fontsize = F(30),
 				fontname = "Oswald",
-				color = "yellow", owidth = 1.5, midbottom = F(854/2 + 200, 460))
+				color = "yellow", shadow = (1, 1), midbottom = F(854/2 + 200, 460))
 		if self.progress == 6:
 			for a, b in self.pairs:
 				color = random.choice([(255, 255, 0), (200, 200, 200), (255, 127, 127)])

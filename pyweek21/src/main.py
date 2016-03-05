@@ -81,7 +81,7 @@ def handleevents():
 
 def jumptox():
 	background.revealall()
-	unlockentireteam()
+#	unlockentireteam()
 	obj = quest.quests["act3"].objective
 	x, y = obj.x, obj.y
 	control.assemble(x + 25, y + 25)
