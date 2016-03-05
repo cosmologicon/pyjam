@@ -468,6 +468,8 @@ class DrawSmoke(Component):
 			t = random.uniform(2, 6)
 			self.plumes.append((self.t, t, angle, size, dx, dy))
 	def draw(self):
+		if not self.revealed():
+			return
 		for plume in self.plumes:
 			t0, t, angle, s, dx, dy = plume
 			dt = self.t - t0

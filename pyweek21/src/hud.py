@@ -13,7 +13,7 @@ def draw():
 			fontsize = F(32))
 	if state.state.bank:
 		ptext.draw("upgradons: %d" % state.state.bank, topright = F(844, 10), color = "white", owidth = 1.3,
-			fontsize = F(28))
+			fontsize = F(28), fontname = "Oswald")
 
 def drawyouinfo(letter):
 	name = {
@@ -33,9 +33,9 @@ def drawyouinfo(letter):
 		"F": "Has their own ship. Pretty cool, huh?",
 	}[letter]
 	ptext.draw(name, topleft = F(28, 110), width = F(400), color = "#AAAAAA", owidth = 1.3,
-		fontsize = F(32))
+		fontsize = F(26), fontname = "Righteous")
 	ptext.draw(byline, topleft = F(28, 144), width = F(400), color = "red", owidth = 1.3,
-		fontsize = F(32))
+		fontsize = F(26), fontname = "Righteous")
 
 def drawup1info(letter, cost, canbuy):
 	name = {
@@ -48,9 +48,9 @@ def drawup1info(letter, cost, canbuy):
 	}[letter]
 	color = "white" if canbuy else "#666666"
 	ptext.draw("Click to purchase SPEED upgrade for " + name,
-		topleft = F(28, 110), color = color, fontsize = F(32), owidth = 1)
+		topleft = F(28, 110), color = color, fontsize = F(26), fontname = "Righteous", owidth = 1)
 	ptext.draw("Cost: %d upgradons" % cost,
-		topleft = F(28, 144), color = "#AAAACC", fontsize = F(32), owidth = 1)
+		topleft = F(28, 144), color = "#AAAACC", fontsize = F(26), fontname = "Righteous", owidth = 1)
 
 def drawup2info(letter, cost, canbuy):
 	name = {
@@ -63,9 +63,9 @@ def drawup2info(letter, cost, canbuy):
 	}[letter]
 	color = "white" if canbuy else "#666666"
 	ptext.draw("Click to purchase CHARGE RATE upgrade for " + name,
-		topleft = F(28, 110), color = color, fontsize = F(32), owidth = 1)
+		topleft = F(28, 110), color = color, fontsize = F(26), fontname = "Righteous", owidth = 1)
 	ptext.draw("Cost: %d upgradons" % cost,
-		topleft = F(28, 144), color = "#AAAACC", fontsize = F(32), owidth = 1)
+		topleft = F(28, 144), color = "#AAAACC", fontsize = F(26), fontname = "Righteous", owidth = 1)
 
 
 

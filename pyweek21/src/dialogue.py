@@ -102,8 +102,11 @@ def draw():
 		n = names.index(who[:-1])
 		letter = "ABCDEF"[n]
 		image.draw("avatar-%s" % letter, F(100, 420), size = F(100))
-		ptext.draw(who[:-1].upper(), midleft = F(50, 370), fontsize = F(26), color = "yellow", owidth = 2)
-		ptext.draw(line, bottomleft = F(160, 470), fontsize = F(30), width = F(540), shadow = (1, 1))
+		ptext.draw(who[:-1].upper(), midleft = F(50, 370), fontsize = F(26), color = "yellow",
+			fontname = "Oswald", owidth = 2)
+		fontname = "PassionOne Salsa FrancoisOne Boogaloo SansitaOne Anton".split()[n]
+		ptext.draw(line, bottomleft = F(160, 470), fontsize = F(30), fontname = fontname,
+			width = F(540), shadow = (1, 1))
 
 
 

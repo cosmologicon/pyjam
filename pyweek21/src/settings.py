@@ -25,6 +25,8 @@ volumes = {
 	"ack": 0.5,
 	"music": 0.5,
 	"dialogue": 1,
+	"narrator": 1,
+	"sfx": 1,
 	"ssh": 0.5,  # music volume factor when dialogue is playing
 }
 ncolors = [

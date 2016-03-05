@@ -77,15 +77,15 @@ class CreditsQuest(Quest):
 		if alpha == 0:
 			return
 		if self.progress in (1, 2):
-			ptext.draw(settings.gamename.upper(), fontsize = F(70), alpha = alpha, 
+			ptext.draw(settings.gamename.upper(), fontsize = F(70), fontname = "Oswald", alpha = alpha, 
 				midright = F(840, 240), shadow = (1, 1))
 		if 3 <= self.progress < 19:
 			category, names = self.credits[(self.progress - 3) // 2]
-			ptext.draw(category, fontsize = F(48), alpha = alpha, 
-				color = "white",
+			ptext.draw(category, fontsize = F(28), alpha = alpha, 
+				color = "white", fontname = "Righteous",
 				bottomright = F(840, 210), shadow = (1, 1))
-			ptext.draw(names, fontsize = F(48), alpha = alpha, 
-				color = "yellow",
+			ptext.draw(names, fontsize = F(28), alpha = alpha,
+				color = "yellow", fontname = "Righteous",
 				topright = F(840, 210), shadow = (1, 1))
 
 class ControlsQuest(Quest):
@@ -113,7 +113,7 @@ class ControlsQuest(Quest):
 
 
 class IntroQuest(Quest):
-	goal = 3
+	goal = 5
 	def __init__(self):
 		Quest.__init__(self)
 		x, y = gamedata.data["you"]["a"]
@@ -157,13 +157,19 @@ class IntroQuest(Quest):
 				window.targetpos(self.shipb.x, self.shipb.y, self.shipb.z)
 				dialogue.play("MEETB")
 				self.advance()
-		if self.progress == 2:
+		if self.progress == 2 and dialogue.tquiet > 30:
+			dialogue.play("CHAT1")
+			self.advance()
+		if self.progress == 3:
 			if self.shipc not in state.state.team and self.shipc.revealed():
 				state.state.addtoteam(self.shipc)
 				background.reveal(self.shipc.x, self.shipc.y, 125)
 				window.targetpos(self.shipc.x, self.shipc.y, self.shipc.z)
 				dialogue.play("MEETC")
 				self.advance()
+		if self.progress == 4 and dialogue.tquiet > 30:
+			dialogue.play("CHAT2")
+			self.advance()
 
 class ObjectivePQuest(Quest):
 	goal = 1
@@ -182,7 +188,7 @@ class ObjectivePQuest(Quest):
 			self.advance()
 
 class ObjectiveRQuest(Quest):
-	goal = 2
+	goal = 3
 	def __init__(self):
 		Quest.__init__(self)
 		self.towers = [
@@ -203,9 +209,12 @@ class ObjectiveRQuest(Quest):
 			window.targetpos(self.ship.x, self.ship.y, self.ship.z)
 			self.advance()
 			dialogue.play("MEETD")
+		if self.progress == 2 and dialogue.tquiet > 100:
+			dialogue.play("CHATD")
+			self.advance()
 
 class ObjectiveSQuest(Quest):
-	goal = 2
+	goal = 3
 	def __init__(self):
 		Quest.__init__(self)
 		self.towers = [
@@ -228,9 +237,12 @@ class ObjectiveSQuest(Quest):
 			window.targetpos(self.ship.x, self.ship.y, self.ship.z)
 			self.advance()
 			dialogue.play("MEETF")
+		if self.progress == 2 and dialogue.tquiet > 20:
+			dialogue.play("CHATF")
+			self.advance()
 
 class ObjectiveQQuest(Quest):
-	goal = 2
+	goal = 3
 	def __init__(self):
 		Quest.__init__(self)
 		self.towers = [
@@ -269,6 +281,9 @@ class ObjectiveQQuest(Quest):
 				window.targetpos(self.ship.x, self.ship.y, self.ship.z)
 				self.advance()
 				dialogue.play("MEETE")
+		if self.progress == 2 and dialogue.tquiet > 100:
+			dialogue.play("CHATE")
+			self.advance()
 
 class Act3Quest(Quest):
 	goal = 99
@@ -299,7 +314,7 @@ class Act3Quest(Quest):
 				dialogue.play("X1")
 				self.advance()
 		elif self.progress == 1:
-			if len(state.state.team) >= 5 and dialogue.tquiet > 10:
+			if len(state.state.team) >= 5 and dialogue.tquiet > 22:
 				dialogue.play("X2")
 				self.advance()
 		elif self.progress == 2:
@@ -344,8 +359,10 @@ class Act3Quest(Quest):
 		if self.progress == 5:
 			ntower = sum(tower.ischarged() for tower in self.towers)
 			ptext.draw("Charge cycle: %.1f/120" % self.tstep, fontsize = F(30),
+				fontname = "Oswald",
 				color = "red", owidth = 1.5, midbottom = F(854/2 - 200, 460))
 			ptext.draw("Towers charged: %d/5" % ntower, fontsize = F(30),
+				fontname = "Oswald",
 				color = "yellow", owidth = 1.5, midbottom = F(854/2 + 200, 460))
 		if self.progress == 6:
 			for a, b in self.pairs:
@@ -393,7 +410,6 @@ class Act3Quest(Quest):
 			tower.fullycharge()
 		for xmit in self.xmits:
 			state.state.addbuilding(xmit)
-			print xmit.x, xmit.y
 		self.pairs = []
 		self.dx, self.dy = 0, 0
 

@@ -5,7 +5,7 @@ def onpush():
 	sound.play("mapup")
 
 def think(dt, estate):
-	if estate["map"]:
+	if estate["map"] or estate["lup"]:
 		scene.pop()
 
 def draw():

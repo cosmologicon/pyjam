@@ -4,6 +4,7 @@ from . import settings, window, ptext, background, quest, control, state, dialog
 from . import scene, playscene, crawlscene
 from .util import F
 
+ptext.FONT_NAME_TEMPLATE = "data/fonts/%s.ttf"
 window.init()
 background.init()
 quest.init()
@@ -40,7 +41,7 @@ def handleevents():
 		if event.type == pygame.QUIT:
 			estate["quit"] = True
 		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_F11:
+			if event.key in (pygame.K_F11, pygame.K_f):
 				window.togglefullscreen()
 			if event.key == pygame.K_F12:
 				window.screenshot()
