@@ -7,21 +7,21 @@ minfps = 10
 fullscreen = False
 resolution = 480
 savename = "data/savegame.pkl"
-mixerfreq = 44100
-mixerbuffer = 0
 keys = {
 	"quit": [K_ESCAPE],
-	"remulate": [K_RETURN],
-	"cycle": [K_TAB],
-	"snap": [K_SPACE],
-	"kmulti": [K_LSHIFT, K_LCTRL],
-	"map": [K_m],
+	"remulate": [K_RETURN],            # keys that emulate a right click
+	"cycle": [K_TAB],                  # cycle selection
+	"snap": [K_SPACE],                 # move camera to current selection
+	"kmulti": [K_LSHIFT, K_LCTRL],     # hold this key to select multiple when clicking
+	"map": [K_m],                      # bring up map
 	"kleft": [K_a, K_LEFT],
 	"kright": [K_d, K_e, K_RIGHT],
 	"kup": [K_w, K_COMMA, K_UP],
 	"kdown": [K_s, K_o, K_DOWN],
-	"assemble": [K_BACKSPACE],
+#	"assemble": [K_BACKSPACE],
 }
+mixerfreq = 44100
+mixerbuffer = 0
 volumes = {
 	"ack": 0.5,
 	"music": 0.5,

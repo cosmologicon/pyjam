@@ -66,7 +66,7 @@ def handleevents():
 			for kname, keys in settings.keys.items():
 				if event.key in keys:
 					estate[kname] = True
-					if keys == "remulate":
+					if kname == "remulate":
 						estate["rdown"] = True
 		if event.type == pygame.KEYUP:
 			if event.key in settings.keys["remulate"]:

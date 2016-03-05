@@ -26,7 +26,7 @@ def drawyouinfo(letter):
 	}[letter]
 	byline = {
 		"A": "Postapocalyptic cowboy.\nSpecial ability: fast charging",
-		"B": "Rebel with a cause. Also paws.",
+		"B": "Rebel with a cause. Also claws.",
 		"C": "Indubitable!",
 		"D": "The Road Worrier.\nSpecial ability: while Ruby is selected, all ships have a speed boost",
 		"E": "Thankful for all the fish.\nSpecial ability: can fly over water",

@@ -18,7 +18,7 @@ def draw():
 	ptext.draw("Thank you for playing!", fontsize = F(75), fontname = "Oswald", color = "white",
 		midbottom = (854 / 2, 480 / 2))
 	for j, ship in enumerate(state.state.team):
-		image.draw("avatar-%s" % ship.letter, F((-2.5 + j) * 100, 360), size = F(90))
+		image.draw("avatar-%s" % ship.letter, F((-2.5 + j) * 100 + 854 / 2, 360), size = F(90))
 	if len(state.state.team) < 6:
 		image.draw("avatar-???", F((-2.5 + 5) * 100 + 854 / 2, 360), size = F(90))
 		

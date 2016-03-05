@@ -107,12 +107,13 @@ class ControlsQuest(Quest):
 		if self.progress == 4 and dialogue.tquiet > 4 and len(state.state.team) > 1:
 			self.advance()
 		if self.progress == 5:
-			hud.show("Select multiple: Left drag\nAdd to selection: Ctrl+click or Shift+click\nCycle selection: Tab")
+			hud.show("Select multiple: Left drag\nAdd to selection: Ctrl+click or Shift+click")
 			if self.tstep > 8:
 				self.advance()
 		if self.progress == 6:
-			hud.show("Select all: double click\nCycle selection: Tab")
-			if self.tstep > 8:
+			if self.tstep > 1:
+				hud.show("Select all: double click\nCycle selection: Tab")
+			if self.tstep > 9:
 				self.advance()
 
 class IntroQuest(Quest):
