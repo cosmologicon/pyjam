@@ -39,6 +39,7 @@ buildingspacing = 14
 restart = "--restart" in sys.argv  # delete existing saved game on startup
 dialogueext = "wav"
 musicext = "wav"
+sfxext = "wav"
 sbox = 50  # selection box size
 
 

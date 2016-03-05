@@ -11,6 +11,10 @@ def getsound(sname):
 		fname = "data/" + sname
 		if sname.startswith("dialogue"):
 			fname += "." + settings.dialogueext
+		elif sname.startswith("music"):
+			fname += "." + settings.musicext
+		else:
+			fname += "." + settings.sfxext
 		if os.path.exists(fname):
 			sounds[sname] = pygame.mixer.Sound(fname)
 			if "ACK" in sname:
@@ -39,7 +43,7 @@ currentvolume = 0
 currentjmusic = None
 def playmusic(jmusic, volume):
 	global targetjmusic, targetvolume, currentvolume, currentjmusic
-	musics = [getsound("music%d.%s" % (j, settings.musicext)) for j in (1, 2)]
+	musics = [getsound("music%d" % j) for j in (1, 2)]
 	channel = pygame.mixer.Channel(4)
 	if jmusic != currentjmusic:
 		currentjmusic = jmusic
