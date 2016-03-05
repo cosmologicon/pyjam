@@ -1,3 +1,4 @@
+import sys
 from pygame.locals import *
 
 
@@ -28,7 +29,7 @@ minimapscale = 0.3
 shipheight = 1
 shipspacing = 12
 buildingspacing = 14
-
+restart = "--restart" in sys.argv  # delete existing saved game on startup
 
 
 resolution0 = 480  # do not change - logical (not actual) resolution of screen

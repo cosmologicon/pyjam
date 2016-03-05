@@ -74,7 +74,7 @@ class DrawShip(Component):
 		image.draw(imgname, pos, scale = self.scale)
 	def drawshadow(self):
 		pos = window.worldtoscreen(self.x, self.y, 0)
-		image.draw("data/shadow.png", pos, scale = 2.4)
+		image.draw("data/shadow.png", pos, scale = 6)
 
 class FacesForward(Component):
 	def __init__(self):

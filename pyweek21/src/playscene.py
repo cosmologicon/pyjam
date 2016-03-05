@@ -5,36 +5,6 @@ from . import image, scene, mapscene, ptext
 from .util import F
 
 curtain = -1
-def onpush():
-	x, y = gamedata.data["you"]["a"]
-	you = thing.ShipA(pos = [x, y, settings.shipheight])
-	background.reveal(x, y, 80)
-	state.state.addtoteam(you)
-	window.snapto(you)
-	state.state.effects.append(thing.Smoke(pos = [x, y, 0]))
-
-#	state.state.addtoteam(thing.ShipD(pos = [5, 5, 5]))
-#	state.state.addtoteam(thing.ShipE(pos = [5, 5, 3]))
-#	state.state.addtoteam(thing.ShipF(pos = [5, 5, 5]))
-
-
-#	x, y = gamedata.data["beta"]
-#	state.state.addtoteam(thing.BetaShip(pos = [x, y, 4]))
-
-#	for j in range(10000):
-#		x = random.uniform(-1000, 1000)
-#		y = random.uniform(-1000, 1000)
-#		state.state.adddecoration(thing.Tree(pos = [x, y, 0]))
-
-	for x, y, needs, size in gamedata.data["b"]:
-		if size == 1:
-			building = thing.Building(pos = [x, y, 0])
-		elif size == 10:
-			building = thing.BigBuilding(pos = [x, y, 0])
-		for needtype in needs:
-			building.addneed(needtype, 1000)
-		state.state.addbuilding(building)
-		
 
 def think(dt, estate):
 	global curtain
@@ -82,21 +52,21 @@ def draw():
 
 	background.drawminimap()
 
-	for j, ship in enumerate(state.state.team):
-		pos = F(32 + 64 * j, 32)
-		size = F(60)
-		image.draw("avatar-" + ship.letter, pos, size = size)
+	avatarrects = [pygame.Rect(F(4 + 64 * j, 4, 60, 60)) for j in range(len(state.state.team))]
+
+	for rect, ship in zip(avatarrects, state.state.team):
+		image.draw("avatar-" + ship.letter, rect.center, size = rect.width)
 		if control.isselected(ship):
-			rect = pygame.Rect(0, 0, size, size)
-			rect.center = pos
 			pygame.draw.rect(window.screen, (255, 0, 255), rect, F(3))
 		for k, charge in enumerate(sorted(ship.chargerates)):
-			x, y = pos
+			x, y = rect.center
 			x += F((len(ship.chargerates) / 2 - k - 1 / 2) * 14)
 			y += F(25)
 			color = tuple(settings.ncolors[charge])
 			boltinfo = color, None, True
 			image.draw("bolt", pos = (x, y), scale = 2.5, boltinfo = boltinfo)
+		if rect.collidepoint(*pygame.mouse.get_pos()):
+			hud.drawyouinfo(ship.letter)
 	hud.draw()
 
 	if "credits" in quest.quests:

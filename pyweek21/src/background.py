@@ -136,12 +136,12 @@ def getstate():
 
 def setstate(reveals):
 	maskimg.fill(settings.shadecolor + (255,))
-	reveallog[:] = reveals
-	if None in reveallog:
+	del reveallog[:]
+	if None in reveals:
 		revealall()
 	else:
-		for x, y, r in reveallog:
-			reveal(x, y, r)
+		for x, y, r in reveals:
+			reveal(x, y, r, update = False)
 	tiles.clear()
 	land.clear()
 	worldmaps.clear()

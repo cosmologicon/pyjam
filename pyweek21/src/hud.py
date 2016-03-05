@@ -15,3 +15,25 @@ def draw():
 		ptext.draw("$%d" % state.state.bank, topright = F(844, 10), color = "white", owidth = 1.3,
 			fontsize = F(28))
 
+def drawyouinfo(letter):
+	name = {
+		"A": "Mel Bovus",
+		"B": "Martina Scamp",
+		"C": "Ignatius Pturner",
+		"D": "Ruby Jade",
+		"E": "Hallan Waterby",
+		"F": "Nicholas Pax",
+	}[letter]
+	byline = {
+		"A": "Has their own ship. Pretty cool, huh?",
+		"B": "Has their own ship. Pretty cool, huh?",
+		"C": "Has their own ship. Pretty cool, huh?",
+		"D": "Has their own ship. Pretty cool, huh?",
+		"E": "Has their own ship. Pretty cool, huh?",
+		"F": "Has their own ship. Pretty cool, huh?",
+	}[letter]
+	ptext.draw(name, topleft = F(28, 90), width = F(400), color = "#AAAAAA", owidth = 1.3,
+		fontsize = F(32))
+	ptext.draw(byline, topleft = F(28, 130), width = F(400), color = "red", owidth = 1.3,
+		fontsize = F(32))
+

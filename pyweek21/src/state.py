@@ -1,5 +1,5 @@
 from __future__ import division
-import math, random
+import math, random, os
 try:
 	import cPickle as pickle
 except ImportError:
@@ -88,7 +88,7 @@ class State(object):
 		self.bank += amount
 
 	def get(self):
-		from . import quest, dialogue
+		from . import quest, dialogue, background
 		return [
 			window.getstate(),
 			background.getstate(),
@@ -101,7 +101,7 @@ class State(object):
 		]
 
 	def set(self, obj):
-		from . import quest
+		from . import quest, dialogue, background
 		[
 			windowstate,
 			backgroundstate,
@@ -126,4 +126,8 @@ def save():
 def load():
 	global state
 	state.set(pickle.load(open(settings.savename, "rb")))
+
+def deletesave():
+	if os.path.exists(settings.savename):
+		os.remove(settings.savename)
 

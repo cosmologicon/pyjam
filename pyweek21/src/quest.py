@@ -40,14 +40,14 @@ class CreditsQuest(Quest):
 	def __init__(self):
 		Quest.__init__(self)
 		self.credits = [
-			("Programming", "Christopher Night"),
+			("Screenplay", "Charles McPillan\nChristopher Night"),
 			("Music", "Mary Bichner"),
-			("Dialogue", "Charles McPillan\nChristopher Night"),
-			("3d modeling", "Charles McPillan\nChristopher Night"),
 			("Character art", "Molly Zenobia"),
+			("3d modeling", "Charles McPillan\nChristopher Night"),
 			("Audio production", "Mary Bichner"),
 			("Voices", "Randy Parcel\nMonica Vargas\nCharles McPillan\nMary Bichner"),
 			("Testing", "John Pilman"),
+			("a game by", "Christopher Night"),
 		]
 	def think(self, dt):
 		Quest.think(self, dt)
@@ -67,7 +67,7 @@ class CreditsQuest(Quest):
 	def draw(self):
 		if self.done:
 			return
-		if self.progress in (3,5,7,9,11,13,15,17,19):
+		if self.progress in (1,3,5,7,9,11,13,15,17,19):
 			alpha = min(max(self.tstep, 0), 1)
 		elif self.progress in (2,4,6,8,10,12,14,16,18):
 			alpha = min(max(1 - self.tstep, 0), 1)
@@ -92,6 +92,22 @@ class IntroQuest(Quest):
 	goal = 3
 	def __init__(self):
 		Quest.__init__(self)
+		x, y = gamedata.data["you"]["a"]
+		you = thing.ShipA(pos = [x, y, settings.shipheight])
+		background.reveal(x, y, 80)
+		state.state.addtoteam(you)
+		window.snapto(you)
+		state.state.effects.append(thing.Smoke(pos = [x, y, 0]))
+
+		for x, y, needs, size in gamedata.data["b"]:
+			if size == 1:
+				building = thing.Building(pos = [x, y, 0])
+			elif size == 10:
+				building = thing.BigBuilding(pos = [x, y, 0])
+			for needtype in needs:
+				building.addneed(needtype, 1000)
+			state.state.addbuilding(building)
+
 		x, y = gamedata.data["you"]["b"]
 		self.shipb = thing.ShipB(pos = [x, y, settings.shipheight])
 		state.state.ships.append(self.shipb)

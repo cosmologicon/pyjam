@@ -1,5 +1,5 @@
 from __future__ import division
-import pygame
+import pygame, os
 from . import settings, window, ptext, scene, playscene, background, quest, control, state
 from .util import F
 
@@ -8,6 +8,10 @@ background.init()
 quest.init()
 pygame.mixer.init()
 
+if settings.restart:
+	state.deletesave()
+if os.path.exists(settings.savename):
+	state.load()
 scene.push(playscene)
 clock = pygame.time.Clock()
 playing = True
@@ -46,6 +50,8 @@ def handleevents():
 				jumptox()
 			if settings.DEBUG and event.key == pygame.K_F6:  # Objective X second form
 				quest.quests["act3"].tstep = 1000
+			if settings.DEBUG and event.key == pygame.K_F10:
+				state.save()
 			for kname, keys in settings.keys.items():
 				if event.key in keys:
 					estate[kname] = True
