@@ -25,7 +25,7 @@ volumes = {
 	"ack": 0.5,
 	"music": 0.5,
 	"dialogue": 1,
-
+	"ssh": 0.3,  # music volume factor when dialogue is playing
 }
 ncolors = [
 	Color("yellow"),
@@ -38,6 +38,7 @@ shipspacing = 12
 buildingspacing = 14
 restart = "--restart" in sys.argv  # delete existing saved game on startup
 dialogueext = "wav"
+musicext = "wav"
 sbox = 50  # selection box size
 
 

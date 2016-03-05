@@ -1,5 +1,5 @@
 import pygame, os
-from . import settings
+from . import settings, dialogue
 from .util import debug
 
 # Channels 1/2/3 reserved for sound effects
@@ -33,4 +33,18 @@ def play(sname, channel = None):
 				c.play(sound)
 				break
 
-settings.volumes["music"]
+targetjmusic = None
+targetvolume = None
+currentvolume = 0
+currentjmusic = None
+def playmusic(jmusic, volume):
+	global targetjmusic, targetvolume, currentvolume, currentjmusic
+	musics = [getsound("music%d.%s" % (j, settings.musicext)) for j in (1, 2)]
+	channel = pygame.mixer.Channel(4)
+	if jmusic != currentjmusic:
+		currentjmusic = jmusic
+		channel.play(musics[jmusic], -1)
+	volume = settings.volumes["music"]
+	if dialogue.tquiet < 0.1:
+		volume *= settings.volumes["ssh"]
+	channel.set_volume(volume)

@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, math, random
 from . import settings, state, thing, background, window, gamedata, control, dialogue, quest, hud
-from . import image, scene, mapscene, ptext
+from . import image, scene, mapscene, ptext, sound
 from .util import F
 
 curtain = -1
@@ -42,6 +42,11 @@ def think(dt, estate):
 			pygame.mouse.set_cursor(*pygame.cursors.arrow)
 		else:
 			pygame.mouse.set_cursor(*pygame.cursors.broken_x)
+	if "act3" in quest.quests and quest.quests["act3"].progress >= 2:
+		sound.playmusic(1, 1)
+	else:
+		sound.playmusic(0, 1)
+	
 
 def draw():
 	background.draw()

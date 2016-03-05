@@ -97,7 +97,7 @@ class State(object):
 			self.ships,
 			self.team,
 			self.buildings,
-			self.decorations
+			self.decorations,
 			self.bank,
 		]
 
