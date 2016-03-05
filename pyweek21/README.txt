@@ -23,3 +23,18 @@ Running the Game
 Open a terminal / console and "cd" to the game directory and run:
 
     python run_game.py
+
+Controls
+--------
+
+* Left click on ship to select
+* Left drag to select multiple ships
+* Shift+click or ctrl+click to select multiple ships
+* Tab to cycle between ships
+
+* Right click or Enter to send ships to cursor
+
+* Arrow keys or WASD to move the camera
+* Space to pan the camera to the current ship
+* Hold space to follow current ship
+

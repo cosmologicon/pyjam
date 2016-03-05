@@ -14,7 +14,7 @@ def getsound(sname):
 		if os.path.exists(fname):
 			sounds[sname] = pygame.mixer.Sound(fname)
 			if "ACK" in sname:
-				sname.volume = settings.volumes("ack")
+				sounds[sname].set_volume(settings.volumes["ack"])
 		else:
 			sounds[sname] = None
 			debug("Missing sound:", sname)

@@ -6,6 +6,7 @@ from .util import F
 quests = {}
 def init():
 	quests["credits"] = CreditsQuest()
+	quests["controls"] = ControlsQuest()
 	quests["intro"] = IntroQuest()
 	quests["objp"] = ObjectivePQuest()
 	quests["objq"] = ObjectiveQQuest()
@@ -87,6 +88,29 @@ class CreditsQuest(Quest):
 				color = "yellow",
 				topright = F(840, 210), shadow = (1, 1))
 
+class ControlsQuest(Quest):
+	goal = 10
+	def think(self, dt):
+		Quest.think(self, dt)
+		if self.progress == 0 and dialogue.tquiet > 4:
+			self.advance()
+		if self.progress == 1:
+			hud.show("Select: left-click\nGo: right-click or Enter")
+			if self.tstep > 5:
+				self.advance()
+		if self.progress == 2 and dialogue.tquiet > 4 and self.tstep > 1:
+			self.advance()
+		if self.progress == 3:
+			hud.show("Pan: arrows or WASD\nHold space: follow ship")
+			if self.tstep > 5:
+				self.advance()
+		if self.progress == 4 and dialogue.tquiet > 4 and len(state.state.team) > 1:
+			self.advance()
+		if self.progress == 5:
+			hud.show("Select multiple: Left drag\nAdd to selection: Ctrl+click or Shift+click\nCycle selection: Tab")
+			if self.tstep > 8:
+				self.advance()
+
 
 class IntroQuest(Quest):
 	goal = 3
@@ -126,12 +150,14 @@ class IntroQuest(Quest):
 			if self.shipb not in state.state.team and self.shipb.revealed():
 				state.state.addtoteam(self.shipb)
 				background.reveal(self.shipb.x, self.shipb.y, 125)
+				window.targetpos(self.shipb.x, self.shipb.y, self.shipb.z)
 				dialogue.play("MEETB")
 				self.advance()
 		if self.progress == 2:
 			if self.shipc not in state.state.team and self.shipc.revealed():
 				state.state.addtoteam(self.shipc)
 				background.reveal(self.shipc.x, self.shipc.y, 125)
+				window.targetpos(self.shipc.x, self.shipc.y, self.shipc.z)
 				dialogue.play("MEETC")
 				self.advance()
 
@@ -172,6 +198,7 @@ class ObjectiveRQuest(Quest):
 			state.state.addtoteam(self.ship)
 			window.targetpos(self.ship.x, self.ship.y, self.ship.z)
 			self.advance()
+			dialogue.play("MEETD")
 
 class ObjectiveSQuest(Quest):
 	goal = 2
@@ -196,6 +223,7 @@ class ObjectiveSQuest(Quest):
 			state.state.addtoteam(self.ship)
 			window.targetpos(self.ship.x, self.ship.y, self.ship.z)
 			self.advance()
+			dialogue.play("MEETF")
 
 class ObjectiveQQuest(Quest):
 	goal = 2
@@ -236,6 +264,7 @@ class ObjectiveQQuest(Quest):
 				state.state.addtoteam(self.ship)
 				window.targetpos(self.ship.x, self.ship.y, self.ship.z)
 				self.advance()
+				dialogue.play("MEETE")
 
 class Act3Quest(Quest):
 	goal = 99
@@ -258,11 +287,11 @@ class Act3Quest(Quest):
 		if self.progress == 0:
 			if self.objective.revealed():
 				background.reveal(self.objective.x, self.objective.y, 140)
-#				dialogue.play("X1")
+				dialogue.play("X1")
 				self.advance()
 		elif self.progress == 1:
 			if len(state.state.team) >= 5 and dialogue.tquiet > 10:
-#				dialogue.play("X2")
+				dialogue.play("X2")
 				self.advance()
 		elif self.progress == 2:
 			if len(self.objective.visitors) >= 5 and dialogue.tquiet > 3:

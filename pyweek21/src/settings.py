@@ -44,7 +44,7 @@ sbox = 50  # selection box size
 
 resolution0 = 480  # do not change - logical (not actual) resolution of screen
 gamename = "The Aftermath"
-DEBUG = True
+DEBUG = "--DEBUG" in sys.argv
 
 
 shadecolor = 40, 40, 40

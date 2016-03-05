@@ -246,6 +246,10 @@ class RevealsOnCharge(Component):
 	def oncharge(self, needtype):		
 		background.reveal(self.x, self.y, self.rreveal)
 
+class SavesOnCharge(Component):
+	def oncharge(self, needtype):		
+		state.save()
+
 class HasTowers(Component):
 	def init(self, obj):
 		self.towers = []
@@ -459,7 +463,7 @@ class Thing(object):
 	def die(self):
 		self.alive = False
 
-@ApproachesTarget(speed = 26)
+@ApproachesTarget(speed = 16)
 @TravelsOnLand()
 @BuildTarget()
 @FacesForward()
@@ -469,7 +473,7 @@ class Thing(object):
 class ShipA(Thing):
 	letter = "A"
 
-@ApproachesTarget(speed = 40)
+@ApproachesTarget(speed = 30)
 @TravelsOnLand()
 @BuildTarget()
 @FacesForward()
@@ -479,7 +483,7 @@ class ShipA(Thing):
 class ShipB(Thing):
 	letter = "B"
 
-@ApproachesTarget(speed = 28)
+@ApproachesTarget(speed = 18)
 @TravelsOnLand()
 @BuildTarget()
 @FacesForward()
@@ -489,7 +493,7 @@ class ShipB(Thing):
 class ShipC(Thing):
 	letter = "C"
 
-@ApproachesTarget(speed = 38)
+@ApproachesTarget(speed = 28)
 @TravelsOnLand()
 @BuildTarget()
 @FacesForward()
@@ -499,7 +503,7 @@ class ShipC(Thing):
 class ShipD(Thing):
 	letter = "D"
 
-@ApproachesTarget(speed = 32)
+@ApproachesTarget(speed = 22)
 @TravelsOnLandOrWater()
 @BuildTarget()
 @FacesForward()
@@ -509,7 +513,7 @@ class ShipD(Thing):
 class ShipE(Thing):
 	letter = "E"
 
-@ApproachesTarget(speed = 30)
+@ApproachesTarget(speed = 20)
 @TravelsOnLand()
 @BuildTarget()
 @FacesForward()
@@ -527,6 +531,7 @@ class ShipF(Thing):
 @Discharges()
 @RevealsOnCharge(125)
 @RewardsOnCharge(1)
+@SavesOnCharge()
 class Building(Thing):
 	brange = 30
 
@@ -536,6 +541,7 @@ class Building(Thing):
 @Discharges()
 @RevealsOnCharge(125)
 @RewardsOnCharge(5)
+@SavesOnCharge()
 class BigBuilding(Thing):
 	brange = 30
 
@@ -584,7 +590,7 @@ class ObjectiveXTower(Thing):
 # Effects
 
 @Lifetime(0.7)
-@DrawEllipses(r = 5)
+@DrawEllipses(r = 15)
 class GoIndicator(Thing):
 	pass
 

@@ -1,5 +1,5 @@
-import pygame, math
-from . import state, window, state, sound, background, settings
+import pygame, math, random
+from . import state, window, state, sound, background, settings, dialogue
 from .util import F
 
 cursor = []
@@ -9,7 +9,7 @@ tclick = 0
 dragged = False
 
 def think(dt, estate):
-	global cursor, selection, assembling, tclick, dragged
+	global cursor, selection, assembling, tclick, dragged, oldcursor
 	if estate["ldown"]:
 		selection = pygame.Rect(estate["mpos"], (0, 0))
 		tclick = 0
@@ -22,20 +22,40 @@ def think(dt, estate):
 		nselect.normalize()
 		if nselect.width > 5 or nselect.height > 5 or tclick > 0.5:
 			dragged = True
+			oldcursor = list(cursor)
 		if dragged:
-			cursor[:] = [ship for ship in state.state.team if nselect.collidepoint(ship.screenpos())]
+			ships = [ship for ship in state.state.team if nselect.collidepoint(ship.selectrect().center)]
+			if estate["iskmulti"]:
+				for ship in ships:
+					if ship not in cursor:
+						cursor.append(ship)
+			else:
+				cursor = ships
 	if estate["lup"]:
-		selection = None
-		if not dragged:
+		if dragged:
+			if cursor:
+				ships = [ship for ship in cursor if ship not in oldcursor]
+				if len(ships) == 1:
+					selectack(ships[0])
+		else:
+			newcursor = None
 			avatarrects = [pygame.Rect(F(4 + 64 * j, 4, 60, 60)) for j in range(len(state.state.team))]
 			up1rects = [pygame.Rect(F(4 + 64 * j, 68, 28, 28)) for j in range(len(state.state.team))]
 			up2rects = [pygame.Rect(F(34 + 64 * j, 68, 28, 28)) for j in range(len(state.state.team))]
+			clicked = False
+			clickedhud = False
 			if background.minimaprect().collidepoint(estate["mpos"]):
 				estate["map"] = True
+				clicked = True
+				clickedhud = True
 			for r, u1, u2, ship in zip(avatarrects, up1rects, up2rects, state.state.team):
 				if r.collidepoint(estate["mpos"]):
-					cursor = [ship]
+					newcursor = [ship]
+					clicked = True
+					clickedhud = True
 				if u1.collidepoint(estate["mpos"]):
+					clicked = True
+					clickedhud = True
 					if state.state.bank >= ship.up1cost():
 						state.state.bank -= ship.up1cost()
 						ship.up1()
@@ -43,21 +63,59 @@ def think(dt, estate):
 					else:
 						sound.play("cantbuy")
 				if u1.collidepoint(estate["mpos"]):
+					clicked = True
+					clickedhud = True
 					if state.state.bank >= ship.up2cost():
 						state.state.bank -= ship.up2cost()
 						ship.up2()
 						sound.play("buy")
 					else:
 						sound.play("cantbuy")
+			if not clicked:
+				clicks = [ship for ship in state.state.team if ship.selectrect().collidepoint(estate["mpos"])]
+				if clicks:
+					ship = min(clicks, key = lambda ship: ship.y)
+					newcursor = [ship]
+					clicked = True
+			# click on the HUD but didn't select a new character
+			if clickedhud and not newcursor:
+				pass
+			# selected a character from the HUD
+			elif clickedhud and newcursor:
+				if estate["iskmulti"]:
+					if newcursor[0] in cursor:
+						cursor.remove(newcursor[0])
+					else:
+						cursor.append(newcursor[0])
+						selectack(newcursor[0].letter)
+				else:
+					cursor = newcursor
+					selectack(cursor[0].letter)
+			# clicked on a character in the gameplay area
+			elif clicked and not clickedhud:
+				# TODO: check for double click
+				if estate["iskmulti"]:
+					if newcursor[0] in cursor:
+						cursor.remove(newcursor[0])
+					else:
+						cursor.append(newcursor[0])
+						selectack(newcursor[0].letter)
+				else:
+					cursor = newcursor
+					selectack(cursor[0].letter)
+			# clicked on nothing
+			else:
+				if not estate["iskmulti"]:
+					cursor = []
 
-#		building = thing.Building(pos = [x, y, 0])
-#		state.state.ships[-1].setbuildtarget(building)
+		selection = None
 	if estate["rdown"]:
 		from . import thing
 		x, y = window.screentoworld(*estate["mpos"])
 #		if background.revealed(x, y) and background.island(x, y):
-		if True:
-			sound.play("go")
+		if cursor:
+			if dialogue.tquiet > 0.5:
+				sound.play("dialogue/ACK" + random.choice(cursor).letter + random.choice("23"))
 			for ship in cursor:
 				ship.settarget((x, y))
 			resolvetargets(x, y)
@@ -70,9 +128,10 @@ def think(dt, estate):
 #		window.targetpos(x, y)
 	if estate["cycle"]:
 		ship = nextcursor()
+		selectack(ship.letter)
 		cursor = [ship]
 #		window.targetpos(ship.x, ship.y, ship.z)
-	if estate["snap"] and cursor:
+	if estate["issnap"] and cursor:
 		ship = cursor[0]
 		window.targetpos(ship.x, ship.y, ship.z)
 	if estate["assemble"]:
@@ -82,6 +141,10 @@ def assemble(x, y):
 	global assembling
 	assembling = x, y
 	
+
+def selectack(letter):
+	if dialogue.tquiet > 0.5:
+		sound.play("dialogue/ACK%s1" % letter)
 
 def nextcursor():
 	team = state.state.team

@@ -97,10 +97,12 @@ class State(object):
 			self.ships,
 			self.team,
 			self.buildings,
+			self.decorations
 			self.bank,
 		]
 
 	def set(self, obj):
+		self.__init__()
 		from . import quest, dialogue, background
 		[
 			windowstate,
@@ -110,12 +112,15 @@ class State(object):
 			self.ships,
 			self.team,
 			buildings,
+			decorations,
 			self.bank,
 		] = obj
 		window.setstate(windowstate)
 		background.setstate(backgroundstate)
 		for building in buildings:
 			self.addbuilding(building)
+		for decoration in decorations:
+			self.adddecoration(decoration)
 
 
 state = State()
