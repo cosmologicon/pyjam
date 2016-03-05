@@ -53,9 +53,13 @@ def draw():
 	background.drawminimap()
 
 	avatarrects = [pygame.Rect(F(4 + 64 * j, 4, 60, 60)) for j in range(len(state.state.team))]
+	up1rects = [pygame.Rect(F(4 + 64 * j, 68, 28, 28)) for j in range(len(state.state.team))]
+	up2rects = [pygame.Rect(F(34 + 64 * j, 68, 28, 28)) for j in range(len(state.state.team))]
 
-	for rect, ship in zip(avatarrects, state.state.team):
+	for rect, up1r, up2r, ship in zip(avatarrects, up1rects, up2rects, state.state.team):
 		image.draw("avatar-" + ship.letter, rect.center, size = rect.width)
+		image.draw("avatar-UP1", up1r.center, size = up1r.width)
+		image.draw("avatar-UP2", up2r.center, size = up2r.width)
 		if control.isselected(ship):
 			pygame.draw.rect(window.screen, (255, 0, 255), rect, F(3))
 		for k, charge in enumerate(sorted(ship.chargerates)):
@@ -67,6 +71,10 @@ def draw():
 			image.draw("bolt", pos = (x, y), scale = 2.5, boltinfo = boltinfo)
 		if rect.collidepoint(*pygame.mouse.get_pos()):
 			hud.drawyouinfo(ship.letter)
+		if up1r.collidepoint(*pygame.mouse.get_pos()):
+			hud.drawup1info(ship.letter, ship.up1cost(), ship.up1cost() <= state.state.bank)
+		if up2r.collidepoint(*pygame.mouse.get_pos()):
+			hud.drawup2info(ship.letter, ship.up2cost(), ship.up2cost() <= state.state.bank)
 	hud.draw()
 
 	if "credits" in quest.quests:

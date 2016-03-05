@@ -27,8 +27,29 @@ def think(dt, estate):
 	if estate["lup"]:
 		selection = None
 		if not dragged:
+			avatarrects = [pygame.Rect(F(4 + 64 * j, 4, 60, 60)) for j in range(len(state.state.team))]
+			up1rects = [pygame.Rect(F(4 + 64 * j, 68, 28, 28)) for j in range(len(state.state.team))]
+			up2rects = [pygame.Rect(F(34 + 64 * j, 68, 28, 28)) for j in range(len(state.state.team))]
 			if background.minimaprect().collidepoint(estate["mpos"]):
 				estate["map"] = True
+			for r, u1, u2, ship in zip(avatarrects, up1rects, up2rects, state.state.team):
+				if r.collidepoint(estate["mpos"]):
+					cursor = [ship]
+				if u1.collidepoint(estate["mpos"]):
+					if state.state.bank >= ship.up1cost():
+						state.state.bank -= ship.up1cost()
+						ship.up1()
+						sound.play("buy")
+					else:
+						sound.play("cantbuy")
+				if u1.collidepoint(estate["mpos"]):
+					if state.state.bank >= ship.up2cost():
+						state.state.bank -= ship.up2cost()
+						ship.up2()
+						sound.play("buy")
+					else:
+						sound.play("cantbuy")
+
 #		building = thing.Building(pos = [x, y, 0])
 #		state.state.ships[-1].setbuildtarget(building)
 	if estate["rdown"]:

@@ -94,6 +94,21 @@ class FacesForward(Component):
 			else:
 				self.angle = self.targetangle
 
+class Upgradable(Component):
+	def __init__(self):
+		self.level1 = 0
+		self.level2 = 0
+	def up1cost(self):
+		return (self.level1 + 1) * 3
+	def up2cost(self):
+		return (self.level2 + 1) * 3
+	def up1(self):
+		self.level1 += 1
+	def up2(self):
+		self.level2 += 1
+	def getspeed(self):
+		return self.speed + 4 * self.level1
+
 # A pad is a circular region around a building. Ships entering the pad can interact with the building.
 class HasPad(Component):
 	def __init__(self, rpad):
@@ -280,7 +295,7 @@ class ApproachesTarget(Component):
 		if not dx and not dy:
 			self.target = None
 			return
-		d = self.speed * dt
+		d = self.getspeed() * dt
 		f = d / math.sqrt(dx ** 2 + dy ** 2)
 		self.vx = f * dx / dt
 		self.vy = f * dy / dt
@@ -428,6 +443,7 @@ class Thing(object):
 @FacesForward()
 @DrawShip("forky", 14)
 @Charges({0: 10})
+@Upgradable()
 class ShipA(Thing):
 	letter = "A"
 
@@ -437,6 +453,7 @@ class ShipA(Thing):
 @FacesForward()
 @DrawShip("blimpy", 14)
 @Charges({1: 3})
+@Upgradable()
 class ShipB(Thing):
 	letter = "B"
 
@@ -446,6 +463,7 @@ class ShipB(Thing):
 @FacesForward()
 @DrawShip("odart", 11)
 @Charges({2: 3})
+@Upgradable()
 class ShipC(Thing):
 	letter = "C"
 
@@ -455,6 +473,7 @@ class ShipC(Thing):
 @FacesForward()
 @DrawShip("potter", 10)
 @Charges({1: 3})
+@Upgradable()
 class ShipD(Thing):
 	letter = "D"
 
@@ -464,6 +483,7 @@ class ShipD(Thing):
 @FacesForward()
 @DrawShip("tori", 9)
 @Charges({2: 3})
+@Upgradable()
 class ShipE(Thing):
 	letter = "E"
 
@@ -473,6 +493,7 @@ class ShipE(Thing):
 @FacesForward()
 @DrawShip("sandwich", 12)
 @Charges({0: 1, 1: 1, 2: 1})
+@Upgradable()
 class ShipF(Thing):
 	letter = "F"
 
