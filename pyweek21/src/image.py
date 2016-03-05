@@ -1,5 +1,5 @@
 from __future__ import division
-import pygame
+import pygame, os
 from . import util, window, ptext
 from .util import debug
 
@@ -48,9 +48,12 @@ def getimg(imgname, size = None, alpha = None, boltinfo = None):
 					arr[:,:y,:] = 0
 				
 		elif imgname.startswith("avatar-"):
-			surf = pygame.Surface((200, 200)).convert_alpha()
-			surf.fill((100, 100, 100))
-			ptext.draw(imgname[7:], surf = surf, center = (100, 100), fontsize = 50)
+			if os.path.exists("data/%s.jpg" % imgname):
+				surf = pygame.image.load("data/%s.jpg" % imgname).convert_alpha()
+			else:
+				surf = pygame.Surface((200, 200)).convert_alpha()
+				surf.fill((100, 100, 100))
+				ptext.draw(imgname[7:], surf = surf, center = (100, 100), fontsize = 50)
 		else:
 			surf = pygame.image.load(imgname).convert_alpha()
 	imgs[key] = surf

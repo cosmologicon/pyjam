@@ -25,6 +25,9 @@ ncolors = [
 	Color("blue"),
 ]
 minimapscale = 0.3
+shipheight = 1
+shipspacing = 12
+buildingspacing = 14
 
 
 

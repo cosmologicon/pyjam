@@ -7,7 +7,7 @@ from .util import F
 curtain = -1
 def onpush():
 	x, y = gamedata.data["you"]["a"]
-	you = thing.ShipA(pos = [x, y, 4])
+	you = thing.ShipA(pos = [x, y, settings.shipheight])
 	background.reveal(x, y, 80)
 	state.state.addtoteam(you)
 	window.snapto(you)

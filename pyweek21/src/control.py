@@ -1,5 +1,5 @@
 import pygame, math
-from . import state, window, state, sound, background
+from . import state, window, state, sound, background, settings
 from .util import F
 
 cursor = []
@@ -37,20 +37,10 @@ def think(dt, estate):
 		if background.revealed(x, y) and background.island(x, y):
 			sound.play("go")
 			for ship in cursor:
-				r = 8
-				for building in state.state.buildings:
-					dx = x - building.x
-					dy = y - building.y
-					if dx ** 2 + dy ** 2 > r ** 2:
-						continue
-					if not dx and not dy:
-						x += r
-					else:
-						d = math.sqrt(dx ** 2 + dy ** 2)
-						x += r / d * dx
-						y += r / d * dy
 				ship.settarget((x, y))
-				state.state.effects.append(thing.GoIndicator(pos = [x, y, 0]))
+			resolvetargets(x, y)
+			for ship in cursor:
+				state.state.effects.append(thing.GoIndicator(pos = [ship.target[0], ship.target[1], 0]))
 		else:
 			sound.play("cantgo")
 #	if estate["rdown"]:
@@ -92,4 +82,55 @@ def drawselection():
 	surf.fill((255, 0, 255, 100))
 	surf.fill((255, 0, 255, 50), box)
 	window.screen.blit(surf, rect)
+
+# Make sure that all ships are moving to places where they won't pile up, and also won't be on top
+# of buildings. This may mean moving some ships that are not already moving.
+def resolvetargets(tx, ty):
+	separateships(tx, ty)
+	if avoidbuildings():
+		separateships(tx, ty)
+		avoidbuildings()
+def vpos(ship):
+	return ship.target or (ship.x, ship.y)
+def swithin(ship, tx, ty):
+	sx, sy = vpos(ship)
+	return (sx - tx) ** 2 + (sy - ty) ** 2 < settings.shipspacing ** 2
+def separateships(tx, ty):
+	ships = [ship for ship in state.state.team if swithin(ship, tx, ty)]
+	if len(ships) <= 1:
+		return False
+	R = settings.shipspacing / (2 * math.sin(math.pi / len(ships)))  # polygon circumradius
+	xs, ys = zip(*map(vpos, ships))
+	x0, y0 = sum(xs) / len(xs), sum(ys) / len(ys)
+	ds = [(x - x0, y - y0) for x, y in zip(xs, ys)]
+	angles = [math.atan2(dx, dy) if (dx or dy) else 0 for dx, dy in ds]
+	# ... pick angles better?
+	angles = [1 + 2 * math.pi * j / len(ships) for j in range(len(ships))]
+	print len(ships), angles
+	for ship, angle in zip(ships, angles):
+		x = tx + R * math.sin(angle)
+		y = ty + R * math.cos(angle)
+		ship.settarget((x, y))
+	return True
+def avoidbuildings():
+	avoided = False
+	R = settings.buildingspacing
+	for ship in state.state.team:
+		if not ship.target:
+			continue
+		tx, ty = ship.target
+		for building in state.state.buildingsnear(tx, ty):
+			dx, dy = tx - building.x, ty - building.y
+			if dx ** 2 + dy ** 2 > R ** 2:
+				continue
+			print dx, dy, R
+			avoided = True
+			if dx or dy:
+				d = math.sqrt(dx ** 2 + dy ** 2)
+				tx = building.x + dx * R / d
+				ty = building.y + dy * R / d
+			else:
+				ty -= R
+			ship.settarget((tx, ty))
+	return avoided
 

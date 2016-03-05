@@ -102,10 +102,10 @@ class IntroQuest(Quest):
 	def __init__(self):
 		Quest.__init__(self)
 		x, y = gamedata.data["you"]["b"]
-		self.shipb = thing.ShipB(pos = [x, y, 4])
+		self.shipb = thing.ShipB(pos = [x, y, settings.shipheight])
 		state.state.ships.append(self.shipb)
 		x, y = gamedata.data["you"]["c"]
-		self.shipc = thing.ShipC(pos = [x, y, 4])
+		self.shipc = thing.ShipC(pos = [x, y, settings.shipheight])
 		state.state.ships.append(self.shipc)
 	def think(self, dt):
 		Quest.think(self, dt)
@@ -153,7 +153,7 @@ class ObjectiveRQuest(Quest):
 			state.state.addbuilding(tower)
 			tower.addtowers(self.towers)
 		x, y = gamedata.data["you"]["d"]
-		self.ship = thing.ShipD(pos = [x, y, 4])
+		self.ship = thing.ShipD(pos = [x, y, settings.shipheight])
 	def think(self, dt):
 		Quest.think(self, dt)
 		if self.progress == 0 and self.towers[0].allcharged:
@@ -177,7 +177,7 @@ class ObjectiveSQuest(Quest):
 			tower.imgname = "objs"
 			tower.scale = 20
 		x, y = gamedata.data["you"]["f"]
-		self.ship = thing.ShipF(pos = [x, y, 4])
+		self.ship = thing.ShipF(pos = [x, y, settings.shipheight])
 	def think(self, dt):
 		Quest.think(self, dt)
 		if self.progress == 0 and self.towers[0].allcharged:
@@ -202,7 +202,7 @@ class ObjectiveQQuest(Quest):
 				tower.addneed(needtype, 1000)
 		self.towers[1].imgname = "objq1"
 		x, y = gamedata.data["you"]["e"]
-		self.ship = thing.ShipE(pos = [x, y, 4])
+		self.ship = thing.ShipE(pos = [x, y, settings.shipheight])
 		self.tneed = 0
 		self.jneed = 0
 	def think(self, dt):

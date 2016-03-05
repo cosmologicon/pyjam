@@ -377,7 +377,7 @@ class DrawSmoke(Component):
 		self.plumes = [p for p in self.plumes if self.t - p[0] < p[1]]
 		while len(self.plumes) < 20:
 			angle = random.choice(list(range(10)))
-			size = random.choice([4, 6, 8])
+			size = random.choice([8, 10, 12])
 			dx = random.uniform(-30, 30)
 			dy = random.uniform(-30, -80)
 			t = random.uniform(2, 6)
@@ -406,18 +406,18 @@ class Thing(object):
 	def die(self):
 		self.alive = False
 
-@ApproachesTarget(speed = 25)
+@ApproachesTarget(speed = 26)
 @BuildTarget()
 @FacesForward()
-@DrawShip("tori")
+@DrawShip("forky")
 @Charges({0: 10})
 class ShipA(Thing):
 	letter = "A"
 
-@ApproachesTarget(speed = 50)
+@ApproachesTarget(speed = 40)
 @BuildTarget()
 @FacesForward()
-@DrawShip("potter")
+@DrawShip("tori")
 @Charges({1: 3})
 class ShipB(Thing):
 	letter = "B"
@@ -430,15 +430,15 @@ class ShipB(Thing):
 class ShipC(Thing):
 	letter = "C"
 
-@ApproachesTarget(speed = 12)
+@ApproachesTarget(speed = 38)
 @BuildTarget()
 @FacesForward()
-@DrawShip("forky", 14)
+@DrawShip("tori")
 @Charges({1: 3})
 class ShipD(Thing):
 	letter = "D"
 
-@ApproachesTarget(speed = 24)
+@ApproachesTarget(speed = 32)
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori")
@@ -446,7 +446,7 @@ class ShipD(Thing):
 class ShipE(Thing):
 	letter = "E"
 
-@ApproachesTarget(speed = 6)
+@ApproachesTarget(speed = 30)
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori")
