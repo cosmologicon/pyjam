@@ -146,6 +146,8 @@ class Rechargeable(Component):
 	def addneed(self, needtype, amount):
 		self.needs[needtype] = min(self.needs.get(needtype, 0) + amount, self.needmax[needtype])
 	def charge(self, dt, chargerates):
+		if not self.revealed():
+			return
 		for k, v in chargerates.items():
 			if k in self.needs and self.needs[k] > 0:
 				self.needs[k] = max(self.needs[k] - dt * v, 0)
@@ -186,6 +188,8 @@ class Rechargeable(Component):
 	def oncharge(self, needtype):
 		pass
 	def onenter(self, ship):
+		if not self.revealed():
+			return
 		for k, v in ship.chargerates.items():
 			if k in self.needs and self.needs[k] > 0:
 				sound.play("charging")
@@ -252,7 +256,7 @@ class TracksProximity(Component):
 	def draw(self):
 		text = "nprox: %d" % len(self.visitors)
 		pos = self.screenpos(dz = -1)
-		ptext.draw(text, center = pos, color = "yellow", fontsize = F(24), owidth = 1)
+#		ptext.draw(text, center = pos, color = "yellow", fontsize = F(24), owidth = 1)
 	def onenter(self, ship):
 		self.chime(len(self.visitors) + 1)
 	def onexit(self, ship):
@@ -496,6 +500,8 @@ class ObjectiveQTower(Thing):
 class ObjectiveX(Thing):
 	brange = 50
 	def draw(self):
+		if not self.revealed():
+			return
 		nprox = min(max(len(self.visitors), 0), 5)
 		imgname = "data/objx%d.png" % nprox
 		image.draw(imgname, self.screenpos(), scale = 20)
@@ -508,6 +514,8 @@ class ObjectiveXTower(Thing):
 	def ischarged(self):
 		return not self.needs[None] and all(self.needs[k] < self.needmax[k] for k in self.needs)
 	def draw(self):
+		if not self.revealed():
+			return
 		imgname = "data/objxtower%d.png" % self.rot
 		image.draw(imgname, self.screenpos(), scale = 14)
 

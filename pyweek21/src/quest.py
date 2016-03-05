@@ -41,7 +41,7 @@ class IslandQuest(Quest):
 	def think(self, dt):
 		Quest.think(self, dt)
 		if self.progress == 0 and len(state.state.team) >= 3:
-			background.reveal(750, -860, 180)
+			background.reveal(1712 - 1024, 1024 - 1784)
 			self.advance()
 
 class CreditsQuest(Quest):
@@ -227,7 +227,6 @@ class ObjectiveQQuest(Quest):
 				window.targetpos(self.ship.x, self.ship.y, self.ship.z)
 				self.advance()
 
-
 class Act3Quest(Quest):
 	goal = 99
 	def __init__(self):
@@ -247,27 +246,36 @@ class Act3Quest(Quest):
 	def think(self, dt):
 		Quest.think(self, dt)
 		if self.progress == 0:
-			if len(self.objective.visitors) >= 5:
-				sound.play("startact3")
+			if self.objective.revealed():
+				background.reveal(self.objective.x, self.objective.y, 140)
+#				dialogue.play("X1")
 				self.advance()
 		elif self.progress == 1:
+			if len(state.state.team) >= 5 and dialogue.tquiet > 10:
+#				dialogue.play("X2")
+				self.advance()
+		elif self.progress == 2:
+			if len(self.objective.visitors) >= 5 and dialogue.tquiet > 3:
+				sound.play("startact3")
+				self.advance()
+		elif self.progress == 3:
 			if self.tstep >= 1:
 				control.assemble(self.objective.x + 20, self.objective.y + 20)
 				self.advance()
-		elif self.progress == 2:
+		elif self.progress == 4:
 			if self.tstep > 5 and dialogue.tquiet > 1:
 				self.startpart1()
 				self.advance()
-		elif self.progress == 3:
+		elif self.progress == 5:
 			self.playpart1(dt)
 			if self.tstep > 120:
 				self.advance()
 				self.startpart2()
-		elif self.progress == 4:
+		elif self.progress == 6:
 			self.playpart2()
 
 	def draw(self):
-		if self.progress == 3:
+		if self.progress == 5:
 			ntower = sum(tower.ischarged() for tower in self.towers)
 			ptext.draw("Charge cycle: %.1f/120" % self.tstep, fontsize = F(30),
 				color = "red", owidth = 1.5, midbottom = F(854 - 200, 460))
