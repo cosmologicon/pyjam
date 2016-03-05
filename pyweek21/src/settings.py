@@ -58,7 +58,7 @@ doubleclicktime = 0.4
 
 
 resolution0 = 480  # do not change - logical (not actual) resolution of screen
-gamename = "The Aftermath"
+gamename = "Shattered World"
 DEBUG = "--DEBUG" in sys.argv
 
 

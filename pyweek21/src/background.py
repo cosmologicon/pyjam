@@ -285,7 +285,8 @@ def drawmap():
 		surf.blit(maskimg, (0, 0))
 		worldmaps[size] = pygame.transform.smoothscale(surf, size)
 	window.screen.blit(worldmaps[size], (0, 0))
-	ptext.draw("World\nMap", topleft = F(10, 10), color = "yellow", owidth = 1.5, ocolor = "#442200",
+	ptext.draw(settings.gamename.replace(" ", "\n"), topleft = F(10, 10), color = "yellow",
+		owidth = 1.5, ocolor = "#442200",
 		fontsize = F(48), fontname = "SansitaOne")
 	for ship in state.state.team:
 		px = int((ship.x + 1024) / 2048 * window.sx)
