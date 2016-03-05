@@ -60,7 +60,6 @@ def think(dt):
 				played.add(line)
 				currentline = None
 			else:
-				print fname, os.path.exists(fname)
 				if os.path.exists(fname):
 					sound = pygame.mixer.Sound(fname)
 				else:

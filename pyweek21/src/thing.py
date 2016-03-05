@@ -128,6 +128,9 @@ class Upgradable(Component):
 		self.level1 += 1
 	def up2(self):
 		self.level2 += 1
+		for k, v in self.chargerates:
+			if v:
+				self.chargerates[k] += 1
 	def getspeed(self):
 		return self.speed + 4 * self.level1
 
@@ -282,6 +285,17 @@ class RewardsOnCharge(Component):
 		self.rreward = rreward
 	def oncharge(self, needtype):	
 		state.state.reward(self.rreward)
+
+class ColorsByCharge(Component):
+	def getcolor(self):
+		t = pygame.time.get_ticks() * 0.001
+		if t % 1 < 0.3:
+			return 100, 100, 100
+		ts = [k for k, v in self.needs.items() if v]
+		if not ts:
+			return 100, 100, 100
+		ts.sort()
+		return settings.ncolors[ts[int(t % len(ts))]]
 
 class Charges(Component):
 	def __init__(self, chargerates):
@@ -468,7 +482,7 @@ class Thing(object):
 @BuildTarget()
 @FacesForward()
 @DrawShip("forky", 14)
-@Charges({0: 10})
+@Charges({0: 6})
 @Upgradable()
 class ShipA(Thing):
 	letter = "A"
@@ -498,7 +512,7 @@ class ShipC(Thing):
 @BuildTarget()
 @FacesForward()
 @DrawShip("potter", 10)
-@Charges({1: 3})
+@Charges({1: 1, 2: 1})
 @Upgradable()
 class ShipD(Thing):
 	letter = "D"
@@ -508,7 +522,7 @@ class ShipD(Thing):
 @BuildTarget()
 @FacesForward()
 @DrawShip("tori", 9)
-@Charges({2: 3})
+@Charges({2: 2})
 @Upgradable()
 class ShipE(Thing):
 	letter = "E"
@@ -518,7 +532,7 @@ class ShipE(Thing):
 @BuildTarget()
 @FacesForward()
 @DrawShip("sandwich", 12)
-@Charges({0: 1, 1: 1, 2: 1})
+@Charges({0: 1, 1: 1})
 @Upgradable()
 class ShipF(Thing):
 	letter = "F"
@@ -531,9 +545,11 @@ class ShipF(Thing):
 @Discharges()
 @RevealsOnCharge(125)
 @RewardsOnCharge(1)
+@ColorsByCharge()
 @SavesOnCharge()
 class Building(Thing):
 	brange = 30
+	mapr = 2
 
 @DrawBuilding(20)
 @HasPad(20)
@@ -541,43 +557,53 @@ class Building(Thing):
 @Discharges()
 @RevealsOnCharge(125)
 @RewardsOnCharge(5)
+@ColorsByCharge()
 @SavesOnCharge()
 class BigBuilding(Thing):
 	brange = 30
+	mapr = 4
 
 @DrawImage("objp", 12)
 @HasPad(20)
 @HasTowers()
 @Rechargeable({0: 20, 1: 20, 2: 20})
+@ColorsByCharge()
 @RevealsOnAllCharged(125, 5, 5)
 class ObjectivePTower(Thing):
 	brange = 50
+	mapr = 3
 
 @DrawImage("objq0", 20)
 @HasPad(20)
 @HasTowers()
 @Rechargeable({0: 30, 1: 30, 2: 30})
+@ColorsByCharge()
 @RevealsOnAllCharged(125, 5, 2)
 class ObjectiveQTower(Thing):
 	brange = 50
+	mapr = 3
 
 
 @HasPad(30)
 @TracksProximity()
 class ObjectiveX(Thing):
 	brange = 50
+	mapr = 6
 	def draw(self):
 		if not self.revealed():
 			return
 		nprox = min(max(len(self.visitors), 0), 5)
 		imgname = "data/objx%d.png" % nprox
 		image.draw(imgname, self.screenpos(), scale = 20)
+	def getcolor(self):
+		return 255, 255, 255
 
 @HasPad(12)
 @Discharges()
 @Rechargeable({None: 1, 0: 20, 1: 20, 2: 20})
 class ObjectiveXTower(Thing):
 	brange = 50
+	mapr = None
 	def ischarged(self):
 		return not self.needs[None] and all(self.needs[k] < self.needmax[k] for k in self.needs)
 	def draw(self):
@@ -585,6 +611,8 @@ class ObjectiveXTower(Thing):
 			return
 		imgname = "data/objxtower%d.png" % self.rot
 		image.draw(imgname, self.screenpos(), scale = 14)
+	def getcolor(self):
+		return None
 
 
 # Effects

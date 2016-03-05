@@ -121,7 +121,6 @@ class IntroQuest(Quest):
 		background.reveal(x, y, 80)
 		state.state.addtoteam(you)
 		window.snapto(you)
-		state.state.effects.append(thing.Smoke(pos = [x, y, 0]))
 
 		for x, y, needs, size in gamedata.data["b"]:
 			if size == 1:
@@ -140,6 +139,11 @@ class IntroQuest(Quest):
 		state.state.ships.append(self.shipc)
 		for x, y in gamedata.data["dec"]:
 			state.state.adddecoration(thing.Decoration(pos = [x, y, 0]))
+		for x, y in gamedata.data["smoke"]:
+			smoke = thing.Smoke(pos = [x, y, 0])
+			for _ in range(100):
+				smoke.think(0.1)
+			state.state.adddecoration(smoke)
 
 	def think(self, dt):
 		Quest.think(self, dt)

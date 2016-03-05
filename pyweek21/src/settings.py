@@ -25,7 +25,7 @@ volumes = {
 	"ack": 0.5,
 	"music": 0.5,
 	"dialogue": 1,
-	"ssh": 0.3,  # music volume factor when dialogue is playing
+	"ssh": 0.5,  # music volume factor when dialogue is playing
 }
 ncolors = [
 	Color("yellow"),

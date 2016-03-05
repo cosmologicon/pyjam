@@ -8,6 +8,7 @@ data = {
 	"r": [],  # objective R
 	"s": [],  # objective S
 	"dec": [],  # decorations
+	"smoke": [],
 }
 
 
@@ -71,6 +72,7 @@ for x in range(mx):
 
 elevation = open("data/elevation.data", "rb").read()
 
+nsmoke = 100
 ndec = 400
 objs = set()
 objs |= set((x, y) for x, y in data["you"].values())
@@ -84,11 +86,24 @@ while len(data["dec"]) < ndec:
 		continue
 	x -= 1024
 	y = 1024 - y
-	if any((obj[0] - x) ** 2 + (obj[1] - y) ** 2 < 30 ** 2 for obj in objs):
+	if any((obj[0] - x) ** 2 + (obj[1] - y) ** 2 < 40 ** 2 for obj in objs):
 		continue
 	if any((data["x"][0] - x) ** 2 + (data["x"][1] - y) ** 2 < 100 ** 2 for obj in objs):
 		continue
 	data["dec"].append((x, y))
+	objs.add((x, y))
+while len(data["smoke"]) < nsmoke:
+	x, y = random.randint(0, 2047), random.randint(0, 2047)
+	c = ord(elevation[y + x * 2048])
+	if c < 10:
+		continue
+	x -= 1024
+	y = 1024 - y
+	if any((obj[0] - x) ** 2 + (obj[1] - y) ** 2 < 40 ** 2 for obj in objs):
+		continue
+	if any((data["x"][0] - x) ** 2 + (data["x"][1] - y) ** 2 < 100 ** 2 for obj in objs):
+		continue
+	data["smoke"].append((x, y))
 	objs.add((x, y))
 
 import json

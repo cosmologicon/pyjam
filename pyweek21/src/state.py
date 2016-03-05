@@ -41,7 +41,7 @@ class State(object):
 				b.drawbolt()
 
 	def think(self, dt):
-		for t in self.ships + self.buildings + self.effects:
+		for t in self.ships + self.buildings + self.effects + self.decorationsnear():
 			t.think(dt)
 		self.effects = [e for e in self.effects if e.alive]
 
@@ -63,7 +63,7 @@ class State(object):
 
 
 	def adddecoration(self, decoration):
-		drange = 100
+		drange = 150
 		bx0 = int(math.floor((decoration.x - drange) / settings.blocksize))
 		by0 = int(math.floor((decoration.y - drange) / settings.blocksize))
 		bx1 = int(math.ceil((decoration.x + drange) / settings.blocksize)) + 1

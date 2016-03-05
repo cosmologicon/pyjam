@@ -191,7 +191,6 @@ def separateships(tx, ty):
 	angles = [math.atan2(dx, dy) if (dx or dy) else 0 for dx, dy in ds]
 	# ... pick angles better?
 	angles = [1 + 2 * math.pi * j / len(ships) for j in range(len(ships))]
-	print len(ships), angles
 	for ship, angle in zip(ships, angles):
 		x = tx + R * math.sin(angle)
 		y = ty + R * math.cos(angle)
@@ -208,7 +207,6 @@ def avoidbuildings():
 			dx, dy = tx - building.x, ty - building.y
 			if dx ** 2 + dy ** 2 > R ** 2:
 				continue
-			print dx, dy, R
 			avoided = True
 			if dx or dy:
 				d = math.sqrt(dx ** 2 + dy ** 2)

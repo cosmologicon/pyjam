@@ -278,6 +278,7 @@ def drawminimap():
 
 
 def drawmap():
+	from . import control, image
 	size = window.sx, window.sy
 	if size not in worldmaps:
 		surf = mapimg.copy()
@@ -286,8 +287,23 @@ def drawmap():
 	window.screen.blit(worldmaps[size], (0, 0))
 	ptext.draw("World\nMap", topleft = F(10, 10), color = "yellow", owidth = 1.5, ocolor = "#442200",
 		fontsize = F(48))
-	for obj in state.state.decorations:
-		px = int((obj.x + 1024) / 2048 * window.sx)
-		py = int((-obj.y + 1024) / 2048 * window.sy)
-		pygame.draw.circle(window.screen, (255, 255, 255), (px, py), 4, 0)
+	for ship in state.state.team:
+		px = int((ship.x + 1024) / 2048 * window.sx)
+		py = int((-ship.y + 1024) / 2048 * window.sy)
+		if pygame.time.get_ticks() * 0.001 % 1 < 0.3:
+			color = (255, 0, 255) if control.isselected(ship) else (200, 200, 200)
+			pygame.draw.circle(window.screen, color, (px, py), F(2))
+		else:
+			image.draw("avatar-%s" % ship.letter, (px, py), size = F(20))
+	for building in state.state.buildings:
+		if not building.revealed():
+			continue
+		color = building.getcolor()
+		r = building.mapr
+		if color is None or r is None:
+			continue
+		px = int((building.x + 1024) / 2048 * window.sx)
+		py = int((-building.y + 1024) / 2048 * window.sy)
+		pygame.draw.circle(window.screen, color, (px, py), F(r))
+
 
