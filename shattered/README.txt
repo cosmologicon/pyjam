@@ -5,7 +5,7 @@ Entry in PyWeek 21  <http://www.pyweek.org/21/>
 URL: https://www.pyweek.org/e/unifac21/
 Team: Universe Factory 21
 Members: Christopher Night (Cosmologicon), Mary Bichner (marybee), John Pilman (typhonic), Charles McPillan, Molly Zenobia, Randy Parcel, Monica Vargas
-License: see LICENSE.txt
+License: see `LICENSE.txt`
 
 Requirements
 ------------
@@ -27,21 +27,35 @@ Open a terminal / console and "cd" to the game directory and run:
 Controls
 --------
 
-* Left click on ship to select
-* Left drag to select multiple ships
-* Shift+click or ctrl+click to select multiple ships
-* Tab to cycle between ships
+Camera:
 
-* Right click or Enter to send ships to cursor
-
-* Arrow keys or WASD to move the camera
-* Middle drag to move the camera
-* Space to pan the camera to the current ship
+* Arrow keys or WASD to move camera
+* Middle-button drag to move camera
+* Space to center on current ship
 * Hold space to follow current ship
 
-* M to bring up the map
+Selecting ships:
 
-* Esc to quit
+* Left click on a ship or the icon in the upper left to select it
+* Double click on any ship or icon to select all ships
+* Left-button drag to select multiple ships
+* Tab to cycle through ships
+
+Movement:
+
+* Right click to send selected ship to a point
+* Enter key emulates right click
+
+Other:
+
+* Click on the minimap (or press M) to view the map
+* Press F or F11 to toggle fullscreen
+* Press Esc to exit
+* Press F12 to take a screenshot (saved in screenshots directory)
+
+Edit the `key` variable in `src/settings.py` to change key bindings.
+
+Edit the `ncolors` variable in `src/settings.py` to change colors used in the game.
 
 Command-line arguments
 ----------------------
@@ -52,6 +66,4 @@ Command-line arguments
     --huge : 1920x1080 resolution
     --lowres : don't draw a couple special effects
     --fullscreen : start in fullscreen mode
-
-Please see settings.py for accessibility options. The keys may be specified with the `keys`
-variable, and the in-game colors may be specified with the `ncolors` variable.
+    --cheat : start with extra upgradons

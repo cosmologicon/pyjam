@@ -20,6 +20,8 @@ else:
 		scene.push(playscene)
 	else:
 		scene.push(crawlscene)
+if settings.cheat:
+	state.state.bank += 100000
 clock = pygame.time.Clock()
 playing = True
 
