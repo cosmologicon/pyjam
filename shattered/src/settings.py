@@ -61,6 +61,9 @@ resolution0 = 480  # do not change - logical (not actual) resolution of screen
 gamename = "Shattered World"
 DEBUG = "--DEBUG" in sys.argv
 cheat = "--cheat" in sys.argv
+vidcap = "--vidcap" in sys.argv
+if vidcap:
+	minfps = maxfps = 25
 
 
 shadecolor = 40, 40, 40

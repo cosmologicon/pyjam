@@ -1,6 +1,10 @@
 from __future__ import division
+from . import settings
+if settings.vidcap:
+	from . import vidcap
+	vidcap.stop()
 import pygame, os
-from . import settings, window, ptext, background, quest, control, state, dialogue
+from . import window, ptext, background, quest, control, state, dialogue
 from . import scene, playscene, crawlscene
 from .util import F
 
@@ -63,6 +67,8 @@ def handleevents():
 				state.state.bank += 100
 			if settings.DEBUG and event.key == pygame.K_F8:
 				dialogue.clear()
+			if settings.vidcap and event.key == pygame.K_F9:
+				vidcap.toggle()
 			if settings.DEBUG and event.key == pygame.K_F10:
 				state.save()
 			for kname, keys in settings.keys.items():
