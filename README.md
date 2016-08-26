@@ -3,6 +3,8 @@
 Code for my Python game jam entries (PyWeek).
 
 * PyWeek 20 (`horizon`): Beyond the Horizon.
+* PyWeek 21 (`shattered`): Shattered World.
+* PyWeek 22 (`pyweek22`): Unnamed PyWeek 22 entry.
 
 ## Setup process
 
