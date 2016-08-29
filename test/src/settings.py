@@ -4,6 +4,8 @@ import sys
 
 windowsize = 854, 480
 fullscreen = "--fullscreen" in sys.argv
+noaudio = "--noaudio" in sys.argv
+nonumpy = "--nonumpy" in sys.argv
 gamename = "Testing for PyWeek"
 maxfps = 60
 

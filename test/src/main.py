@@ -5,7 +5,8 @@ from src.scenes import play
 from src.window import F
 
 ptext.FONT_NAME_TEMPLATE = "data/%s.ttf"
-pygame.mixer.init()
+if not settings.noaudio:
+	pygame.mixer.init()
 window.init()
 play.init()
 

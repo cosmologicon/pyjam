@@ -28,10 +28,11 @@ class Button(object):
 
 buttons = []
 def init():
-	buttons.append(Button((40, 40, 220, 70), "Play sound"))
+	if not settings.noaudio:
+		buttons.append(Button((40, 40, 220, 70), "Play sound"))
+		media.getsound("sound")
 #	buttons.append(Button((40, 120, 220, 70), "Play video"))
 	buttons.append(Button((40, 120, 220, 70), "Toggle fullscreen"))
-	media.getsound("sound")
 
 def clickbutton(name):
 	if name == "Play sound":
@@ -57,6 +58,7 @@ def draw():
 	for button in buttons:
 		button.draw()
 	pygame.draw.circle(window.screen, (255, 255, 255), F((420, 120)), F(100))
-	media.drawimage(media.colorfilter(media.getimage("earth.jpg")), F((640, 120)), 2.1 * window.sf)
+	if not settings.nonumpy:
+		media.drawimage(media.colorfilter(media.getimage("earth.jpg")), F((640, 120)), 2.1 * window.sf)
 	media.drawimage("egg.png", F((640, 320)), 0.3 * window.sf)
 
