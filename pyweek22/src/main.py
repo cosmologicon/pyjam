@@ -9,17 +9,17 @@ playscene.init()
 clock = pygame.time.Clock()
 playing = True
 while playing:
-	dt = max(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
+	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	mpos = pygame.mouse.get_pos()
 	mdown, mup = False, False
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			playing = False
 		if event.type == pygame.MOUSEBUTTONDOWN:
-			if event.button == 0:
+			if event.button == 1:
 				mdown = True
 		if event.type == pygame.MOUSEBUTTONUP:
-			if event.button == 0:
+			if event.button == 1:
 				mup = True
 		if event.type == pygame.KEYDOWN:	
 			if event.key == pygame.K_ESCAPE:
