@@ -7,7 +7,7 @@ screen = None
 sx, sy = settings.wsize
 x0 = 0
 y0 = 0
-Z = 3
+Z = 2
 
 def init():
 	global screen
@@ -24,11 +24,19 @@ def screenshot():
 def clear():
 	screen.fill((0, 40, 40))
 
-def screenpos((x, y)):
+def screenpos(p):
+	x, y = p
 	return F([
 		sx / 2 + Z * (x - x0),
 		sy / 2 + Z * -(y - y0),
 	])
+
+def gamepos(p):
+	x, y = p
+	return (
+		x0 + (x - sx / 2) / Z,
+		y0 - (y - sy / 2) / Z,
+	)
 
 def screenlength(r):
 	return F(r * Z)
