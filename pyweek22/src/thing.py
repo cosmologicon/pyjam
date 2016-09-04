@@ -68,6 +68,16 @@ class Mouseable(Component):
 	def onmousedown(self):
 		pass
 
+class Shootable(Component):
+	def addtostate(self):
+		state.shootables.append(self)
+	def setstate(self, hp = 1, **kw):
+		self.hp = hp
+	def shoot(self, dhp):
+		self.hp -= dhp
+		if self.hp <= 0:
+			self.die()
+
 class Draggable(Component):
 	def onmousedown(self):
 		if control.cursor is None:
@@ -88,17 +98,41 @@ class DrawCircle(Component):
 		pass
 
 class DrawVirus(Component):
-	def setstate(self, r = 10, **kw):
+	def setstate(self, r = 10, imgname = "virus", **kw):
 		self.r = r
 		self.tdraw0 = random.uniform(0, 1000)
-	def draw(self):
+		self.imgname = imgname
+		self.fstretch = 1
+		self.angle = 0
+		self.imgdy = 0
+	def think(self, dt):
 		tdraw = self.tdraw0 + self.t
-		fstretch = math.exp(0.3 * math.sin(10 * tdraw))
-		angle = 15 * math.sin(0.6 * tdraw)
-		dy = 0.3 * self.r * math.sin(10 * tdraw)
-		img.drawworld("virus", (self.x, self.y + dy), self.r, fstretch = fstretch, angle = angle)
+		self.fstretch = math.exp(0.3 * math.sin(10 * tdraw))
+		self.angle = 15 * math.sin(0.6 * tdraw)
+		self.imgdy = 0.3 * self.r * math.sin(10 * tdraw)
+	def draw(self):
+		img.drawworld(self.imgname, (self.x, self.y + self.imgdy), self.r, fstretch = self.fstretch, angle = self.angle)
 	def drawback(self):
 		pass
+
+
+class DrawCorpse(Component):
+	def setstate(self, x, y, imgname, r, fstretch = 1, angle = 0, **kw):
+		self.x = x
+		self.y = y
+		self.imgname = imgname
+		self.fstretch = fstretch
+		self.angle = angle
+		self.r = r
+	def draw(self):
+		r = self.r * (1 + self.flife)
+		img.drawworld(self.imgname, (self.x, self.y), r, fstretch = self.fstretch, angle = self.angle)
+	def drawback(self):
+		pass
+
+class LeavesCorpse(Component):
+	def die(self):
+		Corpse(self).addtostate()
 
 class DrawBlob(Component):
 	def setstate(self, rblob = 10, nblob = 3, **kw):
@@ -222,6 +256,32 @@ class GetsATP(Component):
 	def arrive(self):
 		state.atp += 1
 
+class FollowsRecipe(Component):
+	def think(self, dt):
+		flavors = [obj.flavor for obj in self.slots]
+		if flavors.count(0) == 2:
+			for obj in state.shootables:
+				dx = obj.x - self.x
+				dy = obj.y - self.y
+				if dx ** 2 + dy ** 2 < 30 ** 2:
+					obj.shoot(1)
+					Laser(self, obj).addtostate()
+
+class DrawLaser(Component):
+	def setstate(self, x0, x1, y0, y1, color = (255, 255, 255), **kw):
+		self.x0 = x0
+		self.y0 = y0
+		self.x1 = x1
+		self.y1 = y1
+		self.color = color
+	def draw(self):
+		pygame.draw.aaline(view.screen, self.color,
+			view.screenpos((self.x0, self.y0)),
+			view.screenpos((self.x1, self.y1)),
+			view.screenlength(1))
+	def drawback(self):
+		pass
+
 @Lives()
 @WorldBound()
 @Drawable()
@@ -245,6 +305,7 @@ class Amoeba(object):
 @Buildable()
 @ResizesWithSlots()
 @WorldCollidable()
+@FollowsRecipe()
 class Tower(object):
 	def __init__(self, **kw):
 		self.setstate(
@@ -335,7 +396,9 @@ class Egg(object):
 @TargetsThing()
 @DiesOnArrival()
 @HarmsOnArrival()
+@Shootable()
 @DrawVirus()
+@LeavesCorpse()
 @WorldCollidable()
 class Virus(object):
 	def __init__(self, **kw):
@@ -344,5 +407,37 @@ class Virus(object):
 			rcollide = 6, mass = 5,
 			r = 6, color = (255, 255, 255),
 			**kw)
+
+
+
+@Lives()
+@Lifetime()
+@Drawable()
+@DrawLaser()
+class Laser(object):
+	def __init__(self, obj0, obj1, color = (255, 255, 255), **kw):
+		self.setstate(
+			lifetime = 0.2,
+			x0 = obj0.x, y0 = obj0.y,
+			x1 = obj1.x, y1 = obj1.y,
+			color = color,
+			**kw)
+
+@Lives()
+@Lifetime()
+@Drawable()
+@DrawCorpse()
+class Corpse(object):
+	def __init__(self, obj, **kw):
+		self.setstate(
+			lifetime = 0.2,
+			x = obj.x,
+			y = obj.y + obj.imgdy,
+			r = obj.r,
+			imgname = obj.imgname,
+			fstretch = obj.fstretch,
+			angle = obj.angle,
+			**kw)
+
 
 

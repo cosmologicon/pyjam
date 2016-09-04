@@ -5,11 +5,7 @@ from .util import F
 def init():
 	state.atp = 0
 	state.health = 100
-	state.drawables = []
-	state.colliders = []
-	state.mouseables = []
-	state.thinkers = []
-	state.buildables = []
+	state.reset()
 	state.amoeba = thing.Amoeba(x = 0, y = 0, r = 30)
 	state.amoeba.addtostate()
 	control.cursor = None
