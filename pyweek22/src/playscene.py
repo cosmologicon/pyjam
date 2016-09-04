@@ -75,4 +75,5 @@ def draw():
 
 	ptext.draw("ATP: %d\nhealth: %d" % (state.atp, state.health),
 		bottom = F(470), left = F(10), fontsize = F(26), color = "yellow")
+	
 

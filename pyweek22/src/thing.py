@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, control, state, blob
+from . import view, control, state, blob, img, settings
 from .util import F
 from .enco import Component
 
@@ -44,8 +44,9 @@ class Collidable(Component):
 	def getcollidespec(self):
 		return self.x, self.y, self.rcollide, self.mass
 	def draw(self):
-		pygame.draw.circle(view.screen, (255, 255, 255),
-			view.screenpos((self.x, self.y)), view.screenlength(self.rcollide), 1)
+		if settings.showbox:
+			pygame.draw.circle(view.screen, (255, 255, 255),
+				view.screenpos((self.x, self.y)), view.screenlength(self.rcollide), 1)
 
 class Mouseable(Component):
 	def addtostate(self):
@@ -76,6 +77,18 @@ class DrawCircle(Component):
 		self.color = color
 	def draw(self):
 		pygame.draw.circle(view.screen, self.color, view.screenpos((self.x, self.y)), view.screenlength(self.r))
+	def drawback(self):
+		pass
+
+class DrawVirus(Component):
+	def setstate(self, r = 10, **kw):
+		self.r = r
+		self.tdraw0 = random.uniform(0, 1000)
+	def draw(self):
+		tdraw = self.tdraw0 + self.t
+		fstretch = math.exp(0.3 * math.sin(10 * tdraw))
+		angle = 15 * math.sin(0.6 * tdraw)
+		img.drawworld("virus", (self.x, self.y), self.r, fstretch = fstretch, angle = angle)
 	def drawback(self):
 		pass
 
@@ -198,7 +211,7 @@ class Organelle(object):
 @TargetsThing()
 @DiesOnArrival()
 @HarmsOnArrival()
-@DrawCircle()
+@DrawVirus()
 @Collidable()
 class Virus(object):
 	def __init__(self, **kw):

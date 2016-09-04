@@ -1,19 +1,28 @@
 from __future__ import division
 import pygame, os, os.path, datetime
-from . import settings, blob
+from . import settings, blob, util
 from .util import F
 
 screen = None
 blobscreen = None
-sx, sy = settings.wsize
 x0 = 0
 y0 = 0
 Z = 2
 
 def init():
-	global screen, blobscreen
+	global screen, blobscreen, sx, sy
 	pygame.display.set_caption(settings.gamename)
-	screen = pygame.display.set_mode((sx, sy))
+	sx, sy = settings.wsize
+	flags = 0
+	if settings.fullscreen:
+		sx0, sy0 = max(pygame.display.list_modes())
+		if sx0 * sy > sy0 * sx:
+			sx, sy = int(round(sy0 * sx / sy)), sy0
+		else:
+			sx, sy = sx0, int(round(sx0 * sy / sx))
+		flags = flags or pygame.FULLSCREEN
+	util.f = sy / 480
+	screen = pygame.display.set_mode((sx, sy), flags)
 	blobscreen = pygame.Surface((sx, sy)).convert_alpha()
 
 def screenshot():
@@ -38,15 +47,15 @@ def applyback():
 def screenpos(p):
 	x, y = p
 	return F([
-		sx / 2 + Z * (x - x0),
-		sy / 2 + Z * -(y - y0),
+		854 / 2 + Z * (x - x0),
+		480 / 2 + Z * -(y - y0),
 	])
 
 def gamepos(p):
 	x, y = p
 	return (
-		x0 + (x - sx / 2) / Z,
-		y0 - (y - sy / 2) / Z,
+		x0 + (x - sx / 2) / Z / util.f,
+		y0 - (y - sy / 2) / Z / util.f,
 	)
 
 def screenlength(r):
