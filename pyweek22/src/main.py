@@ -27,14 +27,17 @@ while playing:
 		if event.type == pygame.KEYDOWN:	
 			if event.key == pygame.K_ESCAPE:
 				playing = False
+			if event.key == pygame.K_F11:
+				view.togglefullscreen()
 			if event.key == pygame.K_F12:
 				view.screenshot()
 	s = scene.top()
 	s.think(dt, mpos, mdown, mup)
 	s.draw()
 
-	ptext.draw("%.1ffps" % clock.get_fps(),
-		right = F(844), top = F(10), fontsize = F(26), color = "yellow")
+	if settings.showfps:
+		ptext.draw("%.1ffps" % clock.get_fps(),
+			right = F(844), top = F(10), fontsize = F(26), color = "yellow")
 
 	pygame.display.flip()
 pygame.quit()

@@ -3,7 +3,8 @@ wsize = 854, 480
 minfps = 5
 maxfps = 60
 screenshotpath = "screenshots"
-fullscreen = True
+fullscreen = False
 
-
+# Debug settings
 showbox = False
+showfps = True

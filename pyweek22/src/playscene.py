@@ -9,10 +9,9 @@ def init():
 	state.colliders = []
 	state.mouseables = []
 	state.thinkers = []
+	state.buildables = []
 	state.amoeba = thing.Amoeba(x = 0, y = 0, r = 30)
 	state.amoeba.addtostate()
-	thing.Organelle(x = 100, y = 0).addtostate()
-	thing.Organelle(x = -100, y = 0).addtostate()
 	control.cursor = None
 	control.buttons = [
 		control.Button((10, 10, 100, 40), "build 1"),
@@ -37,14 +36,21 @@ def think(dt, mpos, mdown, mup):
 	for obj in state.thinkers:
 		obj.think(dt)
 
-	cspecs = [obj.getcollidespec() for obj in state.colliders]
-	for (dx, dy), obj in zip(bounce.getbounce(cspecs, dt), state.colliders):
-		obj.x += dx
-		obj.y += dy
+	bounce.adjust(state.colliders, dt)
 
 	if control.cursor:
-		control.cursor.ondrag(gpos)
-	if mup:
+		control.cursor.scootch(gpos[0] - control.cursor.x, gpos[1] - control.cursor.y)
+		control.cursor.think(dt)
+	if mup and control.cursor:
+		for obj in state.buildables:
+			if obj.cantake(control.cursor):
+				for x in control.cursor.slots:
+					obj.add(x)
+					x.container = obj
+					control.cursor.die()
+				break
+		else:
+			control.cursor.addtostate()
 		control.cursor = None
 
 	if random.random() < dt:
@@ -55,21 +61,31 @@ def think(dt, mpos, mdown, mup):
 		virus = thing.Virus(x = x, y = y)
 		virus.target = state.amoeba
 		virus.addtostate()
-	state.mouseables = [m for m in state.mouseables if m.alive]
-	state.colliders = [m for m in state.colliders if m.alive]
-	state.drawables = [m for m in state.drawables if m.alive]
-	state.thinkers = [m for m in state.thinkers if m.alive]
+	state.updatealive()
 
 def click(bname):
-	print bname
+	if state.amoeba.isfull():
+		return
+	flavor = {
+		"build 1": 0,
+		"build 2": 1,
+		"build 3": 2,
+	}[bname]
+	egg = thing.Egg(container = state.amoeba, flavor = flavor)
+	state.amoeba.add(egg)
+	egg.addtostate()
 
 def draw():
 	view.clear()
 	for obj in state.drawables:
 		obj.drawback()
+	if control.cursor:
+		control.cursor.drawback()
 	view.applyback()
 	for obj in state.drawables:
 		obj.draw()
+	if control.cursor:
+		control.cursor.draw()
 	for button in control.buttons:
 		button.draw()
 

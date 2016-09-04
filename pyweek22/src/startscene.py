@@ -20,5 +20,5 @@ def draw():
 		view.drawoverlay(alpha)
 	if t < 1.5:
 		ptext.draw("Level start!", fontsize = F(150), center = F(854/2, 480/2),
-			color = "yellow", gcolor = "orange")
+			color = "yellow", gcolor = "orange", shadow = (1, 1))
 

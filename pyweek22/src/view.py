@@ -25,6 +25,10 @@ def init():
 	screen = pygame.display.set_mode((sx, sy), flags)
 	blobscreen = pygame.Surface((sx, sy)).convert_alpha()
 
+def togglefullscreen():
+	settings.fullscreen = not settings.fullscreen
+	init()
+
 def screenshot():
 	if not os.path.exists(settings.screenshotpath):
 		os.makedirs(settings.screenshotpath)

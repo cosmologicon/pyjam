@@ -1,6 +1,6 @@
 # Bouncing physics
 from __future__ import division
-import math
+import math, random
 
 # TODO: O(n log n)
 def getbounce(objs, dt):
@@ -12,8 +12,12 @@ def getbounce(objs, dt):
 			if (x0 - x1) ** 2 + (y0 - y1) ** 2 < (r0 + r1) ** 2:
 				dx = x1 - x0
 				dy = y1 - y0
+				if dx == 0 and dy == 0:
+					a = random.angle()
+					dx = 1.0 * math.sin(a)
+					dy = 1.0 * math.cos(a)
 				d = math.sqrt(dx ** 2 + dy ** 2)
-				f = 50 + 20 * (r0 + r1 - d)
+				f = math.clamp(20 * (r0 + r1 - d), 50, 200)
 				dx *= dt / d * f
 				dy *= dt / d * f
 				da = math.sqrt(dx ** 2 + dy ** 2)
@@ -28,6 +32,11 @@ def getbounce(objs, dt):
 				ds[j][0] += dx * f1
 				ds[j][1] += dy * f1
 	return ds
+
+def adjust(objs, dt):
+	cspecs = [obj.getcollidespec() for obj in objs]
+	for (dx, dy), obj in zip(getbounce(cspecs, dt), objs):
+		obj.scootch(dx, dy)
 
 
 if __name__ == "__main__":
