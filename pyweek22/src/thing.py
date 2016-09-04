@@ -4,6 +4,8 @@ from .util import F
 from .enco import Component
 
 class Lives(Component):
+	def addtostate(self):
+		state.thinkers.append(self)
 	def setstate(self, alive = True, t = 0, **kw):
 		self.alive = alive
 		self.t = t
@@ -29,7 +31,25 @@ class WorldBound(Component):
 		self.x = x
 		self.y = y
 
+class Drawable(Component):
+	def addtostate(self):
+		state.drawables.append(self)
+
+class Collidable(Component):
+	def addtostate(self):
+		state.colliders.append(self)
+	def setstate(self, rcollide = 10, mass = 10, **kw):
+		self.rcollide = rcollide
+		self.mass = mass
+	def getcollidespec(self):
+		return self.x, self.y, self.rcollide, self.mass
+	def draw(self):
+		pygame.draw.circle(view.screen, (255, 255, 255),
+			view.screenpos((self.x, self.y)), view.screenlength(self.rcollide), 1)
+
 class Mouseable(Component):
+	def addtostate(self):
+		state.mouseables.append(self)
 	def setstate(self, rmouse = 5, **kw):
 		self.rmouse = rmouse
 	def within(self, pos):
@@ -127,10 +147,13 @@ class GetsATP(Component):
 
 @Lives()
 @WorldBound()
+@Drawable()
 @DrawBlob()
+@Collidable()
 class Amoeba(object):
 	def __init__(self, **kw):
 		self.setstate(
+			rcollide = 20, mass = 10000,
 			rblob = 20,
 			nblob = 18,
 		**kw)
@@ -138,6 +161,7 @@ class Amoeba(object):
 @Lives()
 @Lifetime()
 @WorldBound()
+@Drawable()
 @Mouseable()
 @DisappearsToCenter()
 @DiesOnArrival()
@@ -153,13 +177,16 @@ class ATP(object):
 
 @Lives()
 @WorldBound()
+@Drawable()
 @Mouseable()
 @Draggable()
 @DrawBlob()
 @DrawCircle()
+@Collidable()
 class Organelle(object):
 	def __init__(self, **kw):
 		self.setstate(
+			rcollide = 6, mass = 36,
 			rblob = 6, rmouse = 6,
 			nblob = 6,
 			r = 3, color = (200, 100, 0),
@@ -167,13 +194,16 @@ class Organelle(object):
 
 @Lives()
 @WorldBound()
+@Drawable()
 @TargetsThing()
 @DiesOnArrival()
 @HarmsOnArrival()
 @DrawCircle()
+@Collidable()
 class Virus(object):
 	def __init__(self, **kw):
 		self.setstate(
+			rcollide = 3, mass = 9,
 			r = 3, color = (255, 255, 255),
 			**kw)
 
