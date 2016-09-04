@@ -80,6 +80,16 @@ class DrawBlob(Component):
 			img = blob.hill(view.screenlength(1 * self.rblob), 0.5)
 			view.blobscreen.blit(img, img.get_rect(center = view.screenpos((x, y))))
 
+# Move from p0 to p1 by an amount d, and return if you've arrived
+def approachpos(p0, p1, d):
+	x0, y0 = p0
+	x1, y1 = p1
+	dx, dy = x1 - x0, y1 - y0
+	dp = math.sqrt(dx ** 2 + dy ** 2)
+	if dp < d:
+		return x1, y1, True
+	return x0 + dx * d / dp, y0 + dy * d / dp, False
+
 class DisappearsToCenter(Component):
 	def setstate(self, approaching = False, **kw):
 		self.approaching = approaching
@@ -89,16 +99,27 @@ class DisappearsToCenter(Component):
 	def think(self, dt):
 		if not self.approaching or not self.alive:
 			return
-		d = math.sqrt(self.x ** 2 + self.y ** 2)
-		D = dt * 100
-		if D > d:
-			self.x = self.y = 0
+		self.x, self.y, arrived = approachpos((self.x, self.y), (0, 0), dt * 100)
+		if arrived:
 			self.arrive()
-		else:
-			self.x -= self.x * D / d
-			self.y -= self.y * D / d
+
+class TargetsThing(Component):
+	def setstate(self, target = None, speed = 10, **kw):
+		self.target = target
+		self.speed = speed
+	def think(self, dt):
+		if self.alive and self.target is not None:
+			self.x, self.y, arrived = approachpos((self.x, self.y), (self.target.x, self.target.y), self.speed * dt)
+			if arrived:
+				self.arrive()
+
+class DiesOnArrival(Component):
 	def arrive(self):
 		self.die()
+
+class HarmsOnArrival(Component):
+	def arrive(self):
+		state.health -= 1
 
 class GetsATP(Component):
 	def arrive(self):
@@ -119,6 +140,7 @@ class Amoeba(object):
 @WorldBound()
 @Mouseable()
 @DisappearsToCenter()
+@DiesOnArrival()
 @DrawCircle()
 @GetsATP()
 class ATP(object):
@@ -141,6 +163,18 @@ class Organelle(object):
 			rblob = 6, rmouse = 6,
 			nblob = 6,
 			r = 3, color = (200, 100, 0),
+			**kw)
+
+@Lives()
+@WorldBound()
+@TargetsThing()
+@DiesOnArrival()
+@HarmsOnArrival()
+@DrawCircle()
+class Virus(object):
+	def __init__(self, **kw):
+		self.setstate(
+			r = 3, color = (255, 255, 255),
 			**kw)
 
 

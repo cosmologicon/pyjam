@@ -1,9 +1,10 @@
-import random
+import random, math
 from . import ptext, state, thing, view, control
 from .util import F
 
 def init():
 	state.atp = 0
+	state.health = 100
 	state.mouseables = [
 		thing.Organelle(x = 100, y = 0),
 		thing.Organelle(x = -100, y = 0),
@@ -43,6 +44,12 @@ def think(dt, mpos, mdown, mup):
 		atp = thing.ATP(x = random.randrange(-200, 200), y = random.randrange(-200, 200))
 		state.mouseables.append(atp)
 		state.things.append(atp)
+	if 2 * random.random() < dt:
+		theta = random.angle()
+		x, y = 200 * math.sin(theta), 200 * math.cos(theta)
+		virus = thing.Virus(x = x, y = y)
+		virus.target = state.things[0]
+		state.things.append(virus)
 	state.mouseables = [m for m in state.mouseables if m.alive]
 	state.things = [m for m in state.things if m.alive]
 
@@ -59,6 +66,6 @@ def draw():
 	for button in control.buttons:
 		button.draw()
 
-	ptext.draw("ATP: %d" % state.atp,
+	ptext.draw("ATP: %d\nhealth: %d" % (state.atp, state.health),
 		bottom = F(470), left = F(10), fontsize = F(26), color = "yellow")
 
