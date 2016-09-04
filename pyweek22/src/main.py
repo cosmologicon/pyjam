@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame
-from . import mhack, settings, view
+from . import mhack, settings, view, state
 
 pygame.init()
 view.init()
@@ -19,5 +19,8 @@ while playing:
 				view.screenshot()
 
 	view.clear()	
+	for obj in state.things:
+		obj.draw()
+
 	pygame.display.flip()
 pygame.quit()
