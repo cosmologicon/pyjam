@@ -1,11 +1,13 @@
 from __future__ import division
 import pygame
-from . import mhack, settings, view, state, playscene, ptext
+from . import mhack, settings, view, state, ptext
+from . import scene, playscene, startscene
 from .util import F
 
 pygame.init()
 view.init()
-playscene.init()
+scene.push(playscene)
+#scene.push(startscene)
 
 clock = pygame.time.Clock()
 playing = True
@@ -27,9 +29,9 @@ while playing:
 				playing = False
 			if event.key == pygame.K_F12:
 				view.screenshot()
-	playscene.think(dt, mpos, mdown, mup)
-	playscene.draw()
-
+	s = scene.top()
+	s.think(dt, mpos, mdown, mup)
+	s.draw()
 
 	ptext.draw("%.1ffps" % clock.get_fps(),
 		right = F(844), top = F(10), fontsize = F(26), color = "yellow")

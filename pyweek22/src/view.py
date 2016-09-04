@@ -27,6 +27,11 @@ def clear():
 	screen.fill((0, 0, 0))
 	blobscreen.fill((0, 0, 0, 0))
 
+def drawoverlay(alpha = 0.8, color = (0, 0, 0)):
+	overlay = pygame.Surface(screen.get_size()).convert_alpha()
+	overlay.fill((color[0], color[1], color[2], int(alpha * 255)))
+	screen.blit(overlay, (0, 0))
+
 def applyback():
 	screen.blit(blob.tocell(blobscreen), (0, 0))
 
