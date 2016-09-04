@@ -22,8 +22,8 @@ def tocell(surf):
 	osurf.fill((0, 50, 50, 255))
 	a = pygame.surfarray.pixels_alpha(surf)
 	arr = pygame.surfarray.pixels3d(osurf)
-	arr[a > 100, 1:3] = 0
-	arr[a > 150, 1:3] = 120
+	arr[a > 100] = 0, 0, 0
+	arr[a > 150] = 0, 120, 120
 	return osurf
 
 
@@ -53,6 +53,7 @@ if __name__ == "__main__":
 			img = hill(r, h)
 			surf.blit(img, img.get_rect(centerx = int(x), centery = int(y)))
 		t0 = pygame.time.get_ticks()
+		screen.fill((0, 0, 0))
 		screen.blit(pygame.transform.smoothscale(tocell(surf), screen.get_size()), (0, 0))
 #		print pygame.time.get_ticks() - t0
 

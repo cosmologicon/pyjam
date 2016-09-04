@@ -1,6 +1,7 @@
 from __future__ import division
 import pygame
-from . import mhack, settings, view, state, playscene
+from . import mhack, settings, view, state, playscene, ptext
+from .util import F
 
 pygame.init()
 view.init()
@@ -28,6 +29,10 @@ while playing:
 				view.screenshot()
 	playscene.think(dt, mpos, mdown, mup)
 	playscene.draw()
+
+
+	ptext.draw("%.1ffps" % clock.get_fps(),
+		right = F(844), top = F(10), fontsize = F(26), color = "yellow")
 
 	pygame.display.flip()
 pygame.quit()

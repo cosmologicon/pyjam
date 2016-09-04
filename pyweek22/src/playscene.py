@@ -32,6 +32,7 @@ def think(dt, mpos, mdown, mup):
 				obj.onhover()
 				if mdown:
 					obj.onmousedown()
+	for obj in state.things:
 		obj.think(dt)
 	if control.cursor:
 		control.cursor.ondrag(gpos)
@@ -50,6 +51,9 @@ def click(bname):
 
 def draw():
 	view.clear()
+	for obj in state.things:
+		obj.drawback()
+	view.applyback()
 	for obj in state.things:
 		obj.draw()
 	for button in control.buttons:

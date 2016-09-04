@@ -1,5 +1,5 @@
-import pygame, math
-from . import view, control, state
+import pygame, math, random
+from . import view, control, state, blob
 from .util import F
 from .enco import Component
 
@@ -56,6 +56,29 @@ class DrawCircle(Component):
 		self.color = color
 	def draw(self):
 		pygame.draw.circle(view.screen, self.color, view.screenpos((self.x, self.y)), view.screenlength(self.r))
+	def drawback(self):
+		pass
+
+class DrawBlob(Component):
+	def setstate(self, rblob = 10, nblob = 3, **kw):
+		self.rblob = rblob
+		self.nblob = nblob
+		self.blobspecs = [(
+			random.uniform(0, math.tau),
+			random.uniform(0.6, 1) * (-1 if j % 2 else 1),
+			random.uniform(0.9, 1.1),
+		) for j in range(self.nblob)]
+	def draw(self):
+		pass
+	def drawback(self):
+		img = blob.hill(view.screenlength(2 * self.rblob), 1)
+		view.blobscreen.blit(img, img.get_rect(center = view.screenpos((self.x, self.y))))
+		for theta0, dtheta, fr in self.blobspecs:
+			theta = theta0 + self.t * dtheta
+			x = self.x + fr * self.rblob * math.sin(theta)
+			y = self.y + fr * self.rblob * math.cos(theta)
+			img = blob.hill(view.screenlength(1 * self.rblob), 0.5)
+			view.blobscreen.blit(img, img.get_rect(center = view.screenpos((x, y))))
 
 class DisappearsToCenter(Component):
 	def setstate(self, approaching = False, **kw):
@@ -83,10 +106,13 @@ class GetsATP(Component):
 
 @Lives()
 @WorldBound()
-@DrawCircle()
+@DrawBlob()
 class Amoeba(object):
 	def __init__(self, **kw):
-		self.setstate(**kw)
+		self.setstate(
+			rblob = 20,
+			nblob = 18,
+		**kw)
 
 @Lives()
 @Lifetime()
@@ -107,12 +133,14 @@ class ATP(object):
 @WorldBound()
 @Mouseable()
 @Draggable()
+@DrawBlob()
 @DrawCircle()
 class Organelle(object):
 	def __init__(self, **kw):
 		self.setstate(
-			color = (250, 120, 0),
-			r = 6, rmouse = 6,
+			rblob = 6, rmouse = 6,
+			nblob = 6,
+			r = 3, color = (200, 100, 0),
 			**kw)
 
 
