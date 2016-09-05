@@ -122,8 +122,6 @@ class DrawCircle(Component):
 		self.color = color
 	def draw(self):
 		pygame.draw.circle(view.screen, self.color, view.screenpos((self.x, self.y)), view.screenlength(self.r))
-	def drawback(self):
-		pass
 
 class DrawVirus(Component):
 	def setstate(self, r = 10, imgname = "virus", **kw):
@@ -140,8 +138,6 @@ class DrawVirus(Component):
 		self.imgdy = 0.3 * self.r * math.sin(10 * tdraw)
 	def draw(self):
 		img.drawworld(self.imgname, (self.x, self.y + self.imgdy), self.r, fstretch = self.fstretch, angle = self.angle)
-	def drawback(self):
-		pass
 
 
 class DrawCorpse(Component):
@@ -155,8 +151,6 @@ class DrawCorpse(Component):
 	def draw(self):
 		r = self.r * (1 + self.flife)
 		img.drawworld(self.imgname, (self.x, self.y), r, fstretch = self.fstretch, angle = self.angle)
-	def drawback(self):
-		pass
 
 class LeavesCorpse(Component):
 	def die(self):
@@ -172,16 +166,13 @@ class DrawBlob(Component):
 			random.uniform(0.6, 0.8),
 		) for j in range(self.nblob)]
 	def draw(self):
-		pass
-	def drawback(self):
-		img = blob.hill(view.screenlength(2 * self.rblob), 1)
-		view.blobscreen.blit(img, img.get_rect(center = view.screenpos((self.x, self.y))))
+		blobspec = [(self.x, self.y, 2 * self.rblob, 1)]
 		for theta0, dtheta, fr in self.blobspecs:
 			theta = theta0 + self.t * dtheta
 			x = self.x + fr * self.rblob * math.sin(theta)
 			y = self.y + fr * self.rblob * math.cos(theta)
-			img = blob.hill(view.screenlength(0.8 * self.rblob), 0.5)
-			view.blobscreen.blit(img, img.get_rect(center = view.screenpos((x, y))))
+			blobspec.append((x, y, 0.8 * self.rblob, 0.5))
+		view.drawblob(blobspec)
 
 class Hatches(Component):
 	def die(self):
@@ -209,6 +200,9 @@ class HasSlots(Component):
 			obj.y += (self.y - obj.y) * f
 		if len(self.slots) > 1:
 			bounce.adjust(self.slots, dt)
+	def draw(self):
+		for obj in self.slots:
+			obj.draw()
 	def scootch(self, dx, dy):
 		for obj in self.slots:
 			obj.scootch(dx, dy)
@@ -314,8 +308,6 @@ class DrawLaser(Component):
 			view.screenpos((self.x0, self.y0)),
 			view.screenpos((self.x1, self.y1)),
 			view.screenlength(1))
-	def drawback(self):
-		pass
 
 @Lives()
 @WorldBound()
@@ -368,10 +360,8 @@ class ATP(object):
 
 @Lives()
 @WorldBound()
-@Drawable()
 @Mouseable()
 @Draggable()
-@DrawBlob()
 @DrawCircle()
 @Collidable()
 class Organelle(object):
@@ -405,7 +395,6 @@ class Organelle(object):
 @Lives()
 @Lifetime()
 @WorldBound()
-@Drawable()
 @DrawCircle()
 @Collidable()
 @Hatches()

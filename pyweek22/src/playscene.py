@@ -76,12 +76,7 @@ def click(bname):
 	egg.addtostate()
 
 def draw():
-	view.clear()
-	for obj in state.drawables:
-		obj.drawback()
-	if control.cursor:
-		control.cursor.drawback()
-	view.applyback()
+	view.clear(color = (0, 50, 50))
 	for obj in state.drawables:
 		obj.draw()
 	if control.cursor:

@@ -4,7 +4,6 @@ from . import settings, blob, util
 from .util import F
 
 screen = None
-blobscreen = None
 x0 = 0
 y0 = 0
 Z = 2
@@ -23,7 +22,6 @@ def init():
 		flags = flags or pygame.FULLSCREEN
 	util.f = sy / 480
 	screen = pygame.display.set_mode((sx, sy), flags)
-	blobscreen = pygame.Surface((sx, sy)).convert_alpha()
 
 def togglefullscreen():
 	settings.fullscreen = not settings.fullscreen
@@ -38,15 +36,19 @@ def screenshot():
 
 def clear(color = (0, 0, 0)):
 	screen.fill(color)
-	blobscreen.fill((0, 0, 0, 0))
 
 def drawoverlay(alpha = 0.8, color = (0, 0, 0)):
 	overlay = pygame.Surface(screen.get_size()).convert_alpha()
 	overlay.fill((color[0], color[1], color[2], int(alpha * 255)))
 	screen.blit(overlay, (0, 0))
 
-def applyback():
-	screen.blit(blob.tocell(blobscreen), (0, 0))
+def drawblob(blobspec):
+	hillspec = []
+	for x, y, r, h in blobspec:
+		x, y = screenpos((x, y))
+		r = screenlength(r)
+		hillspec.append((x, y, r, h))
+	blob.drawcell(screen, hillspec)
 
 def screenpos(p):
 	x, y = p
