@@ -5,7 +5,7 @@ from .util import F
 def init():
 	state.atp = 0
 	state.health = 100
-	state.reset()
+	state.resetgroups()
 	state.amoeba = thing.Amoeba(x = 0, y = 0, r = 30)
 	state.amoeba.addtostate()
 	control.cursor = None
@@ -92,5 +92,7 @@ def draw():
 
 	ptext.draw("ATP: %d\nhealth: %d" % (state.atp, state.health),
 		bottom = F(470), left = F(10), fontsize = F(26), color = "yellow")
-	
+
+def abort():
+	state.save()
 

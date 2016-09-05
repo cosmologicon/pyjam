@@ -13,7 +13,7 @@ def init():
 	pointed = None
 
 
-def think(dt, mpos, mdown, mup):
+def think(dt, mpos, mdown, mup, *args):
 	global pointed
 	mx, my = mpos
 	for jlevel, pos in levels.items():
@@ -37,4 +37,7 @@ def draw():
 		text = "Level %s" % pointed
 		ptext.draw(text, fontsize = F(80), midbottom = F(854 / 2, 470),
 			color = "white", gcolor = (50, 50, 50), shadow = (1, 1))
+
+def abort():
+	pass
 

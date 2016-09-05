@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame
-from . import mhack, settings, view, state, ptext, quest
+from . import mhack, settings, view, state, ptext, quest, progress
 from . import scene, playscene, startscene, menuscene
 from .util import F
 
@@ -8,8 +8,16 @@ pygame.init()
 view.init()
 quest.init()
 
-#scene.push(menuscene)
-scene.push(playscene)
+if settings.reset:
+	state.removesave()
+
+if state.canload():
+	scene.push(playscene)
+	state.load()
+else:
+	progress.load()
+	scene.push(menuscene)
+
 #scene.push(startscene)
 
 clock = pygame.time.Clock()
@@ -43,10 +51,11 @@ while playing:
 	if kpressed[pygame.K_F1]:
 		dt *= 5
 
-
 	s = scene.top()
 	s.think(dt, mpos, mdown, mup, mwheel)
 	s.draw()
+	if not playing:
+		s.abort()
 
 	if settings.showfps:
 		ptext.draw("%.1ffps" % clock.get_fps(),

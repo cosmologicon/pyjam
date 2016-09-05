@@ -1,6 +1,6 @@
 from __future__ import division
 import math
-from . import ptext, playscene, view, scene
+from . import ptext, playscene, view, scene, state
 from .util import F
 
 def init():
@@ -21,4 +21,7 @@ def draw():
 	if t < 1.5:
 		ptext.draw("Level start!", fontsize = F(150), center = F(854/2, 480/2),
 			color = "yellow", gcolor = "orange", shadow = (1, 1))
+
+def abort():
+	state.save()
 

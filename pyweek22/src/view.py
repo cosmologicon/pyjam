@@ -29,10 +29,9 @@ def togglefullscreen():
 	init()
 
 def screenshot():
-	if not os.path.exists(settings.screenshotpath):
-		os.makedirs(settings.screenshotpath)
 	timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 	filename = os.path.join(settings.screenshotpath, "screenshot-%s.png" % timestamp)
+	util.mkdir(filename)
 	pygame.image.save(screen, filename)
 
 def clear(color = (0, 0, 0)):

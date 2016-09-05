@@ -1,5 +1,5 @@
 import pygame, math
-from . import ptext
+from . import ptext, progress
 from .util import F
 
 lines = {
@@ -12,16 +12,15 @@ lines = {
 
 queue = []
 playing = None
-played = set()
 tquiet = 0
 
 def quiet():
 	return not playing and not queue
 
 def play(dname):
-	if dname in played:
+	if dname in progress.heard:
 		return
-	played.add(dname)
+	progress.heard.add(dname)
 	queue.extend(lines[dname])
 
 def think(dt):
