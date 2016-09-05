@@ -1,12 +1,13 @@
 from __future__ import division
-import pygame, os, os.path, datetime
+import pygame, os, os.path, datetime, math
 from . import settings, blob, util
 from .util import F
 
 screen = None
 x0 = 0
 y0 = 0
-Z = 2
+z = 1
+Z = math.exp(0.5 * z)
 
 def init():
 	global screen, blobscreen, sx, sy
@@ -37,6 +38,11 @@ def screenshot():
 def clear(color = (0, 0, 0)):
 	screen.fill(color)
 
+def zoom(dz):
+	global z, Z
+	z = math.clamp(z + 0.25 * dz, -1, 3)
+	Z = math.exp(0.5 * round(z))
+
 def drawoverlay(alpha = 0.8, color = (0, 0, 0)):
 	overlay = pygame.Surface(screen.get_size()).convert_alpha()
 	overlay.fill((color[0], color[1], color[2], int(alpha * 255)))
@@ -49,6 +55,12 @@ def drawblob(blobspec):
 		r = screenlength(r)
 		hillspec.append((x, y, r, h))
 	blob.drawcell(screen, hillspec)
+
+def drawiris(R):
+	iris = screen.copy()
+	iris.fill((255, 255, 255))
+	pygame.draw.circle(iris, (0, 0, 0), screenpos((0, 0)), screenlength(R))
+	screen.blit(iris, (0, 0), None, pygame.BLEND_RGB_SUB)
 
 def screenpos(p):
 	x, y = p

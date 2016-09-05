@@ -8,21 +8,26 @@ def hill(R, h):
 		return hillcache[key]
 	N = 2 * R
 	img = pygame.Surface((N, N)).convert_alpha()
-	# TODO: numpy
-	if False:
-		for px in range(2 * R):
-			for py in range(2 * R):
-				r = math.sqrt((px / R - 1) ** 2 + (py / R - 1) ** 2)
-				f = 1 - math.smoothstep(r)
-				a = int(255 * math.clamp(h * f, 0, 1))
-				img.set_at((px, py), (255, 255, 255, a))
+	x2s = ((numpy.arange(N) + 0.5) * 2.0 / N - 1) ** 2
+	m = numpy.sqrt(x2s.reshape((1, N)) + x2s.reshape((N, 1)))
+	m = numpy.minimum(m, 1)
+	m = numpy.minimum(255 * h * (1 - m * m * (3 - 2 * m)), 255)
+	img.fill((255, 255, 255, 255))
+	pygame.surfarray.pixels_alpha(img)[:,:] = m
+	hillcache[key] = img
+	return img
 
-	if True:
-		x2s = ((numpy.arange(N) + 0.5) * 2.0 / N - 1) ** 2
-		m = numpy.sqrt(x2s.reshape((1, N)) + x2s.reshape((N, 1)))
-		m = numpy.minimum(m, 1)
-		img.fill((255, 255, 255, 255))
-		pygame.surfarray.pixels_alpha(img)[:,:] = numpy.minimum(255 * h * (1 - m * m * (3 - 2 * m)), 255)
+def mote(R, h):
+	key = R, h, "mote"
+	if key in hillcache:
+		return hillcache[key]
+	N = 2 * R
+	img = pygame.Surface((N, N)).convert()
+	x2s = ((numpy.arange(N) + 0.5) * 2.0 / N - 1) ** 2
+	m = numpy.sqrt(x2s.reshape((1, N)) + x2s.reshape((N, 1)))
+	m = numpy.minimum(m, 1)
+	m = numpy.minimum(255 * h * (1 - m * m * (3 - 2 * m)), 255)
+	pygame.surfarray.pixels3d(img)[:,:,:] = m.reshape((N, N, 1)) + numpy.random.rand(N, N, 1)
 	hillcache[key] = img
 	return img
 
@@ -47,6 +52,7 @@ def drawcell(surf, hillspecs):
 		return
 	osurf = pygame.Surface((w, h)).convert_alpha()
 	osurf.fill((0, 0, 0, 0))
+	# TODO: treat as numpy arrays for faster summation
 	for x, y, r, h in hillspecs:
 		r = int(r)
 		x = int(x - x0 - r)
@@ -95,6 +101,5 @@ if __name__ == "__main__":
 				hillspecs.append((x, y, r, h))
 			drawcell(screen, hillspecs)
 		ptext.draw("%.1ffps" % clock.get_fps(), (10, 10), fontsize = 32)
-
 		pygame.display.flip()
 	

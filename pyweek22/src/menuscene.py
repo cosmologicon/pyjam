@@ -1,5 +1,5 @@
 import random, math, pygame
-from . import ptext, view, scene, playscene, startscene
+from . import ptext, view, scene, playscene, startscene, blob
 from .util import F
 
 

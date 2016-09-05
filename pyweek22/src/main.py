@@ -1,11 +1,13 @@
 from __future__ import division
 import pygame
-from . import mhack, settings, view, state, ptext
+from . import mhack, settings, view, state, ptext, quest
 from . import scene, playscene, startscene, menuscene
 from .util import F
 
 pygame.init()
 view.init()
+quest.init()
+
 #scene.push(menuscene)
 scene.push(playscene)
 #scene.push(startscene)
@@ -15,13 +17,17 @@ playing = True
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	mpos = pygame.mouse.get_pos()
-	mdown, mup = False, False
+	mdown, mup, mwheel = False, False, 0
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			playing = False
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			if event.button == 1:
 				mdown = True
+			if event.button == 4:
+				mwheel += 1
+			if event.button == 5:
+				mwheel -= 1
 		if event.type == pygame.MOUSEBUTTONUP:
 			if event.button == 1:
 				mup = True
@@ -39,7 +45,7 @@ while playing:
 
 
 	s = scene.top()
-	s.think(dt, mpos, mdown, mup)
+	s.think(dt, mpos, mdown, mup, mwheel)
 	s.draw()
 
 	if settings.showfps:

@@ -407,6 +407,7 @@ class Egg(object):
 			2: (100, 100, 255, 120),
 		}[flavor]
 		self.setstate(
+			rcollide = 8,
 			r = 8, color = color,
 			lifetime = 3,
 			x = container.x + random.uniform(-1, 1),

@@ -1,5 +1,5 @@
 import random, math
-from . import ptext, state, thing, view, control, bounce, quest, dialog
+from . import ptext, state, thing, view, control, bounce, quest, dialog, background
 from .util import F
 
 def init():
@@ -14,9 +14,9 @@ def init():
 		control.Button((10, 60, 100, 40), "build 2"),
 		control.Button((10, 110, 100, 40), "build 3"),
 	]
-	quest.init()
+	background.init()
 
-def think(dt, mpos, mdown, mup):
+def think(dt, mpos, mdown, mup, mwheel):
 	hover = None
 	for button in control.buttons:
 		if button.within(mpos):
@@ -49,6 +49,8 @@ def think(dt, mpos, mdown, mup):
 		else:
 			control.cursor.addtostate()
 		control.cursor = None
+	if mwheel:
+		view.zoom(mwheel)
 
 	if random.random() < dt:
 		thing.ATP(x = random.randrange(-200, 200), y = random.randrange(-200, 200)).addtostate()
@@ -81,6 +83,9 @@ def draw():
 		obj.draw()
 	if control.cursor:
 		control.cursor.draw()
+	background.draw()
+	view.drawiris(400)
+
 	for button in control.buttons:
 		button.draw()
 	dialog.draw()

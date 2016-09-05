@@ -20,3 +20,6 @@ def removeobj(obj):
 	obj.alive = False
 	updatealive()
 	obj.alive = temp
+
+
+
