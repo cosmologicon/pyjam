@@ -4,6 +4,7 @@ from . import mhack, settings, view, state, ptext, quest, progress
 from . import scene, playscene, startscene, menuscene
 from .util import F
 
+ptext.FONT_NAME_TEMPLATE = "data/font/%s.ttf"
 pygame.init()
 view.init()
 quest.init()
@@ -11,14 +12,14 @@ quest.init()
 if settings.reset:
 	state.removesave()
 
-if state.canload():
+if settings.quickstart:
+	scene.push(playscene)
+elif state.canload():
 	scene.push(playscene)
 	state.load()
 else:
 	progress.load()
 	scene.push(menuscene)
-
-#scene.push(startscene)
 
 clock = pygame.time.Clock()
 playing = True

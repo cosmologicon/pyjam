@@ -13,3 +13,4 @@ fullscreen = False
 showbox = False
 showfps = True
 reset = True
+quickstart = True

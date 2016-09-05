@@ -3,11 +3,7 @@ from . import ptext, state, thing, view, control, bounce, quest, dialog, backgro
 from .util import F
 
 def init():
-	state.atp = 0
-	state.health = 100
-	state.resetgroups()
-	state.amoeba = thing.Amoeba(x = 0, y = 0, r = 30)
-	state.amoeba.addtostate()
+	state.reset(0)
 	control.cursor = None
 	control.buttons = [
 		control.Button((10, 10, 100, 40), "build 1"),
@@ -52,40 +48,31 @@ def think(dt, mpos, mdown, mup, mwheel):
 	if mwheel:
 		view.zoom(mwheel)
 
-	if random.random() < dt:
-		thing.ATP(x = random.randrange(-200, 200), y = random.randrange(-200, 200)).addtostate()
-	if 2 * random.random() < dt:
-		theta = random.angle()
-		x, y = 200 * math.sin(theta), 200 * math.cos(theta)
-		virus = thing.VirusCarrier(x = x, y = y)
-		virus.target = state.amoeba
-		virus.addtostate()
-	state.updatealive()
-	
+	state.think(dt)
 	quest.think(dt)
 	dialog.think(dt)
 
 def click(bname):
-	if state.amoeba.isfull():
+	if state.cell.isfull():
 		return
 	flavor = {
 		"build 1": 0,
 		"build 2": 1,
 		"build 3": 2,
 	}[bname]
-	egg = thing.Egg(container = state.amoeba, flavor = flavor)
-	state.amoeba.add(egg)
+	egg = thing.Egg(container = state.cell, flavor = flavor)
+	state.cell.add(egg)
 	egg.addtostate()
 
 def draw():
 	view.clear(color = (0, 50, 50))
+	state.drawwaves()
 	for obj in state.drawables:
 		obj.draw()
 	if control.cursor:
 		control.cursor.draw()
 	background.draw()
-	view.drawiris(400)
-
+	view.drawiris(state.Rlevel)
 	for button in control.buttons:
 		button.draw()
 	dialog.draw()
