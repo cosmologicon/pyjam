@@ -5,6 +5,7 @@ from .util import F
 def init():
 	state.reset(0)
 	control.cursor = None
+	control.dragpos = None
 	control.buttons = [
 		control.Button((10, 10, 100, 40), "build 1"),
 		control.Button((10, 60, 100, 40), "build 2"),
@@ -14,6 +15,7 @@ def init():
 
 def think(dt, mpos, mdown, mup, mwheel):
 	hover = None
+	downed = None
 	for button in control.buttons:
 		if button.within(mpos):
 			hover = button
@@ -26,6 +28,10 @@ def think(dt, mpos, mdown, mup, mwheel):
 				obj.onhover()
 				if mdown:
 					obj.onmousedown()
+					downed = obj
+					control.dragpos = None
+	if mdown and not downed:
+		control.dragpos = gpos
 	for obj in state.thinkers:
 		obj.think(dt)
 
@@ -34,17 +40,12 @@ def think(dt, mpos, mdown, mup, mwheel):
 	if control.cursor:
 		control.cursor.scootch(gpos[0] - control.cursor.x, gpos[1] - control.cursor.y)
 		control.cursor.think(dt)
-	if mup and control.cursor:
-		for obj in state.buildables:
-			if obj.cantake(control.cursor):
-				for x in control.cursor.slots:
-					obj.add(x)
-					x.container = obj
-					control.cursor.die()
-				break
-		else:
-			control.cursor.addtostate()
-		control.cursor = None
+	if control.dragpos:
+		view.drag(control.dragpos, mpos)
+	if (mup or mwheel) and control.cursor:
+		drop()
+	if mup or mwheel:
+		control.dragpos = None
 	if mwheel:
 		view.zoom(mwheel)
 
@@ -63,6 +64,18 @@ def click(bname):
 	egg = thing.Egg(container = state.cell, flavor = flavor)
 	state.cell.add(egg)
 	egg.addtostate()
+
+def drop():
+	for obj in state.buildables:
+		if obj.cantake(control.cursor):
+			for x in control.cursor.slots:
+				obj.add(x)
+				x.container = obj
+				control.cursor.die()
+			break
+	else:
+		control.cursor.addtostate()
+	control.cursor = None
 
 def draw():
 	view.clear(color = (0, 50, 50))

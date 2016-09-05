@@ -41,6 +41,25 @@ def zoom(dz):
 	global z, Z
 	z = math.clamp(z + 0.25 * dz, -1, 3)
 	Z = math.exp(0.5 * round(z))
+	constrain()
+
+# Move the camera such that the given game position is at the given screen coordinate.
+def drag(gpos, pos):
+	global x0, y0
+	x0 = gpos[0] - (pos[0] - sx / 2) / Z / util.f
+	y0 = gpos[1] + (pos[1] - sy / 2) / Z / util.f
+	constrain()
+
+def constrain():
+	global x0, y0
+	from . import state
+	# dish is taller than screen
+	if state.Rlevel > 240 / Z:
+		d = state.Rlevel - 240 / Z
+	else:
+		d = 240 / Z - state.Rlevel
+	x0 = math.clamp(x0, -d, d)
+	y0 = math.clamp(y0, -d, d)
 
 def drawoverlay(alpha = 0.8, color = (0, 0, 0)):
 	overlay = pygame.Surface(screen.get_size()).convert_alpha()

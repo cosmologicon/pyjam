@@ -66,7 +66,7 @@ def launchwave(wave):
 	twave, angle, nant = wave
 	for jant in range(nant):
 		theta = angle + random.uniform(-0.05, 0.05)
-		step = random.uniform(20, 40)
+		step = random.uniform(30, 60)
 		x, y = outstep(theta, step)
 		virus = thing.Virus(x = x, y = y)
 		virus.target = cell
@@ -92,8 +92,8 @@ def drawwaves():
 		x += 0.2 * (cell.x - x)
 		y += 0.2 * (cell.y - y)
 		ptext.draw(text, midtop = view.screenpos((x, y)), angle = -360 * angle,
-			fontsize = fontsize, fontname = "Stint",
-			color = "#FF7F7F", shadow = (1, 1), alpha = 0.4 * alpha)
+			fontsize = fontsize, fontname = "Stint", lineheight = 0.85,
+			color = "#FF4F4F", shadow = (0.5, 1), alpha = 0.4 * alpha)
 
 
 def removeobj(obj):

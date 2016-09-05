@@ -24,8 +24,8 @@ def draw():
 		x *= z
 		y *= z
 		px, py = F([
-			854 / 2 + vZ * (z * (x + vx * t - view.x0)),
-			480 / 2 + vZ * (z * (y + vy * t - view.y0)),
+			854 / 2 + vZ * (z * (x + vx * t + 2 * view.x0)),
+			480 / 2 - vZ * (z * (y + vy * t + 2 * view.y0)),
 		])
 		r = F(vZ * r)
 		px = (px + 2 * r) % (view.sx + 4 * r) - 2 * r
