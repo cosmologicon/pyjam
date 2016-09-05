@@ -1,5 +1,5 @@
 import random, math
-from . import ptext, state, thing, view, control, bounce
+from . import ptext, state, thing, view, control, bounce, quest, dialog
 from .util import F
 
 def init():
@@ -14,6 +14,7 @@ def init():
 		control.Button((10, 60, 100, 40), "build 2"),
 		control.Button((10, 110, 100, 40), "build 3"),
 	]
+	quest.init()
 
 def think(dt, mpos, mdown, mup):
 	hover = None
@@ -58,6 +59,9 @@ def think(dt, mpos, mdown, mup):
 		virus.target = state.amoeba
 		virus.addtostate()
 	state.updatealive()
+	
+	quest.think(dt)
+	dialog.think(dt)
 
 def click(bname):
 	if state.amoeba.isfull():
@@ -84,6 +88,7 @@ def draw():
 		control.cursor.draw()
 	for button in control.buttons:
 		button.draw()
+	dialog.draw()
 
 	ptext.draw("ATP: %d\nhealth: %d" % (state.atp, state.health),
 		bottom = F(470), left = F(10), fontsize = F(26), color = "yellow")
