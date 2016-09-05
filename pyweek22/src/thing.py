@@ -53,6 +53,34 @@ class WorldCollidable(Collidable):
 	def addtostate(self):
 		state.colliders.append(self)
 
+class Kickable(Component):
+	def setstate(self, ix = 0, iy = 0, **kw):
+		self.ix = ix
+		self.iy = iy
+	def kick(self, ix, iy):
+		self.ix += ix
+		self.iy += iy
+	def think(self, dt):
+		if self.ix or self.iy:
+			self.x += self.ix * dt
+			self.y += self.iy * dt
+			f = math.exp(-2 * dt)
+			self.ix *= f
+			self.iy *= f
+
+class CarriesViruses(Component):
+	def setstate(self, ncarried = 3, **kw):
+		self.ncarried = ncarried
+	def die(self):
+		theta = random.angle()
+		for j in range(self.ncarried):
+			dx = math.sin(theta + j * math.tau / self.ncarried)
+			dy = math.cos(theta + j * math.tau / self.ncarried)
+			virus = Virus(x = self.x + 2 * dx, y = self.y + 2 * dy)
+			virus.target = self.target
+			virus.kick(50 * dx, 50 * dy)
+			virus.addtostate()
+
 class Mouseable(Component):
 	def addtostate(self):
 		state.mouseables.append(self)
@@ -257,15 +285,22 @@ class GetsATP(Component):
 		state.atp += 1
 
 class FollowsRecipe(Component):
+	def add(self, obj):
+		flavors = [obj.flavor for obj in self.slots]
+		if flavors.count(0) == 2:
+			self.lastshot = self.t
 	def think(self, dt):
 		flavors = [obj.flavor for obj in self.slots]
 		if flavors.count(0) == 2:
-			for obj in state.shootables:
-				dx = obj.x - self.x
-				dy = obj.y - self.y
-				if dx ** 2 + dy ** 2 < 30 ** 2:
-					obj.shoot(1)
-					Laser(self, obj).addtostate()
+			if self.lastshot + 0.5 < self.t:
+				for obj in state.shootables:
+					dx = obj.x - self.x
+					dy = obj.y - self.y
+					if dx ** 2 + dy ** 2 < 30 ** 2:
+						obj.shoot(1)
+						Laser(self, obj).addtostate()
+						self.lastshot = self.t
+						break
 
 class DrawLaser(Component):
 	def setstate(self, x0, x1, y0, y1, color = (255, 255, 255), **kw):
@@ -393,6 +428,7 @@ class Egg(object):
 @Lives()
 @WorldBound()
 @Drawable()
+@Kickable()
 @TargetsThing()
 @DiesOnArrival()
 @HarmsOnArrival()
@@ -408,7 +444,24 @@ class Virus(object):
 			r = 6, color = (255, 255, 255),
 			**kw)
 
-
+@Lives()
+@WorldBound()
+@Drawable()
+@TargetsThing()
+@DiesOnArrival()
+@HarmsOnArrival()
+@Shootable()
+@DrawVirus()
+@CarriesViruses()
+@LeavesCorpse()
+@WorldCollidable()
+class VirusCarrier(object):
+	def __init__(self, **kw):
+		self.setstate(
+			speed = random.uniform(1, 2),
+			rcollide = 12, mass = 25,
+			r = 12,
+			**kw)
 
 @Lives()
 @Lifetime()

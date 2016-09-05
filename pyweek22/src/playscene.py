@@ -54,7 +54,7 @@ def think(dt, mpos, mdown, mup):
 	if 2 * random.random() < dt:
 		theta = random.angle()
 		x, y = 200 * math.sin(theta), 200 * math.cos(theta)
-		virus = thing.Virus(x = x, y = y)
+		virus = thing.VirusCarrier(x = x, y = y)
 		virus.target = state.amoeba
 		virus.addtostate()
 	state.updatealive()

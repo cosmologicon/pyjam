@@ -31,6 +31,12 @@ while playing:
 				view.togglefullscreen()
 			if event.key == pygame.K_F12:
 				view.screenshot()
+
+	kpressed = pygame.key.get_pressed()
+	if kpressed[pygame.K_F1]:
+		dt *= 5
+
+
 	s = scene.top()
 	s.think(dt, mpos, mdown, mup)
 	s.draw()
