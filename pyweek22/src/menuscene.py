@@ -1,5 +1,5 @@
 import random, math, pygame
-from . import ptext, view, scene, playscene, startscene, blob
+from . import ptext, view, scene, playscene, cutscene, blob
 from .util import F
 
 
@@ -27,7 +27,7 @@ def think(dt, mpos, mdown, mup, *args):
 		level = pointed
 		scene.pop()
 		scene.push(playscene)
-		scene.push(startscene)
+		scene.push(cutscene.Start())
 
 def draw():
 	view.clear(color = (20, 80, 20))

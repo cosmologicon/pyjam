@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame
 from . import mhack, settings, view, state, ptext, quest, progress
-from . import scene, playscene, startscene, menuscene
+from . import scene, playscene, menuscene, cutscene
 from .util import F
 
 ptext.FONT_NAME_TEMPLATE = "data/font/%s.ttf"

@@ -1,5 +1,6 @@
 import random, math
 from . import ptext, state, thing, view, control, bounce, quest, dialog, background
+from . import scene, cutscene
 from .util import F
 
 def init():
@@ -52,6 +53,11 @@ def think(dt, mpos, mdown, mup, mwheel):
 	state.think(dt)
 	quest.think(dt)
 	dialog.think(dt)
+	if state.twin > 2 and not state.tlose:
+		scene.push(cutscene.Win())
+	if state.tlose > 2:
+		scene.push(cutscene.Lose())
+
 
 def click(bname):
 	if state.cell.isfull():

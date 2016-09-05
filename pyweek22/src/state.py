@@ -18,9 +18,10 @@ groups = drawables, colliders, mouseables, thinkers, buildables, shootables
 
 def reset(lname):
 	from .import thing
-	global levelname, tlevel, wavespecs, donewaves, atp, cell, health, Rlevel
+	global levelname, tlevel, wavespecs, donewaves, atp, cell, health, Rlevel, twin, tlose
 	levelname = lname
 	tlevel = 0
+	twin = tlose = 0
 	leveldata = level.data[levelname]
 	for group in groups:
 		del group[:]
@@ -43,12 +44,16 @@ def updatealive():
 		group[:] = [m for m in group if m.alive]
 
 def think(dt):
-	global tlevel
+	global tlevel, twin, tlose
 	tlevel += dt
 	for wave in wavespecs:
 		if wave[0] < tlevel:
 			launchwave(wave)
 	updatealive()
+	if complete():
+		twin += dt
+	if not cell.alive:
+		tlose += dt
 
 def outstep(theta, step):
 	theta *= math.tau
@@ -95,6 +100,8 @@ def drawwaves():
 			fontsize = fontsize, fontname = "Stint", lineheight = 0.85,
 			color = "#FF4F4F", shadow = (0.5, 1), alpha = 0.4 * alpha)
 
+def complete():
+	return not shootables and not wavespecs
 
 def removeobj(obj):
 	temp = obj.alive
@@ -103,7 +110,7 @@ def removeobj(obj):
 	obj.alive = temp
 
 def save():
-	obj = progress.getprogress(), groups, levelname, atp, cell, health, Rlevel, wavespecs, donewaves
+	obj = progress.getprogress(), groups, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose
 	filename = settings.statepath
 	util.mkdir(filename)
 	pickle.dump(obj, open(filename, "wb"))
@@ -113,10 +120,10 @@ def canload():
 	return os.path.exists(filename)
 
 def load():
-	global levelname, atp, cell, health, Rlevel, wavespecs, donewaves
+	global levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose
 	filename = settings.statepath
 	obj = pickle.load(open(filename, "rb"))
-	pstate, gstate, levelname, atp, cell, health, Rlevel, wavespecs, donewaves = obj
+	pstate, gstate, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose = obj
 	progress.setprogress(pstate)
 	setgroups(gstate)
 
