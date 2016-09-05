@@ -1,11 +1,12 @@
 from __future__ import division
 import pygame
 from . import mhack, settings, view, state, ptext
-from . import scene, playscene, startscene
+from . import scene, playscene, startscene, menuscene
 from .util import F
 
 pygame.init()
 view.init()
+#scene.push(menuscene)
 scene.push(playscene)
 #scene.push(startscene)
 

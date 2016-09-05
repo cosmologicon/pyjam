@@ -36,8 +36,8 @@ def screenshot():
 	filename = os.path.join(settings.screenshotpath, "screenshot-%s.png" % timestamp)
 	pygame.image.save(screen, filename)
 
-def clear():
-	screen.fill((0, 0, 0))
+def clear(color = (0, 0, 0)):
+	screen.fill(color)
 	blobscreen.fill((0, 0, 0, 0))
 
 def drawoverlay(alpha = 0.8, color = (0, 0, 0)):

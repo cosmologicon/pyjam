@@ -15,6 +15,7 @@ def getimg(name, radius = None, fstretch = 1, angle = 0):
 	if radius is not None or angle != 0:
 		img0 = getimg(name, fstretch = fstretch)
 		z = radius / (getimg(name).get_width() / 2)
+		splitrotozoom = z < 1
 		if splitrotozoom:
 			img = pygame.transform.rotate(img0, angle)
 			s = int(round(img.get_width() * z)), int(round(img.get_height() * z))
