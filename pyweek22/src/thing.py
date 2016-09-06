@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, control, state, blob, img, settings, bounce, recipe
+from . import view, control, state, blob, img, settings, bounce
 from .util import F
 from .enco import Component
 
@@ -62,8 +62,7 @@ class Kickable(Component):
 		self.iy += iy
 	def think(self, dt):
 		if self.ix or self.iy:
-			self.x += self.ix * dt
-			self.y += self.iy * dt
+			self.scootch(self.ix * dt, self.iy * dt)
 			f = math.exp(-2 * dt)
 			self.ix *= f
 			self.iy *= f
@@ -95,6 +94,8 @@ class Mouseable(Component):
 		pass
 	def onmousedown(self):
 		pass
+	def onrdown(self):
+		pass
 
 class Shootable(Component):
 	def addtostate(self):
@@ -107,6 +108,28 @@ class Shootable(Component):
 			self.die()
 
 class Draggable(Component):
+	def onmousedown(self):
+		if control.cursor is None:
+			control.cursor = self
+			state.removeobj(control.cursor)
+
+class RightClickToSplit(Component):
+	def onrdown(self):
+		if len(self.slots) < 2:
+			return
+		state.removeobj(self)
+		for obj in self.slots:
+			dx, dy = obj.x - self.x, obj.y - self.y
+			if dx == 0 and dy == 0:
+				dy = 1
+			d = math.sqrt(dx ** 2 + dy ** 2)
+			dx /= d
+			dy /= d
+			t = obj.totower()
+			t.kick(20 * dx, 20 * dy)
+			t.addtostate()
+
+class ContainedDraggable(Component):
 	def onmousedown(self):
 		if control.cursor is None:
 			if (len(self.container.slots) == 1 or settings.pulltower) and self.container.mass < 9999:
@@ -226,11 +249,12 @@ class ResizesWithSlots(Component):
 		self.mass = 4
 		# TODO: better resizing algorithm
 		if self.slots:
-			r = sum(obj.rcollide ** 1.8 for obj in self.slots) ** (1/1.8)
+			r = 2 + sum(obj.rcollide ** 1.8 for obj in self.slots) ** (1/1.8)
 			self.mass += sum(obj.mass for obj in self.slots)
 		else:
 			r = 4
-		self.rcollide = r
+		self.rcollide = 1.2 * r
+		self.rmouse = 1.2 * r
 		self.rblob = r
 
 # Move from p0 to p1 by an amount d, and return if you've arrived
@@ -243,7 +267,7 @@ def approachpos(p0, p1, d):
 		return x1, y1, True
 	return x0 + dx * d / dp, y0 + dy * d / dp, False
 
-class DisappearsToCenter(Component):
+class DisappearsToCell(Component):
 	def setstate(self, approaching = False, **kw):
 		self.approaching = approaching
 	def onhover(self):
@@ -252,7 +276,7 @@ class DisappearsToCenter(Component):
 	def think(self, dt):
 		if not self.approaching or not self.alive:
 			return
-		self.x, self.y, arrived = approachpos((self.x, self.y), (0, 0), dt * 100)
+		self.x, self.y, arrived = approachpos((self.x, self.y), (state.cell.x, state.cell.y), dt * 300)
 		if arrived:
 			self.arrive()
 
@@ -282,8 +306,10 @@ class FollowsRecipe(Component):
 	def add(self, obj):
 		self.reset()
 	def reset(self):
+		from . import recipe
 		recipe.reset(self)
 	def think(self, dt):
+		from . import recipe
 		recipe.think(self, dt)
 
 class DrawLaser(Component):
@@ -316,6 +342,10 @@ class Amoeba(object):
 
 @Lives()
 @WorldBound()
+@Mouseable()
+@Draggable()
+@RightClickToSplit()
+@Kickable()
 @Drawable()
 @DrawBlob()
 @HasSlots()
@@ -336,7 +366,8 @@ class Tower(object):
 @WorldBound()
 @Drawable()
 @Mouseable()
-@DisappearsToCenter()
+@Kickable()
+@DisappearsToCell()
 @DiesOnArrival()
 @DrawCircle()
 @GetsATP()
@@ -344,14 +375,14 @@ class ATP(object):
 	def __init__(self, **kw):
 		self.setstate(
 			color = (200, 200, 0),
-			r = 4, rmouse = 4,
+			r = 4, rmouse = 7,
 			lifetime = 5,
 			**kw)
 
 @Lives()
 @WorldBound()
 @Mouseable()
-@Draggable()
+@ContainedDraggable()
 @DrawCircle()
 @Collidable()
 class Organelle(object):

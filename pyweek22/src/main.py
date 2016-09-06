@@ -26,19 +26,26 @@ playing = True
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	mpos = pygame.mouse.get_pos()
-	mdown, mup, mwheel = False, False, 0
+	mdown, mup, mwheel, rdown = False, False, 0, False
+	kpressed = pygame.key.get_pressed()
+	mod = any(kpressed[j] for j in (pygame.K_LSHIFT, pygame.K_LCTRL, pygame.K_RSHIFT, pygame.K_RCTRL))
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			playing = False
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			if event.button == 1:
-				mdown = True
+				if mod:
+					rdown = True
+				else:
+					mdown = True
+			if event.button == 3:
+				rdown = True
 			if event.button == 4:
 				mwheel += 1
 			if event.button == 5:
 				mwheel -= 1
 		if event.type == pygame.MOUSEBUTTONUP:
-			if event.button == 1:
+			if event.button == 1 and not mod:
 				mup = True
 		if event.type == pygame.KEYDOWN:	
 			if event.key == pygame.K_ESCAPE:
@@ -48,12 +55,11 @@ while playing:
 			if event.key == pygame.K_F12:
 				view.screenshot()
 
-	kpressed = pygame.key.get_pressed()
 	if kpressed[pygame.K_F1]:
 		dt *= 5
 
 	s = scene.top()
-	s.think(dt, mpos, mdown, mup, mwheel)
+	s.think(dt, mpos, mdown, mup, mwheel, rdown)
 	s.draw()
 	if not playing:
 		s.abort()

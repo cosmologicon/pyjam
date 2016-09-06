@@ -14,7 +14,7 @@ def init():
 	]
 	background.init()
 
-def think(dt, mpos, mdown, mup, mwheel):
+def think(dt, mpos, mdown, mup, mwheel, rdown):
 	hover = None
 	downed = None
 	for button in control.buttons:
@@ -31,6 +31,8 @@ def think(dt, mpos, mdown, mup, mwheel):
 					obj.onmousedown()
 					downed = obj
 					control.dragpos = None
+				if rdown:
+					obj.onrdown()
 	if mdown and not downed:
 		control.dragpos = gpos
 	for obj in state.thinkers:
