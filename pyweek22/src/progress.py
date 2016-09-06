@@ -1,6 +1,6 @@
 # Overall game progress, scores, etc.
 import os.path
-from . import util, settings
+from . import util, settings, level
 
 try:
 	import cPickle as pickle
@@ -15,6 +15,7 @@ chosen = 0  # most recent level selected on menu
 
 if True:
 	unlocked.add("qwin")
+	unlocked.add("endless")
 
 def complete(lev):
 	completed.add(lev)
@@ -22,9 +23,9 @@ def complete(lev):
 		unlocked.add(nlev)
 	save()
 
-def setchosen(level):
+def setchosen(lev):
 	global chosen
-	chosen = level
+	chosen = lev
 	save()
 
 def getprogress():

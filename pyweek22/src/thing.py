@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, control, state, blob, img, settings, bounce
+from . import view, control, state, blob, img, settings, bounce, recipe
 from .util import F
 from .enco import Component
 
@@ -109,7 +109,7 @@ class Shootable(Component):
 class Draggable(Component):
 	def onmousedown(self):
 		if control.cursor is None:
-			if len(self.container.slots) == 1 and self.container.mass < 9999:
+			if (len(self.container.slots) == 1 or settings.pulltower) and self.container.mass < 9999:
 				control.cursor = self.container
 			else:
 				self.container.remove(self)
@@ -280,21 +280,11 @@ class GetsATP(Component):
 
 class FollowsRecipe(Component):
 	def add(self, obj):
-		flavors = [obj.flavor for obj in self.slots]
-		if flavors.count(0) == 2:
-			self.lastshot = self.t
+		self.reset()
+	def reset(self):
+		recipe.reset(self)
 	def think(self, dt):
-		flavors = [obj.flavor for obj in self.slots]
-		if flavors.count(0) == 2:
-			if self.lastshot + 0.5 < self.t:
-				for obj in state.shootables:
-					dx = obj.x - self.x
-					dy = obj.y - self.y
-					if dx ** 2 + dy ** 2 < 30 ** 2:
-						obj.shoot(1)
-						Laser(self, obj).addtostate()
-						self.lastshot = self.t
-						break
+		recipe.think(self, dt)
 
 class DrawLaser(Component):
 	def setstate(self, x0, x1, y0, y1, color = (255, 255, 255), **kw):

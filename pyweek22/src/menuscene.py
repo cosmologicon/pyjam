@@ -1,5 +1,5 @@
 import random, math, pygame
-from . import ptext, view, scene, playscene, cutscene, blob, progress, level
+from . import ptext, view, scene, playscene, cutscene, blob, progress, level, settings
 from .util import F
 
 
@@ -9,6 +9,7 @@ def init():
 		0: [100, 100],
 		1: [240, 130],
 		2: [100, 250],
+		"endless": [800, 300],
 		"qwin": [800, 400],
 	}
 	pointed = None
@@ -48,6 +49,8 @@ def draw():
 				t0 = F(12)
 				pygame.draw.line(view.screen, (0, 0, 0), p0, p1, t1)
 				pygame.draw.line(view.screen, (100, 255, 100), p0, p1, t0)
+	ptext.draw(settings.gamename, fontsize = F(50), topright = F(834, 20),
+		color = "yellow", owidth = 1)
 	for j, (jlevel, pos) in enumerate(sorted(levels.items())):
 		if jlevel not in progress.unlocked:
 			continue
@@ -60,6 +63,9 @@ def draw():
 			y = F(y + fr * a * math.cos(theta))
 			hillspec.append((x, y, F(a), 0.5))
 		blob.drawcell(view.screen, hillspec)
+		text = "%s" % jlevel
+		ptext.draw(text, fontsize = F(30), center = F(pos),
+			color = "white", shadow = (1, 1))
 	if pointed is not None:
 		text = "Level %s" % pointed
 		ptext.draw(text, fontsize = F(80), midbottom = F(854 / 2, 470),

@@ -23,6 +23,19 @@ data = {
 	},
 
 
+
+	# Endless mode
+	"endless": {
+		"Rlevel": 400,
+		"cellpos": (0, 0),
+		"health": 100,
+		"atp": 100,
+		# Endless mode waves are procedurally generated after the first one.
+		"wavespecs": [
+			(0, 0, 5),
+		],
+	},
+
 	# Quick-win level (just a single enemy)
 	"qwin": {
 		"Rlevel": 100,

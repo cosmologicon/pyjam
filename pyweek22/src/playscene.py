@@ -41,6 +41,7 @@ def think(dt, mpos, mdown, mup, mwheel):
 	if control.cursor:
 		control.cursor.scootch(gpos[0] - control.cursor.x, gpos[1] - control.cursor.y)
 		control.cursor.think(dt)
+		control.cursor.reset()
 	if control.dragpos:
 		view.drag(control.dragpos, mpos)
 	if (mup or mwheel) and control.cursor:

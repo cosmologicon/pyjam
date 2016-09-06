@@ -14,4 +14,5 @@ showbox = False
 showfps = True
 reset = True
 quickstart = False
+pulltower = True  # Whether the whole tower comes with it when you pluck an organelle
 

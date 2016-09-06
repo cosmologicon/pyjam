@@ -76,6 +76,15 @@ def launchwave(wave):
 		ant = thing.Ant(x = x, y = y)
 		ant.target = cell
 		ant.addtostate()
+	if levelname == "endless":
+		addendlesswave()
+
+def addendlesswave():
+	jwave = len(donewaves)
+	tlast, anglelast, nantlast = donewaves[-1]
+	t = tlast + 20
+	angle = (anglelast + (math.sqrt(5) + 1) / 2) % 1
+	wavespecs.append((t, angle, nantlast))
 
 def drawwaves():
 	from . import view
