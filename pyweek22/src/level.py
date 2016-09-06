@@ -1,3 +1,10 @@
+# The levels that are unlocked when you beat a given level.
+
+unlocks = {
+	0: [1],
+	1: [2],
+}
+
 # Level data
 
 data = {
@@ -5,6 +12,7 @@ data = {
 		"Rlevel": 150,
 		"cellpos": (0, -100),
 		"health": 10,
+		"atp": 20,
 		"wavespecs": [
 			(0, 0, 5),
 			(20, 0.15, 10),
@@ -13,4 +21,18 @@ data = {
 			(60, 0.1, 20),
 		],
 	},
+
+
+	# Quick-win level (just a single enemy)
+	"qwin": {
+		"Rlevel": 100,
+		"cellpos": (0, -50),
+		"health": 99999,
+		"atp": 99999,
+		"wavespecs": [
+			(0, 0, 1),
+		],
+	},
 }
+
+

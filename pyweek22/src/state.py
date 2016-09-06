@@ -73,9 +73,9 @@ def launchwave(wave):
 		theta = angle + random.uniform(-0.05, 0.05)
 		step = random.uniform(30, 60)
 		x, y = outstep(theta, step)
-		virus = thing.Virus(x = x, y = y)
-		virus.target = cell
-		virus.addtostate()
+		ant = thing.Ant(x = x, y = y)
+		ant.target = cell
+		ant.addtostate()
 
 def drawwaves():
 	from . import view

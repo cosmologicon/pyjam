@@ -72,8 +72,10 @@ class Start(Cutscene):
 class Win(Cutscene):
 	message = "Level complete"
 	darkout = True
+	tomenu = True
 
-class Win(Cutscene):
+class Lose(Cutscene):
 	message = "Level failed"
 	darkout = True
+	tomenu = True
 

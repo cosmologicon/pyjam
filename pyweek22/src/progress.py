@@ -9,18 +9,30 @@ except ImportError:
 from . import settings
 
 completed = set()  # levels completed
+unlocked = set([0, 1])
 heard = set()  # dialogs heard
+chosen = 0  # most recent level selected on menu
 
-def complete(level):
-	completed.add(level)
+if True:
+	unlocked.add("qwin")
+
+def complete(lev):
+	completed.add(lev)
+	for nlev in level.unlocks.get(lev, []):
+		unlocked.add(nlev)
+	save()
+
+def setchosen(level):
+	global chosen
+	chosen = level
 	save()
 
 def getprogress():
-	return completed, heard
+	return completed, unlocked, heard, chosen
 
 def setprogress(obj):
-	global completed, heard
-	completed, heard = obj
+	global completed, unlocked, heard, chosen
+	completed, unlocked, heard, chosen = obj
 
 def save():
 	filename = settings.progresspath

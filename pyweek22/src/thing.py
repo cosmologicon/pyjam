@@ -68,7 +68,7 @@ class Kickable(Component):
 			self.ix *= f
 			self.iy *= f
 
-class CarriesViruses(Component):
+class CarriesAnts(Component):
 	def setstate(self, ncarried = 3, **kw):
 		self.ncarried = ncarried
 	def die(self):
@@ -76,10 +76,10 @@ class CarriesViruses(Component):
 		for j in range(self.ncarried):
 			dx = math.sin(theta + j * math.tau / self.ncarried)
 			dy = math.cos(theta + j * math.tau / self.ncarried)
-			virus = Virus(x = self.x + 2 * dx, y = self.y + 2 * dy)
-			virus.target = self.target
-			virus.kick(50 * dx, 50 * dy)
-			virus.addtostate()
+			ant = Ant(x = self.x + 2 * dx, y = self.y + 2 * dy)
+			ant.target = self.target
+			ant.kick(50 * dx, 50 * dy)
+			ant.addtostate()
 
 class Mouseable(Component):
 	def addtostate(self):
@@ -426,7 +426,7 @@ class Egg(object):
 @DrawVirus()
 @LeavesCorpse()
 @WorldCollidable()
-class Virus(object):
+class Ant(object):
 	def __init__(self, **kw):
 		self.setstate(
 			speed = random.uniform(4, 6),
@@ -442,10 +442,10 @@ class Virus(object):
 @HarmsOnArrival()
 @Shootable()
 @DrawVirus()
-@CarriesViruses()
+@CarriesAnts()
 @LeavesCorpse()
 @WorldCollidable()
-class VirusCarrier(object):
+class Beetle(object):
 	def __init__(self, **kw):
 		self.setstate(
 			speed = random.uniform(1, 2),

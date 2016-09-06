@@ -1,10 +1,10 @@
 import random, math
-from . import ptext, state, thing, view, control, bounce, quest, dialog, background
+from . import ptext, state, thing, view, control, bounce, quest, dialog, background, progress
 from . import scene, cutscene
 from .util import F
 
 def init():
-	state.reset(0)
+	state.reset(progress.chosen)
 	control.cursor = None
 	control.dragpos = None
 	control.buttons = [
@@ -54,6 +54,7 @@ def think(dt, mpos, mdown, mup, mwheel):
 	quest.think(dt)
 	dialog.think(dt)
 	if state.twin > 2 and not state.tlose:
+		progress.complete(progress.chosen)
 		scene.push(cutscene.Win())
 	if state.tlose > 2:
 		scene.push(cutscene.Lose())
