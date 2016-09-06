@@ -7,6 +7,8 @@ progresspath = "save/progress.pkl"
 statepath = "save/quicksave.pkl"
 fullscreen = False
 
+# Effects options
+cellshading = 0.015
 
 
 # Debug settings

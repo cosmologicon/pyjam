@@ -1,5 +1,6 @@
 from __future__ import division
 import pygame, math, numpy
+from . import settings
 
 hillcache = {}
 def hill(R, h):
@@ -38,6 +39,10 @@ def tocell(surf):
 	pygame.surfarray.pixels_alpha(osurf)[a > 100] = 255
 	arr = pygame.surfarray.pixels3d(osurf)
 	arr[a > 150] = 0, 120, 120
+	if settings.cellshading:
+		aoff = 1 - settings.cellshading * (a[:-1,:-1] - (a[1:,1:].astype(numpy.int16)))
+		ax, ay = aoff.shape
+		arr[1:,1:] = (arr[1:,1:] * aoff.reshape((ax, ay, 1))).astype(numpy.uint8)
 	return osurf
 
 def drawcell(surf, hillspecs):
