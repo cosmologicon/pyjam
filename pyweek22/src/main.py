@@ -11,6 +11,7 @@ quest.init()
 
 if settings.reset:
 	state.removesave()
+	progress.removesave()
 
 if settings.quickstart:
 	scene.push(playscene)

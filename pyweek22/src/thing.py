@@ -102,10 +102,15 @@ class Shootable(Component):
 		state.shootables.append(self)
 	def setstate(self, hp = 1, **kw):
 		self.hp = hp
-	def shoot(self, dhp):
+	def shoot(self, dhp, rewardprob = (0, 0)):
 		self.hp -= dhp
 		if self.hp <= 0:
 			self.die()
+			p1, p2 = rewardprob
+			if random.random() < p2:
+				ATP2(x = self.x, y = self.y).addtostate()
+			elif random.random() < p1:
+				ATP1(x = self.x, y = self.y).addtostate()
 
 class Draggable(Component):
 	def onmousedown(self):
@@ -298,9 +303,13 @@ class HarmsOnArrival(Component):
 	def arrive(self):
 		state.health -= 1
 
-class GetsATP(Component):
+class GetsATP1(Component):
 	def arrive(self):
-		state.atp += 1
+		state.atp[0] += 1
+
+class GetsATP2(Component):
+	def arrive(self):
+		state.atp[1] += 1
 
 class FollowsRecipe(Component):
 	def add(self, obj):
@@ -370,13 +379,31 @@ class Tower(object):
 @DisappearsToCell()
 @DiesOnArrival()
 @DrawCircle()
-@GetsATP()
-class ATP(object):
+@GetsATP1()
+class ATP1(object):
 	def __init__(self, **kw):
 		self.setstate(
 			color = (200, 200, 0),
 			r = 4, rmouse = 7,
-			lifetime = 5,
+			lifetime = 15,
+			**kw)
+
+@Lives()
+@Lifetime()
+@WorldBound()
+@Drawable()
+@Mouseable()
+@Kickable()
+@DisappearsToCell()
+@DiesOnArrival()
+@DrawCircle()
+@GetsATP2()
+class ATP2(object):
+	def __init__(self, **kw):
+		self.setstate(
+			color = (250, 150, 0),
+			r = 4, rmouse = 7,
+			lifetime = 15,
 			**kw)
 
 @Lives()

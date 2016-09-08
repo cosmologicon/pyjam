@@ -9,13 +9,16 @@ except ImportError:
 from . import settings
 
 completed = set()  # levels completed
-unlocked = set([0, 1])
+unlocked = set([0])
+learned = set(["X"])
 heard = set()  # dialogs heard
 chosen = 0  # most recent level selected on menu
 
 if True:
-	unlocked.add("qwin")
-	unlocked.add("endless")
+	for l in level.layout:
+		unlocked.add(l)
+	for learn in "X Y XX XY YY XXX XXY".split():
+		learned.add(learn)
 
 def complete(lev):
 	completed.add(lev)
@@ -29,11 +32,11 @@ def setchosen(lev):
 	save()
 
 def getprogress():
-	return completed, unlocked, heard, chosen
+	return completed, unlocked, heard, chosen, learned
 
 def setprogress(obj):
-	global completed, unlocked, heard, chosen
-	completed, unlocked, heard, chosen = obj
+	global completed, unlocked, heard, chosen, learned
+	completed, unlocked, heard, chosen, learned = obj
 
 def save():
 	filename = settings.progresspath
@@ -45,4 +48,10 @@ def load():
 	if not os.path.exists(filename):
 		return
 	setprogress(pickle.load(open(filename, "rb")))
+
+
+def removesave():
+	filename = settings.progresspath
+	if os.path.exists(filename):
+		os.remove(filename)
 

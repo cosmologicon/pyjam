@@ -1,5 +1,5 @@
 import random, math
-from . import state, thing
+from . import state, thing, progress, mechanics
 
 def reset(self):
 	self.lastshot = self.t
@@ -7,34 +7,56 @@ def reset(self):
 
 def think(self, dt):
 	from . import thing
-	flavors = "".join(map(str, sorted(obj.flavor for obj in self.slots)))
-	if flavors == "0":
-		think0(self, dt)
-	if flavors == "1":
-		think1(self, dt)
+	flavors = "".join(sorted("XYZ"[obj.flavor] for obj in self.slots))
+	if flavors not in progress.learned:
+		return
+	eval("think" + flavors)(self, dt)
 
 
-def think0(self, dt):
-	trytoshoot(self, tshot = 2, shotrange = 30, dhp = 1)
+def thinkX(self, dt):
+	trytoshoot(self, tshot = mechanics.Xrecharge, shotrange = mechanics.Xrange, dhp = mechanics.Xstrength, rewardprob = mechanics.Xrewardprob)
 
-def think1(self, dt):
-	if self.lastshot + 2 < self.t:
+def thinkXX(self, dt):
+	trytoshoot(self, tshot = mechanics.XXrecharge, shotrange = mechanics.XXrange, dhp = mechanics.XXstrength, rewardprob = mechanics.XXrewardprob)
+
+def thinkXY(self, dt):
+	trytoshoot(self, tshot = mechanics.XYrecharge, shotrange = mechanics.XYrange, dhp = mechanics.XYstrength, rewardprob = mechanics.XYrewardprob)
+
+def thinkXXX(self, dt):
+	trytoshoot(self, tshot = mechanics.XXXrecharge, shotrange = mechanics.XXXrange, dhp = mechanics.XXXstrength, rewardprob = mechanics.XXXrewardprob)
+
+def thinkXXY(self, dt):
+	trytoshoot(self, tshot = mechanics.XXYrecharge, shotrange = mechanics.XXYrange, dhp = mechanics.XXYstrength, rewardprob = mechanics.XXYrewardprob)
+
+def thinkY(self, dt):
+	spawnATP(self, atype = thing.ATP1, recharge = mechanics.Yrecharge, kick = mechanics.Ykick)
+
+def thinkYY(self, dt):
+	spawnATP(self, atype = thing.ATP2, recharge = mechanics.YYrecharge, kick = mechanics.YYkick)
+
+def thinkYZ(self, dt):
+	spawnATP(self, atype = thing.ATP2, recharge = mechanics.YZrecharge, kick = mechanics.YZkick)
+
+
+
+def spawnATP(self, atype, recharge, kick):
+	if self.lastshot + recharge < self.t:
 		self.lastangle += (math.sqrt(5) - 1) / 2 * math.tau
 		dx = math.sin(self.lastangle)
 		dy = math.cos(self.lastangle)
-		atp = thing.ATP(x = self.x + 6 * dx, y = self.y + 6 * dy)
-		r = random.uniform(40, 80)
+		atp = atype(x = self.x + 6 * dx, y = self.y + 6 * dy)
+		r = random.uniform(1, 2) * kick
 		atp.kick(r * dx, r * dy)
 		atp.addtostate()
 		self.lastshot = self.t
 
-def trytoshoot(self, tshot, shotrange, dhp):
+def trytoshoot(self, tshot, shotrange, dhp, rewardprob):
 	if self.lastshot + tshot < self.t:
 		for obj in state.shootables:
 			dx = obj.x - self.x
 			dy = obj.y - self.y
 			if dx ** 2 + dy ** 2 < shotrange ** 2:
-				obj.shoot(dhp)
+				obj.shoot(dhp, rewardprob)
 				thing.Laser(self, obj).addtostate()
 				self.lastshot = self.t
 				break

@@ -53,13 +53,10 @@ def drag(gpos, pos):
 def constrain():
 	global x0, y0
 	from . import state
-	# dish is taller than screen
-	if state.Rlevel > 240 / Z:
-		d = state.Rlevel - 240 / Z
-	else:
-		d = 240 / Z - state.Rlevel
-	x0 = math.clamp(x0, -d, d)
-	y0 = math.clamp(y0, -d, d)
+	d = math.sqrt(x0 ** 2 + y0 ** 2)
+	if d > state.Rlevel:
+		x0 *= state.Rlevel / d
+		y0 *= state.Rlevel / d
 
 def drawoverlay(alpha = 0.8, color = (0, 0, 0)):
 	overlay = pygame.Surface(screen.get_size()).convert_alpha()

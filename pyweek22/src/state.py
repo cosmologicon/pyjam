@@ -28,7 +28,7 @@ def reset(lname):
 
 	wavespecs = leveldata["wavespecs"]
 	donewaves = []
-	atp = leveldata.get("atp", 0)
+	atp = leveldata.get("atp", [0, 0])
 	pos = leveldata["cellpos"]
 	cell = thing.Amoeba(x = pos[0], y = pos[1])
 	cell.addtostate()

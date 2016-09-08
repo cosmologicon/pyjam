@@ -40,7 +40,8 @@ def tocell(surf):
 	arr = pygame.surfarray.pixels3d(osurf)
 	arr[a > 150] = 0, 120, 120
 	if settings.cellshading:
-		aoff = 1 - settings.cellshading * (a[:-1,:-1] - (a[1:,1:].astype(numpy.int16)))
+		factor = 0.0001 * settings.cellshading * surf.get_width()
+		aoff = 1 - factor * (a[:-1,:-1] - (a[1:,1:].astype(numpy.int16)))
 		ax, ay = aoff.shape
 		arr[1:,1:] = (arr[1:,1:] * aoff.reshape((ax, ay, 1))).astype(numpy.uint8)
 	return osurf
