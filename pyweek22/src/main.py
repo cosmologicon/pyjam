@@ -1,10 +1,10 @@
 from __future__ import division
-import pygame
+import pygame, os.path
 from . import mhack, settings, view, state, ptext, quest, progress
 from . import scene, playscene, menuscene, cutscene
 from .util import F
 
-ptext.FONT_NAME_TEMPLATE = "data/font/%s.ttf"
+ptext.FONT_NAME_TEMPLATE = os.path.join("data", "font", "%s.ttf")
 pygame.init()
 view.init()
 quest.init()
