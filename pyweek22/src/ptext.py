@@ -39,7 +39,10 @@ def getfont(fontname, fontsize):
 	key = fontname, fontsize
 	if key in _font_cache: return _font_cache[key]
 	if fontname is not None: fontname = FONT_NAME_TEMPLATE % fontname
-	font = pygame.font.Font(fontname, fontsize)
+	try:
+		font = pygame.font.Font(fontname, fontsize)
+	except IOError:
+		raise IOError("Unable to read font %s" % fontname)
 	_font_cache[key] = font
 	return font
 
