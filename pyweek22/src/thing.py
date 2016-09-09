@@ -147,6 +147,8 @@ class RightClickToSplit(Component):
 
 class ContainedDraggable(Component):
 	def onmousedown(self):
+		if self.container.disabled:
+			return
 		if control.cursor is None:
 			if (len(self.container.slots) == 1 or settings.pulltower) and self.container.mass < 9999:
 				control.cursor = self.container
@@ -193,9 +195,30 @@ class DrawCorpse(Component):
 		r = self.r * (1 + self.flife)
 		img.drawworld(self.imgname, (self.x, self.y), r, fstretch = self.fstretch, angle = self.angle)
 
+class DrawInjection(Component):
+	def setstate(self, x0, y0, x1, y1, imgname, r, fstretch = 1, angle = 0, **kw):
+		self.x0, self.y0 = x0, y0
+		self.x1, self.y1 = x1, y1
+		self.imgname = imgname
+		self.fstretch = fstretch
+		self.angle = angle
+		self.r = r
+	def draw(self):
+		f, df = self.flife, 1 - self.flife
+		x = self.x0 * df + self.x1 * f
+		y = self.y0 * df + self.y1 * f
+		r = self.r * df
+		img.drawworld(self.imgname, (x, y), r, fstretch = self.fstretch, angle = self.angle)
+
 class LeavesCorpse(Component):
 	def die(self):
-		Corpse(self).addtostate()
+		if self.hp <= 0:
+			Corpse(self).addtostate()
+
+class InfiltratesOnArrival(Component):
+	def arrive(self):
+		if self.target:
+			Injection(self, self.target).addtostate()
 
 class DrawBlob(Component):
 	def setstate(self, rblob = 10, nblob = 3, color = (0, 120, 120), **kw):
@@ -276,15 +299,13 @@ class ResizesWithSlots(Component):
 		self.rmouse = 1.2 * r
 		self.rblob = r
 
-# Move from p0 to p1 by an amount d, and return if you've arrived
+# Move from p0 to p1 by an amount d, and return if you're now closer than dr
 def approachpos(p0, p1, d, dr):
 	x0, y0 = p0
 	x1, y1 = p1
 	dx, dy = x1 - x0, y1 - y0
 	dp = math.sqrt(dx ** 2 + dy ** 2)
-	if dp - dr < d:
-		return x1, y1, True
-	return x0 + dx * d / dp, y0 + dy * d / dp, False
+	return x0 + dx * d / dp, y0 + dy * d / dp, (dp - dr < d)
 
 class DisappearsToCell(Component):
 	def setstate(self, approaching = False, **kw):
@@ -338,11 +359,30 @@ class DiesOnArrival(Component):
 
 class HarmsOnArrival(Component):
 	def arrive(self):
-		state.health -= 1
+		if self.target is state.cell:
+			state.health -= 1
 
 class DisablesOnArrival(Component):
 	def arrive(self):
-		self.target.disabled = 10
+		if self.target and self.target is not state.cell:
+			self.target.disabled = 10
+
+class HealsOnArrival(Component):
+	def setstate(self, dheal, **kw):
+		self.dheal = dheal
+	def arrive(self):
+		self.target.disabled = max(0, self.target.disabled - self.dheal)
+
+class KicksOnArrival(Component):
+	def setstate(self, kick = 0, **kw):
+		self.kick = kick
+	def arrive(self):
+		if not self.kick or not self.target:
+			return
+		dx = self.target.x - self.x
+		dy = self.target.y - self.y
+		d = math.sqrt(dx ** 2 + dy ** 2)
+		self.target.kick(dx * self.kick / d, dy * self.kick / d)
 
 class GetsATP1(Component):
 	def arrive(self):
@@ -554,6 +594,7 @@ class Egg(object):
 @TargetsThing()
 @DiesOnArrival()
 @HarmsOnArrival()
+@InfiltratesOnArrival()
 @Shootable()
 @DrawVirus()
 @LeavesCorpse()
@@ -574,10 +615,12 @@ class Ant(object):
 @TargetsThing()
 @TargetsTower()
 @DiesOnArrival()
+@HarmsOnArrival()
 @DisablesOnArrival()
+@InfiltratesOnArrival()
 @Shootable()
-@DrawCircle()
-#@LeavesCorpse()
+@DrawVirus()
+@LeavesCorpse()
 @WorldCollidable()
 class Bee(object):
 	def __init__(self, **kw):
@@ -628,14 +671,33 @@ class Laser(object):
 @DrawCircle()
 @TargetsThing()
 @HurtsTarget()
+@KicksOnArrival()
 @DiesOnArrival()
 class Bullet(object):
-	def __init__(self, obj, target, dhp, **kw):
+	def __init__(self, obj, target, dhp, kick = 0, **kw):
 		self.setstate(
 			target = target, speed = mechanics.bulletspeed,
 			dhp = dhp,
+			kick = kick,
 			r = 3, rcollide = 3,
 			color = (100, 0, 0),
+			**kw)
+
+@Lives()
+@WorldBound()
+@Collidable()
+@Drawable()
+@DrawCircle()
+@TargetsThing()
+@HealsOnArrival()
+@DiesOnArrival()
+class HealRay(object):
+	def __init__(self, obj, target, dheal, **kw):
+		self.setstate(
+			target = target, speed = mechanics.healrayspeed,
+			dheal = dheal,
+			r = 3, rcollide = 3,
+			color = (0, 100, 255),
 			**kw)
 
 @Lives()
@@ -648,6 +710,22 @@ class Corpse(object):
 			lifetime = 0.2,
 			x = obj.x,
 			y = obj.y + obj.imgdy,
+			r = obj.r,
+			imgname = obj.imgname,
+			fstretch = obj.fstretch,
+			angle = obj.angle,
+			**kw)
+
+@Lives()
+@Lifetime()
+@Drawable()
+@DrawInjection()
+class Injection(object):
+	def __init__(self, obj, target, **kw):
+		self.setstate(
+			lifetime = 0.3,
+			x0 = obj.x, y0 = obj.y,
+			x1 = target.x, y1 = target.y,
 			r = obj.r,
 			imgname = obj.imgname,
 			fstretch = obj.fstretch,

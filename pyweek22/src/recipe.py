@@ -33,19 +33,19 @@ def onclick(self):
 
 
 def thinkX(self, dt):
-	trytoshoot(self, tshot = mechanics.Xrecharge, shotrange = mechanics.Xrange, dhp = mechanics.Xstrength, rewardprob = mechanics.Xrewardprob)
+	trytoshoot(self, tshot = mechanics.Xrecharge, shotrange = mechanics.Xrange, dhp = mechanics.Xstrength, rewardprob = mechanics.Xrewardprob, kick = mechanics.Xkick)
 
 def thinkXX(self, dt):
-	trytoshoot(self, tshot = mechanics.XXrecharge, shotrange = mechanics.XXrange, dhp = mechanics.XXstrength, rewardprob = mechanics.XXrewardprob)
+	trytoshoot(self, tshot = mechanics.XXrecharge, shotrange = mechanics.XXrange, dhp = mechanics.XXstrength, rewardprob = mechanics.XXrewardprob, kick = mechanics.XXkick)
 
 def thinkXY(self, dt):
-	trytoshoot(self, tshot = mechanics.XYrecharge, shotrange = mechanics.XYrange, dhp = mechanics.XYstrength, rewardprob = mechanics.XYrewardprob)
+	trytoshoot(self, tshot = mechanics.XYrecharge, shotrange = mechanics.XYrange, dhp = mechanics.XYstrength, rewardprob = mechanics.XYrewardprob, kick = mechanics.XYkick)
 
 def thinkXXX(self, dt):
-	trytoshoot(self, tshot = mechanics.XXXrecharge, shotrange = mechanics.XXXrange, dhp = mechanics.XXXstrength, rewardprob = mechanics.XXXrewardprob)
+	trytoshoot(self, tshot = mechanics.XXXrecharge, shotrange = mechanics.XXXrange, dhp = mechanics.XXXstrength, rewardprob = mechanics.XXXrewardprob, kick = mechanics.XXXkick)
 
 def thinkXXY(self, dt):
-	trytoshoot(self, tshot = mechanics.XXYrecharge, shotrange = mechanics.XXYrange, dhp = mechanics.XXYstrength, rewardprob = mechanics.XXYrewardprob)
+	trytoshoot(self, tshot = mechanics.XXYrecharge, shotrange = mechanics.XXYrange, dhp = mechanics.XXYstrength, rewardprob = mechanics.XXYrewardprob, kick = mechanics.XXYkick)
 
 def thinkY(self, dt):
 	spawnATP(self, atype = thing.ATP1, recharge = mechanics.Yrecharge, kick = mechanics.Ykick)
@@ -59,6 +59,9 @@ def thinkYZ(self, dt):
 def thinkXYZ(self, dt):
 	pass
 
+def thinkZ(self, dt):
+	trytoheal(self, tshot = mechanics.Zrecharge, shotrange = mechanics.Zrange, dheal = mechanics.Zstrength)
+
 
 def spawnATP(self, atype, recharge, kick):
 	if self.lastshot + recharge < self.t:
@@ -71,7 +74,7 @@ def spawnATP(self, atype, recharge, kick):
 		atp.addtostate()
 		self.lastshot = self.t
 
-def trytoshoot(self, tshot, shotrange, dhp, rewardprob):
+def trytoshoot(self, tshot, shotrange, dhp, rewardprob, kick):
 	if self.lastshot + tshot < self.t:
 		toshoot, r2 = None, shotrange ** 2
 		for obj in state.shootables:
@@ -82,7 +85,23 @@ def trytoshoot(self, tshot, shotrange, dhp, rewardprob):
 				r2 = dx ** 2 + dy ** 2
 		if toshoot:
 			thing.Bullet(self, target = toshoot, x = self.x, y = self.y,
-				dhp = dhp, rewardprob = rewardprob).addtostate()
+				dhp = dhp, rewardprob = rewardprob, kick = kick).addtostate()
+			self.lastshot = self.t
+
+def trytoheal(self, tshot, shotrange, dheal):
+	if self.lastshot + tshot < self.t:
+		toshoot, r2 = None, shotrange ** 2
+		for obj in state.buildables:
+			if not obj.disabled:
+				continue
+			dx = obj.x - self.x
+			dy = obj.y - self.y
+			if dx ** 2 + dy ** 2 < r2:
+				toshoot = obj
+				r2 = dx ** 2 + dy ** 2
+		if toshoot:
+			thing.HealRay(self, target = toshoot, x = self.x, y = self.y,
+				dheal = dheal).addtostate()
 			self.lastshot = self.t
 
 def getcolor(self):
