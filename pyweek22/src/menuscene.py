@@ -54,7 +54,7 @@ def draw():
 				pygame.draw.line(view.screen, (100, 255, 100), p0, p1, t0)
 	ptext.draw(settings.gamename, fontsize = F(50), topright = F(834, 20),
 		color = "yellow", owidth = 1)
-	for j, (jlevel, (a, px, py)) in enumerate(sorted(level.layout.items())):
+	for j, (jlevel, (a, px, py)) in enumerate(sorted(level.layout.items(), key = str)):
 		if jlevel not in progress.unlocked:
 			continue
 		hillspec = []
