@@ -124,7 +124,7 @@ def trytoheal(self, tshot, shotrange, dheal):
 def getcolor(self):
 	flavors = "".join(sorted("XYZ"[obj.flavor] for obj in self.slots))
 	if self.disabled:
-		return 120, 0, 0
+		return int(80 + 60 * math.sin(10 * self.disabled)), 0, 0
 	if flavors not in progress.learned:
 		return 30, 30, 30
 	if flavors in ("X", "XX", "XY", "XXX"):

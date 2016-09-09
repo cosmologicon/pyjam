@@ -117,15 +117,15 @@ class Combos(object):
 			return		
 		for jflavor, flavor in enumerate(sorted(progress.learned)):
 			y, x = divmod(jflavor, 3)
-			x0 = 100 + x * 240
-			y0 = 60 + y * 80
+			x0 = 80 + x * 260
+			y0 = 50 + y * 65
 			for j, f in enumerate(reversed(flavor)):
 				p = F(x0 - 20 * j, y0)
 				pygame.draw.circle(view.screen, (0, 0, 0), p, F(12))
 				img.draw("organelle-" + f, p, radius = F(10))
 			text = mechanics.towerinfo.get(flavor, flavor)
-			ptext.draw(text, midleft = F(x0 + 20, y0), fontsize = F(18),
-				color = "yellow", shadow = (1, 1), width = F(160))
+			ptext.draw(text, midleft = F(x0 + 20, y0), fontsize = F(17),
+				color = "yellow", shadow = (1, 1), width = F(180))
 
 	def abort(self):
 		state.save()

@@ -23,8 +23,18 @@ towerinfo = {
 	"X": "Basic defensive antibody",
 	"Y": "Generates RNA over time",
 	"XX": "Medium-strength defensive antibody",
-	"XY": "Medium-strength defensive antibody\nDoubles the chance of collecting RNA from viruses.",
+	"XY": "Medium-strength defensive antibody\n2x chance of collecting RNA from viruses.",
+	"YY": "Generates DNA over time.",
 	"XXX": "High-speed defensive antibody",
+	"Z": "Speeds up recovery of nearby antibodies",
+#	"ZZ": "Very rapid recovery for nearby antibodies",
+	"XZ": "Defensive antibody that damages nearby viruses when it hits",
+	"YZ": "Generates DNA over time",
+	"XXX": "Rapid-fire defensive antibody",
+	"XXY": "Long-distance defensive antibody",
+	"XYY": "Defensive antibody that knocks back viruses",
+	"XYZ": "Explosive that deals damage to nearby viruses.\nDouble-click to activate!",
+	"ZZZ": "Explosive that deals massive damage to nearby viruses.\nDouble-click to activate!",
 }
 
 # Lasers
@@ -39,31 +49,33 @@ XXrecharge = 4
 XXrange = 50
 XXstrength = 3
 XXrewardprob = 0.2, 0
-XXkick = 10
+XXkick = 20
 
 XYrecharge = 5
 XYrange = 40
 XYstrength = 1
 XYrewardprob = 0.4, 0
-XYkick = 10
+XYkick = 20
 
 XXXrecharge = 0.5
 XXXrange = 40
 XXXstrength = 1
 XXXrewardprob = 0.2, 0
-XXXkick = 10
+XXXkick = 20
 
 XXYrecharge = 5
 XXYrange = 150
 XXYstrength = 5
 XXYrewardprob = 0.1, 0
-XXYkick = 10
+XXYkick = 20
 
-XYrecharge = 2
-XYrange = 40
-XYstrength = 1
-XYrewardprob = 0.1, 0
-XYkick = 100
+XYYrecharge = 2
+XYYrange = 40
+XYYstrength = 1
+XYYrewardprob = 0.1, 0
+XYYkick = 100
+
+# Area-of-effect towers
 
 XZrecharge = 1
 XZrange = 60
@@ -116,8 +128,18 @@ Lantdamage = 10
 Lantcarried = 5
 Lantsize = 12
 
-beehp = 1000
-beetlehp = 10
+beehp = 4
+beespeed = 10
+beedamage = 2
+beesize = 6
+beetdisable = 20
+
+Lbeehp = 10
+Lbeespeed = 4
+Lbeedamage = 10
+Lbeecarried = 3
+Lbeesize = 12
+
 
 wasphp = 40
 waspspeed = 25

@@ -1,6 +1,6 @@
 # Overall game progress, scores, etc.
 import os.path
-from . import util, settings, level
+from . import util, settings, level, mechanics
 
 try:
 	import cPickle as pickle
@@ -17,7 +17,7 @@ chosen = 1  # most recent level selected on menu
 if settings.quickstart or settings.unlockall:
 	for l in level.layout:
 		unlocked.add(l)
-	for learn in "X Y XX XY YY XXX XXY Z XZ XYZ ZZZ".split():
+	for learn in mechanics.towerinfo:
 		learned.add(learn)
 
 def complete(lev):

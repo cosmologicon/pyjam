@@ -86,15 +86,16 @@ class Unkickable(Component):
 	def kick(self, ix, iy):
 		pass
 
-class CarriesAnts(Component):
-	def setstate(self, ncarried = 3, **kw):
+class CarriesViruses(Component):
+	def setstate(self, carrytype, ncarried = 3, **kw):
 		self.ncarried = ncarried
+		self.carrytype = carrytype
 	def die(self):
 		theta = random.angle()
 		for j in range(self.ncarried):
 			dx = math.sin(theta + j * math.tau / self.ncarried)
 			dy = math.cos(theta + j * math.tau / self.ncarried)
-			ant = Ant(x = self.x + 2 * dx, y = self.y + 2 * dy)
+			ant = self.carrytype(x = self.x + 2 * dx, y = self.y + 2 * dy)
 			ant.target = self.target
 			ant.kick(50 * dx, 50 * dy)
 			ant.addtostate()
@@ -428,9 +429,11 @@ class HarmsOnArrival(Component):
 			state.takedamage(self.damage)
 
 class DisablesOnArrival(Component):
+	def setstate(self, tdisable, **kw):
+		self.tdisable = tdisable
 	def arrive(self):
 		if self.target and self.target is not state.cell:
-			self.target.disabled = 10
+			self.target.disabled = self.tdisable
 
 class HealsOnArrival(Component):
 	def setstate(self, dheal, **kw):
@@ -743,7 +746,7 @@ class Ant(object):
 			hp = mechanics.anthp,
 			speed = random.uniform(0.7, 1.3) * mechanics.antspeed,
 			damage = mechanics.antdamage,
-			rcollide = mechanics.antsize, mass = 5,
+			rcollide = mechanics.antsize, mass = 10,
 			r = mechanics.antsize, color = (255, 255, 255),
 			imgname = "virusA",
 			**kw)
@@ -767,8 +770,10 @@ class Bee(object):
 		self.setstate(
 			hp = mechanics.beehp,
 			speed = random.uniform(4, 6),
-			rcollide = 6, mass = 5,
+			rcollide = 6, mass = 10,
 			r = 6, color = (255, 255, 0),
+			tdisable = mechanics.beetdisable,
+			imgname = "virusB",
 			**kw)
 
 @Lives()
@@ -780,7 +785,7 @@ class Bee(object):
 @HarmsOnArrival()
 @Shootable()
 @DrawVirus()
-@CarriesAnts()
+@CarriesViruses()
 @LeavesCorpse()
 @WorldCollidable()
 class LargeAnt(object):
@@ -789,10 +794,34 @@ class LargeAnt(object):
 			hp = mechanics.Lanthp,
 			speed = random.uniform(0.8, 1.2) * mechanics.Lantspeed,
 			damage = mechanics.Lantdamage,
-			rcollide = mechanics.Lantsize, mass = 25,
+			rcollide = mechanics.Lantsize, mass = 100,
 			r = mechanics.Lantsize,
-			ncarried = mechanics.Lantcarried,
+			ncarried = mechanics.Lantcarried, carrytype = Ant,
 			imgname = "virusA",
+			**kw)
+
+@Lives()
+@WorldBound()
+@Drawable()
+@Kickable()
+@TargetsThing()
+@DiesOnArrival()
+@HarmsOnArrival()
+@Shootable()
+@DrawVirus()
+@CarriesViruses()
+@LeavesCorpse()
+@WorldCollidable()
+class LargeBee(object):
+	def __init__(self, **kw):
+		self.setstate(
+			hp = mechanics.Lbeehp,
+			speed = random.uniform(0.8, 1.2) * mechanics.Lbeespeed,
+			damage = mechanics.Lbeedamage,
+			rcollide = mechanics.Lbeesize, mass = 100,
+			r = mechanics.Lbeesize,
+			ncarried = mechanics.Lbeecarried, carrytype = Bee,
+			imgname = "virusB",
 			**kw)
 
 @Lives()

@@ -114,14 +114,7 @@ def launchwave(wave):
 		theta = angle + random.uniform(-0.05, 0.05)
 		step = random.uniform(30, 60)
 		x, y = outstep(theta, step)
-		if etype == "ant":
-			ant = thing.Ant(x = x, y = y)
-			ant.target = cell
-			ant.addtostate()
-		if etype == "Lant":
-			ant = thing.LargeAnt(x = x, y = y)
-			ant.target = cell
-			ant.addtostate()
+		addetype(etype, x, y)
 	if levelname == "endless":
 		addendlesswave()
 
@@ -130,6 +123,10 @@ def stream(etype):
 	theta = random.angle()
 	step = random.uniform(30, 60)
 	x, y = outstep(theta, step)
+	addetype(etype, x, y)
+
+def addetype(etype, x, y):
+	from . import thing
 	if etype == "ant":
 		ant = thing.Ant(x = x, y = y)
 		ant.target = cell
@@ -138,6 +135,14 @@ def stream(etype):
 		ant = thing.LargeAnt(x = x, y = y)
 		ant.target = cell
 		ant.addtostate()
+	if etype == "bee":
+		bee = thing.Bee(x = x, y = y)
+		bee.target = cell
+		bee.addtostate()
+	if etype == "Lbee":
+		bee = thing.LargeBee(x = x, y = y)
+		bee.target = cell
+		bee.addtostate()
 
 def addendlesswave():
 	jwave = len(donewaves)
