@@ -28,7 +28,7 @@ def getimg(name, radius = None, fstretch = 1, angle = 0):
 		img = pygame.transform.smoothscale(img0, size)
 	else:
 		img = pygame.image.load("data/img/%s.png" % name).convert_alpha()
-	if radius is None and angle == 0:
+	if radius is None and angle == 0 and fstretch == 1:
 #		print key, len(imgs)
 		imgs[key] = img
 	return img
@@ -57,6 +57,7 @@ if __name__ == "__main__":
 		splitrotozoom = True
 		draw("virus", (300, 200), radius = 100, angle = angle, fstretch = fstretch)
 		draw("virus", (240, 40), radius = 6, angle = angle, fstretch = fstretch)
+		draw("simon", (300, 300), radius = 60)
 		pygame.display.flip()
 	
 
