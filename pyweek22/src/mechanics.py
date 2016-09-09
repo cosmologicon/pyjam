@@ -19,6 +19,14 @@ Zthatch = 20
 
 ## TOWERS
 
+towerinfo = {
+	"X": "Basic defensive antibody",
+	"Y": "Generates resources over time",
+	"XX": "Medium-strength defensive antibody",
+	"XY": "Defensive antibody\nYields more resources when defeating viruses",
+	"XXX": "Fast-acting defensive antibody",
+}
+
 # Lasers
 
 Xrecharge = 2  # shot rechange time in seconds

@@ -89,7 +89,11 @@ def nodragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 				toclick = obj
 	downed = None
 	if toclick:
-		control.towerinfo.target = toclick.flavors()
+		if toclick in state.buildables:
+			control.towerinfo.target = toclick
+		elif hasattr(toclick, "container"):
+			if toclick.container is not state.cell:
+				control.towerinfo.target = toclick.container
 		if mdown:
 			toclick.onmousedown()
 			downed = toclick

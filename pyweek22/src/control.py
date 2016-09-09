@@ -1,5 +1,5 @@
 import pygame
-from . import view, ptext, img, state
+from . import view, ptext, img, state, mechanics
 from .util import F
 
 cursor = None
@@ -43,8 +43,14 @@ class TowerInfo(object):
 	def draw(self):
 		if self.current is None:
 			return
-		text = self.current
-		ptext.draw(text, topright = F(844, 10), fontsize = F(30),
+		flavor = self.current.flavors()
+		for j, f in enumerate(reversed(flavor)):
+			p = F(820 - 30 * j, 50)
+			pygame.draw.circle(view.screen, (0, 0, 0), p, F(20))
+			img.draw("organelle-" + f, p, radius = F(18))
+
+		text = mechanics.towerinfo.get(flavor, flavor)
+		ptext.draw(text, topright = F(842, 100), fontsize = F(30),
 			color = "yellow", shadow = (1, 1), alpha = self.alpha)
 
 towerinfo = TowerInfo()
