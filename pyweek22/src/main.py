@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, os.path
-from . import mhack, settings, view, state, ptext, quest, progress, mechanics
+from . import mhack, settings, view, state, ptext, quest, progress, mechanics, dialog
 from . import scene, playscene, menuscene, cutscene
 from .util import F
 
@@ -58,6 +58,10 @@ while playing:
 						mclick = True
 				lastdown = None
 		if event.type == pygame.KEYDOWN:	
+			if event.key == pygame.K_TAB:
+				dialog.abort()
+			if event.key == pygame.K_SPACE:
+				dialog.skip()
 			if event.key == pygame.K_ESCAPE:
 				playing = False
 			if event.key == pygame.K_F11:

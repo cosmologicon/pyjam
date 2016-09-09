@@ -7,6 +7,7 @@ def init():
 	state.reset(progress.chosen)
 	control.cursor = None
 	control.dragpos = None
+	control.tdrag = 0
 	control.buttons = []
 	for j, flavor in enumerate("XYZ"):
 		if flavor not in progress.learned:
@@ -32,6 +33,7 @@ def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 	bounce.adjust(state.colliders, dt)
 	for obj in state.buildables:
 		obj.constraintoworld()
+	dialog.currenttip = None
 	state.think(dt)
 	quest.think(dt)
 	dialog.think(dt)
@@ -44,6 +46,7 @@ def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 
 
 def dragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
+	control.tdrag += dt
 	gpos = view.gamepos(mpos)
 	if not control.cursor.alive:
 		control.cursor = None
@@ -63,11 +66,15 @@ def dragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 	control.cursor.constraintoworld()
 
 def pdragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
+	control.tdrag += dt
+	if control.tdrag > 0.5:
+		control.done.add("pdrag")
 	view.drag(control.dragpos, mpos)
 	if mwheel or mup or rdown:
 		control.dragpos = None
 
 def nodragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
+	control.tdrag = 0
 	for button in control.buttons:
 		if button.within(mpos):
 			if mdown:
@@ -95,6 +102,7 @@ def nodragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 
 def click(bname):
 	if bname.startswith("Grow"):
+		control.done.add("grow")
 		if state.cell.isfull():
 			return
 		flavor = bname[-1]

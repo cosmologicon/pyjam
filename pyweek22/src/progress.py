@@ -9,10 +9,10 @@ except ImportError:
 from . import settings
 
 completed = set()  # levels completed
-unlocked = set([0])
+unlocked = set([1])
 learned = set(["X"])
 heard = set()  # dialogs heard
-chosen = 0  # most recent level selected on menu
+chosen = 1  # most recent level selected on menu
 
 if True:
 	for l in level.layout:

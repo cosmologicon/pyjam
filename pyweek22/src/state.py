@@ -5,7 +5,7 @@ try:
 except ImportError:
 	import pickle
 import os, os.path, math, random
-from . import util, progress, settings, level, ptext, mechanics
+from . import util, progress, settings, level, ptext, mechanics, dialog
 
 drawables = []
 colliders = []
@@ -49,7 +49,8 @@ def updatealive():
 
 def think(dt):
 	global tlevel, twin, tlose
-	tlevel += dt
+	if dialog.quiet():
+		tlevel += dt
 	for wave in wavespecs:
 		if wave[0] < tlevel:
 			launchwave(wave)
@@ -72,14 +73,19 @@ def launchwave(wave):
 	from . import thing
 	donewaves.append(wave)
 	wavespecs.remove(wave)
-	twave, angle, nant = wave
-	for jant in range(nant):
+	twave, angle, etype, n = wave
+	for jant in range(n):
 		theta = angle + random.uniform(-0.05, 0.05)
 		step = random.uniform(30, 60)
 		x, y = outstep(theta, step)
-		ant = thing.Ant(x = x, y = y)
-		ant.target = cell
-		ant.addtostate()
+		if etype == "ant":
+			ant = thing.Ant(x = x, y = y)
+			ant.target = cell
+			ant.addtostate()
+		if etype == "Lant":
+			ant = thing.LargeAnt(x = x, y = y)
+			ant.target = cell
+			ant.addtostate()
 	if levelname == "endless":
 		addendlesswave()
 
@@ -92,8 +98,9 @@ def addendlesswave():
 
 def drawwaves():
 	from . import view
+	drawn = set()
 	for wave in wavespecs + donewaves:
-		t, angle, nant = wave
+		t, angle, etype, n = wave
 		t = tlevel - t
 		if t < -10:
 			continue
@@ -105,6 +112,9 @@ def drawwaves():
 			alpha = math.clamp(10 - t, 0, 1)
 		else:
 			continue
+		if angle in drawn:
+			continue
+		drawn.add(angle)
 		fontsize = view.screenlength(20)
 		x, y = outstep(angle, 20)
 		x += 0.2 * (cell.x - x)

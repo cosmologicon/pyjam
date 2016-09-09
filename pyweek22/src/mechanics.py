@@ -90,6 +90,13 @@ healrayspeed = 120
 anthp = 1
 antspeed = 10
 antdamage = 1
+antsize = 6
+
+Lanthp = 10
+Lantspeed = 2
+Lantdamage = 5
+Lantcarried = 3
+Lantsize = 12
 
 beehp = 1000
 beetlehp = 10

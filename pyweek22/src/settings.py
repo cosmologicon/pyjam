@@ -1,3 +1,5 @@
+import sys
+
 gamename = "You Can't Let Him In Here"
 wsize = 854, 480
 minfps = 5
@@ -15,6 +17,6 @@ cellshading = 0
 showbox = False
 showfps = True
 reset = True
-quickstart = False
+quickstart = "--qstart" in sys.argv
 pulltower = True  # Whether the whole tower comes with it when you pluck an organelle
 

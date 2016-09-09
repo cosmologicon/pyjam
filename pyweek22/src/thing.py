@@ -120,6 +120,8 @@ class Shootable(Component):
 	def setstate(self, hp = 1, **kw):
 		self.hp = hp
 	def shoot(self, dhp, rewardprob = (0, 0)):
+		if self.hp <= 0:
+			return
 		self.hp -= dhp
 		if self.hp <= 0:
 			self.die()
@@ -134,6 +136,7 @@ class Draggable(Component):
 		if control.cursor is None and not self.disabled:
 			control.cursor = self
 			state.removeobj(control.cursor)
+			control.done.add("adrag")
 
 class RightClickToSplit(Component):
 	def onrdown(self):
@@ -158,6 +161,10 @@ class ContainedDraggable(Component):
 		if control.cursor is None:
 			if (len(self.container.slots) == 1 or settings.pulltower) and self.container.mass < 9999:
 				control.cursor = self.container
+				if self.container is state.cell:
+					control.done.add("cdrag")
+				else:
+					control.done.add("adrag")
 			else:
 				self.container.remove(self)
 				control.cursor = self.totower()
@@ -417,7 +424,7 @@ class KicksOnArrival(Component):
 	def setstate(self, kick = 0, **kw):
 		self.kick = kick
 	def arrive(self):
-		if not self.kick or not self.target:
+		if not self.kick or not self.target or not self.target.alive:
 			return
 		dx = self.target.x - self.x
 		dy = self.target.y - self.y
@@ -687,8 +694,9 @@ class Ant(object):
 		self.setstate(
 			hp = mechanics.anthp,
 			speed = random.uniform(0.7, 1.3) * mechanics.antspeed,
-			rcollide = 6, mass = 5,
-			r = 6, color = (255, 255, 255),
+			damage = mechanics.antdamage,
+			rcollide = mechanics.antsize, mass = 5,
+			r = mechanics.antsize, color = (255, 255, 255),
 			imgname = "virusA",
 			**kw)
 
@@ -726,13 +734,16 @@ class Bee(object):
 @CarriesAnts()
 @LeavesCorpse()
 @WorldCollidable()
-class Beetle(object):
+class LargeAnt(object):
 	def __init__(self, **kw):
 		self.setstate(
-			hp = mechanics.beetlehp,
-			speed = random.uniform(1, 2),
-			rcollide = 12, mass = 25,
-			r = 12,
+			hp = mechanics.Lanthp,
+			speed = random.uniform(0.8, 1.2) * mechanics.Lantspeed,
+			damage = mechanics.Lantdamage,
+			rcollide = mechanics.Lantsize, mass = 25,
+			r = mechanics.Lantsize,
+			ncarried = mechanics.Lantcarried,
+			imgname = "virusA",
 			**kw)
 
 @Lives()
@@ -780,13 +791,13 @@ class Laser(object):
 @KicksOnArrival()
 @DiesOnArrival()
 class Bullet(object):
-	def __init__(self, obj, target, dhp, kick = 0, **kw):
+	def __init__(self, obj, target, dhp, kick = 0, r = 3, color = (255, 100, 100), **kw):
 		self.setstate(
 			target = target, speed = mechanics.bulletspeed,
 			dhp = dhp,
 			kick = kick,
-			r = 3, rcollide = 3,
-			color = (100, 0, 0),
+			r = r, rcollide = r,
+			color = color,
 			**kw)
 
 @Lives()

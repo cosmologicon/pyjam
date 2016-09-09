@@ -5,6 +5,8 @@ from .util import F
 cursor = None
 buttons = []
 
+done = set()  # For instruction quest
+
 class Button(object):
 	def __init__(self, rect, name):
 		self.rect = rect

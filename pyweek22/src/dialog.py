@@ -1,18 +1,21 @@
-import pygame, math
-from . import ptext, progress, img
+import pygame, math, os.path
+from . import ptext, progress, img, sound
 from .util import F
 
-lines = {
-	"intro0": [
-		["Zbounce", "Hello and welcome to my lab."],
-		["Ssink", "Today we will make cells."],
-	],
-}
-
+lines = {}
+for line in open(os.path.join("data", "transcript.txt")):
+	if not line:
+		continue
+	filename, who, line = line.split(" ", 2)
+	convo = filename[:3]
+	if convo not in lines:
+		lines[convo] = []
+	lines[convo].append((filename, who, line.rstrip()))
 
 queue = []
 playing = None
 tquiet = 0
+tbreath = 0
 
 def quiet():
 	return not playing and not queue
@@ -24,38 +27,96 @@ def play(dname):
 	queue.extend(lines[dname])
 
 def think(dt):
-	global tquiet, playing, tplaying
+	global tquiet, playing, tplaying, tbreath
 	if quiet():
 		tquiet += dt
 	else:
 		tquiet = 0
 	if queue and not playing:
-		playing = queue.pop(0)
 		tplaying = 0
+		tbreath += dt
+		if tbreath > 0.15:
+			playing = queue.pop(0)
+			filename, who, line = playing
+			channel = pygame.mixer.Channel(1)
+			channel.play(sound.getsound(filename, "dialog"))
 	if playing:
 		tplaying += dt
-		if tplaying > 0.05 * len(playing[1]):
+		tbreath = 0
+		if channelfree():
 			playing = None
 
 def draw():
 	if playing:
-		who, line = playing
-		alpha = math.clamp(4 * tplaying, 0, 1)
-		ptext.draw(line, midbottom = F(854 / 2, 470),
-			color = (255, 100, 255), shadow = (1, 1),
-			fontsize = F(36))
+		filename, who, line = playing
 		t = pygame.time.get_ticks() * 0.001
-		h = 390 - 20 * abs(math.sin(12 * t)) if "bounce" in who else 400
-		angle = 10 * math.sin(6 * t) if "rock" in who else 0
-		fstretch = math.exp(0.1 - 0.02 * tplaying) if "sink" in who else 1
+		h, angle, fstretch = 390, 0, 1
+		if "bounce" in who:
+			freq = float(who[7:])
+			h = 400 - 20 * abs(math.sin(freq * math.tau * t))
+		if "rock" in who:
+			freq = float(who[5:])
+			angle = 10 * math.sin(freq * math.tau * t)
+		if "sink" in who:
+			h += 20 * math.sqrt(tplaying)
 		if "Z" in who:
 			imgname = "zume"
 			center = F(100, h)
+			align = "right"
 		else:
 			imgname = "simon"
 			center = F(854 - 100, h)
+			align = "left"
+		alpha = math.clamp(4 * tplaying, 0, 1)
+		ptext.draw(line, midbottom = F(854 / 2, 470), width = F(500),
+			color = (255, 100, 255), shadow = (1, 1),
+			fontsize = F(36))
 		img.draw(imgname, center, radius = F(80), fstretch = fstretch, angle = angle)
 
+	if currenttip:
+		ptext.draw(currenttip, center = F(854 / 2, 160), width = F(500),
+			color = (255, 255, 100), shadow = (1, 1),
+			fontsize = F(28))
+
+def channelfree():
+	channel = pygame.mixer.Channel(1)
+	return not channel.get_busy()
+
 def showtip(tip):
-	pass
+	global currenttip
+	currenttip = tip
+
+def abort():
+	skip()
+	del queue[:]
+
+def skip():
+	global playing
+	channel = pygame.mixer.Channel(1)
+	channel.stop()
+	playing = None
+	
+
+if __name__ == "__main__":
+	from . import mhack, view
+	pygame.init()
+	toplay = sorted(lines)[:2]
+	view.screen = pygame.display.set_mode((854, 480))
+	clock = pygame.time.Clock()
+	while True:
+		dt = 0.001 * clock.tick()
+		for e in pygame.event.get():
+			if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+				exit()
+			if e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
+				abort()
+		if tquiet > 1:
+			if toplay:
+				play(toplay.pop(0))
+			else:
+				exit()
+		view.screen.fill((0, 50, 50))
+		think(dt)
+		draw()
+		pygame.display.flip()
 
