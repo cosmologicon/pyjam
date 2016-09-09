@@ -222,7 +222,7 @@ class DrawVirus(Component):
 	def think(self, dt):
 		tdraw = self.tdraw0 + self.t
 		self.fstretch = math.exp(0.3 * math.sin(10 * tdraw))
-		self.angle = 15 * math.sin(0.6 * tdraw)
+		self.angle = 15 * math.sin(2 * tdraw)
 		self.imgdy = 0.3 * self.r * math.sin(10 * tdraw)
 	def draw(self):
 		img.drawworld(self.imgname, (self.x, self.y + self.imgdy), self.r, fstretch = self.fstretch, angle = self.angle)
@@ -238,7 +238,8 @@ class DrawCorpse(Component):
 		self.r = r
 	def draw(self):
 		r = self.r * (1 + self.flife)
-		img.drawworld(self.imgname, (self.x, self.y), r, fstretch = self.fstretch, angle = self.angle)
+		alpha = 1 - self.flife
+		img.drawworld(self.imgname, (self.x, self.y), r, fstretch = self.fstretch, angle = self.angle, alpha = alpha)
 
 class DrawInjection(Component):
 	def setstate(self, x0, y0, x1, y1, imgname, r, fstretch = 1, angle = 0, **kw):
@@ -462,6 +463,7 @@ class BossStages(Component):
 	def think(self, dt):
 		if self.stage >= len(self.stages):
 			return
+	def shoot(self, *args):
 		if self.hp <= self.stages[self.stage]:
 			self.advance()
 			self.stage += 1
@@ -771,6 +773,7 @@ class Bee(object):
 @Lives()
 @WorldBound()
 @Drawable()
+@Kickable()
 @TargetsThing()
 @DiesOnArrival()
 @HarmsOnArrival()

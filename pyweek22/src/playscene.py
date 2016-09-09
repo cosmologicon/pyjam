@@ -1,9 +1,10 @@
 import random, math
-from . import ptext, state, thing, view, control, bounce, quest, dialog, background, progress, sound
+from . import ptext, state, thing, view, control, bounce, quest, dialog, background, progress, sound, img
 from . import scene, cutscene
 from .util import F
 
 def init():
+	img.clearcache()
 	state.reset(progress.chosen)
 	control.cursor = None
 	control.dragpos = None

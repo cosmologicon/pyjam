@@ -10,7 +10,7 @@ statepath = "save/quicksave.pkl"
 fullscreen = False
 
 # Effects options
-cellshading = 0
+cellshading = 1
 
 
 # Debug settings

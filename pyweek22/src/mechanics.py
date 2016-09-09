@@ -39,25 +39,25 @@ XXrecharge = 4
 XXrange = 50
 XXstrength = 3
 XXrewardprob = 0.2, 0
-XXkick = 0
+XXkick = 10
 
 XYrecharge = 5
 XYrange = 40
 XYstrength = 1
 XYrewardprob = 0.4, 0
-XYkick = 0
+XYkick = 10
 
 XXXrecharge = 0.5
 XXXrange = 40
 XXXstrength = 1
 XXXrewardprob = 0.2, 0
-XXXkick = 0
+XXXkick = 10
 
 XXYrecharge = 5
 XXYrange = 150
 XXYstrength = 5
 XXYrewardprob = 0.1, 0
-XXYkick = 0
+XXYkick = 10
 
 XYrecharge = 2
 XYrange = 40

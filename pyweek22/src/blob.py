@@ -12,6 +12,9 @@ def hill(R, h):
 	x2s = ((numpy.arange(N) + 0.5) * 2.0 / N - 1) ** 2
 	m = numpy.sqrt(x2s.reshape((1, N)) + x2s.reshape((N, 1)))
 	m = numpy.minimum(m, 1)
+	if False:
+		return h * (1 - m * m * (3 - 2 * m))
+
 	m = numpy.minimum(255 * h * (1 - m * m * (3 - 2 * m)), 255)
 	img.fill((255, 255, 255, 255))
 	pygame.surfarray.pixels_alpha(img)[:,:] = m
@@ -58,6 +61,21 @@ def drawcell(surf, hillspecs, color = None, ocolor = None):
 	w, h = x1 - x0, y1 - y0
 	if w <= 0 or h <= 0:
 		return
+	if False:
+		oarr = numpy.zeros((w, h))
+		for x, y, r, H in hillspecs:
+			r = int(r)
+			x = int(x - x0 - r)
+			y = int(y - y0 - r)
+			ahill = hill(r, H)
+			aw, ah = ahill.shape
+			oarr[x:x+aw,y:y+ah] += ahill
+		osurf = pygame.Surface((w, h)).convert_alpha()
+		pygame.surfarray.pixels_alpha(osurf)[:] = (255 * numpy.minimum(oarr, 1)).astype(numpy.int16)
+
+		surf.blit(tocell(osurf, color = color, ocolor = ocolor), (x0, y0))
+		return	
+
 	osurf = pygame.Surface((w, h)).convert_alpha()
 	osurf.fill((0, 0, 0, 0))
 	# TODO: treat as numpy arrays for faster summation
@@ -86,28 +104,15 @@ if __name__ == "__main__":
 	clock = pygame.time.Clock()
 	while not any(event.type == pygame.KEYDOWN for event in pygame.event.get()):
 		clock.tick()
-		if False:
-			surf.fill((0, 0, 0, 0))
-			img = hill(200, 2)
-			surf.blit(img, img.get_rect(center = (640, 480)))
-			for theta0, dtheta, phi0, dphi, r, h in blobs:
-				theta = theta0 + dtheta * pygame.time.get_ticks() * 0.001
-				phi = phi0 + dphi * pygame.time.get_ticks() * 0.001
-				R = 140 + 20 * math.sin(phi)
-				x, y = 640 + R * math.cos(theta), 480 + R * math.sin(theta)
-				img = hill(r, h)
-				surf.blit(img, img.get_rect(centerx = int(x), centery = int(y)))
-			screen.blit(tocell(surf), (0, 0))
-		elif True:
-			screen.fill((0, 40, 40))
-			hillspecs = [(640, 480, 200, 2)]
-			for theta0, dtheta, phi0, dphi, r, h in blobs:
-				theta = theta0 + dtheta * pygame.time.get_ticks() * 0.001
-				phi = phi0 + dphi * pygame.time.get_ticks() * 0.001
-				R = 140 + 20 * math.sin(phi)
-				x, y = 640 + R * math.cos(theta), 480 + R * math.sin(theta)
-				hillspecs.append((x, y, r, h))
-			drawcell(screen, hillspecs)
+		screen.fill((0, 40, 40))
+		hillspecs = [(640, 480, 200, 2)]
+		for theta0, dtheta, phi0, dphi, r, h in blobs:
+			theta = theta0 + dtheta * pygame.time.get_ticks() * 0.001
+			phi = phi0 + dphi * pygame.time.get_ticks() * 0.001
+			R = 140 + 20 * math.sin(phi)
+			x, y = 640 + R * math.cos(theta), 480 + R * math.sin(theta)
+			hillspecs.append((x, y, r, h))
+		drawcell(screen, hillspecs)
 		ptext.draw("%.1ffps" % clock.get_fps(), (10, 10), fontsize = 32)
 		pygame.display.flip()
 	

@@ -5,15 +5,22 @@ from . import view
 splitrotozoom = True
 
 imgs = {}
-def getimg(name, radius = None, fstretch = 1, angle = 0):
-	angle = round(angle / 1) * 1 % 360
-	if fstretch != 1:
-		fstretch = math.exp(round(math.log(fstretch), 2))
-	key = name, radius, fstretch, angle
+cachesize = 0
+def getimg(name, radius = None, fstretch = 1, angle = 0, alpha = 1, tocache = True):
+	global cachesize
+	if tocache:
+		angle = round(angle / 4) * 4 % 360
+		alpha = round(alpha * 16) / 16
+		if fstretch != 1:
+			fstretch = math.exp(round(math.log(fstretch) * 10) / 10)
+	key = name, radius, fstretch, angle, alpha
 	if key in imgs:
 		return imgs[key]
-	if radius is not None or angle != 0:
-		img0 = getimg(name, fstretch = fstretch)
+	if alpha != 1:
+		img = getimg(name, radius, fstretch, angle, tocache = tocache).copy()
+		img.fill((255, 255, 255, int(alpha * 255)), None, pygame.BLEND_RGBA_MULT)
+	elif radius is not None or angle != 0:
+		img0 = getimg(name, fstretch = fstretch, tocache = tocache)
 		z = radius / (getimg(name).get_width() / 2)
 		splitrotozoom = z < 1
 		if splitrotozoom:
@@ -27,21 +34,31 @@ def getimg(name, radius = None, fstretch = 1, angle = 0):
 		size = int(img0.get_width() / fstretch), int(img0.get_height() * fstretch)
 		img = pygame.transform.smoothscale(img0, size)
 	elif name.startswith("saw"):
+		tocache = True
 		img = getsaw(int(name[3:]))
 	else:
+		tocache = True
 		img = pygame.image.load("data/img/%s.png" % name).convert_alpha()
-	if radius is None and angle == 0 and fstretch == 1:
-#		print key, len(imgs)
+	if tocache:
+		cachesize += img.get_width() * img.get_height() * 4
 		imgs[key] = img
+		if cachesize > 1024 ** 3:
+			print("Emerengency img cache dump!", cachesize, len(imgs))
+			clearcache()
 	return img
 
-def draw(name, screenpos, radius = None, fstretch = 1, angle = 0):
-	img = getimg(name, radius = radius, fstretch = fstretch, angle = angle)
+def clearcache():
+	global cachesize
+	cachesize = 0
+	imgs.clear()
+
+def draw(name, screenpos, radius = None, fstretch = 1, angle = 0, alpha = 1):
+	img = getimg(name, radius = radius, fstretch = fstretch, angle = angle, alpha = alpha)
 	view.screen.blit(img, img.get_rect(center = screenpos))
 
-def drawworld(name, pos, radius, fstretch = 1, angle = 0):
+def drawworld(name, pos, radius, fstretch = 1, angle = 0, alpha = 1):
 	draw(name, screenpos = view.screenpos(pos), radius = view.screenlength(radius),
-		fstretch = fstretch, angle = angle)
+		fstretch = fstretch, angle = angle, alpha = alpha)
 
 def getsaw(n):
 	surf = pygame.Surface((20 * n, 20 * n)).convert_alpha()
@@ -82,7 +99,7 @@ if __name__ == "__main__":
 		splitrotozoom = True
 		draw("virus", (300, 200), radius = 100, angle = angle, fstretch = fstretch)
 		draw("virus", (240, 40), radius = 6, angle = angle, fstretch = fstretch)
-		draw("simon", (300, 300), radius = 60)
+		draw("simon", (300, 300), radius = 60, alpha = 0.5)
 		draw("saw5", (100, 350), radius = 50)
 		pygame.display.flip()
 	
