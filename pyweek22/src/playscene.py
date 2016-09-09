@@ -18,6 +18,8 @@ def init():
 		control.buttons.append(control.Button((26, 26 + 100 * j, 80, 80), "Grow " + flavor))
 	background.init()
 	if state.levelname in (1, 4, 7):
+		sound.playmusic("levelY")
+	elif state.levelname in (2, 5, 8):
 		sound.playmusic("levelX-B", "levelX-A")
 	elif state.levelname in (3, 6, 9):
 		sound.playmusic("boss-B", "boss-A")
