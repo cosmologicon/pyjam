@@ -88,6 +88,9 @@ healrayspeed = 120
 # ENEMIES
 
 anthp = 1
+antspeed = 10
+antdamage = 1
+
 beehp = 1000
 beetlehp = 10
 

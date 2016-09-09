@@ -30,6 +30,8 @@ def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 		obj.think(dt)
 
 	bounce.adjust(state.colliders, dt)
+	for obj in state.buildables:
+		obj.constraintoworld()
 	state.think(dt)
 	quest.think(dt)
 	dialog.think(dt)

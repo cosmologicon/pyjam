@@ -366,9 +366,11 @@ class DiesOnArrival(Component):
 		self.die()
 
 class HarmsOnArrival(Component):
+	def setstate(self, damage = 1, **kw):
+		self.damage = damage
 	def arrive(self):
 		if self.target is state.cell:
-			state.health -= 1
+			state.health -= self.damage
 
 class DisablesOnArrival(Component):
 	def arrive(self):
@@ -649,9 +651,10 @@ class Ant(object):
 	def __init__(self, **kw):
 		self.setstate(
 			hp = mechanics.anthp,
-			speed = random.uniform(4, 6),
+			speed = random.uniform(0.7, 1.3) * mechanics.antspeed,
 			rcollide = 6, mass = 5,
 			r = 6, color = (255, 255, 255),
+			imgname = "virusA",
 			**kw)
 
 @Lives()
