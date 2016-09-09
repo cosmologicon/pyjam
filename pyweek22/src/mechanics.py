@@ -51,6 +51,13 @@ XXYstrength = 5
 XXYrewardprob = 0.1, 0
 XXYkick = 0
 
+XYrecharge = 2
+XYrange = 40
+XYstrength = 1
+XYrewardprob = 0.1, 0
+XYkick = 1000
+
+
 # ATP generation
 
 Yrecharge = 6  # ATP generation recharge time in seconds
@@ -84,5 +91,8 @@ anthp = 1
 beehp = 1000
 beetlehp = 10
 
+wasphp = 100
+waspspeed = 5
+waspspawntime = 1
 
 

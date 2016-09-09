@@ -10,7 +10,7 @@ def fullreset(self):
 	self.lastclick = None
 
 def think(self, dt):
-	flavors = "".join(sorted("XYZ"[obj.flavor] for obj in self.slots))
+	flavors = self.flavors()
 	if flavors not in progress.learned:
 		return
 	if self.disabled:
@@ -19,11 +19,10 @@ def think(self, dt):
 		eval("think" + flavors)(self, dt)
 
 def onclick(self):
-	flavors = "".join(sorted("XYZ"[obj.flavor] for obj in self.slots))
+	flavors = self.flavors()
 	if flavors not in progress.learned:
 		return
 	if flavors == "XYZ":
-		print self.lastclick
 		if self.lastclick is not None and self.t - self.lastclick < mechanics.tdoubleclick:
 			self.die()
 			thing.Shockwave(x = self.x, y = self.y, dhp = mechanics.XYZstrength, wavesize = mechanics.XYZwavesize).addtostate()

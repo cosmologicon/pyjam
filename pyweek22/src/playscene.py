@@ -15,6 +15,7 @@ def init():
 	background.init()
 
 def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
+	control.towerinfo.target = None
 	if control.cursor:
 		dragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick)
 	elif control.dragpos:
@@ -32,6 +33,7 @@ def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 	state.think(dt)
 	quest.think(dt)
 	dialog.think(dt)
+	control.towerinfo.think(dt)
 	if state.twin > 2 and not state.tlose:
 		progress.complete(progress.chosen)
 		scene.push(cutscene.Win())
@@ -78,6 +80,7 @@ def nodragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 				toclick = obj
 	downed = None
 	if toclick:
+		control.towerinfo.target = toclick.flavors()
 		if mdown:
 			toclick.onmousedown()
 			downed = toclick
@@ -127,6 +130,7 @@ def draw():
 
 	ptext.draw("ATP1: %d\nATP2: %d\nhealth: %d" % (state.atp[0], state.atp[1], state.health),
 		bottom = F(470), left = F(10), fontsize = F(26), color = "yellow")
+	control.towerinfo.draw()
 
 def abort():
 	state.save()

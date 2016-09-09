@@ -73,6 +73,10 @@ class Kickable(Component):
 			self.ix *= f
 			self.iy *= f
 
+class Unkickable(Component):
+	def kick(self, ix, iy):
+		pass
+
 class CarriesAnts(Component):
 	def setstate(self, ncarried = 3, **kw):
 		self.ncarried = ncarried
@@ -107,6 +111,8 @@ class Mouseable(Component):
 		pass
 	def onrdown(self):
 		pass
+	def flavors(self):
+		return None
 
 class Shootable(Component):
 	def addtostate(self):
@@ -271,6 +277,8 @@ class HasSlots(Component):
 	def scootch(self, dx, dy):
 		for obj in self.slots:
 			obj.scootch(dx, dy)
+	def flavors(self):
+		return "".join(sorted("XYZ"[obj.flavor] for obj in self.slots))
 
 class Buildable(Component):
 	def addtostate(self):
@@ -384,6 +392,41 @@ class KicksOnArrival(Component):
 		d = math.sqrt(dx ** 2 + dy ** 2)
 		self.target.kick(dx * self.kick / d, dy * self.kick / d)
 
+class CleansOnDeath(Component):
+	def addtostate(self):
+		state.bosses.append(self)
+	def die(self):
+		if all(boss is self or boss.alive == False for boss in state.bosses):
+			for obj in state.shootables:
+				if obj.alive:
+					obj.die()
+
+class SpawnsAnts(Component):
+	def setstate(self, spawntime = 1, **kw):
+		self.lastspawn = 0
+		self.spawntime = spawntime
+	def think(self, dt):
+		while self.lastspawn < self.t:
+			self.spawn()
+			self.lastspawn += self.spawntime
+	def spawn(self):
+		ant = Ant(x = self.x + random.uniform(-1, 1), y = self.y + random.uniform(-1, 1))
+		ant.target = state.cell
+		ant.addtostate()
+
+class CirclesArena(Component):
+	def setstate(self, rpath, drpath, pathomega, **kw):
+		self.rpath = rpath
+		self.drpath = drpath
+		self.pathomega = pathomega
+	def think(self, dt):
+		theta = self.pathomega * self.t
+		phi = theta / ((1 + math.sqrt(5)) / 2)
+		R = self.rpath + self.drpath * math.sin(phi)
+		self.x = R * math.sin(theta)
+		self.y = R * math.cos(theta)
+
+
 class GetsATP1(Component):
 	def arrive(self):
 		state.atp[0] += 1
@@ -459,6 +502,8 @@ class Amoeba(object):
 			color = (0, 100, 100),
 		**kw)
 		self.disabled = False
+	def flavors(self):
+		return None
 
 @Lives()
 @WorldBound()
@@ -561,7 +606,8 @@ class Organelle(object):
 		tower.add(self)
 		self.container = tower
 		return tower
-
+	def flavors(self):
+		return self.container.flavors()
 
 @Lives()
 @Lifetime()
@@ -649,6 +695,28 @@ class Beetle(object):
 			speed = random.uniform(1, 2),
 			rcollide = 12, mass = 25,
 			r = 12,
+			**kw)
+
+@Lives()
+@WorldBound()
+@Drawable()
+@Unkickable()
+@Shootable()
+@DrawVirus()
+@LeavesCorpse()
+@SpawnsAnts()
+@CleansOnDeath()
+@WorldCollidable()
+@CirclesArena()
+class Wasp(object):
+	def __init__(self, **kw):
+		self.setstate(
+			hp = mechanics.wasphp,
+			speed = mechanics.waspspeed,
+			spawntime = mechanics.waspspawntime,
+			rpath = 200, drpath = 40, pathomega = 0.2,
+			rcollide = 25, mass = 10000,
+			r = 25,
 			**kw)
 
 @Lives()

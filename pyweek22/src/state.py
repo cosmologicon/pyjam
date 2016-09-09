@@ -13,8 +13,9 @@ mouseables = []
 thinkers = []
 buildables = []
 shootables = []
+bosses = []
 
-groups = drawables, colliders, mouseables, thinkers, buildables, shootables
+groups = drawables, colliders, mouseables, thinkers, buildables, shootables, bosses
 
 def reset(lname):
 	from .import thing
@@ -34,6 +35,9 @@ def reset(lname):
 	cell.addtostate()
 	Rlevel = leveldata["Rlevel"]
 	health = leveldata["health"]
+	
+	if levelname == 3:
+		thing.Wasp(x = 0, y = 150).addtostate()
 
 def setgroups(obj):
 	for x, y in zip(obj, groups):

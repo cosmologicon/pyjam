@@ -76,7 +76,7 @@ while playing:
 
 	if settings.showfps:
 		ptext.draw("%.1ffps" % clock.get_fps(),
-			right = F(844), top = F(10), fontsize = F(26), color = "yellow")
+			right = F(844), top = F(250), fontsize = F(26), color = "yellow")
 
 	pygame.display.flip()
 pygame.quit()
