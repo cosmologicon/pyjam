@@ -14,45 +14,21 @@ def init():
 	]
 	background.init()
 
-def think(dt, mpos, mdown, mup, mwheel, rdown):
-	hover = None
-	downed = None
-	for button in control.buttons:
-		if button.within(mpos):
-			hover = button
-			if mdown:
-				click(button.name)
-	gpos = view.gamepos(mpos)
-	for obj in state.mouseables:
-		if hover is None:
-			if obj.within(gpos):
-				obj.onhover()
-				if mdown:
-					obj.onmousedown()
-					downed = obj
-					control.dragpos = None
-				if rdown:
-					obj.onrdown()
-	if mdown and not downed:
-		control.dragpos = gpos
+def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
+	if control.cursor:
+		dragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick)
+	elif control.dragpos:
+		pdragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick)
+	else:
+		nodragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick)
+
+	if mwheel:
+		view.zoom(mwheel)
+
 	for obj in state.thinkers:
 		obj.think(dt)
 
 	bounce.adjust(state.colliders, dt)
-
-	if control.cursor:
-		control.cursor.scootch(gpos[0] - control.cursor.x, gpos[1] - control.cursor.y)
-		control.cursor.think(dt)
-		control.cursor.reset()
-	if control.dragpos:
-		view.drag(control.dragpos, mpos)
-	if (mup or mwheel) and control.cursor:
-		drop()
-	if mup or mwheel:
-		control.dragpos = None
-	if mwheel:
-		view.zoom(mwheel)
-
 	state.think(dt)
 	quest.think(dt)
 	dialog.think(dt)
@@ -61,6 +37,55 @@ def think(dt, mpos, mdown, mup, mwheel, rdown):
 		scene.push(cutscene.Win())
 	if state.tlose > 2:
 		scene.push(cutscene.Lose())
+
+
+def dragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
+	gpos = view.gamepos(mpos)
+	if not control.cursor.alive:
+		control.cursor = None
+		return
+	if mclick:
+		toclick = control.cursor
+		drop()
+		if toclick.alive:
+			toclick.onclick()
+		return
+	elif mup:
+		drop()
+		return
+	control.cursor.scootch(gpos[0] - control.cursor.x, gpos[1] - control.cursor.y)
+	control.cursor.think(dt)
+	control.cursor.reset()
+	control.cursor.constraintoworld()
+
+def pdragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
+	view.drag(control.dragpos, mpos)
+	if mwheel or mup or rdown:
+		control.dragpos = None
+
+def nodragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
+	for button in control.buttons:
+		if button.within(mpos):
+			if mdown:
+				click(button.name)
+				return
+	gpos = view.gamepos(mpos)
+	toclick = None
+	for obj in state.mouseables:
+		if obj.within(gpos):
+			obj.onhover()
+			if toclick is None or obj.distanceto(gpos) < toclick.distanceto(gpos):
+				toclick = obj
+	downed = None
+	if toclick:
+		if mdown:
+			toclick.onmousedown()
+			downed = toclick
+			control.dragpos = None
+		if rdown:
+			toclick.onrdown()
+	if mdown and not downed:
+		control.dragpos = gpos
 
 
 def click(bname):

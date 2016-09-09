@@ -32,13 +32,15 @@ def mote(R, h):
 	hillcache[key] = img
 	return img
 
-def tocell(surf):
+def tocell(surf, color = None, ocolor = None):
+	color = color or (0, 120, 120)
+	ocolor = ocolor or (0, 0, 0)
 	osurf = surf.copy()
-	osurf.fill((0, 0, 0, 0))
+	osurf.fill((ocolor[0], ocolor[1], ocolor[2], 0))
 	a = pygame.surfarray.pixels_alpha(surf)
 	pygame.surfarray.pixels_alpha(osurf)[a > 100] = 255
 	arr = pygame.surfarray.pixels3d(osurf)
-	arr[a > 150] = 0, 120, 120
+	arr[a > 150] = color
 	if settings.cellshading:
 		factor = 0.0001 * settings.cellshading * surf.get_width()
 		aoff = 1 - factor * (a[:-1,:-1] - (a[1:,1:].astype(numpy.int16)))
@@ -46,7 +48,7 @@ def tocell(surf):
 		arr[1:,1:] = (arr[1:,1:] * aoff.reshape((ax, ay, 1))).astype(numpy.uint8)
 	return osurf
 
-def drawcell(surf, hillspecs):
+def drawcell(surf, hillspecs, color = None, ocolor = None):
 	if not hillspecs:
 		return
 	x0 = max(int(min(x - r for x, y, r, h in hillspecs)), 0)
@@ -65,7 +67,7 @@ def drawcell(surf, hillspecs):
 		y = int(y - y0 - r)
 		hill(r, h)
 		osurf.blit(hill(r, h), (x, y), None, pygame.BLEND_RGBA_ADD)
-	surf.blit(tocell(osurf), (x0, y0))
+	surf.blit(tocell(osurf, color = color, ocolor = ocolor), (x0, y0))
 
 if __name__ == "__main__":
 	import random

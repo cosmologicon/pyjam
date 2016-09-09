@@ -5,12 +5,31 @@ def reset(self):
 	self.lastshot = self.t
 	self.lastangle = random.angle()
 
+def fullreset(self):
+	reset(self)
+	self.lastclick = None
+
 def think(self, dt):
-	from . import thing
 	flavors = "".join(sorted("XYZ"[obj.flavor] for obj in self.slots))
 	if flavors not in progress.learned:
 		return
-	eval("think" + flavors)(self, dt)
+	if self.disabled:
+		self.disabled = max(0, self.disabled - dt)
+	else:
+		eval("think" + flavors)(self, dt)
+
+def onclick(self):
+	flavors = "".join(sorted("XYZ"[obj.flavor] for obj in self.slots))
+	if flavors not in progress.learned:
+		return
+	if flavors == "XYZ":
+		print self.lastclick
+		if self.lastclick is not None and self.t - self.lastclick < mechanics.tdoubleclick:
+			self.die()
+			thing.Shockwave(x = self.x, y = self.y, dhp = mechanics.XYZstrength, wavesize = mechanics.XYZwavesize).addtostate()
+		else:
+			self.lastclick = self.t
+			
 
 
 def thinkX(self, dt):
@@ -37,6 +56,8 @@ def thinkYY(self, dt):
 def thinkYZ(self, dt):
 	spawnATP(self, atype = thing.ATP2, recharge = mechanics.YZrecharge, kick = mechanics.YZkick)
 
+def thinkXYZ(self, dt):
+	pass
 
 
 def spawnATP(self, atype, recharge, kick):
@@ -52,13 +73,20 @@ def spawnATP(self, atype, recharge, kick):
 
 def trytoshoot(self, tshot, shotrange, dhp, rewardprob):
 	if self.lastshot + tshot < self.t:
+		toshoot, r2 = None, shotrange ** 2
 		for obj in state.shootables:
 			dx = obj.x - self.x
 			dy = obj.y - self.y
-			if dx ** 2 + dy ** 2 < shotrange ** 2:
-				obj.shoot(dhp, rewardprob)
-				thing.Laser(self, obj).addtostate()
-				self.lastshot = self.t
-				break
+			if dx ** 2 + dy ** 2 < r2:
+				toshoot = obj
+				r2 = dx ** 2 + dy ** 2
+		if toshoot:
+			thing.Bullet(self, target = toshoot, x = self.x, y = self.y,
+				dhp = dhp, rewardprob = rewardprob).addtostate()
+			self.lastshot = self.t
+
+def getcolor(self):
+	flavors = "".join(sorted("XYZ"[obj.flavor] for obj in self.slots))
+	return 200, 100, 0	
 
 

@@ -63,13 +63,13 @@ def drawoverlay(alpha = 0.8, color = (0, 0, 0)):
 	overlay.fill((color[0], color[1], color[2], int(alpha * 255)))
 	screen.blit(overlay, (0, 0))
 
-def drawblob(blobspec):
+def drawblob(blobspec, color = None, ocolor = None):
 	hillspec = []
 	for x, y, r, h in blobspec:
 		x, y = screenpos((x, y))
 		r = screenlength(r)
 		hillspec.append((x, y, r, h))
-	blob.drawcell(screen, hillspec)
+	blob.drawcell(screen, hillspec, color = color, ocolor = ocolor)
 
 def drawiris(R):
 	iris = screen.copy()

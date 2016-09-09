@@ -17,7 +17,7 @@ chosen = 0  # most recent level selected on menu
 if True:
 	for l in level.layout:
 		unlocked.add(l)
-	for learn in "X Y XX XY YY XXX XXY".split():
+	for learn in "X Y XX XY YY XXX XXY XYZ".split():
 		learned.add(learn)
 
 def complete(lev):

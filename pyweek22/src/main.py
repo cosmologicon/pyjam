@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, os.path
-from . import mhack, settings, view, state, ptext, quest, progress
+from . import mhack, settings, view, state, ptext, quest, progress, mechanics
 from . import scene, playscene, menuscene, cutscene
 from .util import F
 
@@ -24,10 +24,11 @@ else:
 
 clock = pygame.time.Clock()
 playing = True
+lastdown = None
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	mpos = pygame.mouse.get_pos()
-	mdown, mup, mwheel, rdown = False, False, 0, False
+	mdown, mup, mwheel, rdown, mclick = False, False, 0, False, False
 	kpressed = pygame.key.get_pressed()
 	mod = any(kpressed[j] for j in (pygame.K_LSHIFT, pygame.K_LCTRL, pygame.K_RSHIFT, pygame.K_RCTRL))
 	for event in pygame.event.get():
@@ -39,6 +40,7 @@ while playing:
 					rdown = True
 				else:
 					mdown = True
+					lastdown = pygame.time.get_ticks(), mpos
 			if event.button == 3:
 				rdown = True
 			if event.button == 4:
@@ -48,6 +50,13 @@ while playing:
 		if event.type == pygame.MOUSEBUTTONUP:
 			if event.button == 1 and not mod:
 				mup = True
+				if lastdown is not None:
+					t0, (x0, y0) = lastdown
+					tclick = (pygame.time.get_ticks() - t0) * 0.001
+					dx, dy = mpos[0] - x0, mpos[1] - y0
+					if tclick < mechanics.tclick and abs(dx) < mechanics.dclick > abs(dy):
+						mclick = True
+				lastdown = None
 		if event.type == pygame.KEYDOWN:	
 			if event.key == pygame.K_ESCAPE:
 				playing = False
@@ -60,7 +69,7 @@ while playing:
 		dt *= 5
 
 	s = scene.top()
-	s.think(dt, mpos, mdown, mup, mwheel, rdown)
+	s.think(dt, mpos, mdown, mup, mwheel, rdown, mclick)
 	s.draw()
 	if not playing:
 		s.abort()

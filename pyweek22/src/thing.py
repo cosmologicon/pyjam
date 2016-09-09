@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, control, state, blob, img, settings, bounce
+from . import view, control, state, blob, img, settings, bounce, mechanics
 from .util import F
 from .enco import Component
 
@@ -44,6 +44,12 @@ class Collidable(Component):
 		self.mass = mass
 	def getcollidespec(self):
 		return self.x, self.y, self.rcollide, self.mass
+	def constraintoworld(self):
+		d = math.sqrt(self.x ** 2 + self.y ** 2)
+		r = state.Rlevel - self.rcollide
+		if d > r:
+			f = r / d - 1
+			self.scootch(self.x * f, self.y * f)
 	def draw(self):
 		if settings.showbox:
 			pygame.draw.circle(view.screen, (255, 255, 255),
@@ -85,6 +91,9 @@ class Mouseable(Component):
 		state.mouseables.append(self)
 	def setstate(self, rmouse = 5, **kw):
 		self.rmouse = rmouse
+	def distanceto(self, pos):
+		x, y = pos
+		return math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
 	def within(self, pos):
 		x, y = pos
 		return (x - self.x) ** 2 + (y - self.y) ** 2 < self.rmouse ** 2
@@ -93,6 +102,8 @@ class Mouseable(Component):
 	def ondrag(self, pos):
 		pass
 	def onmousedown(self):
+		pass
+	def onclick(self):
 		pass
 	def onrdown(self):
 		pass
@@ -114,7 +125,7 @@ class Shootable(Component):
 
 class Draggable(Component):
 	def onmousedown(self):
-		if control.cursor is None:
+		if control.cursor is None and not self.disabled:
 			control.cursor = self
 			state.removeobj(control.cursor)
 
@@ -143,6 +154,8 @@ class ContainedDraggable(Component):
 				self.container.remove(self)
 				control.cursor = self.totower()
 			state.removeobj(control.cursor)
+	def onclick(self):
+		self.container.onclick()
 
 class DrawCircle(Component):
 	def setstate(self, r = 10, color = (100, 0, 0), **kw):
@@ -185,9 +198,10 @@ class LeavesCorpse(Component):
 		Corpse(self).addtostate()
 
 class DrawBlob(Component):
-	def setstate(self, rblob = 10, nblob = 3, **kw):
+	def setstate(self, rblob = 10, nblob = 3, color = (0, 120, 120), **kw):
 		self.rblob = rblob
 		self.nblob = nblob
+		self.color = color
 		self.blobspecs = [(
 			random.uniform(0, math.tau),
 			random.uniform(0.6, 1) * (-1 if j % 2 else 1),
@@ -200,7 +214,7 @@ class DrawBlob(Component):
 			x = self.x + fr * self.rblob * math.sin(theta)
 			y = self.y + fr * self.rblob * math.cos(theta)
 			blobspec.append((x, y, 0.8 * self.rblob, 0.5))
-		view.drawblob(blobspec)
+		view.drawblob(blobspec, color = self.color)
 
 class Hatches(Component):
 	def die(self):
@@ -239,7 +253,7 @@ class Buildable(Component):
 	def addtostate(self):
 		state.buildables.append(self)
 	def cantake(self, obj):
-		if len(obj.slots) + len(self.slots) > self.nslot:
+		if len(obj.slots) + len(self.slots) > self.nslot or self.disabled:
 			return False
 		dx, dy = obj.x - self.x, obj.y - self.y
 		r = self.rcollide + obj.rcollide
@@ -263,12 +277,12 @@ class ResizesWithSlots(Component):
 		self.rblob = r
 
 # Move from p0 to p1 by an amount d, and return if you've arrived
-def approachpos(p0, p1, d):
+def approachpos(p0, p1, d, dr):
 	x0, y0 = p0
 	x1, y1 = p1
 	dx, dy = x1 - x0, y1 - y0
 	dp = math.sqrt(dx ** 2 + dy ** 2)
-	if dp < d:
+	if dp - dr < d:
 		return x1, y1, True
 	return x0 + dx * d / dp, y0 + dy * d / dp, False
 
@@ -281,7 +295,7 @@ class DisappearsToCell(Component):
 	def think(self, dt):
 		if not self.approaching or not self.alive:
 			return
-		self.x, self.y, arrived = approachpos((self.x, self.y), (state.cell.x, state.cell.y), dt * 300)
+		self.x, self.y, arrived = approachpos((self.x, self.y), (state.cell.x, state.cell.y), dt * 300, state.cell.rcollide)
 		if arrived:
 			self.arrive()
 
@@ -291,9 +305,32 @@ class TargetsThing(Component):
 		self.speed = speed
 	def think(self, dt):
 		if self.alive and self.target is not None:
-			self.x, self.y, arrived = approachpos((self.x, self.y), (self.target.x, self.target.y), self.speed * dt)
+			dr = self.rcollide + self.target.rcollide
+			self.x, self.y, arrived = approachpos((self.x, self.y), (self.target.x, self.target.y), self.speed * dt, dr)
 			if arrived:
 				self.arrive()
+
+class HurtsTarget(Component):
+	def setstate(self, dhp, rewardprob = (0, 0), **kw):
+		self.dhp = dhp
+		self.rewardprob = rewardprob
+	def arrive(self):
+		self.target.shoot(self.dhp, self.rewardprob)
+
+class TargetsTower(Component):
+	def think(self, dt):
+		if random.random() < dt:
+			self.target = None
+			r2 = 50 ** 2
+			for obj in state.buildables:
+				if obj.disabled:
+					continue
+				dx, dy = obj.x - self.x, obj.y - self.y
+				d2 = dx ** 2 + dy ** 2
+				if d2 < r2:
+					self.target, r2 = obj, d2
+			if self.target is None:
+				self.target = state.cell
 
 class DiesOnArrival(Component):
 	def arrive(self):
@@ -302,6 +339,10 @@ class DiesOnArrival(Component):
 class HarmsOnArrival(Component):
 	def arrive(self):
 		state.health -= 1
+
+class DisablesOnArrival(Component):
+	def arrive(self):
+		self.target.disabled = 10
 
 class GetsATP1(Component):
 	def arrive(self):
@@ -313,13 +354,19 @@ class GetsATP2(Component):
 
 class FollowsRecipe(Component):
 	def add(self, obj):
-		self.reset()
+		self.fullreset()
 	def reset(self):
 		from . import recipe
 		recipe.reset(self)
+	def fullreset(self):
+		from . import recipe
+		recipe.fullreset(self)
 	def think(self, dt):
 		from . import recipe
 		recipe.think(self, dt)
+	def onclick(self):
+		from . import recipe
+		recipe.onclick(self)
 
 class DrawLaser(Component):
 	def setstate(self, x0, x1, y0, y1, color = (255, 255, 255), **kw):
@@ -334,6 +381,28 @@ class DrawLaser(Component):
 			view.screenpos((self.x1, self.y1)),
 			view.screenlength(1))
 
+class DrawShockwave(Component):
+	def setstate(self, wavesize, color = (255, 255, 255), **kw):
+		self.wavesize = wavesize
+		self.color = color
+	def draw(self):
+		r = max(F(2), F(self.wavesize * self.flife))
+		pygame.draw.circle(view.screen, self.color, view.screenpos((self.x, self.y)), r, F(2))
+
+class ShocksEnemies(Component):
+	def setstate(self, dhp, rewardprob = (0, 0), **kw):
+		self.dhp = dhp
+		self.rewardprob = rewardprob
+		self.hits = []
+	def think(self, dt):
+		r = self.wavesize * self.flife
+		for enemy in state.shootables:
+			if enemy in self.hits:
+				continue
+			dx, dy = enemy.x - self.x, enemy.y - self.y
+			if dx ** 2 + dy ** 2 < r ** 2:
+				enemy.shoot(self.dhp, self.rewardprob)
+
 @Lives()
 @WorldBound()
 @Drawable()
@@ -347,7 +416,9 @@ class Amoeba(object):
 			rcollide = 20, mass = 10000,
 			rblob = 20,
 			nblob = 18,
+			color = (0, 100, 100),
 		**kw)
+		self.disabled = False
 
 @Lives()
 @WorldBound()
@@ -363,12 +434,25 @@ class Amoeba(object):
 @WorldCollidable()
 @FollowsRecipe()
 class Tower(object):
-	def __init__(self, **kw):
+	def __init__(self, color = None, **kw):
+		color = color or (0, 100, 100)
 		self.setstate(
 			rcollide = 20, mass = 10,
 			rblob = 20,
 			nblob = 18,
+			color = color,
 		**kw)
+		self.targetcolor = None
+		self.disabled = False
+	def think(self, dt):
+		from . import recipe
+		self.targetcolor = recipe.getcolor(self)
+		if self.disabled:
+			tr, tg, tb = self.targetcolor
+			self.targetcolor = tr // 3, tg // 3, tb // 3
+		if self.targetcolor is not None and self.color != self.targetcolor:
+			d = int(max(100 * dt, 1))
+			self.color = tuple(math.clamp(y, x - d, x + d) for x, y in zip(self.color, self.targetcolor))
 
 @Lives()
 @Lifetime()
@@ -433,11 +517,10 @@ class Organelle(object):
 			**kw)
 		self.flavor = flavor
 	def totower(self):
-		tower = Tower(x = self.x, y = self.y)
+		tower = Tower(x = self.x, y = self.y, color = self.container.color)
 		tower.add(self)
 		self.container = tower
 		return tower
-
 
 
 @Lives()
@@ -454,10 +537,11 @@ class Egg(object):
 			1: (0, 255, 0, 120),
 			2: (100, 100, 255, 120),
 		}[flavor]
+		thatch = [mechanics.Xthatch, mechanics.Ythatch, mechanics.Zthatch][flavor]
 		self.setstate(
 			rcollide = 8,
 			r = 8, color = color,
-			lifetime = 3,
+			lifetime = thatch,
 			x = container.x + random.uniform(-1, 1),
 			y = container.y + random.uniform(-1, 1),
 			**kw)
@@ -477,9 +561,31 @@ class Egg(object):
 class Ant(object):
 	def __init__(self, **kw):
 		self.setstate(
+			hp = mechanics.anthp,
 			speed = random.uniform(4, 6),
 			rcollide = 6, mass = 5,
 			r = 6, color = (255, 255, 255),
+			**kw)
+
+@Lives()
+@WorldBound()
+@Drawable()
+@Kickable()
+@TargetsThing()
+@TargetsTower()
+@DiesOnArrival()
+@DisablesOnArrival()
+@Shootable()
+@DrawCircle()
+#@LeavesCorpse()
+@WorldCollidable()
+class Bee(object):
+	def __init__(self, **kw):
+		self.setstate(
+			hp = mechanics.beehp,
+			speed = random.uniform(4, 6),
+			rcollide = 6, mass = 5,
+			r = 6, color = (255, 255, 0),
 			**kw)
 
 @Lives()
@@ -496,6 +602,7 @@ class Ant(object):
 class Beetle(object):
 	def __init__(self, **kw):
 		self.setstate(
+			hp = mechanics.beetlehp,
 			speed = random.uniform(1, 2),
 			rcollide = 12, mass = 25,
 			r = 12,
@@ -515,6 +622,23 @@ class Laser(object):
 			**kw)
 
 @Lives()
+@WorldBound()
+@Collidable()
+@Drawable()
+@DrawCircle()
+@TargetsThing()
+@HurtsTarget()
+@DiesOnArrival()
+class Bullet(object):
+	def __init__(self, obj, target, dhp, **kw):
+		self.setstate(
+			target = target, speed = mechanics.bulletspeed,
+			dhp = dhp,
+			r = 3, rcollide = 3,
+			color = (100, 0, 0),
+			**kw)
+
+@Lives()
 @Lifetime()
 @Drawable()
 @DrawCorpse()
@@ -530,5 +654,16 @@ class Corpse(object):
 			angle = obj.angle,
 			**kw)
 
+@Lives()
+@WorldBound()
+@Lifetime()
+@Drawable()
+@DrawShockwave()
+@ShocksEnemies()
+class Shockwave(object):
+	def __init__(self, **kw):
+		self.setstate(
+			lifetime = 0.5, color = (255, 255, 255),
+			**kw)
 
 

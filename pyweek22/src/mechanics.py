@@ -1,3 +1,9 @@
+# CONTROLS
+
+tclick = 0.3  # maximum time the mouse can be held down and still count as a click, in seconds
+dclick = 4  # maximum distance the mouse can move and still count as a click, in pixels
+tdoubleclick = 0.6  # maximum time between clicks in a double click
+
 # ORGANELLES
 
 Xcost1 = 5
@@ -6,6 +12,10 @@ Ycost1 = 8
 Ycost2 = 0
 Zcost1 = 20
 Zcost2 = 5
+
+Xthatch = 1
+Ythatch = 1
+Zthatch = 1
 
 ## TOWERS
 
@@ -47,6 +57,20 @@ YYkick = 40
 YZrecharge = 5
 YZkick = 40
 
+# bomb
+
+XYZstrength = 20
+XYZwavesize = 40
+
+# WEAPONS
+
+bulletspeed = 80
+
+# ENEMIES
+
+anthp = 1
+beehp = 1000
+beetlehp = 10
 
 
 
