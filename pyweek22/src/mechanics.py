@@ -95,6 +95,9 @@ Zstrength = 1.5
 XYZstrength = 20
 XYZwavesize = 40
 
+ZZZstrength = 60
+ZZZwavesize = 80
+
 # WEAPONS
 
 bulletspeed = 80

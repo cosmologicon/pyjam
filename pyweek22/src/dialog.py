@@ -16,6 +16,7 @@ queue = []
 playing = None
 tquiet = 0
 tbreath = 0
+currenttip = None
 
 def quiet():
 	return not playing and not queue
@@ -100,7 +101,7 @@ def skip():
 if __name__ == "__main__":
 	from . import mhack, view
 	pygame.init()
-	toplay = sorted(lines)[:2]
+	toplay = sorted(lines)
 	view.screen = pygame.display.set_mode((854, 480))
 	clock = pygame.time.Clock()
 	while True:
@@ -109,6 +110,8 @@ if __name__ == "__main__":
 			if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
 				exit()
 			if e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
+				skip()
+			if e.type == pygame.KEYDOWN and e.key == pygame.K_TAB:
 				abort()
 		if tquiet > 1:
 			if toplay:

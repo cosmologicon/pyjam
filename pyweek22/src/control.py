@@ -1,5 +1,5 @@
 import pygame
-from . import view, ptext, img, state, mechanics
+from . import view, ptext, img, state, mechanics, progress
 from .util import F
 
 cursor = None
@@ -23,9 +23,10 @@ class Button(object):
 			ptext.draw(text, color = color, shadow = (1, 1), scolor = "black",
 				fontsize = F(34), center = rect.center)
 		else:
-			view.screen.fill((100, 50, 0), rect)
+			view.screen.fill((120, 60, 0), rect)
+			view.screen.fill((60, 30, 0), rect.inflate(F(-8), F(-8)))
 			ptext.draw(self.name, color = "white", shadow = (1, 1), scolor = "black",
-				fontsize = F(18), center = rect.center)
+				fontsize = F(26), center = rect.center)
 
 class TowerInfo(object):
 	def __init__(self):
@@ -43,7 +44,7 @@ class TowerInfo(object):
 	def draw(self):
 		if self.current is None:
 			return
-		if isinstance(self.current, Button):
+		if isinstance(self.current, Button) and self.current.name.startswith("Grow"):
 			flavor = self.current.name[-1]
 			costs = {
 				"X": [mechanics.Xcost1, mechanics.Xcost2],
@@ -63,6 +64,10 @@ class TowerInfo(object):
 			])
 			ptext.draw(text, topright = F(842, 16), fontsize = F(21), width = F(140),
 				color = "orange", shadow = (1, 1), alpha = self.alpha)
+		elif isinstance(self.current, Button) and "combos" in self.current.name:
+			ptext.draw("Click to view available organelle combinations",
+				topright = F(842, 16), fontsize = F(28), width = F(140),
+				color = "orange", shadow = (1, 1), alpha = self.alpha)
 		else:
 			flavor = self.current.flavors()
 			for j, f in enumerate(reversed(flavor)):
@@ -70,7 +75,10 @@ class TowerInfo(object):
 				pygame.draw.circle(view.screen, (0, 0, 0), p, F(20))
 				img.draw("organelle-" + f, p, radius = F(18))
 
-			text = mechanics.towerinfo.get(flavor, flavor)
+			if flavor not in progress.learned:
+				text = "This combination of organelles is not yet unlocked."
+			else:
+				text = mechanics.towerinfo.get(flavor, flavor)
 			ptext.draw(text, topright = F(842, 100), fontsize = F(30),
 				color = "yellow", shadow = (1, 1), alpha = self.alpha)
 

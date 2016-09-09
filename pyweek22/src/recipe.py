@@ -28,6 +28,12 @@ def onclick(self):
 			thing.Shockwave(x = self.x, y = self.y, dhp = mechanics.XYZstrength, wavesize = mechanics.XYZwavesize).addtostate()
 		else:
 			self.lastclick = self.t
+	if flavors == "ZZZ":
+		if self.lastclick is not None and self.t - self.lastclick < mechanics.tdoubleclick:
+			self.die()
+			thing.Shockwave(x = self.x, y = self.y, dhp = mechanics.XZZstrength, wavesize = mechanics.XZZwavesize).addtostate()
+		else:
+			self.lastclick = self.t
 
 
 
@@ -60,6 +66,9 @@ def thinkYZ(self, dt):
 	spawnATP(self, atype = thing.ATP2, recharge = mechanics.YZrecharge, kick = mechanics.YZkick)
 
 def thinkXYZ(self, dt):
+	pass
+
+def thinkZZZ(self, dt):
 	pass
 
 def thinkZ(self, dt):
@@ -105,7 +114,8 @@ def trytoshootexploding(self, tshot, shotrange, dhp, shockdhp, rewardprob, shock
 
 def trytoheal(self, tshot, shotrange, dheal):
 	if self.lastshot + tshot < self.t:
-		toshoot = gettarget(self, [obj for obj in state.buildables if obj.disabled], shotrange)
+		toshoot = gettarget(self, [obj for obj in state.buildables if obj.disabled], shotrange,
+			quality = lambda obj: obj.disabled)
 		if toshoot:
 			thing.HealRay(self, target = toshoot, x = self.x, y = self.y,
 				dheal = dheal).addtostate()

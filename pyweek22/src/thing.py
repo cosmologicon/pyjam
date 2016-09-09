@@ -323,6 +323,7 @@ class Buildable(Component):
 	def cantake(self, obj):
 		if len(obj.slots) + len(self.slots) > self.nslot or self.disabled:
 			return False
+		maxslots = max(len(formula) for formula in progress.learned)
 		dx, dy = obj.x - self.x, obj.y - self.y
 		r = self.rcollide + obj.rcollide
 		return dx ** 2 + dy ** 2 < r ** 2

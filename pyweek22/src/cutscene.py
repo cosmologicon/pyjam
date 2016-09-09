@@ -1,6 +1,6 @@
 from __future__ import division
-import math
-from . import ptext, view, scene, state
+import math, pygame
+from . import ptext, view, scene, state, progress, img, mechanics
 from .util import F
 
 class Cutscene(object):
@@ -78,4 +78,57 @@ class Lose(Cutscene):
 	message = "Level failed"
 	darkout = True
 	tomenu = True
+
+class Combos(object):
+	color = "yellow"
+	gcolor = "orange"
+	fadestart = 0
+	fadeend = 0
+	tfade = 0.5
+	darkin = False
+	darkout = False
+	darkcolor = 0, 0, 0
+	tomenu = False
+	
+	def init(self):
+		self.t = 0
+		self.tview = 0
+		self.fade = self.fadestart
+		self.fading = True
+
+	def think(self, dt, mpos, mdown, *args):
+		self.t += dt
+		if self.fading:
+			self.fade = math.clamp(self.fade + dt / self.tfade, 0, 1)
+		else:
+			self.fade = math.clamp(self.fade - dt / self.tfade, 0, 1)
+		if self.fade <= self.fadeend and not self.fading:
+			scene.pop()
+		if mdown:
+			self.fading = False
+
+	def draw(self):
+		from . import playscene
+		playscene.draw()
+
+		view.drawoverlay(0.85 * self.fade)
+
+		if self.fade < 1:
+			return		
+		for jflavor, flavor in enumerate(sorted(progress.learned)):
+			y, x = divmod(jflavor, 3)
+			x0 = 100 + x * 240
+			y0 = 60 + y * 80
+			for j, f in enumerate(reversed(flavor)):
+				p = F(x0 - 20 * j, y0)
+				pygame.draw.circle(view.screen, (0, 0, 0), p, F(12))
+				img.draw("organelle-" + f, p, radius = F(10))
+			text = mechanics.towerinfo.get(flavor, flavor)
+			ptext.draw(text, midleft = F(x0 + 20, y0), fontsize = F(18),
+				color = "yellow", shadow = (1, 1), width = F(160))
+
+	def abort(self):
+		state.save()
+
+
 

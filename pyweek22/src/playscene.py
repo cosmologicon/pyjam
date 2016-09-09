@@ -8,7 +8,10 @@ def init():
 	control.cursor = None
 	control.dragpos = None
 	control.tdrag = 0
-	control.buttons = []
+	control.buttons = [
+	]
+	if len(progess.learned) > 1:
+		control.buttons.append(control.Button((120, 26, 80, 80), "See\ncombos"))
 	for j, flavor in enumerate("XYZ"):
 		if flavor not in progress.learned:
 			continue
@@ -117,6 +120,8 @@ def click(bname):
 		egg = thing.Egg(container = state.cell, flavor = "XYZ".index(flavor))
 		state.cell.add(egg)
 		egg.addtostate()
+	elif bname.endswith("combos"):
+		scene.push(cutscene.Combos())
 
 def drop():
 	for obj in state.buildables:
@@ -141,11 +146,11 @@ def draw():
 	view.drawiris(state.Rlevel)
 	for button in control.buttons:
 		button.draw()
-	dialog.draw()
 
 	ptext.draw("ATP1: %d\nATP2: %d\nhealth: %d" % (state.atp[0], state.atp[1], max(int(state.health), 0)),
 		bottom = F(470), left = F(10), fontsize = F(26), color = "yellow")
 	control.towerinfo.draw()
+	dialog.draw()
 
 def abort():
 	state.save()
