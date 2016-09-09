@@ -441,7 +441,7 @@ class KicksOnArrival(Component):
 	def arrive(self):
 		if not self.kick or not self.target or not self.target.alive:
 			return
-		self.target.kick(*util.norm(dx, dy, self.kick))
+		self.target.kick(*util.norm(self.target.x - self.x, self.target.y - self.y, self.kick))
 
 class CleansOnDeath(Component):
 	def addtostate(self):
@@ -453,29 +453,30 @@ class CleansOnDeath(Component):
 					obj.die()
 
 class SpawnsAnts(Component):
-	def setstate(self, spawntime = 1, **kw):
-		self.lastspawn = 0
+	def setstate(self, spawntime = 1, spawnstart = 20, **kw):
+		self.lastspawn = spawnstart
 		self.spawntime = spawntime
 	def think(self, dt):
 		while self.lastspawn < self.t:
 			self.spawn()
 			self.lastspawn += self.spawntime
 	def spawn(self):
-		ant = Ant(x = self.x + random.uniform(-1, 1), y = self.y + random.uniform(-1, 1))
+		ant = Ant(x = self.x + random.uniform(-10, 10), y = self.y + random.uniform(-10, 10))
 		ant.target = state.cell
 		ant.addtostate()
 
 class CirclesArena(Component):
-	def setstate(self, rpath, drpath, pathomega, **kw):
+	def setstate(self, rpath, drpath, vpath, **kw):
 		self.rpath = rpath
 		self.drpath = drpath
-		self.pathomega = pathomega
+		self.vpath = vpath
+		self.theta = 0
 	def think(self, dt):
-		theta = self.pathomega * self.t
-		phi = theta / ((1 + math.sqrt(5)) / 2)
+		phi = self.theta / ((1 + math.sqrt(5)) / 2)
 		R = self.rpath + self.drpath * math.sin(phi)
-		self.x = R * math.sin(theta)
-		self.y = R * math.cos(theta)
+		self.theta += self.vpath * dt / R
+		self.x = R * math.sin(self.theta)
+		self.y = R * math.cos(self.theta)
 
 
 class GetsATP1(Component):
@@ -778,12 +779,12 @@ class Wasp(object):
 	def __init__(self, **kw):
 		self.setstate(
 			hp = mechanics.wasphp,
-			speed = mechanics.waspspeed,
 			spawntime = mechanics.waspspawntime,
-			rpath = 200, drpath = 40, pathomega = 0.2,
+			rpath = 160, drpath = 80, vpath = mechanics.waspspeed,
 			rcollide = 25, mass = 10000,
 			r = 25,
 			**kw)
+		self.think(0)
 
 @Lives()
 @Lifetime()

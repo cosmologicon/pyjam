@@ -60,6 +60,13 @@ def think(dt):
 	for wave in wavespecs:
 		if wave[0] < tlevel:
 			launchwave(wave)
+	for t, etype, n0, dn in level.data[levelname].get("streamspecs", []):
+		t = tlevel - t
+		if t > 0:
+			n = (n0 + dn * t) / 100
+			if random.random() < n * dt:
+				stream(etype)
+
 	updatealive()
 	if complete():
 		twin += dt
@@ -118,6 +125,20 @@ def launchwave(wave):
 	if levelname == "endless":
 		addendlesswave()
 
+def stream(etype):
+	from . import thing
+	theta = random.angle()
+	step = random.uniform(30, 60)
+	x, y = outstep(theta, step)
+	if etype == "ant":
+		ant = thing.Ant(x = x, y = y)
+		ant.target = cell
+		ant.addtostate()
+	if etype == "Lant":
+		ant = thing.LargeAnt(x = x, y = y)
+		ant.target = cell
+		ant.addtostate()
+
 def addendlesswave():
 	jwave = len(donewaves)
 	tlast, anglelast, nantlast = donewaves[-1]
@@ -153,6 +174,8 @@ def drawwaves():
 			color = "#FF4F4F", shadow = (0.5, 1), alpha = 0.4 * alpha)
 
 def complete():
+	if levelname in (3, 6, 9):
+		return not bosses
 	return not shootables and not wavespecs
 
 def canbuy(flavor):

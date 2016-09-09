@@ -17,6 +17,8 @@ def init():
 			continue
 		control.buttons.append(control.Button((26, 26 + 100 * j, 80, 80), "Grow " + flavor))
 	background.init()
+	sound.playmusic("levelX-B", "levelX-A")
+
 
 def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 	if mdown:

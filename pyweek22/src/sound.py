@@ -32,6 +32,24 @@ def playsfx(sname):
 		channel.play(sound)
 		break
 
+music = None
+def playmusic(song, intro = None):
+	global music
+	channel = pygame.mixer.Channel(0)
+	channel.play(getsound(intro or song, dirname = "music"))
+	music = getsound(song, dirname = "music")
+	
+def think(dt):
+	from . import dialog
+	channel = pygame.mixer.Channel(0)
+	if music and not channel.get_busy():
+		channel.play(music, -1)
+	if channel.get_busy():
+		if dialog.tquiet > 0.5:
+			channel.set_volume(0.8)
+		else:
+			channel.set_volume(0.3)
+
 if __name__ == "__main__":
 	pygame.init()
 	pygame.display.set_mode((600, 600))

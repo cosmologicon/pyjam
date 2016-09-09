@@ -1,20 +1,27 @@
 import random, math, pygame
-from . import ptext, view, scene, playscene, cutscene, blob, progress, level, settings
+from . import ptext, view, scene, playscene, cutscene, blob, progress, level, settings, sound
 from .util import F
 
 
 def init():
-	global levels, pointed, blobspecs
+	global levels, pointed, blobspecs, message, tmessage
 	pointed = None
 	blobspecs = dict((lname, [(
 		random.uniform(0, math.tau),
 		random.uniform(0.6, 1) * random.choice([-1, 1]),
 		random.uniform(0.2, 1.2),
 	) for j in range(30)]) for lname in level.layout)
+	message = None
+	tmessage = 0
+	sound.playmusic("menu")
 
+def setmessage(m):
+	global message, tmessage
+	message = m
+	tmessage = 8
 
 def think(dt, mpos, mdown, mup, *args):
-	global pointed
+	global pointed, tmessage
 	mx, my = mpos
 	for jlevel, (r, x, y) in level.layout.items():
 		if jlevel not in progress.unlocked:
@@ -30,6 +37,8 @@ def think(dt, mpos, mdown, mup, *args):
 		scene.pop()
 		scene.push(playscene)
 		scene.push(cutscene.Start())
+	if tmessage:
+		tmessage = max(0, tmessage - dt)
 
 def draw():
 	view.clear(color = (20, 80, 20))
@@ -62,6 +71,11 @@ def draw():
 		text = "Level %s" % pointed
 		ptext.draw(text, fontsize = F(80), midbottom = F(854 / 2, 470),
 			color = "white", gcolor = (50, 50, 50), shadow = (1, 1))
+	print tmessage, message
+	if tmessage:
+		alpha = min(tmessage * 2, 1)
+		ptext.draw(message, fontsize = F(60), center = F(854 / 2, 200),
+			color = "#FF7F7F", shadow = (1, 1), alpha = alpha)
 
 def abort():
 	pass

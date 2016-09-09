@@ -11,6 +11,17 @@ unlocks = {
 	8: [9],
 }
 
+learns = {
+	1: ["XX"],
+	2: ["Y", "XY"],
+	3: ["Z", "YY"],
+	4: ["XZ", "YZ"],
+	5: [],
+	6: [],
+	7: [],
+	8: [],
+}
+
 # position of each level on the menu screen
 layout = {
 	1: [30, 120, 70],
@@ -46,7 +57,7 @@ data = {
 	2: {
 		"Rlevel": 180,
 		"cellpos": (-100, -100),
-		"health": 10,
+		"health": 20,
 		"atp": [20, 0],
 		"autoatp": [0.2, 0],
 		"wavespecs": [
@@ -58,9 +69,13 @@ data = {
 	3: {
 		"Rlevel": 250,
 		"cellpos": (0, 0),
-		"health": 10,
-		"atp": [20, 0],
+		"health": 40,
+		"atp": [60, 0],
 		"wavespecs": [
+		],
+		"streamspecs": [
+			(20, "ant", 20, 0.1),
+			(60, "Lant", 5, 0.05),
 		],
 	},
 

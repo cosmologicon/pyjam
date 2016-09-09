@@ -65,10 +65,16 @@ class InstructionsQuest(Quest):
 				dialog.showtip("Combine two organelles into a single antibody to create a larger antibody.")
 			if any(len(obj.formula()) > 1 for obj in state.buildables):
 				self.advance()
+
 		if state.levelname == 3 and self.jstep == 6:
 			if dialog.tquiet > 3 and self.tstep > 2:
 				dialog.showtip("Different combinations of organelles produce antibodies with different behavior.")
 			if any(obj.formula() == "XY" for obj in state.buildables) and self.tstep > 8:
+				self.advance()
+		if state.levelname == 3 and self.jstep == 7:
+			if dialog.tquiet > 3 and self.tstep > 8:
+				dialog.showtip("Defeat the large virus quickly before you're overwhelmed.")
+			if self.tstep > 16:
 				self.advance()
 
 

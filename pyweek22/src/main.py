@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, os.path
-from . import mhack, settings, view, state, ptext, quest, progress, mechanics, dialog
+from . import mhack, settings, view, state, ptext, quest, progress, mechanics, dialog, sound
 from . import scene, playscene, menuscene, cutscene
 from .util import F
 
@@ -78,6 +78,7 @@ while playing:
 
 	s = scene.top()
 	s.think(dt, mpos, mdown, mup, mwheel, rdown, mclick)
+	sound.think(dt)
 	s.draw()
 	if not playing:
 		s.abort()

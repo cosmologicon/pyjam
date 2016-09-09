@@ -18,5 +18,6 @@ showbox = False
 showfps = True
 reset = True
 quickstart = "--qstart" in sys.argv
+unlockall = "--unlockall" in sys.argv
 pulltower = True  # Whether the whole tower comes with it when you pluck an organelle
 

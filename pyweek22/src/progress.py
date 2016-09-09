@@ -14,7 +14,7 @@ learned = set(["X"])
 heard = set()  # dialogs heard
 chosen = 1  # most recent level selected on menu
 
-if settings.quickstart:
+if settings.quickstart or settings.unlockall:
 	for l in level.layout:
 		unlocked.add(l)
 	for learn in "X Y XX XY YY XXX XXY Z XZ XYZ ZZZ".split():
@@ -24,6 +24,11 @@ def complete(lev):
 	completed.add(lev)
 	for nlev in level.unlocks.get(lev, []):
 		unlocked.add(nlev)
+	for nlearn in level.learns.get(lev, []):
+		if nlearn not in learned:
+			learned.add(nlearn)
+			from . import menuscene
+			menuscene.setmessage("New antibody combination unlocked!")
 	save()
 
 def setchosen(lev):

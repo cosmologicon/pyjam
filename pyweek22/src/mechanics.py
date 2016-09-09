@@ -119,8 +119,8 @@ Lantsize = 12
 beehp = 1000
 beetlehp = 10
 
-wasphp = 100
-waspspeed = 5
-waspspawntime = 1
+wasphp = 40
+waspspeed = 25
+waspspawntime = 6
 
 
