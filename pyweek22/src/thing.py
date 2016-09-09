@@ -14,6 +14,12 @@ class Lives(Component):
 	def die(self):
 		self.alive = False
 
+class LivesToHatch(Lives):
+	def think(self, dt):
+		for _ in range(state.cell.countflavors(1)):
+			dt *= 2.0
+		self.t += dt
+
 class Lifetime(Component):
 	def setstate(self, lifetime = 1, preserved = False, **kw):
 		self.lifetime = lifetime
@@ -412,7 +418,7 @@ class HarmsOnArrival(Component):
 		self.damage = damage
 	def arrive(self):
 		if self.target is state.cell:
-			state.health -= self.damage
+			state.takedamage(self.damage)
 
 class DisablesOnArrival(Component):
 	def arrive(self):
@@ -547,6 +553,8 @@ class Amoeba(object):
 		self.disabled = False
 	def flavors(self):
 		return None
+	def countflavors(self, n):
+		return sum(isinstance(obj, Organelle) and obj.flavor == n for obj in self.slots)
 
 @Lives()
 @WorldBound()
@@ -652,7 +660,7 @@ class Organelle(object):
 	def flavors(self):
 		return self.container.flavors()
 
-@Lives()
+@LivesToHatch()
 @Lifetime()
 @WorldBound()
 @DrawEgg()
@@ -680,6 +688,7 @@ class Egg(object):
 		self.imgdy = 0
 		self.fstretch = 1
 		self.angle = 0
+	
 
 @Lives()
 @WorldBound()

@@ -77,6 +77,7 @@ def nodragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 	control.tdrag = 0
 	for button in control.buttons:
 		if button.within(mpos):
+			control.towerinfo.target = button
 			if mdown:
 				click(button.name)
 				return
@@ -142,7 +143,7 @@ def draw():
 		button.draw()
 	dialog.draw()
 
-	ptext.draw("ATP1: %d\nATP2: %d\nhealth: %d" % (state.atp[0], state.atp[1], state.health),
+	ptext.draw("ATP1: %d\nATP2: %d\nhealth: %d" % (state.atp[0], state.atp[1], max(int(state.health), 0)),
 		bottom = F(470), left = F(10), fontsize = F(26), color = "yellow")
 	control.towerinfo.draw()
 

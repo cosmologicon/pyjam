@@ -1,5 +1,6 @@
 # Frame-by-frame game state. Can be reset without loss of progress.
 
+from __future__ import division
 try:
 	import cPickle as pickle
 except ImportError:
@@ -50,7 +51,7 @@ def updatealive():
 		group[:] = [m for m in group if m.alive]
 
 def think(dt):
-	global tlevel, twin, tlose
+	global tlevel, twin, tlose, health
 	if dialog.quiet():
 		tlevel += dt
 	for wave in wavespecs:
@@ -59,8 +60,15 @@ def think(dt):
 	updatealive()
 	if complete():
 		twin += dt
-	if not cell.alive:
+	if tlose or health <= 0:
 		tlose += dt
+	health = min(health + cell.countflavors(2) * dt, level.data[levelname]["health"])
+
+def takedamage(damage):
+	global health
+	for j in range(cell.countflavors(0)):
+		damage *= 0.7
+	health -= damage
 
 def outstep(theta, step):
 	theta *= math.tau
