@@ -84,7 +84,7 @@ class Combos(object):
 	gcolor = "orange"
 	fadestart = 0
 	fadeend = 0
-	tfade = 0.5
+	tfade = 0.3
 	darkin = False
 	darkout = False
 	darkcolor = 0, 0, 0
@@ -111,7 +111,7 @@ class Combos(object):
 		from . import playscene
 		playscene.draw()
 
-		view.drawoverlay(0.85 * self.fade)
+		view.drawoverlay(0.92 * self.fade)
 
 		if self.fade < 1:
 			return		

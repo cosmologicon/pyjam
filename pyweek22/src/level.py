@@ -34,6 +34,7 @@ data = {
 		"cellpos": (0, -100),
 		"health": 10,
 		"atp": [20, 0],
+		"autoatp": [0.2, 0],  # per second
 		"wavespecs": [
 			(12, 0, "ant", 3),
 			(40, 0.15, "ant", 5),
@@ -47,6 +48,7 @@ data = {
 		"cellpos": (-100, -100),
 		"health": 10,
 		"atp": [20, 0],
+		"autoatp": [0.2, 0],
 		"wavespecs": [
 			(12, 0.2, "ant", 5),
 			(30, 0.125, "ant", 30),

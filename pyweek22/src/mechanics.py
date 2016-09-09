@@ -8,7 +8,7 @@ tdoubleclick = 0.6  # maximum time between clicks in a double click
 
 Xcost1 = 5
 Xcost2 = 0
-Ycost1 = 8
+Ycost1 = 5
 Ycost2 = 0
 Zcost1 = 20
 Zcost2 = 5
@@ -21,10 +21,10 @@ Zthatch = 20
 
 towerinfo = {
 	"X": "Basic defensive antibody",
-	"Y": "Generates resources over time",
+	"Y": "Generates RNA over time",
 	"XX": "Medium-strength defensive antibody",
-	"XY": "Defensive antibody\nYields more resources when defeating viruses",
-	"XXX": "Fast-acting defensive antibody",
+	"XY": "Basic defensive antibody\nDoubles the chance of getting RNA from viruses.",
+	"XXX": "High-speed defensive antibody",
 }
 
 # Lasers
@@ -32,25 +32,25 @@ towerinfo = {
 Xrecharge = 2  # shot rechange time in seconds
 Xrange = 40
 Xstrength = 1
-Xrewardprob = 0.1, 0  # probability that an enemy killed by this tower will drop ATP1 and ATP2
+Xrewardprob = 0.2, 0  # probability that an enemy killed by this tower will drop ATP1 and ATP2
 Xkick = 0  # How far back an enemy gets kicked when hit by this tower
 
 XXrecharge = 4
 XXrange = 50
 XXstrength = 3
-XXrewardprob = 0.1, 0
+XXrewardprob = 0.2, 0
 XXkick = 0
 
 XYrecharge = 2
 XYrange = 40
 XYstrength = 1
-XYrewardprob = 0.5, 0
+XYrewardprob = 0.4, 0
 XYkick = 0
 
-XXXrecharge = 1
+XXXrecharge = 0.5
 XXXrange = 40
-XXXstrength = 2
-XXXrewardprob = 0.1, 0
+XXXstrength = 1
+XXXrewardprob = 0.2, 0
 XXXkick = 0
 
 XXYrecharge = 5

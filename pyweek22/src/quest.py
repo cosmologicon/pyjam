@@ -54,16 +54,21 @@ class InstructionsQuest(Quest):
 				dialog.showtip("You can drag an antibody to reposition it.")
 			if self.tstep > 16:
 				self.advance()
+		if state.levelname == 1 and self.jstep == 4:
+			if dialog.tquiet > 3 and self.tstep > 8:
+				dialog.showtip("Use the mouse wheel or the keys 1/2 to zoom.")
+			if self.tstep > 16:
+				self.advance()
 
-		if state.levelname == 2 and self.jstep == 3:
+		if state.levelname == 2 and self.jstep == 5:
 			if dialog.tquiet > 3 and self.tstep > 2:
 				dialog.showtip("Combine two organelles into a single antibody to create a larger antibody.")
-			if any(obj.formula() == "XX" for obj in state.buildables):
+			if any(len(obj.formula()) > 1 for obj in state.buildables):
 				self.advance()
-		if state.levelname == 3 and self.jstep == 4:
+		if state.levelname == 3 and self.jstep == 6:
 			if dialog.tquiet > 3 and self.tstep > 2:
 				dialog.showtip("Different combinations of organelles produce antibodies with different behavior.")
-			if any(obj.formula() == "XY" for obj in state.buildables):
+			if any(obj.formula() == "XY" for obj in state.buildables) and self.tstep > 8:
 				self.advance()
 
 

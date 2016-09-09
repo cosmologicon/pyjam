@@ -1,5 +1,5 @@
 import random, math
-from . import ptext, state, thing, view, control, bounce, quest, dialog, background, progress
+from . import ptext, state, thing, view, control, bounce, quest, dialog, background, progress, sound
 from . import scene, cutscene
 from .util import F
 
@@ -10,7 +10,7 @@ def init():
 	control.tdrag = 0
 	control.buttons = [
 	]
-	if len(progess.learned) > 1:
+	if len(progress.learned) > 1:
 		control.buttons.append(control.Button((120, 26, 80, 80), "See\ncombos"))
 	for j, flavor in enumerate("XYZ"):
 		if flavor not in progress.learned:
@@ -19,6 +19,8 @@ def init():
 	background.init()
 
 def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
+	if mdown:
+		sound.playsfx("click")
 	control.towerinfo.target = None
 	if control.cursor:
 		dragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick)
@@ -115,7 +117,9 @@ def click(bname):
 			return
 		flavor = bname[-1]
 		if not state.canbuy(flavor):
+			sound.playsfx("no")
 			return
+		sound.playsfx("yes")
 		state.buy(flavor)
 		egg = thing.Egg(container = state.cell, flavor = "XYZ".index(flavor))
 		state.cell.add(egg)
@@ -147,8 +151,11 @@ def draw():
 	for button in control.buttons:
 		button.draw()
 
-	ptext.draw("ATP1: %d\nATP2: %d\nhealth: %d" % (state.atp[0], state.atp[1], max(int(state.health), 0)),
-		bottom = F(470), left = F(10), fontsize = F(26), color = "yellow")
+	text = "RNA: %d" % state.atp[0]
+	if "Z" in progress.learned:
+		text += "\nDNA: %d" % state.atp[1]
+	text += "\nCell health: %d" % max(int(state.health), 0)
+	ptext.draw(text, bottom = F(470), left = F(10), fontsize = F(26), color = "yellow")
 	control.towerinfo.draw()
 	dialog.draw()
 

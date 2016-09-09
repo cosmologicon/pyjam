@@ -39,6 +39,9 @@ class WorldBound(Component):
 	def scootch(self, dx, dy):
 		self.x += dx
 		self.y += dy
+	def distanceto(self, pos):
+		x, y = pos
+		return math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
 
 class Drawable(Component):
 	def addtostate(self):
@@ -101,9 +104,6 @@ class Mouseable(Component):
 		state.mouseables.append(self)
 	def setstate(self, rmouse = 5, **kw):
 		self.rmouse = rmouse
-	def distanceto(self, pos):
-		x, y = pos
-		return math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
 	def within(self, pos):
 		x, y = pos
 		return (x - self.x) ** 2 + (y - self.y) ** 2 < self.rmouse ** 2
@@ -321,9 +321,10 @@ class Buildable(Component):
 	def addtostate(self):
 		state.buildables.append(self)
 	def cantake(self, obj):
-		if len(obj.slots) + len(self.slots) > self.nslot or self.disabled:
-			return False
+		from . import progress
 		maxslots = max(len(formula) for formula in progress.learned)
+		if len(obj.slots) + len(self.slots) > maxslots or self.disabled:
+			return False
 		dx, dy = obj.x - self.x, obj.y - self.y
 		r = self.rcollide + obj.rcollide
 		return dx ** 2 + dy ** 2 < r ** 2
@@ -358,6 +359,8 @@ def approachpos(p0, p1, d, dr):
 class DisappearsToCell(Component):
 	def setstate(self, approaching = False, **kw):
 		self.approaching = approaching
+#		self.preserved = True
+#		self.approaching = True
 	def onhover(self):
 		self.preserved = True
 		self.approaching = True
@@ -605,8 +608,8 @@ class ATP1(object):
 	def __init__(self, **kw):
 		self.setstate(
 			color = (200, 200, 0),
-			r = 4, rmouse = 7,
-			lifetime = 15,
+			r = 4, rmouse = 24,
+			lifetime = 100,
 			**kw)
 
 @Lives()
@@ -623,8 +626,8 @@ class ATP2(object):
 	def __init__(self, **kw):
 		self.setstate(
 			color = (250, 150, 0),
-			r = 4, rmouse = 7,
-			lifetime = 15,
+			r = 4, rmouse = 24,
+			lifetime = 100,
 			**kw)
 
 @Lives()

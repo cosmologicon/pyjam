@@ -6,7 +6,7 @@ try:
 except ImportError:
 	import pickle
 import os, os.path, math, random
-from . import util, progress, settings, level, ptext, mechanics, dialog
+from . import util, progress, settings, level, ptext, mechanics, dialog, sound
 
 drawables = []
 colliders = []
@@ -52,7 +52,10 @@ def updatealive():
 
 def think(dt):
 	global tlevel, twin, tlose, health
+	from . import thing
 	if dialog.quiet():
+		if any(tlevel <= wave[0] - n < tlevel + dt for n in (0, 1, 2) for wave in wavespecs):
+			sound.playsfx("tick")
 		tlevel += dt
 	for wave in wavespecs:
 		if wave[0] < tlevel:
@@ -63,6 +66,22 @@ def think(dt):
 	if tlose or health <= 0:
 		tlose += dt
 	health = min(health + cell.countflavors(2) * dt, level.data[levelname]["health"])
+	autoatp = level.data[levelname].get("autoatp", (0, 0))
+	if random.random() < autoatp[0] * dt:
+		x, y = randomatppos()
+		thing.ATP1(x = x, y = y).addtostate()
+	if random.random() < autoatp[1] * dt:
+		x, y = randomatppos()
+		thing.ATP2(x = x, y = y).addtostate()
+
+def randomatppos():
+	x = random.uniform(-Rlevel, Rlevel)
+	y = random.uniform(-Rlevel, Rlevel)
+	if x ** 2 + y ** 2 > Rlevel ** 2:
+		return randomatppos()
+	if cell.distanceto((x, y)) < 2 * cell.rcollide:
+		return randomatppos()
+	return x, y
 
 def takedamage(damage):
 	global health

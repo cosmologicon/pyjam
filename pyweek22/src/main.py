@@ -57,7 +57,11 @@ while playing:
 					if tclick < mechanics.tclick and abs(dx) < mechanics.dclick > abs(dy):
 						mclick = True
 				lastdown = None
-		if event.type == pygame.KEYDOWN:	
+		if event.type == pygame.KEYDOWN:
+			if event.key == pygame.K_1:
+				mwheel += 4
+			if event.key == pygame.K_2:
+				mwheel -= 4
 			if event.key == pygame.K_TAB:
 				dialog.abort()
 			if event.key == pygame.K_SPACE:

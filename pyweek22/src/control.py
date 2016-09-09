@@ -52,14 +52,15 @@ class TowerInfo(object):
 				"Z": [mechanics.Zcost1, mechanics.Zcost2],
 			}[flavor]
 			powers = {
-				"X": "reduces damage to the cell by 30%",
-				"Y": "reduces build times by 50%",
-				"Z": "heals the cell over time",
+				"X": "reduces damage to the cell by 30%.",
+				"Y": "reduces grow times by 50%.",
+				"Z": "heals the cell over time.",
 			}[flavor]
+			cost = "Cost: %dRNA" % costs[0]
+			if costs[1]:
+				cost += " + %dDNA" % costs[1]
 			text = "\n".join([
-				"Grow an organelle within the cell.",
-				"Cost: %d + %d" % (costs[0], costs[1]),
-				"Organelles may be used to build antibodies outside the cell.",
+				cost,
 				"Each organelle of this type left within the cell " + powers,
 			])
 			ptext.draw(text, topright = F(842, 16), fontsize = F(21), width = F(140),

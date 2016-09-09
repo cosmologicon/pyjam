@@ -1,6 +1,6 @@
 import sys
 
-gamename = "You Can't Let Him In Here"
+gamename = "Project X"
 wsize = 854, 480
 minfps = 5
 maxfps = 60
