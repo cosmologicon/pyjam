@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, control, state, blob, img, settings, bounce, mechanics
+from . import view, control, state, blob, img, settings, bounce, mechanics, util
 from .util import F
 from .enco import Component
 
@@ -144,14 +144,8 @@ class RightClickToSplit(Component):
 			return
 		state.removeobj(self)
 		for obj in self.slots:
-			dx, dy = obj.x - self.x, obj.y - self.y
-			if dx == 0 and dy == 0:
-				dy = 1
-			d = math.sqrt(dx ** 2 + dy ** 2)
-			dx /= d
-			dy /= d
 			t = obj.totower()
-			t.kick(20 * dx, 20 * dy)
+			t.kick(*util.norm(obj.x - self.x, obj.y - self.y, 20))
 			t.addtostate()
 
 class ContainedDraggable(Component):
@@ -350,6 +344,8 @@ def approachpos(p0, p1, d, dr):
 	x1, y1 = p1
 	dx, dy = x1 - x0, y1 - y0
 	dp = math.sqrt(dx ** 2 + dy ** 2)
+	if dp == 0:
+		return x0, y0, True
 	return x0 + dx * d / dp, y0 + dy * d / dp, (dp - dr < d)
 
 class DisappearsToCell(Component):
@@ -382,6 +378,15 @@ class HurtsTarget(Component):
 		self.rewardprob = rewardprob
 	def arrive(self):
 		self.target.shoot(self.dhp, self.rewardprob)
+
+class ExplodesOnArrival(Component):
+	def setstate(self, shockdhp, wavesize, shockkick = 0, **kw):
+		self.shockdhp = shockdhp
+		self.wavesize = wavesize
+		self.shockkick = shockkick
+	def arrive(self):
+		Shockwave(x = self.target.x, y = self.target.y,
+			dhp = self.shockdhp, kick = self.shockkick, wavesize = self.wavesize).addtostate()
 
 class TargetsTower(Component):
 	def think(self, dt):
@@ -426,10 +431,7 @@ class KicksOnArrival(Component):
 	def arrive(self):
 		if not self.kick or not self.target or not self.target.alive:
 			return
-		dx = self.target.x - self.x
-		dy = self.target.y - self.y
-		d = math.sqrt(dx ** 2 + dy ** 2)
-		self.target.kick(dx * self.kick / d, dy * self.kick / d)
+		self.target.kick(*util.norm(dx, dy, self.kick))
 
 class CleansOnDeath(Component):
 	def addtostate(self):
@@ -512,18 +514,20 @@ class DrawShockwave(Component):
 		pygame.draw.circle(view.screen, self.color, view.screenpos((self.x, self.y)), r, F(2))
 
 class ShocksEnemies(Component):
-	def setstate(self, dhp, rewardprob = (0, 0), **kw):
+	def setstate(self, dhp, kick = 0, rewardprob = (0, 0), **kw):
 		self.dhp = dhp
+		self.kick = kick
 		self.rewardprob = rewardprob
 		self.hits = []
 	def think(self, dt):
 		r = self.wavesize * self.flife
 		for enemy in state.shootables:
-			if enemy in self.hits:
+			if enemy in self.hits or not enemy.alive:
 				continue
 			dx, dy = enemy.x - self.x, enemy.y - self.y
 			if dx ** 2 + dy ** 2 < r ** 2:
 				enemy.shoot(self.dhp, self.rewardprob)
+				enemy.kick(*util.norm(dx, dy, self.kick))
 
 @Lives()
 @WorldBound()
@@ -806,6 +810,27 @@ class Bullet(object):
 @Drawable()
 @DrawCircle()
 @TargetsThing()
+@HurtsTarget()
+@ExplodesOnArrival()
+@DiesOnArrival()
+class ExplodingBullet(object):
+	def __init__(self, obj, target, dhp, shockdhp, wavesize, shockkick = 0, r = 3, color = (255, 100, 100), **kw):
+		self.setstate(
+			target = target, speed = mechanics.bulletspeed,
+			dhp = dhp,
+			shockdhp = shockdhp,
+			wavesize = wavesize,
+			shockkick = shockkick,
+			r = r, rcollide = r,
+			color = color,
+			**kw)
+
+@Lives()
+@WorldBound()
+@Collidable()
+@Drawable()
+@DrawCircle()
+@TargetsThing()
 @HealsOnArrival()
 @DiesOnArrival()
 class HealRay(object):
@@ -856,8 +881,9 @@ class Injection(object):
 @DrawShockwave()
 @ShocksEnemies()
 class Shockwave(object):
-	def __init__(self, **kw):
+	def __init__(self, wavesize, **kw):
 		self.setstate(
+			wavesize = wavesize,
 			lifetime = 0.5, color = (255, 255, 255),
 			**kw)
 

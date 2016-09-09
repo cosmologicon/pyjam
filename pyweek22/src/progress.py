@@ -14,10 +14,10 @@ learned = set(["X"])
 heard = set()  # dialogs heard
 chosen = 1  # most recent level selected on menu
 
-if True:
+if settings.quickstart:
 	for l in level.layout:
 		unlocked.add(l)
-	for learn in "X Y XX XY YY XXX XXY XYZ Z".split():
+	for learn in "X Y XX XY YY XXX XXY XYZ Z XZ".split():
 		learned.add(learn)
 
 def complete(lev):

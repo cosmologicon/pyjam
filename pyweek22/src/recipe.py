@@ -28,7 +28,7 @@ def onclick(self):
 			thing.Shockwave(x = self.x, y = self.y, dhp = mechanics.XYZstrength, wavesize = mechanics.XYZwavesize).addtostate()
 		else:
 			self.lastclick = self.t
-			
+
 
 
 def thinkX(self, dt):
@@ -45,6 +45,10 @@ def thinkXXX(self, dt):
 
 def thinkXXY(self, dt):
 	trytoshoot(self, tshot = mechanics.XXYrecharge, shotrange = mechanics.XXYrange, dhp = mechanics.XXYstrength, rewardprob = mechanics.XXYrewardprob, kick = mechanics.XXYkick)
+
+def thinkXZ(self, dt):
+	trytoshootexploding(self, tshot = mechanics.XZrecharge, shotrange = mechanics.XZrange, dhp = mechanics.XZstrength,
+		shockdhp = mechanics.XZaoestrength, rewardprob = mechanics.XZrewardprob, shockkick = mechanics.XZkick, wavesize = mechanics.XZaoesize)
 
 def thinkY(self, dt):
 	spawnATP(self, atype = thing.ATP1, recharge = mechanics.Yrecharge, kick = mechanics.Ykick)
@@ -73,31 +77,35 @@ def spawnATP(self, atype, recharge, kick):
 		atp.addtostate()
 		self.lastshot = self.t
 
+def gettarget(self, objs, rmax, quality = None):
+	canhit = [obj for obj in objs if (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 < rmax ** 2]
+	if not canhit:
+		return None
+	if quality:
+		return max(canhit, key = quality)
+	else:
+		return min(canhit, key = lambda obj: (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2)
+
 def trytoshoot(self, tshot, shotrange, dhp, rewardprob, kick):
 	if self.lastshot + tshot < self.t:
-		toshoot, r2 = None, shotrange ** 2
-		for obj in state.shootables:
-			dx = obj.x - self.x
-			dy = obj.y - self.y
-			if dx ** 2 + dy ** 2 < r2:
-				toshoot = obj
-				r2 = dx ** 2 + dy ** 2
+		toshoot = gettarget(self, state.shootables, shotrange)
 		if toshoot:
 			thing.Bullet(self, target = toshoot, x = self.x, y = self.y,
 				dhp = dhp, rewardprob = rewardprob, kick = kick).addtostate()
 			self.lastshot = self.t
 
+def trytoshootexploding(self, tshot, shotrange, dhp, shockdhp, rewardprob, shockkick, wavesize):
+	if self.lastshot + tshot < self.t:
+		toshoot = gettarget(self, state.shootables, shotrange)
+		if toshoot:
+			thing.ExplodingBullet(self, target = toshoot, x = self.x, y = self.y,
+				dhp = dhp, shockdhp = shockdhp, rewardprob = rewardprob, shockkick = shockkick,
+				wavesize = wavesize).addtostate()
+			self.lastshot = self.t
+
 def trytoheal(self, tshot, shotrange, dheal):
 	if self.lastshot + tshot < self.t:
-		toshoot, r2 = None, shotrange ** 2
-		for obj in state.buildables:
-			if not obj.disabled:
-				continue
-			dx = obj.x - self.x
-			dy = obj.y - self.y
-			if dx ** 2 + dy ** 2 < r2:
-				toshoot = obj
-				r2 = dx ** 2 + dy ** 2
+		toshoot = gettarget(self, [obj for obj in state.buildables if obj.disabled], shotrange)
 		if toshoot:
 			thing.HealRay(self, target = toshoot, x = self.x, y = self.y,
 				dheal = dheal).addtostate()

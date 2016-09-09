@@ -29,12 +29,14 @@ def reset(lname):
 
 	wavespecs = leveldata["wavespecs"]
 	donewaves = []
-	atp = leveldata.get("atp", [0, 0])
+	atp = list(leveldata.get("atp", [0, 0]))
 	pos = leveldata["cellpos"]
 	cell = thing.Amoeba(x = pos[0], y = pos[1])
 	cell.addtostate()
 	Rlevel = leveldata["Rlevel"]
 	health = leveldata["health"]
+	if settings.quickstart:
+		atp = [10000, 10000]
 	
 	if levelname == 3:
 		thing.Wasp(x = 0, y = 150).addtostate()
