@@ -5,7 +5,7 @@ try:
 except ImportError:
 	import pickle
 import os, os.path, math, random
-from . import util, progress, settings, level, ptext
+from . import util, progress, settings, level, ptext, mechanics
 
 drawables = []
 colliders = []
@@ -115,6 +115,23 @@ def drawwaves():
 
 def complete():
 	return not shootables and not wavespecs
+
+def canbuy(flavor):
+	(atp1, atp2) = {
+		"X": (mechanics.Xcost1, mechanics.Xcost2),
+		"Y": (mechanics.Ycost1, mechanics.Ycost2),
+		"Z": (mechanics.Zcost1, mechanics.Zcost2),
+	}[flavor]
+	return atp[0] >= atp1 and atp[1] >= atp2
+
+def buy(flavor):
+	global atp
+	(atp1, atp2) = {
+		"X": (mechanics.Xcost1, mechanics.Xcost2),
+		"Y": (mechanics.Ycost1, mechanics.Ycost2),
+		"Z": (mechanics.Zcost1, mechanics.Zcost2),
+	}[flavor]
+	atp = [atp[0] - atp1, atp[1] - atp2]
 
 def removeobj(obj):
 	temp = obj.alive

@@ -1,5 +1,5 @@
 import pygame
-from . import view, ptext
+from . import view, ptext, img, state
 from .util import F
 
 cursor = None
@@ -13,9 +13,17 @@ class Button(object):
 		return pygame.Rect(F(self.rect)).collidepoint(screenpos)
 	def draw(self):
 		rect = pygame.Rect(F(self.rect))
-		view.screen.fill((100, 50, 0), rect)
-		ptext.draw(self.name, color = "white", shadow = (1, 1), scolor = "black",
-			fontsize = F(18), center = rect.center)
+		if self.name.startswith("Grow"):
+			text, flavor = self.name.split()
+			pygame.draw.circle(view.screen, (0, 0, 0), rect.center, int(rect.width / 1.7))
+			img.draw("organelle-" + flavor, rect.center, radius = int(rect.width / 1.8))
+			color = "white" if state.canbuy(flavor) else "#444444"
+			ptext.draw(text, color = color, shadow = (1, 1), scolor = "black",
+				fontsize = F(34), center = rect.center)
+		else:
+			view.screen.fill((100, 50, 0), rect)
+			ptext.draw(self.name, color = "white", shadow = (1, 1), scolor = "black",
+				fontsize = F(18), center = rect.center)
 
 class TowerInfo(object):
 	def __init__(self):

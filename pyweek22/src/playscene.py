@@ -7,11 +7,11 @@ def init():
 	state.reset(progress.chosen)
 	control.cursor = None
 	control.dragpos = None
-	control.buttons = [
-		control.Button((10, 10, 100, 40), "build 1"),
-		control.Button((10, 60, 100, 40), "build 2"),
-		control.Button((10, 110, 100, 40), "build 3"),
-	]
+	control.buttons = []
+	for j, flavor in enumerate("XYZ"):
+		if flavor not in progress.learned:
+			continue
+		control.buttons.append(control.Button((26, 26 + 100 * j, 80, 80), "Grow " + flavor))
 	background.init()
 
 def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
@@ -94,16 +94,16 @@ def nodragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 
 
 def click(bname):
-	if state.cell.isfull():
-		return
-	flavor = {
-		"build 1": 0,
-		"build 2": 1,
-		"build 3": 2,
-	}[bname]
-	egg = thing.Egg(container = state.cell, flavor = flavor)
-	state.cell.add(egg)
-	egg.addtostate()
+	if bname.startswith("Grow"):
+		if state.cell.isfull():
+			return
+		flavor = bname[-1]
+		if not state.canbuy(flavor):
+			return
+		state.buy(flavor)
+		egg = thing.Egg(container = state.cell, flavor = "XYZ".index(flavor))
+		state.cell.add(egg)
+		egg.addtostate()
 
 def drop():
 	for obj in state.buildables:

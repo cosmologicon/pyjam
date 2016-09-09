@@ -13,9 +13,9 @@ Ycost2 = 0
 Zcost1 = 20
 Zcost2 = 5
 
-Xthatch = 1
-Ythatch = 1
-Zthatch = 1
+Xthatch = 8
+Ythatch = 12
+Zthatch = 20
 
 ## TOWERS
 

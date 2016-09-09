@@ -172,6 +172,36 @@ class DrawCircle(Component):
 	def draw(self):
 		pygame.draw.circle(view.screen, self.color, view.screenpos((self.x, self.y)), view.screenlength(self.r))
 
+class DrawOrganelle(Component):
+	def setstate(self, r = 10, **kw):
+		self.r = r
+		self.xjitter, self.yjitter = 0, 0
+	def think(self, dt):
+		self.xjitter += 10 * dt * random.uniform(-1, 1)
+		self.yjitter += 10 * dt * random.uniform(-1, 1)
+		f = math.exp(-1 * dt)
+		self.xjitter *= f
+		self.yjitter *= f
+	def draw(self):
+		imgname = "organelle-" + "XYZ"[self.flavor]
+		img.drawworld(imgname, (self.x + self.xjitter, self.y + self.yjitter), self.r)
+
+class DrawEgg(Component):
+	def setstate(self, r = 10, **kw):
+		self.r = r
+		self.xjitter, self.yjitter = 0, 0
+		self.imgname = "egg"
+	def think(self, dt):
+		self.xjitter += 10 * dt * random.uniform(-1, 1)
+		self.yjitter += 10 * dt * random.uniform(-1, 1)
+		f = math.exp(-1 * dt)
+		self.xjitter *= f
+		self.yjitter *= f
+	def draw(self):
+		r = (0.8 + 0.4 * math.sin(2.5 * self.t)) * self.r
+		fstretch = math.exp(0.2 * math.sin(3.5 * self.t))
+		img.drawworld(self.imgname, (self.x + self.xjitter, self.y + self.yjitter), r, fstretch = fstretch)
+
 class DrawVirus(Component):
 	def setstate(self, r = 10, imgname = "virus", **kw):
 		self.r = r
@@ -581,7 +611,7 @@ class ATP2(object):
 @WorldBound()
 @Mouseable()
 @ContainedDraggable()
-@DrawCircle()
+@DrawOrganelle()
 @Collidable()
 class Organelle(object):
 	def __init__(self, flavor, container, x = None, y = None, **kw):
@@ -614,9 +644,10 @@ class Organelle(object):
 @Lives()
 @Lifetime()
 @WorldBound()
-@DrawCircle()
+@DrawEgg()
 @Collidable()
 @Hatches()
+@LeavesCorpse()
 class Egg(object):
 	def __init__(self, flavor, container, **kw):
 		self.container = container
@@ -634,6 +665,10 @@ class Egg(object):
 			y = container.y + random.uniform(-1, 1),
 			**kw)
 		self.flavor = flavor
+		self.hp = 0
+		self.imgdy = 0
+		self.fstretch = 1
+		self.angle = 0
 
 @Lives()
 @WorldBound()

@@ -56,4 +56,6 @@ def draw():
 			center = F(854 - 100, h)
 		img.draw(imgname, center, radius = F(80), fstretch = fstretch, angle = angle)
 
+def showtip(tip):
+	pass
 
