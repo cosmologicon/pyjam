@@ -17,12 +17,13 @@ def init():
 			continue
 		control.buttons.append(control.Button((26, 26 + 100 * j, 80, 80), "Grow " + flavor))
 	background.init()
-	sound.playmusic("levelX-B", "levelX-A")
+	if state.levelname in (1, 4, 7):
+		sound.playmusic("levelX-B", "levelX-A")
+	elif state.levelname in (3, 6, 9):
+		sound.playmusic("boss-B", "boss-A")
 
 
 def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
-	if mdown:
-		sound.playsfx("click")
 	control.towerinfo.target = None
 	if control.cursor:
 		dragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick)
@@ -48,8 +49,10 @@ def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 	if state.twin > 2 and not state.tlose:
 		progress.complete(progress.chosen)
 		scene.push(cutscene.Win())
+		sound.playmusic(None, "win")
 	if state.tlose > 2:
 		scene.push(cutscene.Lose())
+		sound.playmusic(None, "lose")
 
 
 def dragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
@@ -140,6 +143,7 @@ def drop():
 	else:
 		control.cursor.addtostate()
 	control.cursor = None
+	sound.playsfx("blobdown")
 
 def draw():
 	view.clear(color = (0, 50, 50))

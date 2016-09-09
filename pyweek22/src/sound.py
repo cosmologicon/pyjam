@@ -19,7 +19,10 @@ sversions = {
 	"yes": ["yes4"],
 	"no": ["no1", "no2"],
 	"die": ["die4_1"],
+	"bigdie": ["bigdie4"],
 	"tick": ["tick3"],
+	"blobup": ["blobup1"],
+	"blobdown": ["blobdown1"],
 }
 
 def playsfx(sname):
@@ -37,7 +40,7 @@ def playmusic(song, intro = None):
 	global music
 	channel = pygame.mixer.Channel(0)
 	channel.play(getsound(intro or song, dirname = "music"))
-	music = getsound(song, dirname = "music")
+	music = song and getsound(song, dirname = "music")
 	
 def think(dt):
 	from . import dialog

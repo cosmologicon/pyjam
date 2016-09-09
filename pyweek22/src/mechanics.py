@@ -23,7 +23,7 @@ towerinfo = {
 	"X": "Basic defensive antibody",
 	"Y": "Generates RNA over time",
 	"XX": "Medium-strength defensive antibody",
-	"XY": "Basic defensive antibody\nDoubles the chance of getting RNA from viruses.",
+	"XY": "Medium-strength defensive antibody\nDoubles the chance of collecting RNA from viruses.",
 	"XXX": "High-speed defensive antibody",
 }
 
@@ -41,7 +41,7 @@ XXstrength = 3
 XXrewardprob = 0.2, 0
 XXkick = 0
 
-XYrecharge = 2
+XYrecharge = 5
 XYrange = 40
 XYstrength = 1
 XYrewardprob = 0.4, 0
@@ -111,9 +111,9 @@ antdamage = 1
 antsize = 6
 
 Lanthp = 10
-Lantspeed = 2
-Lantdamage = 5
-Lantcarried = 3
+Lantspeed = 5
+Lantdamage = 10
+Lantcarried = 5
 Lantsize = 12
 
 beehp = 1000
@@ -122,5 +122,8 @@ beetlehp = 10
 wasphp = 40
 waspspeed = 25
 waspspawntime = 6
+waspstages = 10, 0
+waspsizes = 16, 10
+
 
 

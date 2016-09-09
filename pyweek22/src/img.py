@@ -26,6 +26,8 @@ def getimg(name, radius = None, fstretch = 1, angle = 0):
 		img0 = getimg(name)
 		size = int(img0.get_width() / fstretch), int(img0.get_height() * fstretch)
 		img = pygame.transform.smoothscale(img0, size)
+	elif name.startswith("saw"):
+		img = getsaw(int(name[3:]))
 	else:
 		img = pygame.image.load("data/img/%s.png" % name).convert_alpha()
 	if radius is None and angle == 0 and fstretch == 1:
@@ -40,6 +42,29 @@ def draw(name, screenpos, radius = None, fstretch = 1, angle = 0):
 def drawworld(name, pos, radius, fstretch = 1, angle = 0):
 	draw(name, screenpos = view.screenpos(pos), radius = view.screenlength(radius),
 		fstretch = fstretch, angle = angle)
+
+def getsaw(n):
+	surf = pygame.Surface((20 * n, 20 * n)).convert_alpha()
+	center = 10 * n, 10 * n
+	surf.fill((0, 0, 0, 0))
+	r6 = 10 * n
+	r5 = r6 - 20
+	r4 = r6 - 10
+	r3 = r4 - 20
+	r2 = r4 - 25
+	r1 = r2 - 10
+	thetas = [j * math.tau / (2 * n) for j in range(2 * n)]
+	rs = [r6, r5] * n
+	ps = [(center[0] + r * math.cos(theta), center[1] + r * math.sin(theta))
+		for r, theta in zip(rs, thetas)]
+	pygame.draw.polygon(surf, (100, 100, 100), ps)
+	rs = [r4, r3] * n
+	ps = [(center[0] + r * math.cos(theta), center[1] + r * math.sin(theta))
+		for r, theta in zip(rs, thetas)]
+	pygame.draw.polygon(surf, (50, 50, 50), ps)
+	pygame.draw.circle(surf, (100, 100, 100), center, r + 5)
+	pygame.draw.circle(surf, (50, 50, 50), center, r - 5)
+	return surf
 
 if __name__ == "__main__":
 	import pygame, random
@@ -58,6 +83,7 @@ if __name__ == "__main__":
 		draw("virus", (300, 200), radius = 100, angle = angle, fstretch = fstretch)
 		draw("virus", (240, 40), radius = 6, angle = angle, fstretch = fstretch)
 		draw("simon", (300, 300), radius = 60)
+		draw("saw5", (100, 350), radius = 50)
 		pygame.display.flip()
 	
 

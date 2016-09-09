@@ -28,7 +28,7 @@ def reset(lname):
 	for group in groups:
 		del group[:]
 
-	wavespecs = leveldata["wavespecs"]
+	wavespecs = list(leveldata["wavespecs"])
 	donewaves = []
 	atp = list(leveldata.get("atp", [0, 0]))
 	pos = leveldata["cellpos"]
@@ -177,6 +177,11 @@ def complete():
 	if levelname in (3, 6, 9):
 		return not bosses
 	return not shootables and not wavespecs
+
+def win():
+	for obj in shootables:
+		obj.die()
+	del wavespecs[:]
 
 def canbuy(flavor):
 	(atp1, atp2) = {

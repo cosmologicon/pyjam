@@ -59,9 +59,9 @@ while playing:
 				lastdown = None
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_1:
-				mwheel += 4
-			if event.key == pygame.K_2:
 				mwheel -= 4
+			if event.key == pygame.K_2:
+				mwheel += 4
 			if event.key == pygame.K_TAB:
 				dialog.abort()
 			if event.key == pygame.K_SPACE:
@@ -72,9 +72,11 @@ while playing:
 				view.togglefullscreen()
 			if event.key == pygame.K_F12:
 				view.screenshot()
+			if event.key == pygame.K_F2:
+				state.win()
 
 	if kpressed[pygame.K_F1]:
-		dt *= 5
+		dt *= 10
 
 	s = scene.top()
 	s.think(dt, mpos, mdown, mup, mwheel, rdown, mclick)

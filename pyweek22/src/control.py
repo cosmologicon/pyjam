@@ -80,6 +80,9 @@ class TowerInfo(object):
 				text = "This combination of organelles is not yet unlocked."
 			else:
 				text = mechanics.towerinfo.get(flavor, flavor)
+			if len(flavor) > 1:
+				text += "\nRight click or Ctrl-click to split antibody."
+
 			ptext.draw(text, topright = F(842, 100), fontsize = F(30),
 				color = "yellow", shadow = (1, 1), alpha = self.alpha)
 

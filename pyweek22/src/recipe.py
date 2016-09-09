@@ -87,13 +87,13 @@ def spawnATP(self, atype, recharge, kick):
 		self.lastshot = self.t
 
 def gettarget(self, objs, rmax, quality = None):
-	canhit = [obj for obj in objs if (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 < rmax ** 2]
+	canhit = [obj for obj in objs if (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 < (rmax + obj.rcollide) ** 2]
 	if not canhit:
 		return None
 	if quality:
 		return max(canhit, key = quality)
 	else:
-		return min(canhit, key = lambda obj: (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2)
+		return min(canhit, key = lambda obj: math.sqrt((obj.x - self.x) ** 2 + (obj.y - self.y) ** 2) - obj.rcollide)
 
 def trytoshoot(self, tshot, shotrange, dhp, rewardprob, kick):
 	if self.lastshot + tshot < self.t:

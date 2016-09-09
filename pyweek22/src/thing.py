@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, control, state, blob, img, settings, bounce, mechanics, util
+from . import view, control, state, blob, img, settings, bounce, mechanics, util, sound
 from .util import F
 from .enco import Component
 
@@ -141,6 +141,7 @@ class Draggable(Component):
 	def onmousedown(self):
 		if control.cursor is None and not self.disabled:
 			control.cursor = self
+			sound.playsfx("blobup")
 			state.removeobj(control.cursor)
 			control.done.add("adrag")
 
@@ -169,6 +170,7 @@ class ContainedDraggable(Component):
 				self.container.remove(self)
 				control.cursor = self.totower()
 			state.removeobj(control.cursor)
+			sound.playsfx("blobup")
 	def onclick(self):
 		self.container.onclick()
 
@@ -451,6 +453,31 @@ class CleansOnDeath(Component):
 			for obj in state.shootables:
 				if obj.alive:
 					obj.die()
+
+class BossStages(Component):
+	def setstate(self, stages, rstages, **kw):
+		self.stages = stages
+		self.rstages = rstages
+		self.stage = 0
+	def think(self, dt):
+		if self.stage >= len(self.stages):
+			return
+		if self.hp <= self.stages[self.stage]:
+			self.advance()
+			self.stage += 1
+		self.r = self.rcollide = 2.5 * self.rstages[self.stage]
+	def advance(self):
+		self.shedcorpse(self.rstages[self.stage])
+		sound.playsfx("bigdie")
+	def shedcorpse(self, rstage):
+		BossCorpse(self, rstage).addtostate()
+	def draw(self):
+		for j, rstage in enumerate(self.rstages[self.stage:]):
+			r = 2.5 * rstage
+			angle = self.t * 200 / math.sqrt(rstage) * [-1, 1][j]
+			imgname = "saw%d" % rstage
+			img.drawworld(imgname, (self.x, self.y), r, angle = angle)
+
 
 class SpawnsAnts(Component):
 	def setstate(self, spawntime = 1, spawnstart = 20, **kw):
@@ -769,8 +796,7 @@ class LargeAnt(object):
 @Drawable()
 @Unkickable()
 @Shootable()
-@DrawVirus()
-@LeavesCorpse()
+@BossStages()
 @SpawnsAnts()
 @CleansOnDeath()
 @WorldCollidable()
@@ -782,9 +808,14 @@ class Wasp(object):
 			spawntime = mechanics.waspspawntime,
 			rpath = 160, drpath = 80, vpath = mechanics.waspspeed,
 			rcollide = 25, mass = 10000,
+			stages = mechanics.waspstages,
+			rstages = mechanics.waspsizes,
 			r = 25,
 			**kw)
 		self.think(0)
+	def advance(self):
+		self.vpath *= 2
+		self.spawntime /= 2
 
 @Lives()
 @Lifetime()
@@ -870,6 +901,20 @@ class Corpse(object):
 			imgname = obj.imgname,
 			fstretch = obj.fstretch,
 			angle = obj.angle,
+			**kw)
+
+@Lives()
+@Lifetime()
+@Drawable()
+@DrawCorpse()
+class BossCorpse(object):
+	def __init__(self, obj, rstage, **kw):
+		self.setstate(
+			lifetime = 0.4,
+			x = obj.x,
+			y = obj.y,
+			r = 2.5 * rstage,
+			imgname = "saw%d" % rstage,
 			**kw)
 
 @Lives()

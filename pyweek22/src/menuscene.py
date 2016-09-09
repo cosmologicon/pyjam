@@ -3,6 +3,9 @@ from . import ptext, view, scene, playscene, cutscene, blob, progress, level, se
 from .util import F
 
 
+message = None
+tmessage = 0
+
 def init():
 	global levels, pointed, blobspecs, message, tmessage
 	pointed = None
@@ -11,8 +14,6 @@ def init():
 		random.uniform(0.6, 1) * random.choice([-1, 1]),
 		random.uniform(0.2, 1.2),
 	) for j in range(30)]) for lname in level.layout)
-	message = None
-	tmessage = 0
 	sound.playmusic("menu")
 
 def setmessage(m):
@@ -71,10 +72,9 @@ def draw():
 		text = "Level %s" % pointed
 		ptext.draw(text, fontsize = F(80), midbottom = F(854 / 2, 470),
 			color = "white", gcolor = (50, 50, 50), shadow = (1, 1))
-	print tmessage, message
 	if tmessage:
 		alpha = min(tmessage * 2, 1)
-		ptext.draw(message, fontsize = F(60), center = F(854 / 2, 200),
+		ptext.draw(message, fontsize = F(60), center = F(854 / 2, 200), width = F(500),
 			color = "#FF7F7F", shadow = (1, 1), alpha = alpha)
 
 def abort():
