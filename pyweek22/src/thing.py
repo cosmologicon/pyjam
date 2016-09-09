@@ -467,7 +467,8 @@ class BossStages(Component):
 		if self.hp <= self.stages[self.stage]:
 			self.advance()
 			self.stage += 1
-		self.r = self.rcollide = 2.5 * self.rstages[self.stage]
+		if self.stage < len(self.stages):
+			self.r = self.rcollide = 2.5 * self.rstages[self.stage]
 	def advance(self):
 		self.shedcorpse(self.rstages[self.stage])
 		sound.playsfx("bigdie")
