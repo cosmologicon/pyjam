@@ -1,6 +1,6 @@
 import sys
 
-gamename = "Project X"
+gamename = "Dr. Zome's Laboratory"
 wsize = 854, 480
 minfps = 5
 maxfps = 60

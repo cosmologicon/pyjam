@@ -48,7 +48,7 @@ def tocell(surf, color = None, ocolor = None):
 		factor = 0.0001 * settings.cellshading * surf.get_width()
 		aoff = 1 - factor * (a[:-1,:-1] - (a[1:,1:].astype(numpy.int16)))
 		ax, ay = aoff.shape
-		arr[1:,1:] = (arr[1:,1:] * aoff.reshape((ax, ay, 1))).astype(numpy.uint8)
+		arr[1:,1:] = numpy.minimum(arr[1:,1:] * aoff.reshape((ax, ay, 1)), 255).astype(numpy.uint8)
 	return osurf
 
 def drawcell(surf, hillspecs, color = None, ocolor = None):
@@ -112,7 +112,7 @@ if __name__ == "__main__":
 			R = 140 + 20 * math.sin(phi)
 			x, y = 640 + R * math.cos(theta), 480 + R * math.sin(theta)
 			hillspecs.append((x, y, r, h))
-		drawcell(screen, hillspecs)
+		drawcell(screen, hillspecs, color = (100, 200, 0))
 		ptext.draw("%.1ffps" % clock.get_fps(), (10, 10), fontsize = 32)
 		pygame.display.flip()
 	

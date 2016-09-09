@@ -71,12 +71,12 @@ def draw():
 		alpha = math.clamp(4 * tplaying, 0, 1)
 		ptext.draw(line, midbottom = F(854 / 2, 470), width = F(500),
 			color = (255, 100, 255), shadow = (1, 1),
-			fontsize = F(36))
+			fontsize = F(36), fontname = "PatrickHand")
 		img.draw(imgname, center, radius = F(80), fstretch = fstretch, angle = angle)
 
 	if currenttip:
 		ptext.draw(currenttip, center = F(854 / 2, 160), width = F(500),
-			color = (255, 255, 100), shadow = (1, 1),
+			color = (255, 255, 100), shadow = (1, 1), fontname = "PermanentMarker",
 			fontsize = F(28))
 
 def channelfree():
@@ -100,6 +100,7 @@ def skip():
 
 if __name__ == "__main__":
 	from . import mhack, view
+	ptext.FONT_NAME_TEMPLATE = "data/font/%s.ttf"
 	pygame.init()
 	toplay = sorted(lines)
 	view.screen = pygame.display.set_mode((854, 480))

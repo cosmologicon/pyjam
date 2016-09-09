@@ -56,9 +56,9 @@ class TowerInfo(object):
 				"Y": "reduces grow times by 50%.",
 				"Z": "heals the cell over time.",
 			}[flavor]
-			cost = "Cost: %dRNA" % costs[0]
+			cost = "Cost: %d RNA" % costs[0]
 			if costs[1]:
-				cost += " + %dDNA" % costs[1]
+				cost += " + %d DNA" % costs[1]
 			text = "\n".join([
 				cost,
 				"Each organelle of this type left within the cell " + powers,

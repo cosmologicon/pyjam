@@ -63,7 +63,7 @@ XYrecharge = 2
 XYrange = 40
 XYstrength = 1
 XYrewardprob = 0.1, 0
-XYkick = 1000
+XYkick = 100
 
 XZrecharge = 1
 XZrange = 60
@@ -71,7 +71,7 @@ XZstrength = 2
 XZaoestrength = 1
 XZaoesize = 20
 XZrewardprob = 0.1, 0
-XZkick = 100
+XZkick = 40
 
 # ATP generation
 

@@ -74,6 +74,8 @@ while playing:
 				view.screenshot()
 			if event.key == pygame.K_F2:
 				state.win()
+			if event.key == pygame.K_F3:
+				state.cheat()
 
 	if kpressed[pygame.K_F1]:
 		dt *= 10

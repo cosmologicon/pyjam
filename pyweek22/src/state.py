@@ -183,6 +183,12 @@ def win():
 		obj.die()
 	del wavespecs[:]
 
+def cheat():
+	global health, atp
+	health += 1000
+	atp[0] += 1000
+	atp[1] += 1000
+
 def canbuy(flavor):
 	(atp1, atp2) = {
 		"X": (mechanics.Xcost1, mechanics.Xcost2),
