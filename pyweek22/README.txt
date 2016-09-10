@@ -11,7 +11,7 @@ Members:
 	* Randy Parcel
 	* Pat Bordenave
 	* Samantha Thompson
-	* Jordan Gray
+	* Jordan Thomas Gray
 License: see LICENSE.txt
 
 Requirements
