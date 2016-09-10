@@ -55,7 +55,7 @@ def thinkXX(self, dt):
 
 def thinkXY(self, dt):
 	trytoshoot(self, tshot = mechanics.XYrecharge, shotrange = mechanics.XYrange, dhp = mechanics.XYstrength, rewardprob = mechanics.XYrewardprob, kick = mechanics.XYkick, quality = qfrontmost)
-	spawnATP(self, atype = thing.ATP1, recharge = mechanics.XYrecharge, kick = mechanics.XYatpkick)
+	spawnATP(self, atype = thing.ATP1, recharge = mechanics.XYatprecharge, kick = mechanics.XYatpkick)
 
 def thinkXXX(self, dt):
 	trytoshoot(self, tshot = mechanics.XXXrecharge, shotrange = mechanics.XXXrange, dhp = mechanics.XXXstrength, rewardprob = mechanics.XXXrewardprob, kick = mechanics.XXXkick, quality = qweakest)

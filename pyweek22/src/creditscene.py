@@ -32,7 +32,7 @@ def draw():
 		(60, "yellow", "Laboratory"),
 		(32, "white", "PyWeek 22"),
 		(),
-		(60, "blue", "Team Universe Factory 22"),
+		(60, "#7F7FFF", "Team Universe Factory 22"),
 		(),
 		(40, "yellow", "Christopher Night"),
 		(40, "white", "Team lead"),
@@ -61,7 +61,7 @@ def draw():
 		(40, "yellow", "Jordan Gray"),
 		(40, "white", "Sound Effects"),
 		(),
-		(60, "blue", "Thank you for playing!"),
+		(60, "#7F7FFF", "Thank you for playing!"),
 	]
 	y = 640 - 160 * t
 	img.draw("zume", F(100, y + 1320 - 20 * abs(math.sin(2 * math.tau * t))), radius = F(65))

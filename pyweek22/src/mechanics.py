@@ -126,7 +126,7 @@ XZZkick = 0
 Yrecharge = 6  # ATP generation recharge time in seconds
 Ykick = 40  # Approximate distance than the ATP is kicked out by the tower when generated
 
-XYrecharge = 12
+XYatprecharge = 12
 XYatpkick = 40
 
 YYYrecharge = 15

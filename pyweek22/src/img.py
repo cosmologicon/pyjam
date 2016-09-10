@@ -68,7 +68,7 @@ def getsaw(n):
 	r5 = r6 - 20
 	r4 = r6 - 10
 	r3 = r4 - 20
-	r2 = r4 - 25
+	r2 = r4 - 15
 	r1 = r2 - 10
 	thetas = [j * math.tau / (2 * n) for j in range(2 * n)]
 	rs = [r6, r5] * n
@@ -79,8 +79,8 @@ def getsaw(n):
 	ps = [(center[0] + r * math.cos(theta), center[1] + r * math.sin(theta))
 		for r, theta in zip(rs, thetas)]
 	pygame.draw.polygon(surf, (50, 50, 50), ps)
-	pygame.draw.circle(surf, (100, 100, 100), center, r + 5)
-	pygame.draw.circle(surf, (50, 50, 50), center, r - 5)
+	pygame.draw.circle(surf, (100, 100, 100), center, r2)
+	pygame.draw.circle(surf, (50, 50, 50), center, r1)
 	return surf
 
 if __name__ == "__main__":
