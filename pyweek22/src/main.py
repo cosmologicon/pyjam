@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, os.path
 from . import mhack, settings, view, state, ptext, quest, progress, mechanics, dialog, sound
-from . import scene, playscene, menuscene, cutscene
+from . import scene, playscene, menuscene, cutscene, creditscene
 from .util import F
 
 ptext.FONT_NAME_TEMPLATE = os.path.join("data", "font", "%s.ttf")
@@ -15,6 +15,8 @@ if settings.reset:
 
 if settings.quickstart:
 	scene.push(playscene)
+#	scene.push(menuscene)
+#	scene.push(creditscene)
 elif state.canload():
 	scene.push(playscene)
 	state.load()

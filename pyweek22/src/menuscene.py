@@ -51,7 +51,10 @@ def think(dt, mpos, mdown, mup, *args):
 			break
 	else:
 		pointed = None
-	if pointed is not None and mdown:
+	if pointed == "credits" and mdown:
+		from . import creditscene
+		scene.push(creditscene)
+	elif pointed is not None and mdown:
 		progress.setchosen(pointed)
 		fading = False
 	if fading:
@@ -116,6 +119,7 @@ def draw():
 			8: "Stage\n3-2",
 			9: "Final\nStage",
 			"endless": "Endless\nmode",
+			"credits": "Credits",
 		}[jlevel]
 		ptext.draw(text, fontsize = F(24), center = F(px, py),
 			color = "white", shadow = (1, 1), fontname = "SansitaOne")

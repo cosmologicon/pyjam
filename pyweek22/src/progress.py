@@ -9,7 +9,7 @@ except ImportError:
 from . import settings
 
 completed = set()  # levels completed
-unlocked = set([1])
+unlocked = set([1, "credits"])
 learned = set(["X"])
 heard = set()  # dialogs heard
 chosen = 1  # most recent level selected on menu

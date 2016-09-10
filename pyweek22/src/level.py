@@ -54,7 +54,8 @@ layout = {
 	8: [30, 520, 350],
 	9: [50, 730, 380],
 	"endless": [30, 70, 400],
-	"qwin": [30, 800, 200],
+	"credits": [30, 800, 200],
+#	"qwin": [30, 800, 200],
 }
 
 # Level data
@@ -263,16 +264,6 @@ data = {
 		],
 	},
 
-	# Quick-win level (just a single enemy)
-	"qwin": {
-		"Rlevel": 100,
-		"cellpos": (0, -50),
-		"health": 99999,
-		"atp": 99999,
-		"wavespecs": [
-			(0, 0, 1),
-		],
-	},
 }
 
 
