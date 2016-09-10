@@ -24,7 +24,8 @@ def init():
 		sound.playmusic("levelX-B", "levelX-A")
 	elif state.levelname in (3, 6, 9):
 		sound.playmusic("boss-B", "boss-A")
-
+	from . import menuscene
+	menuscene.clearmessage()
 
 def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 	control.towerinfo.target = None
@@ -51,8 +52,13 @@ def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 	control.towerinfo.think(dt)
 	if state.twin > 2 and not state.tlose:
 		progress.complete(progress.chosen)
-		scene.push(cutscene.Win())
-		sound.playmusic(None, "win")
+		if progress.chosen == 9:
+			scene.pop()
+			scene.push(cutscene.Final())
+			scene.push(cutscene.FinalWin())
+		else:
+			scene.push(cutscene.Win())
+			sound.playmusic(None, "win")
 	if state.tlose > 2:
 		scene.push(cutscene.Lose())
 		sound.playmusic(None, "lose")
@@ -160,9 +166,9 @@ def draw():
 	for button in control.buttons:
 		button.draw()
 
-	text = "RNA: %d" % state.atp[0]
+	text = "RNA: %s" % (state.atp[0] if state.atp[0] < 1000000 else "unlimited")
 	if "Z" in progress.learned:
-		text += "\nDNA: %d" % state.atp[1]
+		text += "\nDNA: %s" % (state.atp[1] if state.atp[1] < 1000000 else "unlimited")
 	text += "\nCell health: %d" % max(int(state.health), 0)
 	ptext.draw(text, bottom = F(470), left = F(10), fontsize = F(26), color = "yellow")
 	control.towerinfo.draw()

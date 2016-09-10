@@ -25,6 +25,7 @@ def play(dname):
 	if dname in progress.heard:
 		return
 	progress.heard.add(dname)
+	progress.save()
 	queue.extend(lines[dname])
 
 def think(dt):
@@ -72,7 +73,7 @@ def draw():
 		ptext.draw(line, midbottom = F(854 / 2, 470), width = F(500),
 			color = (255, 100, 255), shadow = (1, 1),
 			fontsize = F(36), fontname = "PatrickHand")
-		img.draw(imgname, center, radius = F(80), fstretch = fstretch, angle = angle)
+		img.draw(imgname, center, radius = F(80), fstretch = fstretch, angle = angle, tocache = False)
 
 	if currenttip:
 		ptext.draw(currenttip, center = F(854 / 2, 160), width = F(500),

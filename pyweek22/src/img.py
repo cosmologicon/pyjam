@@ -42,7 +42,7 @@ def getimg(name, radius = None, fstretch = 1, angle = 0, alpha = 1, tocache = Tr
 	if tocache:
 		cachesize += img.get_width() * img.get_height() * 4
 		imgs[key] = img
-		if cachesize > 1024 ** 3:
+		if cachesize > 256 * 1024 ** 2:
 			print("Emerengency img cache dump!", cachesize, len(imgs))
 			clearcache()
 	return img
@@ -52,8 +52,8 @@ def clearcache():
 	cachesize = 0
 	imgs.clear()
 
-def draw(name, screenpos, radius = None, fstretch = 1, angle = 0, alpha = 1):
-	img = getimg(name, radius = radius, fstretch = fstretch, angle = angle, alpha = alpha)
+def draw(name, screenpos, radius = None, fstretch = 1, angle = 0, alpha = 1, tocache = True):
+	img = getimg(name, radius = radius, fstretch = fstretch, angle = angle, alpha = alpha, tocache = True)
 	view.screen.blit(img, img.get_rect(center = screenpos))
 
 def drawworld(name, pos, radius, fstretch = 1, angle = 0, alpha = 1):

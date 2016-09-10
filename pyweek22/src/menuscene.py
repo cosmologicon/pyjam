@@ -29,8 +29,12 @@ def init():
 
 def setmessage(m):
 	global message, tmessage
-	message = m
-	tmessage = 8
+	message = message + "\n" + m if message and tmessage else m
+	tmessage = 5
+
+def clearmessage():
+	global message, tmessage
+	tmessage = 0
 
 def think(dt, mpos, mdown, mup, *args):
 	global pointed, tmessage

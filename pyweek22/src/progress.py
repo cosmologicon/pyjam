@@ -23,6 +23,7 @@ if settings.quickstart or settings.unlockall:
 	nslots = 8
 
 def complete(lev):
+	global nslots
 	completed.add(lev)
 	for nlev in level.unlocks.get(lev, []):
 		unlocked.add(nlev)
@@ -31,10 +32,15 @@ def complete(lev):
 			learned.add(nlearn)
 			from . import menuscene
 			menuscene.setmessage("New antibody combination unlocked!")
+	slots = level.slots.get(lev, 0)
+	if slots > nslots:
+		from . import menuscene
+		menuscene.setmessage("New organelle slot unlocked!")
+		nslots = slots
 	save()
 
 def beatone():
-	lev = max(unlocked)
+	lev = max(x for x in unlocked if x in range(10))
 	complete(lev)
 
 def setchosen(lev):
@@ -43,11 +49,14 @@ def setchosen(lev):
 	save()
 
 def getprogress():
-	return completed, unlocked, heard, chosen, learned, nslots
+	from . import quest
+	return completed, unlocked, heard, chosen, learned, nslots, quest.quests
 
 def setprogress(obj):
+	from . import quest
 	global completed, unlocked, heard, chosen, learned, nslots
-	completed, unlocked, heard, chosen, learned, nslots = obj
+	completed, unlocked, heard, chosen, learned, nslots, quest.quests = obj
+	print heard
 
 def save():
 	filename = settings.progresspath

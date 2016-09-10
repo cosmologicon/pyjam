@@ -47,7 +47,14 @@ def reset(lname):
 			w = thing.Hornet(x = 0, y = 150)
 			w.addtostate()
 			w.theta = j * math.tau / 3
-			w.think(0)
+			w.think(random.random())
+
+	if levelname == 9:
+		for j in range(5):
+			w = thing.Cricket(x = 0, y = 150)
+			w.addtostate()
+			w.theta = j * math.tau / 5
+			w.think(random.random())
 
 def setgroups(obj):
 	for x, y in zip(obj, groups):
@@ -199,6 +206,10 @@ def win():
 		obj.die()
 	del wavespecs[:]
 
+def lose():
+	global tlose
+	tlose = 1000
+
 def cheat():
 	global health, atp
 	health += 1000
@@ -229,7 +240,7 @@ def removeobj(obj):
 	obj.alive = temp
 
 def save():
-	obj = progress.getprogress(), groups, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose
+	obj = progress.getprogress(), groups, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose, tlevel
 	filename = settings.statepath
 	util.mkdir(filename)
 	pickle.dump(obj, open(filename, "wb"))
@@ -239,10 +250,10 @@ def canload():
 	return os.path.exists(filename)
 
 def load():
-	global levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose
+	global levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose, tlevel
 	filename = settings.statepath
 	obj = pickle.load(open(filename, "rb"))
-	pstate, gstate, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose = obj
+	pstate, gstate, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose, tlevel = obj
 	progress.setprogress(pstate)
 	setgroups(gstate)
 

@@ -26,9 +26,9 @@ towerinfo = {
 	"XX": "Medium-strength defensive antibody\nTargets strongest virus",
 	# level 3
 	"Y": "Generates RNA over time",
-	"XY": "Weak defensive antibody\n4x chance of collecting RNA from viruses.\nTargets closest to cell",
+	"XY": "Weak defensive antibody.\nGets more RNA from viruses.\nGenerates RNA over time.\nTargets closest to cell.",
 	# level 4
-	"YY": "Automatically collects nearby RNA.",
+	"YY": "Auto-collects nearby RNA and DNA.",
 	"XXX": "High-speed weak defensive antibody\nTargets closest to cell.",
 	"XXY": "Long-distance medium defensive antibody",
 	"XYY": "Medium defensive antibody that knocks back viruses",
@@ -36,15 +36,22 @@ towerinfo = {
 	"YYY": "Generates DNA over time.",
 	"Z": "Speeds up recovery of nearby antibodies",
 	# level 6
-	"XZ": "Defensive antibody that damages nearby viruses when it hits",
+	"XZ": "Area-of-effect defensive antibody that damages nearby viruses when it hits",
 	"YZ": "Rapidly generates DNA over time",
 	"ZZ": "Fires lasers (can hit fast-moving viruses)",
-
+	# level 7
+	"XXZ": "Mega area-of-effect antibody!",
+	"YYZ": "Mega auto-collect!",
+	# level 8
+	"XZZ": "Mega laser!",
+	"YZZ": "Mega recover!\nAll nearby towers instantly heal when infected.",
+	# level 9
 	"XYZ": "Explosive that deals damage to nearby viruses.\nDouble-click to activate!",
-	"ZZZ": "Explosive that deals massive damage to nearby viruses.\nDouble-click to activate!",
+	# Endless
+	"ZZZ": "Mega explosive!\nDouble-click to activate!",
 }
 
-# Lasers
+# Guns
 
 Xrecharge = 2  # shot rechange time in seconds
 Xrange = 40
@@ -61,10 +68,10 @@ XXkick = 20
 XYrecharge = 1.5
 XYrange = 40
 XYstrength = 1
-XYrewardprob = 0.8, 0
+XYrewardprob = 1, 0
 XYkick = 20
 
-XXXrecharge = 0.2
+XXXrecharge = 0.35
 XXXrange = 40
 XXXstrength = 1
 XXXrewardprob = 0.2, 0
@@ -86,11 +93,19 @@ XYYkick = 100
 
 XZrecharge = 1
 XZrange = 60
-XZstrength = 2
-XZaoestrength = 1
+XZstrength = 10
+XZaoestrength = 5
 XZaoesize = 20
 XZrewardprob = 0.1, 0
 XZkick = 40
+
+XXZrecharge = 3
+XXZrange = 75
+XXZstrength = 40
+XXZaoestrength = 20
+XXZaoesize = 50
+XXZrewardprob = 0, 0
+XXZkick = 100
 
 # Lasers
 
@@ -100,10 +115,19 @@ ZZstrength = 5
 ZZrewardprob = 0, 0
 ZZkick = 0
 
+XZZrecharge = 3
+XZZrange = 70
+XZZstrength = 25
+XZZrewardprob = 0, 0
+XZZkick = 0
+
 # ATP generation
 
 Yrecharge = 6  # ATP generation recharge time in seconds
 Ykick = 40  # Approximate distance than the ATP is kicked out by the tower when generated
+
+XYrecharge = 12
+XYatpkick = 40
 
 YYYrecharge = 15
 YYYkick = 40
@@ -115,18 +139,24 @@ YZkick = 40
 
 YYrange = 80
 
+YYZrange = 240
+
 # healing
 
 Zrecharge = 0.3  # Time between heal rays
 Zrange = 30
 Zstrength = 2  # Number of seconds removed from recovery time by each heal ray
 
+YZZrecharge = 0.1
+YZZrange = 30
+YZZstrength = 99999
+
 # bomb
 
-XYZstrength = 20
-XYZwavesize = 40
+XYZstrength = 100
+XYZwavesize = 50
 
-ZZZstrength = 60
+ZZZstrength = 200
 ZZZwavesize = 80
 
 # WEAPONS
@@ -159,6 +189,11 @@ Lbeedamage = 10
 Lbeecarried = 3
 Lbeesize = 12
 
+fleahp = 30
+fleatkick = 8
+fleadamage = 10
+
+# Bosses
 
 wasphp = 200
 waspspeed = 25
@@ -166,15 +201,17 @@ waspspawntime = 6
 waspstages = 50, 0
 waspsizes = 16, 10
 
-
 hornethp = 600
 hornetspeed = 25
 hornetspawntime = 6
 hornetstages = 300, 100, 0
 hornetsizes = 21, 14, 7
 
+crickethp = 2000
+cricketspeed = 20
+cricketspawntime = 2
+cricketstages = 1000, 500, 200, 0
+cricketsizes = 24, 18, 12, 6
 
-fleahp = 30
-fleatkick = 8
-fleadamage = 10
+
 

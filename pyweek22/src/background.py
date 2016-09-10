@@ -1,5 +1,5 @@
 import pygame, random, math
-from . import blob, view
+from . import blob, view, settings
 from .util import F
 
 def init():
@@ -18,6 +18,7 @@ def draw():
 	t = pygame.time.get_ticks() * 0.001
 	vZ = math.sqrt(view.Z)
 	nmote = min(int(math.ceil(len(motes) / vZ ** 2)), len(motes))
+	nmote = math.clamp(int(nmote * settings.background), 0, nmote)
 	for x, y, vx, vy, z, r in motes[:nmote]:
 		x += vx * t - view.x0
 		y += vy * t - view.y0

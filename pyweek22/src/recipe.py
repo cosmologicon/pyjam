@@ -50,6 +50,7 @@ def thinkXX(self, dt):
 
 def thinkXY(self, dt):
 	trytoshoot(self, tshot = mechanics.XYrecharge, shotrange = mechanics.XYrange, dhp = mechanics.XYstrength, rewardprob = mechanics.XYrewardprob, kick = mechanics.XYkick)
+	spawnATP(self, atype = thing.ATP1, recharge = mechanics.XYrecharge, kick = mechanics.XYatpkick)
 
 def thinkXXX(self, dt):
 	trytoshoot(self, tshot = mechanics.XXXrecharge, shotrange = mechanics.XXXrange, dhp = mechanics.XXXstrength, rewardprob = mechanics.XXXrewardprob, kick = mechanics.XXXkick)
@@ -63,6 +64,10 @@ def thinkXYY(self, dt):
 def thinkXZ(self, dt):
 	trytoshootexploding(self, tshot = mechanics.XZrecharge, shotrange = mechanics.XZrange, dhp = mechanics.XZstrength,
 		shockdhp = mechanics.XZaoestrength, rewardprob = mechanics.XZrewardprob, shockkick = mechanics.XZkick, wavesize = mechanics.XZaoesize)
+
+def thinkXXZ(self, dt):
+	trytoshootexploding(self, tshot = mechanics.XXZrecharge, shotrange = mechanics.XXZrange, dhp = mechanics.XXZstrength,
+		shockdhp = mechanics.XXZaoestrength, rewardprob = mechanics.XXZrewardprob, shockkick = mechanics.XXZkick, wavesize = mechanics.XXZaoesize)
 
 def thinkY(self, dt):
 	spawnATP(self, atype = thing.ATP1, recharge = mechanics.Yrecharge, kick = mechanics.Ykick)
@@ -82,12 +87,24 @@ def thinkZZZ(self, dt):
 def thinkZ(self, dt):
 	trytoheal(self, tshot = mechanics.Zrecharge, shotrange = mechanics.Zrange, dheal = mechanics.Zstrength)
 
+def thinkYZZ(self, dt):
+	trytoheal(self, tshot = mechanics.YZZrecharge, shotrange = mechanics.YZZrange, dheal = mechanics.YZZstrength)
+
 def thinkZZ(self, dt):
 	trytolaser(self, tshot = mechanics.ZZrecharge, shotrange = mechanics.ZZrange, dhp = mechanics.ZZstrength, quality = qstrongest)
+
+def thinkXZZ(self, dt):
+	trytolaser(self, tshot = mechanics.XZZrecharge, shotrange = mechanics.XZZrange, dhp = mechanics.XZZstrength, quality = qstrongest)
 
 def thinkYY(self, dt):
 	for obj in state.mouseables:
 		if isinstance(obj, (thing.ATP1, thing.ATP2)) and obj.t > 1 and self.distanceto((obj.x, obj.y)) < mechanics.YYrange:
+			obj.onhover()
+			obj.target = self
+
+def thinkYYZ(self, dt):
+	for obj in state.mouseables:
+		if isinstance(obj, (thing.ATP1, thing.ATP2)) and obj.t > 1 and self.distanceto((obj.x, obj.y)) < mechanics.YYZrange:
 			obj.onhover()
 			obj.target = self
 

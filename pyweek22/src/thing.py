@@ -917,6 +917,32 @@ class Hornet(object):
 		self.vpath *= 2
 		self.spawntime /= 2
 
+@Lives()
+@WorldBound()
+@Drawable()
+@Unkickable()
+@Shootable()
+@BossStages()
+@SpawnsAnts()
+@CleansOnDeath()
+@WorldCollidable()
+@CirclesArena()
+class Cricket(object):
+	def __init__(self, **kw):
+		self.setstate(
+			hp = mechanics.crickethp,
+			spawntime = mechanics.cricketspawntime,
+			rpath = 200, drpath = 100, vpath = mechanics.cricketspeed,
+			rcollide = 25, mass = 10000000,
+			stages = mechanics.cricketstages,
+			rstages = mechanics.cricketsizes,
+			r = 25,
+			**kw)
+		self.think(0)
+	def advance(self):
+		self.vpath *= 2
+		self.spawntime /= 2
+
 
 @Lives()
 @Lifetime()
@@ -932,6 +958,7 @@ class Laser(object):
 			**kw)
 
 @Lives()
+@Lifetime()
 @WorldBound()
 @Collidable()
 @Drawable()
@@ -944,6 +971,7 @@ class Bullet(object):
 	def __init__(self, obj, target, dhp, kick = 0, r = 3, color = (255, 100, 100), **kw):
 		self.setstate(
 			target = target, speed = mechanics.bulletspeed,
+			lifetime = 5,
 			dhp = dhp,
 			kick = kick,
 			r = r, rcollide = r,
