@@ -42,6 +42,13 @@ def reset(lname):
 	if levelname == 3:
 		thing.Wasp(x = 0, y = 150).addtostate()
 
+	if levelname == 6:
+		for j in range(3):
+			w = thing.Hornet(x = 0, y = 150)
+			w.addtostate()
+			w.theta = j * math.tau / 3
+			w.think(0)
+
 def setgroups(obj):
 	for x, y in zip(obj, groups):
 		y[:] = x

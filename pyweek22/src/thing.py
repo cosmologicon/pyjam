@@ -365,13 +365,17 @@ class DisappearsToCell(Component):
 		self.approaching = approaching
 #		self.preserved = True
 #		self.approaching = True
+		self.target = None
 	def onhover(self):
+		if self.target:
+			return
 		self.preserved = True
 		self.approaching = True
+		self.target = state.cell
 	def think(self, dt):
-		if not self.approaching or not self.alive:
+		if not self.approaching or not self.alive or not self.target:
 			return
-		self.x, self.y, arrived = approachpos((self.x, self.y), (state.cell.x, state.cell.y), dt * 300, state.cell.rcollide)
+		self.x, self.y, arrived = approachpos((self.x, self.y), (self.target.x, self.target.y), dt * 300, self.target.rcollide)
 		if arrived:
 			self.arrive()
 
@@ -479,7 +483,7 @@ class BossStages(Component):
 		if self.stage >= len(self.stages):
 			return
 	def shoot(self, *args):
-		if self.hp <= self.stages[self.stage]:
+		if self.stage < len(self.stages) and self.hp <= self.stages[self.stage]:
 			self.advance()
 			self.stage += 1
 		if self.stage < len(self.stages):
@@ -492,7 +496,7 @@ class BossStages(Component):
 	def draw(self):
 		for j, rstage in enumerate(self.rstages[self.stage:]):
 			r = 2.5 * rstage
-			angle = self.t * 200 / math.sqrt(rstage) * [-1, 1][j]
+			angle = self.t * 200 / math.sqrt(rstage) * [-1, 1][j % 2]
 			imgname = "saw%d" % rstage
 			img.drawworld(imgname, (self.x, self.y), r, angle = angle)
 
@@ -518,7 +522,7 @@ class CirclesArena(Component):
 		self.theta = 0
 	def think(self, dt):
 		phi = self.theta / ((1 + math.sqrt(5)) / 2)
-		R = self.rpath + self.drpath * math.sin(phi)
+		R = self.rpath + self.drpath * math.sin(phi) + max(0, 20 - self.t) * 10
 		self.theta += self.vpath * dt / R
 		self.x = R * math.sin(self.theta)
 		self.y = R * math.cos(self.theta)
@@ -886,6 +890,33 @@ class Wasp(object):
 	def advance(self):
 		self.vpath *= 2
 		self.spawntime /= 2
+
+@Lives()
+@WorldBound()
+@Drawable()
+@Unkickable()
+@Shootable()
+@BossStages()
+@SpawnsAnts()
+@CleansOnDeath()
+@WorldCollidable()
+@CirclesArena()
+class Hornet(object):
+	def __init__(self, **kw):
+		self.setstate(
+			hp = mechanics.hornethp,
+			spawntime = mechanics.hornetspawntime,
+			rpath = 160, drpath = 80, vpath = mechanics.hornetspeed,
+			rcollide = 25, mass = 10000000,
+			stages = mechanics.hornetstages,
+			rstages = mechanics.hornetsizes,
+			r = 25,
+			**kw)
+		self.think(0)
+	def advance(self):
+		self.vpath *= 2
+		self.spawntime /= 2
+
 
 @Lives()
 @Lifetime()

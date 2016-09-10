@@ -76,6 +76,8 @@ while playing:
 				state.win()
 			if event.key == pygame.K_F3:
 				state.cheat()
+			if event.key == pygame.K_F4:
+				progress.beatone()
 
 	if kpressed[pygame.K_F1]:
 		dt *= 10

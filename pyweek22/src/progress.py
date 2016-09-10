@@ -33,6 +33,10 @@ def complete(lev):
 			menuscene.setmessage("New antibody combination unlocked!")
 	save()
 
+def beatone():
+	lev = max(unlocked)
+	complete(lev)
+
 def setchosen(lev):
 	global chosen
 	chosen = lev

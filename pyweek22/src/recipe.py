@@ -82,6 +82,15 @@ def thinkZZZ(self, dt):
 def thinkZ(self, dt):
 	trytoheal(self, tshot = mechanics.Zrecharge, shotrange = mechanics.Zrange, dheal = mechanics.Zstrength)
 
+def thinkZZ(self, dt):
+	trytolaser(self, tshot = mechanics.ZZrecharge, shotrange = mechanics.ZZrange, dhp = mechanics.ZZstrength, quality = qstrongest)
+
+def thinkYY(self, dt):
+	for obj in state.mouseables:
+		if isinstance(obj, (thing.ATP1, thing.ATP2)) and obj.t > 1 and self.distanceto((obj.x, obj.y)) < mechanics.YYrange:
+			obj.onhover()
+			obj.target = self
+
 
 def spawnATP(self, atype, recharge, kick):
 	if self.lastshot + recharge < self.t:
@@ -118,6 +127,14 @@ def trytoshootexploding(self, tshot, shotrange, dhp, shockdhp, rewardprob, shock
 			thing.ExplodingBullet(self, target = toshoot, x = self.x, y = self.y,
 				dhp = dhp, shockdhp = shockdhp, rewardprob = rewardprob, shockkick = shockkick,
 				wavesize = wavesize).addtostate()
+			self.lastshot = self.t
+
+def trytolaser(self, tshot, shotrange, dhp, quality = None):
+	if self.lastshot + tshot < self.t:
+		toshoot = gettarget(self, state.shootables, shotrange, quality = quality)
+		if toshoot:
+			thing.Laser(self, toshoot, color = (255, 255, 128)).addtostate()
+			toshoot.shoot(dhp)
 			self.lastshot = self.t
 
 def trytoheal(self, tshot, shotrange, dheal):
