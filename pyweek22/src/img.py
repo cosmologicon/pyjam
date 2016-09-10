@@ -43,7 +43,7 @@ def getimg(name, radius = None, fstretch = 1, angle = 0, alpha = 1, tocache = Tr
 		cachesize += img.get_width() * img.get_height() * 4
 		imgs[key] = img
 		if cachesize > 256 * 1024 ** 2:
-			print("Emerengency img cache dump!", cachesize, len(imgs))
+#			print("Emerengency img cache dump!", cachesize, len(imgs))
 			clearcache()
 	return img
 

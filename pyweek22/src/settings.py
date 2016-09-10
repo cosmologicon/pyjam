@@ -16,6 +16,8 @@ autosavetime = 10  # seconds between autosaves. Set to 0 to disable.
 cellshading = 1
 background = 1
 virusbounce = True
+drawblob = True
+n2collision = False
 
 # Debug settings
 showbox = False

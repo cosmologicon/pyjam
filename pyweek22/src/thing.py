@@ -282,6 +282,13 @@ class DrawBlob(Component):
 			random.uniform(0.6, 0.8),
 		) for j in range(self.nblob)]
 	def draw(self):
+		if not settings.drawblob:
+			p = view.screenpos((self.x, self.y))
+			r1 = view.screenlength(1.2 * self.rblob)
+			r2 = view.screenlength(1.2 * self.rblob - 2)
+			pygame.draw.circle(view.screen, (0, 0, 0), p, r1)
+			pygame.draw.circle(view.screen, self.color, p, r2)
+			return
 		blobspec = [(self.x, self.y, 2 * self.rblob, 1)]
 		for theta0, dtheta, fr in self.blobspecs:
 			theta = theta0 + self.t * dtheta
