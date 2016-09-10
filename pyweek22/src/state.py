@@ -56,6 +56,8 @@ def reset(lname):
 			w.addtostate()
 			w.theta = j * math.tau / 5
 			w.think(random.random())
+	
+	choosemusic()
 
 def setgroups(obj):
 	for x, y in zip(obj, groups):
@@ -64,6 +66,14 @@ def setgroups(obj):
 def updatealive():
 	for group in groups:
 		group[:] = [m for m in group if m.alive]
+
+def choosemusic():
+	if levelname in (1, 4, 7):
+		sound.playmusic("levelY")
+	elif levelname in (2, 5, 8):
+		sound.playmusic("levelX-B", "levelX-A")
+	elif levelname in (3, 6, 9):
+		sound.playmusic("boss-B", "boss-A")
 
 def think(dt):
 	global tlevel, twin, tlose, health, lastsave
@@ -260,6 +270,9 @@ def load():
 	pstate, gstate, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose, tlevel = obj
 	progress.setprogress(pstate)
 	setgroups(gstate)
+	choosemusic()
+	from . import control
+	control.reset()
 
 def removesave():
 	filename = settings.statepath

@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame, math, random
 from . import view, control, state, blob, img, settings, bounce, mechanics, util, sound
 from .util import F
@@ -226,7 +227,10 @@ class DrawVirus(Component):
 		self.angle = 15 * math.sin(2 * tdraw)
 		self.imgdy = 0.3 * self.r * math.sin(10 * tdraw)
 	def draw(self):
-		img.drawworld(self.imgname, (self.x, self.y + self.imgdy), self.r, fstretch = self.fstretch, angle = self.angle)
+		if settings.virusbounce:
+			img.drawworld(self.imgname, (self.x, self.y + self.imgdy), self.r, fstretch = self.fstretch, angle = self.angle)
+		else:
+			img.drawworld(self.imgname, (self.x, self.y), self.r)
 
 
 class DrawCorpse(Component):

@@ -9,24 +9,11 @@ def init():
 	control.cursor = None
 	control.dragpos = None
 	control.tdrag = 0
-	control.buttons = [
-		control.Button((754, 380, 80, 80), "Pause")
-	]
-	if len(progress.learned) > 1:
-		control.buttons.append(control.Button((120, 26, 80, 80), "See\ncombos"))
-	for j, flavor in enumerate("XYZ"):
-		if flavor not in progress.learned:
-			continue
-		control.buttons.append(control.Button((26, 26 + 100 * j, 80, 80), "Grow " + flavor))
+	control.reset()
 	background.init()
-	if state.levelname in (1, 4, 7):
-		sound.playmusic("levelY")
-	elif state.levelname in (2, 5, 8):
-		sound.playmusic("levelX-B", "levelX-A")
-	elif state.levelname in (3, 6, 9):
-		sound.playmusic("boss-B", "boss-A")
 	from . import menuscene
 	menuscene.clearmessage()
+	state.choosemusic()
 
 def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 	control.towerinfo.target = None
@@ -173,7 +160,8 @@ def draw():
 	if "Z" in progress.learned:
 		text += "\nDNA: %s" % (state.atp[1] if state.atp[1] < 1000000 else "unlimited")
 	text += "\nCell health: %d" % max(int(state.health), 0)
-	ptext.draw(text, bottom = F(470), left = F(10), fontsize = F(26), color = "yellow")
+	ptext.draw(text, bottom = F(470), left = F(10), fontsize = F(26), color = "yellow",
+		fontname = "SansitaOne")
 	control.towerinfo.draw()
 	dialog.draw()
 

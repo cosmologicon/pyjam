@@ -94,17 +94,29 @@ def draw():
 			y = F(y + fr * a * math.cos(theta))
 			hillspec.append((x, y, F(a), 0.5))
 		blob.drawcell(view.screen, hillspec)
-		text = "%s" % jlevel
-		ptext.draw(text, fontsize = F(30), center = F(px, py),
-			color = "white", shadow = (1, 1))
+		text = {
+			1: "Stage\n1-1",
+			2: "Stage\n1-2",
+			3: "Stage\n1-3",
+			4: "Stage\n2-1",
+			5: "Stage\n2-2",
+			6: "Stage\n2-3",
+			7: "Stage\n3-1",
+			8: "Stage\n3-2",
+			9: "Final\nStage",
+			"endless": "Endless\nmode",
+		}[jlevel]
+		ptext.draw(text, fontsize = F(24), center = F(px, py),
+			color = "white", shadow = (1, 1), fontname = "SansitaOne")
 	if pointed is not None:
 		text = "Level %s" % pointed
+		text = "Click to begin"
 		ptext.draw(text, fontsize = F(80), midbottom = F(854 / 2, 470),
-			color = "white", gcolor = (50, 50, 50), shadow = (1, 1))
+			color = "white", gcolor = (150, 150, 150), owidth = 1, fontname = "SansitaOne")
 	if tmessage:
 		alpha = min(tmessage * 2, 1)
 		ptext.draw(message, fontsize = F(60), center = F(854 / 2, 200), width = F(500),
-			color = "#FF7F7F", shadow = (1, 1), alpha = alpha)
+			color = "#FF7F7F", owidth = 1, alpha = alpha, fontname = "PassionOne")
 
 def abort():
 	pass

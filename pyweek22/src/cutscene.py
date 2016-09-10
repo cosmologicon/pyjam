@@ -55,9 +55,9 @@ class Cutscene(object):
 			overlay = 1
 
 		if overlay is not None:
-			view.drawoverlay(0.6 * overlay)
+			view.drawoverlay(0.7 * overlay)
 		if text:
-			ptext.draw(text, fontsize = F(150), center = F(854/2, 480/2),
+			ptext.draw(text, fontsize = F(130), center = F(854/2, 480/2), fontname = "PassionOne",
 				color = self.color, gcolor = self.gcolor, shadow = (1, 1))
 		if dark:
 			view.drawoverlay(1 - self.fade, self.darkcolor)
@@ -134,11 +134,11 @@ class Combos(object):
 				ptext.draw("NEW!", bottomright = F(x0 + 10, y0 - 10), fontsize = F(15),
 					color = "white", shadow = (1, 1))
 			text = mechanics.towerinfo.get(flavor, flavor)
-			ptext.draw(text, midleft = F(x0 + 20, y0), fontsize = F(17),
-				color = "yellow", shadow = (1, 1), width = F(180))
+			ptext.draw(text, midleft = F(x0 + 20, y0), fontsize = F(16), fontname = "PatrickHand",
+				color = "yellow", shadow = (1, 1), width = F(190), lineheight = 0.7)
 		ptext.draw("Organelle slots unlocked: %d" % progress.nslots,
-			bottomright = F(840, 465), fontsize = F(22),
-			color = "yellow", shadow = (1, 1))
+			bottomright = F(840, 465), fontsize = F(22), fontname = "SansitaOne",
+			color = "white", shadow = (1, 1))
 
 	def abort(self):
 		state.save()
@@ -160,6 +160,8 @@ class Final(object):
 		self.fading = True
 		sound.playmusic("menu")
 		dialog.play("C10")
+		from . import menuscene
+		menuscene.init()
 
 	def think(self, dt, mpos, mdown, *args):
 		self.t += dt

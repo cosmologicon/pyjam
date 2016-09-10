@@ -169,8 +169,16 @@ def getcolor(self):
 		return int(80 + 60 * math.sin(10 * self.disabled)), 0, 0
 	if flavors not in progress.learned:
 		return 30, 30, 30
-	if flavors in ("X", "XX", "XY", "XXX"):
-		return 150, 50, 150
+	if flavors in ("X", "XX", "XY", "XXX", "XXY", "XYY"):
+		return 150, 0, 200
+	if flavors in ("XZ", "XXZ"):
+		return 200, 0, 150
+	if flavors in ("ZZ", "XZZ"):
+		return 200, 200, 0
+	if flavors in ("Y", "YYY", "YZ"):
+		return 50, 200, 50
+	if flavors in ("XYZ", "ZZZ"):
+		return 50, 50, 255
 
 	return 0, 200, 200
 

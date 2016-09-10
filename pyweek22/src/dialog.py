@@ -65,14 +65,18 @@ def draw():
 			imgname = "zume"
 			center = F(100, h)
 			align = "right"
+			fontname = "SansitaOne"
+			color = 100, 255, 255
 		else:
 			imgname = "simon"
 			center = F(854 - 100, h)
 			align = "left"
+			fontname = "PatrickHand"
+			color = 255, 100, 255
 		alpha = math.clamp(4 * tplaying, 0, 1)
 		ptext.draw(line, midbottom = F(854 / 2, 470), width = F(500),
-			color = (255, 100, 255), shadow = (1, 1),
-			fontsize = F(36), fontname = "PatrickHand")
+			color = color, shadow = (1, 1),
+			fontsize = F(36), fontname = fontname, lineheight = 0.8)
 		img.draw(imgname, center, radius = F(80), fstretch = fstretch, angle = angle, tocache = False)
 
 	if currenttip:

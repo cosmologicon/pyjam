@@ -21,12 +21,12 @@ class Button(object):
 			img.draw("organelle-" + flavor, rect.center, radius = int(rect.width / 1.8))
 			color = "white" if state.canbuy(flavor) else "#444444"
 			ptext.draw(text, color = color, shadow = (1, 1), scolor = "black",
-				fontsize = F(34), center = rect.center)
+				fontsize = F(30), center = rect.center, fontname = "SansitaOne")
 		else:
 			view.screen.fill((120, 60, 0), rect)
 			view.screen.fill((60, 30, 0), rect.inflate(F(-8), F(-8)))
 			ptext.draw(self.name, color = "white", shadow = (1, 1), scolor = "black",
-				fontsize = F(26), center = rect.center)
+				fontsize = F(22), center = rect.center, fontname = "SansitaOne", lineheight = 0.7)
 
 class TowerInfo(object):
 	def __init__(self):
@@ -63,12 +63,14 @@ class TowerInfo(object):
 				cost,
 				"Each organelle of this type left within the cell " + powers,
 			])
-			ptext.draw(text, topright = F(842, 16), fontsize = F(21), width = F(140),
-				color = "orange", shadow = (1, 1), alpha = self.alpha)
+			ptext.draw(text, topright = F(842, 16), fontsize = F(21), width = F(180),
+				color = "orange", shadow = (1, 1), alpha = self.alpha,
+				fontname = "PatrickHand", lineheight = 0.8)
 		elif isinstance(self.current, Button) and "combos" in self.current.name:
 			ptext.draw("Click to view available organelle combinations",
 				topright = F(842, 16), fontsize = F(28), width = F(140),
-				color = "orange", shadow = (1, 1), alpha = self.alpha)
+				color = "orange", shadow = (1, 1), alpha = self.alpha,
+				fontname = "PatrickHand", lineheight = 0.8)
 		elif isinstance(self.current, Button):
 			pass
 		else:
@@ -85,10 +87,23 @@ class TowerInfo(object):
 			if len(flavor) > 1:
 				text += "\nRight click or Ctrl-click to split antibody."
 
-			ptext.draw(text, topright = F(842, 100), fontsize = F(30),
-				color = "yellow", shadow = (1, 1), alpha = self.alpha)
+			ptext.draw(text, topright = F(842, 75), fontsize = F(22),
+				color = "yellow", shadow = (1, 1), alpha = self.alpha,
+				fontname = "PatrickHand", lineheight = 0.8)
 
 towerinfo = TowerInfo()
 
+def reset():
+	global buttons
+	
+	buttons = [
+		Button((754, 380, 80, 80), "Pause")
+	]
+	if len(progress.learned) > 1:
+		buttons.append(Button((120, 26, 80, 80), "See\ncombos"))
+	for j, flavor in enumerate("XYZ"):
+		if flavor not in progress.learned:
+			continue
+		buttons.append(Button((26, 26 + 100 * j, 80, 80), "Grow " + flavor))
 
 
