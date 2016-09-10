@@ -160,6 +160,8 @@ def draw():
 	if "Z" in progress.learned:
 		text += "\nDNA: %s" % (state.atp[1] if state.atp[1] < 1000000 else "unlimited")
 	text += "\nCell health: %d" % max(int(state.health), 0)
+	if state.levelname == "endless":
+		text += "\nWave: %d" % len(state.donewaves)
 	ptext.draw(text, bottom = F(470), left = F(10), fontsize = F(26), color = "yellow",
 		fontname = "SansitaOne")
 	control.towerinfo.draw()

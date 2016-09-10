@@ -35,6 +35,7 @@ def setmessage(m):
 def clearmessage():
 	global message, tmessage
 	tmessage = 0
+	message = None
 
 def think(dt, mpos, mdown, mup, *args):
 	global pointed, tmessage
@@ -115,7 +116,7 @@ def draw():
 			color = "white", gcolor = (150, 150, 150), owidth = 1, fontname = "SansitaOne")
 	if tmessage:
 		alpha = min(tmessage * 2, 1)
-		ptext.draw(message, fontsize = F(60), center = F(854 / 2, 200), width = F(500),
+		ptext.draw(message, fontsize = F(45), center = F(854 / 2, 200), width = F(600),
 			color = "#FF7F7F", owidth = 1, alpha = alpha, fontname = "PassionOne")
 
 def abort():

@@ -5,6 +5,7 @@ def init():
 	quests = [
 		IntroQuest(),
 		InstructionsQuest(),
+		EndlessQuest(),
 	]
 
 def think(dt):
@@ -75,6 +76,21 @@ class InstructionsQuest(Quest):
 			if dialog.tquiet > 3 and self.tstep > 8:
 				dialog.showtip("Defeat the large virus quickly before you're overwhelmed.")
 			if self.tstep > 16:
+				self.advance()
+
+
+class EndlessQuest(Quest):
+	def think(self, dt):
+		from . import state
+		Quest.think(self, dt)
+		if self.jstep == 0 and state.levelname == "endless" and len(state.donewaves) > 50 and dialog.tquiet > 2:
+			self.advance()
+		if self.jstep == 1:
+			from . import progress
+			dialog.showtip("Mega-bomb antibody unlocked!")
+			progress.learned.add("ZZZ")
+			progress.save()
+			if self.tstep > 3:
 				self.advance()
 
 

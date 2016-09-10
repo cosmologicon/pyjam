@@ -24,14 +24,19 @@ if settings.quickstart or settings.unlockall:
 
 def complete(lev):
 	global nslots
+	from . import menuscene
+	menuscene.clearmessage()
 	completed.add(lev)
 	for nlev in level.unlocks.get(lev, []):
 		unlocked.add(nlev)
+	mset = False
 	for nlearn in level.learns.get(lev, []):
 		if nlearn not in learned:
 			learned.add(nlearn)
-			from . import menuscene
-			menuscene.setmessage("New antibody combination unlocked!")
+			if not mset:
+				from . import menuscene
+				menuscene.setmessage("New antibody combination unlocked!")
+				mset = True
 	slots = level.slots.get(lev, 0)
 	if slots > nslots:
 		from . import menuscene
@@ -40,6 +45,8 @@ def complete(lev):
 	save()
 
 def beatone():
+	from . import menuscene
+	menuscene.clearmessage()
 	lev = max(x for x in unlocked if x in range(10))
 	complete(lev)
 

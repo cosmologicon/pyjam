@@ -20,11 +20,12 @@ groups = drawables, colliders, mouseables, thinkers, buildables, shootables, bos
 
 def reset(lname):
 	from .import thing
-	global levelname, tlevel, wavespecs, donewaves, atp, cell, health, Rlevel, twin, tlose, lastsave
+	global levelname, tlevel, wavespecs, donewaves, atp, cell, health, Rlevel, twin, tlose, lastsave, lastheal
 	levelname = lname
 	tlevel = 0
 	twin = tlose = 0
 	lastsave = 0
+	lastheal = 0
 	leveldata = level.data[levelname]
 	for group in groups:
 		del group[:]
@@ -70,13 +71,13 @@ def updatealive():
 def choosemusic():
 	if levelname in (1, 4, 7):
 		sound.playmusic("levelY")
-	elif levelname in (2, 5, 8):
+	elif levelname in (2, 5, 8, "endless"):
 		sound.playmusic("levelX-B", "levelX-A")
 	elif levelname in (3, 6, 9):
 		sound.playmusic("boss-B", "boss-A")
 
 def think(dt):
-	global tlevel, twin, tlose, health, lastsave
+	global tlevel, twin, tlose, health, lastsave, lastheal
 	from . import thing
 	if dialog.quiet():
 		if any(tlevel <= wave[0] - n < tlevel + dt for n in (0, 1, 2) for wave in wavespecs):
@@ -91,13 +92,20 @@ def think(dt):
 			n = (n0 + dn * t) / 100
 			if random.random() < n * dt:
 				stream(etype)
+	if levelname == "endless":
+		streamendless(dt)
 
 	updatealive()
 	if complete():
 		twin += dt
 	if tlose or health <= 0:
 		tlose += dt
-	health = min(health + cell.countflavors(2) * dt, level.data[levelname]["health"])
+	if levelname == "endless":
+		N = (len(donewaves) - 1) // 10 + 1
+		maxhealth = 20 * N ** 2
+	else:
+		maxhealth = level.data[levelname]["health"]
+	health = min(health + cell.countflavors(2) * dt, maxhealth)
 	autoatp = level.data[levelname].get("autoatp", (0, 0))
 	if random.random() < autoatp[0] * dt:
 		x, y = randomatppos()
@@ -108,6 +116,24 @@ def think(dt):
 	if settings.autosavetime and tlevel - lastsave > settings.autosavetime:
 		save()
 		lastsave = tlevel
+
+	if levelname == "endless" and bosses:
+		twave, angle, etype, n = wavespecs[0]
+		wavespecs[0] = tlevel + 15, angle, etype, n
+	if levelname == "endless":
+		if len(donewaves) == 10 and not bosses:
+			dialog.play("E01")
+		if len(donewaves) == 20 and not bosses:
+			dialog.play("E02")
+		if len(donewaves) == 30 and not bosses:
+			dialog.play("E03")
+		if len(donewaves) == 40 and not bosses:
+			dialog.play("E04")
+		if len(donewaves) == 50 and not bosses:
+			dialog.play("E05")
+		if len(donewaves) >= 10 + lastheal and not bosses:
+			health = 1000000000
+			lastheal += 10
 
 def randomatppos():
 	x = random.uniform(-Rlevel, Rlevel)
@@ -138,13 +164,15 @@ def launchwave(wave):
 	donewaves.append(wave)
 	wavespecs.remove(wave)
 	twave, angle, etype, n = wave
-	for jant in range(n):
-		theta = angle + random.uniform(-0.05, 0.05)
-		step = random.uniform(30, 60)
-		x, y = outstep(theta, step)
-		addetype(etype, x, y)
-	if levelname == "endless":
+	if etype == "endless":
+		launchendlesswave(angle, n)
 		addendlesswave()
+	else:
+		for _ in range(n):
+			theta = angle + random.uniform(-0.05, 0.05)
+			step = random.uniform(30, 60)
+			x, y = outstep(theta, step)
+			addetype(etype, x, y)
 
 def stream(etype):
 	from . import thing
@@ -175,13 +203,99 @@ def addetype(etype, x, y):
 		flea = thing.Flea(x = x, y = y)
 		flea.target = cell
 		flea.addtostate()
+	if etype == "weevil":
+		weevil = thing.Weevil(x = x, y = y)
+		weevil.target = cell
+		weevil.addtostate()
+	if etype == "Lweevil":
+		weevil = thing.LargeWeevil(x = x, y = y)
+		weevil.target = cell
+		weevil.addtostate()
+
+def launchendlesswave(angle, n):
+	amounts = {
+		"ant": 0,
+		"Lant": 0,
+		"bee": 0,
+		"Lbee": 0,
+		"flea": 0,
+		"weevil": 0,
+		"Lweevil": 0,
+	}
+	M = n % 10
+	if 0 < n < 10:
+		amounts["ant"] = 4 * n
+		amounts["Lant"] = n // 6
+	elif 10 < n < 20:
+		amounts["ant"] = 20 + 5 * M
+		amounts["bee"] = 20 + 5 * M
+		amounts["Lbee"] = 3 * M
+	elif 20 < n < 30:
+		amounts["Lbee"] = 10 + 1 * M
+		amounts["flea"] = 10 + 1 * M
+	elif 30 < n < 40:
+		amounts["Lbee"] = 10 + 2 * M
+		amounts["flea"] = 10 + 2 * M
+		amounts["weevil"] = 5 + 1 * M
+	elif 40 < n < 50:
+		amounts["Lbee"] = 10 + 5 * M
+		amounts["weevil"] = 10 + 2 * M
+		amounts["Lweevil"] = 1 + M // 2
+	elif 50 < n:
+		amounts["Lbee"] = 30 + (n - 50) ** 2
+		amounts["Lweevil"] = 30 + (n - 50) ** 2
+
+	for etype, ntype in amounts.items():
+		for _ in range(ntype):
+			theta = angle + random.uniform(-0.05, 0.05)
+			step = random.uniform(30, 60)
+			x, y = outstep(theta, step)
+			addetype(etype, x, y)
+	if n % 10 == 0:
+		from . import thing
+		N = n // 10
+		hp = int(200 * N ** 2)
+		sizes = [5 + 5 * N]
+		stages = [hp]
+		while sizes[-1] > 12:
+			sizes.append(sizes[-1] - 7)
+			stages.append(int(stages[-1] * 0.7))
+		stages = stages[1:] + [0]
+		for j in range(N):
+			boss = thing.Ladybug(x = 0, y = 150, hp = hp, sizes = sizes, speed = 10, stages = stages, spawntime = 2)
+			boss.theta = j / N * math.tau
+			boss.think(0)
+			boss.addtostate()
+
 
 def addendlesswave():
 	jwave = len(donewaves)
-	tlast, anglelast, nantlast = donewaves[-1]
+	tlast, anglelast, etype, n = donewaves[-1]
 	t = tlast + 20
 	angle = (anglelast + (math.sqrt(5) + 1) / 2) % 1
-	wavespecs.append((t, angle, nantlast))
+	wavespecs.append((t, angle, etype, n + 1))
+
+def streamendless(dt):
+	if not any(boss.alive for boss in bosses):
+		return
+	t = bosses[0].t
+	N = float(len(donewaves) // 10)
+	streamspecs = [
+		(0, "ant", 0, 0.2 * N ** 0.1),
+		(0, "Lant", 0, 0.1 * N ** 0.1),
+		(0, "bee", 0, 0.2 * N ** 0.3),
+		(0, "Lbee", 0, 0.1 * N ** 0.3),
+		(0, "flea", 0, 0.03 * N ** 1.0),
+		(0, "weevil", 0, 0.003 * N ** 2.0),
+		(0, "Lweevil", 0, 0.001 * N ** 2.5),
+	]
+
+	for tstream, etype, n0, dn in streamspecs:
+		tstream = t - tstream
+		if t > 0:
+			n = (n0 + dn * t) / 100
+			if random.random() < n * dt:
+				stream(etype)
 
 def drawwaves():
 	from . import view
@@ -218,7 +332,8 @@ def complete():
 def win():
 	for obj in shootables:
 		obj.die()
-	del wavespecs[:]
+	if levelname != "endless":
+		del wavespecs[:]
 
 def lose():
 	global tlose
@@ -254,7 +369,7 @@ def removeobj(obj):
 	obj.alive = temp
 
 def save():
-	obj = progress.getprogress(), groups, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose, tlevel
+	obj = progress.getprogress(), groups, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose, tlevel, lastheal
 	filename = settings.statepath
 	util.mkdir(filename)
 	pickle.dump(obj, open(filename, "wb"))
@@ -264,10 +379,10 @@ def canload():
 	return os.path.exists(filename)
 
 def load():
-	global levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose, tlevel
+	global levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose, tlevel, lastheal
 	filename = settings.statepath
 	obj = pickle.load(open(filename, "rb"))
-	pstate, gstate, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose, tlevel = obj
+	pstate, gstate, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose, tlevel, lastheal = obj
 	progress.setprogress(pstate)
 	setgroups(gstate)
 	choosemusic()

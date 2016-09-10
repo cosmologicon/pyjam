@@ -238,13 +238,13 @@ data = {
 
 	# Endless mode
 	"endless": {
-		"Rlevel": 400,
+		"Rlevel": 320,
 		"cellpos": (0, 0),
-		"health": 100,
-		"atp": 100,
+		"health": 200,
+		"atp": [10, 0],
 		# Endless mode waves are procedurally generated after the first one.
 		"wavespecs": [
-			(0, 0, 5),
+			(0, 0, "endless", 1),
 		],
 	},
 

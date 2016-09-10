@@ -75,7 +75,7 @@ XXXrecharge = 0.35
 XXXrange = 40
 XXXstrength = 1
 XXXrewardprob = 0.2, 0
-XXXkick = 20
+XXXkick = 0
 
 XXYrecharge = 5
 XXYrange = 200
@@ -94,18 +94,18 @@ XYYkick = 100
 XZrecharge = 1
 XZrange = 60
 XZstrength = 10
-XZaoestrength = 5
+XZaoestrength = 3
 XZaoesize = 20
 XZrewardprob = 0.1, 0
 XZkick = 40
 
 XXZrecharge = 3
-XXZrange = 75
-XXZstrength = 40
-XXZaoestrength = 20
-XXZaoesize = 50
+XXZrange = 60
+XXZstrength = 20
+XXZaoestrength = 6
+XXZaoesize = 25
 XXZrewardprob = 0, 0
-XXZkick = 100
+XXZkick = 40
 
 # Lasers
 
@@ -192,6 +192,17 @@ Lbeesize = 12
 fleahp = 30
 fleatkick = 8
 fleadamage = 10
+
+weevilhp = 100
+weevilspeed = 25
+weevildamage = 5
+weevilsize = 3
+
+Lweevilhp = 200
+Lweevilspeed = 8
+Lweevildamage = 60
+Lweevilcarried = 12
+Lweevilsize = 12
 
 # Bosses
 

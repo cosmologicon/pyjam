@@ -820,6 +820,29 @@ class Flea(object):
 			imgname = "virusC",
 			**kw)
 
+@Lives()
+@WorldBound()
+@Drawable()
+@Kickable()
+@TargetsThing()
+@DiesOnArrival()
+@HarmsOnArrival()
+@InfiltratesOnArrival()
+@Shootable()
+@DrawVirus()
+@LeavesCorpse()
+@WorldCollidable()
+class Weevil(object):
+	def __init__(self, **kw):
+		self.setstate(
+			hp = mechanics.weevilhp,
+			damage = mechanics.weevildamage,
+			speed = mechanics.weevilspeed,
+			rcollide = mechanics.weevilsize, mass = 60,
+			r = mechanics.weevilsize, color = (255, 255, 0),
+			imgname = "virusD",
+			**kw)
+
 
 @Lives()
 @WorldBound()
@@ -867,6 +890,30 @@ class LargeBee(object):
 			r = mechanics.Lbeesize,
 			ncarried = mechanics.Lbeecarried, carrytype = Bee,
 			imgname = "virusB",
+			**kw)
+
+@Lives()
+@WorldBound()
+@Drawable()
+@Kickable()
+@TargetsThing()
+@DiesOnArrival()
+@HarmsOnArrival()
+@Shootable()
+@DrawVirus()
+@CarriesViruses()
+@LeavesCorpse()
+@WorldCollidable()
+class LargeWeevil(object):
+	def __init__(self, **kw):
+		self.setstate(
+			hp = mechanics.Lweevilhp,
+			speed = random.uniform(0.8, 1.2) * mechanics.Lweevilspeed,
+			damage = mechanics.Lweevildamage,
+			rcollide = mechanics.Lweevilsize, mass = 200,
+			r = mechanics.Lweevilsize,
+			ncarried = mechanics.Lweevilcarried, carrytype = Weevil,
+			imgname = "virusD",
 			**kw)
 
 @Lives()
@@ -947,6 +994,32 @@ class Cricket(object):
 		self.vpath *= 2
 		self.spawntime /= 2
 
+
+@Lives()
+@WorldBound()
+@Drawable()
+@Unkickable()
+@Shootable()
+@BossStages()
+@SpawnsAnts()
+@CleansOnDeath()
+@WorldCollidable()
+@CirclesArena()
+class Ladybug(object):
+	def __init__(self, hp, spawntime, stages, sizes, speed, **kw):
+		self.setstate(
+			hp = hp,
+			spawntime = spawntime,
+			rpath = 160, drpath = 80, vpath = speed,
+			rcollide = 25, mass = 10000000,
+			stages = stages,
+			rstages = sizes,
+			r = 25,
+			**kw)
+		self.think(0)
+	def advance(self):
+		self.vpath *= 2
+		self.spawntime /= 2
 
 @Lives()
 @Lifetime()

@@ -31,7 +31,7 @@ def onclick(self):
 	if flavors == "ZZZ":
 		if self.lastclick is not None and self.t - self.lastclick < mechanics.tdoubleclick:
 			self.die()
-			thing.Shockwave(x = self.x, y = self.y, dhp = mechanics.XZZstrength, wavesize = mechanics.XZZwavesize).addtostate()
+			thing.Shockwave(x = self.x, y = self.y, dhp = mechanics.ZZZstrength, wavesize = mechanics.ZZZwavesize).addtostate()
 		else:
 			self.lastclick = self.t
 
