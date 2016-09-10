@@ -58,7 +58,7 @@ def draw():
 		(40, "yellow", "Samantha Thompson"),
 		(40, "white", "Character Art"),
 		(),
-		(40, "yellow", "Jordan Gray"),
+		(40, "yellow", "Jordan Thomas Gray"),
 		(40, "white", "Sound Effects"),
 		(),
 		(60, "#7F7FFF", "Thank you for playing!"),
