@@ -77,6 +77,11 @@ class TowerInfo(object):
 				topright = F(842, 16), fontsize = F(28), width = F(140),
 				color = "orange", shadow = (1, 1), alpha = self.alpha,
 				fontname = "PatrickHand", lineheight = 0.8)
+		elif isinstance(self.current, Button) and "Eject" in self.current.name:
+			ptext.draw("Click to eject all organelles that are done growing from the cell.",
+				topright = F(842, 16), fontsize = F(28), width = F(140),
+				color = "orange", shadow = (1, 1), alpha = self.alpha,
+				fontname = "PatrickHand", lineheight = 0.8)
 		elif isinstance(self.current, Button):
 			pass
 		else:
@@ -85,6 +90,9 @@ class TowerInfo(object):
 				p = F(820 - 30 * j, 50)
 				pygame.draw.circle(view.screen, (0, 0, 0), p, F(20))
 				img.draw("organelle-" + f, p, radius = F(18))
+			if self.current.disabled:
+				ptext.draw("INFECTED", center = F(760, 50), angle = 10, color = "#FF7F7F",
+					owidth = 1, fontsize = F(26), fontname = "PatrickHand")
 
 			if flavor not in progress.learned:
 				text = "This combination of organelles is not yet unlocked."
@@ -107,7 +115,8 @@ def reset():
 		Button((754, 290, 80, 80), "speed"),
 	]
 	if len(progress.learned) > 1:
-		buttons.append(Button((120, 26, 80, 80), "See\ncombos"))
+		buttons.append(Button((120, 26, 80, 80), "Eject\nall"))
+		buttons.append(Button((754, 200, 80, 80), "See\ncombos"))
 	for j, flavor in enumerate("XYZ"):
 		if flavor not in progress.learned:
 			continue

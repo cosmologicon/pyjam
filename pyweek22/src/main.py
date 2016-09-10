@@ -18,9 +18,11 @@ if settings.quickstart:
 elif state.canload():
 	scene.push(playscene)
 	state.load()
-else:
+elif progress.canload():
 	progress.load()
 	scene.push(menuscene)
+else:
+	scene.push(playscene)
 
 clock = pygame.time.Clock()
 playing = True

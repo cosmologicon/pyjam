@@ -41,7 +41,10 @@ def qfrontmost(obj):
 	return -state.cell.distanceto((obj.x, obj.y))
 
 def qstrongest(obj):
-	return obj.hp
+	return obj in state.bosses, obj.hp
+
+def qweakest(obj):
+	return -obj.hp
 
 def thinkX(self, dt):
 	trytoshoot(self, tshot = mechanics.Xrecharge, shotrange = mechanics.Xrange, dhp = mechanics.Xstrength, rewardprob = mechanics.Xrewardprob, kick = mechanics.Xkick, quality = qfrontmost)
@@ -51,17 +54,17 @@ def thinkXX(self, dt):
 		kick = mechanics.XXkick, quality = qstrongest)
 
 def thinkXY(self, dt):
-	trytoshoot(self, tshot = mechanics.XYrecharge, shotrange = mechanics.XYrange, dhp = mechanics.XYstrength, rewardprob = mechanics.XYrewardprob, kick = mechanics.XYkick)
+	trytoshoot(self, tshot = mechanics.XYrecharge, shotrange = mechanics.XYrange, dhp = mechanics.XYstrength, rewardprob = mechanics.XYrewardprob, kick = mechanics.XYkick, quality = qfrontmost)
 	spawnATP(self, atype = thing.ATP1, recharge = mechanics.XYrecharge, kick = mechanics.XYatpkick)
 
 def thinkXXX(self, dt):
-	trytoshoot(self, tshot = mechanics.XXXrecharge, shotrange = mechanics.XXXrange, dhp = mechanics.XXXstrength, rewardprob = mechanics.XXXrewardprob, kick = mechanics.XXXkick)
+	trytoshoot(self, tshot = mechanics.XXXrecharge, shotrange = mechanics.XXXrange, dhp = mechanics.XXXstrength, rewardprob = mechanics.XXXrewardprob, kick = mechanics.XXXkick, quality = qweakest)
 
 def thinkXXY(self, dt):
-	trytoshoot(self, tshot = mechanics.XXYrecharge, shotrange = mechanics.XXYrange, dhp = mechanics.XXYstrength, rewardprob = mechanics.XXYrewardprob, kick = mechanics.XXYkick)
+	trytoshoot(self, tshot = mechanics.XXYrecharge, shotrange = mechanics.XXYrange, dhp = mechanics.XXYstrength, rewardprob = mechanics.XXYrewardprob, kick = mechanics.XXYkick, quality = qfrontmost)
 
 def thinkXYY(self, dt):
-	trytoshoot(self, tshot = mechanics.XYYrecharge, shotrange = mechanics.XYYrange, dhp = mechanics.XYYstrength, rewardprob = mechanics.XYYrewardprob, kick = mechanics.XYYkick)
+	trytoshoot(self, tshot = mechanics.XYYrecharge, shotrange = mechanics.XYYrange, dhp = mechanics.XYYstrength, rewardprob = mechanics.XYYrewardprob, kick = mechanics.XYYkick, quality = qstrongest)
 
 def thinkXZ(self, dt):
 	trytoshootexploding(self, tshot = mechanics.XZrecharge, shotrange = mechanics.XZrange, dhp = mechanics.XZstrength,
@@ -69,7 +72,8 @@ def thinkXZ(self, dt):
 
 def thinkXXZ(self, dt):
 	trytoshootexploding(self, tshot = mechanics.XXZrecharge, shotrange = mechanics.XXZrange, dhp = mechanics.XXZstrength,
-		shockdhp = mechanics.XXZaoestrength, rewardprob = mechanics.XXZrewardprob, shockkick = mechanics.XXZkick, wavesize = mechanics.XXZaoesize)
+		shockdhp = mechanics.XXZaoestrength, rewardprob = mechanics.XXZrewardprob, shockkick = mechanics.XXZkick, wavesize = mechanics.XXZaoesize,
+		quality = qstrongest)
 
 def thinkY(self, dt):
 	spawnATP(self, atype = thing.ATP1, recharge = mechanics.Yrecharge, kick = mechanics.Ykick)
@@ -170,7 +174,7 @@ def trytoheal(self, tshot, shotrange, dheal):
 def getcolor(self):
 	flavors = "".join(sorted("XYZ"[obj.flavor] for obj in self.slots))
 	if self.disabled:
-		return int(80 + 60 * math.sin(10 * self.disabled)), 0, 0
+		return int(100 + 80 * math.sin(10 * self.disabled)), 0, 0
 	if flavors not in progress.learned:
 		return 30, 30, 30
 	if flavors in ("X", "XX", "XY", "XXX", "XXY", "XYY"):

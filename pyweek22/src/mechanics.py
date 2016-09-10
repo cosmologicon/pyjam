@@ -21,29 +21,29 @@ Zthatch = 20
 
 towerinfo = {
 	# level 1
-	"X": "Weak defensive antibody, good for small enemies\nTargets closest virus to cell",
+	"X": "Weak defensive antibody, good for small enemies\nTarget: closest to cell",
 	# level 2
-	"XX": "Medium-strength defensive antibody\nTargets strongest virus",
+	"XX": "Medium-strength defensive antibody\nTarget: strongest",
 	# level 3
 	"Y": "Generates RNA over time",
-	"XY": "Weak defensive antibody.\nGets more RNA from viruses.\nGenerates RNA over time.\nTargets closest to cell.",
+	"XY": "Weak defensive antibody.\nGets more RNA from viruses.\nGenerates RNA over time.\nTarget: closest to cell.",
 	# level 4
 	"YY": "Auto-collects nearby RNA and DNA.",
-	"XXX": "High-speed weak defensive antibody\nTargets closest to cell.",
-	"XXY": "Long-distance medium defensive antibody",
-	"XYY": "Medium defensive antibody that knocks back viruses",
+	"XXX": "High-speed weak defensive antibody\nTarget: weakest",
+	"XXY": "Long-distance medium defensive antibody\nTarget: closest to cell",
+	"XYY": "Medium defensive antibody that knocks back viruses\nTarget: strongest",
 	# level 5
 	"YYY": "Generates DNA over time.",
 	"Z": "Speeds up recovery of nearby antibodies",
 	# level 6
-	"XZ": "Area-of-effect defensive antibody that damages nearby viruses when it hits",
+	"XZ": "Area-of-effect defensive antibody that damages nearby viruses when it hits\nTarget: closest to self",
 	"YZ": "Rapidly generates DNA over time",
-	"ZZ": "Fires lasers (can hit fast-moving viruses)",
+	"ZZ": "Fires lasers (can hit fast-moving viruses)\nTarget: strongest",
 	# level 7
-	"XXZ": "Mega area-of-effect antibody!",
+	"XXZ": "Mega area-of-effect antibody!\nTarget: strongest",
 	"YYZ": "Mega auto-collect!",
 	# level 8
-	"XZZ": "Mega laser!",
+	"XZZ": "Mega laser!\nTarget: strongest",
 	"YZZ": "Mega recover!\nAll nearby towers instantly heal when infected.",
 	# level 9
 	"XYZ": "Explosive that deals damage to nearby viruses.\nDouble-click to activate!",

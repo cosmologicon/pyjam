@@ -141,17 +141,22 @@ def click(bname):
 		}[control.playspeed]
 	elif bname.endswith("combos"):
 		scene.push(cutscene.Combos())
+	elif "Eject" in bname:
+		state.cell.ejectall()
 	elif bname.endswith("ause"):
 		scene.push(cutscene.ExitToMenu())
 
 def drop():
+	droptos = []
 	for obj in state.buildables:
 		if obj.cantake(control.cursor):
-			for x in control.cursor.slots:
-				obj.add(x)
-				x.container = obj
-				control.cursor.die()
-			break
+			droptos.append(obj)
+	if droptos:
+		obj = min(droptos, key = lambda obj: control.cursor.distanceto((obj.x, obj.y)))
+		for x in control.cursor.slots:
+			obj.add(x)
+			x.container = obj
+			control.cursor.die()
 	else:
 		control.cursor.addtostate()
 	control.cursor = None

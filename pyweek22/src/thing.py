@@ -158,6 +158,16 @@ class RightClickToSplit(Component):
 			t.kick(*util.norm(obj.x - self.x, obj.y - self.y, 20))
 			t.addtostate()
 
+class RightClickToEject(Component):
+	def ejectall(self):
+		for obj in list(self.slots):
+			if obj not in state.mouseables:
+				continue
+			self.remove(obj)
+			t = obj.totower()
+			t.kick(*util.norm(obj.x - self.x, obj.y - self.y, 50))
+			t.addtostate()
+
 class ContainedDraggable(Component):
 	def onmousedown(self):
 		if self.container.disabled:
@@ -340,9 +350,7 @@ class Buildable(Component):
 	def addtostate(self):
 		state.buildables.append(self)
 	def cantake(self, obj):
-		from . import progress
-		maxslots = max(len(formula) for formula in progress.learned)
-		if len(obj.slots) + len(self.slots) > maxslots or self.disabled:
+		if len(obj.slots) + len(self.slots) > self.maxslots() or self.disabled:
 			return False
 		dx, dy = obj.x - self.x, obj.y - self.y
 		r = self.rcollide + obj.rcollide
@@ -611,6 +619,7 @@ class ShocksEnemies(Component):
 @Drawable()
 @DrawBlob()
 @HasSlots()
+@RightClickToEject()
 @Buildable()
 @WorldCollidable()
 class Amoeba(object):
@@ -626,6 +635,11 @@ class Amoeba(object):
 		return None
 	def countflavors(self, n):
 		return sum(isinstance(obj, Organelle) and obj.flavor == n for obj in self.slots)
+	def maxslots(self):
+		from . import progress
+		return progress.nslots
+	def onrdown(self):
+		pass
 
 @Lives()
 @WorldBound()
@@ -660,6 +674,9 @@ class Tower(object):
 		if self.targetcolor is not None and self.color != self.targetcolor:
 			d = int(max(100 * dt, 1))
 			self.color = tuple(math.clamp(y, x - d, x + d) for x, y in zip(self.color, self.targetcolor))
+	def maxslots(self):
+		from . import progress
+		return max(len(formula) for formula in progress.learned)
 
 @Lives()
 @Lifetime()

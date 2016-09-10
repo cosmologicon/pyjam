@@ -69,6 +69,9 @@ def save():
 	util.mkdir(filename)
 	pickle.dump(getprogress(), open(filename, "wb"))
 
+def canload():
+	return os.path.exists(settings.progresspath)
+
 def load():
 	filename = settings.progresspath
 	if not os.path.exists(filename):
