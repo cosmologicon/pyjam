@@ -43,8 +43,9 @@ if "--noeffect" in sys.argv:
 
 
 # Debug settings
+DEBUG = "--debug" in sys.argv
 showbox = False
-showfps = "--showfps" in sys.argv
+showfps = "--showfps" in sys.argv or DEBUG
 reset = "--reset" in sys.argv
 quickstart = "--qstart" in sys.argv
 unlockall = "--unlockall" in sys.argv

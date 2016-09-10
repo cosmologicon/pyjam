@@ -76,14 +76,15 @@ while playing:
 				view.togglefullscreen()
 			if event.key == pygame.K_F12:
 				view.screenshot()
-			if event.key == pygame.K_F2:
-				state.win()
-			if event.key == pygame.K_F3:
-				state.cheat()
-			if event.key == pygame.K_F4:
-				progress.beatone()
-			if event.key == pygame.K_F5:
-				state.lose()
+			if settings.DEBUG:
+				if event.key == pygame.K_F2:
+					state.win()
+				if event.key == pygame.K_F3:
+					state.cheat()
+				if event.key == pygame.K_F4:
+					progress.beatone()
+				if event.key == pygame.K_F5:
+					state.lose()
 
 	if kpressed[pygame.K_F1]:
 		dt *= 10
