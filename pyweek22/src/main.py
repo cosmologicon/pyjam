@@ -72,6 +72,8 @@ while playing:
 				dialog.skip()
 			if event.key == pygame.K_ESCAPE:
 				playing = False
+			if event.key == pygame.K_F5:
+				state.save()
 			if event.key == pygame.K_F11:
 				view.togglefullscreen()
 			if event.key == pygame.K_F12:
@@ -83,7 +85,7 @@ while playing:
 					state.cheat()
 				if event.key == pygame.K_F4:
 					progress.beatone()
-				if event.key == pygame.K_F5:
+				if event.key == pygame.K_F6:
 					state.lose()
 
 	if kpressed[pygame.K_F1]:

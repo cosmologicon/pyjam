@@ -208,6 +208,8 @@ class DrawOrganelle(Component):
 		self.yjitter *= f
 	def draw(self):
 		imgname = "organelle-" + "XYZ"[self.flavor]
+		if settings.acolors:
+			imgname = "a" + imgname
 		img.drawworld(imgname, (self.x + self.xjitter, self.y + self.yjitter), self.r)
 
 class DrawEgg(Component):
@@ -215,6 +217,7 @@ class DrawEgg(Component):
 		self.r = r
 		self.xjitter, self.yjitter = 0, 0
 		self.imgname = "egg"
+		self.twiggle0 = random.uniform(0, 20)
 	def think(self, dt):
 		self.xjitter += 10 * dt * random.uniform(-1, 1)
 		self.yjitter += 10 * dt * random.uniform(-1, 1)
@@ -222,8 +225,9 @@ class DrawEgg(Component):
 		self.xjitter *= f
 		self.yjitter *= f
 	def draw(self):
-		r = (0.8 + 0.4 * math.sin(2.5 * self.t)) * self.r
-		fstretch = math.exp(0.2 * math.sin(3.5 * self.t))
+		t = self.t + self.twiggle0
+		r = (0.9 + 0.2 * math.sin(2.5 * t)) * self.r
+		fstretch = math.exp(0.12 * math.sin(3.5 * t))
 		img.drawworld(self.imgname, (self.x + self.xjitter, self.y + self.yjitter), r, fstretch = fstretch)
 
 class DrawVirus(Component):

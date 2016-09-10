@@ -5,7 +5,7 @@ try:
 	import cPickle as pickle
 except ImportError:
 	import pickle
-import os, os.path, math, random
+import os, os.path, math, random, datetime
 from . import util, progress, settings, level, ptext, mechanics, dialog, sound
 
 drawables = []
@@ -114,7 +114,7 @@ def think(dt):
 		x, y = randomatppos()
 		thing.ATP2(x = x, y = y).addtostate()
 	if settings.autosavetime and tlevel - lastsave > settings.autosavetime:
-		save()
+		save(partial = True)
 		lastsave = tlevel
 
 	if levelname == "endless" and bosses:
@@ -368,11 +368,16 @@ def removeobj(obj):
 	updatealive()
 	obj.alive = temp
 
-def save():
+def save(partial = False):
 	obj = progress.getprogress(), groups, levelname, atp, cell, health, Rlevel, wavespecs, donewaves, twin, tlose, tlevel, lastheal
 	filename = settings.statepath
 	util.mkdir(filename)
 	pickle.dump(obj, open(filename, "wb"))
+	if not partial:
+		timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+		filename = settings.backupstatepath % timestamp
+		util.mkdir(filename)
+		pickle.dump(obj, open(filename, "wb"))
 
 def canload():
 	filename = settings.statepath

@@ -19,6 +19,7 @@ Requirements
 
 	python 2.7+ or 3.3+
 	pygame 1.9+
+	numpy
 
 To install the requirements on Ubuntu:
 
@@ -50,6 +51,7 @@ Keyboard commands:
 	Tab: skip dialog conversation
 	1/2: zoom
 	Ctrl-click: acts as right-click
+	F5: save game (not generally necessary: game is saved automatically)
 
 Command-line arguments
 ----------------------
@@ -57,6 +59,7 @@ Command-line arguments
     --fullscreen : start in fullscreen mode
     --res=### : set the verical resolution (defaults to 480), e.g. --res=640
     --big : equivalent to --res=960
+    --acolors : use high-contrast color scheme for organelles
     --loweffect : disable some special effects for a better framerate
     --noeffect : disable all special effects for best framerate
-    --reset : delete save game
+    --reset : delete save game and start over

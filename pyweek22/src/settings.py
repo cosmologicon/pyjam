@@ -7,7 +7,9 @@ maxfps = 240
 screenshotpath = "screenshots"
 progresspath = "save/progress.pkl"  # Updated when you beat a level or unlock anything.
 statepath = "save/quicksave.pkl"  # Updated at autosave time or when you quit the game.
+backupstatepath = "save/quicksave-%s.pkl"  # Timestamped copy of the save state when you quit or press F5.
 fullscreen = False
+acolors = "--acolors" in sys.argv  # Whether to use the alternate, high-contrast color scheme for organelles
 
 if "--fullscreen" in sys.argv:
 	fullscreen = True

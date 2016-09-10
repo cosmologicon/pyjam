@@ -1,5 +1,5 @@
 import pygame
-from . import view, ptext, img, state, mechanics, progress
+from . import view, ptext, img, state, mechanics, progress, settings
 from .util import F
 
 cursor = None
@@ -19,7 +19,10 @@ class Button(object):
 		if self.name.startswith("Grow"):
 			text, flavor = self.name.split()
 			pygame.draw.circle(view.screen, (0, 0, 0), rect.center, int(rect.width / 1.7))
-			img.draw("organelle-" + flavor, rect.center, radius = int(rect.width / 1.8))
+			imgname = "organelle-" + flavor
+			if settings.acolors:
+				imgname = "a" + imgname
+			img.draw(imgname, rect.center, radius = int(rect.width / 1.8))
 			color = "white" if state.canbuy(flavor) else "#444444"
 			ptext.draw(text, color = color, shadow = (1, 1), scolor = "black",
 				fontsize = F(30), center = rect.center, fontname = "SansitaOne")
@@ -89,7 +92,10 @@ class TowerInfo(object):
 			for j, f in enumerate(reversed(flavor)):
 				p = F(820 - 30 * j, 50)
 				pygame.draw.circle(view.screen, (0, 0, 0), p, F(20))
-				img.draw("organelle-" + f, p, radius = F(18))
+				imgname = "organelle-" + f
+				if settings.acolors:
+					imgname = "a" + imgname
+				img.draw(imgname, p, radius = F(18))
 			if self.current.disabled:
 				ptext.draw("INFECTED", center = F(760, 50), angle = 10, color = "#FF7F7F",
 					owidth = 1, fontsize = F(26), fontname = "PatrickHand")

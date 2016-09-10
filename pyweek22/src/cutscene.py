@@ -1,6 +1,6 @@
 from __future__ import division
 import math, pygame
-from . import ptext, view, scene, state, progress, img, mechanics, level, sound, dialog
+from . import ptext, view, scene, state, progress, img, mechanics, level, sound, dialog, settings
 from .util import F
 
 class Cutscene(object):
@@ -129,7 +129,10 @@ class Combos(object):
 			for j, f in enumerate(reversed(flavor)):
 				p = F(x0 - 20 * j, y0)
 				pygame.draw.circle(view.screen, (0, 0, 0), p, F(12))
-				img.draw("organelle-" + f, p, radius = F(10))
+				imgname = "organelle-" + f
+				if settings.acolors:
+					imgname = "a" + imgname
+				img.draw(imgname, p, radius = F(10))
 			if level.whenlearned(flavor) == progress.chosen:
 				ptext.draw("NEW!", bottomright = F(x0 + 10, y0 - 10), fontsize = F(15),
 					color = "white", shadow = (1, 1))
