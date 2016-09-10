@@ -20,9 +20,9 @@ Zthatch = 20
 ## TOWERS
 
 towerinfo = {
-	"X": "Basic defensive antibody",
+	"X": "Weak defensive antibody, good for small enemies\nTargets closest virus to cell",
 	"Y": "Generates RNA over time",
-	"XX": "Medium-strength defensive antibody",
+	"XX": "Medium-strength defensive antibody\nTargets strongest virus",
 	"XY": "Medium-strength defensive antibody\n2x chance of collecting RNA from viruses.",
 	"YY": "Generates DNA over time.",
 	"XXX": "High-speed defensive antibody",
@@ -47,7 +47,7 @@ Xkick = 0  # How far back an enemy gets kicked when hit by this tower
 
 XXrecharge = 4
 XXrange = 50
-XXstrength = 3
+XXstrength = 10
 XXrewardprob = 0.2, 0
 XXkick = 20
 
@@ -122,7 +122,7 @@ antspeed = 10
 antdamage = 1
 antsize = 6
 
-Lanthp = 10
+Lanthp = 20
 Lantspeed = 5
 Lantdamage = 10
 Lantcarried = 5

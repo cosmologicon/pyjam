@@ -76,7 +76,7 @@ def draw():
 			x = F(x0 + fr * 15 * math.sin(theta))
 			y = F(y0 + fr * 15 * math.cos(theta))
 			hillspec.append((x, y, F(15), 0.5))
-		blob.drawcell(view.screen, hillspec, color = (100, 100, 0))
+		blob.drawcell(view.screen, hillspec, color = (160, 200, 0))
 
 
 	for j, (jlevel, (a, px, py)) in enumerate(sorted(level.layout.items(), key = str)):

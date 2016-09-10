@@ -35,13 +35,18 @@ def onclick(self):
 		else:
 			self.lastclick = self.t
 
+def qfrontmost(obj):
+	return -state.cell.distanceto((obj.x, obj.y))
 
+def qstrongest(obj):
+	return obj.hp
 
 def thinkX(self, dt):
-	trytoshoot(self, tshot = mechanics.Xrecharge, shotrange = mechanics.Xrange, dhp = mechanics.Xstrength, rewardprob = mechanics.Xrewardprob, kick = mechanics.Xkick)
+	trytoshoot(self, tshot = mechanics.Xrecharge, shotrange = mechanics.Xrange, dhp = mechanics.Xstrength, rewardprob = mechanics.Xrewardprob, kick = mechanics.Xkick, quality = qfrontmost)
 
 def thinkXX(self, dt):
-	trytoshoot(self, tshot = mechanics.XXrecharge, shotrange = mechanics.XXrange, dhp = mechanics.XXstrength, rewardprob = mechanics.XXrewardprob, kick = mechanics.XXkick)
+	trytoshoot(self, tshot = mechanics.XXrecharge, shotrange = mechanics.XXrange, dhp = mechanics.XXstrength, rewardprob = mechanics.XXrewardprob,
+		kick = mechanics.XXkick, quality = qstrongest)
 
 def thinkXY(self, dt):
 	trytoshoot(self, tshot = mechanics.XYrecharge, shotrange = mechanics.XYrange, dhp = mechanics.XYstrength, rewardprob = mechanics.XYrewardprob, kick = mechanics.XYkick)
@@ -95,17 +100,17 @@ def gettarget(self, objs, rmax, quality = None):
 	else:
 		return min(canhit, key = lambda obj: math.sqrt((obj.x - self.x) ** 2 + (obj.y - self.y) ** 2) - obj.rcollide)
 
-def trytoshoot(self, tshot, shotrange, dhp, rewardprob, kick):
+def trytoshoot(self, tshot, shotrange, dhp, rewardprob, kick, quality = None):
 	if self.lastshot + tshot < self.t:
-		toshoot = gettarget(self, state.shootables, shotrange)
+		toshoot = gettarget(self, state.shootables, shotrange, quality = quality)
 		if toshoot:
 			thing.Bullet(self, target = toshoot, x = self.x, y = self.y,
 				dhp = dhp, rewardprob = rewardprob, kick = kick).addtostate()
 			self.lastshot = self.t
 
-def trytoshootexploding(self, tshot, shotrange, dhp, shockdhp, rewardprob, shockkick, wavesize):
+def trytoshootexploding(self, tshot, shotrange, dhp, shockdhp, rewardprob, shockkick, wavesize, quality = None):
 	if self.lastshot + tshot < self.t:
-		toshoot = gettarget(self, state.shootables, shotrange)
+		toshoot = gettarget(self, state.shootables, shotrange, quality = quality)
 		if toshoot:
 			thing.ExplodingBullet(self, target = toshoot, x = self.x, y = self.y,
 				dhp = dhp, shockdhp = shockdhp, rewardprob = rewardprob, shockkick = shockkick,

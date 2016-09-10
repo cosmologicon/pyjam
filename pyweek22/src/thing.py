@@ -583,7 +583,7 @@ class ShocksEnemies(Component):
 class Amoeba(object):
 	def __init__(self, **kw):
 		self.setstate(
-			rcollide = 20, mass = 10000,
+			rcollide = 20, mass = 10000000,
 			rblob = 20,
 			nblob = 18,
 			color = (0, 100, 100),
@@ -840,7 +840,7 @@ class Wasp(object):
 			hp = mechanics.wasphp,
 			spawntime = mechanics.waspspawntime,
 			rpath = 160, drpath = 80, vpath = mechanics.waspspeed,
-			rcollide = 25, mass = 10000,
+			rcollide = 25, mass = 10000000,
 			stages = mechanics.waspstages,
 			rstages = mechanics.waspsizes,
 			r = 25,
