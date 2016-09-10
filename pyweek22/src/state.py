@@ -32,7 +32,7 @@ def reset(lname):
 	donewaves = []
 	atp = list(leveldata.get("atp", [0, 0]))
 	pos = leveldata["cellpos"]
-	cell = thing.Amoeba(x = pos[0], y = pos[1])
+	cell = thing.Amoeba(x = pos[0], y = pos[1], nslot = progress.nslots)
 	cell.addtostate()
 	Rlevel = leveldata["Rlevel"]
 	health = leveldata["health"]
@@ -143,6 +143,10 @@ def addetype(etype, x, y):
 		bee = thing.LargeBee(x = x, y = y)
 		bee.target = cell
 		bee.addtostate()
+	if etype == "flea":
+		flea = thing.Flea(x = x, y = y)
+		flea.target = cell
+		flea.addtostate()
 
 def addendlesswave():
 	jwave = len(donewaves)

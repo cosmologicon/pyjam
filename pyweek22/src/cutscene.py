@@ -111,7 +111,7 @@ class Combos(object):
 		from . import playscene
 		playscene.draw()
 
-		view.drawoverlay(0.92 * self.fade)
+		view.drawoverlay(0.96 * self.fade)
 
 		if self.fade < 1:
 			return		
@@ -126,6 +126,9 @@ class Combos(object):
 			text = mechanics.towerinfo.get(flavor, flavor)
 			ptext.draw(text, midleft = F(x0 + 20, y0), fontsize = F(17),
 				color = "yellow", shadow = (1, 1), width = F(180))
+		ptext.draw("Organelle slots unlocked: %d" % progress.nslots,
+			bottomright = F(840, 465), fontsize = F(22),
+			color = "yellow", shadow = (1, 1))
 
 	def abort(self):
 		state.save()

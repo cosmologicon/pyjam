@@ -10,8 +10,8 @@ Xcost1 = 5
 Xcost2 = 0
 Ycost1 = 5
 Ycost2 = 0
-Zcost1 = 20
-Zcost2 = 5
+Zcost1 = 10
+Zcost2 = 3
 
 Xthatch = 8
 Ythatch = 12
@@ -20,19 +20,26 @@ Zthatch = 20
 ## TOWERS
 
 towerinfo = {
+	# level 1
 	"X": "Weak defensive antibody, good for small enemies\nTargets closest virus to cell",
-	"Y": "Generates RNA over time",
+	# level 2
 	"XX": "Medium-strength defensive antibody\nTargets strongest virus",
-	"XY": "Medium-strength defensive antibody\n2x chance of collecting RNA from viruses.",
-	"YY": "Generates DNA over time.",
-	"XXX": "High-speed defensive antibody",
+	# level 3
+	"Y": "Generates RNA over time",
+	"XY": "Weak defensive antibody\n4x chance of collecting RNA from viruses.\nTargets closest to cell",
+	# level 4
+	"XXX": "High-speed weak defensive antibody\nTargets closest to cell.",
+	"XXY": "Long-distance medium defensive antibody",
+	"XYY": "Medium defensive antibody that knocks back viruses",
+	# level 5
+	"YYY": "Generates DNA over time.",
 	"Z": "Speeds up recovery of nearby antibodies",
+
+
+
 #	"ZZ": "Very rapid recovery for nearby antibodies",
 	"XZ": "Defensive antibody that damages nearby viruses when it hits",
 	"YZ": "Generates DNA over time",
-	"XXX": "Rapid-fire defensive antibody",
-	"XXY": "Long-distance defensive antibody",
-	"XYY": "Defensive antibody that knocks back viruses",
 	"XYZ": "Explosive that deals damage to nearby viruses.\nDouble-click to activate!",
 	"ZZZ": "Explosive that deals massive damage to nearby viruses.\nDouble-click to activate!",
 }
@@ -51,22 +58,22 @@ XXstrength = 10
 XXrewardprob = 0.2, 0
 XXkick = 20
 
-XYrecharge = 5
+XYrecharge = 1.5
 XYrange = 40
 XYstrength = 1
-XYrewardprob = 0.4, 0
+XYrewardprob = 0.8, 0
 XYkick = 20
 
-XXXrecharge = 0.5
+XXXrecharge = 0.2
 XXXrange = 40
 XXXstrength = 1
 XXXrewardprob = 0.2, 0
 XXXkick = 20
 
 XXYrecharge = 5
-XXYrange = 150
-XXYstrength = 5
-XXYrewardprob = 0.1, 0
+XXYrange = 200
+XXYstrength = 10
+XXYrewardprob = 0.2, 0
 XXYkick = 20
 
 XYYrecharge = 2
@@ -90,8 +97,8 @@ XZkick = 40
 Yrecharge = 6  # ATP generation recharge time in seconds
 Ykick = 40  # Approximate distance than the ATP is kicked out by the tower when generated
 
-YYrecharge = 15
-YYkick = 40
+YYYrecharge = 15
+YYYkick = 40
 
 YZrecharge = 5
 YZkick = 40
@@ -128,7 +135,7 @@ Lantdamage = 10
 Lantcarried = 5
 Lantsize = 12
 
-beehp = 4
+beehp = 2
 beespeed = 10
 beedamage = 2
 beesize = 6
@@ -141,11 +148,13 @@ Lbeecarried = 3
 Lbeesize = 12
 
 
-wasphp = 40
+wasphp = 200
 waspspeed = 25
 waspspawntime = 6
-waspstages = 10, 0
+waspstages = 50, 0
 waspsizes = 16, 10
 
-
+fleahp = 30
+fleatkick = 8
+fleadamage = 10
 

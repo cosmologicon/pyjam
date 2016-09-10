@@ -386,6 +386,18 @@ class TargetsThing(Component):
 			if arrived:
 				self.arrive()
 
+class KicksToTarget(Component):
+	def setstate(self, tkick, **kw):
+		self.tkick = tkick
+		self.kicktimer = random.uniform(0.8, 1.2) * self.tkick
+	def think(self, dt):
+		self.kicktimer -= dt
+		if self.kicktimer <= 0:
+			dx = self.target.x - self.x + random.uniform(-30, 30)
+			dy = self.target.y - self.y + random.uniform(-30, 30)
+			self.kick(*util.norm(dx, dy, 100))
+			self.kicktimer = random.uniform(0.8, 1.2) * self.tkick
+
 class HurtsTarget(Component):
 	def setstate(self, dhp, rewardprob = (0, 0), **kw):
 		self.dhp = dhp
@@ -775,6 +787,31 @@ class Bee(object):
 			tdisable = mechanics.beetdisable,
 			imgname = "virusB",
 			**kw)
+
+@Lives()
+@WorldBound()
+@Drawable()
+@Kickable()
+@TargetsThing()
+@KicksToTarget()
+@DiesOnArrival()
+@HarmsOnArrival()
+@InfiltratesOnArrival()
+@Shootable()
+@DrawVirus()
+@LeavesCorpse()
+@WorldCollidable()
+class Flea(object):
+	def __init__(self, **kw):
+		self.setstate(
+			hp = mechanics.fleahp,
+			damage = mechanics.fleadamage,
+			speed = 0, tkick = mechanics.fleatkick,
+			rcollide = 9, mass = 50,
+			r = 9, color = (255, 255, 0),
+			imgname = "virusC",
+			**kw)
+
 
 @Lives()
 @WorldBound()

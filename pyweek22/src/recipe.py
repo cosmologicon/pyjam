@@ -57,6 +57,9 @@ def thinkXXX(self, dt):
 def thinkXXY(self, dt):
 	trytoshoot(self, tshot = mechanics.XXYrecharge, shotrange = mechanics.XXYrange, dhp = mechanics.XXYstrength, rewardprob = mechanics.XXYrewardprob, kick = mechanics.XXYkick)
 
+def thinkXYY(self, dt):
+	trytoshoot(self, tshot = mechanics.XYYrecharge, shotrange = mechanics.XYYrange, dhp = mechanics.XYYstrength, rewardprob = mechanics.XYYrewardprob, kick = mechanics.XYYkick)
+
 def thinkXZ(self, dt):
 	trytoshootexploding(self, tshot = mechanics.XZrecharge, shotrange = mechanics.XZrange, dhp = mechanics.XZstrength,
 		shockdhp = mechanics.XZaoestrength, rewardprob = mechanics.XZrewardprob, shockkick = mechanics.XZkick, wavesize = mechanics.XZaoesize)
@@ -64,8 +67,8 @@ def thinkXZ(self, dt):
 def thinkY(self, dt):
 	spawnATP(self, atype = thing.ATP1, recharge = mechanics.Yrecharge, kick = mechanics.Ykick)
 
-def thinkYY(self, dt):
-	spawnATP(self, atype = thing.ATP2, recharge = mechanics.YYrecharge, kick = mechanics.YYkick)
+def thinkYYY(self, dt):
+	spawnATP(self, atype = thing.ATP2, recharge = mechanics.YYYrecharge, kick = mechanics.YYYkick)
 
 def thinkYZ(self, dt):
 	spawnATP(self, atype = thing.ATP2, recharge = mechanics.YZrecharge, kick = mechanics.YZkick)

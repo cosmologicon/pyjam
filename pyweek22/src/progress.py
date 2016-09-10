@@ -13,12 +13,14 @@ unlocked = set([1])
 learned = set(["X"])
 heard = set()  # dialogs heard
 chosen = 1  # most recent level selected on menu
+nslots = 3
 
 if settings.quickstart or settings.unlockall:
 	for l in level.layout:
 		unlocked.add(l)
 	for learn in mechanics.towerinfo:
 		learned.add(learn)
+	nslots = 8
 
 def complete(lev):
 	completed.add(lev)
@@ -37,11 +39,11 @@ def setchosen(lev):
 	save()
 
 def getprogress():
-	return completed, unlocked, heard, chosen, learned
+	return completed, unlocked, heard, chosen, learned, nslots
 
 def setprogress(obj):
-	global completed, unlocked, heard, chosen, learned
-	completed, unlocked, heard, chosen, learned = obj
+	global completed, unlocked, heard, chosen, learned, nslots
+	completed, unlocked, heard, chosen, learned, nslots = obj
 
 def save():
 	filename = settings.progresspath
