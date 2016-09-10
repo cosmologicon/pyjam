@@ -11,6 +11,7 @@ fullscreen = False
 
 autosavetime = 10  # seconds between autosaves. Set to 0 to disable.
 
+grabfactor = 1.3
 
 # Effects options
 cellshading = 1

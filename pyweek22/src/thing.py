@@ -106,9 +106,9 @@ class Mouseable(Component):
 		state.mouseables.append(self)
 	def setstate(self, rmouse = 5, **kw):
 		self.rmouse = rmouse
-	def within(self, pos):
+	def within(self, pos, rfactor = 1):
 		x, y = pos
-		return (x - self.x) ** 2 + (y - self.y) ** 2 < self.rmouse ** 2
+		return (x - self.x) ** 2 + (y - self.y) ** 2 < (self.rmouse * rfactor) ** 2
 	def onhover(self):
 		pass
 	def ondrag(self, pos):
@@ -175,6 +175,8 @@ class ContainedDraggable(Component):
 			sound.playsfx("blobup")
 	def onclick(self):
 		self.container.onclick()
+	def onrdown(self):
+		self.container.onrdown()
 
 class DrawCircle(Component):
 	def setstate(self, r = 10, color = (100, 0, 0), **kw):

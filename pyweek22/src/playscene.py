@@ -1,5 +1,5 @@
 import random, math
-from . import ptext, state, thing, view, control, bounce, quest, dialog, background, progress, sound, img
+from . import ptext, state, thing, view, control, bounce, quest, dialog, background, progress, sound, img, settings
 from . import scene, cutscene
 from .util import F
 
@@ -91,7 +91,7 @@ def nodragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick):
 	gpos = view.gamepos(mpos)
 	toclick = None
 	for obj in state.mouseables:
-		if obj.within(gpos):
+		if obj.within(gpos, rfactor = settings.grabfactor):
 			obj.onhover()
 			if toclick is None or obj.distanceto(gpos) < toclick.distanceto(gpos):
 				toclick = obj
