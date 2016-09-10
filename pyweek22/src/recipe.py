@@ -1,5 +1,5 @@
 import random, math
-from . import state, thing, progress, mechanics
+from . import state, thing, progress, mechanics, sound
 
 def reset(self):
 	self.lastshot = self.t
@@ -26,12 +26,14 @@ def onclick(self):
 		if self.lastclick is not None and self.t - self.lastclick < mechanics.tdoubleclick:
 			self.die()
 			thing.Shockwave(x = self.x, y = self.y, dhp = mechanics.XYZstrength, wavesize = mechanics.XYZwavesize).addtostate()
+			sound.playsfx("boom")
 		else:
 			self.lastclick = self.t
 	if flavors == "ZZZ":
 		if self.lastclick is not None and self.t - self.lastclick < mechanics.tdoubleclick:
 			self.die()
 			thing.Shockwave(x = self.x, y = self.y, dhp = mechanics.ZZZstrength, wavesize = mechanics.ZZZwavesize).addtostate()
+			sound.playsfx("boom")
 		else:
 			self.lastclick = self.t
 
@@ -136,6 +138,7 @@ def trytoshoot(self, tshot, shotrange, dhp, rewardprob, kick, quality = None):
 			thing.Bullet(self, target = toshoot, x = self.x, y = self.y,
 				dhp = dhp, rewardprob = rewardprob, kick = kick).addtostate()
 			self.lastshot = self.t
+			sound.playsfx("laser")
 
 def trytoshootexploding(self, tshot, shotrange, dhp, shockdhp, rewardprob, shockkick, wavesize, quality = None):
 	if self.lastshot + tshot < self.t:
@@ -145,6 +148,7 @@ def trytoshootexploding(self, tshot, shotrange, dhp, shockdhp, rewardprob, shock
 				dhp = dhp, shockdhp = shockdhp, rewardprob = rewardprob, shockkick = shockkick,
 				wavesize = wavesize).addtostate()
 			self.lastshot = self.t
+			sound.playsfx("laser")
 
 def trytolaser(self, tshot, shotrange, dhp, quality = None):
 	if self.lastshot + tshot < self.t:

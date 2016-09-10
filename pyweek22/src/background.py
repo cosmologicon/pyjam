@@ -11,7 +11,7 @@ def init():
 		random.uniform(-10, 10),
 		random.uniform(2, 4),
 		random.choice([20, 30, 40, 50]),
-	) for _ in range(200)]
+	) for _ in range(1000)]
 
 
 def draw():

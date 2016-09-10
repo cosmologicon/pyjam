@@ -16,28 +16,33 @@ def init():
 	state.choosemusic()
 
 def think(dt, mpos, mdown, mup, mwheel, rdown, mclick):
+	n = control.playspeed
+	if n < 1 or n != int(n):
+		n, dt = 1, dt * n
 	control.towerinfo.target = None
 	if control.cursor:
-		dragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick)
+		dragthink(n * dt, mpos, mdown, mup, mwheel, rdown, mclick)
 	elif control.dragpos:
-		pdragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick)
+		pdragthink(n * dt, mpos, mdown, mup, mwheel, rdown, mclick)
 	else:
-		nodragthink(dt, mpos, mdown, mup, mwheel, rdown, mclick)
+		nodragthink(n * dt, mpos, mdown, mup, mwheel, rdown, mclick)
 
 	if mwheel:
 		view.zoom(mwheel)
 
-	for obj in state.thinkers:
-		obj.think(dt)
+	for _ in range(n):
+		for obj in state.thinkers:
+			obj.think(dt)
 
-	bounce.adjust(state.colliders, dt)
-	for obj in state.buildables:
-		obj.constraintoworld()
-	dialog.currenttip = None
-	state.think(dt)
-	quest.think(dt)
-	dialog.think(dt)
-	control.towerinfo.think(dt)
+		bounce.adjust(state.colliders, dt)
+		for obj in state.buildables:
+			obj.constraintoworld()
+		dialog.currenttip = None
+		state.think(dt)
+		quest.think(dt)
+		dialog.think(dt)
+		control.towerinfo.think(dt)
+
 	if state.twin > 2 and not state.tlose:
 		progress.complete(progress.chosen)
 		if progress.chosen == 9:
@@ -126,6 +131,14 @@ def click(bname):
 		egg = thing.Egg(container = state.cell, flavor = "XYZ".index(flavor))
 		state.cell.add(egg)
 		egg.addtostate()
+	elif bname == "speed":
+		control.playspeed = {
+			0.5: 1,
+			1: 1.5,
+			1.5: 2,
+			2: 3,
+			3: 0.5,
+		}[control.playspeed]
 	elif bname.endswith("combos"):
 		scene.push(cutscene.Combos())
 	elif bname.endswith("ause"):
@@ -145,7 +158,12 @@ def drop():
 	sound.playsfx("blobdown")
 
 def draw():
-	view.clear(color = (0, 50, 50))
+	culturecolor = 0, 50, 50
+	if state.levelname in (2, 5, 8):
+		culturecolor = 30, 50, 10
+	elif state.levelname in (3, 6, 9):
+		culturecolor = 50, 20, 20
+	view.clear(color = culturecolor)
 	state.drawwaves()
 	for obj in state.drawables:
 		obj.draw()

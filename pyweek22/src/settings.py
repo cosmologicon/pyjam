@@ -15,7 +15,7 @@ grabfactor = 1.3
 
 # Effects options
 cellshading = 1
-background = 1
+background = 0.2
 virusbounce = True
 drawblob = True
 n2collision = False

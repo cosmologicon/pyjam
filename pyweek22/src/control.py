@@ -4,6 +4,7 @@ from .util import F
 
 cursor = None
 buttons = []
+playspeed = 1
 
 done = set()  # For instruction quest
 
@@ -22,6 +23,11 @@ class Button(object):
 			color = "white" if state.canbuy(flavor) else "#444444"
 			ptext.draw(text, color = color, shadow = (1, 1), scolor = "black",
 				fontsize = F(30), center = rect.center, fontname = "SansitaOne")
+		elif self.name == "speed":
+			view.screen.fill((120, 60, 0), rect)
+			view.screen.fill((60, 30, 0), rect.inflate(F(-8), F(-8)))
+			ptext.draw("%sx" % playspeed, color = "white", shadow = (1, 1), scolor = "black",
+				fontsize = F(28), center = rect.center, fontname = "SansitaOne", lineheight = 0.7)
 		else:
 			view.screen.fill((120, 60, 0), rect)
 			view.screen.fill((60, 30, 0), rect.inflate(F(-8), F(-8)))
@@ -97,7 +103,8 @@ def reset():
 	global buttons
 	
 	buttons = [
-		Button((754, 380, 80, 80), "Pause")
+		Button((754, 380, 80, 80), "Pause"),
+		Button((754, 290, 80, 80), "speed"),
 	]
 	if len(progress.learned) > 1:
 		buttons.append(Button((120, 26, 80, 80), "See\ncombos"))

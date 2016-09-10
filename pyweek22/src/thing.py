@@ -132,6 +132,7 @@ class Shootable(Component):
 			return
 		self.hp -= dhp
 		if self.hp <= 0:
+			sound.playsfx("die")
 			self.die()
 			p1, p2 = rewardprob
 			if random.random() < p2:
@@ -303,6 +304,7 @@ class Hatches(Component):
 	def die(self):
 		if self not in self.container.slots:
 			return
+		sound.playsfx("hatch")
 		organelle = Organelle(flavor = self.flavor, container = self.container, x = self.x, y = self.y)
 		self.container.remove(self)
 		self.container.add(organelle)
@@ -544,10 +546,12 @@ class CirclesArena(Component):
 class GetsATP1(Component):
 	def arrive(self):
 		state.atp[0] += 1
+		sound.playsfx("get")
 
 class GetsATP2(Component):
 	def arrive(self):
 		state.atp[1] += 1
+		sound.playsfx("get")
 
 class FollowsRecipe(Component):
 	def add(self, obj):

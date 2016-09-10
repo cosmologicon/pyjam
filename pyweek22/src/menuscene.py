@@ -7,7 +7,7 @@ message = None
 tmessage = 0
 
 def init():
-	global levels, pointed, blobspecs, message, tmessage
+	global levels, pointed, blobspecs, message, tmessage, fading, fade
 	pointed = None
 	blobspecs = dict((lname, [(
 		random.uniform(0, math.tau),
@@ -26,6 +26,8 @@ def init():
 		random.uniform(0.6, 1) * random.choice([-1, 1]),
 		random.uniform(0.2, 1.2),
 	) for j in range(30)]
+	fading = True
+	fade = 0
 
 def setmessage(m):
 	global message, tmessage
@@ -38,7 +40,7 @@ def clearmessage():
 	message = None
 
 def think(dt, mpos, mdown, mup, *args):
-	global pointed, tmessage
+	global pointed, tmessage, fade, fading
 	mx, my = mpos
 	for jlevel, (r, x, y) in level.layout.items():
 		if jlevel not in progress.unlocked:
@@ -51,10 +53,18 @@ def think(dt, mpos, mdown, mup, *args):
 		pointed = None
 	if pointed is not None and mdown:
 		progress.setchosen(pointed)
-		scene.pop()
-		scene.push(playscene)
-		scene.push(cutscene.Start())
+		fading = False
+	if fading:
+		fade = math.clamp(fade + 1.5 * dt, 0, 1)
+	else:
+		fade = math.clamp(fade - 1.5 * dt, 0, 1)
+		if fade == 0:
+			scene.pop()
+			scene.push(playscene)
+			scene.push(cutscene.Start())
 	if tmessage:
+		if tmessage == 5:
+			sound.playsfx("3up")
 		tmessage = max(0, tmessage - dt)
 
 def draw():
@@ -118,6 +128,8 @@ def draw():
 		alpha = min(tmessage * 2, 1)
 		ptext.draw(message, fontsize = F(45), center = F(854 / 2, 200), width = F(600),
 			color = "#FF7F7F", owidth = 1, alpha = alpha, fontname = "PassionOne")
+	if fade < 1:
+		view.drawoverlay(1 - fade)
 
 def abort():
 	pass
