@@ -168,7 +168,10 @@ class Final(object):
 		else:
 			self.fade = math.clamp(self.fade - dt / self.tfade, 0, 1)
 		if self.fade <= self.fadeend and not self.fading:
+			from . import menuscene
+			menuscene.setmessage("Thank you for playing!")
 			scene.pop()
+			scene.push(menuscene)
 		dialog.think(dt)
 		if self.t > 1 and dialog.tquiet > 1:
 			self.fading = False
@@ -183,5 +186,36 @@ class Final(object):
 	def abort(self):
 		state.save()
 
+
+class ExitToMenu(object):
+	def init(self):
+		from . import control
+		self.buttons = [
+			control.Button((854/2 - 80, 100, 160, 80), "Exit to menu"),
+			control.Button((854/2 - 80, 200, 160, 80), "Back to game"),
+		]
+
+	def think(self, dt, mpos, mdown, *args):
+		if mdown:
+			for button in self.buttons:
+				if button.within(mpos):
+					if button.name == "Exit to menu":
+						from . import menuscene
+						scene.pop()
+						scene.pop()
+						scene.push(menuscene)
+						state.removesave()
+					if button.name == "Back to game":
+						scene.pop()
+
+	def draw(self):
+		from . import playscene
+		playscene.draw()
+		view.drawoverlay(0.94, color = (40, 40, 40))
+		for button in self.buttons:
+			button.draw()
+
+	def abort(self):
+		state.save()
 
 

@@ -9,9 +9,12 @@ progresspath = "save/progress.pkl"
 statepath = "save/quicksave.pkl"
 fullscreen = False
 
+autosavetime = 10  # seconds between autosaves. Set to 0 to disable.
+
+
 # Effects options
 cellshading = 1
-background = 0.2
+background = 1
 
 # Debug settings
 showbox = False

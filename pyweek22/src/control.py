@@ -69,6 +69,8 @@ class TowerInfo(object):
 			ptext.draw("Click to view available organelle combinations",
 				topright = F(842, 16), fontsize = F(28), width = F(140),
 				color = "orange", shadow = (1, 1), alpha = self.alpha)
+		elif isinstance(self.current, Button):
+			pass
 		else:
 			flavor = self.current.flavors()
 			for j, f in enumerate(reversed(flavor)):

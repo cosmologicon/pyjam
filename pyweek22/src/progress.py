@@ -56,7 +56,6 @@ def setprogress(obj):
 	from . import quest
 	global completed, unlocked, heard, chosen, learned, nslots
 	completed, unlocked, heard, chosen, learned, nslots, quest.quests = obj
-	print heard
 
 def save():
 	filename = settings.progresspath

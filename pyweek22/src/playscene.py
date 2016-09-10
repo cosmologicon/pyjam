@@ -10,6 +10,7 @@ def init():
 	control.dragpos = None
 	control.tdrag = 0
 	control.buttons = [
+		control.Button((754, 380, 80, 80), "Pause")
 	]
 	if len(progress.learned) > 1:
 		control.buttons.append(control.Button((120, 26, 80, 80), "See\ncombos"))
@@ -140,6 +141,8 @@ def click(bname):
 		egg.addtostate()
 	elif bname.endswith("combos"):
 		scene.push(cutscene.Combos())
+	elif bname.endswith("ause"):
+		scene.push(cutscene.ExitToMenu())
 
 def drop():
 	for obj in state.buildables:

@@ -20,10 +20,11 @@ groups = drawables, colliders, mouseables, thinkers, buildables, shootables, bos
 
 def reset(lname):
 	from .import thing
-	global levelname, tlevel, wavespecs, donewaves, atp, cell, health, Rlevel, twin, tlose
+	global levelname, tlevel, wavespecs, donewaves, atp, cell, health, Rlevel, twin, tlose, lastsave
 	levelname = lname
 	tlevel = 0
 	twin = tlose = 0
+	lastsave = 0
 	leveldata = level.data[levelname]
 	for group in groups:
 		del group[:]
@@ -65,7 +66,7 @@ def updatealive():
 		group[:] = [m for m in group if m.alive]
 
 def think(dt):
-	global tlevel, twin, tlose, health
+	global tlevel, twin, tlose, health, lastsave
 	from . import thing
 	if dialog.quiet():
 		if any(tlevel <= wave[0] - n < tlevel + dt for n in (0, 1, 2) for wave in wavespecs):
@@ -94,6 +95,9 @@ def think(dt):
 	if random.random() < autoatp[1] * dt:
 		x, y = randomatppos()
 		thing.ATP2(x = x, y = y).addtostate()
+	if settings.autosavetime and tlevel - lastsave > settings.autosavetime:
+		save()
+		lastsave = tlevel
 
 def randomatppos():
 	x = random.uniform(-Rlevel, Rlevel)
