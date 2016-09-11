@@ -12,15 +12,25 @@ Z = math.exp(0.5 * z)
 def init():
 	global screen, blobscreen, sx, sy
 	pygame.display.set_caption(settings.gamename)
-	sx, sy = settings.wsize
+	sy = settings.wsize
 	flags = 0
+	def getsx(sy):
+		return (int(round(sy * 16 / 9)) + 1) // 2 * 2
 	if settings.fullscreen:
-		sx0, sy0 = max(pygame.display.list_modes())
-		if sx0 * sy > sy0 * sx:
-			sx, sy = int(round(sy0 * sx / sy)), sy0
+		if sy is None:
+			sx0, sy0 = max(pygame.display.list_modes())
+			if sx0 * 9 > sy0 * 16:
+				sx, sy = getsx(sy0), sy0
+			else:
+				sx, sy = sx0, int(round(sx0 * 9 / 16))
 		else:
-			sx, sy = sx0, int(round(sx0 * sy / sx))
+			sx = getsx(sy)
 		flags = flags or pygame.FULLSCREEN
+	else:
+		if sy is None:
+			sx, sy = 854, 480
+		else:
+			sx = getsx(sy)
 	util.f = sy / 480
 	screen = pygame.display.set_mode((sx, sy), flags)
 

@@ -1,7 +1,7 @@
 import sys
 
 gamename = "Dr. Zome's Laboratory"
-wsize = 854, 480
+wsize = None  # will default to 480 in window mode and max available in fullscreen
 minfps = 5
 maxfps = 240
 screenshotpath = "screenshots"
@@ -15,11 +15,9 @@ if "--fullscreen" in sys.argv:
 	fullscreen = True
 for arg in sys.argv:
 	if arg.startswith("--res="):
-		y = int(arg.split("=")[1])
-		x = int(16 * y / 9)
-		wsize = x, y
+		wsize = int(arg.split("=")[1])
 if "--big" in sys.argv:
-	wsize = 1600, 900
+	wsize = 900
 
 autosavetime = 10  # seconds between autosaves. Set to 0 to disable.
 if "--noautosave" in sys.argv:

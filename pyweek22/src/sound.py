@@ -63,8 +63,8 @@ def playmusic(song, intro = None):
 def think(dt):
 	from . import dialog, state, scene, menuscene, playscene
 	channel = pygame.mixer.Channel(0)
-	if music and not channel.get_busy():
-		channel.play(music, -1)
+	if music and not channel.get_queue():
+		channel.queue(music)
 	if channel.get_busy():
 		volume = 0.8
 		if dialog.tquiet < 0.5:

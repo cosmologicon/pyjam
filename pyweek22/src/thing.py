@@ -301,8 +301,8 @@ class DrawBlob(Component):
 	def draw(self):
 		if not settings.drawblob:
 			p = view.screenpos((self.x, self.y))
-			r1 = view.screenlength(1.2 * self.rblob)
-			r2 = view.screenlength(1.2 * self.rblob - 2)
+			r1 = view.screenlength(1.3 * self.rblob)
+			r2 = view.screenlength(1.3 * self.rblob - 2)
 			pygame.draw.circle(view.screen, (0, 0, 0), p, r1)
 			pygame.draw.circle(view.screen, self.color, p, r2)
 			return

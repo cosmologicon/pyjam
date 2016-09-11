@@ -63,3 +63,9 @@ Command-line arguments
     --loweffect : disable some special effects for a better framerate
     --noeffect : disable all special effects for best framerate
     --reset : delete save game and start over
+
+The game is designed to be playable at any framerate, but if you have a bad framerate, try using the
+noeffect option or reducing the resolution. For maximum speedup, enter fullscreen mode with a low
+resolution by specifying both on the command line:
+
+	python run_game.py -noeffect --fullscreen --res=360
