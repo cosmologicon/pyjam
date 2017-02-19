@@ -12,18 +12,21 @@ from .util import F
 # angle of 0 is right
 # angle of tau/4 is down
 
+def getattribs(obj, kw, *anames):
+	for aname in anames:
+		if aname in kw:
+			setattr(obj, aname, kw[aname])
+
 class WorldBound(Component):
 	def setstate(self, **kw):
-		if "x" in kw: self.x = kw["x"]
-		if "y" in kw: self.y = kw["y"]
+		getattribs(self, kw, "x", "y")
 
 class Lives(Component):
 	def __init__(self):
 		self.alive = True
 		self.t = 0
 	def setstate(self, **kw):
-		if "alive" in kw: self.alive = kw["alive"]
-		if "t" in kw: self.t = kw["t"]
+		getattribs(self, kw, "t", "alive")
 	def think(self, dt):
 		self.t += dt
 	def die(self):
@@ -34,8 +37,7 @@ class LinearMotion(Component):
 		self.vx = 0
 		self.vy = 0
 	def setstate(self, **kw):
-		if "vx" in kw: self.vx = kw["vx"]
-		if "vy" in kw: self.vy = kw["vy"]
+		getattribs(self, kw, "vx", "vy")
 	def think(self, dt):
 		self.x += dt * self.vx
 		self.y += dt * self.vy
@@ -49,7 +51,7 @@ class SeeksEnemies(Component):
 	def __init__(self, v0):
 		self.v0 = v0
 	def setstate(self, **kw):
-		if "v0" in kw: self.v0 = kw["v0"]
+		getattribs(self, kw, "v0")
 	def think(self, dt):
 		target, r = None, 200
 		for e in state.enemies:
@@ -62,11 +64,49 @@ class SeeksEnemies(Component):
 			ax, ay = 2000, 0
 		self.vx, self.vy = util.norm(self.vx + dt * ax, self.vy + dt * ay, self.v0)
 
+class SeeksFormation(Component):
+	def __init__(self, vmax, accel):
+		self.vmax = vmax
+		self.v = 0
+		self.vx = 0
+		self.vy = 0
+		self.accel = accel
+		self.target = None
+	def setstate(self, **kw):
+		getattribs(self, kw, "vmax", "v", "vx", "vy", "accel", "steps", "target")
+		self.steps = list(self.steps)
+	def think(self, dt):
+		while self.steps and self.steps[0][0] < self.t:
+			self.target = self.steps[0][1:3]
+			self.steps = self.steps[1:]
+		if not self.target:
+			return
+		self.v = min(self.v + dt * self.accel, self.vmax)
+		tx, ty = self.target
+		dx, dy = tx - self.x, ty - self.y
+		d = math.sqrt(dx * dx + dy * dy)
+		if d < 0.01:
+			v = 100
+		else:
+			v = min(self.v, math.sqrt(2 * 2 * self.accel * d) + 1)
+		if v * dt >= d:
+			self.x, self.y = self.target
+			self.target = None
+			self.v = 0
+			self.vx = 0
+			self.vy = 0
+		else:
+			self.vx = v * dx / d
+			self.vy = v * dy / d
+			self.x += self.vx * dt
+			self.y += self.vy * dt
+
+
 class FiresWithSpace(Component):
 	def __init__(self):
 		self.tshot = 0  # time since last shot
 	def setstate(self, **kw):
-		if "tshot" in kw: self.tshot = kw["tshot"]
+		getattribs(self, kw, "tshot")
 	def think(self, dt):
 		self.tshot += dt
 	def act(self):
@@ -103,8 +143,7 @@ class MissilesWithSpace(Component):
 		self.tmissile = 0  # time since last shot
 		self.jmissile = 0
 	def setstate(self, **kw):
-		if "tmissile" in kw: self.tmissile = kw["tmissile"]
-		if "jmissile" in kw: self.jmissile = kw["jmissile"]
+		getattribs(self, kw, "tmissile", "jmissile")
 	def think(self, dt):
 		self.tmissile += dt
 	def act(self):
@@ -133,15 +172,28 @@ class YouBound(Component):
 		self.x = state.you.x + self.R * math.cos(theta)
 		self.y = state.you.y + self.R * math.sin(theta)
 
-class FollowsScroll(Component):
+class BossBound(Component):
+	def __init__(self, diedelay = 0):
+		self.diedelay = diedelay
+	def setstate(self, **kw):
+		getattribs(self, kw, "target", "omega", "R", "theta0", "diedelay")
 	def think(self, dt):
-		self.x += state.scrollspeed * dt
+		if not self.alive:
+			return
+		if self.target.alive:
+			theta = self.theta0 + self.omega * self.t
+			self.x = self.target.x + self.R * math.cos(theta)
+			self.y = self.target.y + self.R * math.sin(theta)
+		else:
+			self.diedelay -= dt
+			if self.diedelay <= 0:
+				self.die()
 
 class Collides(Component):
 	def __init__(self, r):
 		self.r = r
 	def setstate(self, **kw):
-		if "r" in kw: self.r = kw["r"]
+		getattribs(self, kw, "r")
 
 class ConstrainToScreen(Component):
 	def __init__(self, xmargin = 0, ymargin = 0):
@@ -155,11 +207,10 @@ class ConstrainToScreen(Component):
 
 class DisappearsOffscreen(Component):
 	def think(self, dt):
-		vx = self.vx - state.scrollspeed
 		x = self.x - view.x0
 		xmax = 427 / view.Z + self.r + 10
 		ymax = state.yrange + 10
-		if x * vx > 0 and abs(x) > xmax:
+		if x * self.vx > 0 and abs(x) > xmax:
 			self.die()
 		if self.y * self.vy > 0 and abs(self.y) > ymax:
 			self.die()
@@ -190,7 +241,7 @@ class RoundhouseBullets(Component):
 
 class Visitable(Component):
 	def setstate(self, **kw):
-		if "name" in kw: self.name = kw["name"]
+		getattribs(self, kw, "name")
 	def visit(self):
 		if self.name in state.visited:
 			return
@@ -212,7 +263,7 @@ class HurtsOnCollision(Component):
 	def __init__(self, damage = 1):
 		self.damage = damage
 	def setstate(self, **kw):
-		if "damage" in kw: self.damage = kw["damage"]
+		getattribs(self, kw, "damage")
 	def hit(self, target = None):
 		if target is not None:
 			target.hurt(self.damage)
@@ -221,11 +272,15 @@ class HasHealth(Component):
 	def __init__(self, hp0):
 		self.hp0 = self.hp = hp0
 	def setstate(self, **kw):
-		if "hp" in kw: self.hp = kw["hp"]
+		getattribs(self, kw, "hp")
 	def hurt(self, damage):
 		if self.hp <= 0: return
 		self.hp -= damage
 		if self.hp <= 0: self.die()
+
+class InfiniteHealth(Component):
+	def hurt(self, damage):
+		pass
 
 class DrawBox(Component):
 	def __init__(self, boxname):
@@ -259,7 +314,6 @@ class DrawGlow(Component):
 @MovesWithArrows()
 @FiresWithSpace()
 @MissilesWithSpace()
-@FollowsScroll()
 @Collides(10)
 @ConstrainToScreen(5, 5)
 @DrawBox("you")
@@ -273,23 +327,22 @@ class You(object):
 @YouBound(5, 25)
 @Lives()
 @Collides(4)
+@InfiniteHealth()
 @DrawBox("zap")
 class Companion(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
-	def hurt(self, damage):
-		pass
 
 @WorldBound()
 @Lives()
 @Collides(60)
+@LinearMotion()
+@InfiniteHealth()
 @DrawBox("planet")
 @Visitable()
 class Planet(object):
 	def __init__(self, **kw):
-		self.setstate(**kw)
-	def hurt(self, damage):
-		pass
+		self.setstate(vx = -state.scrollspeed, vy = 0, **kw)
 
 @WorldBound()
 @Lives()
@@ -320,7 +373,6 @@ class GoodBullet(object):
 @Collides(3)
 @SeeksEnemies(300)
 @LinearMotion()
-@FollowsScroll()
 @DiesOnCollision()
 @HurtsOnCollision()
 @DisappearsOffscreen()
@@ -332,12 +384,34 @@ class GoodMissile(object):
 @WorldBound()
 @Lives()
 @HasHealth(20)
-@Collides(20)
+@Collides(60)
 @RoundhouseBullets()
 @LinearMotion()
 @DisappearsOffscreen()
 @DrawBox("medusa")
 class Medusa(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+
+@WorldBound()
+@BossBound()
+@Lives()
+@InfiniteHealth()
+@Collides(4)
+@DrawBox("snake")
+class SnakeSegment(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@HasHealth(3)
+@Collides(20)
+@SeeksFormation(400, 400)
+@DisappearsOffscreen()
+@DrawBox("duck")
+class Duck(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 

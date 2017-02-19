@@ -6,8 +6,13 @@ def init():
 	state.you = thing.You(x = 0, y = 0)
 	state.yous.append(state.you)
 	state.yous.append(thing.Companion(x = 0, y = 0))
-	state.enemies.append(thing.Medusa(x = 100, y = 0, vx = 20, vy = 5))
-	state.enemies.append(thing.Medusa(x = 1000, y = -200, vx = 20, vy = 5))
+#	state.addmedusa(300, 0)
+	state.addwave(700, 0, 4, 6, [
+		[0, 350, 0],
+		[3, 200, 200],
+		[6, 0, -200],
+		[9, -600, 0],
+	])
 	state.planets.append(thing.Planet(x = 300, y = -200, name = "Spathiwa"))
 	state.planets.append(thing.Planet(x = 400, y = 300, name = "Falayalaralfali"))
 	state.planets.append(thing.Planet(x = 1000, y = 100, name = "Unzervalt"))
