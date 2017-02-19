@@ -1,5 +1,4 @@
 from __future__ import division
-
 import collections
 
 
@@ -21,5 +20,8 @@ def F(x, *a):
 		return F([x] + list(a))
 	if isinstance(x, (list, tuple)):
 		return [int(round(y * f)) for y in x]
-	return int(round(x * f))
+	return 0 if x == 0 else max(int(round(x * f)), 1) if x > 0 else min(int(round(x * f)), -1)
+
+def clamp(x, a, b):
+	return a if x < a else b if x > b else x
 

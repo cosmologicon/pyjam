@@ -1,12 +1,13 @@
 from __future__ import division
 import pygame
 from pygame.locals import *
-from . import settings, view, ptext
+from . import settings, view, ptext, background
 from . import scene, playscene
 from .util import F
 
 pygame.init()
 view.init()
+background.init()
 
 scene.add(playscene)
 
