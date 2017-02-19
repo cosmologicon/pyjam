@@ -1,16 +1,16 @@
 Game Title
 ==========
 
-Entry in PyWeek ##  <http://www.pyweek.org/##/>
-URL: https://www.pyweek.org/e/unifac##/
-Team: Universe Factory ##
+Entry in PyWeek 23  <http://www.pyweek.org/23/>
+URL: https://www.pyweek.org/e/unifac23/
+Team: Universe Factory 23
 Members: Christopher Night (Cosmologicon)
 License: see LICENSE.txt
 
 Requirements
 ------------
 
-	python 2.7+ or 3.3+
+	python 2.7+ or 3.5+
 	pygame 1.9+
 
 To install the requirements on Ubuntu:
