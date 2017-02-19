@@ -13,13 +13,15 @@ def init():
 	state.planets.append(thing.Planet(x = 1000, y = 100, name = "Unzervalt"))
 
 def think(dt, kdowns, kpressed):
+	if settings.isdown("swap", kdowns):
+		settings.swapaction = not settings.swapaction
 	dx = settings.ispressed("right", kpressed) - settings.ispressed("left", kpressed)
 	dy = settings.ispressed("down", kpressed) - settings.ispressed("up", kpressed)
 	if dx and dy:
 		dx *= math.sqrt(0.5)
 		dy *= math.sqrt(0.5)
 	state.you.move(dt * dx, dt * dy)
-	if settings.ispressed("action", kpressed):
+	if settings.ispressed("action", kpressed) != settings.swapaction:
 		state.you.act()
 	view.think(dt)
 	state.think(dt)
