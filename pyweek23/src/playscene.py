@@ -19,6 +19,8 @@ def think(dt, kdowns, kpressed):
 		dx *= math.sqrt(0.5)
 		dy *= math.sqrt(0.5)
 	state.you.move(dt * dx, dt * dy)
+	if settings.ispressed("action", kpressed):
+		state.you.act()
 	view.think(dt)
 	state.think(dt)
 

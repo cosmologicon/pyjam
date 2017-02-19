@@ -45,6 +45,42 @@ class MovesWithArrows(Component):
 		self.x += state.speed * dx
 		self.y += state.speed * dy
 
+class FiresWithSpace(Component):
+	def __init__(self):
+		self.tshot = 0  # time since last shot
+	def setstate(self, **kw):
+		if "tshot" in kw: self.tshot = kw["tshot"]
+	def think(self, dt):
+		self.tshot += dt
+	def act(self):
+		if self.tshot > state.reloadtime:
+			self.shoot()
+	def getcharge(self):
+		t = self.tshot - state.reloadtime
+		if t <= 0: return 0
+		if t >= state.chargetime: return state.maxcharge
+		return t / state.chargetime * state.maxcharge
+	def getdamage(self):
+		return state.basedamage + int(self.getcharge())
+	def getbulletsize(self):
+		return 2 * (state.basedamage + self.getcharge()) ** 0.6
+	def shoot(self):
+		r = self.r + 5
+		bullet = GoodBullet(
+			x = self.x + r, y = self.y,
+			vx = 500, vy = 0,
+			r = self.getbulletsize(),
+			damage = self.getdamage()
+		)
+		state.goodbullets.append(bullet)
+		self.tshot = 0
+	def draw(self):
+		charge = self.getcharge()
+		if charge <= 0: return
+		pos = view.screenpos((self.x + self.r + 5, self.y))
+		r = F(view.Z * self.getbulletsize())
+		pygame.draw.circle(view.screen, (255, 255, 255), pos, r)
+
 class YouBound(Component):
 	def __init__(self, omega, R):
 		self.omega = omega
@@ -61,6 +97,8 @@ class FollowsScroll(Component):
 class Collides(Component):
 	def __init__(self, r):
 		self.r = r
+	def setstate(self, **kw):
+		if "r" in kw: self.r = kw["r"]
 
 class ConstrainToScreen(Component):
 	def __init__(self, xmargin = 0, ymargin = 0):
@@ -136,6 +174,16 @@ class HurtsOnCollision(Component):
 		if target is not None:
 			target.hurt(self.damage)
 
+class HasHealth(Component):
+	def __init__(self, hp0):
+		self.hp0 = self.hp = hp0
+	def setstate(self, **kw):
+		if "hp" in kw: self.hp = kw["hp"]
+	def hurt(self, damage):
+		if self.hp <= 0: return
+		self.hp -= damage
+		if self.hp <= 0: self.die()
+
 class DrawBox(Component):
 	def __init__(self, boxname):
 		self.boxname = boxname
@@ -154,9 +202,19 @@ class DrawFlash(Component):
 		color = (255, 120, 120) if (self.t + self.dtflash) * 5 % 1 > 0.5 else (255, 255, 0)
 		pygame.draw.circle(view.screen, color, pos, r)
 
+class DrawGlow(Component):
+	def __init__(self):
+		self.dtflash = random.random()
+	def draw(self):
+		pos = view.screenpos((self.x, self.y))
+		r = F(view.Z * self.r)
+		color = (255, 255, 255)
+		pygame.draw.circle(view.screen, color, pos, r)
+
 @WorldBound()
 @Lives()
 @MovesWithArrows()
+@FiresWithSpace()
 @FollowsScroll()
 @Collides(10)
 @ConstrainToScreen(5, 5)
@@ -203,6 +261,19 @@ class BadBullet(object):
 
 @WorldBound()
 @Lives()
+@Collides(3)
+@LinearMotion()
+@DiesOnCollision()
+@HurtsOnCollision()
+@DisappearsOffscreen()
+@DrawGlow()
+class GoodBullet(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@HasHealth(20)
 @Collides(20)
 @RoundhouseBullets()
 @LinearMotion()

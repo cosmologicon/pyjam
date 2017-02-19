@@ -2,6 +2,10 @@
 you = None
 speed = 200
 hp = 100
+basedamage = 1
+reloadtime = 0.2
+maxcharge = 9
+chargetime = 3
 
 scrollspeed = 40
 yrange = 320
@@ -30,6 +34,13 @@ def think(dt):
 		for y in yous:
 			if collided(obj, y):
 				obj.hit(y)
+		for planet in planets:
+			if collided(obj, planet):
+				obj.hit(planet)
+	for obj in goodbullets:
+		for e in enemies:
+			if collided(obj, e):
+				obj.hit(e)
 		for planet in planets:
 			if collided(obj, planet):
 				obj.hit(planet)
