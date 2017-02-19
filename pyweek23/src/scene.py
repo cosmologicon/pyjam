@@ -1,7 +1,7 @@
 stack = []
 
-def add(scene):
-	scene.init()
+def push(scene, *args, **kw):
+	scene.init(*args, **kw)
 	stack.append(scene)
 
 def pop():

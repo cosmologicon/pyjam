@@ -9,7 +9,7 @@ pygame.init()
 view.init()
 background.init()
 
-scene.add(playscene)
+scene.push(playscene)
 
 clock = pygame.time.Clock()
 while scene.stack:

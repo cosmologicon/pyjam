@@ -1,6 +1,7 @@
 from __future__ import division
 import pygame, math, random
 from . import view, ptext, state, util
+from . import scene, visitscene
 from .enco import Component
 from .util import F
 
@@ -52,12 +53,15 @@ class Collides(Component):
 	def __init__(self, r):
 		self.r = r
 
-class ConstrainHorizontal(Component):
-	def __init__(self, xmargin = 0):
+class ConstrainToScreen(Component):
+	def __init__(self, xmargin = 0, ymargin = 0):
 		self.xmargin = xmargin
+		self.ymargin = ymargin
 	def think(self, dt):
 		dxmax = 427 / view.Z - self.r - self.xmargin
 		self.x = util.clamp(self.x, view.x0 - dxmax, view.x0 + dxmax)
+		dymax = state.yrange - self.r - self.ymargin
+		self.y = util.clamp(self.y, -dymax, dymax)
 
 class DisappearsOffscreen(Component):
 	def think(self, dt):
@@ -93,7 +97,26 @@ class RoundhouseBullets(Component):
 				state.badbullets.append(bullet)
 			self.tbullet -= self.dtbullet
 			self.jbullet += 1
-			
+
+class Visitable(Component):
+	def setstate(self, **kw):
+		if "name" in kw: self.name = kw["name"]
+	def visit(self):
+		if self.name in state.visited:
+			return
+		state.visited.add(self.name)
+		scene.push(visitscene, self.name)
+	def draw(self):
+		if self.name in state.visited:
+			return
+		if self.t % 2 > 1.5:
+			return
+		pos = view.screenpos((self.x + self.r, self.y - self.r))
+		ptext.draw("HELP!", center = pos, fontsize = F(30))
+
+class DiesOnCollision(Component):
+	def hit(self):
+		self.die()
 
 class DrawBox(Component):
 	def __init__(self, boxname):
@@ -118,7 +141,7 @@ class DrawFlash(Component):
 @MovesWithArrows()
 @FollowsScroll()
 @Collides(10)
-@ConstrainHorizontal(5)
+@ConstrainToScreen(5, 5)
 @DrawBox("you")
 class You(object):
 	def __init__(self, **kw):
@@ -126,8 +149,18 @@ class You(object):
 
 @WorldBound()
 @Lives()
+@Collides(60)
+@DrawBox("planet")
+@Visitable()
+class Planet(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
 @Collides(3)
 @LinearMotion()
+@DiesOnCollision()
 @DisappearsOffscreen()
 @DrawFlash()
 class BadBullet(object):
