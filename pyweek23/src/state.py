@@ -1,11 +1,13 @@
 
 you = None
 speed = 200
+hp0 = 100
 hp = 100
 basedamage = 1
 reloadtime = 0.2
 maxcharge = 9
 chargetime = 3
+missiletime = 0.6
 
 scrollspeed = 40
 yrange = 320

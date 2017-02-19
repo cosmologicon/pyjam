@@ -45,6 +45,23 @@ class MovesWithArrows(Component):
 		self.x += state.speed * dx
 		self.y += state.speed * dy
 
+class SeeksEnemies(Component):
+	def __init__(self, v0):
+		self.v0 = v0
+	def setstate(self, **kw):
+		if "v0" in kw: self.v0 = kw["v0"]
+	def think(self, dt):
+		target, r = None, 200
+		for e in state.enemies:
+			d = math.sqrt((self.x - e.x) ** 2 + (self.y - e.y) ** 2)
+			if d < r:
+				target, r = e, d
+		if target:
+			ax, ay = util.norm(target.x - self.x, target.y - self.y, 2000)
+		else:
+			ax, ay = 2000, 0
+		self.vx, self.vy = util.norm(self.vx + dt * ax, self.vy + dt * ay, self.v0)
+
 class FiresWithSpace(Component):
 	def __init__(self):
 		self.tshot = 0  # time since last shot
@@ -80,6 +97,32 @@ class FiresWithSpace(Component):
 		pos = view.screenpos((self.x + self.r + 5, self.y))
 		r = F(view.Z * self.getbulletsize())
 		pygame.draw.circle(view.screen, (255, 255, 255), pos, r)
+
+class MissilesWithSpace(Component):
+	def __init__(self):
+		self.tmissile = 0  # time since last shot
+		self.jmissile = 0
+	def setstate(self, **kw):
+		if "tmissile" in kw: self.tmissile = kw["tmissile"]
+		if "jmissile" in kw: self.jmissile = kw["jmissile"]
+	def think(self, dt):
+		self.tmissile += dt
+	def act(self):
+		if self.tmissile > state.missiletime:
+			self.shootmissile()
+	def shootmissile(self):
+		dx, dy = util.norm(*[[0, -3], [0, 3]][self.jmissile])
+		r = self.r + 5
+		missile = GoodMissile(
+			x = self.x + r * dx, y = self.y + r * dy,
+			vx = 1000 * dx, vy = 1000 * dy
+		)
+		state.goodbullets.append(missile)
+		self.jmissile += 1
+		self.jmissile %= 2
+		self.tmissile = 0
+
+
 
 class YouBound(Component):
 	def __init__(self, omega, R):
@@ -215,6 +258,7 @@ class DrawGlow(Component):
 @Lives()
 @MovesWithArrows()
 @FiresWithSpace()
+@MissilesWithSpace()
 @FollowsScroll()
 @Collides(10)
 @ConstrainToScreen(5, 5)
@@ -268,6 +312,20 @@ class BadBullet(object):
 @DisappearsOffscreen()
 @DrawGlow()
 class GoodBullet(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@Collides(3)
+@SeeksEnemies(300)
+@LinearMotion()
+@FollowsScroll()
+@DiesOnCollision()
+@HurtsOnCollision()
+@DisappearsOffscreen()
+@DrawGlow()
+class GoodMissile(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 
