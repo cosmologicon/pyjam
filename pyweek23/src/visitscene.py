@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-from . import ptext, view, scene
+from . import ptext, view, scene, settings
 from .util import F
 
 class self:
@@ -10,7 +10,7 @@ def init(name):
 	self.name = name
 	
 def think(dt, kdowns, kpressed):
-	if K_SPACE in kdowns:
+	if settings.isdown("action", kdowns):
 		scene.pop()
 
 def draw():

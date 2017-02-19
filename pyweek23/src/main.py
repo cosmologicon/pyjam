@@ -30,12 +30,12 @@ while scene.stack:
 		ptext.draw(text, bottomleft = F(5, 475), fontsize = F(18), color = "white", owidth = 1)
 	pygame.display.flip()
 
-	if K_ESCAPE in kdowns:
+	if settings.isdown("quit", kdowns):
 		scene.quit()
-	if K_F11 in kdowns:
+	if settings.isdown("fullscreen", kdowns):
 		settings.fullscreen = not settings.fullscreen
 		view.init()
-	if K_F12 in kdowns:
+	if settings.isdown("screenshot", kdowns):
 		if not os.path.exists(settings.screenshotdir):
 			os.makedirs(settings.screenshotdir)
 		t = datetime.datetime.now().strftime("%Y%m%d%H%M%S")

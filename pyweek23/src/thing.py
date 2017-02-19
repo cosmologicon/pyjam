@@ -45,6 +45,15 @@ class MovesWithArrows(Component):
 		self.x += state.speed * dx
 		self.y += state.speed * dy
 
+class YouBound(Component):
+	def __init__(self, omega, R):
+		self.omega = omega
+		self.R = R
+	def think(self, dt):
+		theta = self.omega * self.t
+		self.x = state.you.x + self.R * math.cos(theta)
+		self.y = state.you.y + self.R * math.sin(theta)
+
 class FollowsScroll(Component):
 	def think(self, dt):
 		self.x += state.scrollspeed * dt
@@ -115,8 +124,17 @@ class Visitable(Component):
 		ptext.draw("HELP!", center = pos, fontsize = F(30))
 
 class DiesOnCollision(Component):
-	def hit(self):
+	def hit(self, target = None):
 		self.die()
+
+class HurtsOnCollision(Component):
+	def __init__(self, damage = 1):
+		self.damage = damage
+	def setstate(self, **kw):
+		if "damage" in kw: self.damage = kw["damage"]
+	def hit(self, target = None):
+		if target is not None:
+			target.hurt(self.damage)
 
 class DrawBox(Component):
 	def __init__(self, boxname):
@@ -146,6 +164,19 @@ class DrawFlash(Component):
 class You(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
+	def hurt(self, damage):
+		state.takedamage(damage)
+
+@WorldBound()
+@YouBound(5, 25)
+@Lives()
+@Collides(4)
+@DrawBox("zap")
+class Companion(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+	def hurt(self, damage):
+		pass
 
 @WorldBound()
 @Lives()
@@ -155,12 +186,15 @@ class You(object):
 class Planet(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
+	def hurt(self, damage):
+		pass
 
 @WorldBound()
 @Lives()
 @Collides(3)
 @LinearMotion()
 @DiesOnCollision()
+@HurtsOnCollision()
 @DisappearsOffscreen()
 @DrawFlash()
 class BadBullet(object):
