@@ -53,6 +53,29 @@ class LinearMotion(Component):
 		self.x += dt * self.vx
 		self.y += dt * self.vy
 
+class Knockable(Component):
+	def __init__(self):
+		self.kx = 0
+		self.ky = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "kx", "ky")
+	def knock(self, dkx, dky):
+		self.kx = dkx
+		self.ky = dky
+	def think(self, dt):
+		if not self.kx and not self.ky: return
+		k = math.sqrt(self.kx ** 2 + self.ky ** 2)
+		d = 300 * dt
+		if k < d:
+			dx, dy = self.kx, self.ky
+			self.kx, self.ky = 0, 0
+		else:
+			dx, dy = util.norm(self.kx, self.ky, d)
+			self.kx -= dx
+			self.ky -= dy
+		self.x += dx
+		self.y += dy
+
 class MovesWithArrows(Component):
 	def move(self, dx, dy):
 		self.x += state.speed * dx
@@ -301,6 +324,15 @@ class HurtsOnCollision(Component):
 		if target is not None:
 			target.hurt(self.damage)
 
+class KnocksOnCollision(Component):
+	def __init__(self, dknock = 10):
+		self.dknock = dknock
+	def setstate(self, **kw):
+		getattribs(self, kw, "dknock")
+	def hit(self, target = None):
+		if target is not None:
+			target.knock(*util.norm(target.x - self.x, target.y - self.y, self.dknock))
+
 class HasHealth(Component):
 	def __init__(self, hp0):
 		self.hp0 = self.hp = hp0
@@ -367,13 +399,19 @@ class Spawns(Component):
 	
 
 class DrawBox(Component):
-	def __init__(self, boxname):
+	def __init__(self, boxname, boxcolor = (120, 120, 120)):
 		self.boxname = boxname
+		self.boxcolor = boxcolor
 	def draw(self):
 		pos = view.screenpos((self.x, self.y))
 		r = F(view.Z * self.r)
-		pygame.draw.circle(view.screen, (120, 120, 120), pos, r)
+		pygame.draw.circle(view.screen, self.boxcolor, pos, r)
 		ptext.draw(self.boxname, center = pos, color = "white", fontsize = F(14))
+
+class FlashesOnInvulnerable(Component):
+	def draw(self):
+		self.boxcolor = (100, 0, 0) if state.tinvulnerable * 6 % 1 > 0.5 else (100, 100, 100)
+
 
 class DrawFlash(Component):
 	def __init__(self):
@@ -396,11 +434,13 @@ class DrawGlow(Component):
 @WorldBound()
 @Lives()
 @MovesWithArrows()
+@Knockable()
 @FiresWithSpace()
 @MissilesWithSpace()
 @CShotsWithSpace()
 @Collides(10)
 @ConstrainToScreen(5, 5)
+@FlashesOnInvulnerable()
 @DrawBox("you")
 class You(object):
 	def __init__(self, **kw):
@@ -495,8 +535,23 @@ class SnakeSegment(object):
 @Collides(20)
 @SeeksFormation(400, 400)
 @DisappearsOffscreen()
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
 @DrawBox("duck")
 class Duck(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@LinearMotion()
+@HasHealth(3)
+@Collides(20)
+@DisappearsOffscreen()
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
+@DrawBox("rock")
+class Rock(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 

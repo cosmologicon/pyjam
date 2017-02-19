@@ -13,6 +13,7 @@ def init():
 		[6, 0, -200],
 		[9, -600, 0],
 	])
+	state.addrockwave(900, 0, 60, 200)
 	state.pickups.append(thing.MissilesPickup(x = 300, y = 0))
 	state.planets.append(thing.Planet(x = 300, y = -200, name = "Spathiwa"))
 	state.planets.append(thing.Planet(x = 400, y = 300, name = "Falayalaralfali"))

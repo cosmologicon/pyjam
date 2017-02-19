@@ -1,5 +1,5 @@
 from __future__ import division
-import math
+import math, random
 
 
 
@@ -15,6 +15,7 @@ missiletime = 0.6
 cshottime = 1
 rmagnet = 200
 tslow = 0
+tinvulnerable = 0
 
 scrollspeed = 40
 xoffset = 0
@@ -35,10 +36,11 @@ def collided(obj1, obj2):
 	return (obj1.x - obj2.x) ** 2 + (obj1.y - obj2.y) ** 2 < (obj1.r + obj2.r) ** 2
 
 def think(dt):
-	global xoffset, tslow
+	global xoffset, tslow, tinvulnerable
 	tslow = max(tslow - dt, 0)
 	if tslow > 0:
 		dt /= min(3, 1 + 2 * tslow)
+	tinvulnerable = max(tinvulnerable - dt, 0)
 	xoffset += dt * scrollspeed
 	thinkers = yous, badbullets, goodbullets, pickups, enemies, bosses, planets, spawners
 	for group in thinkers:
@@ -61,6 +63,9 @@ def think(dt):
 		for planet in planets:
 			if collided(obj, planet):
 				obj.hit(planet)
+	for obj in enemies + bosses:
+		if collided(obj, you):
+			obj.hit(you)
 	for obj in pickups:
 		if collided(obj, you):
 			obj.collect()
@@ -74,8 +79,11 @@ def draw():
 			obj.draw()
 
 def takedamage(damage):
-	global hp
+	global hp, tinvulnerable
+	if tinvulnerable:
+		return
 	hp -= damage
+	tinvulnerable = 2
 
 def heal(amount):
 	global hp
@@ -110,6 +118,13 @@ def addwave(x0, y0, nx, ny, steps):
 		obj = thing.Duck(x = x0 + dx, y = y0 + dy, steps = esteps)
 		enemies.append(obj)
 
-
-
+def addrockwave(x0, y0, n, spread):
+	import thing
+	for j in range(n):
+		x = random.gauss(x0, 0.4 * spread)
+		y = random.gauss(y0, spread)
+		vx = random.uniform(-100, -40)
+		r = random.uniform(30, random.uniform(30, 50))
+		rock = thing.Rock(x = x, y = y, vx = vx, vy = 0, r = r, hp = 20)
+		enemies.append(rock)
 
