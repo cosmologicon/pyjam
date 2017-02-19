@@ -1,4 +1,5 @@
-import pygame
+from __future__ import division
+import pygame, math, random
 from . import view, ptext, state, util
 from .enco import Component
 from .util import F
@@ -14,6 +15,29 @@ class WorldBound(Component):
 	def setstate(self, **kw):
 		if "x" in kw: self.x = kw["x"]
 		if "y" in kw: self.y = kw["y"]
+
+class Lives(Component):
+	def __init__(self):
+		self.alive = True
+		self.t = 0
+	def setstate(self, **kw):
+		if "alive" in kw: self.alive = kw["alive"]
+		if "t" in kw: self.t = kw["t"]
+	def think(self, dt):
+		self.t += dt
+	def die(self):
+		self.alive = False
+
+class LinearMotion(Component):
+	def __init__(self):
+		self.vx = 0
+		self.vy = 0
+	def setstate(self, **kw):
+		if "vx" in kw: self.vx = kw["vx"]
+		if "vy" in kw: self.vy = kw["vy"]
+	def think(self, dt):
+		self.x += dt * self.vx
+		self.y += dt * self.vy
 
 class MovesWithArrows(Component):
 	def move(self, dx, dy):
@@ -35,6 +59,42 @@ class ConstrainHorizontal(Component):
 		dxmax = 427 / view.Z - self.r - self.xmargin
 		self.x = util.clamp(self.x, view.x0 - dxmax, view.x0 + dxmax)
 
+class DisappearsOffscreen(Component):
+	def think(self, dt):
+		vx = self.vx - state.scrollspeed
+		x = self.x - view.x0
+		xmax = 427 / view.Z + self.r + 10
+		ymax = state.yrange + 10
+		if x * vx > 0 and abs(x) > xmax:
+			self.die()
+		if self.y * self.vy > 0 and abs(self.y) > ymax:
+			self.die()
+
+class RoundhouseBullets(Component):
+	def __init__(self):
+		self.tbullet = 0
+		self.dtbullet = 0.3
+		self.nbullet = 20
+		self.vbullet = 50
+		self.jbullet = 0
+	def think(self, dt):
+		self.tbullet += dt
+		while self.tbullet >= self.dtbullet:
+			for jtheta in range(3):
+				theta = (self.jbullet / self.nbullet + jtheta / 3) * math.tau
+				dx, dy = math.cos(theta), math.sin(theta)
+				r = self.r + 2
+				bullet = BadBullet(
+					x = self.x + r * dx,
+					y = self.y + r * dy,
+					vx = self.vx + self.vbullet * dx,
+					vy = self.vy + self.vbullet * dy
+				)
+				state.badbullets.append(bullet)
+			self.tbullet -= self.dtbullet
+			self.jbullet += 1
+			
+
 class DrawBox(Component):
 	def __init__(self, boxname):
 		self.boxname = boxname
@@ -44,7 +104,17 @@ class DrawBox(Component):
 		pygame.draw.circle(view.screen, (120, 120, 120), pos, r)
 		ptext.draw(self.boxname, center = pos, color = "white", fontsize = F(14))
 
+class DrawFlash(Component):
+	def __init__(self):
+		self.dtflash = random.random()
+	def draw(self):
+		pos = view.screenpos((self.x, self.y))
+		r = F(view.Z * self.r)
+		color = (255, 120, 120) if (self.t + self.dtflash) * 5 % 1 > 0.5 else (255, 255, 0)
+		pygame.draw.circle(view.screen, color, pos, r)
+
 @WorldBound()
+@Lives()
 @MovesWithArrows()
 @FollowsScroll()
 @Collides(10)
@@ -53,5 +123,27 @@ class DrawBox(Component):
 class You(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@Collides(3)
+@LinearMotion()
+@DisappearsOffscreen()
+@DrawFlash()
+class BadBullet(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@Collides(20)
+@RoundhouseBullets()
+@LinearMotion()
+@DisappearsOffscreen()
+@DrawBox("medusa")
+class Medusa(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
 
 
