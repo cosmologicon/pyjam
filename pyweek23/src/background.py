@@ -14,6 +14,6 @@ def draw():
 	for x, y, z in stars[:N]:
 		px = int((x - view.x0) * z % view.sx)
 		py = int((y - view.y0) * z % view.sy)
-		color = 255, 255, 255
+		color = (int(255 * z),) * 3
 		view.screen.set_at((px, py), color)
 
