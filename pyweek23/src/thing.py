@@ -32,6 +32,17 @@ class Lives(Component):
 	def die(self):
 		self.alive = False
 
+class Lifetime(Component):
+	def __init__(self, lifetime = 1):
+		self.lifetime = lifetime
+		self.f = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "lifetime", "f")
+	def think(self, dt):
+		self.f = 1 if self.lifetime <= 0 else util.clamp(self.t / self.lifetime, 0, 1)
+		if self.f >= 1:
+			self.die()
+
 class LinearMotion(Component):
 	def __init__(self):
 		self.vx = 0
@@ -282,6 +293,57 @@ class InfiniteHealth(Component):
 	def hurt(self, damage):
 		pass
 
+class Collectable(Component):
+	def think(self, dt):
+		dx, dy = state.you.x - self.x, state.you.y - self.y
+		d = math.sqrt(dx * dx + dy * dy)
+		if d < state.rmagnet:
+			dx, dy = util.norm(dx, dy, 300 * dt)
+			self.x += dx
+			self.y += dy
+	def collect(self):
+		self.die()
+
+class HealsOnCollect(Component):
+	def __init__(self, heal = 1):
+		self.heal = heal
+	def setstate(self, **kw):
+		getattribs(self, kw, "heal")
+	def collect(self):
+		state.heal(self.heal)
+
+class MissilesOnCollect(Component):
+	def __init__(self, nmissile = 40):
+		self.nmissile = nmissile
+	def setstate(self, **kw):
+		getattribs(self, kw, "nmissile")
+	def collect(self):
+		r = self.r + 5
+		for jmissile in range(self.nmissile):
+			theta = math.tau * (jmissile + 0.5) * math.phi
+			dx, dy = math.cos(theta), math.sin(theta)
+			missile = GoodMissile(
+				x = self.x + r * dx, y = self.y + r * dy,
+				vx = 1000 * dx, vy = 1000 * dy
+			)
+			t = jmissile / self.nmissile * 0.2
+			state.spawners.append(Spawner(egg = missile, collection = state.goodbullets, lifetime = t))
+
+class SlowsOnCollect(Component):
+	def __init__(self, tslow = 5):
+		self.tslow = tslow
+	def setstate(self, **kw):
+		getattribs(self, kw, "tslow")
+	def collect(self):
+		state.tslow = max(state.tslow, self.tslow)
+
+class Spawns(Component):
+	def setstate(self, **kw):
+		getattribs(self, kw, "egg", "collection")
+	def die(self):
+		self.collection.append(self.egg)
+	
+
 class DrawBox(Component):
 	def __init__(self, boxname):
 		self.boxname = boxname
@@ -415,5 +477,44 @@ class Duck(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 
+@WorldBound()
+@Lives()
+@Collides(5)
+@LinearMotion()
+@DrawBox("health")
+@Collectable()
+@HealsOnCollect()
+class HealthPickup(object):
+	def __init__(self, **kw):
+		self.setstate(vx = -state.scrollspeed, vy = 0, **kw)
 
+@WorldBound()
+@Lives()
+@Collides(5)
+@LinearMotion()
+@DrawBox("missiles")
+@Collectable()
+@MissilesOnCollect()
+class MissilesPickup(object):
+	def __init__(self, **kw):
+		self.setstate(vx = -state.scrollspeed, vy = 0, **kw)
+
+@WorldBound()
+@Lives()
+@Collides(5)
+@LinearMotion()
+@DrawBox("slow")
+@Collectable()
+@SlowsOnCollect()
+class SlowPickup(object):
+	def __init__(self, **kw):
+		self.setstate(vx = -state.scrollspeed, vy = 0, **kw)
+
+@Lives()
+@Lifetime()
+@Spawns()
+class Spawner(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+	
 

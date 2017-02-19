@@ -12,6 +12,8 @@ reloadtime = 0.2
 maxcharge = 9
 chargetime = 3
 missiletime = 0.6
+rmagnet = 200
+tslow = 0
 
 scrollspeed = 40
 xoffset = 0
@@ -24,6 +26,7 @@ pickups = []
 enemies = []
 planets = []
 bosses = []
+spawners = []
 
 visited = set()
 
@@ -31,9 +34,12 @@ def collided(obj1, obj2):
 	return (obj1.x - obj2.x) ** 2 + (obj1.y - obj2.y) ** 2 < (obj1.r + obj2.r) ** 2
 
 def think(dt):
-	global xoffset
+	global xoffset, tslow
+	tslow = max(tslow - dt, 0)
+	if tslow > 0:
+		dt /= min(3, 1 + 2 * tslow)
 	xoffset += dt * scrollspeed
-	thinkers = yous, badbullets, goodbullets, pickups, enemies, bosses, planets
+	thinkers = yous, badbullets, goodbullets, pickups, enemies, bosses, planets, spawners
 	for group in thinkers:
 		for x in group:
 			x.think(dt)
@@ -54,6 +60,9 @@ def think(dt):
 		for planet in planets:
 			if collided(obj, planet):
 				obj.hit(planet)
+	for obj in pickups:
+		if collided(obj, you):
+			obj.collect()
 	for group in thinkers:
 		group[:] = [x for x in group if x.alive]
 
@@ -66,6 +75,10 @@ def draw():
 def takedamage(damage):
 	global hp
 	hp -= damage
+
+def heal(amount):
+	global hp
+	hp = min(hp + amount, hp0)
 
 def addmedusa(x, y):
 	import thing
