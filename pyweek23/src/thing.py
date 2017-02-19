@@ -172,7 +172,29 @@ class MissilesWithSpace(Component):
 		self.jmissile %= 2
 		self.tmissile = 0
 
-
+class CShotsWithSpace(Component):
+	def __init__(self):
+		self.tcshot = 0  # time since last shot
+	def setstate(self, **kw):
+		getattribs(self, kw, "tcshot")
+	def think(self, dt):
+		self.tcshot += dt
+	def act(self):
+		if self.tcshot > state.cshottime:
+			self.cshot()
+	def cshot(self):
+		r = self.r + 5
+		for jshot in range(2, 11):
+			theta = jshot / 12 * math.tau
+			dx, dy = math.cos(theta), math.sin(theta)
+			bullet = GoodBullet(
+				x = self.x + r * dx, y = self.y + r * dy,
+				vx = 500 * dx, vy = 500 * dy,
+				r = 3,
+				damage = 5
+			)
+			state.goodbullets.append(bullet)
+			self.tcshot = 0
 
 class YouBound(Component):
 	def __init__(self, omega, R):
@@ -376,6 +398,7 @@ class DrawGlow(Component):
 @MovesWithArrows()
 @FiresWithSpace()
 @MissilesWithSpace()
+@CShotsWithSpace()
 @Collides(10)
 @ConstrainToScreen(5, 5)
 @DrawBox("you")

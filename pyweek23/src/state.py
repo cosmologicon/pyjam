@@ -12,6 +12,7 @@ reloadtime = 0.2
 maxcharge = 9
 chargetime = 3
 missiletime = 0.6
+cshottime = 1
 rmagnet = 200
 tslow = 0
 
