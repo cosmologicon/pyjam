@@ -3,6 +3,7 @@ from pygame.locals import *
 from . import view, state, thing, background, settings, hud, util
 
 def init():
+	state.reset()
 	state.you = thing.You(x = 0, y = 0)
 	state.yous.append(state.you)
 	state.yous.append(thing.Companion(x = 0, y = 0))
@@ -26,14 +27,15 @@ def init():
 def think(dt, kdowns, kpressed):
 	if settings.isdown("swap", kdowns):
 		settings.swapaction = not settings.swapaction
-	dx = settings.ispressed("right", kpressed) - settings.ispressed("left", kpressed)
-	dy = settings.ispressed("down", kpressed) - settings.ispressed("up", kpressed)
-	if dx and dy:
-		dx *= math.sqrt(0.5)
-		dy *= math.sqrt(0.5)
-	state.you.move(dt * dx, dt * dy)
-	if settings.ispressed("action", kpressed) != settings.swapaction:
-		state.you.act()
+	if state.you.alive:
+		dx = settings.ispressed("right", kpressed) - settings.ispressed("left", kpressed)
+		dy = settings.ispressed("down", kpressed) - settings.ispressed("up", kpressed)
+		if dx and dy:
+			dx *= math.sqrt(0.5)
+			dy *= math.sqrt(0.5)
+		state.you.move(dt * dx, dt * dy)
+		if settings.ispressed("action", kpressed) != settings.swapaction:
+			state.you.act()
 	view.think(dt)
 	state.think(dt)
 

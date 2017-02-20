@@ -147,6 +147,12 @@ def addrockwave(x0, y0, n, spread):
 		rock = thing.Rock(x = x, y = y, vx = vx, vy = 0, r = r, hp = 20)
 		enemies.append(rock)
 
+obj0 = pickle.dumps([(k, v) for k, v in globals().items() if not k.startswith("_") and type(v) is not type(pickle)], 2)
+def reset():
+	g = globals()
+	for k, v in pickle.loads(obj0):
+		g[k] = v
+
 def save(filename):
 	obj = [(k, v) for k, v in globals().items() if not k.startswith("_") and type(v) is not type(pickle)]
 	pickle.dump(obj, open(filename, "wb"), 2)
