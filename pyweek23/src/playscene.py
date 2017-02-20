@@ -17,7 +17,7 @@ def init():
 		[5, state.addrockwave, 900, 0, 60, 200],
 		[25, state.addmedusa],
 	]
-	state.waves = [[0, state.addmedusa]]
+#	state.waves = [[0, state.addmedusa]]
 	state.pickups.append(thing.MissilesPickup(x = 300, y = 0))
 	state.planets.append(thing.Planet(x = 600, y = -200, name = "Spathiwa"))
 	state.planets.append(thing.Planet(x = 1000, y = 300, name = "Falayalaralfali"))

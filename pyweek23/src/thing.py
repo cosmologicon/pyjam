@@ -147,7 +147,7 @@ class SeeksHorizontalPosition(Component):
 		if self.xtarget is None: return
 		self.vx = abs(self.vx)
 		self.vx = min(self.vx + dt * self.xaccel, self.vxmax)
-		dx = self.xtarget - self.x
+		dx = abs(self.xtarget - self.x)
 		if dx < 0.01:
 			v = 100
 		else:
@@ -157,7 +157,7 @@ class SeeksHorizontalPosition(Component):
 			self.xtarget = None
 			self.vx = 0
 		else:
-			self.vx = v if dx > 0 else -v
+			self.vx = v if self.xtarget > self.x else -v
 			self.x += self.vx * dt
 
 class VerticalSinusoid(Component):
