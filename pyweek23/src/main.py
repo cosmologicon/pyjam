@@ -2,7 +2,7 @@ from __future__ import division
 import pygame, os, datetime
 from pygame.locals import *
 from . import settings, view, ptext, background
-from . import scene, playscene
+from . import scene, playscene, losescene
 from .util import F
 
 pygame.init()

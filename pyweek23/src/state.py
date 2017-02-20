@@ -5,8 +5,8 @@ import math, random
 
 you = None
 speed = 200
-hp0 = 100
-hp = 100
+hp0 = 5
+hp = hp0
 basedamage = 1
 reloadtime = 0.2
 maxcharge = 9
@@ -16,6 +16,7 @@ cshottime = 1
 rmagnet = 200
 tslow = 0
 tinvulnerable = 0
+tlose = 0
 
 scrollspeed = 40
 xoffset = 0
@@ -36,7 +37,8 @@ def collided(obj1, obj2):
 	return (obj1.x - obj2.x) ** 2 + (obj1.y - obj2.y) ** 2 < (obj1.r + obj2.r) ** 2
 
 def think(dt):
-	global xoffset, tslow, tinvulnerable
+	global xoffset, tslow, tinvulnerable, tlose
+	from . import scene, losescene
 	tslow = max(tslow - dt, 0)
 	if tslow > 0:
 		dt /= min(3, 1 + 2 * tslow)
@@ -77,6 +79,12 @@ def think(dt):
 		func = wave[1]
 		args = wave[2:]
 		func(*args)
+	if not you.alive:
+		tlose += dt
+		if tlose > 3:
+			scene.pop()
+			scene.push(losescene)
+
 
 def draw():
 	drawers = planets, bosses, enemies, yous, goodbullets, badbullets, pickups
@@ -90,6 +98,8 @@ def takedamage(damage):
 		return
 	hp -= damage
 	tinvulnerable = 2
+	if hp <= 0:
+		you.die()
 
 def heal(amount):
 	global hp
@@ -97,7 +107,7 @@ def heal(amount):
 
 def addmedusa():
 	import thing
-	boss = thing.Medusa(x = 600, y = 0, steps = [[0, 320, 0]])
+	boss = thing.Medusa(x = 600, y = 0, xtarget = 320)
 	bosses.append(boss)
 	for jtheta in (0, 1, 2):
 		for jr, r in enumerate((20, 18, 16, 15, 14, 13, 12)):

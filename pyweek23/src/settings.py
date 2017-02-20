@@ -21,7 +21,7 @@ controls = {
 	"down": [K_DOWN, K_s, K_o],
 	"action": [K_SPACE, K_RETURN, K_LCTRL, K_RCTRL, K_LSHIFT, K_RSHIFT, K_z],
 	"swap": [K_CAPSLOCK, K_TAB],
-	"quit": [K_ESCAPE, K_q],
+	"quit": [K_ESCAPE],
 	"fullscreen": [K_F11, K_f],
 	"screenshot": [K_F12],
 }

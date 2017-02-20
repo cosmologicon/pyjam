@@ -135,6 +135,44 @@ class SeeksFormation(Component):
 			self.x += self.vx * dt
 			self.y += self.vy * dt
 
+class SeeksHorizontalPosition(Component):
+	def __init__(self, vxmax, accel):
+		self.vxmax = vxmax
+		self.vx = 0
+		self.xaccel = accel
+		self.xtarget = None
+	def setstate(self, **kw):
+		getattribs(self, kw, "vxmax", "vx", "xaccel", "xtarget")
+	def think(self, dt):
+		if self.xtarget is None: return
+		self.vx = abs(self.vx)
+		self.vx = min(self.vx + dt * self.xaccel, self.vxmax)
+		dx = self.xtarget - self.x
+		if dx < 0.01:
+			v = 100
+		else:
+			v = min(self.vx, math.sqrt(2 * 2 * self.xaccel * dx) + 1)
+		if v * dt >= dx:
+			self.x = self.xtarget
+			self.xtarget = None
+			self.vx = 0
+		else:
+			self.vx = v if dx > 0 else -v
+			self.x += self.vx * dt
+
+class VerticalSinusoid(Component):
+	def __init__(self, yomega, yrange, y0 = 0):
+		self.yomega = yomega
+		self.yrange = yrange
+		self.y0 = y0
+		self.ytheta = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "yomega", "yrange", "y0", "ytheta")
+	def think(self, dt):
+		self.ytheta += dt * self.yomega
+		self.y = self.y0 + self.yrange * math.sin(self.ytheta)
+		self.vy = self.yrange * self.ytheta * math.cos(self.ytheta)
+
 
 class FiresWithSpace(Component):
 	def __init__(self):
@@ -511,8 +549,10 @@ class GoodMissile(object):
 @HasHealth(20)
 @Collides(60)
 @RoundhouseBullets()
-@SeeksFormation(30, 30)
-@DisappearsOffscreen()
+@SeeksHorizontalPosition(30, 30)
+@VerticalSinusoid(0.4, 120)
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
 @DrawBox("medusa")
 class Medusa(object):
 	def __init__(self, **kw):
@@ -524,6 +564,8 @@ class Medusa(object):
 @Lives()
 @InfiniteHealth()
 @Collides(4)
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
 @DrawBox("snake")
 class SnakeSegment(object):
 	def __init__(self, **kw):
