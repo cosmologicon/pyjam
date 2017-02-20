@@ -195,6 +195,7 @@ class FiresWithSpace(Component):
 		return 2 * (state.basedamage + self.getcharge()) ** 0.6
 	def shoot(self):
 		r = self.r + 5
+		x0, y0 = self.x + r, self.y
 		bullet = GoodBullet(
 			x = self.x + r, y = self.y,
 			vx = 500, vy = 0,
@@ -202,6 +203,12 @@ class FiresWithSpace(Component):
 			damage = self.getdamage()
 		)
 		state.goodbullets.append(bullet)
+		for jvshot in range(state.vshots):
+			dx, dy = -3 * (jvshot + 1), 4 * (jvshot + 1)
+			state.goodbullets.append(RangeGoodBullet(
+				x = x0 + dx, y = y0 + dy, vx = 500, vy = 0, r = 1, damage = 1, lifetime = 0.2))
+			state.goodbullets.append(RangeGoodBullet(
+				x = x0 + dx, y = y0 - dy, vx = 500, vy = 0, r = 1, damage = 1, lifetime = 0.2))
 		self.tshot = 0
 	def draw(self):
 		charge = self.getcharge()
@@ -528,6 +535,19 @@ class BadBullet(object):
 @DisappearsOffscreen()
 @DrawGlow()
 class GoodBullet(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@Lifetime(0.5)
+@Collides(3)
+@LinearMotion()
+@DiesOnCollision()
+@HurtsOnCollision()
+@DisappearsOffscreen()
+@DrawGlow()
+class RangeGoodBullet(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 

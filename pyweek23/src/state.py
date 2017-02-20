@@ -10,10 +10,15 @@ you = None
 speed = 200
 hp0 = 5
 hp = hp0
+shieldhp = shieldhp0 = 2
+shieldrate = 0.2
+
+
 basedamage = 1
 reloadtime = 0.2
 maxcharge = 9
 chargetime = 3
+vshots = 2
 missiletime = 0.6
 cshottime = 1
 rmagnet = 200
@@ -40,12 +45,13 @@ def collided(obj1, obj2):
 	return (obj1.x - obj2.x) ** 2 + (obj1.y - obj2.y) ** 2 < (obj1.r + obj2.r) ** 2
 
 def think(dt):
-	global xoffset, tslow, tinvulnerable, tlose
+	global xoffset, tslow, tinvulnerable, tlose, shieldhp
 	from . import scene, losescene
 	tslow = max(tslow - dt, 0)
 	if tslow > 0:
 		dt /= min(3, 1 + 2 * tslow)
 	tinvulnerable = max(tinvulnerable - dt, 0)
+	shieldhp = min(shieldhp + shieldrate * dt, shieldhp0)
 	xoffset += dt * scrollspeed
 	thinkers = yous, badbullets, goodbullets, pickups, enemies, bosses, planets, spawners
 	for group in thinkers:
@@ -96,11 +102,14 @@ def draw():
 			obj.draw()
 
 def takedamage(damage):
-	global hp, tinvulnerable
+	global hp, tinvulnerable, shieldhp
 	if tinvulnerable:
 		return
+	while shieldhp >= 1 and damage:
+		shieldhp -= 1
+		damage -= 1
 	hp -= damage
-	tinvulnerable = 2
+	tinvulnerable = 1
 	if hp <= 0:
 		you.die()
 

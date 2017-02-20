@@ -12,6 +12,11 @@ def draw():
 		imgname = "health" if jhp < state.hp else "health0"
 		pos = 20 + 16 * jhp, 30
 		image.Fdraw(imgname, pos, scale = 0.3)
-
+	for jhp in range(state.shieldhp0):
+		a = util.clamp(state.shieldhp - jhp, 0, 1)
+		imgname = "shield" if a == 1 or a * 20 % 2 > 1 else "health0"
+		pos = 20 + 16 * (jhp + state.hp0), 30
+		image.Fdraw(imgname, pos, scale = 0.3)
+		
 
 
