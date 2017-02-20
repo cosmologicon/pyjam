@@ -1,6 +1,9 @@
 from __future__ import division
 import math, random
-
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 
 you = None
@@ -143,4 +146,14 @@ def addrockwave(x0, y0, n, spread):
 		r = random.uniform(30, random.uniform(30, 50))
 		rock = thing.Rock(x = x, y = y, vx = vx, vy = 0, r = r, hp = 20)
 		enemies.append(rock)
+
+def save(filename):
+	obj = [(k, v) for k, v in globals().items() if not k.startswith("_") and type(v) is not type(pickle)]
+	pickle.dump(obj, open(filename, "wb"), 2)
+
+def load(filename):
+	obj = pickle.load(open(filename, "rb"))
+	g = globals()
+	for k, v in obj:
+		g[k] = v
 

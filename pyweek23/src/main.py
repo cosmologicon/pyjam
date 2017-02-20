@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, os, datetime
 from pygame.locals import *
-from . import settings, view, ptext, background
+from . import settings, view, ptext, background, state
 from . import scene, playscene, losescene
 from .util import F
 
@@ -41,6 +41,10 @@ while scene.stack:
 		t = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 		path = os.path.join(settings.screenshotdir, "screenshot-%s.png" % t)
 		pygame.image.save(view.screen, path)
+	if settings.DEBUG and settings.isdown("quicksave", kdowns):
+		state.save(settings.quicksavefile)
+	if settings.DEBUG and settings.isdown("quickload", kdowns):
+		state.load(settings.quicksavefile)
 
 pygame.quit()
 
