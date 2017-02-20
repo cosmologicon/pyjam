@@ -71,6 +71,12 @@ def think(dt):
 			obj.collect()
 	for group in thinkers:
 		group[:] = [x for x in group if x.alive]
+	while waves and you.t > waves[0][0]:
+		wave = waves[0]
+		del waves[0]
+		func = wave[1]
+		args = wave[2:]
+		func(*args)
 
 def draw():
 	drawers = planets, bosses, enemies, yous, goodbullets, badbullets, pickups
@@ -89,9 +95,9 @@ def heal(amount):
 	global hp
 	hp = min(hp + amount, hp0)
 
-def addmedusa(x, y):
+def addmedusa():
 	import thing
-	boss = thing.Medusa(x = x, y = y, vx = -5)
+	boss = thing.Medusa(x = 600, y = 0, steps = [[0, 320, 0]])
 	bosses.append(boss)
 	for jtheta in (0, 1, 2):
 		for jr, r in enumerate((20, 18, 16, 15, 14, 13, 12)):
@@ -104,7 +110,7 @@ def addmedusa(x, y):
 			snake = thing.SnakeSegment(target = boss, omega = 0.5, R = 150, theta0 = theta0, r = r, diedelay = diedelay)
 			enemies.append(snake)
 
-def addwave(x0, y0, nx, ny, steps):
+def addduckwave(x0, y0, nx, ny, steps):
 	import thing
 	dxs, dys, dts = [], [], []
 	r = 50

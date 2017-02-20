@@ -288,8 +288,8 @@ class RoundhouseBullets(Component):
 				bullet = BadBullet(
 					x = self.x + r * dx,
 					y = self.y + r * dy,
-					vx = self.vx + self.vbullet * dx,
-					vy = self.vy + self.vbullet * dy
+					vx = self.vbullet * dx,
+					vy = self.vbullet * dy
 				)
 				state.badbullets.append(bullet)
 			self.tbullet -= self.dtbullet
@@ -511,7 +511,7 @@ class GoodMissile(object):
 @HasHealth(20)
 @Collides(60)
 @RoundhouseBullets()
-@LinearMotion()
+@SeeksFormation(30, 30)
 @DisappearsOffscreen()
 @DrawBox("medusa")
 class Medusa(object):
@@ -528,6 +528,7 @@ class Medusa(object):
 class SnakeSegment(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
+		self.think(0)
 
 @WorldBound()
 @Lives()
