@@ -26,7 +26,10 @@ while scene.stack:
 	top.think(dt, kdowns, kpressed)
 	top.draw()
 	if settings.DEBUG:
-		text = "%.1ffps" % clock.get_fps()
+		text = "\n".join([
+			"F2: toggle DEBUG mode",
+			"%.1ffps" % clock.get_fps(),
+		])
 		ptext.draw(text, bottomleft = F(5, 475), fontsize = F(18), color = "white", owidth = 1)
 	pygame.display.flip()
 
@@ -45,6 +48,8 @@ while scene.stack:
 		state.save(settings.quicksavefile)
 	if settings.DEBUG and settings.isdown("quickload", kdowns):
 		state.load(settings.quicksavefile)
+	if settings.isdown("toggledebug", kdowns):
+		settings.DEBUG = not settings.DEBUG
 
 pygame.quit()
 

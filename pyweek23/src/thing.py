@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import view, ptext, state, util
+from . import view, ptext, state, util, image, settings
 from . import scene, visitscene
 from .enco import Component
 from .util import F
@@ -276,6 +276,8 @@ class YouBound(Component):
 class BossBound(Component):
 	def __init__(self, diedelay = 0):
 		self.diedelay = diedelay
+		self.vx = 0
+		self.vy = 0
 	def setstate(self, **kw):
 		getattribs(self, kw, "target", "omega", "R", "theta0", "diedelay")
 	def think(self, dt):
@@ -283,8 +285,11 @@ class BossBound(Component):
 			return
 		if self.target.alive:
 			theta = self.theta0 + self.omega * self.t
-			self.x = self.target.x + self.R * math.cos(theta)
-			self.y = self.target.y + self.R * math.sin(theta)
+			S, C = math.sin(theta), math.cos(theta)
+			self.x = self.target.x + self.R * C
+			self.y = self.target.y + self.R * S
+			self.vx = -S * self.R * self.omega
+			self.vy = C * self.R * self.omega
 		else:
 			self.diedelay -= dt
 			if self.diedelay <= 0:
@@ -339,6 +344,31 @@ class RoundhouseBullets(Component):
 				state.badbullets.append(bullet)
 			self.tbullet -= self.dtbullet
 			self.jbullet += 1
+
+class ABBullets(Component):
+	def __init__(self, nbullet, dtbullet):
+		self.tbullet = 0
+		self.nbullet = nbullet
+		self.dtbullet = dtbullet
+		self.vbullet = 50
+		self.jbullet = 0
+	def think(self, dt):
+		self.tbullet += dt
+		while self.tbullet >= self.dtbullet:
+			for jtheta in range(self.nbullet):
+				theta = (jtheta + self.jbullet * 0.5) / self.nbullet * math.tau
+				dx, dy = math.cos(theta), math.sin(theta)
+				r = self.r + 2
+				bullet = BadBullet(
+					x = self.x + r * dx,
+					y = self.y + r * dy,
+					vx = self.vbullet * dx,
+					vy = self.vbullet * dy
+				)
+				state.badbullets.append(bullet)
+			self.tbullet -= self.dtbullet
+			self.jbullet += 1
+			self.jbullet %= 2
 
 class Visitable(Component):
 	def setstate(self, **kw):
@@ -441,7 +471,38 @@ class Spawns(Component):
 		getattribs(self, kw, "egg", "collection")
 	def die(self):
 		self.collection.append(self.egg)
-	
+
+class DrawImage(Component):
+	def __init__(self, imgname, imgscale = 1):
+		self.imgname = imgname
+		self.imgscale = imgscale
+	def setstate(self, **kw):
+		getattribs(self, kw, "imgname", "imgscale")
+	def draw(self):
+		scale = 0.01 * self.r * self.imgscale
+		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale)
+		if settings.DEBUG:
+			pos = view.screenpos((self.x, self.y))
+			r = F(view.Z * self.r)
+			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
+
+class DrawFacingImage(Component):
+	def __init__(self, imgname, imgscale = 1, ispeed = 0):
+		self.imgname = imgname
+		self.imgscale = imgscale
+		self.ispeed = ispeed
+	def setstate(self, **kw):
+		getattribs(self, kw, "imgname", "imgscale")
+	def draw(self):
+		scale = 0.01 * self.r * self.imgscale
+		y = -self.vy
+		x = self.vx + self.ispeed
+		angle = 0 if x == 0 and y == 0 else math.degrees(math.atan2(y, x))
+		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle)
+		if settings.DEBUG:
+			pos = view.screenpos((self.x, self.y))
+			r = F(view.Z * self.r)
+			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
 
 class DrawBox(Component):
 	def __init__(self, boxname, boxcolor = (120, 120, 120)):
@@ -586,7 +647,7 @@ class Medusa(object):
 @Collides(4)
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
-@DrawBox("snake")
+@DrawFacingImage("duck", 1.2, 0)
 class SnakeSegment(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -600,8 +661,23 @@ class SnakeSegment(object):
 @DisappearsOffscreen()
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
-@DrawBox("duck")
+@DrawFacingImage("duck", 1.2, -100)
 class Duck(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+
+@WorldBound()
+@Lives()
+@HasHealth(10)
+@Collides(20)
+@LinearMotion()
+@DisappearsOffscreen()
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
+@ABBullets(12, 3)
+@DrawBox("heron")
+class Heron(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 
@@ -613,7 +689,7 @@ class Duck(object):
 @DisappearsOffscreen()
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
-@DrawBox("rock")
+@DrawImage("rock-0", 0.39)
 class Rock(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)

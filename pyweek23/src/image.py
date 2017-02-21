@@ -3,23 +3,32 @@ from . import view, util
 from .util import F
 
 imgs = {}
-def get(imgname, scale = 1):
-	key = imgname, scale
+def get(imgname, scale = 1, angle = 0):
+	angle = 4 * int(round(angle / 4)) % 360
+	key = imgname, scale, angle
 	if key in imgs: return imgs[key]
-	if scale == 1:
+	if scale == 1 and angle == 0:
 		img = pygame.image.load("data/img/%s.png" % imgname).convert_alpha()
 	else:
-		img0 = get(imgname, scale = 1)
-		img = pygame.transform.rotozoom(img0, 0, scale)
+		img0 = get(imgname, scale = 1, angle = 0)
+		img = pygame.transform.rotozoom(img0, angle, scale)
 	imgs[key] = img
 	return imgs[key]
 
-def draw(imgname, pos, scale = 1):
-	img = get(imgname, scale = scale)
+def draw(imgname, pos, scale = 1, angle = 0):
+	img = get(imgname, scale = scale, angle = angle)
 	view.screen.blit(img, img.get_rect(center = pos))
 
-def Fdraw(imgname, pos, scale = 1):
+def Fdraw(imgname, pos, scale = 1, angle = 0):
 	draw(imgname,
 		pos = F(pos),
-		scale = util.f * scale
+		scale = util.f * scale,
+		angle = angle
+	)
+
+def Gdraw(imgname, pos, scale = 1, angle = 0):
+	draw(imgname,
+		pos = view.screenpos(pos),
+		scale = util.f * view.Z * scale,
+		angle = angle
 	)

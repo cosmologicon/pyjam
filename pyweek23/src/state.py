@@ -146,6 +146,15 @@ def addduckwave(x0, y0, nx, ny, steps):
 		obj = thing.Duck(x = x0 + dx, y = y0 + dy, steps = esteps)
 		enemies.append(obj)
 
+def addheronwave(n, dt):
+	import thing
+	vx = -20
+	x0 = 600
+	for j in range(n):
+		y = ((j + 1) * math.phi % 1 * 2 - 1) * yrange
+		obj = thing.Heron(x = x0 + j * abs(vx) * dt, y = y, vx = vx, vy = 0)
+		enemies.append(obj)
+
 def addrockwave(x0, y0, n, spread):
 	import thing
 	for j in range(n):

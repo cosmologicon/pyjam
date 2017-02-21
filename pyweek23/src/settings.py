@@ -27,6 +27,7 @@ controls = {
 	"screenshot": [K_F12],
 	"quicksave": [K_F5],
 	"quickload": [K_F6],
+	"toggledebug": [K_F2],
 }
 def isdown(key, kdowns):
 	return any(k in kdowns for k in controls[key])
