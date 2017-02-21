@@ -9,14 +9,19 @@ class self:
 def init(name):
 	self.name = name
 	self.texts = [
-		"Leave the survivor behind",
-		"Remove your missile array",
+		"Sure thing.",
+		"I'm sorry, I really need the fuel myself.",
 	]
 	self.subtexts = [
-		"They may not survive",
-		"Your ship will no longer fire missiles",
+		"You will lose half your health",
+		"You will keep your current health",
 	]
-	self.info = "Thank you for coming. I didn't think I would ever make it. Please get me out of here...."
+	self.info = "\n".join([
+		"Finally, someone! I thought I'd never see another human being again.",
+		"I'm one of professor Cortadora's team. Since the accident on the spaceship I managed to survive on this planet. Damn, I still can hear the emergency signal.",
+		"Luckily I was able to get one of these capsules. And if YOU could transfer some fuel to it, I could make my way back home. Would you be so kind?",
+	])
+
 	self.t = 0
 	self.opt = 0
 	
@@ -36,7 +41,7 @@ def draw():
 	view.screen.fill((0, 40, 100))
 	ptext.draw("Visiting: " + self.name, midtop = F(427, 10),
 		fontsize = F(40), shadow = (1, 1))
-	ptext.draw(self.info, topright = F(760, 100), width = F(400), fontsize = F(28),
+	ptext.draw(self.info, topright = F(760, 50), width = F(600), fontsize = F(24),
 		color = "turquoise", shadow = (1, 1))
 	y0 = 260 if self.t > 1.5 else 260 + 400 * (1.5 - self.t) ** 2
 	for jtext, (text, subtext) in enumerate(zip(self.texts, self.subtexts)):

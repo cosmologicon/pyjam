@@ -276,24 +276,86 @@ class YouBound(Component):
 class BossBound(Component):
 	def __init__(self, diedelay = 0):
 		self.diedelay = diedelay
-		self.vx = 0
-		self.vy = 0
 	def setstate(self, **kw):
-		getattribs(self, kw, "target", "omega", "R", "theta0", "diedelay")
+		getattribs(self, kw, "target", "diedelay")
 	def think(self, dt):
 		if not self.alive:
 			return
-		if self.target.alive:
-			theta = self.theta0 + self.omega * self.t
-			S, C = math.sin(theta), math.cos(theta)
-			self.x = self.target.x + self.R * C
-			self.y = self.target.y + self.R * S
-			self.vx = -S * self.R * self.omega
-			self.vy = C * self.R * self.omega
-		else:
+		if not self.target.alive:
 			self.diedelay -= dt
 			if self.diedelay <= 0:
 				self.die()
+
+class EncirclesBoss(Component):
+	def __init__(self):
+		self.vx = 0
+		self.vy = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "omega", "R", "theta0")
+	def think(self, dt):
+		if not self.alive or not self.target.alive:
+			return
+		theta = self.theta0 + self.omega * self.t
+		S, C = math.sin(theta), math.cos(theta)
+		self.x = self.target.x + self.R * C
+		self.y = self.target.y + self.R * S
+		self.vx = -S * self.R * self.omega
+		self.vy = C * self.R * self.omega
+
+class SinusoidsAcross(Component):
+	def __init__(self, varc = 50, harc = 50, p0arc = 0):
+		self.vx = 0
+		self.vy = 0
+		self.varc = varc
+		self.harc = harc
+		self.p0arc = p0arc
+	def setstate(self, **kw):
+		getattribs(self, kw, "x0arc", "y0arc", "dxarc", "dyarc", "varc", "harc", "p0arc")
+	def think(self, dt):
+		if not self.alive or not self.target.alive:
+			return
+		p = self.p0arc + self.varc * self.t
+		dpdt = self.varc
+		darc = math.sqrt(self.dxarc ** 2 + self.dyarc ** 2)
+		beta = math.tau * p / darc
+		dbetadt = math.tau * dpdt / darc
+		h = self.harc * math.sin(beta)
+		dhdt = self.harc * dbetadt * math.cos(beta)
+		C, S = util.norm(self.dxarc, self.dyarc)
+		self.x = self.x0arc + p * C - h * S
+		self.y = self.y0arc + p * S + h * C
+		self.vx = dpdt * C - dhdt * S
+		self.vy = dpdt * S + dhdt * C
+
+class SpawnsCobras(Component):
+	def __init__(self, dtcobra = 2):
+		self.tcobra = 0
+		self.dtcobra = dtcobra
+		self.jcobra = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "tcobra", "dtcobra", "jcobra")
+	def think(self, dt):
+		self.tcobra += dt
+		while self.tcobra > self.dtcobra:
+			self.spawncobra()
+			self.tcobra -= self.dtcobra
+	def spawncobra(self):
+		top = self.jcobra % 2 == 1
+		x0 = self.jcobra * math.phi % 1 * 500 - 100
+		y0 = -state.yrange if top else state.yrange
+		dx = -300
+		dy = (300 if top else -300) * (1 + self.jcobra * math.phi % 1 * 0.4)
+		h = 80
+		p0 = -50
+		for jseg, r in enumerate((40, 38, 36, 34, 32, 30, 28, 26, 24, 23, 22, 21, 20)):
+			diedelay = 0.5 + 0.1 * jseg
+			snake = Cobra(x0arc = x0, y0arc = y0, dxarc = dx, dyarc = dy, p0arc = p0, harc = h,
+				r = r, target = self, diedelay = diedelay)
+			state.enemies.append(snake)
+			p0 -= r * 0.8
+		self.jcobra += 1
+	
+
 
 class Collides(Component):
 	def __init__(self, r):
@@ -312,9 +374,13 @@ class ConstrainToScreen(Component):
 		self.y = util.clamp(self.y, -dymax, dymax)
 
 class DisappearsOffscreen(Component):
+	def __init__(self, offscreenmargin = 20):
+		self.offscreenmargin = offscreenmargin
+	def setstate(self, **kw):
+		getattribs(self, kw, "offscreenmargin")
 	def think(self, dt):
 		x = self.x - view.x0
-		xmax = 427 / view.Z + self.r + 10
+		xmax = 427 / view.Z + self.r + self.offscreenmargin
 		ymax = state.yrange + 10
 		if x * self.vx > 0 and abs(x) > xmax:
 			self.die()
@@ -634,6 +700,7 @@ class GoodMissile(object):
 @VerticalSinusoid(0.4, 120)
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
+@SpawnsCobras()
 @DrawBox("medusa")
 class Medusa(object):
 	def __init__(self, **kw):
@@ -642,13 +709,28 @@ class Medusa(object):
 
 @WorldBound()
 @BossBound()
+@EncirclesBoss()
 @Lives()
 @InfiniteHealth()
 @Collides(4)
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
 @DrawFacingImage("duck", 1.2, 0)
-class SnakeSegment(object):
+class Asp(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+		self.think(0)
+
+@WorldBound()
+@BossBound()
+@SinusoidsAcross()
+@Lives()
+@InfiniteHealth()
+@Collides(4)
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
+@DrawFacingImage("duck", 1.2, 0)
+class Cobra(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 		self.think(0)

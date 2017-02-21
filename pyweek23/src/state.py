@@ -125,11 +125,11 @@ def addmedusa():
 		for jr, r in enumerate((20, 18, 16, 15, 14, 13, 12)):
 			theta0 = (jtheta / 3 + jr / 40) * math.tau
 			diedelay = 0.5 + 0.2 * jr
-			snake = thing.SnakeSegment(target = boss, omega = -0.8, R = 100, theta0 = theta0, r = r, diedelay = diedelay)
+			snake = thing.Asp(target = boss, omega = -0.8, R = 100, theta0 = theta0, r = r, diedelay = diedelay)
 			enemies.append(snake)
 
 			theta0 = (jtheta / 3 - jr / 70) * math.tau
-			snake = thing.SnakeSegment(target = boss, omega = 0.5, R = 150, theta0 = theta0, r = r, diedelay = diedelay)
+			snake = thing.Asp(target = boss, omega = 0.5, R = 150, theta0 = theta0, r = r, diedelay = diedelay)
 			enemies.append(snake)
 
 def addduckwave(x0, y0, nx, ny, steps):
@@ -165,6 +165,7 @@ def addrockwave(x0, y0, n, spread):
 		rock = thing.Rock(x = x, y = y, vx = vx, vy = 0, r = r, hp = 20)
 		enemies.append(rock)
 
+# I regret nothing.
 obj0 = pickle.dumps([(k, v) for k, v in globals().items() if not k.startswith("_") and type(v) is not type(pickle)], 2)
 def reset():
 	g = globals()
