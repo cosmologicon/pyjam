@@ -77,9 +77,18 @@ class Knockable(Component):
 		self.y += dy
 
 class MovesWithArrows(Component):
-	def move(self, dx, dy):
-		self.x += state.speed * dx
-		self.y += state.speed * dy
+	def __init__(self, **kw):
+		self.vx = 0
+		self.vy = 0
+	def move(self, dt, dx, dy):
+		if dx: self.vx = state.speed * dx
+		if dy: self.vy = state.speed * dy
+		self.x += state.speed * dx * dt
+		self.y += state.speed * dy * dt
+	def think(self, dt):
+		f = math.exp(-10 * dt)
+		self.vx *= f
+		self.vy *= f
 
 class SeeksEnemies(Component):
 	def __init__(self, v0):
@@ -414,6 +423,8 @@ class SpawnsSwallows(Component):
 			self.xomega *= 5
 			self.yomega *= 5
 			self.swallows = [s for s in self.swallows if s.alive]
+			for s in self.swallows:
+				s.omega *= 1.4
 
 class Collides(Component):
 	def __init__(self, r):
@@ -683,10 +694,10 @@ class DrawGlow(Component):
 @FiresWithSpace()
 @MissilesWithSpace()
 @CShotsWithSpace()
-@Collides(10)
+@Collides(5)
 @ConstrainToScreen(5, 5)
 @FlashesOnInvulnerable()
-@DrawBox("you")
+@DrawFacingImage("you", 5, 1000)
 class You(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -789,7 +800,7 @@ class Medusa(object):
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
 @SpawnsSwallows(6)
-@DrawBox("egret")
+@DrawImage("egret", 1.4)
 class Egret(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
