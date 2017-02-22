@@ -6,6 +6,7 @@ imgs = {}
 def get(imgname, scale = 1, angle = 0):
 	kangle = 4
 	if imgname == "you": kangle = 1
+	if imgname == "capsule": kangle = 2
 
 	angle = kangle * int(round(angle / kangle)) % 360
 	key = imgname, scale, angle

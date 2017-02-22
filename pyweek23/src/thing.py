@@ -235,9 +235,9 @@ class FiresWithSpace(Component):
 	def getdamage(self):
 		return state.basedamage + int(self.getcharge())
 	def getbulletsize(self):
-		return 2 * (state.basedamage + self.getcharge()) ** 0.6
+		return 3 * (state.basedamage + self.getcharge()) ** 0.3
 	def shoot(self):
-		r = self.r + 5
+		r = self.r + 15
 		x0, y0 = self.x + r, self.y
 		bullet = GoodBullet(
 			x = self.x + r, y = self.y,
@@ -247,18 +247,19 @@ class FiresWithSpace(Component):
 		)
 		state.goodbullets.append(bullet)
 		for jvshot in range(state.vshots):
-			dx, dy = -3 * (jvshot + 1), 4 * (jvshot + 1)
+			dx, dy = -6 * (jvshot + 1), 8 * (jvshot + 1)
 			state.goodbullets.append(RangeGoodBullet(
-				x = x0 + dx, y = y0 + dy, vx = 500, vy = 0, r = 1, damage = 1, lifetime = 0.2))
+				x = x0 + dx, y = y0 + dy, vx = 500, vy = 0, r = 3, damage = 1, lifetime = 0.2))
 			state.goodbullets.append(RangeGoodBullet(
-				x = x0 + dx, y = y0 - dy, vx = 500, vy = 0, r = 1, damage = 1, lifetime = 0.2))
+				x = x0 + dx, y = y0 - dy, vx = 500, vy = 0, r = 3, damage = 1, lifetime = 0.2))
 		self.tshot = 0
 	def draw(self):
 		charge = self.getcharge()
 		if charge <= 0: return
-		pos = view.screenpos((self.x + self.r + 5, self.y))
+		pos = view.screenpos((self.x + self.r * 7, self.y))
 		r = F(view.Z * self.getbulletsize())
-		pygame.draw.circle(view.screen, (255, 255, 255), pos, r)
+		color = (255, 255, 255) if self.t * 4 % 1 > 0.5 else (200, 200, 255)
+		pygame.draw.circle(view.screen, color, pos, r)
 
 class MissilesWithSpace(Component):
 	def __init__(self):
@@ -301,7 +302,7 @@ class CShotsWithSpace(Component):
 			bullet = GoodBullet(
 				x = self.x + r * dx, y = self.y + r * dy,
 				vx = 500 * dx, vy = 500 * dy,
-				r = 3,
+				r = 5,
 				damage = 5
 			)
 			state.goodbullets.append(bullet)
@@ -328,6 +329,15 @@ class BossBound(Component):
 			self.diedelay -= dt
 			if self.diedelay <= 0:
 				self.die()
+
+class Tumbles(Component):
+	def __init__(self, omega):
+		self.omega = omega
+		self.theta = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "theta", "omega")
+	def think(self, dt):
+		self.theta += self.omega * dt
 
 class EncirclesBoss(Component):
 	def __init__(self):
@@ -639,7 +649,7 @@ class DrawFacingImage(Component):
 			r = F(view.Z * self.r)
 			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
 
-class DrawEncirclingImage(Component):
+class DrawAngleImage(Component):
 	def __init__(self, imgname, imgscale = 1):
 		self.imgname = imgname
 		self.imgscale = imgscale
@@ -683,9 +693,8 @@ class DrawGlow(Component):
 		self.dtflash = random.random()
 	def draw(self):
 		pos = view.screenpos((self.x, self.y))
-		r = F(view.Z * self.r)
-		color = (255, 255, 255)
-		pygame.draw.circle(view.screen, color, pos, r)
+#		pygame.draw.circle(view.screen, (200, 200, 255), pos, F(view.Z * self.r * 2))
+		pygame.draw.circle(view.screen, (200, 200, 255), pos, F(view.Z * self.r * 1))
 
 @WorldBound()
 @Lives()
@@ -722,6 +731,18 @@ class Companion(object):
 @DrawBox("planet")
 @Visitable()
 class Planet(object):
+	def __init__(self, **kw):
+		self.setstate(vx = -state.scrollspeed, vy = 0, **kw)
+
+@WorldBound()
+@Lives()
+@Collides(16)
+@LinearMotion()
+@InfiniteHealth()
+@Tumbles(1)
+@DrawAngleImage("capsule", 1.7)
+@Visitable()
+class Capsule(object):
 	def __init__(self, **kw):
 		self.setstate(vx = -state.scrollspeed, vy = 0, **kw)
 
@@ -813,7 +834,7 @@ class Egret(object):
 @Collides(30)
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
-@DrawEncirclingImage("swallow", 1.3)
+@DrawAngleImage("swallow", 1.3)
 class Swallow(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
