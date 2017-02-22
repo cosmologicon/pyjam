@@ -10,13 +10,14 @@ def init():
 		(random.uniform(0, 1000000), random.uniform(0, 1000000), random.uniform(0.4, 0.8))
 		for _ in range(10000)
 	])
-	nebulas["crab"] = pygame.image.load("astropix/crab-nebula.jpg").convert_alpha()
+	for name in "crab star tombud spiral".split():
+		nebulas[name] = pygame.image.load("astropix/%s.jpg" % name).convert_alpha()
 
 def draw():
 	x0, y0 = view.x0 + state.xoffset, view.y0
 	view.screen.fill((0, 0, 0))
 	pos = F(1000 - 0.3 * x0, 240 - 0.3 * y0)
-	img = getnebula("crab", F(800))
+	img = getnebula("star", F(800))
 	view.screen.blit(img, img.get_rect(center = pos))
 	pos = F(427 - 0.3 * x0, 240 - 0.3 * y0)
 	ptext.draw(settings.gamename, center = pos, color = "#220000", fontsize = F(60), angle = 10)
