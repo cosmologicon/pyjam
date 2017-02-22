@@ -8,6 +8,7 @@ maxfps = 120
 DEBUG = True
 
 fullscreen = False
+portrait = True
 windowsize = 480  # 16:9 aspect ratio
 
 screenshotdir = "screenshots"
@@ -24,6 +25,7 @@ controls = {
 	"swap": [K_CAPSLOCK, K_TAB],
 	"quit": [K_ESCAPE],
 	"fullscreen": [K_F11, K_f],
+	"portrait": [K_F10],
 	"screenshot": [K_F12],
 	"quicksave": [K_F5],
 	"quickload": [K_F6],

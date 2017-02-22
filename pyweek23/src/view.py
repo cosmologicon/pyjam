@@ -10,23 +10,32 @@ x0, y0, Z = 0, 0, 1
 
 def init():
 	global screen, sx, sy
-	sy = settings.windowsize
-	sx = int(round(sy * 16 / 9))
-	if sy == 480: sx = 854  # special case to match YouTube video size
+	aspect = 9 / 16 if settings.portrait else 16 / 9
 	if settings.fullscreen:
 		sx0, sy0 = max(pygame.display.list_modes())
-		sx, sy = min((sx0, int(round(sx0 * 9 / 16))), (int(round(sy0 * 16 / 9)), sy0))
+		sx, sy = min((sx0, int(round(sx0 / aspect))), (int(round(sy0 * aspect)), sy0))
+	else:
+		sy = settings.windowsize
+		sx = int(round(sy * 16 / 9))
+		if sy == 480: sx = 854  # special case to match YouTube video size
+		if settings.portrait:
+			sx, sy = sy, sx
 	flags = 0
 	if settings.fullscreen: flags |= FULLSCREEN
 	screen = pygame.display.set_mode((sx, sy), flags)
-	util.seth(sy)
+	util.seth(sx if settings.portrait else sy)
 	pygame.display.set_caption(settings.gamename)
-
+	pygame.mouse.set_visible(False)
 
 
 def screenpos(pos):
 	x, y = pos
-	return F([(x - x0) * Z + 427, (y - y0) * Z + 240])
+	dx, dy = (x - x0) * Z, (y - y0) * Z
+	if settings.portrait:
+		
+		return F([dy + 240, 427 - dx])
+	else:
+		return F([dx + 427, dy + 240])
 
 def think(dt):
 	global y0
