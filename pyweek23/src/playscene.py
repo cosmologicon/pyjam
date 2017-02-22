@@ -15,10 +15,11 @@ def init():
 			[6, 0, -200],
 			[9, -600, 0],
 		]],
-		[0, state.addrockwave, 900, 0, 60, 200],
+		[5, state.addrockwave, 900, 0, 60, 200],
 		[25, state.addmedusa],
 	]
-	state.waves = [[0, state.addmedusa]]
+	state.waves = [[0, state.addegret]]
+#	state.waves = [[0, state.addmedusa]]
 #	state.waves = [[5, state.addrockwave, 900, 0, 60, 200]],
 #	state.waves = [[0, state.addheronwave, 10, 1]]
 	state.pickups.append(thing.MissilesPickup(x = 300, y = 0))

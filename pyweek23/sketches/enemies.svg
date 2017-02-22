@@ -21,38 +21,99 @@
      id="defs4195">
     <linearGradient
        inkscape:collect="always"
-       id="linearGradient4743">
+       id="linearGradient4842">
       <stop
-         style="stop-color:#b8bdbc;stop-opacity:1"
+         style="stop-color:#1a1d1c;stop-opacity:1;"
          offset="0"
-         id="stop4745" />
+         id="stop4844" />
       <stop
-         style="stop-color:#262a2a;stop-opacity:1"
+         style="stop-color:#1a1d1c;stop-opacity:0;"
          offset="1"
-         id="stop4747" />
+         id="stop4846" />
     </linearGradient>
-    <radialGradient
+    <linearGradient
+       id="linearGradient4794-5"
+       inkscape:collect="always">
+      <stop
+         id="stop4820"
+         offset="0"
+         style="stop-color:#525054;stop-opacity:1;" />
+      <stop
+         id="stop4822"
+         offset="1"
+         style="stop-color:#1a1d1c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient4743"
-       id="radialGradient4753"
-       cx="314.44342"
-       cy="574.90759"
-       fx="314.44342"
-       fy="574.90759"
-       r="30.272717"
-       gradientTransform="matrix(1.8494811,0.01816019,-0.02916263,2.9699972,-808.77132,-1160.8222)"
+       id="linearGradient4794">
+      <stop
+         style="stop-color:#525054;stop-opacity:1;"
+         offset="0"
+         id="stop4796" />
+      <stop
+         style="stop-color:#a8a8aa;stop-opacity:1"
+         offset="1"
+         id="stop4798" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4794"
+       id="linearGradient4800"
+       x1="492.17856"
+       y1="582.14795"
+       x2="409.25003"
+       y2="580.00507"
        gradientUnits="userSpaceOnUse" />
     <radialGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient4743"
-       id="radialGradient4757"
+       xlink:href="#linearGradient4794"
+       id="radialGradient4808"
+       cx="504.64282"
+       cy="582.88745"
+       fx="504.64282"
+       fy="582.88745"
+       r="24.607143"
+       gradientTransform="matrix(1,0,0,0.9927431,0,4.2404017)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4794-5"
+       id="radialGradient4816"
+       cx="-270.05142"
+       cy="591.09491"
+       fx="-270.05142"
+       fy="591.09491"
+       r="30.272717"
+       gradientTransform="matrix(1,0,0,2.2151424,0,-718.06851)"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4794-5"
+       id="linearGradient4838"
+       x1="471.11047"
+       y1="853.65039"
+       x2="352.18002"
+       y2="733.4422"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(3.5980666,0.01153848,-0.05673433,1.887054,-1337.1931,-522.08348)"
-       cx="314.44342"
-       cy="574.90759"
-       fx="314.44342"
-       fy="574.90759"
-       r="30.272717" />
+       gradientTransform="matrix(0.99500112,0,0,1.000295,1.6816991,-0.2393128)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4794-5"
+       id="linearGradient4840"
+       x1="460.12448"
+       y1="-846.29108"
+       x2="350.01785"
+       y2="-733.65906"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4842"
+       id="linearGradient4848"
+       x1="405.47348"
+       y1="787.46442"
+       x2="406.3938"
+       y2="676.95776"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -61,9 +122,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
-     inkscape:cx="237.35177"
-     inkscape:cy="459.58374"
+     inkscape:zoom="2.8"
+     inkscape:cx="484.7415"
+     inkscape:cy="245.32845"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -88,6 +149,25 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <path
+       sodipodi:type="star"
+       style="fill:#525054;fill-opacity:1;stroke:#b7b4ba;stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4784"
+       sodipodi:sides="4"
+       sodipodi:cx="493.57144"
+       sodipodi:cy="581.64795"
+       sodipodi:r1="72.026962"
+       sodipodi:r2="29.917582"
+       sodipodi:arg1="0.74682082"
+       sodipodi:arg2="1.4881153"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 546.42859,630.57652 -50.38635,-19.11319 -51.39937,23.04177 19.11319,-50.38635 -23.04176,-51.39938 50.38634,19.1132 51.39938,-23.04177 -19.1132,50.38635 z"
+       transform="matrix(0.99917377,0.04064204,-0.04064204,0.99917377,22.618588,-16.364888)"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/duck.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <rect
        ry="15.43047"
        y="549.1806"
@@ -95,8 +175,8 @@
        height="83.506081"
        width="104.22036"
        id="rect4755"
-       style="fill:url(#radialGradient4757);fill-opacity:1;stroke:#d2d5d7;stroke-width:7.75364161;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/duck.png"
+       style="fill:#363836;fill-opacity:1;stroke:#d2d5d7;stroke-width:7.75364161;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/snake.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="scale(-1,1)" />
@@ -106,7 +186,7 @@
        id="path4759"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/duck.png"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/snake.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <path
@@ -115,20 +195,109 @@
        id="path4761"
        d="m 275.08711,621.62625 c 24.82142,0.35715 37.14286,34.10715 74.64286,12.14286 -14.82143,40.71429 -59.10715,9.28571 -73.57143,10 z"
        style="fill:#686762;fill-opacity:1;fill-rule:evenodd;stroke:#b7b4ba;stroke-width:3.5999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/duck.png"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/snake.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <rect
-       style="fill:url(#radialGradient4753);fill-opacity:1;stroke:#d2d5d7;stroke-width:6.97399998;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:url(#radialGradient4816);fill-opacity:1;stroke:#d2d5d7;stroke-width:6.97399998;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4201"
        width="53.571434"
        height="131.42857"
        x="-289.33713"
        y="525.21936"
        ry="24.285715"
-       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/duck.png"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/snake.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="scale(-1,1)" />
+    <ellipse
+       style="fill:url(#linearGradient4800);fill-opacity:1;stroke:#bababd;stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4790"
+       cx="472.5"
+       cy="583.93365"
+       rx="41.42857"
+       ry="35"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/duck.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <ellipse
+       style="fill:url(#radialGradient4808);fill-opacity:1;stroke:#bababd;stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4788"
+       cx="512.85712"
+       cy="584.32648"
+       rx="22.857143"
+       ry="22.678572"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/duck.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:#545554;fill-rule:evenodd;stroke:#bababd;stroke-width:3.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+       d="M 470.71429,519.14791 487.14286,557.71935 475,583.07649 l 12.14286,25.71429 -17.14286,35 28.21429,-14.64286 11.07143,-28.21429 L 497.85714,582.3622 508.92857,563.07649 497.5,535.93363 Z"
+       id="path4782"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccccc"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/duck.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:#525054;fill-opacity:1;stroke:#bababd;stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4792"
+       width="14.642858"
+       height="37.142857"
+       x="452.85715"
+       y="564.50507"
+       ry="0"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/duck.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="star"
+       style="fill:url(#linearGradient4848);fill-opacity:1;stroke:#bababd;stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4828"
+       sodipodi:sides="5"
+       sodipodi:cx="402.5"
+       sodipodi:cy="766.64795"
+       sodipodi:r1="48.865967"
+       sodipodi:r2="39.533398"
+       sodipodi:arg1="-0.94629878"
+       sodipodi:arg2="-0.31798025"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 431.07143,727.00509 17.96023,54.56559 -46.34494,33.94288 -46.60298,-33.58773 17.54272,-54.70124 z"
+       inkscape:transform-center-x="-0.03455994"
+       inkscape:transform-center-y="-4.6579665"
+       transform="matrix(0.5988919,0,0,-1.0100918,167.0059,1605.609)" />
+    <path
+       style="fill:url(#linearGradient4840);fill-opacity:1;stroke:#bababd;stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4824"
+       sodipodi:type="arc"
+       sodipodi:cx="407.5"
+       sodipodi:cy="-800.24707"
+       sodipodi:rx="70.35714"
+       sodipodi:ry="70.35714"
+       sodipodi:start="0"
+       sodipodi:end="3.1467472"
+       sodipodi:open="true"
+       d="m 477.85714,-800.24707 a 70.35714,70.35714 0 0 1 -35.28331,60.99142 70.35714,70.35714 0 0 1 -70.46157,-0.1816 70.35714,70.35714 0 0 1 -34.96846,-61.17248"
+       transform="scale(1,-1)" />
+    <path
+       d="m 477.50478,800.14603 a 70.005432,20.720392 0 0 1 -69.75405,20.62886 70.005432,20.720392 0 0 1 -70.25144,-20.48046"
+       sodipodi:open="true"
+       sodipodi:end="3.1300192"
+       sodipodi:start="0.0044110781"
+       sodipodi:ry="20.720392"
+       sodipodi:rx="70.005432"
+       sodipodi:cy="800.05463"
+       sodipodi:cx="407.50003"
+       sodipodi:type="arc"
+       id="path4826"
+       style="fill:url(#linearGradient4838);fill-opacity:1;stroke:#bababd;stroke-width:3.49175596;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       style="fill:#a2abaa;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 351.9516,759.19497 c 0.0613,15.06499 112.0203,15.10895 112.27284,2.22951 -11.86929,-18.18275 -34.41814,-29.87745 -56.01015,-29.87745 -19.83412,0.0829 -41.61983,8.00508 -56.26269,27.64794 z"
+       id="path4830"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
   </g>
 </svg>

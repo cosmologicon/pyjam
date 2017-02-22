@@ -160,6 +160,40 @@ class SeeksHorizontalPosition(Component):
 			self.vx = v if self.xtarget > self.x else -v
 			self.x += self.vx * dt
 
+class SeeksHorizontalSinusoid(Component):
+	def __init__(self, vxmax0, xaccel0, xomega, xr):
+		self.vxmax0 = vxmax0
+		self.vx0 = 0
+		self.x0 = None
+		self.xaccel0 = xaccel0
+		self.xomega = xomega
+		self.xr = xr
+		self.xtarget0 = None
+		self.xtheta = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "vxmax0", "vx0", "x0", "xaccel0", "xomega", "xtheta" "xr", "xtarget0", "x", "vx")
+	def think(self, dt):
+		if self.x0 is None:
+			self.x0 = self.x
+		if self.xtarget0 is not None:
+			self.vx0 = abs(self.vx0)
+			self.vx0 = min(self.vx0 + dt * self.xaccel0, self.vxmax0)
+			dx = abs(self.xtarget0 - self.x0)
+			if dx < 0.01:
+				v = 100
+			else:
+				v = min(self.vx0, math.sqrt(2 * 2 * self.xaccel0 * dx) + 1)
+			if v * dt >= dx:
+				self.x0 = self.xtarget0
+				self.xtarget0 = None
+				self.vx0 = 0
+			else:
+				self.vx0 = v if self.xtarget0 > self.x0 else -v
+				self.x0 += self.vx0 * dt
+		self.xtheta += self.xomega * dt
+		self.x = self.x0 + self.xr * math.sin(self.xtheta)
+		self.vx = self.vx0 + self.xr * self.xomega * math.cos(self.xtheta)
+
 class VerticalSinusoid(Component):
 	def __init__(self, yomega, yrange, y0 = 0):
 		self.yomega = yomega
@@ -291,12 +325,12 @@ class EncirclesBoss(Component):
 		self.vx = 0
 		self.vy = 0
 	def setstate(self, **kw):
-		getattribs(self, kw, "omega", "R", "theta0")
+		getattribs(self, kw, "omega", "R", "theta")
 	def think(self, dt):
 		if not self.alive or not self.target.alive:
 			return
-		theta = self.theta0 + self.omega * self.t
-		S, C = math.sin(theta), math.cos(theta)
+		self.theta += self.omega * dt
+		S, C = math.sin(self.theta), math.cos(self.theta)
 		self.x = self.target.x + self.R * C
 		self.y = self.target.y + self.R * S
 		self.vx = -S * self.R * self.omega
@@ -355,7 +389,31 @@ class SpawnsCobras(Component):
 			p0 -= r * 0.8
 		self.jcobra += 1
 	
-
+class SpawnsSwallows(Component):
+	def __init__(self, nswallow):
+		self.nswallow = nswallow
+		self.tfreak = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "nswallow")
+		self.swallows = []
+		for jswallow in range(self.nswallow):
+			theta = jswallow * math.tau / self.nswallow
+			swallow = Swallow(target = self, omega = 1, R = self.r, theta = theta)
+			self.swallows.append(swallow)
+			state.enemies.append(swallow)
+	def think(self, dt):
+		if self.tfreak:
+			self.tfreak = max(self.tfreak - dt, 0)
+			if self.tfreak == 0:
+				self.xomega /= 3
+				self.yomega /= 3
+				if not self.swallows:
+					self.die()
+		elif any(not s.alive for s in self.swallows):
+			self.tfreak = 1.5
+			self.xomega *= 5
+			self.yomega *= 5
+			self.swallows = [s for s in self.swallows if s.alive]
 
 class Collides(Component):
 	def __init__(self, r):
@@ -570,6 +628,21 @@ class DrawFacingImage(Component):
 			r = F(view.Z * self.r)
 			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
 
+class DrawEncirclingImage(Component):
+	def __init__(self, imgname, imgscale = 1):
+		self.imgname = imgname
+		self.imgscale = imgscale
+	def setstate(self, **kw):
+		getattribs(self, kw, "imgname", "imgscale")
+	def draw(self):
+		scale = 0.01 * self.r * self.imgscale
+		angle = math.degrees(-self.theta)
+		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle)
+		if settings.DEBUG:
+			pos = view.screenpos((self.x, self.y))
+			r = F(view.Z * self.r)
+			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
+
 class DrawBox(Component):
 	def __init__(self, boxname, boxcolor = (120, 120, 120)):
 		self.boxname = boxname
@@ -706,6 +779,35 @@ class Medusa(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 
+@WorldBound()
+@Lives()
+@InfiniteHealth()
+@Collides(80)
+@RoundhouseBullets()
+@SeeksHorizontalSinusoid(30, 30, 1.1, 40)
+@VerticalSinusoid(0.6, 120)
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
+@SpawnsSwallows(6)
+@DrawBox("egret")
+class Egret(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@BossBound()
+@EncirclesBoss()
+@Lives()
+@HasHealth(20)
+@Collides(30)
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
+@DrawEncirclingImage("swallow", 1.3)
+class Swallow(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+		self.think(0)
+
 
 @WorldBound()
 @BossBound()
@@ -715,7 +817,7 @@ class Medusa(object):
 @Collides(4)
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
-@DrawFacingImage("duck", 1.2, 0)
+@DrawFacingImage("snake", 1.2, 0)
 class Asp(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -729,7 +831,7 @@ class Asp(object):
 @Collides(4)
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
-@DrawFacingImage("duck", 1.2, 0)
+@DrawFacingImage("snake", 1.2, 0)
 class Cobra(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)

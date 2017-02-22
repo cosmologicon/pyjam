@@ -123,14 +123,19 @@ def addmedusa():
 	bosses.append(boss)
 	for jtheta in (0, 1, 2):
 		for jr, r in enumerate((20, 18, 16, 15, 14, 13, 12)):
-			theta0 = (jtheta / 3 + jr / 40) * math.tau
+			theta = (jtheta / 3 + jr / 40) * math.tau
 			diedelay = 0.5 + 0.2 * jr
-			snake = thing.Asp(target = boss, omega = -0.8, R = 100, theta0 = theta0, r = r, diedelay = diedelay)
+			snake = thing.Asp(target = boss, omega = -0.8, R = 100, theta = theta, r = r, diedelay = diedelay)
 			enemies.append(snake)
 
-			theta0 = (jtheta / 3 - jr / 70) * math.tau
-			snake = thing.Asp(target = boss, omega = 0.5, R = 150, theta0 = theta0, r = r, diedelay = diedelay)
+			theta = (jtheta / 3 - jr / 70) * math.tau
+			snake = thing.Asp(target = boss, omega = 0.5, R = 150, theta = theta, r = r, diedelay = diedelay)
 			enemies.append(snake)
+
+def addegret():
+	import thing
+	boss = thing.Egret(x = 600, y = 0, xtarget0 = 280)
+	bosses.append(boss)
 
 def addduckwave(x0, y0, nx, ny, steps):
 	import thing
