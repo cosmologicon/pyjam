@@ -23,7 +23,7 @@ def init():
 #	state.waves = [[5, state.addrockwave, 900, 0, 60, 200]],
 #	state.waves = [[0, state.addheronwave, 10, 1]]
 	state.pickups.append(thing.MissilesPickup(x = 300, y = 0))
-	state.planets.append(thing.Capsule(x = 600, y = -200, name = "Spathiwa"))
+	state.planets.append(thing.Capsule(x = 100, y = -0, name = "Spathiwa"))
 	state.planets.append(thing.Capsule(x = 1000, y = 300, name = "Falayalaralfali"))
 	state.planets.append(thing.Capsule(x = 1200, y = -200, name = "Unzervalt"))
 

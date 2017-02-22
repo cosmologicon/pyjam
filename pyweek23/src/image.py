@@ -1,4 +1,5 @@
-import pygame
+from __future__ import division
+import pygame, math
 from . import view, util
 from .util import F
 
@@ -12,7 +13,9 @@ def get(imgname, scale = 1, angle = 0):
 	key = imgname, scale, angle
 	if key in imgs: return imgs[key]
 	if scale == 1 and angle == 0:
-		img = pygame.image.load("data/img/%s.png" % imgname).convert_alpha()
+		if not imgname.endswith("png") and not imgname.endswith("jpg"):
+			imgname = "data/img/%s.png" % imgname
+		img = pygame.image.load(imgname).convert_alpha()
 	else:
 		img0 = get(imgname, scale = 1, angle = 0)
 #		img = pygame.transform.rotozoom(img0, angle, scale)
@@ -41,3 +44,17 @@ def Gdraw(imgname, pos, scale = 1, angle = 0):
 		scale = util.f * view.Z * scale,
 		angle = angle
 	)
+
+def Bdraw(imgname, pos, s = 120, a = 1, ocolor = (100, 100, 255)):
+	w = util.clamp((3 * a - 1) * s, 1, s)
+	h = util.clamp((3 * a) * s, 1, s)
+	rect = pygame.Rect(0, 0, w, h)
+	rect.center = pos
+	if a < 1:
+		pygame.draw.rect(view.screen, (100, 100, 100), F(rect))
+	rect.inflate_ip(8, 8)
+	ocolor = tuple(int(c * (0.8 + 0.2 * math.sin(0.01 * pygame.time.get_ticks()))) for c in ocolor)
+	pygame.draw.rect(view.screen, ocolor, F(rect), F(2))
+	if a == 1:
+		Fdraw("biopix/" + imgname + ".jpg", pos, scale = s / 600)
+
