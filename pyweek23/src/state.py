@@ -109,6 +109,7 @@ def takedamage(damage):
 		damage -= 1
 	hp -= damage
 	tinvulnerable = 1
+	you.iflash = tinvulnerable
 	if hp <= 0:
 		you.die()
 

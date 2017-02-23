@@ -157,6 +157,24 @@ class SeeksFormation(Component):
 			self.x += self.vx * dt
 			self.y += self.vy * dt
 
+class Cycloid(Component):
+	def setstate(self, **kw):
+		getattribs(self, kw, "x0", "y0", "dy0", "vy0", "cr", "dydtheta")
+		self.think(0)
+	def think(self, dt):
+		dy = self.dy0 + self.vy0 * self.t
+		yc = self.y0 + dy
+		dycdt = self.vy0
+		xc = self.x0
+		theta = math.tau / 2 + dy / self.dydtheta
+		dthetadt = self.vy0 / self.dydtheta
+		S, C = math.sin(theta), math.cos(theta)
+		self.x = xc + C * self.cr
+		self.y = yc + S * self.cr
+		self.vx = -S * dthetadt * self.cr
+		self.vy = dycdt + C * dthetadt * self.cr
+
+
 class SeeksHorizontalPosition(Component):
 	def __init__(self, vxmax, accel):
 		self.vxmax = vxmax
@@ -333,12 +351,13 @@ class YouBound(Component):
 class BossBound(Component):
 	def __init__(self, diedelay = 0):
 		self.diedelay = diedelay
+		self.target = None
 	def setstate(self, **kw):
 		getattribs(self, kw, "target", "diedelay")
 	def think(self, dt):
 		if not self.alive:
 			return
-		if not self.target.alive:
+		if self.target and not self.target.alive:
 			self.diedelay -= dt
 			if self.diedelay <= 0:
 				self.die()
@@ -449,6 +468,22 @@ class SpawnsSwallows(Component):
 			for s in self.swallows:
 				s.omega *= 1.4
 
+	
+class SpawnsHerons(Component):
+	def __init__(self, dtheron):
+		self.dtheron = dtheron
+		self.theron = 0
+		self.jheron = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "theron", "dtheron", "jheron")
+	def think(self, dt):
+		self.theron += dt
+		while self.theron >= self.dtheron:
+			heron = Heron(x = 600, y = self.y, vx = -60, vy = 0, target = self)
+			state.enemies.append(heron)
+			self.jheron += 1
+			self.theron -= self.dtheron
+
 class Collides(Component):
 	def __init__(self, r):
 		self.r = r
@@ -473,11 +508,11 @@ class DisappearsOffscreen(Component):
 	def think(self, dt):
 		x = self.x - view.x0
 		xmax = 427 / view.Z + self.r + self.offscreenmargin
-		ymax = state.yrange + 10
+		ymax = state.yrange + self.r + self.offscreenmargin
 		if x * self.vx > 0 and abs(x) > xmax:
-			self.die()
+			self.alive = False
 		if self.y * self.vy > 0 and abs(self.y) > ymax:
-			self.die()
+			self.alive = False
 
 class RoundhouseBullets(Component):
 	def __init__(self):
@@ -566,6 +601,29 @@ class KnocksOnCollision(Component):
 		if target is not None:
 			target.knock(*util.norm(target.x - self.x, target.y - self.y, self.dknock))
 
+class ClustersNearYou(Component):
+	def __init__(self, nbullet, dyou, vbullet = 50):
+		self.nbullet = nbullet
+		self.dyou = dyou
+		self.vbullet = vbullet
+	def setstate(self, **kw):
+		getattribs(self, kw, "nbullet", "dyou", "vbullet")
+	def think(self, dt):
+		if not state.you.alive: return
+		if (self.x - state.you.x) ** 2 + (self.y - state.you.y) ** 2 < self.dyou ** 2:
+			r = self.r
+			for jtheta in range(self.nbullet):
+				theta = jtheta / self.nbullet * math.tau
+				dx, dy = math.cos(theta), math.sin(theta)
+				bullet = BadBullet(
+					x = self.x + r * dx,
+					y = self.y + r * dy,
+					vx = self.vbullet * dx,
+					vy = self.vbullet * dy
+				)
+				state.badbullets.append(bullet)
+			self.alive = False
+
 class HasHealth(Component):
 	def __init__(self, hp0):
 		self.hp0 = self.hp = hp0
@@ -574,6 +632,7 @@ class HasHealth(Component):
 	def hurt(self, damage):
 		if self.hp <= 0: return
 		self.hp -= damage
+		self.iflash = 1
 		if self.hp <= 0: self.die()
 
 class InfiniteHealth(Component):
@@ -644,13 +703,21 @@ class DrawImage(Component):
 			r = F(view.Z * self.r)
 			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
 
+def getcfilter(iflash):
+	if iflash <= 0: return None
+	a = iflash ** 0.5 * 12
+	return [None, (1, 0.2, 0.2), None, (1, 0.7, 0.2)][int(a) % 4]
+
 class DrawFacingImage(Component):
 	def __init__(self, imgname, imgscale = 1, ispeed = 0):
 		self.imgname = imgname
 		self.imgscale = imgscale
 		self.ispeed = ispeed
+		self.iflash = 0
 	def setstate(self, **kw):
-		getattribs(self, kw, "imgname", "imgscale")
+		getattribs(self, kw, "imgname", "imgscale", "ispeed", "iflash")
+	def think(self, dt):
+		self.iflash = max(self.iflash - dt, 0)
 	def draw(self):
 		scale = 0.01 * self.r * self.imgscale
 		y = -self.vy
@@ -658,7 +725,7 @@ class DrawFacingImage(Component):
 		angle = 0 if x == 0 and y == 0 else math.degrees(math.atan2(y, x))
 		if settings.portrait:
 			angle += 90
-		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle)
+		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle, cfilter = getcfilter(self.iflash))
 		if settings.DEBUG:
 			pos = view.screenpos((self.x, self.y))
 			r = F(view.Z * self.r)
@@ -668,14 +735,17 @@ class DrawAngleImage(Component):
 	def __init__(self, imgname, imgscale = 1):
 		self.imgname = imgname
 		self.imgscale = imgscale
+		self.iflash = 0
 	def setstate(self, **kw):
-		getattribs(self, kw, "imgname", "imgscale")
+		getattribs(self, kw, "imgname", "imgscale", "iflash")
+	def think(self, dt):
+		self.iflash = max(self.iflash - dt, 0)
 	def draw(self):
 		scale = 0.01 * self.r * self.imgscale
 		angle = math.degrees(-self.theta)
 		if settings.portrait:
 			angle += 90
-		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle)
+		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle, cfilter = getcfilter(self.iflash))
 		if settings.DEBUG:
 			pos = view.screenpos((self.x, self.y))
 			r = F(view.Z * self.r)
@@ -788,6 +858,19 @@ class BadBullet(object):
 
 @WorldBound()
 @Lives()
+@Collides(6)
+@LinearMotion()
+@DiesOnCollision()
+@HurtsOnCollision(3)
+@ClustersNearYou(20, 80)
+@DisappearsOffscreen()
+@DrawFlash()
+class BadClusterBullet(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
 @Collides(3)
 @LinearMotion()
 @DiesOnCollision()
@@ -843,12 +926,13 @@ class Medusa(object):
 @Lives()
 @InfiniteHealth()
 @Collides(80)
-@RoundhouseBullets()
-@SeeksHorizontalSinusoid(30, 30, 1.1, 40)
+#@RoundhouseBullets()
+@SeeksHorizontalSinusoid(30, 30, 0.8, 100)
 @VerticalSinusoid(0.6, 120)
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
 @SpawnsSwallows(6)
+@SpawnsHerons(3)
 @DrawImage("egret", 1.4)
 class Egret(object):
 	def __init__(self, **kw):
@@ -913,6 +997,21 @@ class Duck(object):
 
 @WorldBound()
 @Lives()
+@HasHealth(2)
+@Collides(20)
+@Cycloid()
+@DisappearsOffscreen(500)
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
+@DrawBox("lark")
+class Lark(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+
+@WorldBound()
+@Lives()
+@BossBound()
 @HasHealth(10)
 @Collides(20)
 @LinearMotion()
