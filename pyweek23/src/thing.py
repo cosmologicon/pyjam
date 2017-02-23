@@ -53,6 +53,19 @@ class LinearMotion(Component):
 		self.x += dt * self.vx
 		self.y += dt * self.vy
 
+class CirclesRift(Component):
+	def __init__(self):
+		self.rrift = 200
+		self.thetarift = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "rrift", "thetarift")
+		self.think(0)
+	def think(self, dt):
+		self.rrift = 1 + 200 * math.exp(-0.03 * self.t)
+		self.x = self.rrift * math.cos(self.thetarift) + 300
+		self.y = self.rrift * math.sin(self.thetarift) + 0
+		self.thetarift += 100 / self.rrift * dt
+
 class Knockable(Component):
 	def __init__(self):
 		self.kx = 0
@@ -716,6 +729,17 @@ class You(object):
 		self.setstate(**kw)
 	def hurt(self, damage):
 		state.takedamage(damage)
+
+@WorldBound()
+@Lives()
+@Collides(5)
+@CirclesRift()
+@Tumbles(1)
+@DrawBox("him")
+class Him(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
 
 @WorldBound()
 @YouBound(5, 25)

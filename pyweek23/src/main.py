@@ -2,7 +2,7 @@ from __future__ import division
 import pygame, os, datetime
 from pygame.locals import *
 from . import settings, view, ptext, background, state
-from . import scene, playscene, losescene
+from . import scene, playscene, losescene, climaxscene
 from .util import F
 
 pygame.init()
@@ -10,6 +10,7 @@ view.init()
 background.init()
 
 scene.push(playscene)
+#scene.push(climaxscene)
 
 clock = pygame.time.Clock()
 while scene.stack:

@@ -94,7 +94,6 @@ def think(dt):
 			scene.pop()
 			scene.push(losescene)
 
-
 def draw():
 	drawers = planets, bosses, enemies, yous, goodbullets, badbullets, pickups
 	for group in drawers:

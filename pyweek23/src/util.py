@@ -1,5 +1,5 @@
 from __future__ import division
-import collections, math
+import collections, math, pygame
 
 
 # Height of the viewscreen.
@@ -20,6 +20,8 @@ def F(x, *a):
 		return F([x] + list(a))
 	if isinstance(x, (list, tuple)):
 		return [int(round(y * f)) for y in x]
+	if isinstance(x, pygame.Rect):
+		return pygame.Rect(F(tuple(x)))
 	return 0 if x == 0 else max(int(round(x * f)), 1) if x > 0 else min(int(round(x * f)), -1)
 
 def clamp(x, a, b):
