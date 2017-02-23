@@ -7,26 +7,30 @@ stars = []
 nebulas = {}
 def init():
 	stars.extend([
-		(random.uniform(0, 1000000), random.uniform(0, 1000000), random.uniform(0.4, 0.8))
+		(random.uniform(0, 1000000), random.uniform(0, 1000000), random.uniform(0.4, 1))
 		for _ in range(10000)
 	])
 	for name in "crab star tombud spiral".split():
 		nebulas[name] = pygame.image.load("astropix/%s.jpg" % name).convert_alpha()
 
-def draw():
+def pz(x, y, z):
 	x0, y0 = view.x0 + state.xoffset, view.y0
+	if settings.portrait:
+		return F(240 + y - z * y0, 427 - x + z * x0)
+	else:
+		return F(427 + x - z * x0, 240 + y - z * y0)
+
+def draw():
 	view.screen.fill((0, 0, 0))
-	pos = F(1000 - 0.3 * x0, 240 - 0.3 * y0)
 	img = getnebula("star", F(800))
-	view.screen.blit(img, img.get_rect(center = pos))
-	pos = F(427 - 0.3 * x0, 240 - 0.3 * y0)
-	ptext.draw(settings.gamename, center = pos, color = "#220000", fontsize = F(60), angle = 10)
-	pos = F(600 - 0.3 * x0, 400 - 0.3 * y0)
-	ptext.draw("by team Universe Factory", center = pos, color = "#222222", fontsize = F(40), angle = 10)
+	view.screen.blit(img, img.get_rect(center = pz(500, 0, 0.3)))
+	ptext.draw(settings.gamename, center = pz(0, 0, 0.3), color = "#220000", fontsize = F(60), angle = 10)
+	ptext.draw("by team Universe Factory", center = pz(0, 160, 0.3), color = "#222222", fontsize = F(40), angle = 10)
 	N = min(len(stars), int(view.sx * view.sy * 0.001))
 	for x, y, z in stars[:N]:
-		px = int((x - x0) * z % view.sx)
-		py = int((y - y0) * z % view.sy)
+		px, py = pz(x, y, z)
+		px %= view.sx
+		py %= view.sy
 		color = (int(255 * z),) * 3
 		view.screen.set_at((px, py), color)
 

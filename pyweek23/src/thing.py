@@ -643,6 +643,8 @@ class DrawFacingImage(Component):
 		y = -self.vy
 		x = self.vx + self.ispeed
 		angle = 0 if x == 0 and y == 0 else math.degrees(math.atan2(y, x))
+		if settings.portrait:
+			angle += 90
 		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle)
 		if settings.DEBUG:
 			pos = view.screenpos((self.x, self.y))
@@ -658,6 +660,8 @@ class DrawAngleImage(Component):
 	def draw(self):
 		scale = 0.01 * self.r * self.imgscale
 		angle = math.degrees(-self.theta)
+		if settings.portrait:
+			angle += 90
 		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle)
 		if settings.DEBUG:
 			pos = view.screenpos((self.x, self.y))

@@ -33,6 +33,8 @@ def think(dt, kdowns, kpressed):
 	if state.you.alive:
 		dx = settings.ispressed("right", kpressed) - settings.ispressed("left", kpressed)
 		dy = settings.ispressed("down", kpressed) - settings.ispressed("up", kpressed)
+		if settings.portrait:
+			dx, dy = -dy, dx
 		if dx and dy:
 			dx *= math.sqrt(0.5)
 			dy *= math.sqrt(0.5)

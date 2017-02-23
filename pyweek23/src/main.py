@@ -30,13 +30,17 @@ while scene.stack:
 			"F2: toggle DEBUG mode",
 			"%.1ffps" % clock.get_fps(),
 		])
-		ptext.draw(text, bottomleft = F(5, 475), fontsize = F(18), color = "white", owidth = 1)
+		h = 849 if settings.portrait else 475
+		ptext.draw(text, bottomleft = F(5, h), fontsize = F(18), color = "white", owidth = 1)
 	pygame.display.flip()
 
 	if settings.isdown("quit", kdowns):
 		scene.quit()
 	if settings.isdown("fullscreen", kdowns):
 		settings.fullscreen = not settings.fullscreen
+		view.init()
+	if settings.isdown("portrait", kdowns):
+		settings.portrait = not settings.portrait
 		view.init()
 	if settings.isdown("screenshot", kdowns):
 		if not os.path.exists(settings.screenshotdir):
