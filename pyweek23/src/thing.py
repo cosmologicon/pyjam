@@ -497,9 +497,9 @@ class DisappearsOffscreen(Component):
 		xmax = 427 / view.Z + self.r + self.offscreenmargin
 		ymax = state.yrange + self.r + self.offscreenmargin
 		if x * self.vx > 0 and abs(x) > xmax:
-			self.die()
+			self.alive = False
 		if self.y * self.vy > 0 and abs(self.y) > ymax:
-			self.die()
+			self.alive = False
 
 class RoundhouseBullets(Component):
 	def __init__(self):
@@ -596,6 +596,7 @@ class HasHealth(Component):
 	def hurt(self, damage):
 		if self.hp <= 0: return
 		self.hp -= damage
+		self.iflash = 1
 		if self.hp <= 0: self.die()
 
 class InfiniteHealth(Component):
@@ -666,13 +667,21 @@ class DrawImage(Component):
 			r = F(view.Z * self.r)
 			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
 
+def getcfilter(iflash):
+	if iflash <= 0: return None
+	a = iflash ** 0.5 * 12
+	return [None, (1, 0.2, 0.2), None, (1, 0.7, 0.2)][int(a) % 4]
+
 class DrawFacingImage(Component):
 	def __init__(self, imgname, imgscale = 1, ispeed = 0):
 		self.imgname = imgname
 		self.imgscale = imgscale
 		self.ispeed = ispeed
+		self.iflash = 0
 	def setstate(self, **kw):
-		getattribs(self, kw, "imgname", "imgscale")
+		getattribs(self, kw, "imgname", "imgscale", "ispeed", "iflash")
+	def think(self, dt):
+		self.iflash = max(self.iflash - dt, 0)
 	def draw(self):
 		scale = 0.01 * self.r * self.imgscale
 		y = -self.vy
@@ -680,7 +689,7 @@ class DrawFacingImage(Component):
 		angle = 0 if x == 0 and y == 0 else math.degrees(math.atan2(y, x))
 		if settings.portrait:
 			angle += 90
-		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle)
+		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle, cfilter = getcfilter(self.iflash))
 		if settings.DEBUG:
 			pos = view.screenpos((self.x, self.y))
 			r = F(view.Z * self.r)
@@ -690,14 +699,17 @@ class DrawAngleImage(Component):
 	def __init__(self, imgname, imgscale = 1):
 		self.imgname = imgname
 		self.imgscale = imgscale
+		self.iflash = 0
 	def setstate(self, **kw):
-		getattribs(self, kw, "imgname", "imgscale")
+		getattribs(self, kw, "imgname", "imgscale", "iflash")
+	def think(self, dt):
+		self.iflash = max(self.iflash - dt, 0)
 	def draw(self):
 		scale = 0.01 * self.r * self.imgscale
 		angle = math.degrees(-self.theta)
 		if settings.portrait:
 			angle += 90
-		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle)
+		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle, cfilter = getcfilter(self.iflash))
 		if settings.DEBUG:
 			pos = view.screenpos((self.x, self.y))
 			r = F(view.Z * self.r)

@@ -39,7 +39,7 @@ def draw():
 def drawfly():
 	view.screen.fill((0, 0, 0))
 	N = min(len(stars), int(view.sx * view.sy * 0.002))
-	t = pygame.time.get_ticks() * 0.001
+	t = pygame.time.get_ticks() * 0.001 + 100
 	for x, y, z in stars[:N]:
 		ax = x % 2 - 1
 		ay = y % 2 - 1
