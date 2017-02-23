@@ -588,6 +588,29 @@ class KnocksOnCollision(Component):
 		if target is not None:
 			target.knock(*util.norm(target.x - self.x, target.y - self.y, self.dknock))
 
+class ClustersNearYou(Component):
+	def __init__(self, nbullet, dyou, vbullet = 50):
+		self.nbullet = nbullet
+		self.dyou = dyou
+		self.vbullet = vbullet
+	def setstate(self, **kw):
+		getattribs(self, kw, "nbullet", "dyou", "vbullet")
+	def think(self, dt):
+		if not state.you.alive: return
+		if (self.x - state.you.x) ** 2 + (self.y - state.you.y) ** 2 < self.dyou ** 2:
+			r = self.r
+			for jtheta in range(self.nbullet):
+				theta = jtheta / self.nbullet * math.tau
+				dx, dy = math.cos(theta), math.sin(theta)
+				bullet = BadBullet(
+					x = self.x + r * dx,
+					y = self.y + r * dy,
+					vx = self.vbullet * dx,
+					vy = self.vbullet * dy
+				)
+				state.badbullets.append(bullet)
+			self.alive = False
+
 class HasHealth(Component):
 	def __init__(self, hp0):
 		self.hp0 = self.hp = hp0
@@ -806,6 +829,19 @@ class Capsule(object):
 @DisappearsOffscreen()
 @DrawFlash()
 class BadBullet(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@Collides(6)
+@LinearMotion()
+@DiesOnCollision()
+@HurtsOnCollision(3)
+@ClustersNearYou(20, 80)
+@DisappearsOffscreen()
+@DrawFlash()
+class BadClusterBullet(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 
