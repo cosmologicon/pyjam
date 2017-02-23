@@ -1,6 +1,6 @@
 from __future__ import division
 import random, pygame, math
-from . import view, settings, ptext, state
+from . import view, settings, ptext, state, util
 from .util import F
 
 stars = []
@@ -35,6 +35,20 @@ def draw():
 		py %= view.sy
 		color = (int(255 * z),) * 3
 		view.screen.set_at((px, py), color)
+
+def drawfly():
+	view.screen.fill((0, 0, 0))
+	N = min(len(stars), int(view.sx * view.sy * 0.002))
+	t = pygame.time.get_ticks() * 0.001
+	for x, y, z in stars[:N]:
+		ax = x % 2 - 1
+		ay = y % 2 - 1
+		r = (x + z * t) / 10 % 1
+		kx, ky = util.norm(ax, ay, r * 480)
+		px, py = view.screenpos((kx, ky))
+		color = (int(255 * z * r),) * 3
+		view.screen.set_at((px, py), color)
+	
 
 def getnebula(name, h, alpha = 1):
 	alpha = int(round(alpha * 16)) / 16

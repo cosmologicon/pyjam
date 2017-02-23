@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-from . import ptext, view, scene, settings, image, util
+from . import ptext, view, scene, settings, image, util, background
 from .util import F
 
 class self:
@@ -40,7 +40,8 @@ def think(dt, kdowns, kpressed):
 			scene.pop()
 
 def draw():
-	view.screen.fill((0, 40, 100))
+#	view.screen.fill((0, 40, 100))
+	background.drawfly()
 #	ptext.draw("Visiting: " + self.name, midtop = F(427, 10),
 #		fontsize = F(40), shadow = (1, 1))
 	ptext.draw(self.info, topright = F(680, 30), width = F(540), fontsize = F(24),
