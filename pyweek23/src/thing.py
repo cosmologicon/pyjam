@@ -144,6 +144,24 @@ class SeeksFormation(Component):
 			self.x += self.vx * dt
 			self.y += self.vy * dt
 
+class Cycloid(Component):
+	def setstate(self, **kw):
+		getattribs(self, kw, "x0", "y0", "dy0", "vy0", "cr", "dydtheta")
+		self.think(0)
+	def think(self, dt):
+		dy = self.dy0 + self.vy0 * self.t
+		yc = self.y0 + dy
+		dycdt = self.vy0
+		xc = self.x0
+		theta = math.tau / 2 + dy / self.dydtheta
+		dthetadt = self.vy0 / self.dydtheta
+		S, C = math.sin(theta), math.cos(theta)
+		self.x = xc + C * self.cr
+		self.y = yc + S * self.cr
+		self.vx = -S * dthetadt * self.cr
+		self.vy = dycdt + C * dthetadt * self.cr
+
+
 class SeeksHorizontalPosition(Component):
 	def __init__(self, vxmax, accel):
 		self.vxmax = vxmax
@@ -320,12 +338,13 @@ class YouBound(Component):
 class BossBound(Component):
 	def __init__(self, diedelay = 0):
 		self.diedelay = diedelay
+		self.target = None
 	def setstate(self, **kw):
 		getattribs(self, kw, "target", "diedelay")
 	def think(self, dt):
 		if not self.alive:
 			return
-		if not self.target.alive:
+		if self.target and not self.target.alive:
 			self.diedelay -= dt
 			if self.diedelay <= 0:
 				self.die()
@@ -436,6 +455,22 @@ class SpawnsSwallows(Component):
 			for s in self.swallows:
 				s.omega *= 1.4
 
+	
+class SpawnsHerons(Component):
+	def __init__(self, dtheron):
+		self.dtheron = dtheron
+		self.theron = 0
+		self.jheron = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "theron", "dtheron", "jheron")
+	def think(self, dt):
+		self.theron += dt
+		while self.theron >= self.dtheron:
+			heron = Heron(x = 600, y = self.y, vx = -60, vy = 0, target = self)
+			state.enemies.append(heron)
+			self.jheron += 1
+			self.theron -= self.dtheron
+
 class Collides(Component):
 	def __init__(self, r):
 		self.r = r
@@ -460,7 +495,7 @@ class DisappearsOffscreen(Component):
 	def think(self, dt):
 		x = self.x - view.x0
 		xmax = 427 / view.Z + self.r + self.offscreenmargin
-		ymax = state.yrange + 10
+		ymax = state.yrange + self.r + self.offscreenmargin
 		if x * self.vx > 0 and abs(x) > xmax:
 			self.die()
 		if self.y * self.vy > 0 and abs(self.y) > ymax:
@@ -819,12 +854,13 @@ class Medusa(object):
 @Lives()
 @InfiniteHealth()
 @Collides(80)
-@RoundhouseBullets()
-@SeeksHorizontalSinusoid(30, 30, 1.1, 40)
+#@RoundhouseBullets()
+@SeeksHorizontalSinusoid(30, 30, 0.8, 100)
 @VerticalSinusoid(0.6, 120)
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
 @SpawnsSwallows(6)
+@SpawnsHerons(3)
 @DrawImage("egret", 1.4)
 class Egret(object):
 	def __init__(self, **kw):
@@ -889,6 +925,21 @@ class Duck(object):
 
 @WorldBound()
 @Lives()
+@HasHealth(2)
+@Collides(20)
+@Cycloid()
+@DisappearsOffscreen(500)
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
+@DrawBox("lark")
+class Lark(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+
+@WorldBound()
+@Lives()
+@BossBound()
 @HasHealth(10)
 @Collides(20)
 @LinearMotion()

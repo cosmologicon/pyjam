@@ -8,7 +8,7 @@ maxfps = 120
 DEBUG = True
 
 fullscreen = False
-portrait = True
+portrait = False
 windowsize = 480  # 16:9 aspect ratio
 
 screenshotdir = "screenshots"
