@@ -9,7 +9,7 @@ pygame.init()
 view.init()
 background.init()
 
-scene.push(playscene, 3)
+scene.push(playscene, 2)
 #scene.push(climaxscene)
 
 clock = pygame.time.Clock()
@@ -24,6 +24,8 @@ while scene.stack:
 		if event.type == KEYDOWN:
 			kdowns.add(event.key)
 	kpressed = pygame.key.get_pressed()
+	if settings.DEBUG and kpressed[K_F7]:
+		dt *= 20
 
 	dtexcess += dt
 	kd = kdowns
