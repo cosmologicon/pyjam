@@ -45,7 +45,7 @@ def drawfly():
 		ay = y % 2 - 1
 		r = (x + z * t) / 10 % 1
 		kx, ky = util.norm(ax, ay, r * 480)
-		px, py = view.screenpos((kx, ky))
+		px, py = view.screenpos0((kx, ky))
 		color = (int(255 * z * r),) * 3
 		view.screen.set_at((px, py), color)
 	

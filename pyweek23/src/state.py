@@ -26,6 +26,8 @@ tinvulnerable = 0
 tlose = 0
 twin = 0
 
+apickup = 0
+
 scrollspeed = 40
 xoffset = 0
 yrange = 320
@@ -159,6 +161,25 @@ def takedamage(damage):
 def heal(amount):
 	global hp
 	hp = min(hp + amount, hp0)
+
+apickup0 = 30
+def addapickup(amount, who):
+	global apickup
+	import thing
+	old = apickup
+	apickup += amount
+	if old < apickup0 and apickup >= apickup0:
+		spawnpickup(who, thing.HealthPickup)
+	elif old < 2 * apickup0 and apickup >= 2 * apickup0:
+		spawnpickup(who, thing.MissilesPickup)
+	while apickup >= 2 * apickup0:
+		apickup -= 2 * apickup0
+
+def spawnpickup(who, ptype):
+	x, y = who.x, who.y
+	vx = 200
+	vy = 50 if y < 0 else -50
+	pickups.append(ptype(x = x, y = y, vx = vx, vy = vy, ax = -200))
 
 def addmedusa():
 	import thing

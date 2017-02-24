@@ -53,6 +53,16 @@ class LinearMotion(Component):
 		self.x += dt * self.vx
 		self.y += dt * self.vy
 
+class Accelerates(Component):
+	def __init__(self):
+		self.ax = 0
+		self.ay = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "ax", "ay")
+	def think(self, dt):
+		self.vx += dt * self.ax
+		self.vy += dt * self.ay
+
 class CirclesRift(Component):
 	def __init__(self):
 		self.rrift = 200
@@ -606,6 +616,7 @@ class Visitable(Component):
 			return
 		state.visited.add(self.name)
 		scene.push(visitscene, self.name)
+		self.alive = False
 	def draw(self):
 		if self.name in state.visited:
 			return
@@ -670,6 +681,15 @@ class HasHealth(Component):
 		self.hp -= damage
 		self.iflash = self.iflashmax
 		if self.hp <= 0: self.die()
+
+class LetPickup(Component):
+	def __init__(self, apickup):
+		self.apickup = apickup
+	def setstate(self, **kw):
+		getattribs(self, kw, "apickup")
+	def die(self):
+		if self.hp <= 0:
+			state.addapickup(self.apickup, self)
 
 class InfiniteHealth(Component):
 	def hurt(self, damage):
@@ -1055,6 +1075,7 @@ class Cobra(object):
 @WorldBound()
 @Lives()
 @HasHealth(3)
+@LetPickup(1)
 @Collides(20)
 @SeeksFormation(400, 400)
 @DisappearsOffscreen()
@@ -1068,6 +1089,7 @@ class Duck(object):
 @WorldBound()
 @Lives()
 @HasHealth(20)
+@LetPickup(3)
 @Collides(40)
 @SeeksFormation(400, 400)
 @DisappearsOffscreen()
@@ -1082,6 +1104,7 @@ class Turkey(object):
 @WorldBound()
 @Lives()
 @HasHealth(4)
+@LetPickup(2)
 @Collides(20)
 @Cycloid()
 @DisappearsOffscreen(1000)
@@ -1097,6 +1120,7 @@ class Lark(object):
 @Lives()
 @BossBound()
 @HasHealth(10)
+@LetPickup(1)
 @Collides(20)
 @LinearMotion()
 @DisappearsOffscreen()
@@ -1112,6 +1136,7 @@ class Heron(object):
 @Lives()
 @LinearMotion()
 @HasHealth(3, iflashmax = 0.3)
+@LetPickup(2)
 @Collides(20)
 @DisappearsOffscreen()
 @HurtsOnCollision(2)
@@ -1139,6 +1164,7 @@ class BlueRock(object):
 @Lives()
 @Collides(5)
 @LinearMotion()
+@Accelerates()
 @DrawBox("health")
 @Collectable()
 @HealsOnCollect()
@@ -1153,6 +1179,7 @@ class HealthPickup(object):
 @Lives()
 @Collides(5)
 @LinearMotion()
+@Accelerates()
 @DrawBox("missiles")
 @Collectable()
 @MissilesOnCollect()

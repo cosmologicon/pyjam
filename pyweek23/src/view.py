@@ -32,7 +32,14 @@ def screenpos(pos):
 	x, y = pos
 	dx, dy = (x - x0) * Z, (y - y0) * Z
 	if settings.portrait:
-		
+		return F([dy + 240, 427 - dx])
+	else:
+		return F([dx + 427, dy + 240])
+
+def screenpos0(pos):
+	x, y = pos
+	dx, dy = x * Z, y * Z
+	if settings.portrait:
 		return F([dy + 240, 427 - dx])
 	else:
 		return F([dx + 427, dy + 240])
