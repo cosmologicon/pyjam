@@ -8,21 +8,6 @@ class self:
 
 def init(name):
 	self.name = name
-	self.texts = [
-		"Sure thing.",
-		"I'm sorry, I need all I can get.",
-	]
-	self.subtexts = [
-		"You will lose half your health",
-		"You will keep your current health",
-	]
-	self.info = "\n\n".join([
-		"Finally! I thought I'd never see another human being again.",
-		"I'm a crew member on board the USS Orinoco. Our ship was destroyed, but most of us made it out in these escape capsules. Damn, I still can hear Captain Sisko's order to abandon ship....",
-		"Look, I've taken heavy damage. I haven't got enough hull charge to last the rest of the way back. If you're willing to transfer some of your charge over to me, I should be able to make it. If not.... Well what do you say?",
-	])
-	self.brank = "First Officer"
-	self.bname = "Kira Nerys"
 
 	self.t = 0
 	self.opt = 0
@@ -47,29 +32,87 @@ def think(dt, kdowns, kpressed):
 			self.t = 1.5
 
 def draw():
-#	view.screen.fill((0, 40, 100))
+	data = vdata[self.name]
 	background.drawfly()
-#	ptext.draw("Visiting: " + self.name, midtop = F(427, 10),
-#		fontsize = F(40), shadow = (1, 1))
 	talpha = util.clamp((self.t - 1) * 2, 0, 1)
-	ptext.draw(self.info, topright = F(680, 30), width = F(540), fontsize = F(24),
-		color = "turquoise", shadow = (1, 1), alpha = talpha)
-	for jtext, (text, subtext) in enumerate(zip(self.texts, self.subtexts)):
-		y0 = 260 + 100 * jtext
+
+	pimg = (85, 85) if settings.portrait else (85, 85)
+	psay = F(180, 20) if settings.portrait else F(180, 20)
+	pbox = [
+		F(50, 600, 380, 80) if settings.portrait else F(32, 360, 380, 80),
+		F(50, 700, 380, 80) if settings.portrait else F(424, 360, 380, 80),
+	]
+
+	ptext.draw(
+		"\n\n".join(data["lines"]),
+		topleft = psay,
+		width = F(270) if settings.portrait else F(630),
+		fontname = data["fontname"],
+		fontsize = F(data["fontsize"]),
+		color = data["color"],
+		shadow = (1, 1),
+		alpha = talpha)
+	for jtext in range(2):
+		box = pygame.Rect(pbox[jtext])
 		if self.t < 1.5 and not (jtext == self.opt and not self.starting):
-			y0 += 400 * (1.5 - self.t) ** 2
+			box.y += F(400 * (1.5 - self.t) ** 2)
 		flash = jtext == self.opt and self.t % 0.5 < 0.3
 		ocolor = (255, 255, 100) if flash else (200, 200, 0)
 		fcolor = (80, 80, 80) if flash else (40, 40, 40)
-		view.screen.fill(ocolor, F(150, y0, 554, 90))
-		view.screen.fill(fcolor, F(153, y0 + 3, 548, 84))
-		ptext.draw(text, topleft = F(180, y0 + 10), fontsize = F(48),
-			color = (60, 255, 255), shadow = (1, 1))
-		ptext.draw(subtext, topleft = F(280, y0 + 52), fontsize = F(28),
-			color = (0, 180, 180), shadow = (1, 1))
-	image.Bdraw("bio-0", (760, 100), a = util.clamp(self.t * 3 - 0.3, 0, 1))
-	ptext.draw(self.brank, midtop = F(760, 170), fontsize = F(28), alpha = talpha)
-	ptext.draw(self.bname, midtop = F(760, 192), fontsize = F(28), alpha = talpha)
+		view.screen.fill(ocolor, box)
+		box.inflate_ip(*F(-6, -6))
+		view.screen.fill(fcolor, box)
+		ptext.draw(data["opt%d" % jtext],
+			top = box.top + F(10),
+			centerx = box.centerx,
+			fontsize = F(30),
+			width = F(360),
+			color = (60, 255, 255),
+			shadow = (1, 1))
+		if data["sub%d" % jtext]:
+			ptext.draw("(%s)" % data["sub%d" % jtext],
+				top = box.top + F(50),
+				centerx = box.centerx,
+				fontsize = F(22),
+				color = (0, 100, 100),
+				italic = True,
+				shadow = (1, 1))
+	image.Bdraw("bio-0", pimg, a = util.clamp(self.t * 3 - 0.3, 0, 1))
+	ptext.draw(
+		data["title"],
+		midtop = F(pimg[0], pimg[1] + 70),
+		fontsize = F(28),
+		alpha = talpha)
+	ptext.draw(
+		data["name"],
+		midtop = F(pimg[0], pimg[1] + 90),
+		fontsize = F(28),
+		alpha = talpha)
+	if settings.DEBUG:
+		pos = F(475, 5) if settings.portrait else F(849, 5)
+		ptext.draw("Encounter #%s" % self.name, topright = pos, fontsize = F(32))
+
+
+
+vdata = {}
+vdata[1] = {
+	"avatar": "bio-0",
+	"title": "Ship's Doctor",
+	"name": "Marvin Paulson",
+	"lines": [
+		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
+		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
+		"Sorry, I haven't had a good meal in weeks. Look, I've taken heavy damage. I'll never make it back to the fleet without some hull charge. If I could have some of yours... it's the only shot I've got. What do you say?",
+	],
+	"fontname": None,
+	"fontsize": 24,
+	"color": "turquoise",
+	"opt0": "All right, I'll help you.",
+	"sub0": "You will lose half your health.",
+	"opt1": "I'm sorry, I need everything I have for the dangers ahead.",
+	"sub1": "",
+}
+
 
 
 	
