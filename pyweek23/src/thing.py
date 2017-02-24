@@ -970,13 +970,13 @@ class RangeGoodBullet(object):
 
 @WorldBound()
 @Lives()
-@Collides(3)
+@Collides(5)
 @SeeksEnemies(300)
 @LinearMotion()
 @DiesOnCollision()
 @HurtsOnCollision()
 @DisappearsOffscreen()
-@DrawGlow()
+@DrawFacingImage("missile", 5)
 class GoodMissile(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1165,7 +1165,8 @@ class BlueRock(object):
 @Collides(5)
 @LinearMotion()
 @Accelerates()
-@DrawBox("health")
+@Tumbles(5)
+@DrawAngleImage("health", 5)
 @Collectable()
 @HealsOnCollect()
 class HealthPickup(object):
@@ -1180,7 +1181,8 @@ class HealthPickup(object):
 @Collides(5)
 @LinearMotion()
 @Accelerates()
-@DrawBox("missiles")
+@Tumbles(5)
+@DrawAngleImage("mpickup", 5)
 @Collectable()
 @MissilesOnCollect()
 class MissilesPickup(object):
