@@ -484,6 +484,21 @@ class SpawnsHerons(Component):
 			self.jheron += 1
 			self.theron -= self.dtheron
 
+class SpawnsClusterBullets(Component):
+	def __init__(self, dtcb):
+		self.dtcb = dtcb
+		self.tcb = 0
+		self.jcb = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "dtcb", "tcb", "jcb")
+	def think(self, dt):
+		self.tcb += dt
+		while self.tcb >= self.dtcb:
+			y = (self.jcb * math.phi % 1 * 2 - 1) * state.yrange
+			state.badbullets.append(BadClusterBullet(x = 500, y = y, vx = -100, vy = 0))
+			self.tcb -= self.dtcb
+			self.jcb += 1
+
 class Collides(Component):
 	def __init__(self, r):
 		self.r = r
@@ -755,10 +770,16 @@ class DrawBox(Component):
 	def __init__(self, boxname, boxcolor = (120, 120, 120)):
 		self.boxname = boxname
 		self.boxcolor = boxcolor
+		self.iflash = 0
+	def think(self, dt):
+		self.iflash = max(self.iflash - dt, 0)
 	def draw(self):
 		pos = view.screenpos((self.x, self.y))
 		r = F(view.Z * self.r)
-		pygame.draw.circle(view.screen, self.boxcolor, pos, r)
+		color = self.boxcolor
+		if hasattr(self, "iflash") and self.iflash >= 0:
+			color = [self.boxcolor, (255, 0, 0)][int(self.iflash * 10 % 2)]
+		pygame.draw.circle(view.screen, color, pos, r)
 		ptext.draw(self.boxname, center = pos, color = "white", fontsize = F(14))
 
 class FlashesOnInvulnerable(Component):
@@ -921,6 +942,22 @@ class GoodMissile(object):
 class Medusa(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@HasHealth(200)
+@Collides(100)
+@RoundhouseBullets()
+@SeeksHorizontalPosition(30, 30)
+@VerticalSinusoid(0.4, 120)
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
+@SpawnsClusterBullets(3)
+@DrawBox("emu")
+class Emu(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
 
 @WorldBound()
 @Lives()

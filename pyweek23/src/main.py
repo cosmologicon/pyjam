@@ -13,6 +13,7 @@ scene.push(playscene)
 #scene.push(climaxscene)
 
 clock = pygame.time.Clock()
+dtexcess = 0
 while scene.stack:
 	dt = min(clock.tick(settings.maxfps) * 0.001, 1 / settings.minfps)
 	top = scene.stack[-1]
@@ -24,7 +25,12 @@ while scene.stack:
 			kdowns.add(event.key)
 	kpressed = pygame.key.get_pressed()
 
-	top.think(dt, kdowns, kpressed)
+	dtexcess += dt
+	kd = kdowns
+	while dtexcess >= 1 / settings.maxfps:
+		top.think(1 / settings.maxfps, kd, kpressed)
+		dtexcess -= 1 / settings.maxfps
+		kd = set()
 	top.draw()
 	if settings.DEBUG:
 		text = "\n".join([
