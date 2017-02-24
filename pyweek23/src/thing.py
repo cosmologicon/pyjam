@@ -441,7 +441,7 @@ class SpawnsCapsule(Component):
 		state.planets.append(capsule)
 
 class SpawnsCobras(Component):
-	def __init__(self, dtcobra = 2):
+	def __init__(self, dtcobra = 3):
 		self.tcobra = 0
 		self.dtcobra = dtcobra
 		self.jcobra = 0
@@ -453,20 +453,20 @@ class SpawnsCobras(Component):
 			self.spawncobra()
 			self.tcobra -= self.dtcobra
 	def spawncobra(self):
-		top = self.jcobra % 2 == 1
-		x0 = self.jcobra * math.phi % 1 * 500 - 100
-		y0 = -state.yrange if top else state.yrange
-		dx = -300
-		dy = (300 if top else -300) * (1 + self.jcobra * math.phi % 1 * 0.4)
+		x0 = 500 + (self.jcobra * math.phi % 1) * 200
+		y0 = (self.jcobra * math.phi % 1 * 2 - 1) * state.yrange
+		dx = -600
+		dy = (self.jcobra * math.phi ** 2 % 1 * 2 - 1) * 100
 		h = 80
-		p0 = -50
-		for jseg, r in enumerate((40, 38, 36, 34, 32, 30, 28, 26, 24, 23, 22, 21, 20)):
-			diedelay = 0.5 + 0.1 * jseg
-			snake = Cobra(x0arc = x0, y0arc = y0, dxarc = dx, dyarc = dy, p0arc = p0, harc = h,
-				r = r, target = self, diedelay = diedelay)
-			state.enemies.append(snake)
+		p0 = 0
+		r = 40
+		print(x0, y0, dx, dy, h, p0, r)
+		for jseg in range(12):
+			state.enemies.append(Cobra(
+				x0arc = x0, y0arc = y0, dxarc = dx, dyarc = dy,
+				p0arc = p0, harc = h, r = r))
 			p0 -= r * 0.8
-		self.jcobra += 1
+			r *= 0.95
 	
 class SpawnsSwallows(Component):
 	def __init__(self, nswallow):
@@ -983,9 +983,9 @@ class GoodMissile(object):
 
 @WorldBound()
 @Lives()
-@HasHealth(20)
+@HasHealth(60)
 @Collides(60)
-@RoundhouseBullets()
+@RoundhouseBullets(0.1)
 @SeeksHorizontalPosition(30, 30)
 @VerticalSinusoid(0.4, 120)
 @HurtsOnCollision(2)
@@ -1062,6 +1062,7 @@ class Asp(object):
 @BossBound()
 @SinusoidsAcross()
 @Lives()
+@DisappearsOffscreen(800)
 @InfiniteHealth()
 @Collides(4)
 @HurtsOnCollision(2)

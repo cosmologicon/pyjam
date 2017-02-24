@@ -40,6 +40,7 @@ while scene.stack:
 			"F10: toggle portrait mode",
 			"F11: toggle fullscreen",
 			"F12: screenshot",
+			"objsize: %d %d %d" % (len(state.goodbullets), len(state.badbullets), len(state.enemies)),
 			"%.1ffps" % clock.get_fps(),
 		])
 		h = 849 if settings.portrait else 475
@@ -66,6 +67,14 @@ while scene.stack:
 		state.load(settings.quicksavefile)
 	if settings.isdown("toggledebug", kdowns):
 		settings.DEBUG = not settings.DEBUG
+	if settings.DEBUG and K_1 in kdowns:
+		state.gotostage(1)
+	if settings.DEBUG and K_2 in kdowns:
+		state.gotostage(2)
+	if settings.DEBUG and K_3 in kdowns:
+		state.gotostage(3)
+	if settings.DEBUG and K_4 in kdowns:
+		state.gotostage(4)
 
 pygame.quit()
 

@@ -129,15 +129,17 @@ def think(dt):
 				win()
 
 def win():
-	from . import playscene, scene
 	if stage == 1:
-		scene.pop()
-		scene.push(playscene, 2)
+		gotostage(2)
 	elif stage == 2:
-		scene.pop()
-		scene.push(playscene, 3)
+		gotostage(3)
 	else:
 		raise ValueError("End of the game")
+
+def gotostage(n):
+	from . import playscene, scene
+	scene.quit()
+	scene.push(playscene, n)
 
 def draw():
 	drawers = bosses, enemies, planets, yous, goodbullets, badbullets, pickups
