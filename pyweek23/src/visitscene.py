@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-from . import ptext, view, scene, settings, image, util, background
+from . import ptext, view, scene, settings, image, util, background, state
 from .util import F
 
 class self:
@@ -19,6 +19,8 @@ def think(dt, kdowns, kpressed):
 	else:
 		self.t -= dt
 		if self.t <= 0:
+			if self.opt == 0:
+				state.downgrade(vdata[self.name]["do"])
 			scene.pop()
 	if self.t > 1.5 and self.starting:
 		if self.opt == 0:
@@ -98,7 +100,7 @@ vdata = {}
 vdata[1] = {
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
-	"name": "Marvin Paulson",
+	"name": "Donovan Paulson",
 	"lines": [
 		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
 		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
@@ -111,6 +113,7 @@ vdata[1] = {
 	"sub0": "You will lose half your health.",
 	"opt1": "I'm sorry, I need everything I have for the dangers ahead.",
 	"sub1": "",
+	"do": "hp",
 }
 
 

@@ -412,6 +412,19 @@ class SinusoidsAcross(Component):
 		self.vx = dpdt * C - dhdt * S
 		self.vy = dpdt * S + dhdt * C
 
+class SpawnsCompanion(Component):
+	def __init__(self):
+		self.companion = None
+	def think(self, dt):
+		if self.companion is None and state.companion:
+			self.companion = Companion(x = self.x, y = self.y)
+			self.companion.think(dt)
+			state.yous.append(self.companion)
+		if self.companion and not self.companion.alive:
+			self.companion = None
+		if self.companion and not state.companion:
+			self.companion.alive = False
+
 class SpawnsCobras(Component):
 	def __init__(self, dtcobra = 2):
 		self.tcobra = 0
@@ -510,6 +523,8 @@ class ConstrainToScreen(Component):
 		self.xmargin = xmargin
 		self.ymargin = ymargin
 	def think(self, dt):
+		if state.twin:
+			return
 		dxmax = 427 / view.Z - self.r - self.xmargin
 		self.x = util.clamp(self.x, view.x0 - dxmax, view.x0 + dxmax)
 		dymax = state.yrange - self.r - self.ymargin
@@ -530,9 +545,9 @@ class DisappearsOffscreen(Component):
 			self.alive = False
 
 class RoundhouseBullets(Component):
-	def __init__(self):
+	def __init__(self, dtbullet = 0.3):
 		self.tbullet = 0
-		self.dtbullet = 0.3
+		self.dtbullet = dtbullet
 		self.nbullet = 20
 		self.vbullet = 50
 		self.jbullet = 0
@@ -812,6 +827,7 @@ class DrawGlow(Component):
 @MissilesWithSpace()
 @CShotsWithSpace()
 @Collides(5)
+@SpawnsCompanion()
 @ConstrainToScreen(5, 5)
 @FlashesOnInvulnerable()
 @DrawFacingImage("you", 5, 1000)
@@ -947,12 +963,12 @@ class Medusa(object):
 @Lives()
 @HasHealth(200)
 @Collides(100)
-@RoundhouseBullets()
+@RoundhouseBullets(1)
 @SeeksHorizontalPosition(30, 30)
 @VerticalSinusoid(0.4, 120)
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
-@SpawnsClusterBullets(3)
+@SpawnsClusterBullets(2)
 @DrawBox("emu")
 class Emu(object):
 	def __init__(self, **kw):

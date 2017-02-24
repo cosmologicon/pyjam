@@ -5,15 +5,13 @@ try:
 except ImportError:
     import pickle
 
-
 you = None
 speed = 200
 hp0 = 5
 hp = hp0
 shieldhp = shieldhp0 = 2
 shieldrate = 0.2
-
-
+companion = True
 basedamage = 1
 reloadtime = 0.2
 maxcharge = 9
@@ -22,22 +20,51 @@ vshots = 3
 missiletime = 0.6
 cshottime = 1
 rmagnet = 200
+
 tslow = 0
 tinvulnerable = 0
 tlose = 0
+twin = 0
 
 scrollspeed = 40
 xoffset = 0
 yrange = 320
+
+def downgrade(name):  # or upgrade
+	global hp0, hp, cshottime, companion, shieldhp0, shieldhp, missiletime, vshots, chargetime
+	if name == "hp":
+		hp0 -= 3
+		hp = max(hp, hp0)
+	if name == "cshot":
+		cshottime = 1e12
+	if name == "companion":
+		companion = False
+	if name == "shield":
+		shieldhp0 = 0
+		shieldhp = 0
+	if name == "missile":
+		missiletime = 1e12
+	if name == "vshot":
+		vshots = 0
+	if name == "charge":
+		chargetime = 1e12
+
 
 yous = []
 badbullets = []
 goodbullets = []
 pickups = []
 enemies = []
-planets = []
 bosses = []
+planets = []
 spawners = []
+thinkers = yous, badbullets, goodbullets, pickups, enemies, bosses, planets, spawners
+def clear():
+	for group in thinkers:
+		del group[:]
+def restart():
+	global twin, tlose, tslow, tinvulnerable, xoffset
+	twin = tlose = tslow = tinvulnerable = xoffset = 0
 
 visited = set()
 
@@ -45,7 +72,7 @@ def collided(obj1, obj2):
 	return (obj1.x - obj2.x) ** 2 + (obj1.y - obj2.y) ** 2 < (obj1.r + obj2.r) ** 2
 
 def think(dt):
-	global xoffset, tslow, tinvulnerable, tlose, shieldhp
+	global xoffset, tslow, tinvulnerable, tlose, twin, shieldhp
 	from . import scene, losescene
 	tslow = max(tslow - dt, 0)
 	if tslow > 0:
@@ -53,7 +80,6 @@ def think(dt):
 	tinvulnerable = max(tinvulnerable - dt, 0)
 	shieldhp = min(shieldhp + shieldrate * dt, shieldhp0)
 	xoffset += dt * scrollspeed
-	thinkers = yous, badbullets, goodbullets, pickups, enemies, bosses, planets, spawners
 	for group in thinkers:
 		for x in group:
 			x.think(dt)
@@ -93,6 +119,20 @@ def think(dt):
 		if tlose > 3:
 			scene.pop()
 			scene.push(losescene)
+	elif not waves and not bosses:
+		twin += dt
+		if twin > 2:
+			you.x += (twin - 2) * 1000 * dt
+			if you.x > 1000:
+				win()
+
+def win():
+	from . import playscene, scene
+	if stage == 1:
+		scene.pop()
+		scene.push(playscene, 2)
+	else:
+		raise ValueError("End of the game")
 
 def draw():
 	drawers = planets, bosses, enemies, yous, goodbullets, badbullets, pickups

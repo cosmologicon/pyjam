@@ -9,7 +9,7 @@ pygame.init()
 view.init()
 background.init()
 
-scene.push(playscene)
+scene.push(playscene, 1)
 #scene.push(climaxscene)
 
 clock = pygame.time.Clock()
