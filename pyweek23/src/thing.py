@@ -260,7 +260,7 @@ class FiresWithSpace(Component):
 			self.shoot()
 	def getcharge(self):
 		t = self.tshot - state.reloadtime
-		if t <= 0: return 0
+		if t <= 0 or state.chargetime > 100000: return 0
 		if t >= state.chargetime: return state.maxcharge
 		return t / state.chargetime * state.maxcharge
 	def getdamage(self):
@@ -397,7 +397,7 @@ class SinusoidsAcross(Component):
 	def setstate(self, **kw):
 		getattribs(self, kw, "x0arc", "y0arc", "dxarc", "dyarc", "varc", "harc", "p0arc")
 	def think(self, dt):
-		if not self.alive or not self.target.alive:
+		if not self.alive or (self.target and not self.target.alive):
 			return
 		p = self.p0arc + self.varc * self.t
 		dpdt = self.varc
@@ -424,6 +424,11 @@ class SpawnsCompanion(Component):
 			self.companion = None
 		if self.companion and not state.companion:
 			self.companion.alive = False
+
+class SpawnsCapsule(Component):
+	def die(self):
+		capsule = Capsule(x = self.x, y = self.y, vx = self.vx, vy = self.vy, name = "X")
+		state.planets.append(capsule)
 
 class SpawnsCobras(Component):
 	def __init__(self, dtcobra = 2):
@@ -655,14 +660,15 @@ class ClustersNearYou(Component):
 			self.alive = False
 
 class HasHealth(Component):
-	def __init__(self, hp0):
+	def __init__(self, hp0, iflashmax = 1):
 		self.hp0 = self.hp = hp0
+		self.iflashmax = iflashmax
 	def setstate(self, **kw):
-		getattribs(self, kw, "hp")
+		getattribs(self, kw, "hp", "hp0", "iflashmax")
 	def hurt(self, damage):
 		if self.hp <= 0: return
 		self.hp -= damage
-		self.iflash = 1
+		self.iflash = self.iflashmax
 		if self.hp <= 0: self.die()
 
 class InfiniteHealth(Component):
@@ -719,24 +725,29 @@ class Spawns(Component):
 	def die(self):
 		self.collection.append(self.egg)
 
-class DrawImage(Component):
-	def __init__(self, imgname, imgscale = 1):
-		self.imgname = imgname
-		self.imgscale = imgscale
-	def setstate(self, **kw):
-		getattribs(self, kw, "imgname", "imgscale")
-	def draw(self):
-		scale = 0.01 * self.r * self.imgscale
-		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale)
-		if settings.DEBUG:
-			pos = view.screenpos((self.x, self.y))
-			r = F(view.Z * self.r)
-			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
-
 def getcfilter(iflash):
 	if iflash <= 0: return None
 	a = iflash ** 0.5 * 12
 	return [None, (1, 0.2, 0.2), None, (1, 0.7, 0.2)][int(a) % 4]
+
+class DrawImage(Component):
+	def __init__(self, imgname, imgscale = 1, cfilter0 = None):
+		self.imgname = imgname
+		self.imgscale = imgscale
+		self.cfilter0 = cfilter0
+		self.iflash = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "imgname", "imgscale", "cfilter0", "iflash")
+	def think(self, dt):
+		self.iflash = max(self.iflash - dt, 0)
+	def draw(self):
+		scale = 0.01 * self.r * self.imgscale
+		cfilter = getcfilter(self.iflash) or self.cfilter0
+		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, cfilter = cfilter)
+		if settings.DEBUG:
+			pos = view.screenpos((self.x, self.y))
+			r = F(view.Z * self.r)
+			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
 
 class DrawFacingImage(Component):
 	def __init__(self, imgname, imgscale = 1, ispeed = 0):
@@ -1099,13 +1110,27 @@ class Heron(object):
 @WorldBound()
 @Lives()
 @LinearMotion()
-@HasHealth(3)
+@HasHealth(3, iflashmax = 0.3)
 @Collides(20)
 @DisappearsOffscreen()
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
 @DrawImage("rock-0", 0.39)
 class Rock(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@LinearMotion()
+@HasHealth(40, iflashmax = 0.3)
+@Collides(20)
+@DisappearsOffscreen()
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
+@SpawnsCapsule()
+@DrawImage("rock-0", 0.39, (0.7, 0.7, 1.0))
+class BlueRock(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 

@@ -131,11 +131,14 @@ def win():
 	if stage == 1:
 		scene.pop()
 		scene.push(playscene, 2)
+	elif stage == 2:
+		scene.pop()
+		scene.push(playscene, 3)
 	else:
 		raise ValueError("End of the game")
 
 def draw():
-	drawers = planets, bosses, enemies, yous, goodbullets, badbullets, pickups
+	drawers = bosses, enemies, planets, yous, goodbullets, badbullets, pickups
 	for group in drawers:
 		for obj in group:
 			obj.draw()

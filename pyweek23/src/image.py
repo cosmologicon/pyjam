@@ -4,13 +4,19 @@ from . import view, util
 from .util import F
 
 imgs = {}
+sizetotal = 0
+maxsize = 400 << 20
+lastcall = { None: 0 }
 def get(imgname, scale = 1, angle = 0, cfilter = None):
+	global sizetotal
 	kangle = 4
 	if imgname == "you": kangle = 1
 	if imgname == "capsule": kangle = 2
+	if imgname == "snake": kangle = 2
 
 	angle = kangle * int(round(angle / kangle)) % 360
 	key = imgname, scale, angle, cfilter
+	lastcall[key] = lastcall[None] = lastcall[None] + 1
 	if key in imgs: return imgs[key]
 	if cfilter is not None:
 		img = get(imgname, scale = scale, angle = angle).convert_alpha()
@@ -28,7 +34,23 @@ def get(imgname, scale = 1, angle = 0, cfilter = None):
 			w, h = img.get_size()
 			img = pygame.transform.smoothscale(img, (int(round(w * scale)), int(round(h * scale))))
 	imgs[key] = img
-	return imgs[key]
+	sizetotal += img.get_width() * img.get_height() * 4
+	clear()
+	return img
+
+def clear():
+	global sizetotal
+	if sizetotal < maxsize:
+		return
+	if settings.DEBUG:
+		print("clearing imgs", len(imgs), sizetotal, pygame.time.get_ticks() * 0.001)
+	for key in sorted(imgs, key = lastcall.get):
+		img = imgs[key]
+		sizetotal -= img.get_width() * img.get_height() * 4
+		del imgs[key]
+		if sizetotal < 0.5 * maxsize:
+			return
+
 
 def draw(imgname, pos, scale = 1, angle = 0, cfilter = None):
 	img = get(imgname, scale = scale, angle = angle, cfilter = cfilter)

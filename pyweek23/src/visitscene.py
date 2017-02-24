@@ -153,6 +153,78 @@ vdata[3] = {
 	"sub1": "",
 	"do": "companion",
 }
+vdata[4] = {
+	"avatar": "bio-0",
+	"title": "Ship's Doctor",
+	"name": "Donovan Paulson",
+	"lines": [
+		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
+		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
+		"Sorry, I haven't had a good meal in weeks. Look, I've taken heavy damage. I'll never make it back to the fleet without some hull charge. If I could have some of yours... it's the only shot I've got. What do you say?",
+	],
+	"fontname": None,
+	"fontsize": 24,
+	"color": "turquoise",
+	"opt0": "All right, I'll help you.",
+	"sub0": "You will lose your regenerative shield.",
+	"opt1": "I'm sorry, I need everything I have for the dangers ahead.",
+	"sub1": "",
+	"do": "shield",
+}
+vdata[5] = {
+	"avatar": "bio-0",
+	"title": "Ship's Doctor",
+	"name": "Donovan Paulson",
+	"lines": [
+		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
+		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
+		"Sorry, I haven't had a good meal in weeks. Look, I've taken heavy damage. I'll never make it back to the fleet without some hull charge. If I could have some of yours... it's the only shot I've got. What do you say?",
+	],
+	"fontname": None,
+	"fontsize": 24,
+	"color": "turquoise",
+	"opt0": "All right, I'll help you.",
+	"sub0": "You will lose your targeting missiles.",
+	"opt1": "I'm sorry, I need everything I have for the dangers ahead.",
+	"sub1": "",
+	"do": "missile",
+}
+vdata[6] = {
+	"avatar": "bio-0",
+	"title": "Ship's Doctor",
+	"name": "Donovan Paulson",
+	"lines": [
+		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
+		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
+		"Sorry, I haven't had a good meal in weeks. Look, I've taken heavy damage. I'll never make it back to the fleet without some hull charge. If I could have some of yours... it's the only shot I've got. What do you say?",
+	],
+	"fontname": None,
+	"fontsize": 24,
+	"color": "turquoise",
+	"opt0": "All right, I'll help you.",
+	"sub0": "You will lose your V-shots.",
+	"opt1": "I'm sorry, I need everything I have for the dangers ahead.",
+	"sub1": "",
+	"do": "vshot",
+}
+vdata["X"] = {
+	"avatar": "bio-0",
+	"title": "Ship's Doctor",
+	"name": "Donovan Paulson",
+	"lines": [
+		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
+		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
+		"Sorry, I haven't had a good meal in weeks. Look, I've taken heavy damage. I'll never make it back to the fleet without some hull charge. If I could have some of yours... it's the only shot I've got. What do you say?",
+	],
+	"fontname": None,
+	"fontsize": 24,
+	"color": "turquoise",
+	"opt0": "All right, I'll help you.",
+	"sub0": "You will lose the ability to charge your weapon.",
+	"opt1": "I'm sorry, I need everything I have for the dangers ahead.",
+	"sub1": "",
+	"do": "charge",
+}
 
 
 

@@ -97,8 +97,18 @@ def makewaves():
 			[100, state.addegret],
 
 		]
-		
-
+	if state.stage == 3:
+		state.waves = [
+			[0, addheronsplash, 2, 4, 1000],
+			[0, addcapsule, 4, 520, 260, -40, 0],
+			[0, addcobra, 20, 40, 500, 300, -450, -100, 0, 100],
+			[10, addcobra, 20, 40, 500, -300, -450, 100, 0, 100],
+			[20, addasteroids, 50, 1200, 123],
+			[20, addbluerock, 1200, 220, -40, 0],
+			[40, addcobra, 40, 80, 500, 0, -1400, 0, 0, 320],
+			[40, addcobra, 40, 80, 1000, 0, -1400, 0, -500, 320],
+			[120, state.addmedusa],
+		]
 	return
 	state.waves = [
 		[0, state.addduckwave, 700, 0, 4, 6, [
@@ -108,7 +118,6 @@ def makewaves():
 			[9, -600, 0],
 		]],
 		[5, state.addrockwave, 900, 0, 60, 200],
-		[25, state.addmedusa],
 	]
 #	state.waves = [[0, state.addegret]]
 #	state.waves = [[0, state.addmedusa]]
@@ -152,7 +161,19 @@ def addasteroids(n, x0, j0 = 0):
 		y = (dy * 2 - 1) * state.yrange
 		r = 30 + 40 * dr
 		vx = -20 - 40 * dvx
-		rock = thing.Rock(x = x, y = y, vx = vx, vy = 0, r = r, hp = 30)
+		rock = thing.Rock(x = x, y = y, vx = vx, vy = 0, r = r, hp = int(r * 0.7))
 		state.enemies.append(rock)
+
+def addbluerock(x, y, vx, vy):
+	rock = thing.BlueRock(x = x, y = y, vx = vx, vy = vy)
+	state.enemies.append(rock)
+
+def addcobra(n, r, x0, y0, dx, dy, p0, h):
+	for jseg in range(n):
+		state.enemies.append(thing.Cobra(
+			x0arc = x0, y0arc = y0, dxarc = dx, dyarc = dy,
+			p0arc = p0, harc = h, r = r))
+		p0 -= r * 0.8
+		r *= 0.95
 		
 
