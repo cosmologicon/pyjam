@@ -12,13 +12,15 @@ def init(name):
 	self.t = 0
 	self.opt = 0
 	self.starting = True
+	self.popped = False
 	
 def think(dt, kdowns, kpressed):
 	if self.starting:
 		self.t += dt
 	else:
 		self.t -= dt
-		if self.t <= 0:
+		if self.t <= 0 and not self.popped:
+			self.popped = True
 			if self.opt == 0:
 				state.downgrade(vdata[self.name]["do"])
 			scene.pop()
@@ -92,7 +94,7 @@ def draw():
 		alpha = talpha)
 	if settings.DEBUG:
 		pos = F(475, 5) if settings.portrait else F(849, 5)
-		ptext.draw("Encounter #%s" % self.name, topright = pos, fontsize = F(32))
+		ptext.draw("Encounter #%s\nAffects: %s" % (self.name, data["do"]), topright = pos, fontsize = F(32))
 
 
 
@@ -110,10 +112,46 @@ vdata[1] = {
 	"fontsize": 24,
 	"color": "turquoise",
 	"opt0": "All right, I'll help you.",
-	"sub0": "You will lose half your health.",
+	"sub0": "You will lose 3 health bars.",
 	"opt1": "I'm sorry, I need everything I have for the dangers ahead.",
 	"sub1": "",
 	"do": "hp",
+}
+vdata[2] = {
+	"avatar": "bio-0",
+	"title": "Ship's Doctor",
+	"name": "Donovan Paulson",
+	"lines": [
+		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
+		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
+		"Sorry, I haven't had a good meal in weeks. Look, I've taken heavy damage. I'll never make it back to the fleet without some hull charge. If I could have some of yours... it's the only shot I've got. What do you say?",
+	],
+	"fontname": None,
+	"fontsize": 24,
+	"color": "turquoise",
+	"opt0": "All right, I'll help you.",
+	"sub0": "You will lose your C-shots.",
+	"opt1": "I'm sorry, I need everything I have for the dangers ahead.",
+	"sub1": "",
+	"do": "cshot",
+}
+vdata[3] = {
+	"avatar": "bio-0",
+	"title": "Ship's Doctor",
+	"name": "Donovan Paulson",
+	"lines": [
+		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
+		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
+		"Sorry, I haven't had a good meal in weeks. Look, I've taken heavy damage. I'll never make it back to the fleet without some hull charge. If I could have some of yours... it's the only shot I've got. What do you say?",
+	],
+	"fontname": None,
+	"fontsize": 24,
+	"color": "turquoise",
+	"opt0": "All right, I'll help you.",
+	"sub0": "You will lose your protective satellite.",
+	"opt1": "I'm sorry, I need everything I have for the dangers ahead.",
+	"sub1": "",
+	"do": "companion",
 }
 
 

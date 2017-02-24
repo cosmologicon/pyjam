@@ -108,12 +108,12 @@ def think(dt):
 			obj.collect()
 	for group in thinkers:
 		group[:] = [x for x in group if x.alive]
-	while waves and you.t > waves[0][0]:
-		wave = waves[0]
-		del waves[0]
-		func = wave[1]
-		args = wave[2:]
-		func(*args)
+	for wave in waves:
+		if you.t >= wave[0]:
+			func = wave[1]
+			args = wave[2:]
+			func(*args)
+	waves[:] = [wave for wave in waves if you.t < wave[0]]
 	if not you.alive:
 		tlose += dt
 		if tlose > 3:
@@ -189,6 +189,20 @@ def addduckwave(x0, y0, nx, ny, steps):
 	for dx, dy, dt in zip(dxs, dys, dts):
 		esteps = [(t + dt, x + dx, y + dy) for t, x, y in steps]
 		obj = thing.Duck(x = x0 + dx, y = y0 + dy, steps = esteps)
+		enemies.append(obj)
+
+def addturkeywave(x0, y0, nx, ny, steps):
+	import thing
+	dxs, dys, dts = [], [], []
+	r = 100
+	for jx in range(nx):
+		for jy in range(ny):
+			dxs.append((jx - (nx - 1) / 2) * r)
+			dys.append((jy - (ny - 1) / 2) * r)
+			dts.append(math.phi * (len(dxs)) % 1)
+	for dx, dy, dt in zip(dxs, dys, dts):
+		esteps = [(t + dt, x + dx, y + dy) for t, x, y in steps]
+		obj = thing.Turkey(x = x0 + dx, y = y0 + dy, steps = esteps)
 		enemies.append(obj)
 
 def addheronwave(n, dt):

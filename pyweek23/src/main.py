@@ -35,6 +35,9 @@ while scene.stack:
 	if settings.DEBUG:
 		text = "\n".join([
 			"F2: toggle DEBUG mode",
+			"F10: toggle portrait mode",
+			"F11: toggle fullscreen",
+			"F12: screenshot",
 			"%.1ffps" % clock.get_fps(),
 		])
 		h = 849 if settings.portrait else 475

@@ -866,8 +866,11 @@ class Companion(object):
 @DrawBox("planet")
 @Visitable()
 class Planet(object):
-	def __init__(self, **kw):
-		self.setstate(vx = -state.scrollspeed, vy = 0, **kw)
+	def __init__(self, vx = None, vy = None, **kw):
+		self.setstate(
+			vx = -state.scrollspeed if vx is None else vx,
+			vy = 0 if vy is None else vy,
+			**kw)
 
 @WorldBound()
 @Lives()
@@ -878,8 +881,11 @@ class Planet(object):
 @DrawAngleImage("capsule", 1.7)
 @Visitable()
 class Capsule(object):
-	def __init__(self, **kw):
-		self.setstate(vx = -state.scrollspeed, vy = 0, **kw)
+	def __init__(self, vx = None, vy = None, **kw):
+		self.setstate(
+			vx = -state.scrollspeed if vx is None else vx,
+			vy = 0 if vy is None else vy,
+			**kw)
 
 @WorldBound()
 @Lives()
@@ -1042,18 +1048,31 @@ class Cobra(object):
 @DisappearsOffscreen()
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
-@DrawFacingImage("duck", 1.2, -100)
+@DrawFacingImage("duck", 1.8, -100)
 class Duck(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@HasHealth(20)
+@Collides(40)
+@SeeksFormation(400, 400)
+@DisappearsOffscreen()
+@HurtsOnCollision(3)
+@KnocksOnCollision(40)
+@DrawFacingImage("duck", 1.8, -100)
+class Turkey(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 
 
 @WorldBound()
 @Lives()
-@HasHealth(2)
+@HasHealth(20)
 @Collides(20)
 @Cycloid()
-@DisappearsOffscreen(500)
+@DisappearsOffscreen(1000)
 @HurtsOnCollision(3)
 @KnocksOnCollision(40)
 @DrawBox("lark")
@@ -1098,8 +1117,11 @@ class Rock(object):
 @Collectable()
 @HealsOnCollect()
 class HealthPickup(object):
-	def __init__(self, **kw):
-		self.setstate(vx = -state.scrollspeed, vy = 0, **kw)
+	def __init__(self, vx = None, vy = None, **kw):
+		self.setstate(
+			vx = -state.scrollspeed if vx is None else vx,
+			vy = 0 if vy is None else vy,
+			**kw)
 
 @WorldBound()
 @Lives()
@@ -1109,8 +1131,11 @@ class HealthPickup(object):
 @Collectable()
 @MissilesOnCollect()
 class MissilesPickup(object):
-	def __init__(self, **kw):
-		self.setstate(vx = -state.scrollspeed, vy = 0, **kw)
+	def __init__(self, vx = None, vy = None, **kw):
+		self.setstate(
+			vx = -state.scrollspeed if vx is None else vx,
+			vy = 0 if vy is None else vy,
+			**kw)
 
 @WorldBound()
 @Lives()
@@ -1120,8 +1145,11 @@ class MissilesPickup(object):
 @Collectable()
 @SlowsOnCollect()
 class SlowPickup(object):
-	def __init__(self, **kw):
-		self.setstate(vx = -state.scrollspeed, vy = 0, **kw)
+	def __init__(self, vx = None, vy = None, **kw):
+		self.setstate(
+			vx = -state.scrollspeed if vx is None else vx,
+			vy = 0 if vy is None else vy,
+			**kw)
 
 @Lives()
 @Lifetime()
