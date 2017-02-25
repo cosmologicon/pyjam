@@ -37,12 +37,15 @@ def think(dt, kdowns, kpressed):
 		if self.opt == 0:
 			if settings.isdown("right", kdowns) or settings.isdown("down", kdowns):
 				self.opt = 1
+				sound.playsfx("select")
 		elif self.opt == 1:
 			if settings.isdown("left", kdowns) or settings.isdown("up", kdowns):
 				self.opt = 0
+				sound.playsfx("select")
 		if settings.isdown("action", kdowns):
 			self.starting = False
 			self.t = 1.5
+			sound.playsfx("start")
 
 def draw():
 	data = vdata[self.name]

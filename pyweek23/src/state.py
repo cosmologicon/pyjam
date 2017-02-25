@@ -206,6 +206,7 @@ def draw():
 
 def takedamage(damage):
 	global hp, tinvulnerable, shieldhp
+	from . import sound
 	if tinvulnerable:
 		return
 	while shieldhp >= 1 and damage:
@@ -216,6 +217,10 @@ def takedamage(damage):
 	you.iflash = tinvulnerable
 	if hp <= 0:
 		you.die()
+		sound.playsfx("you-die")
+	else:
+		sound.playsfx("you-hurt")
+		
 
 def heal(amount):
 	global hp
@@ -378,6 +383,7 @@ def loadandrun():
 		load(pfile)
 		scene.push(playscene, stage)
 	else:
+		reset()
 		if settings.miracle:
 			msaved, mmet = getmsave()
 			saved |= msaved

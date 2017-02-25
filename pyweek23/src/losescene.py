@@ -22,11 +22,14 @@ def think(dt, kdowns, kpressed):
 		if self.opt < len(self.texts) - 1:
 			if settings.isdown("right", kdowns) or settings.isdown("down", kdowns):
 				self.opt += 1
+				sound.playsfx("select")
 		if self.opt > 0:
 			if settings.isdown("left", kdowns) or settings.isdown("up", kdowns):
 				self.opt -= 1
+				sound.playsfx("select")
 		if settings.isdown("action", kdowns):
 			end()
+			sound.playsfx("start")
 
 def end():
 	from . import playscene

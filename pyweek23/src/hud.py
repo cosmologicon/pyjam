@@ -19,5 +19,5 @@ def draw():
 		image.Fdraw(imgname, pos, scale = 0.3)
 	if settings.miracle:
 		ptext.draw("Miracle Mode", topright = F(475 if settings.portrait else 850, 4),
-			fontsize = F(20), fontname = "Bungee")
+			fontsize = F(20), fontname = "Bungee", owidth = 1)
 

@@ -1,4 +1,4 @@
-import pygame, os
+import pygame, os, random, math
 from . import settings, image, ptext, util
 from .util import F
 
@@ -30,7 +30,19 @@ def get(sname, d = "sound"):
 def play(sname):
 	get(sname).play()
 
+quiet = {}
+def playsfx(sname):
+	Q = quiet.get(sname, 0)
+	s = get(sname + random.choice("012") if sname == "shot" else sname)
+	s.set_volume(1 * math.exp(-Q))
+	s.play()
+	quiet[sname] = Q + 1
+
+
 def think(dt):
+	f = math.exp(-2 * dt)
+	for sname in quiet:
+		quiet[sname] *= f
 	dv = 2 * dt
 	talking = pygame.mixer.Channel(0).get_busy()
 	tvol = [

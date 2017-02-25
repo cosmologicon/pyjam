@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import view, ptext, state, util, image, settings
+from . import view, ptext, state, util, image, settings, sound
 from . import scene, visitscene
 from .enco import Component
 from .util import F
@@ -305,6 +305,7 @@ class FiresWithSpace(Component):
 				x = x0 + dx, y = y0 + dy, vx = 500, vy = 0, r = 3, damage = 1, lifetime = 0.2))
 			state.goodbullets.append(RangeGoodBullet(
 				x = x0 + dx, y = y0 - dy, vx = 500, vy = 0, r = 3, damage = 1, lifetime = 0.2))
+		sound.playsfx("shot")
 		self.tshot = 0
 	def draw(self):
 		charge = self.getcharge()
@@ -735,6 +736,7 @@ class ClustersNearYou(Component):
 				)
 				state.badbullets.append(bullet)
 			self.alive = False
+			sound.play("boom")
 
 class HasHealth(Component):
 	def __init__(self, hp0, iflashmax = 1):
@@ -746,7 +748,11 @@ class HasHealth(Component):
 		if self.hp <= 0: return
 		self.hp -= damage
 		self.iflash = self.iflashmax
-		if self.hp <= 0: self.die()
+		if self.hp <= 0:
+			sound.playsfx("boss-die" if self in state.bosses else "enemy-die")
+			self.die()
+		else:
+			sound.playsfx("enemy-hurt")
 
 class LeavesCorpse(Component):
 	def die(self):
@@ -776,6 +782,7 @@ class Collectable(Component):
 			self.x += dx
 			self.y += dy
 	def collect(self):
+		sound.playsfx("get")
 		self.die()
 
 class HealsOnCollect(Component):
