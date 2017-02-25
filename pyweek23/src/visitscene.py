@@ -7,7 +7,7 @@ class self:
 	pass
 
 def init(name):
-	self.name = name
+	self.name = str(name)
 	sound.dplay(vdata[self.name]["sname"] + "1")
 
 	self.t = 0
@@ -26,6 +26,10 @@ def think(dt, kdowns, kpressed):
 			if self.opt == 0:
 				state.downgrade(vdata[self.name]["do"])
 				sound.dplay(vdata[self.name]["sname"] + "2")
+				if self.name == "7":
+					state.saved -= set("123456X")
+				else:
+					state.saved.add(self.name)
 			else:
 				sound.dplay(vdata[self.name]["sname"] + "3")
 			scene.pop()

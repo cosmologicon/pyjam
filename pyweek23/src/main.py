@@ -12,7 +12,8 @@ sound.init()
 
 ptext.FONT_NAME_TEMPLATE = os.path.join("data", "font", "%s.ttf")
 
-scene.push(playscene, 1)
+state.startup()
+#scene.push(playscene, 1)
 #scene.push(climaxscene)
 #scene.push(winscene)
 #scene.push(creditsscene)

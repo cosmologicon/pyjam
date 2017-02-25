@@ -1,5 +1,5 @@
 from __future__ import division
-import math, random, pygame, bisect
+import math, random, pygame, bisect, os.path, settings, os
 try:
     import cPickle as pickle
 except ImportError:
@@ -142,6 +142,7 @@ def think(dt):
 		if tlose > 3:
 			scene.pop()
 			scene.push(losescene)
+			removequicksave()
 	elif not waves and not bosses and not spawners:
 		twin += dt
 		import thing
@@ -156,13 +157,19 @@ def think(dt):
 def win():
 	if stage == 1:
 		gotostage(2)
+		save(settings.progressfile)
+		removequicksave()
 	elif stage == 2:
 		gotostage(3)
+		save(settings.progressfile)
+		removequicksave()
 	elif stage == 3:
 		met.add("7")
 		met.add("C")
 		met.add("J")
 		gotostage(4)
+		save(settings.progressfile)
+		removequicksave()
 	elif stage == 4:
 		gotoclimax()
 	else:
@@ -173,10 +180,10 @@ def gotostage(n):
 	scene.quit()
 	scene.push(playscene, n)
 
-def gotoclimax(n):
+def gotoclimax():
 	from . import playscene, scene
 	scene.quit()
-	scene.push(playscene, n)
+	scene.push(climaxscene)
 
 def draw():
 	drawers = corpses, bosses, enemies, planets, yous, goodbullets, badbullets, pickups, spawners
@@ -288,19 +295,81 @@ def addrockwave(x0, y0, n, spread):
 		enemies.append(rock)
 
 # I regret nothing.
-obj0 = pickle.dumps([(k, v) for k, v in globals().items() if not k.startswith("_") and type(v) is not type(pickle)], 2)
+obj0 = pickle.dumps([(k, v) for k, v in globals().items() if not k.startswith("_") and type(v) not in [type(pickle), type(think)]], 2)
 def reset():
 	g = globals()
 	for k, v in pickle.loads(obj0):
 		g[k] = v
 
 def save(filename):
-	obj = [(k, v) for k, v in globals().items() if not k.startswith("_") and type(v) is not type(pickle)]
-	pickle.dump(obj, open(filename, "wb"), 2)
+	if not os.path.exists(settings.savedir):
+		os.makedirs(settings.savedir)
+	path = os.path.join(settings.savedir, filename)
+	obj = [(k, v) for k, v in globals().items() if not k.startswith("_") and type(v) not in [type(pickle), type(think)]]
+	pickle.dump(obj, open(path, "wb"), 2)
+
+def getmsave():
+	mfile = os.path.join(settings.savedir, settings.miraclefile)
+	if os.path.exists(mfile):
+		return pickle.load(open(mfile), "rb")
+	return set(), set()
+
+def mupdate():
+	if not os.path.exists(settings.savedir):
+		os.makedirs(settings.savedir)
+	msaved, mmet = getmsave()
+	mfile = os.path.join(settings.savedir, settings.miraclefile)
+	msaved |= saved
+	mmet |= met
+	pickle.dump((msaved, mmet), open(mfile, "wb"), 2)
+
+def removequicksave():
+	qfile = os.path.join(settings.savedir, settings.quicksavefile)
+	if os.path.exists(qfile):
+		os.remove(qfile)
 
 def load(filename):
 	obj = pickle.load(open(filename, "rb"))
 	g = globals()
 	for k, v in obj:
 		g[k] = v
+
+def startup():
+	global saved, met
+	from . import scene, playscene, losescene
+	if settings.restart:
+		removequicksave()
+		deleteprogress()
+	qfile = os.path.join(settings.savedir, settings.quicksavefile)
+	if os.path.exists(qfile):
+		load(qfile)
+		scene.push(playscene, stage)
+		load(qfile)
+		return
+	pfile = os.path.join(settings.savedir, settings.progressfile)
+	if os.path.exists(pfile):
+		scene.push(losescene)
+		return
+	if settings.miracle:
+		msaved, mmet = getmsave()
+		saved |= msaved
+		met |= mmet
+	scene.push(playscene, 1)
+
+def loadandrun():
+	from . import scene, playscene
+	scene.quit()
+	pfile = os.path.join(settings.savedir, settings.progressfile)
+	if os.path.exists(pfile):
+		load(pfile)
+		scene.push(playscene, stage)
+	else:
+		scene.push(playscene, 1)
+
+def deleteprogress():
+	pfile = os.path.join(settings.savedir, settings.progressfile)
+	if os.path.exists(pfile):
+		os.remove(pfile)
+		
+
 

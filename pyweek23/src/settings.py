@@ -17,11 +17,17 @@ for arg in sys.argv:
 		windowsize = int(arg[6:])
 		forceres = True
 lowres = "--lowres" in sys.argv
+restart = "--restart" in sys.argv
 
 screenshotdir = "screenshots"
+savedir = "save"
 quicksavefile = "qsave.pkl"
+progressfile = "save.pkl"
+miraclefile = "msave.pkl"
 
 swapaction = False
+miracle = True
+tquicksave = 5
 
 soundext = "wav"
 

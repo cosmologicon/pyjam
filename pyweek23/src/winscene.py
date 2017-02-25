@@ -12,6 +12,7 @@ def init():
 	self.t = 0
 	self.popped = False
 	sound.mplay(2)
+	state.mupdate()
 
 def think(dt, kdowns, kpressed):
 	if self.popped:

@@ -10,6 +10,8 @@ def init():
 	# Channel 1 = decision
 	# Channel 2 = flying
 	# Channel 3 = ballad
+	for j in (1, 2, 3):
+		pygame.mixer.Channel(j).set_volume(0)
 	song1 = get("decision", d = "music")
 	song2 = get("flying", d = "music")
 	pygame.mixer.Channel(1).play(song1, -1)
@@ -89,12 +91,18 @@ class Dplayer(object):
 			image.Bdraw(self.a, pos, s = 90, a = self.atime)
 		fontname, fontsize, color = {
 			"N": ("FjallaOne", 21, (200, 200, 255)),
+			"J": ("Lalezar", 21, (200, 255, 200)),
+			"C": ("Bungee", 18, (255, 180, 80)),
 		}.get(self.font, (None, 28, "white"))
 		fontsize = F(fontsize)
+		lineheight = 1
+		if fontname == "Lalezar": lineheight = 0.7
+		if fontname == "Bungee": lineheight = 1.2
 		width = F(340) if settings.portrait else F(540)
 		pos = F(110, 850) if settings.portrait else F(160, 472)
 		ptext.draw(self.text, bottomleft = pos, width = width,
 			fontname = fontname, fontsize = fontsize, color = color, shadow = (1, 1),
+			lineheight = lineheight,
 			alpha = self.atime)
 		
 
@@ -105,6 +113,18 @@ Dlines["intro"] = [
 	["Prologue3", "bio-0", "N", "The Starship Hawking, commanded by Cutter's son, Captain Gabriel, set out on the deadly mission to deploy the weapon and save humanity. The ship never returned."],
 	["Prologue4", None, "N", "While the evacuation of Earth is underway, General Cutter himself is nowhere to be found."],
 	["Prologue5", "bio-0", "N", "As Earth's end looms near, Captain Alyx, mother of one of the Hawking crew, receives a message from her daughter. Find me at the rift."],
+]
+
+Dlines["A"] = [
+	["A1", "bio-J", "J", "Mother! You got my message!"],
+	["A2", "bio-J", "J", "No time to explain. I've found out how to close the rift once and for all. It's the only chance to save Earth."],
+	["A3", "bio-C", "C", "Not so fast."],
+	["A4", "bio-J", "J", "General! What are you doing here?"],
+	["A5", "bio-J", "J", "Listen, you need to move away from the rift. I'm going to close it!"],
+	["A6", "bio-C", "C", "I can't let you do that. I don't know what I was ever thinking, trying to close this thing. But I'm a changed man now!"],
+	["A7", "bio-C", "C", "And once the rift reaches Earth, you'll see just how powerful it is! Bwa ha ha!"],
+	["A8", "bio-J", "J", "Mother, I don't know what's happened to him, but he has to be stopped. You take care of the fleet. I'll prepare to close the rift."],
+	["A9", "bio-J", "J", "Don't worry about me. I'm far enough from the action that I'll be safe."],
 ]
 
 Dlines["climax"] = [
