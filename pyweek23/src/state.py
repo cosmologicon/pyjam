@@ -128,7 +128,7 @@ def think(dt):
 		twin += dt
 		import thing
 		for b in badbullets:
-			thing.LeavesCorpse.die(b)
+			corpses.append(thing.Corpse(x = b.x, y = b.y, r = b.r))
 			b.alive = False
 		if twin > 2:
 			you.x += (twin - 2) * 1000 * dt

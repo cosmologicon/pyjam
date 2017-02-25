@@ -13,6 +13,8 @@ def get(imgname, scale = 1, angle = 0, cfilter = None):
 	if imgname == "you": kangle = 1
 	if imgname == "capsule": kangle = 2
 	if imgname == "snake": kangle = 2
+	if settings.lowres:
+		kangle = 90
 
 	angle = kangle * int(round(angle / kangle)) % 360
 	key = imgname, scale, angle, cfilter

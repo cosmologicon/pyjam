@@ -851,7 +851,12 @@ class DrawFlash(Component):
 		pos = view.screenpos((self.x, self.y))
 		r = F(view.Z * self.r)
 		color = (255, 120, 120) if (self.t + self.dtflash) * 5 % 1 > 0.5 else (255, 255, 0)
-		pygame.draw.circle(view.screen, color, pos, r)
+		if settings.lowres:
+			rec = pygame.Rect((0, 0, 2*r, 2*r))
+			rec.center = pos
+			view.screen.fill(color, rec)
+		else:
+			pygame.draw.circle(view.screen, color, pos, r)
 
 class DrawGlow(Component):
 	def __init__(self):
