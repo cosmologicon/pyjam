@@ -5,7 +5,7 @@ from .util import F
 
 imgs = {}
 sizetotal = 0
-maxsize = 100 << 20
+maxsize = 400 << 20
 lastcall = { None: 0 }
 def get(imgname, scale = 1, angle = 0, cfilter = None):
 	global sizetotal

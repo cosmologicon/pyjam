@@ -191,7 +191,7 @@ def addasteroids(n, x0, j0 = 0):
 		dx, dy, dr, dvx = randomdata.rocks[j]
 		x = x0 + 200 * dx
 		y = (dy * 2 - 1) * state.yrange
-		r = 30 + 40 * dr
+		r = round((30 + 40 * dr) / 20) * 20
 		vx = -20 - 40 * dvx
 		vy = (dvx * 1000 % 1 * 2 - 1) * 2
 		rock = thing.Rock(x = x, y = y, vx = vx, vy = vy, r = r, hp = int(r * 0.7))

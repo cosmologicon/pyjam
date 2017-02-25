@@ -1,5 +1,5 @@
 from __future__ import division
-import pygame, math, random
+import pygame, math, random, os.path
 from . import view, ptext, state, util, image, settings, sound
 from . import scene, visitscene
 from .enco import Component
@@ -848,6 +848,28 @@ class DrawImage(Component):
 			r = F(view.Z * self.r)
 			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
 
+class DrawTumblingRock(Component):
+	def __init__(self, cfilter0 = None):
+		self.cfilter0 = cfilter0
+		self.iflash = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "cfilter0", "iflash")
+		self.rtheta = random.random()
+		self.romega = random.choice([-1, 1]) * random.uniform(0.08, 0.25)
+	def think(self, dt):
+		self.iflash = max(self.iflash - dt, 0)
+		self.rtheta += self.romega * dt
+	def draw(self):
+		scale = 0.01 * self.r * 0.39 * 4
+		jframe = int(self.rtheta * 60) % 60 * 1
+		cfilter = getcfilter(self.iflash) or self.cfilter0
+		imgname = os.path.join("data", "rock", "main-%d.png" % jframe)
+		image.Gdraw(imgname, pos = (self.x, self.y), scale = scale, cfilter = cfilter, angle = 50)
+		if settings.DEBUG:
+			pos = view.screenpos((self.x, self.y))
+			r = F(view.Z * self.r)
+			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
+
 class DrawFacingImage(Component):
 	def __init__(self, imgname, imgscale = 1, ispeed = 0):
 		self.imgname = imgname
@@ -1300,7 +1322,7 @@ class Heron(object):
 @DisappearsOffscreen()
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
-@DrawImage("rock-0", 0.39)
+@DrawTumblingRock()
 @LeavesCorpse()
 class Rock(object):
 	def __init__(self, **kw):
@@ -1315,7 +1337,7 @@ class Rock(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @SpawnsCapsule()
-@DrawImage("rock-0", 0.39, (0.7, 0.7, 1.0))
+@DrawTumblingRock((0.7, 0.7, 1.0))
 @LeavesCorpse()
 class BlueRock(object):
 	def __init__(self, **kw):
