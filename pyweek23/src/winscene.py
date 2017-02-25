@@ -22,7 +22,8 @@ def think(dt, kdowns, kpressed):
 		if not self.spawner.alive:
 			self.popped = True
 			scene.pop()
-			scene.push(creditsscene)
+			if state.good:
+				scene.push(creditsscene)
 
 def draw():
 	background.drawfly()
@@ -42,7 +43,15 @@ def draw():
 		dy = 80 * (j // 5)
 		pos = (76 + dx, 400 + dy) if settings.portrait else (264 + dx, 260 + dy)
 		a = util.clamp((self.t - 2) * 2, 0, 1 if name in state.met else 0.99)
-		if not a:
-			continue
-		image.Bdraw("bio-0", pos, 60, a)
+		if a:
+			image.Bdraw("bio-0", pos, 60, a)
+		alpha = util.clamp((self.t - 3) * 2, 0, 1)
+		if alpha:
+			if name == "7" or name not in state.met:
+				ptext.draw("?", center = F(pos), fontsize = F(50), fontname = "PermanentMarker",
+					color = "red", owidth = 1, alpha = alpha)
+			elif name not in state.saved:
+				ptext.draw("X", center = F(pos), fontsize = F(50), fontname = "PermanentMarker",
+					color = "red", owidth = 1, alpha = alpha)
+
 

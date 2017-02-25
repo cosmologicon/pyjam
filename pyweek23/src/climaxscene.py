@@ -86,6 +86,13 @@ def draw():
 		pygame.draw.ellipse(view.screen, color, rect, F(3))
 	for x in state.yous:
 		x.draw()
+	a = util.clamp(255 * (22 - state.you.t), 0, 255)
+	if a:
+		copy = view.screen.convert_alpha()
+		copy.fill((0, 0, 0, a))
+		view.screen.blit(copy, (0, 0))
+	
+
 	spawner.draw()
 	dx, dy = state.you.x - 300, state.you.y
 	d = math.sqrt(dx ** 2 + dy ** 2)

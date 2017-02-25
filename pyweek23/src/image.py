@@ -1,5 +1,5 @@
 from __future__ import division
-import pygame, math
+import pygame, math, os.path
 from . import view, util, settings
 from .util import F
 
@@ -27,7 +27,7 @@ def get(imgname, scale = 1, angle = 0, cfilter = None):
 		del array
 	elif scale == 1 and angle == 0:
 		if not imgname.endswith("png") and not imgname.endswith("jpg"):
-			imgname = "data/img/%s.png" % imgname
+			imgname = os.path.join("data", "img", "%s.png" % imgname)
 		img = pygame.image.load(imgname).convert_alpha()
 	else:
 		img = get(imgname, scale = 1, angle = 0)
@@ -85,5 +85,5 @@ def Bdraw(imgname, pos, s = 120, a = 1, ocolor = (100, 100, 255)):
 	ocolor = tuple(int(c * (0.8 + 0.2 * math.sin(0.01 * pygame.time.get_ticks()))) for c in ocolor)
 	pygame.draw.rect(view.screen, ocolor, F(rect), F(2))
 	if a == 1:
-		Fdraw("biopix/" + imgname + ".jpg", pos, scale = s / 600)
+		Fdraw(os.path.join("data", "biopix", imgname + ".jpg"), pos, scale = s / 600)
 

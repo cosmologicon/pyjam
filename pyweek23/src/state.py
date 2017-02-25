@@ -34,6 +34,8 @@ yrange = 320
 
 met = set()
 saved = set()
+good = False
+best = False
 
 def downgrade(name):  # or upgrade
 	global hp0, hp, cshottime, companion, shieldhp0, shieldhp, missiletime, vshots, chargetime

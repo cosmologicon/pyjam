@@ -85,7 +85,7 @@ class Dplayer(object):
 		if not self.text:
 			return
 		if self.a is not None:
-			pos = F(56, 800) if settings.portrait else F(100, 426)
+			pos = (56, 800) if settings.portrait else (100, 426)
 			image.Bdraw(self.a, pos, s = 90, a = self.atime)
 		fontname = None
 		fontsize = F(28)
@@ -107,18 +107,18 @@ Dlines["intro"] = [
 ]
 
 Dlines["climax"] = [
-	["C1", "bio-0", "C", "Noooo! This can't be happening!"],
-	["C2", "bio-0", "J", "It's almost over.... The rift is closing.... uh oh."],
-#	["C3", "bio-0", "J", "There's an interdimensional mass imbalance. It won't close until something from our side goes through. At least fifty tons. A missile won't do."],
-#	["C4", "bio-0", "J", "General, get away from the rift! It's extremely unstable until something enters it."],
-#	["C5", "bio-0", "C", "I can't! I've lost engines! I've got less than a minute before I'm pulled into the gravity well!"],
-#	["C6", "bio-0", "J", "Wait, that's perfect! Your ship has enough mass, once you hit the rift, it'll close for good!"],
-#	["C7", "bio-0", "J", "My ship? What about me?! Won't that kill me?"],
-#	["C8", "bio-0", "J", "I'm sorry, General. It's you or the Earth now. It's the lesser of two evils."],
-#	["C9", "bio-0", "C", "Curse you, Alyx! Curse you, Jyn! Curse you Eaaaaaarth!"],
+	["C1", "bio-C", "C", "Noooo! This can't be happening!"],
+	["C2", "bio-J", "J", "It's almost over.... The rift is closing.... uh oh."],
+	["C3", "bio-J", "J", "There's an interdimensional mass imbalance. It won't close until something from our side goes through. At least fifty tons. A missile won't do."],
+	["C4", "bio-J", "J", "General, get away from the rift! It's extremely unstable until something enters it."],
+	["C5", "bio-C", "C", "I can't! I've lost engines! I've got less than a minute before I'm pulled into the gravity well!"],
+	["C6", "bio-J", "J", "Wait, that's perfect! Your ship has enough mass, once you hit the rift, it'll close for good!"],
+	["C7", "bio-J", "C", "My ship? What about me?! Won't that kill me?"],
+	["C8", "bio-J", "J", "I'm sorry, General. It's you or the Earth now. It's the lesser of two evils."],
+	["C9", "bio-C", "C", "Curse you, Alyx! Curse you, Jyn! Curse you Eaaaaaarth!"],
 ]
 Dlines["climax2"] = [
-	["C10", "bio-0", "J", "Mother, no!"],
+	["C10", "bio-J", "J", "Mother, no!"],
 ]
 
 Dlines["B"] = [

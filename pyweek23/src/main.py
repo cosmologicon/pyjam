@@ -2,7 +2,7 @@ from __future__ import division
 import pygame, os, datetime
 from pygame.locals import *
 from . import settings, view, ptext, background, state, sound
-from . import scene, playscene, losescene, climaxscene, creditsscene
+from . import scene, playscene, losescene, climaxscene, creditsscene, winscene
 from .util import F
 
 pygame.init()
@@ -10,8 +10,11 @@ view.init()
 background.init()
 sound.init()
 
-scene.push(playscene, 1)
+ptext.FONT_NAME_TEMPLATE = os.path.join("data", "font", "%s.ttf")
+
+#scene.push(playscene, 1)
 #scene.push(climaxscene)
+scene.push(winscene)
 #scene.push(creditsscene)
 
 clock = pygame.time.Clock()

@@ -7,7 +7,7 @@ class self:
 	pass
 
 def init():
-	sound.mplay(2)
+	sound.mplay(3 if state.best else 2)
 	self.t = 0
 
 def think(dt, kdowns, kpressed):
