@@ -11,7 +11,7 @@ x0, y0, Z = 0, 0, 1
 def init():
 	global screen, sx, sy
 	aspect = 9 / 16 if settings.portrait else 16 / 9
-	if settings.fullscreen:
+	if settings.fullscreen and not settings.forceres:
 		sx0, sy0 = max(pygame.display.list_modes())
 		sx, sy = min((sx0, int(round(sx0 / aspect))), (int(round(sy0 * aspect)), sy0))
 	else:

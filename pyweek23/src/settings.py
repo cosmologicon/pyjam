@@ -11,9 +11,11 @@ DEBUG = True
 fullscreen = False
 portrait = False
 windowsize = 480  # 16:9 aspect ratio
+forceres = False
 for arg in sys.argv:
 	if arg.startswith("--res="):
 		windowsize = int(arg[6:])
+		forceres = True
 lowres = "--lowres" in sys.argv
 
 screenshotdir = "screenshots"

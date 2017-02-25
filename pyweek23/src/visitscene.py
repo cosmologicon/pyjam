@@ -8,7 +8,7 @@ class self:
 
 def init(name):
 	self.name = name
-	sound.play(vdata[self.name]["sname"] + "1")
+	sound.dplay(vdata[self.name]["sname"] + "1")
 
 	self.t = 0
 	self.opt = 0
@@ -24,9 +24,9 @@ def think(dt, kdowns, kpressed):
 			self.popped = True
 			if self.opt == 0:
 				state.downgrade(vdata[self.name]["do"])
-				sound.play(vdata[self.name]["sname"] + "2")
+				sound.dplay(vdata[self.name]["sname"] + "2")
 			else:
-				sound.play(vdata[self.name]["sname"] + "3")
+				sound.dplay(vdata[self.name]["sname"] + "3")
 			scene.pop()
 	if self.t > 1.5 and self.starting:
 		if self.opt == 0:

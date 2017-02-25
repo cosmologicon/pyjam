@@ -8,6 +8,7 @@ from .util import F
 pygame.init()
 view.init()
 background.init()
+sound.init()
 
 scene.push(playscene, 1)
 #scene.push(climaxscene)
