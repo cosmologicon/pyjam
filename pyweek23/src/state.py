@@ -20,6 +20,7 @@ vshots = 3
 missiletime = 0.6
 cshottime = 1
 rmagnet = 200
+miracle = False
 
 tslow = 0
 tinvulnerable = 0
@@ -68,7 +69,8 @@ def downgrade(name):  # or upgrade
 		hp = hp0 = 5
 		cshottime = 1
 		companion = True
-		shieldhp = shieldhp0 = 2
+		shieldhp0 = 4 if miracle else 2
+		shieldhp = shieldhp0
 		missiletime = 0.6
 		vshots = 3
 		chargetime = 3
@@ -114,8 +116,21 @@ def getcollisions(A, B):
 			j += 1
 
 def think(dt):
-	global xoffset, tslow, tinvulnerable, tlose, twin, shieldhp
+	global xoffset, tslow, tinvulnerable, tlose, twin
+	global shieldhp, shieldhp0, miracle, apickup0, shieldrate
 	from . import scene, losescene
+	if settings.miracle and not miracle:
+		miracle = True
+		shieldhp += 2
+		shieldhp0 += 2
+		apickup0 /= 2
+		shieldrate *= 2
+	elif miracle and not settings.miracle:
+		miracle = False
+		shieldhp -= 2
+		shieldhp0 -= 2
+		apickup0 *= 2
+		shieldrate -= 2
 	tslow = max(tslow - dt, 0)
 	if tslow > 0:
 		dt /= min(3, 1 + 2 * tslow)
