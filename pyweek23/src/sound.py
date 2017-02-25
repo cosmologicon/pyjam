@@ -21,7 +21,7 @@ sounds = {}
 def get(sname, d = "sound"):
 	key = sname, d
 	if key in sounds:
-		return sname
+		return sounds[key]
 	fname = os.path.join("data", d, sname + "." + settings.soundext)
 	s = pygame.mixer.Sound(fname)
 	sounds[key] = s
@@ -109,10 +109,10 @@ class Dplayer(object):
 Dlines = {}
 Dlines["intro"] = [
 	["Prologue1", None, "N", "Earth was in peril. A rift in spacetime was tearing through the cosmos, headed straight for the solar system."],
-	["Prologue2", "bio-0", "N", "Under the command of General Maxwell Cutter of Earth space fleet, a new weapon was developed to seal the rift."],
-	["Prologue3", "bio-0", "N", "The Starship Hawking, commanded by Cutter's son, Captain Gabriel, set out on the deadly mission to deploy the weapon and save humanity. The ship never returned."],
+	["Prologue2", "bio-C", "N", "Under the command of General Maxwell Cutter of Earth space fleet, a new weapon was developed to seal the rift."],
+	["Prologue3", "bio-7", "N", "The Starship Hawking, commanded by Cutter's son, Captain Gabriel, set out on the deadly mission to deploy the weapon and save humanity. The ship never returned."],
 	["Prologue4", None, "N", "While the evacuation of Earth is underway, General Cutter himself is nowhere to be found."],
-	["Prologue5", "bio-0", "N", "As Earth's end looms near, Captain Alyx, mother of one of the Hawking crew, receives a message from her daughter. Find me at the rift."],
+	["Prologue5", "bio-A", "N", '''As Earth's end looms near, Captain Alyx, mother of one of the Hawking crew, receives a message from her daughter: "Find me at the rift."'''],
 ]
 
 Dlines["A"] = [
@@ -134,7 +134,7 @@ Dlines["climax"] = [
 	["C4", "bio-J", "J", "General, get away from the rift! It's extremely unstable until something enters it."],
 	["C5", "bio-C", "C", "I can't! I've lost engines! I've got less than a minute before I'm pulled into the gravity well!"],
 	["C6", "bio-J", "J", "Wait, that's perfect! Your ship has enough mass, once you hit the rift, it'll close for good!"],
-	["C7", "bio-J", "C", "My ship? What about me?! Won't that kill me?"],
+	["C7", "bio-C", "C", "My ship? What about me?! Won't that kill me?"],
 	["C8", "bio-J", "J", "I'm sorry, General. It's you or the Earth now. It's the lesser of two evils."],
 	["C9", "bio-C", "C", "Curse you, Alyx! Curse you, Jyn! Curse you Eaaaaaarth!"],
 ]

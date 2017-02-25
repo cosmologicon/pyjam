@@ -164,7 +164,6 @@ def win():
 		save(settings.progressfile)
 		removequicksave()
 	elif stage == 3:
-		met.add("7")
 		met.add("C")
 		met.add("J")
 		gotostage(4)
@@ -311,7 +310,7 @@ def save(filename):
 def getmsave():
 	mfile = os.path.join(settings.savedir, settings.miraclefile)
 	if os.path.exists(mfile):
-		return pickle.load(open(mfile), "rb")
+		return pickle.load(open(mfile, "rb"))
 	return set(), set()
 
 def mupdate():
@@ -319,8 +318,10 @@ def mupdate():
 		os.makedirs(settings.savedir)
 	msaved, mmet = getmsave()
 	mfile = os.path.join(settings.savedir, settings.miraclefile)
+	print msaved, mmet, saved, met
 	msaved |= saved
 	mmet |= met
+	print msaved, mmet, saved, met
 	pickle.dump((msaved, mmet), open(mfile, "wb"), 2)
 
 def removequicksave():

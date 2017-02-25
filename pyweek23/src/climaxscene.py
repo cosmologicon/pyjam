@@ -5,7 +5,8 @@ from .util import F
 
 def init():
 	global spawner, twin, popped
-	state.reset()
+	state.clear()
+	state.restart()
 	state.stage = "climax"
 	state.good = True
 	state.you = thing.You(x = -200, y = 50)

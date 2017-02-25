@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, os.path
-from . import view, util, settings
+from . import view, util, settings, ptext
 from .util import F
 
 imgs = {}
@@ -86,4 +86,13 @@ def Bdraw(imgname, pos, s = 120, a = 1, ocolor = (100, 100, 255)):
 	pygame.draw.rect(view.screen, ocolor, F(rect), F(2))
 	if a == 1:
 		Fdraw(os.path.join("data", "biopix", imgname + ".jpg"), pos, scale = s / 600)
+		name = {
+			"A": "Capt. Alyx",
+			"J": "Prof. Jyn",
+			"C": "Gen. Cutter",
+			"7": "Capt. Gabriel",
+		}.get(imgname.split("-")[1])
+		if name:
+			pos = F(pos[0], pos[1] + 0.7 * s)
+			ptext.draw(name, midbottom = pos, owidth = 2, fontname = "Lalezar", fontsize = F(14))
 

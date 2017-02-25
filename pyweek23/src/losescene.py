@@ -42,8 +42,12 @@ def end():
 
 def draw():
 	background.drawfly()
-	ptext.draw(settings.gamename, midtop = F(427, 10),
-		fontsize = F(40), shadow = (1, 1), fontname = "Bungee")
+	if settings.portrait:
+		ptext.draw(settings.gamename, midtop = F(240, 10), width = F(400),
+			fontsize = F(40), shadow = (1, 1), fontname = "Bungee")
+	else:
+		ptext.draw(settings.gamename, midtop = F(427, 10),
+			fontsize = F(40), shadow = (1, 1), fontname = "Bungee")
 	for jtext, text in enumerate(self.texts):
 		flash = jtext == self.opt and self.t % 0.5 < 0.3
 		ocolor = (255, 255, 100) if flash else (200, 200, 0)
@@ -51,7 +55,7 @@ def draw():
 		rect = pygame.Rect(0, 0, 400, 80)
 		rect.center = (240, 400 + 100 * jtext) if settings.portrait else (427, 150 + 100 * jtext)
 		if self.t < 1.5:
-			rect.y -= 400 * (1.5 - self.t) ** 2
+			rect.y += 400 * (1.5 - self.t) ** 2
 		view.screen.fill(ocolor, F(rect))
 		rect.inflate_ip(-6, -6)
 		view.screen.fill(fcolor, F(rect))
