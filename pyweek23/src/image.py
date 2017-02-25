@@ -13,6 +13,7 @@ def get(imgname, scale = 1, angle = 0, cfilter = None):
 	if imgname == "you": kangle = 1
 	if imgname == "capsule": kangle = 2
 	if imgname == "snake": kangle = 2
+	if imgname == "hawk": kangle = 1
 	if settings.lowres:
 		kangle = 90
 
@@ -74,7 +75,7 @@ def Gdraw(imgname, pos, scale = 1, angle = 0, cfilter = None):
 		cfilter = cfilter
 	)
 
-def Bdraw(imgname, pos, s = 120, a = 1, ocolor = (100, 100, 255)):
+def Bdraw(imgname, pos, s = 120, a = 1, ocolor = (100, 100, 255), showtitle = True):
 	w = util.clamp((3 * a - 1) * s, 1, s)
 	h = util.clamp((3 * a) * s, 1, s)
 	rect = pygame.Rect(0, 0, w, h)
@@ -87,12 +88,18 @@ def Bdraw(imgname, pos, s = 120, a = 1, ocolor = (100, 100, 255)):
 	if a == 1:
 		Fdraw(os.path.join("data", "biopix", imgname + ".jpg"), pos, scale = s / 600)
 		name = {
-			"A": "Capt. Alyx",
+			"1": "Dr. Paulson",
+			"2": "Chf. Danilowka",
+			"3": "Lt. Jusuf",
+			"4": "Dr. Osaretin",
+			"5": "Mr. Tannenbaum",
+			"6": "Cmdr. Cooper",
+			"X": "Mr. Graves",
 			"J": "Prof. Jyn",
 			"C": "Gen. Cutter",
 			"7": "Capt. Gabriel",
 		}.get(imgname.split("-")[1])
-		if name:
+		if showtitle and name:
 			pos = F(pos[0], pos[1] + 0.7 * s)
-			ptext.draw(name, midbottom = pos, owidth = 2, fontname = "Lalezar", fontsize = F(14))
+			ptext.draw(name, midbottom = pos, owidth = 2, fontname = "Lalezar", fontsize = F(12))
 

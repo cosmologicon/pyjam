@@ -90,7 +90,7 @@ def draw():
 				color = (0, 100, 100),
 				italic = True,
 				shadow = (1, 1))
-	image.Bdraw(data["avatar"], pimg, a = util.clamp(self.t * 3 - 0.3, 0, 1))
+	image.Bdraw(data["avatar"], pimg, a = util.clamp(self.t * 3 - 0.3, 0, 1), showtitle = False)
 	ptext.draw(
 		data["title"],
 		midtop = F(pimg[0], pimg[1] + 70),

@@ -514,15 +514,17 @@ class SpawnsCanaries(Component):
 	def setstate(self, **kw):
 		getattribs(self, kw, "ncanary")
 		self.canaries = []
+		dt0 = 0
 		for jcanary in range(self.ncanary):
 			theta = jcanary * math.tau / self.ncanary
 			omega = 1.5
 			for r in (2, 3, 4):
-				canary = Canary(target = self, omega = omega, R = r * self.r, theta = theta)
+				canary = Canary(target = self, omega = omega, R = r * self.r, theta = theta, tbullet = dt0 * 4)
 				self.canaries.append(canary)
 				state.enemies.append(canary)
 				theta += math.phi * math.tau
 				omega /= -1.5
+			dt0 = (dt0 + math.phi) % 1
 	def think(self, dt):
 		if any(not s.alive for s in self.canaries):
 			self.yomega *= 1.2
@@ -617,6 +619,31 @@ class RoundhouseBullets(Component):
 				state.badbullets.append(bullet)
 			self.tbullet -= self.dtbullet
 			self.jbullet += 1
+
+class ShootsAtYou(Component):
+	def __init__(self, dtbullet = 4):
+		self.tbullet = 0
+		self.dtbullet = dtbullet
+		self.nbullet = 20
+		self.vbullet = 150
+		self.jbullet = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "tbullet")
+	def think(self, dt):
+		self.tbullet += dt
+		while self.tbullet >= self.dtbullet:
+			dx, dy = util.norm(state.you.x - self.x, state.you.y - self.y)
+			r = self.r + 2
+			bullet = BadBullet(
+				x = self.x + r * dx,
+				y = self.y + r * dy,
+				vx = self.vbullet * dx,
+				vy = self.vbullet * dy
+			)
+			state.badbullets.append(bullet)
+			self.tbullet -= self.dtbullet
+			self.jbullet += 1
+
 
 class ABBullets(Component):
 	def __init__(self, nbullet, dtbullet):
@@ -1068,7 +1095,8 @@ class GoodMissile(object):
 @SpawnsCanaries()
 @SpawnsHerons(8)
 @SpawnsClusterBullets(4)
-@DrawBox("hawk")
+@Tumbles(-0.5)
+@DrawAngleImage("hawk", 1.1)
 @LeavesCorpse()
 class Hawk(object):
 	def __init__(self, **kw):
@@ -1085,7 +1113,8 @@ class Hawk(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @SpawnsCobras()
-@DrawBox("medusa")
+@Tumbles(1)
+@DrawAngleImage("medusa", 1.5)
 @LeavesCorpse()
 class Medusa(object):
 	def __init__(self, **kw):
@@ -1149,7 +1178,8 @@ class Swallow(object):
 @Collides(30)
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
-@DrawBox("canary")
+@DrawFacingImage("canary", 1.7)
+@ShootsAtYou()
 @LeavesCorpse()
 class Canary(object):
 	def __init__(self, **kw):

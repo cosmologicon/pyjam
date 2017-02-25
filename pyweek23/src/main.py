@@ -15,6 +15,8 @@ ptext.FONT_NAME_TEMPLATE = os.path.join("data", "font", "%s.ttf")
 state.startup()
 #scene.push(playscene, 1)
 #scene.push(climaxscene)
+#state.met = set("12347XJG")
+#state.saved = set("1234JG")
 #scene.push(winscene)
 #scene.push(creditsscene)
 
