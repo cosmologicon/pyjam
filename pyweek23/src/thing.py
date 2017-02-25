@@ -120,7 +120,9 @@ class SeeksEnemies(Component):
 		getattribs(self, kw, "v0")
 	def think(self, dt):
 		target, r = None, 200
-		for e in state.enemies:
+		for e in state.enemies + state.bosses:
+			if e.hp <= 0:
+				continue
 			d = math.sqrt((self.x - e.x) ** 2 + (self.y - e.y) ** 2)
 			if d < r:
 				target, r = e, d
@@ -473,7 +475,7 @@ class SpawnsCobras(Component):
 		for jseg in range(12):
 			state.enemies.append(Cobra(
 				x0arc = x0, y0arc = y0, dxarc = dx, dyarc = dy,
-				p0arc = p0, harc = h, r = r))
+				p0arc = p0, harc = h, r = r, target = self, diedelay = 0.5 + 0.2 * jseg))
 			p0 -= r * 0.8
 			r *= 0.95
 		self.jcobra += 1
@@ -710,6 +712,8 @@ class LetPickup(Component):
 			state.addapickup(self.apickup, self)
 
 class InfiniteHealth(Component):
+	def __init__(self):
+		self.hp = 0
 	def hurt(self, damage):
 		pass
 
@@ -1099,7 +1103,7 @@ class Swallow(object):
 @BossBound()
 @EncirclesBoss()
 @Lives()
-@InfiniteHealth()
+@HasHealth(20)
 @Collides(4)
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)

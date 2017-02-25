@@ -23,6 +23,7 @@ rmagnet = 200
 
 tslow = 0
 tinvulnerable = 0
+dtinvulnerable = 1.5
 tlose = 0
 twin = 0
 
@@ -38,7 +39,7 @@ good = False
 best = False
 
 def downgrade(name):  # or upgrade
-	global hp0, hp, cshottime, companion, shieldhp0, shieldhp, missiletime, vshots, chargetime
+	global hp0, hp, cshottime, companion, shieldhp0, shieldhp, missiletime, vshots, chargetime, dtinvulnerable
 	if name == "hp":
 		hp0 -= 3
 		hp = max(hp, hp0)
@@ -54,7 +55,7 @@ def downgrade(name):  # or upgrade
 	if name == "vshot":
 		vshots = 0
 	if name == "charge":
-		chargetime = 1e12
+		dtinvulnerable = 0.6
 	if name == "upgrade":
 		hp = hp0 = 5
 		cshottime = 1
@@ -155,6 +156,7 @@ def think(dt):
 				win()
 
 def win():
+	from . import scene, winscene
 	if stage == 1:
 		gotostage(2)
 		save(settings.progressfile)
@@ -170,7 +172,11 @@ def win():
 		save(settings.progressfile)
 		removequicksave()
 	elif stage == 4:
-		gotoclimax()
+		if all(s in saved for s in "123456X"):
+			gotoclimax()
+		else:
+			scene.quit()
+			scene.push(winscene)
 	else:
 		raise ValueError("End of the game")
 
@@ -198,7 +204,7 @@ def takedamage(damage):
 		shieldhp -= 1
 		damage -= 1
 	hp -= damage
-	tinvulnerable = 1
+	tinvulnerable = dtinvulnerable
 	you.iflash = tinvulnerable
 	if hp <= 0:
 		you.die()
@@ -216,7 +222,7 @@ def addapickup(amount, who):
 	if old < apickup0 and apickup >= apickup0:
 		spawnpickup(who, thing.HealthPickup)
 	elif old < 2 * apickup0 and apickup >= 2 * apickup0:
-		spawnpickup(who, thing.MissilesPickup)
+		spawnpickup(who, thing.HealthPickup)
 	while apickup >= 2 * apickup0:
 		apickup -= 2 * apickup0
 

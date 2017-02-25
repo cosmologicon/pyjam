@@ -116,7 +116,7 @@ def makewaves():
 		state.waves = [
 			[0, addcapsule, 4, 520, 260, -40, 0],
 			[45, addcapsule, 5, 330, -400, -5, 40],
-			[90, addcapsule, 6, 500, -300, -100, 0],
+			[90, addcapsule, 6, 500, 0, -100, -40],
 
 			[5, state.addduckwave, 700, 500, 4, 4, [
 				[0, 350, 100],
