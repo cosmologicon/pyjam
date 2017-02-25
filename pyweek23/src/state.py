@@ -126,6 +126,7 @@ def think(dt):
 			scene.push(losescene)
 	elif not waves and not bosses:
 		twin += dt
+		import thing
 		for b in badbullets:
 			thing.LeavesCorpse.die(b)
 			b.alive = False
