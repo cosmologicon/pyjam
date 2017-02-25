@@ -2,7 +2,7 @@ from __future__ import division
 import pygame, os, datetime
 from pygame.locals import *
 from . import settings, view, ptext, background, state, sound
-from . import scene, playscene, losescene, climaxscene
+from . import scene, playscene, losescene, climaxscene, creditsscene
 from .util import F
 
 pygame.init()
@@ -10,13 +10,15 @@ view.init()
 background.init()
 sound.init()
 
-scene.push(playscene, 4)
+scene.push(playscene, 1)
 #scene.push(climaxscene)
+#scene.push(creditsscene)
 
 clock = pygame.time.Clock()
 dtexcess = 0
 while scene.stack:
 	dt = min(clock.tick(settings.maxfps) * 0.001, 1 / settings.minfps)
+	sound.think(dt)
 	top = scene.stack[-1]
 	kdowns = set()
 	for event in pygame.event.get():
@@ -78,7 +80,8 @@ while scene.stack:
 		state.gotostage(4)
 	pygame.display.set_caption("%s - %.1ffps" % (settings.gamename, clock.get_fps()))
 
-pygame.quit()
+print "Done"
+#pygame.quit()
 
 
 

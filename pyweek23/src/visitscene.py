@@ -16,6 +16,7 @@ def init(name):
 	self.popped = False
 	
 def think(dt, kdowns, kpressed):
+	sound.mplay(1)
 	if self.starting:
 		self.t += dt
 	else:

@@ -1280,5 +1280,7 @@ class Corpse(object):
 class Spawner(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
-	
+	def draw(self):
+		pass
+
 

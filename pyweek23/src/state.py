@@ -32,6 +32,9 @@ scrollspeed = 40
 xoffset = 0
 yrange = 320
 
+met = set()
+saved = set()
+
 def downgrade(name):  # or upgrade
 	global hp0, hp, cshottime, companion, shieldhp0, shieldhp, missiletime, vshots, chargetime
 	if name == "hp":
@@ -139,7 +142,7 @@ def think(dt):
 		if tlose > 3:
 			scene.pop()
 			scene.push(losescene)
-	elif not waves and not bosses:
+	elif not waves and not bosses and not spawners:
 		twin += dt
 		import thing
 		for b in badbullets:
@@ -156,7 +159,12 @@ def win():
 	elif stage == 2:
 		gotostage(3)
 	elif stage == 3:
+		met.add("7")
+		met.add("C")
+		met.add("J")
 		gotostage(4)
+	elif stage == 4:
+		gotoclimax()
 	else:
 		raise ValueError("End of the game")
 
@@ -165,8 +173,13 @@ def gotostage(n):
 	scene.quit()
 	scene.push(playscene, n)
 
+def gotoclimax(n):
+	from . import playscene, scene
+	scene.quit()
+	scene.push(playscene, n)
+
 def draw():
-	drawers = corpses, bosses, enemies, planets, yous, goodbullets, badbullets, pickups
+	drawers = corpses, bosses, enemies, planets, yous, goodbullets, badbullets, pickups, spawners
 	for group in drawers:
 		for obj in group:
 			obj.draw()

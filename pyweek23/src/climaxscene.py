@@ -1,17 +1,29 @@
 import math, random, pygame
 from pygame.locals import *
-from . import view, state, thing, background, settings, hud, util
+from . import view, state, thing, background, settings, hud, util, sound, scene, winscene
 from .util import F
 
 def init():
+	global spawner, twin, popped
 	state.reset()
-	state.you = thing.You(x = -200, y = 0)
+	state.stage = "climax"
+	state.good = True
+	state.you = thing.You(x = -200, y = 50)
 	state.yous.append(state.you)
 	state.yous.append(thing.Him())
+	spawner = sound.Dplayer("climax")
 	state.scrollspeed = 0
+	twin = 0
+	popped = False
+	state.saved.add("J")
+	state.met.add("J")
+	state.met.add("C")
+	state.met.add("7")
+	sound.mplay(2)
 
 
 def think(dt, kdowns, kpressed):
+	global twin, popped
 	if settings.isdown("swap", kdowns):
 		settings.swapaction = not settings.swapaction
 	if state.you.alive:
@@ -29,8 +41,40 @@ def think(dt, kdowns, kpressed):
 		state.you.x += dx * dt
 		state.you.y += dy * dt
 	view.think(dt)
-	for x in state.yous:
-		x.think(dt)
+	if spawner.alive:
+		spawner.think(dt)
+
+	if state.you.alive and not spawner.alive:
+		twin += dt
+		state.you.x += twin * 1000 * dt
+		if state.you.x > 1000:
+			if not popped:
+				poppped = True
+				state.best = False
+				scene.pop()
+				scene.push(winscene)
+	else:
+		for x in state.yous:
+			x.think(dt)
+
+
+	if state.you.alive:
+		dx, dy = state.you.x - 300, state.you.y
+		d = math.sqrt(dx ** 2 + dy ** 2)
+		if d < 20:
+			spawner.alive = False
+			sound.dplay("C10")
+			state.you.alive = False
+			state.you.x = 300
+			state.you.y = 0
+	else:
+		twin += dt
+		if twin > 2 and not popped:
+			poppped = True
+			state.best = True
+			state.saved.add("C")
+			scene.pop()
+			scene.push(winscene)
 
 
 def draw():
@@ -42,9 +86,10 @@ def draw():
 		pygame.draw.ellipse(view.screen, color, rect, F(3))
 	for x in state.yous:
 		x.draw()
+	spawner.draw()
 	dx, dy = state.you.x - 300, state.you.y
 	d = math.sqrt(dx ** 2 + dy ** 2)
-	a = util.clamp(220 - 1 * d, 0, 220)
+	a = util.clamp(255 - 1 * d, 0, 255)
 	copy = view.screen.convert_alpha()
 	copy.fill((255, 255, 255, a))
 	view.screen.blit(copy, (0, 0))

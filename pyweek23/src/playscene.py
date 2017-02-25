@@ -1,7 +1,7 @@
 from __future__ import division
 import math
 from pygame.locals import *
-from . import view, state, thing, background, settings, hud, util, randomdata
+from . import view, state, thing, background, settings, hud, util, randomdata, sound
 
 def init(stage):
 	state.clear()
@@ -12,6 +12,7 @@ def init(stage):
 	makewaves()
 
 def think(dt, kdowns, kpressed):
+	sound.mplay(2)
 	if settings.isdown("swap", kdowns):
 		settings.swapaction = not settings.swapaction
 	if state.you.alive:
@@ -51,6 +52,7 @@ def draw():
 def makewaves():
 	if state.stage == 1:
 		state.waves = [
+			[0, adddplayer, "intro"],
 			[0, state.addduckwave, 700, 500, 4, 4, [
 				[0, 350, 100],
 				[4, 200, -200],
@@ -227,3 +229,11 @@ def addclusterbombs(n, t, x0, y0, dx, dy, vx, vy):
 		
 def addgabriel():
 	state.planets.append(thing.Gabriel(x = 500, y = 500))
+
+
+def adddplayer(name):
+	state.spawners.append(sound.Dplayer(name))
+
+
+
+
