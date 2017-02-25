@@ -161,6 +161,8 @@ def makewaves():
 		]
 
 def addcapsule(name, x, y, vx, vy):
+	if str(name) in state.saved:
+		return
 	state.planets.append(thing.Capsule(name = name, x = x, y = y, vx = vx, vy = vy))
 	
 def addemu():
@@ -215,7 +217,8 @@ def addclusterbombs(n, t, x0, y0, dx, dy, vx, vy):
 		state.badbullets.append(thing.BadClusterBullet(x = x, y = y, vx = vx, vy = vy))
 		
 def addgabriel():
-	state.planets.append(thing.Gabriel(x = 500, y = 500))
+	if state.downgraded:
+		state.planets.append(thing.Gabriel(x = 500, y = 500))
 
 
 def adddplayer(name):

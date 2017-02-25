@@ -26,6 +26,7 @@ tinvulnerable = 0
 dtinvulnerable = 1.5
 tlose = 0
 twin = 0
+downgraded = False
 
 apickup = 0
 
@@ -39,23 +40,30 @@ good = False
 best = False
 
 def downgrade(name):  # or upgrade
-	global hp0, hp, cshottime, companion, shieldhp0, shieldhp, missiletime, vshots, chargetime, dtinvulnerable
+	global hp0, hp, cshottime, companion, shieldhp0, shieldhp, missiletime, vshots, chargetime, dtinvulnerable, downgraded
 	if name == "hp":
 		hp0 -= 3
 		hp = max(hp, hp0)
+		downgraded = True
 	if name == "cshot":
 		cshottime = 1e12
+		downgraded = True
 	if name == "companion":
 		companion = False
+		downgraded = True
 	if name == "shield":
 		shieldhp0 -= 1
 		shieldhp = max(shieldhp, shieldhp0)
+		downgraded = True
 	if name == "missile":
 		missiletime = 1e12
+		downgraded = True
 	if name == "vshot":
 		vshots = 0
+		downgraded = True
 	if name == "charge":
 		dtinvulnerable = 0.6
+		downgraded = True
 	if name == "upgrade":
 		hp = hp0 = 5
 		cshottime = 1

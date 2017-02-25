@@ -65,13 +65,13 @@ class Accelerates(Component):
 
 class CirclesRift(Component):
 	def __init__(self):
-		self.rrift = 200
+		self.rrift = 300
 		self.thetarift = 0
 	def setstate(self, **kw):
 		getattribs(self, kw, "rrift", "thetarift")
 		self.think(0)
 	def think(self, dt):
-		self.rrift = 1 + 200 * math.exp(-0.03 * self.t)
+		self.rrift = 1 + 300 * math.exp(-0.07 * self.t)
 		self.x = self.rrift * math.cos(self.thetarift) + 300
 		self.y = self.rrift * math.sin(self.thetarift) + 0
 		self.thetarift += 100 / self.rrift * dt
@@ -958,7 +958,7 @@ class You(object):
 @Collides(5)
 @CirclesRift()
 @Tumbles(1)
-@DrawBox("him")
+@DrawAngleImage("cutter", 5)
 class Him(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -969,7 +969,8 @@ class Him(object):
 @Lives()
 @Collides(4)
 @InfiniteHealth()
-@DrawBox("zap")
+@Tumbles(4)
+@DrawAngleImage("zap", 1.5)
 class Companion(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1005,11 +1006,11 @@ class Capsule(object):
 
 @WorldBound()
 @Lives()
-@Collides(16)
+@Collides(50)
 @LinearMotion()
 @SeeksYou(220)
 @InfiniteHealth()
-@DrawBox("gabriel")
+@DrawFacingImage("gabriel", 0.6)
 @Visitable(False)
 class Gabriel(object):
 	def __init__(self, vx = None, vy = None, **kw):
