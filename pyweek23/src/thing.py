@@ -892,6 +892,7 @@ class DrawGlow(Component):
 @ConstrainToScreen(5, 5)
 @FlashesOnInvulnerable()
 @DrawFacingImage("you", 5, 1000)
+@LeavesCorpse()
 class You(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)

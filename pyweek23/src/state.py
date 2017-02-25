@@ -47,8 +47,8 @@ def downgrade(name):  # or upgrade
 	if name == "companion":
 		companion = False
 	if name == "shield":
-		shieldhp0 = 0
-		shieldhp = 0
+		shieldhp0 -= 1
+		shieldhp = max(shieldhp, shieldhp0)
 	if name == "missile":
 		missiletime = 1e12
 	if name == "vshot":

@@ -115,16 +115,16 @@ def makewaves():
 	if state.stage == 3:
 		state.waves = [
 			[0, addcapsule, 4, 520, 260, -40, 0],
-			[50, addcapsule, 5, 330, -400, -5, 40],
+			[45, addcapsule, 5, 330, -400, -5, 40],
 			[90, addcapsule, 6, 500, -300, -100, 0],
 
-			[10, state.addduckwave, 700, 500, 4, 4, [
+			[5, state.addduckwave, 700, 500, 4, 4, [
 				[0, 350, 100],
 				[4, 200, -200],
 				[8, 0, 100],
 				[12, -600, 200],
 			]],
-			[10, state.addduckwave, 700, -500, 4, 4, [
+			[5, state.addduckwave, 700, -500, 4, 4, [
 				[0, 350, -100],
 				[4, 200, 200],
 				[8, 0, -100],
@@ -133,14 +133,14 @@ def makewaves():
 
 			[0, addheronsplash, 2, 4, 1000],
 			[0, addcobra, 20, 40, 500, 300, -450, -100, 0, 100],
-			[10, addcobra, 20, 40, 500, -300, -450, 100, 0, 100],
-			[20, addasteroids, 50, 1200, 123],
-			[20, addbluerock, 1200, 220, -40, 0],
-			[40, addcobra, 40, 80, 500, 0, -1400, 0, 0, 320],
-			[40, addcobra, 40, 80, 1000, 0, -1400, 0, -500, 320],
+			[5, addcobra, 20, 40, 500, -300, -450, 100, 0, 100],
+			[15, addasteroids, 50, 1200, 123],
+			[15, addbluerock, 1200, 220, -40, 0],
+			[35, addcobra, 40, 80, 500, 0, -1400, 0, 0, 320],
+			[35, addcobra, 40, 80, 1000, 0, -1400, 0, -500, 320],
 
-			[60, addclusterbombs, 20, 40, 0, 400, 600, 0, -60, -60],
-			[64, addclusterbombs, 20, 40, 0, -400, 600, 0, -60, 60],
+			[55, addclusterbombs, 20, 40, 0, 400, 600, 0, -60, -60],
+			[59, addclusterbombs, 20, 40, 0, -400, 600, 0, -60, 60],
 
 			[80, addcobra, 20, 40, -400, 500, 0, -500, 0, 100],
 			[83, addcobra, 20, 40, -250, -500, 0, 500, 0, 100],
@@ -177,8 +177,9 @@ def addheronsplash(nx, ny, x0 = 1000):
 			))
 			
 def addlarkwave(n, x0, y0, vy0, dy0, cr):
+	dj = 20 if vy0 < 0 else -20
 	for j in range(n):
-		state.enemies.append(thing.Lark(x0 = x0, y0 = y0, dy0 = dy0 + 20 * j, vy0 = vy0, cr = cr, dydtheta = 50))
+		state.enemies.append(thing.Lark(x0 = x0, y0 = y0, dy0 = dy0 + dj * j, vy0 = vy0, cr = cr, dydtheta = 50))
 
 def addasteroids(n, x0, j0 = 0):
 	for j in range(j0, j0 + n):
