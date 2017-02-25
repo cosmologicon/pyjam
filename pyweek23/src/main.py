@@ -44,7 +44,7 @@ while scene.stack:
 			"%.1ffps" % clock.get_fps(),
 		])
 		h = 849 if settings.portrait else 475
-		ptext.draw(text, bottomleft = F(5, h), fontsize = F(18), color = "white", owidth = 1)
+		ptext.draw(text, bottomleft = F(5, h), fontsize = F(18), color = "white")
 	pygame.display.flip()
 
 	if settings.isdown("quit", kdowns):
@@ -75,6 +75,7 @@ while scene.stack:
 		state.gotostage(3)
 	if settings.DEBUG and K_4 in kdowns:
 		state.gotostage(4)
+	pygame.display.set_caption("%s - %.1ffps" % (settings.gamename, clock.get_fps()))
 
 pygame.quit()
 

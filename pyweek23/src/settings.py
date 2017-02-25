@@ -1,3 +1,4 @@
+import sys
 from pygame.locals import *
 
 gamename = "Lesser of Two Evils"
@@ -10,6 +11,9 @@ DEBUG = True
 fullscreen = False
 portrait = False
 windowsize = 480  # 16:9 aspect ratio
+for arg in sys.argv:
+	if arg.startswith("--res="):
+		windowsize = int(arg[6:])
 
 screenshotdir = "screenshots"
 quicksavefile = "qsave.pkl"

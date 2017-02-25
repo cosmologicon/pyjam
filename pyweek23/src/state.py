@@ -60,7 +60,8 @@ enemies = []
 bosses = []
 planets = []
 spawners = []
-thinkers = yous, badbullets, goodbullets, pickups, enemies, bosses, planets, spawners
+corpses = []
+thinkers = yous, badbullets, goodbullets, pickups, enemies, bosses, planets, spawners, corpses
 def clear():
 	for group in thinkers:
 		del group[:]
@@ -123,6 +124,9 @@ def think(dt):
 			scene.push(losescene)
 	elif not waves and not bosses:
 		twin += dt
+		for b in badbullets:
+			thing.LeavesCorpse.die(b)
+			b.alive = False
 		if twin > 2:
 			you.x += (twin - 2) * 1000 * dt
 			if you.x > 1000:
@@ -142,7 +146,7 @@ def gotostage(n):
 	scene.push(playscene, n)
 
 def draw():
-	drawers = bosses, enemies, planets, yous, goodbullets, badbullets, pickups
+	drawers = corpses, bosses, enemies, planets, yous, goodbullets, badbullets, pickups
 	for group in drawers:
 		for obj in group:
 			obj.draw()

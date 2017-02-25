@@ -441,7 +441,7 @@ class SpawnsCapsule(Component):
 		state.planets.append(capsule)
 
 class SpawnsCobras(Component):
-	def __init__(self, dtcobra = 3):
+	def __init__(self, dtcobra = 6):
 		self.tcobra = 0
 		self.dtcobra = dtcobra
 		self.jcobra = 0
@@ -467,6 +467,7 @@ class SpawnsCobras(Component):
 				p0arc = p0, harc = h, r = r))
 			p0 -= r * 0.8
 			r *= 0.95
+		self.jcobra += 1
 	
 class SpawnsSwallows(Component):
 	def __init__(self, nswallow):
@@ -682,6 +683,10 @@ class HasHealth(Component):
 		self.iflash = self.iflashmax
 		if self.hp <= 0: self.die()
 
+class LeavesCorpse(Component):
+	def die(self):
+		state.corpses.append(Corpse(x = self.x, y = self.y, r = self.r))
+
 class LetPickup(Component):
 	def __init__(self, apickup):
 		self.apickup = apickup
@@ -827,6 +832,13 @@ class DrawBox(Component):
 			color = [self.boxcolor, (255, 0, 0)][int(self.iflash * 10 % 2)]
 		pygame.draw.circle(view.screen, color, pos, r)
 		ptext.draw(self.boxname, center = pos, color = "white", fontsize = F(14))
+
+class DrawCorpse(Component):
+	def draw(self):
+		color = [(255, 255, 0), (255, 128, 0)][int(self.t * 20 % 2)]
+		r = F(self.r * (1 + self.f))
+		pos = view.screenpos((self.x, self.y))
+		pygame.draw.circle(view.screen, color, pos, r, F(3))
 
 class FlashesOnInvulnerable(Component):
 	def draw(self):
@@ -983,7 +995,7 @@ class GoodMissile(object):
 
 @WorldBound()
 @Lives()
-@HasHealth(60)
+@HasHealth(16)
 @Collides(60)
 @RoundhouseBullets(0.1)
 @SeeksHorizontalPosition(30, 30)
@@ -992,6 +1004,7 @@ class GoodMissile(object):
 @KnocksOnCollision(40)
 @SpawnsCobras()
 @DrawBox("medusa")
+@LeavesCorpse()
 class Medusa(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1007,6 +1020,7 @@ class Medusa(object):
 @KnocksOnCollision(40)
 @SpawnsClusterBullets(2)
 @DrawBox("emu")
+@LeavesCorpse()
 class Emu(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1025,6 +1039,7 @@ class Emu(object):
 @SpawnsHerons(3)
 @SpawnsClusterBullets(2)
 @DrawImage("egret", 1.4)
+@LeavesCorpse()
 class Egret(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1038,6 +1053,7 @@ class Egret(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawAngleImage("swallow", 1.3)
+@LeavesCorpse()
 class Swallow(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1053,6 +1069,7 @@ class Swallow(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawFacingImage("snake", 1.2, 0)
+@LeavesCorpse()
 class Asp(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1068,6 +1085,7 @@ class Asp(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawFacingImage("snake", 1.2, 0)
+@LeavesCorpse()
 class Cobra(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1082,6 +1100,7 @@ class Cobra(object):
 @DisappearsOffscreen()
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
+@LeavesCorpse()
 @DrawFacingImage("duck", 1.8, -100)
 class Duck(object):
 	def __init__(self, **kw):
@@ -1097,6 +1116,7 @@ class Duck(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawFacingImage("duck", 1.8, -100)
+@LeavesCorpse()
 class Turkey(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1112,6 +1132,7 @@ class Turkey(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawBox("lark")
+@LeavesCorpse()
 class Lark(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1129,6 +1150,7 @@ class Lark(object):
 @KnocksOnCollision(40)
 @ABBullets(12, 3)
 @DrawBox("heron")
+@LeavesCorpse()
 class Heron(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1143,6 +1165,7 @@ class Heron(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawImage("rock-0", 0.39)
+@LeavesCorpse()
 class Rock(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1157,6 +1180,7 @@ class Rock(object):
 @KnocksOnCollision(40)
 @SpawnsCapsule()
 @DrawImage("rock-0", 0.39, (0.7, 0.7, 1.0))
+@LeavesCorpse()
 class BlueRock(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1206,6 +1230,15 @@ class SlowPickup(object):
 			vx = -state.scrollspeed if vx is None else vx,
 			vy = 0 if vy is None else vy,
 			**kw)
+
+@WorldBound()
+@Lives()
+@Lifetime(0.2)
+@Collides(0)
+@DrawCorpse()
+class Corpse(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
 
 @Lives()
 @Lifetime()

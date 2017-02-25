@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math
-from . import view, util
+from . import view, util, settings
 from .util import F
 
 imgs = {}
