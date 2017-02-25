@@ -71,6 +71,13 @@ visited = set()
 def collided(obj1, obj2):
 	return (obj1.x - obj2.x) ** 2 + (obj1.y - obj2.y) ** 2 < (obj1.r + obj2.r) ** 2
 
+def getcollisions(A, B):
+	for obja in A:
+		for objb in B:
+			if collided(obja, objb):
+				yield obja, objb
+
+
 def think(dt):
 	global xoffset, tslow, tinvulnerable, tlose, twin, shieldhp
 	from . import scene, losescene
@@ -93,13 +100,8 @@ def think(dt):
 		for planet in planets:
 			if collided(obj, planet):
 				obj.hit(planet)
-	for obj in goodbullets:
-		for e in enemies + bosses:
-			if collided(obj, e):
-				obj.hit(e)
-		for planet in planets:
-			if collided(obj, planet):
-				obj.hit(planet)
+	for b, e in getcollisions(goodbullets, enemies + bosses + planets):
+		b.hit(e)
 	for obj in enemies + bosses:
 		if collided(obj, you):
 			obj.hit(you)
