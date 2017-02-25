@@ -77,6 +77,7 @@ def Gdraw(imgname, pos, scale = 1, angle = 0, cfilter = None):
 	)
 
 def Bdraw(imgname, pos, s = 120, a = 1, ocolor = (100, 100, 255), showtitle = True):
+	if a < 0.01: return
 	w = util.clamp((3 * a - 1) * s, 1, s)
 	h = util.clamp((3 * a) * s, 1, s)
 	rect = pygame.Rect(0, 0, w, h)
@@ -87,7 +88,7 @@ def Bdraw(imgname, pos, s = 120, a = 1, ocolor = (100, 100, 255), showtitle = Tr
 	ocolor = tuple(int(c * (0.8 + 0.2 * math.sin(0.01 * pygame.time.get_ticks()))) for c in ocolor)
 	pygame.draw.rect(view.screen, ocolor, F(rect), F(2))
 	if a == 1:
-		Fdraw(os.path.join("data", "biopix", imgname + ".jpg"), pos, scale = s / 600)
+		Fdraw(os.path.join("data", "biopix", imgname + ".jpg"), pos, scale = s / 300)
 		name = {
 			"1": "Dr. Paulson",
 			"2": "Chf. Danilowka",

@@ -36,7 +36,7 @@ swapaction = False
 miracle = "--miracle" in sys.argv
 tquicksave = 0 if "--noquicksave" in sys.argv else 5
 
-soundext = "wav"
+soundext = "ogg"
 
 controls = {
 	"left": [K_LEFT, K_a],
