@@ -45,7 +45,7 @@ def draw():
 		pos = (76 + dx, 400 + dy) if settings.portrait else (264 + dx, 260 + dy)
 		a = util.clamp((self.t - 2) * 2, 0, 1 if name in state.met else 0.99)
 		if a:
-			image.Bdraw("bio-0", pos, 60, a)
+			image.Bdraw("bio-" + name, pos, 60, a)
 		alpha = util.clamp((self.t - 3) * 2, 0, 1)
 		if alpha:
 			if name == "7" or name not in state.met:
