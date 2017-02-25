@@ -99,8 +99,9 @@ def Bdraw(imgname, pos, s = 120, a = 1, ocolor = (100, 100, 255), showtitle = Tr
 			"J": "Prof. Jyn",
 			"C": "Gen. Cutter",
 			"7": "Capt. Gabriel",
+			"A": "Capt. Alyx",
 		}.get(imgname.split("-")[1])
 		if showtitle and name:
-			pos = F(pos[0], pos[1] + 0.7 * s)
+			pos = F(pos[0], pos[1] + 0.6 * s)
 			ptext.draw(name, midbottom = pos, owidth = 2, fontname = "Lalezar", fontsize = F(12))
 
