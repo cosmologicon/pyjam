@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import *
-from . import ptext, view, scene, settings, image, util, background, state
+from . import ptext, view, scene, settings, image, util, background, state, sound
 from .util import F
 
 class self:
@@ -8,6 +8,7 @@ class self:
 
 def init(name):
 	self.name = name
+	sound.play(vdata[self.name]["sname"] + "1")
 
 	self.t = 0
 	self.opt = 0
@@ -23,6 +24,9 @@ def think(dt, kdowns, kpressed):
 			self.popped = True
 			if self.opt == 0:
 				state.downgrade(vdata[self.name]["do"])
+				sound.play(vdata[self.name]["sname"] + "2")
+			else:
+				sound.play(vdata[self.name]["sname"] + "3")
 			scene.pop()
 	if self.t > 1.5 and self.starting:
 		if self.opt == 0:
@@ -100,6 +104,7 @@ def draw():
 
 vdata = {}
 vdata[1] = {
+	"sname": "Paulson",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
 	"name": "Donovan Paulson",
@@ -118,6 +123,7 @@ vdata[1] = {
 	"do": "hp",
 }
 vdata[2] = {
+	"sname": "Danilowka",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
 	"name": "Donovan Paulson",
@@ -136,6 +142,7 @@ vdata[2] = {
 	"do": "cshot",
 }
 vdata[3] = {
+	"sname": "Jusuf",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
 	"name": "Donovan Paulson",
@@ -154,6 +161,7 @@ vdata[3] = {
 	"do": "companion",
 }
 vdata[4] = {
+	"sname": "Osaretin",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
 	"name": "Donovan Paulson",
@@ -172,6 +180,7 @@ vdata[4] = {
 	"do": "shield",
 }
 vdata[5] = {
+	"sname": "Tannenbaum",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
 	"name": "Donovan Paulson",
@@ -190,6 +199,7 @@ vdata[5] = {
 	"do": "missile",
 }
 vdata[6] = {
+	"sname": "Cooper",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
 	"name": "Donovan Paulson",
@@ -207,7 +217,27 @@ vdata[6] = {
 	"sub1": "",
 	"do": "vshot",
 }
+vdata[7] = {
+	"sname": "Gabriel",
+	"avatar": "bio-0",
+	"title": "Ship's Doctor",
+	"name": "Donovan Paulson",
+	"lines": [
+		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
+		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
+		"Sorry, I haven't had a good meal in weeks. Look, I've taken heavy damage. I'll never make it back to the fleet without some hull charge. If I could have some of yours... it's the only shot I've got. What do you say?",
+	],
+	"fontname": None,
+	"fontsize": 24,
+	"color": "turquoise",
+	"opt0": "All right, I'll help you.",
+	"sub0": "You will regain all your downgrades.",
+	"opt1": "I'm sorry, I don't trust you.",
+	"sub1": "",
+	"do": "upgrade",
+}
 vdata["X"] = {
+	"sname": "Graves",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
 	"name": "Donovan Paulson",

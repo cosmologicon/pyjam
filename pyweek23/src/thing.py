@@ -460,7 +460,6 @@ class SpawnsCobras(Component):
 		h = 80
 		p0 = 0
 		r = 40
-		print(x0, y0, dx, dy, h, p0, r)
 		for jseg in range(12):
 			state.enemies.append(Cobra(
 				x0arc = x0, y0arc = y0, dxarc = dx, dyarc = dy,

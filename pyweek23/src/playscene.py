@@ -30,7 +30,10 @@ def think(dt, kdowns, kpressed):
 
 
 def draw():
-	background.draw()
+	if settings.lowres:
+		view.screen.fill((0, 0, 0))
+	else:
+		background.draw()
 #	background.drawrift()
 	state.draw()
 	hud.draw()

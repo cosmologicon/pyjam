@@ -14,11 +14,14 @@ windowsize = 480  # 16:9 aspect ratio
 for arg in sys.argv:
 	if arg.startswith("--res="):
 		windowsize = int(arg[6:])
+lowres = "--lowres" in sys.argv
 
 screenshotdir = "screenshots"
 quicksavefile = "qsave.pkl"
 
 swapaction = False
+
+soundext = "wav"
 
 controls = {
 	"left": [K_LEFT, K_a],

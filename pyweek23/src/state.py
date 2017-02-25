@@ -50,6 +50,8 @@ def downgrade(name):  # or upgrade
 		vshots = 0
 	if name == "charge":
 		chargetime = 1e12
+	if name == "upgrade":
+		raise ValueError("Can't upgrade")
 
 
 yous = []

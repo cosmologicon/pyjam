@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, os, datetime
 from pygame.locals import *
-from . import settings, view, ptext, background, state
+from . import settings, view, ptext, background, state, sound
 from . import scene, playscene, losescene, climaxscene
 from .util import F
 
