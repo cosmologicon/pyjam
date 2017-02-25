@@ -508,6 +508,29 @@ class SpawnsSwallows(Component):
 			for s in self.swallows:
 				s.omega *= 1.4
 
+class SpawnsCanaries(Component):
+	def __init__(self, ncanary = 6):
+		self.ncanary = 6
+	def setstate(self, **kw):
+		getattribs(self, kw, "ncanary")
+		self.canaries = []
+		for jcanary in range(self.ncanary):
+			theta = jcanary * math.tau / self.ncanary
+			omega = 1.5
+			for r in (2, 3, 4):
+				canary = Canary(target = self, omega = omega, R = r * self.r, theta = theta)
+				self.canaries.append(canary)
+				state.enemies.append(canary)
+				theta += math.phi * math.tau
+				omega /= -1.5
+	def think(self, dt):
+		if any(not s.alive for s in self.canaries):
+			self.yomega *= 1.2
+			self.canaries = [s for s in self.canaries if s.alive]
+			for s in self.canaries:
+				s.omega *= 1.1
+
+
 	
 class SpawnsHerons(Component):
 	def __init__(self, dtheron):
@@ -1034,6 +1057,26 @@ class GoodMissile(object):
 
 @WorldBound()
 @Lives()
+@HasHealth(40)
+@Collides(60)
+@RoundhouseBullets(0.5)
+@SeeksHorizontalPosition(30, 30)
+@VerticalSinusoid(0.4, 100)
+@HurtsOnCollision(2)
+@KnocksOnCollision(40)
+@SpawnsCobras(15)
+@SpawnsCanaries()
+@SpawnsHerons(8)
+@SpawnsClusterBullets(4)
+@DrawBox("hawk")
+@LeavesCorpse()
+class Hawk(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+
+@WorldBound()
+@Lives()
 @HasHealth(16)
 @Collides(60)
 @RoundhouseBullets(0.1)
@@ -1098,6 +1141,20 @@ class Swallow(object):
 		self.setstate(**kw)
 		self.think(0)
 
+@WorldBound()
+@BossBound()
+@EncirclesBoss()
+@Lives()
+@HasHealth(20)
+@Collides(30)
+@HurtsOnCollision(2)
+@KnocksOnCollision(40)
+@DrawBox("canary")
+@LeavesCorpse()
+class Canary(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+		self.think(0)
 
 @WorldBound()
 @BossBound()

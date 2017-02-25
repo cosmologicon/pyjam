@@ -324,10 +324,8 @@ def mupdate():
 		os.makedirs(settings.savedir)
 	msaved, mmet = getmsave()
 	mfile = os.path.join(settings.savedir, settings.miraclefile)
-	print msaved, mmet, saved, met
 	msaved |= saved
 	mmet |= met
-	print msaved, mmet, saved, met
 	pickle.dump((msaved, mmet), open(mfile, "wb"), 2)
 
 def removequicksave():

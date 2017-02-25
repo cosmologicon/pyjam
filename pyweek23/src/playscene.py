@@ -156,8 +156,8 @@ def makewaves():
 	if state.stage == 4:
 		state.waves = [
 			[0, addgabriel],
-			[10, addemu],
-			[10, adddplayer, "A"],
+			[6, adddplayer, "A"],
+			[6, addhawk],
 		]
 
 def addcapsule(name, x, y, vx, vy):
@@ -165,6 +165,9 @@ def addcapsule(name, x, y, vx, vy):
 	
 def addemu():
 	state.bosses.append(thing.Emu(x = 600, y = 0, xtarget = 100))
+
+def addhawk():
+	state.bosses.append(thing.Hawk(x = 600, y = 0, xtarget = 200))
 
 def addheronsplash(nx, ny, x0 = 1000):
 	for ax in range(nx):
