@@ -677,7 +677,7 @@ class Visitable(Component):
 		getattribs(self, kw, "name", "help")
 		self.name = str(self.name)
 	def visit(self):
-		if self.name in state.met:
+		if not self.alive:
 			return
 		state.met.add(self.name)
 		scene.push(visitscene, self.name)
