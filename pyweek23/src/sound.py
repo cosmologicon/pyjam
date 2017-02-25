@@ -5,6 +5,7 @@ from .util import F
 pygame.mixer.pre_init(22050, -16, 2, 0)
 
 def init():
+	if settings.nosound: return
 	pygame.mixer.set_reserved(4)
 	# Channel 0 = dialogue
 	# Channel 1 = decision
@@ -12,6 +13,7 @@ def init():
 	# Channel 3 = ballad
 	for j in (1, 2, 3):
 		pygame.mixer.Channel(j).set_volume(0)
+	if settings.nomusic: return
 	song1 = get("decision", d = "music")
 	song2 = get("flying", d = "music")
 	pygame.mixer.Channel(1).play(song1, -1)
@@ -28,10 +30,12 @@ def get(sname, d = "sound"):
 	return s
 
 def play(sname):
+	if settings.nosound: return
 	get(sname).play()
 
 quiet = {}
 def playsfx(sname):
+	if settings.nosound: return
 	Q = quiet.get(sname, 0)
 	s = get(sname + random.choice("012") if sname == "shot" else sname)
 	s.set_volume(1 * math.exp(-Q))
@@ -40,6 +44,7 @@ def playsfx(sname):
 
 
 def think(dt):
+	if settings.nosound: return
 	f = math.exp(-2 * dt)
 	for sname in quiet:
 		quiet[sname] *= f
@@ -61,6 +66,7 @@ def think(dt):
 
 mtrack = None
 def mplay(track):
+	if settings.nosound or settings.nomusic: return
 	global mtrack
 	mtrack = track
 	if track == 3:
@@ -68,6 +74,7 @@ def mplay(track):
 
 
 def dplay(sname):
+	if settings.nosound: return
 	channel = pygame.mixer.Channel(0)
 	channel.stop()
 	channel.play(get(sname, d = "dialog"))

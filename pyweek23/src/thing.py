@@ -862,6 +862,8 @@ class DrawTumblingRock(Component):
 	def draw(self):
 		scale = 0.01 * self.r * 0.39 * 4
 		jframe = int(self.rtheta * 60) % 60 * 1
+		if settings.lowres:
+			jframe = 0
 		cfilter = getcfilter(self.iflash) or self.cfilter0
 		imgname = os.path.join("data", "rock", "main-%d.png" % jframe)
 		image.Gdraw(imgname, pos = (self.x, self.y), scale = scale, cfilter = cfilter, angle = 50)

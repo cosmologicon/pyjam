@@ -88,10 +88,9 @@ while scene.stack:
 		state.gotostage(4)
 	if settings.DEBUG and K_F8 in kdowns:
 		del state.bosses[:], state.waves[:], state.spawners[:]
-	pygame.display.set_caption("%s - %.1ffps" % (settings.gamename, clock.get_fps()))
+	#pygame.display.set_caption("%s - %.1ffps" % (settings.gamename, clock.get_fps()))
 
-print "Done"
-#pygame.quit()
+pygame.quit()
 
 
 

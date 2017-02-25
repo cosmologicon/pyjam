@@ -6,7 +6,7 @@ gamename = "Lesser of Two Evils"
 minfps = 5
 maxfps = 60
 
-DEBUG = True
+DEBUG = False
 
 fullscreen = "--fullscreen" in sys.argv
 portrait = "--portrait" in sys.argv
@@ -16,8 +16,15 @@ for arg in sys.argv:
 	if arg.startswith("--res="):
 		windowsize = int(arg[6:])
 		forceres = True
+if "--big" in sys.argv:
+	windowsize = 720
+	forceres = True
+if "--huge" in sys.argv:
+	windowsize = 1080
 lowres = "--lowres" in sys.argv
 restart = "--restart" in sys.argv
+nomusic = "--nomusic" in sys.argv
+nosound = "--nosound" in sys.argv
 
 screenshotdir = "screenshots"
 savedir = "save"

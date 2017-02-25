@@ -205,7 +205,7 @@ vdata["5"] = {
 	"lines": [
 		"Captain! I intercepted a radio broadcast meant for these alien ships. And you'll never guess who was giving the commands!",
 		"General Cutter himself. He's out there, at the rift right now, sending these bloody ships to kill you!",
-		"Well, kill you, kill me, kill anything in their path, really, so we're in this together."
+		"Well, kill you, kill me, kill anything in their path, really, so we're in this together.",
 		"I'd definitely be a lot more help if I had a weapon, of course. Hey, can you spare those missile launchers? I could do some real damage with those!",
 	],
 	"fontname": "LondrinaSolid",
@@ -249,7 +249,7 @@ vdata["7"] = {
 		"I'll tell you what. I can see that your ship has seen better days. You're in no condition for the fight ahead. But I can help you. I'll make your ship as good as new. Just give me their coordinates. Think about your daughter. Think about Earth. Deal?",
 	],
 	"fontname": "FjallaOne",
-	"fontsize": 18,
+	"fontsize": 16,
 	"color": (255, 200, 200),
 	"opt0": "I suppose I have no choice.",
 	"sub0": "You will regain all your downgrades.",

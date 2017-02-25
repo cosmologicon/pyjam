@@ -1,5 +1,6 @@
 from __future__ import division
-import math, random, pygame, bisect, os.path, settings, os
+import math, random, pygame, bisect, os.path, os
+from . import settings
 try:
     import cPickle as pickle
 except ImportError:
@@ -169,7 +170,7 @@ def think(dt):
 			removequicksave()
 	elif not waves and not bosses and not spawners:
 		twin += dt
-		import thing
+		from . import thing
 		for b in badbullets:
 			corpses.append(thing.Corpse(x = b.x, y = b.y, r = b.r, lifetime = 1))
 			b.alive = False
@@ -244,7 +245,7 @@ def heal(amount):
 apickup0 = 30
 def addapickup(amount, who):
 	global apickup
-	import thing
+	from . import thing
 	old = apickup
 	apickup += amount
 	if old < apickup0 and apickup >= apickup0:
@@ -261,7 +262,7 @@ def spawnpickup(who, ptype):
 	pickups.append(ptype(x = x, y = y, vx = vx, vy = vy, ax = -200))
 
 def addmedusa():
-	import thing
+	from . import thing
 	boss = thing.Medusa(x = 600, y = 0, xtarget = 320)
 	bosses.append(boss)
 	for jtheta in (0, 1, 2):
@@ -276,12 +277,12 @@ def addmedusa():
 			enemies.append(snake)
 
 def addegret():
-	import thing
+	from . import thing
 	boss = thing.Egret(x = 600, y = 0, xtarget0 = 280)
 	bosses.append(boss)
 
 def addduckwave(x0, y0, nx, ny, steps):
-	import thing
+	from . import thing
 	dxs, dys, dts = [], [], []
 	r = 50
 	for jx in range(nx):
@@ -295,7 +296,7 @@ def addduckwave(x0, y0, nx, ny, steps):
 		enemies.append(obj)
 
 def addturkeywave(x0, y0, nx, ny, steps):
-	import thing
+	from . import thing
 	dxs, dys, dts = [], [], []
 	r = 100
 	for jx in range(nx):
@@ -309,7 +310,7 @@ def addturkeywave(x0, y0, nx, ny, steps):
 		enemies.append(obj)
 
 def addheronwave(n, dt):
-	import thing
+	from . import thing
 	vx = -20
 	x0 = 600
 	for j in range(n):
@@ -318,7 +319,7 @@ def addheronwave(n, dt):
 		enemies.append(obj)
 
 def addrockwave(x0, y0, n, spread):
-	import thing
+	from . import thing
 	for j in range(n):
 		x = random.gauss(x0, 0.4 * spread)
 		y = random.gauss(y0, spread)

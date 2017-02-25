@@ -59,14 +59,14 @@ def draw():
 def makewaves():
 	if state.stage == 1:
 		state.waves = [
-			[0, addcapsule, 1, 0, -200, 0, 0],
-			[0, addcapsule, 2, 0, -150, 0, 0],
-			[0, addcapsule, 3, 0, -100, 0, 0],
-			[0, addcapsule, 4, 0, -50, 0, 0],
-			[0, addcapsule, 5, 0, 0, 0, 0],
-			[0, addcapsule, 6, 0, 50, 0, 0],
-			[0, addcapsule, "X", 0, 100, 0, 0],
-			[0, adddplayer, "intro"],
+#			[0, addcapsule, 1, 0, -200, 0, 0],
+#			[0, addcapsule, 2, 0, -150, 0, 0],
+#			[0, addcapsule, 3, 0, -100, 0, 0],
+#			[0, addcapsule, 4, 0, -50, 0, 0],
+#			[0, addcapsule, 5, 0, 0, 0, 0],
+#			[0, addcapsule, 6, 0, 50, 0, 0],
+#			[0, addcapsule, "X", 0, 100, 0, 0],
+			[3, adddplayer, "intro"],
 			[0, state.addduckwave, 700, 500, 4, 4, [
 				[0, 350, 100],
 				[4, 200, -200],
@@ -205,6 +205,8 @@ def addasteroids(n, x0, j0 = 0):
 		state.enemies.append(rock)
 
 def addbluerock(x, y, vx, vy):
+	if "X" in state.saved:
+		return
 	rock = thing.BlueRock(x = x, y = y, vx = vx, vy = vy)
 	state.enemies.append(rock)
 
