@@ -82,8 +82,6 @@ def restart():
 	global twin, tlose, tslow, tinvulnerable, xoffset
 	twin = tlose = tslow = tinvulnerable = xoffset = 0
 
-visited = set()
-
 def collided(obj1, obj2):
 	return (obj1.x - obj2.x) ** 2 + (obj1.y - obj2.y) ** 2 < (obj1.r + obj2.r) ** 2
 

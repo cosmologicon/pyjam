@@ -87,9 +87,10 @@ class Dplayer(object):
 		if self.a is not None:
 			pos = (56, 800) if settings.portrait else (100, 426)
 			image.Bdraw(self.a, pos, s = 90, a = self.atime)
-		fontname = None
-		fontsize = F(28)
-		color = "white"
+		fontname, fontsize, color = {
+			"N": ("FjallaOne", 21, (200, 200, 255)),
+		}.get(self.font, (None, 28, "white"))
+		fontsize = F(fontsize)
 		width = F(340) if settings.portrait else F(540)
 		pos = F(110, 850) if settings.portrait else F(160, 472)
 		ptext.draw(self.text, bottomleft = pos, width = width,

@@ -32,10 +32,10 @@ def draw():
 	title = "Bad ending" if not state.good else "Good ending" if not state.best else "Best ending"
 
 	pos = F(240, 200) if settings.portrait else F(427, 100)
-	ptext.draw("Thank you for playing", midtop = pos, fontname = None, fontsize = F(40),
+	ptext.draw("Thank you for playing", midtop = pos, fontname = "Bungee", fontsize = F(40),
 		color = (200, 255, 255))
 	pos = F(240, 260) if settings.portrait else F(427, 160)
-	ptext.draw(title, midtop = pos, fontname = None, fontsize = F(32),
+	ptext.draw(title, midtop = pos, fontname = "Bungee", fontsize = F(32),
 		color = (100, 255, 255))
 
 	for j, name in enumerate("123456X7CJ"):

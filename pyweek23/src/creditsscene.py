@@ -25,12 +25,12 @@ def draw():
 			continue
 		alpha = util.clamp(min(1.5 * dt, 1.5 * (5 - dt)), 0, 1)
 		pos = F(240, 300 + 300 * dj) if settings.portrait else F(240 + 400 * dj, 200 + 60 * dj)
-		ptext.draw(line[1], midbottom = pos, color = (200, 255, 255), fontname = None, fontsize = F(48), alpha = alpha)
+		ptext.draw(line[1], midbottom = pos, color = (200, 255, 255), fontname = "Bungee", fontsize = F(26), alpha = alpha)
 
 		dt -= 0.1
 		alpha = util.clamp(min(1.5 * dt, 1.5 * (5 - dt)), 0, 1)
 		names = "\n".join(line[2:])
-		ptext.draw(names, midtop = pos, color = (255, 255, 255), fontname = None, fontsize = F(48), alpha = alpha)
+		ptext.draw(names, midtop = pos, color = (255, 255, 255), fontname = "Bungee", fontsize = F(26), alpha = alpha)
 
 
 lines = [

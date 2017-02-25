@@ -624,20 +624,19 @@ class Visitable(Component):
 	def setstate(self, **kw):
 		getattribs(self, kw, "name", "help")
 	def visit(self):
-		if self.name in state.visited:
+		if self.name in state.met:
 			return
-		state.visited.add(self.name)
+		state.met.add(self.name)
 		scene.push(visitscene, self.name)
 		self.alive = False
 	def draw(self):
 		if not self.help:
 			return
-		if self.name in state.visited:
+		if self.name in state.met:
 			return
-		if self.t % 2 > 1.5:
-			return
-		pos = view.screenpos((self.x + self.r, self.y - self.r))
-		ptext.draw("HELP!", center = pos, fontsize = F(30))
+		alpha = util.clamp(abs(self.t % 2 - 1) * 7, 0, 1)
+		pos = view.screenpos((self.x + self.r, self.y - 2 * self.r))
+		ptext.draw("HELP!", center = pos, fontsize = F(20), fontname = "Bungee", alpha = alpha)
 
 class DiesOnCollision(Component):
 	def hit(self, target = None):
