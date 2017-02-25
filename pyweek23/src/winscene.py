@@ -50,7 +50,9 @@ def draw():
 			image.Bdraw("bio-" + name, pos, 60, a)
 		alpha = util.clamp((self.t - 3) * 2, 0, 1)
 		if alpha:
-			if name == "7" or name not in state.met:
+			if name == "7":
+				pass
+			elif name not in state.met:
 				ptext.draw("?", center = F(pos), fontsize = F(50), fontname = "PermanentMarker",
 					color = "red", owidth = 1, alpha = alpha)
 			elif name not in state.saved:

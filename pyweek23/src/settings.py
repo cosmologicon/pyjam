@@ -1,7 +1,7 @@
 import sys
 from pygame.locals import *
 
-gamename = "Lesser of Two Evils"
+gamename = "The Final Choice"
 
 minfps = 5
 maxfps = 60

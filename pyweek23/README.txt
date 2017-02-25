@@ -1,5 +1,5 @@
-Game Title
-==========
+The Final Choice
+================
 
 Entry in PyWeek 23  <http://www.pyweek.org/23/>
 URL: https://www.pyweek.org/e/unifac23/
@@ -45,14 +45,25 @@ Controls
     Move: Arrow keys or WASD (works on Dvorak too)
     Shoot: space or enter or shift or control or Z
     Togggle auto-shoot mode: Tab or Caps Lock
-    Quit: Escape
-    Vertical (portrait) mode: F10
-    Fullscreen mode: F11
+    Toggle vertical (portrait) mode: F10
+    Toggle fullscreen mode: F11
     Screenshot: F12
+    Quit: Escape
 
 Ending
 ------
 
 There are three endings depending on the choices you make in the game: Bad, Good, and Best.
 
+The good and best endings require you to save all members of the Hawking crew in a single
+playthrough.
+
+Miracle Mode
+------------
+
+This is the easy mode of the game, which you can run with the "--miracle" command line option. In
+miracle mode, you have more shield and it regenerates faster. Also, any crew members you have
+rescued on previous playthroughs will start the game out as already rescued, and you will not have
+to sacrifice anything to save them. Therefore miracle mode lets you use several playthroughs,
+rescuing some of the crew each time, to achieve the good and best endings.
 
