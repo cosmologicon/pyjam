@@ -51,7 +51,13 @@ def downgrade(name):  # or upgrade
 	if name == "charge":
 		chargetime = 1e12
 	if name == "upgrade":
-		raise ValueError("Can't upgrade")
+		hp = hp0 = 5
+		cshottime = 1
+		companion = True
+		shieldhp = shieldhp0 = 2
+		missiletime = 0.6
+		vshots = 3
+		chargetime = 3
 
 
 yous = []
@@ -128,7 +134,7 @@ def think(dt):
 		twin += dt
 		import thing
 		for b in badbullets:
-			corpses.append(thing.Corpse(x = b.x, y = b.y, r = b.r))
+			corpses.append(thing.Corpse(x = b.x, y = b.y, r = b.r, lifetime = 1))
 			b.alive = False
 		if twin > 2:
 			you.x += (twin - 2) * 1000 * dt

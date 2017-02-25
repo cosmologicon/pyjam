@@ -144,6 +144,12 @@ def makewaves():
 
 			[105, state.addmedusa],
 		]
+	if state.stage == 4:
+		state.waves = [
+			[0, addgabriel],
+			[60, addemu],
+		]
+
 	return
 	state.waves = [
 		[0, state.addduckwave, 700, 0, 4, 6, [
@@ -219,4 +225,5 @@ def addclusterbombs(n, t, x0, y0, dx, dy, vx, vy):
 		y = y0 + j * math.phi % 1 * dy - vy * dt
 		state.badbullets.append(thing.BadClusterBullet(x = x, y = y, vx = vx, vy = vy))
 		
-
+def addgabriel():
+	state.planets.append(thing.Gabriel(x = 500, y = 500))

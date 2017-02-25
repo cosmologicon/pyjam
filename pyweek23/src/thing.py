@@ -130,6 +130,16 @@ class SeeksEnemies(Component):
 			ax, ay = 2000, 0
 		self.vx, self.vy = util.norm(self.vx + dt * ax, self.vy + dt * ay, self.v0)
 
+class SeeksYou(Component):
+	def __init__(self, v0 = 200):
+		self.v0 = v0
+	def setstate(self, **kw):
+		getattribs(self, kw, "v0")
+	def think(self, dt):
+		target = state.you
+		ax, ay = util.norm(target.x - self.x, target.y - self.y, 2000)
+		self.vx, self.vy = util.norm(self.vx + dt * ax, self.vy + dt * ay, self.v0)
+
 class SeeksFormation(Component):
 	def __init__(self, vmax, accel):
 		self.vmax = vmax
@@ -609,8 +619,10 @@ class ABBullets(Component):
 			self.jbullet %= 2
 
 class Visitable(Component):
+	def __init__(self, help = True):
+		self.help = help
 	def setstate(self, **kw):
-		getattribs(self, kw, "name")
+		getattribs(self, kw, "name", "help")
 	def visit(self):
 		if self.name in state.visited:
 			return
@@ -618,6 +630,8 @@ class Visitable(Component):
 		scene.push(visitscene, self.name)
 		self.alive = False
 	def draw(self):
+		if not self.help:
+			return
 		if self.name in state.visited:
 			return
 		if self.t % 2 > 1.5:
@@ -932,6 +946,22 @@ class Capsule(object):
 		self.setstate(
 			vx = -state.scrollspeed if vx is None else vx,
 			vy = 0 if vy is None else vy,
+			**kw)
+
+@WorldBound()
+@Lives()
+@Collides(16)
+@LinearMotion()
+@SeeksYou(220)
+@InfiniteHealth()
+@DrawBox("gabriel")
+@Visitable(False)
+class Gabriel(object):
+	def __init__(self, vx = None, vy = None, **kw):
+		self.setstate(
+			vx = -state.scrollspeed if vx is None else vx,
+			vy = 0 if vy is None else vy,
+			name = 7,
 			**kw)
 
 @WorldBound()
