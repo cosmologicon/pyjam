@@ -46,5 +46,9 @@ def screenpos0(pos):
 
 def think(dt):
 	global y0
-	y0 = state.you.y / 2
+	ymax = state.yrange - state.you.r
+	y0max = state.yrange - 240
+	a = y0max / (2 * ymax ** 3)
+	b = 3 * ymax ** 2 * a
+	y0 = b * state.you.y - a * state.you.y ** 3
 
