@@ -50,6 +50,8 @@ while scene.stack:
 			"F11: toggle fullscreen",
 			"F12: screenshot",
 			"objsize: %d %d %d" % (len(state.goodbullets), len(state.badbullets), len(state.enemies)),
+			"met: " + "".join(sorted(state.met)),
+			"saved: " + "".join(sorted(state.saved)),
 			"%.1ffps" % clock.get_fps(),
 		])
 		h = 849 if settings.portrait else 475
