@@ -41,7 +41,7 @@ def draw():
 	if settings.lowres:
 		view.screen.fill((0, 0, 0))
 	else:
-		background.draw()
+		background.draw(stage = state.stage)
 #	background.drawrift()
 	state.draw()
 	hud.draw()

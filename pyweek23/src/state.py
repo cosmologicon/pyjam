@@ -181,7 +181,7 @@ def gotostage(n):
 	scene.push(playscene, n)
 
 def gotoclimax():
-	from . import playscene, scene
+	from . import climaxscene, scene
 	scene.quit()
 	scene.push(climaxscene)
 

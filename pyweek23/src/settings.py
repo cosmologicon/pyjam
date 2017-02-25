@@ -8,8 +8,8 @@ maxfps = 120
 
 DEBUG = True
 
-fullscreen = False
-portrait = False
+fullscreen = "--fullscreen" in sys.argv
+portrait = "--portrait" in sys.argv
 windowsize = 480  # 16:9 aspect ratio
 forceres = False
 for arg in sys.argv:
@@ -26,8 +26,8 @@ progressfile = "save.pkl"
 miraclefile = "msave.pkl"
 
 swapaction = False
-miracle = True
-tquicksave = 5
+miracle = "--miracle" in sys.argv
+tquicksave = 0 if "--noquicksave" in sys.argv else 5
 
 soundext = "wav"
 

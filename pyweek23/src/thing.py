@@ -623,6 +623,7 @@ class Visitable(Component):
 		self.help = help
 	def setstate(self, **kw):
 		getattribs(self, kw, "name", "help")
+		self.name = str(self.name)
 	def visit(self):
 		if self.name in state.met:
 			return

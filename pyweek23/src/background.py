@@ -1,5 +1,5 @@
 from __future__ import division
-import random, pygame, math
+import random, pygame, math, os.path
 from . import view, settings, ptext, state, util
 from .util import F
 
@@ -11,9 +11,9 @@ def init():
 		for _ in range(10000)
 	])
 	for name in "crab star tombud spiral".split():
-		nebulas[name] = pygame.image.load("astropix/%s.jpg" % name).convert_alpha()
-	for j in (0, 1, 2, 3):
-		nebulas["rift-%d" % j] = pygame.image.load("data/img/rift-%d.png" % j).convert_alpha()
+		nebulas[name] = pygame.image.load(os.path.join("data", "astropix", "%s.jpg" % name)).convert_alpha()
+#	for j in (0, 1, 2, 3):
+#		nebulas["rift-%d" % j] = pygame.image.load("data/img/rift-%d.png" % j).convert_alpha()
 
 def pz(x, y, z):
 	x0, y0 = view.x0 + state.xoffset, view.y0
@@ -22,12 +22,24 @@ def pz(x, y, z):
 	else:
 		return F(427 + x - z * x0, 240 + y - z * y0)
 
-def draw():
+def drawnebulaat(name, x, y, size):
+	img = getnebula(name, F(size))
+	view.screen.blit(img, img.get_rect(center = pz(x, y, 0.3)))
+
+def draw(stage = None):
 	view.screen.fill((0, 0, 0))
-	img = getnebula("star", F(800))
-#	view.screen.blit(img, img.get_rect(center = pz(500, 0, 0.3)))
-	ptext.draw(settings.gamename, center = pz(0, 0, 0.3), color = "#220000", fontsize = F(60), angle = 10)
-	ptext.draw("by team Universe Factory", center = pz(0, 160, 0.3), color = "#222222", fontsize = F(40), angle = 10)
+	if stage == 1:
+		drawnebulaat("star", 500, 0, 800)
+	if stage == 2:
+		drawnebulaat("tombud", 500, 300, 800)
+		drawnebulaat("spiral", 2200, -300, 800)
+	if stage == 3:
+		drawnebulaat("crab", 500, -300, 800)
+		drawnebulaat("star", 2200, 300, 800)
+	if stage == 4:
+		drawnebulaat("tombud", 500, 00, 800)
+#	ptext.draw(settings.gamename, center = pz(0, 0, 0.3), color = "#220000", fontsize = F(60), angle = 10)
+#	ptext.draw("by team Universe Factory", center = pz(0, 160, 0.3), color = "#222222", fontsize = F(40), angle = 10)
 	N = min(len(stars), int(view.sx * view.sy * 0.001))
 	for x, y, z in stars[:N]:
 		px, py = pz(x, y, z)

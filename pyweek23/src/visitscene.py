@@ -108,7 +108,7 @@ def draw():
 
 
 vdata = {}
-vdata[1] = {
+vdata["1"] = {
 	"sname": "Paulson",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
@@ -127,7 +127,7 @@ vdata[1] = {
 	"sub1": "",
 	"do": "hp",
 }
-vdata[2] = {
+vdata["2"] = {
 	"sname": "Danilowka",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
@@ -146,7 +146,7 @@ vdata[2] = {
 	"sub1": "",
 	"do": "cshot",
 }
-vdata[3] = {
+vdata["3"] = {
 	"sname": "Jusuf",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
@@ -165,7 +165,7 @@ vdata[3] = {
 	"sub1": "",
 	"do": "companion",
 }
-vdata[4] = {
+vdata["4"] = {
 	"sname": "Osaretin",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
@@ -184,7 +184,7 @@ vdata[4] = {
 	"sub1": "",
 	"do": "shield",
 }
-vdata[5] = {
+vdata["5"] = {
 	"sname": "Tannenbaum",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
@@ -203,7 +203,7 @@ vdata[5] = {
 	"sub1": "",
 	"do": "missile",
 }
-vdata[6] = {
+vdata["6"] = {
 	"sname": "Cooper",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
@@ -222,7 +222,7 @@ vdata[6] = {
 	"sub1": "",
 	"do": "vshot",
 }
-vdata[7] = {
+vdata["7"] = {
 	"sname": "Gabriel",
 	"avatar": "bio-0",
 	"title": "Ship's Doctor",
