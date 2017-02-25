@@ -10,7 +10,7 @@ view.init()
 background.init()
 sound.init()
 
-scene.push(playscene, 1)
+scene.push(playscene, 4)
 #scene.push(climaxscene)
 
 clock = pygame.time.Clock()

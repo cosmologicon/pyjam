@@ -1,5 +1,5 @@
 from __future__ import division
-import math, random
+import math, random, pygame, bisect
 try:
     import cPickle as pickle
 except ImportError:
@@ -83,11 +83,23 @@ def collided(obj1, obj2):
 	return (obj1.x - obj2.x) ** 2 + (obj1.y - obj2.y) ** 2 < (obj1.r + obj2.r) ** 2
 
 def getcollisions(A, B):
-	for obja in A:
-		for objb in B:
-			if collided(obja, objb):
-				yield obja, objb
-
+	if not B: return
+	t0 = pygame.time.get_ticks()
+	rmax = max(b.r for b in B)
+	B = sorted(B, key = lambda b: b.x)
+	xs = [b.x for b in B]
+	for a in A:
+		drmax = a.r + rmax
+		j = bisect.bisect(xs, a.x - drmax)
+		while j < len(B):
+			b = B[j]
+			dx, dy = b.x - a.x, b.y - a.y
+			if dx > drmax:
+				break
+			dr = a.r + b.r
+			if dx * dx + dy * dy < dr * dr:
+				yield a, b
+			j += 1
 
 def think(dt):
 	global xoffset, tslow, tinvulnerable, tlose, twin, shieldhp
@@ -104,13 +116,8 @@ def think(dt):
 	for obj in planets:
 		if collided(obj, you):
 			obj.visit()
-	for obj in badbullets:
-		for y in yous:
-			if collided(obj, y):
-				obj.hit(y)
-		for planet in planets:
-			if collided(obj, planet):
-				obj.hit(planet)
+	for y, b in getcollisions(yous + planets, badbullets):
+		b.hit(y)
 	for b, e in getcollisions(goodbullets, enemies + bosses + planets):
 		b.hit(e)
 	for obj in enemies + bosses:
@@ -148,6 +155,8 @@ def win():
 		gotostage(2)
 	elif stage == 2:
 		gotostage(3)
+	elif stage == 3:
+		gotostage(4)
 	else:
 		raise ValueError("End of the game")
 
