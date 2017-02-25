@@ -14,6 +14,7 @@ def get(imgname, scale = 1, angle = 0, cfilter = None):
 	if imgname == "capsule": kangle = 2
 	if imgname == "snake": kangle = 2
 	if imgname == "hawk": kangle = 1
+	if imgname == "heron": kangle = 1
 	if settings.lowres:
 		kangle = 90
 

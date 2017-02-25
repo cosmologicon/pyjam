@@ -4,7 +4,7 @@ from pygame.locals import *
 gamename = "Lesser of Two Evils"
 
 minfps = 5
-maxfps = 120
+maxfps = 60
 
 DEBUG = True
 

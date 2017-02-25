@@ -13,6 +13,8 @@ def init():
 	self.popped = False
 	sound.mplay(2)
 	state.mupdate()
+	state.removequicksave()
+	state.deleteprogress()
 
 def think(dt, kdowns, kpressed):
 	if self.popped:

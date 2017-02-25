@@ -370,6 +370,7 @@ def startup():
 	scene.push(playscene, 1)
 
 def loadandrun():
+	global saved, met
 	from . import scene, playscene
 	scene.quit()
 	pfile = os.path.join(settings.savedir, settings.progressfile)
@@ -377,6 +378,10 @@ def loadandrun():
 		load(pfile)
 		scene.push(playscene, stage)
 	else:
+		if settings.miracle:
+			msaved, mmet = getmsave()
+			saved |= msaved
+			met |= mmet
 		scene.push(playscene, 1)
 
 def deleteprogress():

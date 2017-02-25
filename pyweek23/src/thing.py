@@ -970,7 +970,7 @@ class Him(object):
 @Collides(4)
 @InfiniteHealth()
 @Tumbles(4)
-@DrawAngleImage("zap", 1.5)
+@DrawAngleImage("zap", 4)
 class Companion(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1131,7 +1131,8 @@ class Medusa(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @SpawnsClusterBullets(2)
-@DrawBox("emu")
+@Tumbles(0.4)
+@DrawAngleImage("heron", 1.5)
 @LeavesCorpse()
 class Emu(object):
 	def __init__(self, **kw):
@@ -1258,7 +1259,7 @@ class Turkey(object):
 @DisappearsOffscreen(1000)
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
-@DrawBox("lark")
+@DrawFacingImage("canary", 1.7)
 @LeavesCorpse()
 class Lark(object):
 	def __init__(self, **kw):
@@ -1276,7 +1277,8 @@ class Lark(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @ABBullets(12, 3)
-@DrawBox("heron")
+@Tumbles(2)
+@DrawAngleImage("heron", 1.5)
 @LeavesCorpse()
 class Heron(object):
 	def __init__(self, **kw):
