@@ -90,7 +90,7 @@ def draw():
 				color = (0, 100, 100),
 				italic = True,
 				shadow = (1, 1))
-	image.Bdraw("bio-0", pimg, a = util.clamp(self.t * 3 - 0.3, 0, 1))
+	image.Bdraw(data["avatar"], pimg, a = util.clamp(self.t * 3 - 0.3, 0, 1))
 	ptext.draw(
 		data["title"],
 		midtop = F(pimg[0], pimg[1] + 70),
@@ -110,7 +110,7 @@ def draw():
 vdata = {}
 vdata["1"] = {
 	"sname": "Paulson",
-	"avatar": "bio-0",
+	"avatar": "bio-1",
 	"title": "Ship's Doctor",
 	"name": "Donovan Paulson",
 	"lines": [
@@ -129,9 +129,9 @@ vdata["1"] = {
 }
 vdata["2"] = {
 	"sname": "Danilowka",
-	"avatar": "bio-0",
-	"title": "Ship's Doctor",
-	"name": "Donovan Paulson",
+	"avatar": "bio-2",
+	"title": "Chief Mechanic",
+	"name": "Sergey Danilowka",
 	"lines": [
 		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
 		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
@@ -148,9 +148,9 @@ vdata["2"] = {
 }
 vdata["3"] = {
 	"sname": "Jusuf",
-	"avatar": "bio-0",
-	"title": "Ship's Doctor",
-	"name": "Donovan Paulson",
+	"avatar": "bio-3",
+	"title": "Security Chief",
+	"name": "Boris Jusuf",
 	"lines": [
 		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
 		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
@@ -167,9 +167,9 @@ vdata["3"] = {
 }
 vdata["4"] = {
 	"sname": "Osaretin",
-	"avatar": "bio-0",
-	"title": "Ship's Doctor",
-	"name": "Donovan Paulson",
+	"avatar": "bio-4",
+	"title": "Head Engineer",
+	"name": "Obed Osaretin",
 	"lines": [
 		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
 		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
@@ -186,9 +186,9 @@ vdata["4"] = {
 }
 vdata["5"] = {
 	"sname": "Tannenbaum",
-	"avatar": "bio-0",
-	"title": "Ship's Doctor",
-	"name": "Donovan Paulson",
+	"avatar": "bio-5",
+	"title": "Celestial Navigator",
+	"name": "Axel Tannenbaum",
 	"lines": [
 		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
 		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
@@ -205,9 +205,9 @@ vdata["5"] = {
 }
 vdata["6"] = {
 	"sname": "Cooper",
-	"avatar": "bio-0",
-	"title": "Ship's Doctor",
-	"name": "Donovan Paulson",
+	"avatar": "bio-6",
+	"title": "First Officer",
+	"name": "Lydia Cooper",
 	"lines": [
 		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
 		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
@@ -224,9 +224,9 @@ vdata["6"] = {
 }
 vdata["7"] = {
 	"sname": "Gabriel",
-	"avatar": "bio-0",
-	"title": "Ship's Doctor",
-	"name": "Donovan Paulson",
+	"avatar": "bio-7",
+	"title": "Captain",
+	"name": "P. Jim Gabriel",
 	"lines": [
 		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
 		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
@@ -243,9 +243,9 @@ vdata["7"] = {
 }
 vdata["X"] = {
 	"sname": "Graves",
-	"avatar": "bio-0",
-	"title": "Ship's Doctor",
-	"name": "Donovan Paulson",
+	"avatar": "bio-X",
+	"title": "Astro Pilot",
+	"name": "Thornton Graves",
 	"lines": [
 		"My goodness! I never expected anyone to find me this far from the evacuation fleet.",
 		"I was a crew member onboard the Starship Hawking. As you probably know, we never completed our mission to close the rift. The ship was destroyed, but most of us managed to escape in these capsules. I imagine you might run into a few more of the crew, scattered like crumbs in the cosmos....",
