@@ -1,13 +1,14 @@
 from __future__ import division
 import pygame, os, datetime
 from pygame.locals import *
-from . import settings, view, ptext, background, state
+from . import settings, view, ptext, background, state, sound
 from . import scene, playscene, losescene, climaxscene
 from .util import F
 
 pygame.init()
 view.init()
 background.init()
+sound.init()
 
 scene.push(playscene, 1)
 #scene.push(climaxscene)
@@ -24,6 +25,8 @@ while scene.stack:
 		if event.type == KEYDOWN:
 			kdowns.add(event.key)
 	kpressed = pygame.key.get_pressed()
+	if settings.DEBUG and kpressed[K_F7]:
+		dt *= 20
 
 	dtexcess += dt
 	kd = kdowns
@@ -38,10 +41,11 @@ while scene.stack:
 			"F10: toggle portrait mode",
 			"F11: toggle fullscreen",
 			"F12: screenshot",
+			"objsize: %d %d %d" % (len(state.goodbullets), len(state.badbullets), len(state.enemies)),
 			"%.1ffps" % clock.get_fps(),
 		])
 		h = 849 if settings.portrait else 475
-		ptext.draw(text, bottomleft = F(5, h), fontsize = F(18), color = "white", owidth = 1)
+		ptext.draw(text, bottomleft = F(5, h), fontsize = F(18), color = "white")
 	pygame.display.flip()
 
 	if settings.isdown("quit", kdowns):
@@ -64,6 +68,15 @@ while scene.stack:
 		state.load(settings.quicksavefile)
 	if settings.isdown("toggledebug", kdowns):
 		settings.DEBUG = not settings.DEBUG
+	if settings.DEBUG and K_1 in kdowns:
+		state.gotostage(1)
+	if settings.DEBUG and K_2 in kdowns:
+		state.gotostage(2)
+	if settings.DEBUG and K_3 in kdowns:
+		state.gotostage(3)
+	if settings.DEBUG and K_4 in kdowns:
+		state.gotostage(4)
+	pygame.display.set_caption("%s - %.1ffps" % (settings.gamename, clock.get_fps()))
 
 pygame.quit()
 

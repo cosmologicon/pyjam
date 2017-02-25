@@ -88,6 +88,15 @@
        fx="192.56058"
        fy="346.31534"
        r="73.153923" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4140-7"
+       id="linearGradient6129"
+       x1="160.97292"
+       y1="536.83319"
+       x2="252.88692"
+       y2="536.83319"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -96,9 +105,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="203.14723"
-     inkscape:cy="600.0275"
+     inkscape:zoom="11.2"
+     inkscape:cx="197.11579"
+     inkscape:cy="506.69525"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -106,7 +115,8 @@
      inkscape:window-height="1056"
      inkscape:window-x="65"
      inkscape:window-y="24"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     showguides="false" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -115,7 +125,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -180,5 +190,11 @@
        inkscape:randomized="0"
        d="m 216.07142,440.21934 -66.07143,-67.5 67.5,-66.07143 66.07143,67.5 z"
        transform="matrix(0.59815438,0,0,1.0023892,324.25724,1.250645)" />
+    <path
+       style="fill:url(#linearGradient6129);fill-opacity:1;fill-rule:evenodd;stroke:#777aff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 165.26785,523.79078 c 22.23214,11.60714 41.60715,2.32143 47.85715,-7.32143 10.89286,1.69643 37.05357,16.96428 39.28572,20.53571 -2.76786,6.16071 -26.42858,17.32143 -39.01787,20.17857 -7.14286,-9.01786 -25.53571,-18.48214 -48.21428,-7.05357 -4.82143,-10.44643 -4.73215,-16.87499 0.0893,-26.33928 z"
+       id="path5581"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc" />
   </g>
 </svg>

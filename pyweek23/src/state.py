@@ -26,6 +26,8 @@ tinvulnerable = 0
 tlose = 0
 twin = 0
 
+apickup = 0
+
 scrollspeed = 40
 xoffset = 0
 yrange = 320
@@ -48,6 +50,14 @@ def downgrade(name):  # or upgrade
 		vshots = 0
 	if name == "charge":
 		chargetime = 1e12
+	if name == "upgrade":
+		hp = hp0 = 5
+		cshottime = 1
+		companion = True
+		shieldhp = shieldhp0 = 2
+		missiletime = 0.6
+		vshots = 3
+		chargetime = 3
 
 
 yous = []
@@ -58,7 +68,8 @@ enemies = []
 bosses = []
 planets = []
 spawners = []
-thinkers = yous, badbullets, goodbullets, pickups, enemies, bosses, planets, spawners
+corpses = []
+thinkers = yous, badbullets, goodbullets, pickups, enemies, bosses, planets, spawners, corpses
 def clear():
 	for group in thinkers:
 		del group[:]
@@ -123,21 +134,30 @@ def think(dt):
 			scene.push(losescene)
 	elif not waves and not bosses:
 		twin += dt
+		import thing
+		for b in badbullets:
+			corpses.append(thing.Corpse(x = b.x, y = b.y, r = b.r, lifetime = 1))
+			b.alive = False
 		if twin > 2:
 			you.x += (twin - 2) * 1000 * dt
 			if you.x > 1000:
 				win()
 
 def win():
-	from . import playscene, scene
 	if stage == 1:
-		scene.pop()
-		scene.push(playscene, 2)
+		gotostage(2)
+	elif stage == 2:
+		gotostage(3)
 	else:
 		raise ValueError("End of the game")
 
+def gotostage(n):
+	from . import playscene, scene
+	scene.quit()
+	scene.push(playscene, n)
+
 def draw():
-	drawers = planets, bosses, enemies, yous, goodbullets, badbullets, pickups
+	drawers = corpses, bosses, enemies, planets, yous, goodbullets, badbullets, pickups
 	for group in drawers:
 		for obj in group:
 			obj.draw()
@@ -158,6 +178,25 @@ def takedamage(damage):
 def heal(amount):
 	global hp
 	hp = min(hp + amount, hp0)
+
+apickup0 = 30
+def addapickup(amount, who):
+	global apickup
+	import thing
+	old = apickup
+	apickup += amount
+	if old < apickup0 and apickup >= apickup0:
+		spawnpickup(who, thing.HealthPickup)
+	elif old < 2 * apickup0 and apickup >= 2 * apickup0:
+		spawnpickup(who, thing.MissilesPickup)
+	while apickup >= 2 * apickup0:
+		apickup -= 2 * apickup0
+
+def spawnpickup(who, ptype):
+	x, y = who.x, who.y
+	vx = 200
+	vy = 50 if y < 0 else -50
+	pickups.append(ptype(x = x, y = y, vx = vx, vy = vy, ax = -200))
 
 def addmedusa():
 	import thing

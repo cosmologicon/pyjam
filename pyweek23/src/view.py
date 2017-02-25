@@ -11,7 +11,7 @@ x0, y0, Z = 0, 0, 1
 def init():
 	global screen, sx, sy
 	aspect = 9 / 16 if settings.portrait else 16 / 9
-	if settings.fullscreen:
+	if settings.fullscreen and not settings.forceres:
 		sx0, sy0 = max(pygame.display.list_modes())
 		sx, sy = min((sx0, int(round(sx0 / aspect))), (int(round(sy0 * aspect)), sy0))
 	else:
@@ -32,7 +32,14 @@ def screenpos(pos):
 	x, y = pos
 	dx, dy = (x - x0) * Z, (y - y0) * Z
 	if settings.portrait:
-		
+		return F([dy + 240, 427 - dx])
+	else:
+		return F([dx + 427, dy + 240])
+
+def screenpos0(pos):
+	x, y = pos
+	dx, dy = x * Z, y * Z
+	if settings.portrait:
 		return F([dy + 240, 427 - dx])
 	else:
 		return F([dx + 427, dy + 240])

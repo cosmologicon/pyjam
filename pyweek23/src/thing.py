@@ -53,6 +53,16 @@ class LinearMotion(Component):
 		self.x += dt * self.vx
 		self.y += dt * self.vy
 
+class Accelerates(Component):
+	def __init__(self):
+		self.ax = 0
+		self.ay = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "ax", "ay")
+	def think(self, dt):
+		self.vx += dt * self.ax
+		self.vy += dt * self.ay
+
 class CirclesRift(Component):
 	def __init__(self):
 		self.rrift = 200
@@ -118,6 +128,16 @@ class SeeksEnemies(Component):
 			ax, ay = util.norm(target.x - self.x, target.y - self.y, 2000)
 		else:
 			ax, ay = 2000, 0
+		self.vx, self.vy = util.norm(self.vx + dt * ax, self.vy + dt * ay, self.v0)
+
+class SeeksYou(Component):
+	def __init__(self, v0 = 200):
+		self.v0 = v0
+	def setstate(self, **kw):
+		getattribs(self, kw, "v0")
+	def think(self, dt):
+		target = state.you
+		ax, ay = util.norm(target.x - self.x, target.y - self.y, 2000)
 		self.vx, self.vy = util.norm(self.vx + dt * ax, self.vy + dt * ay, self.v0)
 
 class SeeksFormation(Component):
@@ -260,7 +280,7 @@ class FiresWithSpace(Component):
 			self.shoot()
 	def getcharge(self):
 		t = self.tshot - state.reloadtime
-		if t <= 0: return 0
+		if t <= 0 or state.chargetime > 100000: return 0
 		if t >= state.chargetime: return state.maxcharge
 		return t / state.chargetime * state.maxcharge
 	def getdamage(self):
@@ -397,7 +417,7 @@ class SinusoidsAcross(Component):
 	def setstate(self, **kw):
 		getattribs(self, kw, "x0arc", "y0arc", "dxarc", "dyarc", "varc", "harc", "p0arc")
 	def think(self, dt):
-		if not self.alive or not self.target.alive:
+		if not self.alive or (self.target and not self.target.alive):
 			return
 		p = self.p0arc + self.varc * self.t
 		dpdt = self.varc
@@ -425,8 +445,13 @@ class SpawnsCompanion(Component):
 		if self.companion and not state.companion:
 			self.companion.alive = False
 
+class SpawnsCapsule(Component):
+	def die(self):
+		capsule = Capsule(x = self.x, y = self.y, vx = self.vx, vy = self.vy, name = "X")
+		state.planets.append(capsule)
+
 class SpawnsCobras(Component):
-	def __init__(self, dtcobra = 2):
+	def __init__(self, dtcobra = 6):
 		self.tcobra = 0
 		self.dtcobra = dtcobra
 		self.jcobra = 0
@@ -438,19 +463,19 @@ class SpawnsCobras(Component):
 			self.spawncobra()
 			self.tcobra -= self.dtcobra
 	def spawncobra(self):
-		top = self.jcobra % 2 == 1
-		x0 = self.jcobra * math.phi % 1 * 500 - 100
-		y0 = -state.yrange if top else state.yrange
-		dx = -300
-		dy = (300 if top else -300) * (1 + self.jcobra * math.phi % 1 * 0.4)
+		x0 = 500 + (self.jcobra * math.phi % 1) * 200
+		y0 = (self.jcobra * math.phi % 1 * 2 - 1) * state.yrange
+		dx = -600
+		dy = (self.jcobra * math.phi ** 2 % 1 * 2 - 1) * 100
 		h = 80
-		p0 = -50
-		for jseg, r in enumerate((40, 38, 36, 34, 32, 30, 28, 26, 24, 23, 22, 21, 20)):
-			diedelay = 0.5 + 0.1 * jseg
-			snake = Cobra(x0arc = x0, y0arc = y0, dxarc = dx, dyarc = dy, p0arc = p0, harc = h,
-				r = r, target = self, diedelay = diedelay)
-			state.enemies.append(snake)
+		p0 = 0
+		r = 40
+		for jseg in range(12):
+			state.enemies.append(Cobra(
+				x0arc = x0, y0arc = y0, dxarc = dx, dyarc = dy,
+				p0arc = p0, harc = h, r = r))
 			p0 -= r * 0.8
+			r *= 0.95
 		self.jcobra += 1
 	
 class SpawnsSwallows(Component):
@@ -594,14 +619,19 @@ class ABBullets(Component):
 			self.jbullet %= 2
 
 class Visitable(Component):
+	def __init__(self, help = True):
+		self.help = help
 	def setstate(self, **kw):
-		getattribs(self, kw, "name")
+		getattribs(self, kw, "name", "help")
 	def visit(self):
 		if self.name in state.visited:
 			return
 		state.visited.add(self.name)
 		scene.push(visitscene, self.name)
+		self.alive = False
 	def draw(self):
+		if not self.help:
+			return
 		if self.name in state.visited:
 			return
 		if self.t % 2 > 1.5:
@@ -655,15 +685,29 @@ class ClustersNearYou(Component):
 			self.alive = False
 
 class HasHealth(Component):
-	def __init__(self, hp0):
+	def __init__(self, hp0, iflashmax = 1):
 		self.hp0 = self.hp = hp0
+		self.iflashmax = iflashmax
 	def setstate(self, **kw):
-		getattribs(self, kw, "hp")
+		getattribs(self, kw, "hp", "hp0", "iflashmax")
 	def hurt(self, damage):
 		if self.hp <= 0: return
 		self.hp -= damage
-		self.iflash = 1
+		self.iflash = self.iflashmax
 		if self.hp <= 0: self.die()
+
+class LeavesCorpse(Component):
+	def die(self):
+		state.corpses.append(Corpse(x = self.x, y = self.y, r = self.r))
+
+class LetPickup(Component):
+	def __init__(self, apickup):
+		self.apickup = apickup
+	def setstate(self, **kw):
+		getattribs(self, kw, "apickup")
+	def die(self):
+		if self.hp <= 0:
+			state.addapickup(self.apickup, self)
 
 class InfiniteHealth(Component):
 	def hurt(self, damage):
@@ -719,24 +763,29 @@ class Spawns(Component):
 	def die(self):
 		self.collection.append(self.egg)
 
-class DrawImage(Component):
-	def __init__(self, imgname, imgscale = 1):
-		self.imgname = imgname
-		self.imgscale = imgscale
-	def setstate(self, **kw):
-		getattribs(self, kw, "imgname", "imgscale")
-	def draw(self):
-		scale = 0.01 * self.r * self.imgscale
-		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale)
-		if settings.DEBUG:
-			pos = view.screenpos((self.x, self.y))
-			r = F(view.Z * self.r)
-			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
-
 def getcfilter(iflash):
 	if iflash <= 0: return None
 	a = iflash ** 0.5 * 12
 	return [None, (1, 0.2, 0.2), None, (1, 0.7, 0.2)][int(a) % 4]
+
+class DrawImage(Component):
+	def __init__(self, imgname, imgscale = 1, cfilter0 = None):
+		self.imgname = imgname
+		self.imgscale = imgscale
+		self.cfilter0 = cfilter0
+		self.iflash = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "imgname", "imgscale", "cfilter0", "iflash")
+	def think(self, dt):
+		self.iflash = max(self.iflash - dt, 0)
+	def draw(self):
+		scale = 0.01 * self.r * self.imgscale
+		cfilter = getcfilter(self.iflash) or self.cfilter0
+		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, cfilter = cfilter)
+		if settings.DEBUG:
+			pos = view.screenpos((self.x, self.y))
+			r = F(view.Z * self.r)
+			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
 
 class DrawFacingImage(Component):
 	def __init__(self, imgname, imgscale = 1, ispeed = 0):
@@ -797,6 +846,13 @@ class DrawBox(Component):
 		pygame.draw.circle(view.screen, color, pos, r)
 		ptext.draw(self.boxname, center = pos, color = "white", fontsize = F(14))
 
+class DrawCorpse(Component):
+	def draw(self):
+		color = [(255, 255, 0), (255, 128, 0)][int(self.t * 20 % 2)]
+		r = F(self.r * (1 + self.f))
+		pos = view.screenpos((self.x, self.y))
+		pygame.draw.circle(view.screen, color, pos, r, F(3))
+
 class FlashesOnInvulnerable(Component):
 	def draw(self):
 		self.boxcolor = (100, 0, 0) if state.tinvulnerable * 6 % 1 > 0.5 else (100, 100, 100)
@@ -809,7 +865,12 @@ class DrawFlash(Component):
 		pos = view.screenpos((self.x, self.y))
 		r = F(view.Z * self.r)
 		color = (255, 120, 120) if (self.t + self.dtflash) * 5 % 1 > 0.5 else (255, 255, 0)
-		pygame.draw.circle(view.screen, color, pos, r)
+		if settings.lowres:
+			rec = pygame.Rect((0, 0, 2*r, 2*r))
+			rec.center = pos
+			view.screen.fill(color, rec)
+		else:
+			pygame.draw.circle(view.screen, color, pos, r)
 
 class DrawGlow(Component):
 	def __init__(self):
@@ -889,6 +950,22 @@ class Capsule(object):
 
 @WorldBound()
 @Lives()
+@Collides(16)
+@LinearMotion()
+@SeeksYou(220)
+@InfiniteHealth()
+@DrawBox("gabriel")
+@Visitable(False)
+class Gabriel(object):
+	def __init__(self, vx = None, vy = None, **kw):
+		self.setstate(
+			vx = -state.scrollspeed if vx is None else vx,
+			vy = 0 if vy is None else vy,
+			name = 7,
+			**kw)
+
+@WorldBound()
+@Lives()
 @Collides(3)
 @LinearMotion()
 @DiesOnCollision()
@@ -904,7 +981,7 @@ class BadBullet(object):
 @Collides(6)
 @LinearMotion()
 @DiesOnCollision()
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @ClustersNearYou(20, 80)
 @DisappearsOffscreen()
 @DrawFlash()
@@ -939,28 +1016,29 @@ class RangeGoodBullet(object):
 
 @WorldBound()
 @Lives()
-@Collides(3)
+@Collides(5)
 @SeeksEnemies(300)
 @LinearMotion()
 @DiesOnCollision()
 @HurtsOnCollision()
 @DisappearsOffscreen()
-@DrawGlow()
+@DrawFacingImage("missile", 5)
 class GoodMissile(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 
 @WorldBound()
 @Lives()
-@HasHealth(20)
+@HasHealth(16)
 @Collides(60)
-@RoundhouseBullets()
+@RoundhouseBullets(0.1)
 @SeeksHorizontalPosition(30, 30)
 @VerticalSinusoid(0.4, 120)
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @SpawnsCobras()
 @DrawBox("medusa")
+@LeavesCorpse()
 class Medusa(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -972,10 +1050,11 @@ class Medusa(object):
 @RoundhouseBullets(1)
 @SeeksHorizontalPosition(30, 30)
 @VerticalSinusoid(0.4, 120)
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @SpawnsClusterBullets(2)
 @DrawBox("emu")
+@LeavesCorpse()
 class Emu(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -988,11 +1067,13 @@ class Emu(object):
 #@RoundhouseBullets()
 @SeeksHorizontalSinusoid(30, 30, 0.8, 100)
 @VerticalSinusoid(0.6, 120)
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @SpawnsSwallows(6)
 @SpawnsHerons(3)
+@SpawnsClusterBullets(2)
 @DrawImage("egret", 1.4)
+@LeavesCorpse()
 class Egret(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1003,9 +1084,10 @@ class Egret(object):
 @Lives()
 @HasHealth(20)
 @Collides(30)
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawAngleImage("swallow", 1.3)
+@LeavesCorpse()
 class Swallow(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1018,9 +1100,10 @@ class Swallow(object):
 @Lives()
 @InfiniteHealth()
 @Collides(4)
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawFacingImage("snake", 1.2, 0)
+@LeavesCorpse()
 class Asp(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1030,11 +1113,13 @@ class Asp(object):
 @BossBound()
 @SinusoidsAcross()
 @Lives()
+@DisappearsOffscreen(800)
 @InfiniteHealth()
 @Collides(4)
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawFacingImage("snake", 1.2, 0)
+@LeavesCorpse()
 class Cobra(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1043,11 +1128,13 @@ class Cobra(object):
 @WorldBound()
 @Lives()
 @HasHealth(3)
+@LetPickup(1)
 @Collides(20)
 @SeeksFormation(400, 400)
 @DisappearsOffscreen()
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @KnocksOnCollision(40)
+@LeavesCorpse()
 @DrawFacingImage("duck", 1.8, -100)
 class Duck(object):
 	def __init__(self, **kw):
@@ -1056,12 +1143,14 @@ class Duck(object):
 @WorldBound()
 @Lives()
 @HasHealth(20)
+@LetPickup(3)
 @Collides(40)
 @SeeksFormation(400, 400)
 @DisappearsOffscreen()
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawFacingImage("duck", 1.8, -100)
+@LeavesCorpse()
 class Turkey(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1069,13 +1158,15 @@ class Turkey(object):
 
 @WorldBound()
 @Lives()
-@HasHealth(20)
+@HasHealth(4)
+@LetPickup(2)
 @Collides(20)
 @Cycloid()
 @DisappearsOffscreen(1000)
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawBox("lark")
+@LeavesCorpse()
 class Lark(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1085,13 +1176,15 @@ class Lark(object):
 @Lives()
 @BossBound()
 @HasHealth(10)
+@LetPickup(1)
 @Collides(20)
 @LinearMotion()
 @DisappearsOffscreen()
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @ABBullets(12, 3)
 @DrawBox("heron")
+@LeavesCorpse()
 class Heron(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -1099,13 +1192,30 @@ class Heron(object):
 @WorldBound()
 @Lives()
 @LinearMotion()
-@HasHealth(3)
+@HasHealth(3, iflashmax = 0.3)
+@LetPickup(2)
 @Collides(20)
 @DisappearsOffscreen()
-@HurtsOnCollision(3)
+@HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @DrawImage("rock-0", 0.39)
+@LeavesCorpse()
 class Rock(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
+
+@WorldBound()
+@Lives()
+@LinearMotion()
+@HasHealth(40, iflashmax = 0.3)
+@Collides(20)
+@DisappearsOffscreen()
+@HurtsOnCollision(2)
+@KnocksOnCollision(40)
+@SpawnsCapsule()
+@DrawImage("rock-0", 0.39, (0.7, 0.7, 1.0))
+@LeavesCorpse()
+class BlueRock(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
 
@@ -1113,7 +1223,9 @@ class Rock(object):
 @Lives()
 @Collides(5)
 @LinearMotion()
-@DrawBox("health")
+@Accelerates()
+@Tumbles(5)
+@DrawAngleImage("health", 5)
 @Collectable()
 @HealsOnCollect()
 class HealthPickup(object):
@@ -1127,7 +1239,9 @@ class HealthPickup(object):
 @Lives()
 @Collides(5)
 @LinearMotion()
-@DrawBox("missiles")
+@Accelerates()
+@Tumbles(5)
+@DrawAngleImage("mpickup", 5)
 @Collectable()
 @MissilesOnCollect()
 class MissilesPickup(object):
@@ -1150,6 +1264,15 @@ class SlowPickup(object):
 			vx = -state.scrollspeed if vx is None else vx,
 			vy = 0 if vy is None else vy,
 			**kw)
+
+@WorldBound()
+@Lives()
+@Lifetime(0.2)
+@Collides(0)
+@DrawCorpse()
+class Corpse(object):
+	def __init__(self, **kw):
+		self.setstate(**kw)
 
 @Lives()
 @Lifetime()
