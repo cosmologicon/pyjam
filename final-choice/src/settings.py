@@ -1,4 +1,5 @@
 import sys
+from . import pview
 from pygame.locals import *
 
 gamename = "The Final Choice"
@@ -27,7 +28,7 @@ nomusic = "--nomusic" in sys.argv
 nosound = "--nosound" in sys.argv
 vidcap = "--vidcap" in sys.argv
 
-screenshotdir = "screenshots"
+pview.SCREENSHOT_DIRECTORY = "screenshots"
 savedir = "save"
 quicksavefile = "qsave.pkl"
 progressfile = "save.pkl"

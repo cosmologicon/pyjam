@@ -1,7 +1,7 @@
 import math, random, pygame
 from pygame.locals import *
-from . import view, state, thing, background, settings, hud, util, sound, scene, winscene
-from .util import F
+from . import view, state, thing, background, settings, hud, util, sound, scene, winscene, pview
+from .pview import T
 
 def init():
 	global spawner, twin, popped
@@ -81,24 +81,19 @@ def think(dt, kdowns, kpressed):
 def draw():
 	background.draw()
 	for _ in range(5):
-		rect = F(pygame.Rect((0, 0, random.randrange(8, 200), random.randrange(8, 200))))
+		rect = T(pygame.Rect((0, 0, random.randrange(8, 200), random.randrange(8, 200))))
 		rect.center = view.screenpos((300, 0))
 		color = [random.randint(120, 255) for _ in range(3)]
-		pygame.draw.ellipse(view.screen, color, rect, F(3))
+		pygame.draw.ellipse(pview.screen, color, rect, T(3))
 	for x in state.yous:
 		x.draw()
 	a = util.clamp(255 * (22 - state.you.t), 0, 255)
 	if a:
-		copy = view.screen.convert_alpha()
-		copy.fill((0, 0, 0, a))
-		view.screen.blit(copy, (0, 0))
-	
+		pview.fill((0, 0, 0, a))
 
 	spawner.draw()
 	dx, dy = state.you.x - 300, state.you.y
 	d = math.sqrt(dx ** 2 + dy ** 2)
 	a = util.clamp(255 - 1 * d, 0, 255)
-	copy = view.screen.convert_alpha()
-	copy.fill((255, 255, 255, a))
-	view.screen.blit(copy, (0, 0))
+	pview.fill((255, 255, 255, a))
 

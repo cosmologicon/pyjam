@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
-from . import ptext, view, scene, settings, background, sound, state
-from .util import F
+from . import ptext, pview, scene, settings, background, sound, state
+from .pview import T
 
 class self:
 	pass
@@ -46,13 +46,13 @@ def end():
 def draw():
 	background.drawfly()
 	if settings.portrait:
-		ptext.draw(settings.gamename, midtop = F(240, 10), width = F(400),
+		ptext.draw(settings.gamename, midtop = T(240, 10), width = T(400),
 			color = "white", gcolor = (200,200,200),
-			fontsize = F(40), shadow = (1, 1), fontname = "Bungee")
+			fontsize = T(40), shadow = (1, 1), fontname = "Bungee")
 	else:
-		ptext.draw(settings.gamename, midtop = F(427, 10),
+		ptext.draw(settings.gamename, midtop = T(427, 10),
 			color = "white", gcolor = (200,200,200),
-			fontsize = F(40), shadow = (1, 1), fontname = "Bungee")
+			fontsize = T(40), shadow = (1, 1), fontname = "Bungee")
 	for jtext, text in enumerate(self.texts):
 		flash = jtext == self.opt and self.t % 0.5 < 0.3
 		ocolor = (255, 255, 100) if flash else (200, 200, 0)
@@ -61,10 +61,10 @@ def draw():
 		rect.center = (240, 400 + 100 * jtext) if settings.portrait else (427, 150 + 100 * jtext)
 		if self.t < 1.5:
 			rect.y += 400 * (1.5 - self.t) ** 2
-		view.screen.fill(ocolor, F(rect))
+		pview.screen.fill(ocolor, T(rect))
 		rect.inflate_ip(-6, -6)
-		view.screen.fill(fcolor, F(rect))
-		ptext.draw(text, center = F(rect.center), fontsize = F(26), fontname = "Bungee",
+		pview.screen.fill(fcolor, T(rect))
+		ptext.draw(text, center = T(rect.center), fontsize = T(26), fontname = "Bungee",
 			color = (120, 255, 255), gcolor = (0, 244, 244), shadow = (1, 1))
 
 

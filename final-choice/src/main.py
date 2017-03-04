@@ -1,9 +1,9 @@
 from __future__ import division
 import pygame, os, datetime
 from pygame.locals import *
-from . import settings, view, ptext, background, state, sound
+from . import settings, view, ptext, background, state, sound, pview
 from . import scene, playscene, losescene, climaxscene, creditsscene, winscene
-from .util import F
+from .pview import T
 
 if settings.vidcap:
 	from . import vidcap
@@ -59,7 +59,7 @@ while scene.stack:
 			"%.1ffps" % clock.get_fps(),
 		])
 		h = 849 if settings.portrait else 475
-		ptext.draw(text, bottomleft = F(5, h), fontsize = F(18), color = "white")
+		ptext.draw(text, bottomleft = T(5, h), fontsize = T(18), color = "white")
 	pygame.display.flip()
 
 	if settings.isdown("quit", kdowns):
@@ -71,11 +71,7 @@ while scene.stack:
 		settings.portrait = not settings.portrait
 		view.init()
 	if settings.isdown("screenshot", kdowns):
-		if not os.path.exists(settings.screenshotdir):
-			os.makedirs(settings.screenshotdir)
-		t = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-		path = os.path.join(settings.screenshotdir, "screenshot-%s.png" % t)
-		pygame.image.save(view.screen, path)
+		pview.screenshot()
 	if settings.DEBUG and settings.isdown("quicksave", kdowns):
 		state.save(settings.quicksavefile)
 	if settings.DEBUG and settings.isdown("quickload", kdowns):

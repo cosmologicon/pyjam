@@ -1,6 +1,6 @@
 import pygame, os, random, math
-from . import settings, image, ptext, util
-from .util import F
+from . import settings, image, ptext
+from .pview import T
 
 pygame.mixer.pre_init(22050, -16, 2, 0)
 
@@ -113,12 +113,12 @@ class Dplayer(object):
 			"J": ("Lalezar", 21, (200, 255, 200)),
 			"C": ("Bungee", 18, (255, 180, 80)),
 		}.get(self.font, (None, 28, "white"))
-		fontsize = F(fontsize)
+		fontsize = T(fontsize)
 		lineheight = 1
 		if fontname == "Lalezar": lineheight = 0.7
 		if fontname == "Bungee": lineheight = 1.2
-		width = F(340) if settings.portrait else F(540)
-		pos = F(110, 850) if settings.portrait else F(160, 472)
+		width = T(340) if settings.portrait else T(540)
+		pos = T(110, 850) if settings.portrait else T(160, 472)
 		ptext.draw(self.text, bottomleft = pos, width = width,
 			fontname = fontname, fontsize = fontsize, color = color, shadow = (1, 1),
 			lineheight = lineheight,

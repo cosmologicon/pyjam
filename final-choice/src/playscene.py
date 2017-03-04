@@ -1,7 +1,7 @@
 from __future__ import division
 import math
 from pygame.locals import *
-from . import view, state, thing, background, settings, hud, util, randomdata, sound
+from . import view, state, thing, background, settings, hud, util, randomdata, sound, pview
 
 def init(stage):
 	global tlastsave
@@ -39,7 +39,7 @@ def think(dt, kdowns, kpressed):
 
 def draw():
 	if settings.lowres:
-		view.screen.fill((0, 0, 0))
+		pview.fill((0, 0, 0))
 	else:
 		background.draw(stage = state.stage)
 #	background.drawrift()
@@ -47,14 +47,10 @@ def draw():
 	hud.draw()
 	if state.tlose:
 		alpha = util.clamp(state.tlose - 2, 0, 1)
-		surf = view.screen.convert_alpha()
-		surf.fill((0, 0, 0, int(alpha * 255)))
-		view.screen.blit(surf, (0, 0))
+		pview.fill((0, 0, 0, int(alpha * 255)))
 	if state.twin > 2:
 		alpha = util.clamp(state.twin - 2, 0, 1)
-		surf = view.screen.convert_alpha()
-		surf.fill((200, 200, 255, int(alpha * 255)))
-		view.screen.blit(surf, (0, 0))
+		pview.fill((200, 200, 255, int(alpha * 255)))
 
 def makewaves():
 	if state.stage == 1:

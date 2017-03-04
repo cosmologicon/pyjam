@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, math, os.path
-from . import view, util, settings, ptext
-from .util import F
+from . import view, util, settings, ptext, pview
+from .pview import T
 
 imgs = {}
 sizetotal = 0
@@ -58,12 +58,12 @@ def clear():
 
 def draw(imgname, pos, scale = 1, angle = 0, cfilter = None):
 	img = get(imgname, scale = scale, angle = angle, cfilter = cfilter)
-	view.screen.blit(img, img.get_rect(center = pos))
+	pview.screen.blit(img, img.get_rect(center = pos))
 
 def Fdraw(imgname, pos, scale = 1, angle = 0, cfilter = None):
 	draw(imgname,
-		pos = F(pos),
-		scale = util.f * scale,
+		pos = T(pos),
+		scale = pview.f * scale,
 		angle = angle,
 		cfilter = cfilter
 	)
@@ -71,7 +71,7 @@ def Fdraw(imgname, pos, scale = 1, angle = 0, cfilter = None):
 def Gdraw(imgname, pos, scale = 1, angle = 0, cfilter = None):
 	draw(imgname,
 		pos = view.screenpos(pos),
-		scale = util.f * view.Z * scale,
+		scale = pview.f * view.Z * scale,
 		angle = angle,
 		cfilter = cfilter
 	)
@@ -83,10 +83,10 @@ def Bdraw(imgname, pos, s = 120, a = 1, ocolor = (100, 100, 255), showtitle = Tr
 	rect = pygame.Rect(0, 0, w, h)
 	rect.center = pos
 	if a < 1:
-		pygame.draw.rect(view.screen, (100, 100, 100), F(rect))
+		pygame.draw.rect(pview.screen, (100, 100, 100), T(rect))
 	rect.inflate_ip(8, 8)
 	ocolor = tuple(int(c * (0.8 + 0.2 * math.sin(0.01 * pygame.time.get_ticks()))) for c in ocolor)
-	pygame.draw.rect(view.screen, ocolor, F(rect), F(2))
+	pygame.draw.rect(pview.screen, ocolor, T(rect), T(2))
 	if a == 1:
 		Fdraw(os.path.join("data", "biopix", imgname + ".jpg"), pos, scale = s / 300)
 		name = {
@@ -103,6 +103,6 @@ def Bdraw(imgname, pos, s = 120, a = 1, ocolor = (100, 100, 255), showtitle = Tr
 			"A": "Capt. Alyx",
 		}.get(imgname.split("-")[1])
 		if showtitle and name:
-			pos = F(pos[0], pos[1] + 0.6 * s)
-			ptext.draw(name, midbottom = pos, owidth = 2, fontname = "Lalezar", fontsize = F(12))
+			pos = T(pos[0], pos[1] + 0.6 * s)
+			ptext.draw(name, midbottom = pos, owidth = 2, fontname = "Lalezar", fontsize = T(12))
 

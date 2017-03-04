@@ -1,7 +1,7 @@
 import math, random, pygame
 from pygame.locals import *
 from . import view, state, thing, background, settings, hud, util, sound, image, ptext, scene, settings
-from .util import F
+from .pview import T
 
 class self:
 	pass
@@ -24,13 +24,13 @@ def draw():
 		if not 0 <= dt <= 6:
 			continue
 		alpha = util.clamp(min(1.5 * dt, 1.5 * (5 - dt)), 0, 1)
-		pos = F(240, 300 + 300 * dj) if settings.portrait else F(240 + 400 * dj, 200 + 60 * dj)
-		ptext.draw(line[1], midbottom = pos, color = (200, 255, 255), fontname = "Bungee", fontsize = F(26), alpha = alpha)
+		pos = T(240, 300 + 300 * dj) if settings.portrait else T(240 + 400 * dj, 200 + 60 * dj)
+		ptext.draw(line[1], midbottom = pos, color = (200, 255, 255), fontname = "Bungee", fontsize = T(26), alpha = alpha)
 
 		dt -= 0.1
 		alpha = util.clamp(min(1.5 * dt, 1.5 * (5 - dt)), 0, 1)
 		names = "\n".join(line[2:])
-		ptext.draw(names, midtop = pos, color = (255, 255, 255), fontname = "Bungee", fontsize = F(26), alpha = alpha)
+		ptext.draw(names, midtop = pos, color = (255, 255, 255), fontname = "Bungee", fontsize = T(26), alpha = alpha)
 
 
 lines = [

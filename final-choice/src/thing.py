@@ -1,9 +1,9 @@
 from __future__ import division
 import pygame, math, random, os.path
-from . import view, ptext, state, util, image, settings, sound
+from . import view, ptext, state, util, image, settings, sound, pview
 from . import scene, visitscene
 from .enco import Component
-from .util import F
+from .pview import T
 
 # Positive x is right
 # Positive y is down
@@ -311,9 +311,9 @@ class FiresWithSpace(Component):
 		charge = self.getcharge()
 		if charge <= 0: return
 		pos = view.screenpos((self.x + self.r * 7, self.y))
-		r = F(view.Z * self.getbulletsize())
+		r = T(view.Z * self.getbulletsize())
 		color = (255, 255, 255) if self.t * 4 % 1 > 0.5 else (200, 200, 255)
-		pygame.draw.circle(view.screen, color, pos, r)
+		pygame.draw.circle(pview.screen, color, pos, r)
 
 class MissilesWithSpace(Component):
 	def __init__(self):
@@ -690,7 +690,7 @@ class Visitable(Component):
 			return
 		alpha = util.clamp(abs(self.t % 2 - 1) * 7, 0, 1)
 		pos = view.screenpos((self.x + self.r, self.y - 2 * self.r))
-		ptext.draw("HELP!", center = pos, fontsize = F(20), fontname = "Bungee", alpha = alpha)
+		ptext.draw("HELP!", center = pos, fontsize = T(20), fontname = "Bungee", alpha = alpha)
 
 class DiesOnCollision(Component):
 	def hit(self, target = None):
@@ -845,8 +845,8 @@ class DrawImage(Component):
 		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, cfilter = cfilter)
 		if settings.DEBUG:
 			pos = view.screenpos((self.x, self.y))
-			r = F(view.Z * self.r)
-			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
+			r = T(view.Z * self.r)
+			pygame.draw.circle(pview.screen, (255, 0, 0), pos, r, T(1))
 
 class DrawTumblingRock(Component):
 	def __init__(self, cfilter0 = None):
@@ -869,8 +869,8 @@ class DrawTumblingRock(Component):
 		image.Gdraw(imgname, pos = (self.x, self.y), scale = scale, cfilter = cfilter, angle = 50)
 		if settings.DEBUG:
 			pos = view.screenpos((self.x, self.y))
-			r = F(view.Z * self.r)
-			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
+			r = T(view.Z * self.r)
+			pygame.draw.circle(pview.screen, (255, 0, 0), pos, r, T(1))
 
 class DrawFacingImage(Component):
 	def __init__(self, imgname, imgscale = 1, ispeed = 0):
@@ -892,8 +892,8 @@ class DrawFacingImage(Component):
 		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle, cfilter = getcfilter(self.iflash))
 		if settings.DEBUG:
 			pos = view.screenpos((self.x, self.y))
-			r = F(view.Z * self.r)
-			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
+			r = T(view.Z * self.r)
+			pygame.draw.circle(pview.screen, (255, 0, 0), pos, r, T(1))
 
 class DrawAngleImage(Component):
 	def __init__(self, imgname, imgscale = 1):
@@ -912,8 +912,8 @@ class DrawAngleImage(Component):
 		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, angle = angle, cfilter = getcfilter(self.iflash))
 		if settings.DEBUG:
 			pos = view.screenpos((self.x, self.y))
-			r = F(view.Z * self.r)
-			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
+			r = T(view.Z * self.r)
+			pygame.draw.circle(pview.screen, (255, 0, 0), pos, r, T(1))
 
 class DrawBox(Component):
 	def __init__(self, boxname, boxcolor = (120, 120, 120)):
@@ -924,19 +924,19 @@ class DrawBox(Component):
 		self.iflash = max(self.iflash - dt, 0)
 	def draw(self):
 		pos = view.screenpos((self.x, self.y))
-		r = F(view.Z * self.r)
+		r = T(view.Z * self.r)
 		color = self.boxcolor
 		if hasattr(self, "iflash") and self.iflash >= 0:
 			color = [self.boxcolor, (255, 0, 0)][int(self.iflash * 10 % 2)]
-		pygame.draw.circle(view.screen, color, pos, r)
-		ptext.draw(self.boxname, center = pos, color = "white", fontsize = F(14))
+		pygame.draw.circle(pview.screen, color, pos, r)
+		ptext.draw(self.boxname, center = pos, color = "white", fontsize = T(14))
 
 class DrawCorpse(Component):
 	def draw(self):
 		color = [(255, 255, 0), (255, 128, 0)][int(self.t * 20 % 2)]
-		r = F(self.r * (1 + self.f))
+		r = T(self.r * (1 + self.f))
 		pos = view.screenpos((self.x, self.y))
-		pygame.draw.circle(view.screen, color, pos, r, F(3))
+		pygame.draw.circle(pview.screen, color, pos, r, T(3))
 
 class FlashesOnInvulnerable(Component):
 	def draw(self):
@@ -948,22 +948,22 @@ class DrawFlash(Component):
 		self.dtflash = random.random()
 	def draw(self):
 		pos = view.screenpos((self.x, self.y))
-		r = F(view.Z * self.r)
+		r = T(view.Z * self.r)
 		color = (255, 120, 120) if (self.t + self.dtflash) * 5 % 1 > 0.5 else (255, 255, 0)
 		if settings.lowres:
 			rec = pygame.Rect((0, 0, 2*r, 2*r))
 			rec.center = pos
-			view.screen.fill(color, rec)
+			pview.fill(color, rec)
 		else:
-			pygame.draw.circle(view.screen, color, pos, r)
+			pygame.draw.circle(pview.screen, color, pos, r)
 
 class DrawGlow(Component):
 	def __init__(self):
 		self.dtflash = random.random()
 	def draw(self):
 		pos = view.screenpos((self.x, self.y))
-#		pygame.draw.circle(view.screen, (200, 200, 255), pos, F(view.Z * self.r * 2))
-		pygame.draw.circle(view.screen, (200, 200, 255), pos, F(view.Z * self.r * 1))
+#		pygame.draw.circle(view.screen, (200, 200, 255), pos, T(view.Z * self.r * 2))
+		pygame.draw.circle(pview.screen, (200, 200, 255), pos, T(view.Z * self.r * 1))
 
 @WorldBound()
 @Lives()

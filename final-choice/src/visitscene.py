@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
-from . import ptext, view, scene, settings, image, util, background, state, sound
-from .util import F
+from . import ptext, pview, scene, settings, image, util, background, state, sound
+from .pview import T
 
 class self:
 	pass
@@ -53,68 +53,68 @@ def draw():
 	talpha = util.clamp((self.t - 1) * 2, 0, 1)
 
 	pimg = (85, 85) if settings.portrait else (85, 85)
-	psay = F(180, 20) if settings.portrait else F(180, 20)
+	psay = T(180, 20) if settings.portrait else T(180, 20)
 	pyou = (85, 660) if settings.portrait else (85, 400)
 	pbox = [
-		F(165, 605, 280, 95) if settings.portrait else F(200, 350, 280, 110),
-		F(165, 710, 280, 95) if settings.portrait else F(540, 350, 280, 110),
+		T(165, 605, 280, 95) if settings.portrait else T(200, 350, 280, 110),
+		T(165, 710, 280, 95) if settings.portrait else T(540, 350, 280, 110),
 	]
 
 	ptext.draw(
 		"\n\n".join(data["lines"]),
 		topleft = psay,
-		width = F(270) if settings.portrait else F(630),
+		width = T(270) if settings.portrait else T(630),
 		fontname = data["fontname"],
-		fontsize = F(data["fontsize"]),
+		fontsize = T(data["fontsize"]),
 		color = data["color"],
 		shadow = (1, 1),
 		alpha = talpha)
 	for jtext in range(2):
 		box = pygame.Rect(pbox[jtext])
 		if self.t < 1.5 and not (jtext == self.opt and not self.starting):
-			box.y += F(400 * (1.5 - self.t) ** 2)
+			box.y += T(400 * (1.5 - self.t) ** 2)
 		flash = jtext == self.opt and self.t % 0.5 < 0.3
 		ocolor = (255, 255, 100) if flash else (200, 200, 0)
 		fcolor = (80, 80, 80) if flash else (40, 40, 40)
-		view.screen.fill(ocolor, box)
-		box.inflate_ip(*F(-6, -6))
-		view.screen.fill(fcolor, box)
+		pview.fill(ocolor, box)
+		box.inflate_ip(*T(-6, -6))
+		pview.fill(fcolor, box)
 		ptext.draw(data["opt%d" % jtext],
-			top = box.top + F(10),
+			top = box.top + T(10),
 			centerx = box.centerx,
 			fontname = "Lalezar",
 			lineheight = 0.66,
-			fontsize = F(20),
-			width = F(260),
+			fontsize = T(20),
+			width = T(260),
 			color = (120, 255, 255),
 			gcolor = (40, 244, 244),
 			shadow = (1, 1))
 		if data["sub%d" % jtext]:
 			ptext.draw("(%s)" % data["sub%d" % jtext],
-				top = box.top + F(65),
+				top = box.top + T(65),
 				centerx = box.centerx,
 				fontname = "Lalezar",
-				fontsize = F(14),
+				fontsize = T(14),
 				color = (40, 200, 200),
 				shadow = (1, 1))
 	image.Bdraw(data["avatar"], pimg, a = util.clamp(self.t * 3 - 0.3, 0, 1), showtitle = False)
 	image.Bdraw("bio-A", pyou, a = util.clamp(self.t * 3 - 1.3, 0, 1), showtitle = True)
 	ptext.draw(
 		data["title"],
-		midtop = F(pimg[0], pimg[1] + 70),
+		midtop = T(pimg[0], pimg[1] + 70),
 		fontname = "FjallaOne",
-		fontsize = F(16),
+		fontsize = T(16),
 		alpha = talpha)
 	ptext.draw(
 		data["name"],
-		midtop = F(pimg[0], pimg[1] + 90),
+		midtop = T(pimg[0], pimg[1] + 90),
 		fontname = "FjallaOne",
-		fontsize = F(16),
+		fontsize = T(16),
 		color = "yellow",
 		alpha = talpha)
 	if settings.DEBUG:
-		pos = F(475, 5) if settings.portrait else F(849, 5)
-		ptext.draw("Encounter #%s\nAffects: %s" % (self.name, data["do"]), topright = pos, fontsize = F(32))
+		pos = T(475, 5) if settings.portrait else T(849, 5)
+		ptext.draw("Encounter #%s\nAffects: %s" % (self.name, data["do"]), topright = pos, fontsize = T(32))
 
 
 
