@@ -5,6 +5,10 @@ from . import settings, view, ptext, background, state, sound
 from . import scene, playscene, losescene, climaxscene, creditsscene, winscene
 from .util import F
 
+if settings.vidcap:
+	from . import vidcap
+
+
 pygame.init()
 view.init()
 background.init()

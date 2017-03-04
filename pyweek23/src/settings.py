@@ -18,6 +18,7 @@ for arg in sys.argv:
 		forceres = True
 lowres = "--lowres" in sys.argv
 restart = "--restart" in sys.argv
+vidcap = "--vidcap" in sys.argv
 
 screenshotdir = "screenshots"
 savedir = "save"
