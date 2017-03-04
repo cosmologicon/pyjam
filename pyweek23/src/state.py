@@ -1,5 +1,6 @@
 from __future__ import division
-import math, random, pygame, bisect, os.path, settings, os
+import math, random, pygame, bisect, os.path, os
+from . import settings
 try:
     import cPickle as pickle
 except ImportError:
@@ -20,12 +21,14 @@ vshots = 3
 missiletime = 0.6
 cshottime = 1
 rmagnet = 200
+miracle = False
 
 tslow = 0
 tinvulnerable = 0
 dtinvulnerable = 1.5
 tlose = 0
 twin = 0
+downgraded = False
 
 apickup = 0
 
@@ -39,28 +42,36 @@ good = False
 best = False
 
 def downgrade(name):  # or upgrade
-	global hp0, hp, cshottime, companion, shieldhp0, shieldhp, missiletime, vshots, chargetime, dtinvulnerable
+	global hp0, hp, cshottime, companion, shieldhp0, shieldhp, missiletime, vshots, chargetime, dtinvulnerable, downgraded
 	if name == "hp":
 		hp0 -= 3
 		hp = max(hp, hp0)
+		downgraded = True
 	if name == "cshot":
 		cshottime = 1e12
+		downgraded = True
 	if name == "companion":
 		companion = False
+		downgraded = True
 	if name == "shield":
 		shieldhp0 -= 1
 		shieldhp = max(shieldhp, shieldhp0)
+		downgraded = True
 	if name == "missile":
 		missiletime = 1e12
+		downgraded = True
 	if name == "vshot":
 		vshots = 0
+		downgraded = True
 	if name == "charge":
 		dtinvulnerable = 0.6
+		downgraded = True
 	if name == "upgrade":
 		hp = hp0 = 5
 		cshottime = 1
 		companion = True
-		shieldhp = shieldhp0 = 2
+		shieldhp0 = 4 if miracle else 2
+		shieldhp = shieldhp0
 		missiletime = 0.6
 		vshots = 3
 		chargetime = 3
@@ -106,8 +117,21 @@ def getcollisions(A, B):
 			j += 1
 
 def think(dt):
-	global xoffset, tslow, tinvulnerable, tlose, twin, shieldhp
+	global xoffset, tslow, tinvulnerable, tlose, twin
+	global shieldhp, shieldhp0, miracle, apickup0, shieldrate
 	from . import scene, losescene
+	if settings.miracle and not miracle:
+		miracle = True
+		shieldhp += 2
+		shieldhp0 += 2
+		apickup0 /= 2
+		shieldrate *= 2
+	elif miracle and not settings.miracle:
+		miracle = False
+		shieldhp -= 2
+		shieldhp0 -= 2
+		apickup0 *= 2
+		shieldrate -= 2
 	tslow = max(tslow - dt, 0)
 	if tslow > 0:
 		dt /= min(3, 1 + 2 * tslow)
@@ -146,7 +170,7 @@ def think(dt):
 			removequicksave()
 	elif not waves and not bosses and not spawners:
 		twin += dt
-		import thing
+		from . import thing
 		for b in badbullets:
 			corpses.append(thing.Corpse(x = b.x, y = b.y, r = b.r, lifetime = 1))
 			b.alive = False
@@ -198,6 +222,7 @@ def draw():
 
 def takedamage(damage):
 	global hp, tinvulnerable, shieldhp
+	from . import sound
 	if tinvulnerable:
 		return
 	while shieldhp >= 1 and damage:
@@ -208,6 +233,10 @@ def takedamage(damage):
 	you.iflash = tinvulnerable
 	if hp <= 0:
 		you.die()
+		sound.playsfx("you-die")
+	else:
+		sound.playsfx("you-hurt")
+		
 
 def heal(amount):
 	global hp
@@ -216,7 +245,7 @@ def heal(amount):
 apickup0 = 30
 def addapickup(amount, who):
 	global apickup
-	import thing
+	from . import thing
 	old = apickup
 	apickup += amount
 	if old < apickup0 and apickup >= apickup0:
@@ -233,7 +262,7 @@ def spawnpickup(who, ptype):
 	pickups.append(ptype(x = x, y = y, vx = vx, vy = vy, ax = -200))
 
 def addmedusa():
-	import thing
+	from . import thing
 	boss = thing.Medusa(x = 600, y = 0, xtarget = 320)
 	bosses.append(boss)
 	for jtheta in (0, 1, 2):
@@ -248,12 +277,12 @@ def addmedusa():
 			enemies.append(snake)
 
 def addegret():
-	import thing
+	from . import thing
 	boss = thing.Egret(x = 600, y = 0, xtarget0 = 280)
 	bosses.append(boss)
 
 def addduckwave(x0, y0, nx, ny, steps):
-	import thing
+	from . import thing
 	dxs, dys, dts = [], [], []
 	r = 50
 	for jx in range(nx):
@@ -267,7 +296,7 @@ def addduckwave(x0, y0, nx, ny, steps):
 		enemies.append(obj)
 
 def addturkeywave(x0, y0, nx, ny, steps):
-	import thing
+	from . import thing
 	dxs, dys, dts = [], [], []
 	r = 100
 	for jx in range(nx):
@@ -281,7 +310,7 @@ def addturkeywave(x0, y0, nx, ny, steps):
 		enemies.append(obj)
 
 def addheronwave(n, dt):
-	import thing
+	from . import thing
 	vx = -20
 	x0 = 600
 	for j in range(n):
@@ -290,7 +319,7 @@ def addheronwave(n, dt):
 		enemies.append(obj)
 
 def addrockwave(x0, y0, n, spread):
-	import thing
+	from . import thing
 	for j in range(n):
 		x = random.gauss(x0, 0.4 * spread)
 		y = random.gauss(y0, spread)
@@ -362,6 +391,7 @@ def startup():
 	scene.push(playscene, 1)
 
 def loadandrun():
+	global saved, met
 	from . import scene, playscene
 	scene.quit()
 	pfile = os.path.join(settings.savedir, settings.progressfile)
@@ -369,6 +399,11 @@ def loadandrun():
 		load(pfile)
 		scene.push(playscene, stage)
 	else:
+		reset()
+		if settings.miracle:
+			msaved, mmet = getmsave()
+			saved |= msaved
+			met |= mmet
 		scene.push(playscene, 1)
 
 def deleteprogress():

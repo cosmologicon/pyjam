@@ -59,7 +59,14 @@ def draw():
 def makewaves():
 	if state.stage == 1:
 		state.waves = [
-			[0, adddplayer, "intro"],
+#			[0, addcapsule, 1, 0, -200, 0, 0],
+#			[0, addcapsule, 2, 0, -150, 0, 0],
+#			[0, addcapsule, 3, 0, -100, 0, 0],
+#			[0, addcapsule, 4, 0, -50, 0, 0],
+#			[0, addcapsule, 5, 0, 0, 0, 0],
+#			[0, addcapsule, 6, 0, 50, 0, 0],
+#			[0, addcapsule, "X", 0, 100, 0, 0],
+			[3, adddplayer, "intro"],
 			[0, state.addduckwave, 700, 500, 4, 4, [
 				[0, 350, 100],
 				[4, 200, -200],
@@ -161,6 +168,8 @@ def makewaves():
 		]
 
 def addcapsule(name, x, y, vx, vy):
+	if str(name) in state.saved:
+		return
 	state.planets.append(thing.Capsule(name = name, x = x, y = y, vx = vx, vy = vy))
 	
 def addemu():
@@ -189,13 +198,15 @@ def addasteroids(n, x0, j0 = 0):
 		dx, dy, dr, dvx = randomdata.rocks[j]
 		x = x0 + 200 * dx
 		y = (dy * 2 - 1) * state.yrange
-		r = 30 + 40 * dr
+		r = round((30 + 40 * dr) / 20) * 20
 		vx = -20 - 40 * dvx
 		vy = (dvx * 1000 % 1 * 2 - 1) * 2
 		rock = thing.Rock(x = x, y = y, vx = vx, vy = vy, r = r, hp = int(r * 0.7))
 		state.enemies.append(rock)
 
 def addbluerock(x, y, vx, vy):
+	if "X" in state.saved:
+		return
 	rock = thing.BlueRock(x = x, y = y, vx = vx, vy = vy)
 	state.enemies.append(rock)
 
@@ -215,7 +226,8 @@ def addclusterbombs(n, t, x0, y0, dx, dy, vx, vy):
 		state.badbullets.append(thing.BadClusterBullet(x = x, y = y, vx = vx, vy = vy))
 		
 def addgabriel():
-	state.planets.append(thing.Gabriel(x = 500, y = 500))
+	if state.downgraded:
+		state.planets.append(thing.Gabriel(x = 500, y = 500))
 
 
 def adddplayer(name):

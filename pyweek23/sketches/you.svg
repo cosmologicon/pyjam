@@ -20,6 +20,18 @@
   <defs
      id="defs4904">
     <linearGradient
+       id="linearGradient5311-7"
+       inkscape:collect="always">
+      <stop
+         id="stop5321"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:1" />
+      <stop
+         id="stop5323"
+         offset="1"
+         style="stop-color:#967130;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
        inkscape:collect="always"
        id="linearGradient5485">
       <stop
@@ -82,6 +94,28 @@
        x2="166.41371"
        y2="262.67862"
        gradientTransform="matrix(1,0,0,-1,-2.2728432,609.19991)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5311-7"
+       id="radialGradient5317"
+       cx="614.4516"
+       cy="512.09161"
+       fx="614.4516"
+       fy="512.09161"
+       r="101.51448"
+       gradientTransform="matrix(1,0,0,0.44197798,0,312.81318)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5311-7"
+       id="radialGradient5331"
+       cx="594.69336"
+       cy="677.74915"
+       fx="594.69336"
+       fy="677.74915"
+       r="89.081345"
+       gradientTransform="matrix(1,0,0,0.33476842,0,410.40763)"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -90,9 +124,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8"
-     inkscape:cx="243.81429"
-     inkscape:cy="747.60106"
+     inkscape:zoom="1.4"
+     inkscape:cx="522.97891"
+     inkscape:cy="589.44048"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -120,7 +154,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -150,6 +184,106 @@
        style="fill:url(#radialGradient5491);fill-rule:evenodd;stroke:#a4a7ff;stroke-width:2.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
        d="m 250.26786,279.14791 c -10.44643,5.80357 -19.10714,12.85715 -27.05357,27.32144 6.54342,12.56734 16.07142,19.55357 26.96428,26.42857 11.96429,-6.51786 22.14286,-15.17857 28.03572,-26.42857 -5.98214,-11.875 -17.32143,-21.42858 -27.94643,-27.32144 z"
        id="path4935"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       sodipodi:type="star"
+       style="fill:#056fb0;fill-opacity:1;stroke:#a3a4ff;stroke-width:5.9000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4743"
+       sodipodi:sides="4"
+       sodipodi:cx="407.85715"
+       sodipodi:cy="205.93362"
+       sodipodi:r1="44.648571"
+       sodipodi:r2="21.780525"
+       sodipodi:arg1="-0.015998635"
+       sodipodi:arg2="0.79654536"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 452.5,205.21934 -29.41433,16.28616 -14.51424,29.07098 -16.28616,-29.41433 -29.07098,-14.51424 29.41433,-16.28616 14.51424,-29.07098 16.28616,29.41433 z"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/zap.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       d="m 452.5,205.21934 -33.89874,11.44461 -10.02983,33.91253 -11.44461,-33.89874 -33.91253,-10.02983 33.89874,-11.44461 10.02983,-33.91253 11.44461,33.89874 z"
+       inkscape:randomized="0"
+       inkscape:rounded="0"
+       inkscape:flatsided="false"
+       sodipodi:arg2="0.78475598"
+       sodipodi:arg1="-0.015998635"
+       sodipodi:r2="15.184723"
+       sodipodi:r1="44.648571"
+       sodipodi:cy="205.93362"
+       sodipodi:cx="407.85715"
+       sodipodi:sides="4"
+       id="path5285"
+       style="fill:#05458d;fill-opacity:1;stroke:#a3a4ff;stroke-width:5.9000001;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       sodipodi:type="star"
+       transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,-26.15847,348.71512)"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/zap.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:#059d86;fill-opacity:1;fill-rule:evenodd;stroke:#aaadff;stroke-width:3.20000005;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 275.04616,529.57315 c 0,0 52.96163,-46.63852 118.18187,-65.15547 -82.15863,-3.39176 -114.58927,36.20371 -172.50395,34.57587 18.62076,26.69774 54.32208,30.5796 54.32208,30.5796 z"
+       id="path5287"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/gabriel.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:nodetypes="cccc"
+       inkscape:connector-curvature="0"
+       id="path5289"
+       d="m 272.81494,587.39659 c 0,0 56.90775,41.7324 123.51883,54.36253 -81.52932,10.7011 -117.36005,-25.84622 -174.89914,-19.06289 16.16706,-28.25117 51.38031,-35.29964 51.38031,-35.29964 z"
+       style="fill:#05998a;fill-opacity:1;fill-rule:evenodd;stroke:#aaadff;stroke-width:3.20000005;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/gabriel.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:nodetypes="ccccc"
+       inkscape:connector-curvature="0"
+       id="path5291"
+       d="m 207.64134,560.97288 c 17.18605,-7.31321 45.96979,-29.17533 57.24813,-44.53307 62.29943,-5.26551 138.25686,44.34091 138.25686,44.34091 0,0 -66.62814,45.68239 -138.4157,41.14821 -9.30911,-13.16378 -40.08226,-33.05779 -57.08929,-40.95605 z"
+       style="fill:#057763;fill-opacity:1;fill-rule:evenodd;stroke:#97a2ff;stroke-width:3.53406024;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/gabriel.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:nodetypes="ccccc"
+       inkscape:connector-curvature="0"
+       id="path5293"
+       d="m 286.33929,532.71935 c -10.44643,5.80357 -19.10714,12.85715 -27.05357,27.32144 6.54342,12.56734 16.07142,19.55357 26.96428,26.42857 11.96429,-6.51786 22.14286,-15.17857 28.03572,-26.42857 -5.98214,-11.875 -17.32143,-21.42858 -27.94643,-27.32144 z"
+       style="fill:#05a28a;fill-opacity:1;fill-rule:evenodd;stroke:#a4a7ff;stroke-width:2.29999995;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/gabriel.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/cutter.png"
+       style="fill:url(#radialGradient5331);fill-opacity:1;fill-rule:evenodd;stroke:#aaadff;stroke-width:3.20000005;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 550.67208,588.82516 c 0,0 56.90775,41.7324 123.51883,54.36253 -81.52932,10.7011 -117.36005,-25.84622 -174.89914,-19.06289 16.16706,-28.25117 51.38031,-35.29964 51.38031,-35.29964 z"
+       id="path5305"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+    <path
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/cutter.png"
+       style="fill:url(#radialGradient5317);fill-opacity:1;fill-rule:evenodd;stroke:#97a2ff;stroke-width:3.53406024;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 485.49848,562.40145 c 17.18605,-7.31321 45.96979,-29.17533 57.24813,-44.53307 62.29943,-5.26551 138.25686,44.34091 138.25686,44.34091 0,0 -66.62814,45.68239 -138.4157,41.14821 -9.30911,-13.16378 -40.08226,-33.05779 -57.08929,-40.95605 z"
+       id="path5307"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek23/data/img/cutter.png"
+       style="fill:#050f17;fill-opacity:1;fill-rule:evenodd;stroke:#a4a7ff;stroke-width:2.29999995;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 564.19643,534.14792 c -10.44643,5.80357 -19.10714,12.85715 -27.05357,27.32144 6.54342,12.56734 16.07142,19.55357 26.96428,26.42857 11.96429,-6.51786 22.14286,-15.17857 28.03572,-26.42857 -5.98214,-11.875 -17.32143,-21.42858 -27.94643,-27.32144 z"
+       id="path5309"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc" />
   </g>

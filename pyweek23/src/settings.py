@@ -1,12 +1,12 @@
 import sys
 from pygame.locals import *
 
-gamename = "Lesser of Two Evils"
+gamename = "The Final Choice"
 
 minfps = 5
-maxfps = 120
+maxfps = 60
 
-DEBUG = True
+DEBUG = False
 
 fullscreen = "--fullscreen" in sys.argv
 portrait = "--portrait" in sys.argv
@@ -16,8 +16,15 @@ for arg in sys.argv:
 	if arg.startswith("--res="):
 		windowsize = int(arg[6:])
 		forceres = True
+if "--big" in sys.argv:
+	windowsize = 720
+	forceres = True
+if "--huge" in sys.argv:
+	windowsize = 1080
 lowres = "--lowres" in sys.argv
 restart = "--restart" in sys.argv
+nomusic = "--nomusic" in sys.argv
+nosound = "--nosound" in sys.argv
 vidcap = "--vidcap" in sys.argv
 
 screenshotdir = "screenshots"
@@ -30,7 +37,7 @@ swapaction = False
 miracle = "--miracle" in sys.argv
 tquicksave = 0 if "--noquicksave" in sys.argv else 5
 
-soundext = "wav"
+soundext = "ogg"
 
 controls = {
 	"left": [K_LEFT, K_a],

@@ -1,6 +1,6 @@
 from __future__ import division
-import pygame, math, random
-from . import view, ptext, state, util, image, settings
+import pygame, math, random, os.path
+from . import view, ptext, state, util, image, settings, sound
 from . import scene, visitscene
 from .enco import Component
 from .util import F
@@ -65,13 +65,13 @@ class Accelerates(Component):
 
 class CirclesRift(Component):
 	def __init__(self):
-		self.rrift = 200
+		self.rrift = 300
 		self.thetarift = 0
 	def setstate(self, **kw):
 		getattribs(self, kw, "rrift", "thetarift")
 		self.think(0)
 	def think(self, dt):
-		self.rrift = 1 + 200 * math.exp(-0.03 * self.t)
+		self.rrift = 1 + 300 * math.exp(-0.07 * self.t)
 		self.x = self.rrift * math.cos(self.thetarift) + 300
 		self.y = self.rrift * math.sin(self.thetarift) + 0
 		self.thetarift += 100 / self.rrift * dt
@@ -305,6 +305,7 @@ class FiresWithSpace(Component):
 				x = x0 + dx, y = y0 + dy, vx = 500, vy = 0, r = 3, damage = 1, lifetime = 0.2))
 			state.goodbullets.append(RangeGoodBullet(
 				x = x0 + dx, y = y0 - dy, vx = 500, vy = 0, r = 3, damage = 1, lifetime = 0.2))
+		sound.playsfx("shot")
 		self.tshot = 0
 	def draw(self):
 		charge = self.getcharge()
@@ -514,15 +515,17 @@ class SpawnsCanaries(Component):
 	def setstate(self, **kw):
 		getattribs(self, kw, "ncanary")
 		self.canaries = []
+		dt0 = 0
 		for jcanary in range(self.ncanary):
 			theta = jcanary * math.tau / self.ncanary
 			omega = 1.5
 			for r in (2, 3, 4):
-				canary = Canary(target = self, omega = omega, R = r * self.r, theta = theta)
+				canary = Canary(target = self, omega = omega, R = r * self.r, theta = theta, tbullet = dt0 * 4)
 				self.canaries.append(canary)
 				state.enemies.append(canary)
 				theta += math.phi * math.tau
 				omega /= -1.5
+			dt0 = (dt0 + math.phi) % 1
 	def think(self, dt):
 		if any(not s.alive for s in self.canaries):
 			self.yomega *= 1.2
@@ -618,6 +621,31 @@ class RoundhouseBullets(Component):
 			self.tbullet -= self.dtbullet
 			self.jbullet += 1
 
+class ShootsAtYou(Component):
+	def __init__(self, dtbullet = 4):
+		self.tbullet = 0
+		self.dtbullet = dtbullet
+		self.nbullet = 20
+		self.vbullet = 150
+		self.jbullet = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "tbullet")
+	def think(self, dt):
+		self.tbullet += dt
+		while self.tbullet >= self.dtbullet:
+			dx, dy = util.norm(state.you.x - self.x, state.you.y - self.y)
+			r = self.r + 2
+			bullet = BadBullet(
+				x = self.x + r * dx,
+				y = self.y + r * dy,
+				vx = self.vbullet * dx,
+				vy = self.vbullet * dy
+			)
+			state.badbullets.append(bullet)
+			self.tbullet -= self.dtbullet
+			self.jbullet += 1
+
+
 class ABBullets(Component):
 	def __init__(self, nbullet, dtbullet):
 		self.tbullet = 0
@@ -650,7 +678,7 @@ class Visitable(Component):
 		getattribs(self, kw, "name", "help")
 		self.name = str(self.name)
 	def visit(self):
-		if self.name in state.met:
+		if not self.alive:
 			return
 		state.met.add(self.name)
 		scene.push(visitscene, self.name)
@@ -708,6 +736,7 @@ class ClustersNearYou(Component):
 				)
 				state.badbullets.append(bullet)
 			self.alive = False
+			sound.play("boom")
 
 class HasHealth(Component):
 	def __init__(self, hp0, iflashmax = 1):
@@ -719,7 +748,11 @@ class HasHealth(Component):
 		if self.hp <= 0: return
 		self.hp -= damage
 		self.iflash = self.iflashmax
-		if self.hp <= 0: self.die()
+		if self.hp <= 0:
+			sound.playsfx("boss-die" if self in state.bosses else "enemy-die")
+			self.die()
+		else:
+			sound.playsfx("enemy-hurt")
 
 class LeavesCorpse(Component):
 	def die(self):
@@ -749,6 +782,7 @@ class Collectable(Component):
 			self.x += dx
 			self.y += dy
 	def collect(self):
+		sound.playsfx("get")
 		self.die()
 
 class HealsOnCollect(Component):
@@ -809,6 +843,30 @@ class DrawImage(Component):
 		scale = 0.01 * self.r * self.imgscale
 		cfilter = getcfilter(self.iflash) or self.cfilter0
 		image.Gdraw(self.imgname, pos = (self.x, self.y), scale = scale, cfilter = cfilter)
+		if settings.DEBUG:
+			pos = view.screenpos((self.x, self.y))
+			r = F(view.Z * self.r)
+			pygame.draw.circle(view.screen, (255, 0, 0), pos, r, F(1))
+
+class DrawTumblingRock(Component):
+	def __init__(self, cfilter0 = None):
+		self.cfilter0 = cfilter0
+		self.iflash = 0
+	def setstate(self, **kw):
+		getattribs(self, kw, "cfilter0", "iflash")
+		self.rtheta = random.random()
+		self.romega = random.choice([-1, 1]) * random.uniform(0.08, 0.25)
+	def think(self, dt):
+		self.iflash = max(self.iflash - dt, 0)
+		self.rtheta += self.romega * dt
+	def draw(self):
+		scale = 0.01 * self.r * 0.39 * 4
+		jframe = int(self.rtheta * 60) % 60 * 1
+		if settings.lowres:
+			jframe = 0
+		cfilter = getcfilter(self.iflash) or self.cfilter0
+		imgname = os.path.join("data", "rock", "main-%d.png" % jframe)
+		image.Gdraw(imgname, pos = (self.x, self.y), scale = scale, cfilter = cfilter, angle = 50)
 		if settings.DEBUG:
 			pos = view.screenpos((self.x, self.y))
 			r = F(view.Z * self.r)
@@ -931,7 +989,7 @@ class You(object):
 @Collides(5)
 @CirclesRift()
 @Tumbles(1)
-@DrawBox("him")
+@DrawAngleImage("cutter", 5)
 class Him(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -942,7 +1000,8 @@ class Him(object):
 @Lives()
 @Collides(4)
 @InfiniteHealth()
-@DrawBox("zap")
+@Tumbles(4)
+@DrawAngleImage("zap", 4)
 class Companion(object):
 	def __init__(self, **kw):
 		self.setstate(**kw)
@@ -978,11 +1037,11 @@ class Capsule(object):
 
 @WorldBound()
 @Lives()
-@Collides(16)
+@Collides(50)
 @LinearMotion()
 @SeeksYou(220)
 @InfiniteHealth()
-@DrawBox("gabriel")
+@DrawFacingImage("gabriel", 0.6)
 @Visitable(False)
 class Gabriel(object):
 	def __init__(self, vx = None, vy = None, **kw):
@@ -1068,7 +1127,8 @@ class GoodMissile(object):
 @SpawnsCanaries()
 @SpawnsHerons(8)
 @SpawnsClusterBullets(4)
-@DrawBox("hawk")
+@Tumbles(-0.5)
+@DrawAngleImage("hawk", 1.1)
 @LeavesCorpse()
 class Hawk(object):
 	def __init__(self, **kw):
@@ -1085,7 +1145,8 @@ class Hawk(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @SpawnsCobras()
-@DrawBox("medusa")
+@Tumbles(1)
+@DrawAngleImage("medusa", 1.5)
 @LeavesCorpse()
 class Medusa(object):
 	def __init__(self, **kw):
@@ -1101,7 +1162,8 @@ class Medusa(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @SpawnsClusterBullets(2)
-@DrawBox("emu")
+@Tumbles(0.4)
+@DrawAngleImage("heron", 1.5)
 @LeavesCorpse()
 class Emu(object):
 	def __init__(self, **kw):
@@ -1149,7 +1211,8 @@ class Swallow(object):
 @Collides(30)
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
-@DrawBox("canary")
+@DrawFacingImage("canary", 1.7)
+@ShootsAtYou()
 @LeavesCorpse()
 class Canary(object):
 	def __init__(self, **kw):
@@ -1227,7 +1290,7 @@ class Turkey(object):
 @DisappearsOffscreen(1000)
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
-@DrawBox("lark")
+@DrawFacingImage("canary", 1.7)
 @LeavesCorpse()
 class Lark(object):
 	def __init__(self, **kw):
@@ -1245,7 +1308,8 @@ class Lark(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @ABBullets(12, 3)
-@DrawBox("heron")
+@Tumbles(2)
+@DrawAngleImage("heron", 1.5)
 @LeavesCorpse()
 class Heron(object):
 	def __init__(self, **kw):
@@ -1260,7 +1324,7 @@ class Heron(object):
 @DisappearsOffscreen()
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
-@DrawImage("rock-0", 0.39)
+@DrawTumblingRock()
 @LeavesCorpse()
 class Rock(object):
 	def __init__(self, **kw):
@@ -1275,7 +1339,7 @@ class Rock(object):
 @HurtsOnCollision(2)
 @KnocksOnCollision(40)
 @SpawnsCapsule()
-@DrawImage("rock-0", 0.39, (0.7, 0.7, 1.0))
+@DrawTumblingRock((0.7, 0.7, 1.0))
 @LeavesCorpse()
 class BlueRock(object):
 	def __init__(self, **kw):

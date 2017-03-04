@@ -1,5 +1,5 @@
 import pygame
-from . import ptext, state, view, state, util, image
+from . import ptext, state, view, state, util, image, settings
 from .util import F
 
 def draw():
@@ -17,6 +17,7 @@ def draw():
 		imgname = "shield" if a == 1 or a * 20 % 2 > 1 else "health0"
 		pos = 20 + 16 * (jhp + state.hp0), 30
 		image.Fdraw(imgname, pos, scale = 0.3)
-		
-
+	if settings.miracle:
+		ptext.draw("Miracle Mode", topright = F(475 if settings.portrait else 850, 4),
+			fontsize = F(20), fontname = "Bungee", owidth = 1)
 

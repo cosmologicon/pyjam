@@ -19,6 +19,8 @@ ptext.FONT_NAME_TEMPLATE = os.path.join("data", "font", "%s.ttf")
 state.startup()
 #scene.push(playscene, 1)
 #scene.push(climaxscene)
+#state.met = set("12347XJG")
+#state.saved = set("1234JG")
 #scene.push(winscene)
 #scene.push(creditsscene)
 
@@ -52,6 +54,8 @@ while scene.stack:
 			"F11: toggle fullscreen",
 			"F12: screenshot",
 			"objsize: %d %d %d" % (len(state.goodbullets), len(state.badbullets), len(state.enemies)),
+			"met: " + "".join(sorted(state.met)),
+			"saved: " + "".join(sorted(state.saved)),
 			"%.1ffps" % clock.get_fps(),
 		])
 		h = 849 if settings.portrait else 475
@@ -86,10 +90,11 @@ while scene.stack:
 		state.gotostage(3)
 	if settings.DEBUG and K_4 in kdowns:
 		state.gotostage(4)
-	pygame.display.set_caption("%s - %.1ffps" % (settings.gamename, clock.get_fps()))
+	if settings.DEBUG and K_F8 in kdowns:
+		del state.bosses[:], state.waves[:], state.spawners[:]
+	#pygame.display.set_caption("%s - %.1ffps" % (settings.gamename, clock.get_fps()))
 
-print "Done"
-#pygame.quit()
+pygame.quit()
 
 
 
