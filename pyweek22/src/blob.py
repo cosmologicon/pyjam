@@ -26,7 +26,7 @@ def mote(R, h):
 	if key in hillcache:
 		return hillcache[key]
 	N = 2 * R
-	img = pygame.Surface((N, N)).convert()
+	img = pygame.Surface((N, N)).convert_alpha()
 	x2s = ((numpy.arange(N) + 0.5) * 2.0 / N - 1) ** 2
 	m = numpy.sqrt(x2s.reshape((1, N)) + x2s.reshape((N, 1)))
 	m = numpy.minimum(m, 1)

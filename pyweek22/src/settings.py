@@ -40,7 +40,7 @@ if "--noeffect" in sys.argv:
 	background = 0
 	virusbounce = False
 	drawblob = False
-
+cellshading = 1
 
 # Debug settings
 DEBUG = "--debug" in sys.argv
