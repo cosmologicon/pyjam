@@ -2,6 +2,7 @@ from . import view
 
 boards = {}
 crosscoords = {}
+blocks = []
 
 def addboard(board):
 	boards[board.name] = board

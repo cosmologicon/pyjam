@@ -1,5 +1,5 @@
 from __future__ import division
-import pygame, math
+import pygame, math, random
 from . import view, pview, enco, youstate, state
 from .pview import T
 
@@ -40,12 +40,39 @@ class LinearSpan(enco.Component):
 	def along(self, a):
 		return self.x + self.dx * a, self.y + self.dy * a, self.z
 
+	def blockedat(self, a):
+		p0 = view.to0(*self.along(a))
+		return any(block.z > self.z and block.contains0(p0) for block in state.blocks)
+
 	# Nearest position along this span in the 0 plane
 	def pos0along(self, p0):
 		f = self.fractionalong(p0)
 		g = 1 - f
 		return view.to0plane(g * self.x + f * self.x1, g * self.y + f * self.y1)
 
+
+class Polygonal(enco.Component):
+	def __init__(self):
+		self.ps = []
+	def setstate(self, ps, **args):
+		self.ps = ps
+		n = len(self.ps)
+		self.segments = [(self.ps[j], self.ps[(j + 1) % n]) for j in range(n)]
+	# Ray casting algorithm for point in polygon
+	def contains0(self, p0):
+		x0, y0 = p0
+		x, y = view.from0(x0, y0, self.z)
+		x -= self.x
+		y -= self.y
+		ncross = 0
+		for (x0, y0), (x1, y1) in self.segments:
+			dx0, dy0 = x0 - x, y0 - y
+			dx1, dy1 = x1 - x, y1 - y
+			if (dy0 >= 0) == (dy1 >= 0):
+				continue
+			xcross = (dx1 * dy0 - dx0 * dy1) / (dy0 - dy1)
+			ncross += xcross < 0
+		return ncross % 2 == 1
 
 class DrawYou(enco.Component):
 	def draw(self):
@@ -59,6 +86,15 @@ class DrawBoard(enco.Component):
 		pos0 = view.toscreen(self.x, self.y, self.z)
 		pos1 = view.toscreen(self.x1, self.y1, self.z)
 		pygame.draw.line(pview.screen, (255, 255, 0), pos0, pos1, T(3 * view.scale(self.z)))
+
+class DrawShield(enco.Component):
+	def setstate(self, scolor = None, **args):
+		self.scolor = scolor
+		if self.scolor is None:
+			self.scolor = [random.randint(100, 200) for _ in "rgb"]
+	def draw(self):
+		ps = [view.toscreen(self.x + dx, self.y + dy, self.z) for dx, dy in self.ps]
+		pygame.draw.polygon(pview.screen, self.scolor, ps)
 
 @WorldBound()
 @DrawYou()
@@ -74,6 +110,15 @@ class Board(object):
 	def __init__(self, **args):
 		self.setstate(**args)
 		self.name = "%f,%f,%f,%f,%f" % (self.x, self.y, self.x1, self.y1, self.z)
+	def think(self, dt):
+		pass
+
+@WorldBound()
+@Polygonal()
+@DrawShield()
+class Block(object):
+	def __init__(self, **args):
+		self.setstate(**args)
 	def think(self, dt):
 		pass
 

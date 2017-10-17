@@ -32,6 +32,8 @@ def scale(z):
 def to0(x, y, z):
 	s = scale(z)
 	return (x - X0) * s + X0, (y - Y0) * s + Y0
+def from0(x0, y0, z):
+	return to0(x0, y0, -z)
 
 # Given an (x, y, z) position, return the position (x0, y0) such that the current screen position of
 # (x, y, z) is the same as the screen position of (x0, y0, 0) when (X0, Y0) = (0, 0).

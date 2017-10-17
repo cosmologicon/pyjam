@@ -13,6 +13,10 @@ def init():
 	state.addboard(thing.Board(x = 0, y = -10, x1 = 50, y1 = 10, z = 0))
 	state.addboard(thing.Board(x = 0, y = 20, x1 = 36, y1 = 20, z = 0))
 
+	state.blocks.append(thing.Block(x = 30, y = 0, z = 1, ps = [(-5, -5), (0, 5), (5, -5)]))
+	state.blocks.append(thing.Block(x = 10, y = 0, z = 20, ps = [(-1, -60), (0, 60), (1, -60)]))
+
+
 def think(dt, kdowns, kpressed):
 	state.you.control(kdowns, kpressed)
 	state.think(dt)
@@ -22,7 +26,9 @@ def think(dt, kdowns, kpressed):
 def draw():
 	pview.fill((0, 0, 0))
 	state.you.draw()
-	for b in state.boards.values():
-		b.draw()
+	objs = list(state.boards.values()) + list(state.blocks)
+	objs.sort(key = lambda obj: obj.z)
+	for obj in objs:
+		obj.draw()
 
 

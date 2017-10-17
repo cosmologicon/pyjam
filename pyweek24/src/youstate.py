@@ -1,5 +1,12 @@
 # State machine for the player character
 
+# The player character (you) at any given time has a state (you.state) that controls certain
+# behavior. This is confusingly named, as it's separate from the state module, which controls the
+# overall state of the game objects.
+
+# Player state classes are never instantiated. They have static methods that act on the player
+# object (referred to as self).
+
 import pygame
 from . import enco, state, view
 
@@ -61,6 +68,10 @@ class Running(BaseState):
 	@staticmethod
 	def resolve(self):
 		if not 0 <= self.boarda < 1:
+			self.enterstate(Falling)
+			self.vy = 0
+			return
+		if self.parent.blockedat(self.boarda):
 			self.enterstate(Falling)
 			self.vy = 0
 			return
