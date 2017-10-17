@@ -1,11 +1,13 @@
 from . import view
 
 boards = {}
+blefts = {}
 crosscoords = {}
 blocks = []
 
 def addboard(board):
 	boards[board.name] = board
+	blefts[(board.x, board.y, board.z)] = board
 
 def lastboard():
 	return max(boards.values(), key = lambda board: view.cameraat0(board.x, board.z, 0))

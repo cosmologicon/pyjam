@@ -50,6 +50,10 @@ class LinearSpan(enco.Component):
 		g = 1 - f
 		return view.to0plane(g * self.x + f * self.x1, g * self.y + f * self.y1)
 
+	# Any boards that begin exactly where this one ends (including in the same z-plane)
+	# None if there is no such board.
+	def handoff(self):
+		return state.blefts.get((self.x1, self.y1, self.z))
 
 class Polygonal(enco.Component):
 	def __init__(self):

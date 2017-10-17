@@ -71,14 +71,18 @@ class Running(BaseState):
 		self.boarda += 12 * dt / self.parent.d
 	@staticmethod
 	def resolve(self):
-		if not 0 <= self.boarda < 1:
+		if not 0 <= self.boarda or self.parent.blockedat(self.boarda):
 			self.enterstate(Falling)
 			self.vy = 0
 			return
-		if self.parent.blockedat(self.boarda):
-			self.enterstate(Falling)
-			self.vy = 0
-			return
+		if not self.boarda < 1:
+			nextparent = self.parent.handoff()
+			if nextparent is None:
+				self.enterstate(Falling)
+				self.vy = 0
+				return
+			self.parent = nextparent
+			self.boarda -= 1
 		self.x, self.y = view.to0(*self.parent.along(self.boarda))
 		catchers = [(self.y, self.parent.name, self.boarda)]
 		for boardname, a0, b0, a1, b1 in state.crossings:

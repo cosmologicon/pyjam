@@ -4,6 +4,13 @@ from __future__ import division, print_function
 import pygame, random, math
 from . import view, pview
 
+surfs = {}
+tick = { None: 0 }
+
+def countusage(key):
+	tick[key] = tick[None]
+	tick[None] += 1
+
 # TODO: add to maff
 def vmix(x, y, a):
 	return tuple(math.mix(p, q, a) for p, q in zip(x, y))
@@ -41,6 +48,10 @@ def splitspec(layers, n = 100):
 			yield f, top0, top1, bottom0, bottom1
 
 def getsurf(spec, z):
+	key = spec, z, pview.f
+	if key in surfs:
+		countusage(key)
+		return surfs[key]
 	ps = [p for layer in spec for p in layer]
 	ps = [view.screenoffset(x, y, z) for x, y in ps]
 	xs, ys = zip(*ps)
@@ -57,7 +68,9 @@ def getsurf(spec, z):
 		color = int(80 + 60 * f), int(40 + 30 * f), 0
 		pygame.draw.polygon(surf, color, rps)
 #		pygame.draw.line(surf, (255, 255, 0), rps[1], rps[2], 5)
- 	return surf, (x0, y0)
+	surfs[key] = surf, (x0, y0)
+	countusage[key]
+ 	return surfs[key]
 
 def drawhill(p, spec):
 	x, y, z = p
