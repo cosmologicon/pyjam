@@ -7,6 +7,9 @@ blocks = []
 def addboard(board):
 	boards[board.name] = board
 
+def lastboard():
+	return max(boards.values(), key = lambda board: view.cameraat0(board.x, board.z, 0))
+
 def think(dt):
 	view.X0 += 12 * dt
 	you.think(dt)

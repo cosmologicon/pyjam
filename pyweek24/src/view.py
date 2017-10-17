@@ -45,6 +45,18 @@ def toscreen(gx, gy, gz = 0):
 	x, y = to0plane(gx, gy, gz)
 	return T(pview.centerx0 + 10 * x, pview.centery0 - 10 * y)
 
+def screenoffset(dx, dy, z):
+	s = scale(z) * 10
+	return T(dx * s, -dy * s)
+
+# The value of X0 at which the given x-coordinate in the z plane is at the same horizontal screen
+# position of the given x0-coordinate in the 0 plane at X0 = 0.
+def cameraat0(x, z, x0):
+	return x - x0 / scale(z)
+# When the camera is at X0, the value of x in the z-plane that's at the same horizontal screen
+# position as x = x0 in the 0 plane.
+def atcamera(X0, z, x0):
+	return X0 + x0 / scale(z)
 
 if __name__ == "__main__":
 	from . import maff

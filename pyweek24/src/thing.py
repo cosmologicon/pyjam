@@ -109,7 +109,7 @@ class You(object):
 class Board(object):
 	def __init__(self, **args):
 		self.setstate(**args)
-		self.name = "%f,%f,%f,%f,%f" % (self.x, self.y, self.x1, self.y1, self.z)
+		self.name = (self.x, self.y, self.x1, self.y1, self.z)
 	def think(self, dt):
 		pass
 

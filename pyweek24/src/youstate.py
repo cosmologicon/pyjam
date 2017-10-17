@@ -8,7 +8,7 @@
 # object (referred to as self).
 
 import pygame
-from . import enco, state, view
+from . import enco, state, view, settings
 
 class BaseState(object):
 	@staticmethod
@@ -32,6 +32,8 @@ class Falling(BaseState):
 	def control(self, kdowns, kpressed):
 		if pygame.K_SPACE in kdowns:
 			self.vy = 20
+		if settings.DEBUG and pygame.K_BACKSPACE in kdowns:
+			self.enterstate(Dying)
 	@staticmethod
 	def think(self, dt):
 		a = 50
@@ -43,7 +45,7 @@ class Falling(BaseState):
 		catchers = []
 		for boardname, a0, b0, a1, b1 in state.crossings:
 			a = (a1 * b0 - a0 * b1) / (b0 - b1)
-			if not 0 <= a < 1:
+			if not 0 <= a < 1 or state.boards[boardname].blockedat(a):
 				continue
 			x, y = view.to0(*state.boards[boardname].along(a))
 			catchers.append((y, boardname, a))
@@ -62,6 +64,8 @@ class Running(BaseState):
 		if pygame.K_SPACE in kdowns:
 			self.vy = 20
 			self.enterstate(Falling)
+		if settings.DEBUG and pygame.K_BACKSPACE in kdowns:
+			self.enterstate(Dying)
 	@staticmethod
 	def think(self, dt):
 		self.boarda += 12 * dt / self.parent.d
@@ -79,7 +83,7 @@ class Running(BaseState):
 		catchers = [(self.y, self.parent.name, self.boarda)]
 		for boardname, a0, b0, a1, b1 in state.crossings:
 			a = (a1 * b0 - a0 * b1) / (b0 - b1)
-			if not 0 <= a < 1:
+			if not 0 <= a < 1 or state.boards[boardname].blockedat(a):
 				continue
 			x, y = view.to0(*state.boards[boardname].along(a))
 			catchers.append((y, boardname, a))
@@ -88,6 +92,18 @@ class Running(BaseState):
 		y, boardname, a = max(catchers)
 		if boardname != self.parent.name:
 			self.enterstate(Running, state.boards[boardname], a)
+
+class Dying(BaseState):
+	@staticmethod
+	def enter(self):
+		self.vy = 20
+		self.vx = -2
+	@staticmethod
+	def think(self, dt):
+		a = 100
+		self.y += self.vy * dt - 0.5 * a * dt ** 2
+		self.vy -= a * dt
+		self.x += self.vx * dt
 
 class YouStates(enco.Component):
 	def setstate(self, state = Falling, **args):
