@@ -1,12 +1,28 @@
-from . import pview
+import random
+from . import view, pview, state, thing
 
 def init():
-	pass
+	state.you = thing.You(x = 0, y = 0, z = 0)
+	for x in range(0, 400, 10000):
+		z = random.uniform(-20, 20)
+		dx = random.uniform(30, 60) / view.scale(z)
+		y = random.uniform(-20, 10)
+		dy = random.uniform(-5, 5)
+#		state.addboard(thing.Board(x = x, y = y, x1 = x + dx, y1 = y + dy, z = z))
+	state.addboard(thing.Board(x = 0, y = 0, x1 = 36, y1 = 0, z = 10))
+	state.addboard(thing.Board(x = 0, y = -10, x1 = 50, y1 = 10, z = 0))
+	state.addboard(thing.Board(x = 0, y = 20, x1 = 36, y1 = 20, z = 0))
 
 def think(dt, kdowns, kpressed):
-	pass
+	state.you.control(kdowns, kpressed)
+	state.think(dt)
+	state.resolve()
+	
 
 def draw():
 	pview.fill((0, 0, 0))
+	state.you.draw()
+	for b in state.boards.values():
+		b.draw()
 
 
