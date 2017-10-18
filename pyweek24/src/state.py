@@ -4,6 +4,8 @@ boards = {}
 blefts = {}
 crosscoords = {}
 blocks = []
+hills = []
+effects = []
 
 def addboard(board):
 	boards[board.name] = board
@@ -11,6 +13,12 @@ def addboard(board):
 
 def lastboard():
 	return max(boards.values(), key = lambda board: view.cameraat0(board.x, board.z, 0))
+
+def addhill(hill):
+	for board in hill.boards():
+		addboard(board)
+	blocks.append(hill.block())
+	hills.append(hill)
 
 def think(dt):
 	view.X0 += 12 * dt

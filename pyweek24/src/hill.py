@@ -3,6 +3,7 @@
 from __future__ import division, print_function
 import pygame, random, math
 from . import view, pview
+from .pview import T
 
 surfs = {}
 tick = { None: 0 }
@@ -47,19 +48,33 @@ def splitspec(layers, n = 100):
 			f = (f0 + f1 + f2 + f3) / 4 + random.uniform(-1, 1) * scatter
 			yield f, top0, top1, bottom0, bottom1
 
+def grasspos(layer, thickness):
+	for j in range(len(layer) - 1):
+		p0 = layer[j]
+		p1 = layer[j + 1]
+		d = math.distance(p0, p1)
+		n = int(d * thickness)
+		for j in range(n + 1):
+			x, y = vmix(p0, p1, j / n)
+			f = random.random() ** 2
+			yield 1 - f, x, y - 3 * f
+
 def getsurf(spec, z):
 	key = spec, z, pview.f
 	if key in surfs:
 		countusage(key)
 		return surfs[key]
+	s = view.scale(z)
 	ps = [p for layer in spec for p in layer]
 	ps = [view.screenoffset(x, y, z) for x, y in ps]
 	xs, ys = zip(*ps)
-	x0, y0 = min(xs), min(ys)
+	margin = T(6 * s)
+	x0, y0 = min(xs) - margin, min(ys) - margin
 	ps = [(x - x0, y - y0) for x, y in ps]
 	xs, ys = zip(*ps)
-	surf = pygame.Surface((max(xs), max(ys))).convert_alpha()
-	surf.fill((40, 40, 40, 255))
+	surf = pygame.Surface((max(xs) + margin, max(ys) + margin)).convert_alpha()
+	surf.fill((0, 0, 0, 0))
+#	surf.fill((40, 40, 40, 255))
 	for split in splitspec(spec):
 		f, top0, top1, bottom0, bottom1 = split
 		rps = bottom0, top0, top1, bottom1
@@ -68,8 +83,15 @@ def getsurf(spec, z):
 		color = int(80 + 60 * f), int(40 + 30 * f), 0
 		pygame.draw.polygon(surf, color, rps)
 #		pygame.draw.line(surf, (255, 255, 0), rps[1], rps[2], 5)
+	thickness = 20 * s
+	for f, cx, cy in sorted(grasspos(spec[0], thickness)):
+		f += random.uniform(-0.2, 0.2)
+		color = 40 + 40 * f, 100 + 100 * f, 40 + 40 * f
+		r = random.uniform(3, 6) * s
+		cx, cy = view.screenoffset(cx, cy, z)
+		pygame.draw.circle(surf, color, (int(cx) - x0, int(cy) - y0), T(r))
 	surfs[key] = surf, (x0, y0)
-	countusage[key]
+	countusage(key)
  	return surfs[key]
 
 def drawhill(p, spec):
@@ -81,25 +103,30 @@ def drawhill(p, spec):
 if __name__ == "__main__":
 	from . import maff
 	view.init()
-	pview.toggle_fullscreen()
-	drawhill((0, 0, 0), [
+#	pview.toggle_fullscreen()
+	drawhill((0, 0, 0), (
 		((-10, 10), (-5, 12), (5, 13), (15, 12)),
 		((-8, 0), (-3, -1), (7, -1), (15, 2)),
 		((-8, -12), (13, -14)),
 		((-20, -50), (20, -50)),
-	])
-	drawhill((30, 0, 0), [
+	))
+	drawhill((30, 0, 0), (
 		((-10, 10), (-5, 12), (5, 13), (15, 12)),
 		((-5, 3), (11, 6)),
 		((5, 0),),
-	])
-	drawhill((-30, 0, 0), [
+	))
+	drawhill((0, -15, 15), (
+		((-10, 10), (-5, 12), (5, 13), (15, 12)),
+		((-5, 3), (11, 6)),
+		((5, 0),),
+	))
+	drawhill((-30, 0, 0), (
 		((0, 25),),
 		((3, 10), (6, 11)),
 		((0, 0), (3, 0)),
 		((-6, -10), (-2, -12)),
 		((-7, -30), (-1, -30)),
-	])
+	))
 	pygame.display.flip()
 	while not any(event.type == pygame.KEYDOWN for event in pygame.event.get()):
 		pass

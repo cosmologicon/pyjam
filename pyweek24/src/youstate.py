@@ -84,6 +84,8 @@ class Running(BaseState):
 			self.parent = nextparent
 			self.boarda -= 1
 		self.x, self.y = view.to0(*self.parent.along(self.boarda))
+		return
+
 		catchers = [(self.y, self.parent.name, self.boarda)]
 		for boardname, a0, b0, a1, b1 in state.crossings:
 			a = (a1 * b0 - a0 * b1) / (b0 - b1)

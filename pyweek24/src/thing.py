@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import view, pview, enco, youstate, state
+from . import view, pview, enco, youstate, state, hill
 from .pview import T
 
 class WorldBound(enco.Component):
@@ -78,6 +78,29 @@ class Polygonal(enco.Component):
 			ncross += xcross < 0
 		return ncross % 2 == 1
 
+class HillSpec(enco.Component):
+	def setstate(self, spec, **args):
+		self.spec = tuple(tuple(tuple(p) for p in layer) for layer in spec)
+	def boards(self):
+		layer = self.spec[0]
+		n = len(layer)
+		if n == 1:
+			return
+		for j in range(n-1):
+			x, y = layer[j]
+			x1, y1 = layer[j+1]
+			yield Board(
+				x = x + self.x, y = y + self.y,
+				x1 = x1 + self.x, y1 = y1 + self.y,
+				z = self.z)
+	def block(self):
+		midlayers = self.spec[1:-1]
+		ps = (list(self.spec[0]) + [layer[-1] for layer in midlayers] +
+			list(reversed(self.spec[-1])) + [layer[0] for layer in reversed(midlayers)])
+		return Block(x = self.x, y = self.y, ps = ps, z = self.z)
+	def draw(self):
+		hill.drawhill((self.x, self.y, self.z), self.spec)
+
 class DrawYou(enco.Component):
 	def draw(self):
 		px, py = self.screenpos()
@@ -125,4 +148,13 @@ class Block(object):
 		self.setstate(**args)
 	def think(self, dt):
 		pass
+
+@WorldBound()
+@HillSpec()
+class Hill(object):
+	def __init__(self, **args):
+		self.setstate(**args)
+	def think(self, dt):
+		pass
+	
 
