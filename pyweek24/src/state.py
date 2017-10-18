@@ -1,3 +1,4 @@
+import pygame, math
 from . import view
 
 boards = {}
@@ -6,6 +7,8 @@ crosscoords = {}
 blocks = []
 hills = []
 effects = []
+
+youftarget = 0
 
 def addboard(board):
 	boards[board.name] = board
@@ -20,9 +23,23 @@ def addhill(hill):
 	blocks.append(hill.block())
 	hills.append(hill)
 
-def think(dt):
-	view.X0 += 12 * dt
+def think(dt, kdowns, kpressed):
+	global youftarget
+	kright = (1 if kpressed[pygame.K_RIGHT] else 0) - (1 if kpressed[pygame.K_LEFT] else 0)
+	if kright:
+		dftarget = 2 * dt * kright
+		youftarget = math.clamp(youftarget + dftarget, -1, 1)
+	else:
+		youftarget = math.softapproach(youftarget, 0, 4 * dt)
+	view.X0 += 24 * dt
 	you.think(dt)
+
+
+def youtargetspeed():
+	targetx0 = -30 + 15 * youftarget
+	x0, _ = view.to0plane(you.x, you.y, you.z)
+	dx = targetx0 - x0
+	return 24 + 2 * dx
 
 def resolve():
 	global crosscoords, crossings

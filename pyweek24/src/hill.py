@@ -115,15 +115,26 @@ specs = {
 	),
 	"level": (
 		((-10, 0), (10, 0)),
-		((-10, -10), (12, -12)),
-		((-15, -30), (12, -30)),
+		((-10, -10), (11, -12)),
+		((-12, -30), (11, -30)),
+	),
+	"widelevel": (
+		((-50, 0), (50, 0)),
+		((-50.2, -10), (49.6, -9)),
+		((-51.0, -20), (50, -21)),
+		((-53, -30), (51.5, -30)),
+	),
+	"incline": (
+		((-10, -2), (-5, -1.5), (5, 1.5), (10, 2)),
+		((-10, -10), (11, -12)),
+		((-12, -30), (11, -30)),
 	),
 }
 def getspec(h):
 	fx = math.exp(h["sx"] * 0.125) * (-1 if h["xflip"] else 1)
 	fy = math.exp(h["sy"] * 0.125)
 	return tuple(
-		tuple((x * fx, y * fy) for x, y in layer)
+		tuple((x * fx, y * fy) for x, y in (reversed(layer) if h["xflip"] else layer))
 		for layer in specs[h["specname"]]
 	)
 

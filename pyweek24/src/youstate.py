@@ -39,7 +39,8 @@ class Falling(BaseState):
 		a = 50
 		self.y += self.vy * dt - 0.5 * a * dt ** 2
 		self.vy -= a * dt
-		self.x += 12 * dt
+		vx = state.youtargetspeed()
+		self.x += vx * dt
 	@staticmethod
 	def resolve(self):
 		catchers = []
@@ -68,7 +69,11 @@ class Running(BaseState):
 			self.enterstate(Dying)
 	@staticmethod
 	def think(self, dt):
-		self.boarda += 12 * dt / self.parent.d
+		vx = state.youtargetspeed()
+		slopefactor = 1 - 1 * (self.parent.y1 - self.parent.y) / (self.parent.x1 - self.parent.x)
+		slopefactor = max(slopefactor, 0.25)
+		vx *= slopefactor
+		self.boarda += vx * dt / self.parent.d
 	@staticmethod
 	def resolve(self):
 		if not 0 <= self.boarda or self.parent.blockedat(self.boarda):
