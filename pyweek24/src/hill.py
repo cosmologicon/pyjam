@@ -56,7 +56,7 @@ def grasspos(layer, thickness):
 		n = int(d * thickness)
 		for j in range(n + 1):
 			x, y = vmix(p0, p1, j / n)
-			f = random.random() ** 2
+			f = random.random() ** 2.5
 			yield 1 - f, x, y - 3 * f
 
 def getsurf(spec, z):
@@ -83,10 +83,10 @@ def getsurf(spec, z):
 		color = int(80 + 60 * f), int(40 + 30 * f), 0
 		pygame.draw.polygon(surf, color, rps)
 #		pygame.draw.line(surf, (255, 255, 0), rps[1], rps[2], 5)
-	thickness = 20 * s
+	thickness = 20
 	for f, cx, cy in sorted(grasspos(spec[0], thickness)):
 		f += random.uniform(-0.2, 0.2)
-		color = 40 + 40 * f, 100 + 100 * f, 40 + 40 * f
+		color = 20 + 20 * f, 50 + 50 * f, 20 + 20 * f
 		r = random.uniform(3, 6) * s
 		cx, cy = view.screenoffset(cx, cy, z)
 		pygame.draw.circle(surf, color, (int(cx) - x0, int(cy) - y0), T(r))
@@ -99,6 +99,34 @@ def drawhill(p, spec):
 	surf, (dx, dy) = getsurf(spec, z)
 	px, py = view.toscreen(x, y, z)
 	pview.screen.blit(surf, (px + dx, py + dy))
+
+
+specs = {
+	"island": (
+		((-10, 1), (-5, 3), (5, 3), (10, 1)),
+		((-7, -3), (0, -5), (7, -3)),
+		((0, -7),),
+	),
+	"oval": (
+		((-10, 11), (-5, 15), (0, 16), (5, 16), (10, 11)),
+		((-15, 0), (-12, 2), (-4, 3), (4, 1), (8, -2), (10, -5)),
+		((-20, -15), (0, -15), (9, -17)),
+		((-25, -30), (8, -30)),
+	),
+	"level": (
+		((-10, 0), (10, 0)),
+		((-10, -10), (12, -12)),
+		((-15, -30), (12, -30)),
+	),
+}
+def getspec(h):
+	fx = math.exp(h["sx"] * 0.125) * (-1 if h["xflip"] else 1)
+	fy = math.exp(h["sy"] * 0.125)
+	return tuple(
+		tuple((x * fx, y * fy) for x, y in layer)
+		for layer in specs[h["specname"]]
+	)
+
 
 if __name__ == "__main__":
 	from . import maff
