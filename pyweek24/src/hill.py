@@ -15,6 +15,8 @@ def countusage(key):
 # TODO: add to maff
 def vmix(x, y, a):
 	return tuple(math.mix(p, q, a) for p, q in zip(x, y))
+def colormix(x, y, a):
+	return tuple(int(math.clamp(math.mix(p, q, a), 0, 255)) for p, q in zip(x, y))
 
 def splitlayer(layer, n = 20):
 	if len(layer) == 1:
@@ -33,7 +35,7 @@ def splitlayer(layer, n = 20):
 	return sorted(splits)
 	
 
-def splitspec(layers, n = 100):
+def splitspec(layers, n = 20):
 	nlayer = len(layers)
 	slayers = [splitlayer(layer, n) for layer in layers]
 	scatter = 0.2 * n ** -0.5
@@ -59,8 +61,8 @@ def grasspos(layer, thickness):
 			f = random.random() ** 2.5
 			yield 1 - f, x, y - 3 * f
 
-def getsurf(spec, z):
-	key = spec, z, pview.f
+def getsurf(spec, z, color0 = (40, 20, 0), color1 = (150, 70, 0)):
+	key = spec, z, color0, color1, pview.f
 	if key in surfs:
 		countusage(key)
 		return surfs[key]
@@ -75,14 +77,27 @@ def getsurf(spec, z):
 	surf = pygame.Surface((max(xs) + margin, max(ys) + margin)).convert_alpha()
 	surf.fill((0, 0, 0, 0))
 #	surf.fill((40, 40, 40, 255))
-	for split in splitspec(spec):
+	for split in splitspec(spec, 10):
 		f, top0, top1, bottom0, bottom1 = split
 		rps = bottom0, top0, top1, bottom1
 		rps = [view.screenoffset(x, y, z) for x, y in rps]
 		rps = [(x - x0, y - y0) for x, y in rps]
-		color = int(80 + 60 * f), int(40 + 30 * f), 0
+		color = colormix(color0, color1, f)
 		pygame.draw.polygon(surf, color, rps)
 #		pygame.draw.line(surf, (255, 255, 0), rps[1], rps[2], 5)
+	for nsplit in (5, 6, 7, 8, 9):
+		subsurf = pygame.Surface(surf.get_size()).convert_alpha()
+		subsurf.fill((0, 0, 0, 0))
+		for split in splitspec(spec, nsplit):
+			f, top0, top1, bottom0, bottom1 = split
+			rps = bottom0, top0, top1, bottom1
+			rps = [view.screenoffset(x, y, z) for x, y in rps]
+			rps = [(x - x0, y - y0) for x, y in rps]
+			color = colormix(color0, color1, f)
+			pygame.draw.polygon(subsurf, color, rps)
+		pygame.surfarray.pixels_alpha(subsurf)[:,:] //= 3
+		surf.blit(subsurf, (0, 0))
+
 	thickness = 20
 	for f, cx, cy in sorted(grasspos(spec[0], thickness)):
 		f += random.uniform(-0.2, 0.2)

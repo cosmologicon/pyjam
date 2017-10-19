@@ -36,7 +36,7 @@ def think(dt, kdowns, kpressed):
 
 
 def youtargetspeed():
-	targetx0 = -30 + 15 * youftarget
+	targetx0 = -30 + 10 * youftarget
 	x0, _ = view.to0plane(you.x, you.y, you.z)
 	dx = targetx0 - x0
 	return 24 + 2 * dx

@@ -8,7 +8,7 @@
 # object (referred to as self).
 
 import pygame
-from . import enco, state, view, settings
+from . import enco, state, view, pview, settings, drawyou
 
 class BaseState(object):
 	@staticmethod
@@ -24,6 +24,9 @@ class BaseState(object):
 	def resolve(self):
 		pass
 	@staticmethod
+	def draw(self):
+		pass
+	@staticmethod
 	def exit(self):
 		pass
 
@@ -31,12 +34,13 @@ class Falling(BaseState):
 	@staticmethod
 	def control(self, kdowns, kpressed):
 		if pygame.K_SPACE in kdowns:
-			self.vy = 20
+			self.vy = 30
 		if settings.DEBUG and pygame.K_BACKSPACE in kdowns:
 			self.enterstate(Dying)
+		self.slowfall = kpressed[pygame.K_SPACE]
 	@staticmethod
 	def think(self, dt):
-		a = 50
+		a = 60 if self.slowfall else 160
 		self.y += self.vy * dt - 0.5 * a * dt ** 2
 		self.vy -= a * dt
 		vx = state.youtargetspeed()
@@ -54,26 +58,32 @@ class Falling(BaseState):
 			return
 		y, boardname, a = max(catchers)
 		self.enterstate(Running, state.boards[boardname], a)
+	@staticmethod
+	def draw(self):
+		pass
 
 class Running(BaseState):
 	@staticmethod
 	def enter(self, parent, a):
 		self.parent = parent
 		self.boarda = a
+		self.tdraw = 0
 	@staticmethod
 	def control(self, kdowns, kpressed):
 		if pygame.K_SPACE in kdowns:
-			self.vy = 20
+			self.vy = 30
 			self.enterstate(Falling)
 		if settings.DEBUG and pygame.K_BACKSPACE in kdowns:
 			self.enterstate(Dying)
 	@staticmethod
 	def think(self, dt):
 		vx = state.youtargetspeed()
-		slopefactor = 1 - 1 * (self.parent.y1 - self.parent.y) / (self.parent.x1 - self.parent.x)
+		slopefactor = 1 - 0.5 * (self.parent.y1 - self.parent.y) / (self.parent.x1 - self.parent.x)
 		slopefactor = max(slopefactor, 0.25)
 		vx *= slopefactor
 		self.boarda += vx * dt / self.parent.d
+		self.tdraw += 2 * dt * vx / 24
+		self.tdraw %= 1
 	@staticmethod
 	def resolve(self):
 		if not 0 <= self.boarda or self.parent.blockedat(self.boarda):
@@ -103,6 +113,9 @@ class Running(BaseState):
 		y, boardname, a = max(catchers)
 		if boardname != self.parent.name:
 			self.enterstate(Running, state.boards[boardname], a)
+	@staticmethod
+	def draw(self):
+		drawyou.running(self.screenpos(), 8 * pview.f, self.tdraw)
 
 class Dying(BaseState):
 	@staticmethod
@@ -124,6 +137,8 @@ class YouStates(enco.Component):
 		self.state.control(self, kdowns, kpressed)
 	def think(self, dt):
 		self.state.think(self, dt)
+	def draw(self):
+		self.state.draw(self)
 	def resolve(self):
 		self.state.resolve(self)
 	def enterstate(self, state, *args, **kw):
