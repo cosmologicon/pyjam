@@ -1,7 +1,15 @@
 # Add a challenge segment to the state
 
-import json, math
+import json, math, os.path
 from . import state, view, thing, hill
+
+data = {}
+def getdata(cname):
+	if cname in data:
+		return data[cname]
+	data[cname] = json.load(open(os.path.join("leveldata", cname + ".json"), "r"))
+	return data[cname]
+
 
 def addchallenge(cname):
 	# Add connector hill to reset to 0
@@ -19,9 +27,8 @@ def addchallenge(cname):
 	state.addhill(thing.Hill(x = x0, y = 0, z = 0, spec = spec))
 
 	x0 += xend + 5
-	hills = json.load(open("leveldata/test.json", "r"))
-	for h in hills:
-		x = x0 * view.scale(h["z"]) + h["x"]
+	for h in getdata(cname):
+		x = x0 + h["x"]
 		state.addhill(thing.Hill(x = x, y = h["y"], z = h["z"],
 			spec = hill.getspec(h)))
 

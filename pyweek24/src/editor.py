@@ -88,7 +88,10 @@ while playing:
 		ptext.draw("%s,%s,%s\n%s/%s" % (h["x"], h["y"], h["z"], h["sx"], h["sy"]),
 			fontsize = T(16), centerx = px, top = py + T(4))
 
-	ptext.draw("%.1ffps" % clock.get_fps(), bottomleft = T(10, 470), fontsize = T(16))
+	pygame.draw.line(pview.screen, (255, 128, 0), view.toscreen(view.X0, -30, 0), view.toscreen(view.X0, 30, 0), 1)
+	pygame.draw.line(pview.screen, (255, 128, 0), view.toscreen(view.X0 - 30, -30, 0), view.toscreen(view.X0 - 30, 30, 0), 1)
+	text = "%s,%s\n%s\n%.1fps" % (view.X0, view.Y0, filename, clock.get_fps())
+	ptext.draw(text, bottomleft = T(10, 470), fontsize = T(20))
 
 	pygame.display.flip()
 	if pygame.K_ESCAPE in kdowns:

@@ -31,6 +31,7 @@ class LinearSpan(enco.Component):
 		self.y1 = y1
 		self.dx = self.x1 - self.x
 		self.dy = self.y1 - self.y
+		self.slope = self.dy / self.dx
 		self.d = math.length((self.dx, self.dy))
 		self.dhat = self.dhatx, self.dhaty = math.norm((self.dx, self.dy))
 		self.scale = view.scale(self.z)

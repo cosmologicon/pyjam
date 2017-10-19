@@ -35,11 +35,12 @@ def init():
 		]))
 	elif True:
 		import json, hill
-		hills = json.load(open("leveldata/test.json", "r"))
-		for h in hills:
-			state.addhill(thing.Hill(x = h["x"], y = h["y"], z = h["z"],
-				spec = hill.getspec(h)))
-		challenge.addchallenge(None)
+		state.addhill(thing.Hill(x = 0, y = 0, z = 0, spec = [
+			((-10, 0), (10, 0)),
+			((-10, -30), (10, -30)),
+		]))
+		challenge.addchallenge("backunder")
+		challenge.addchallenge("arcade")
 
 	state.effects.append(mist.Mist(20))
 	state.effects.append(mist.Mist(8))

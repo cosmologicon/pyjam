@@ -78,7 +78,7 @@ class Running(BaseState):
 	@staticmethod
 	def think(self, dt):
 		vx = state.youtargetspeed()
-		slopefactor = 1 - 0.5 * (self.parent.y1 - self.parent.y) / (self.parent.x1 - self.parent.x)
+		slopefactor = 1 - 0.5 * self.parent.slope
 		slopefactor = max(slopefactor, 0.25)
 		vx *= slopefactor
 		self.boarda += vx * dt / self.parent.d
