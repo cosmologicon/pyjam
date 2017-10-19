@@ -32,7 +32,8 @@ while playing:
 		pview.toggle_fullscreen()
 	currentscene.draw()
 	if settings.DEBUG:
-		ptext.draw("%.1ffps" % clock.get_fps(), bottomleft = T(10, 470), fontsize = T(16))
+		text = "X0 = %.1f\n%.1ffps" % (view.X0, clock.get_fps())
+		ptext.draw(text, bottomleft = T(10, 470), fontsize = T(16))
 
 	if pygame.K_F12 in kdowns:
 		pview.screenshot()

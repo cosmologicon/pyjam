@@ -1,9 +1,13 @@
 import random, math
 from . import view, pview, state, thing, mist, challenge, settings
 
+class self:
+	pass
+
 def init():
+	self.t = 0
 	state.reset()
-	state.you = thing.You(x = 0, y = 0, z = 0)
+	state.you = thing.You(x = -settings.lag, y = 0, z = 0)
 	if False:
 		state.addhill(thing.Hill(x = 0, y = 0, z = 0, spec = [
 			((-10, 0), (40, 0)),
@@ -37,12 +41,13 @@ def init():
 	elif True:
 		import json, hill
 		state.addhill(thing.Hill(x = 0, y = 0, z = 0, spec = [
-			((-10, 0), (10, 0)),
-			((-10, -30), (10, -30)),
+			((-40, 0), (10, 0)),
+			((-40, -30), (10, -30)),
 		]))
-		challenge.addchallenge("backunder")
-		challenge.addchallenge("arcade")
-		state.hazards.append(thing.Hazard(x = -30, y = 2, z = 0, vx = 10, vy = -20, r = 2, X0 = 60))
+		challenge.addchallenge("fallback")
+		challenge.addchallenge("forward")
+#		challenge.addchallenge("")
+#		state.hazards.append(thing.Hazard(x = -30, y = 2, z = 0, vx = 10, vy = -20, r = 2, X0 = 60))
 #		state.hazards.append(thing.Hazard(x = -30, y = 2, z = 0, vx = -20, vy = -10, r = 20, X0 = 60))
 
 	state.effects.append(mist.Mist(20))
@@ -58,6 +63,7 @@ def init():
 		angle = 10))
 
 def think(dt, kdowns, kpressed):
+	self.t += dt
 	state.you.control(kdowns, kpressed)
 	state.think(dt, kdowns, kpressed)
 	state.resolve()
@@ -70,5 +76,7 @@ def draw():
 	for obj in objs:
 		obj.draw()
 	state.you.draw()
-
+	if self.t < 1:
+		a = math.clamp(int(255 * (1 - math.smoothfade(self.t, 0, 1))), 0, 255)
+		pview.fill((255, 255, 255, a))
 

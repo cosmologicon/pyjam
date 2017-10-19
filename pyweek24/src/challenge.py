@@ -22,14 +22,25 @@ def addchallenge(cname):
 	fracs = [0, 0.2, 0.4, 0.6, 0.8, 1]
 	spec = (
 		tuple((f * xend, ystart * math.cos(f * math.tau / 4) ** 2) for f in fracs),
-		((0, -30), (xend, -30)),
+		((0.5, ystart - 5), (xend/4, ystart*2/3 - 5), (xend*0.75, ystart/3 - 5), (xend - 0.5, -5)),
+		((0, ystart - 10), (xend, -10)),
+		((-2, ystart - 20), (xend + 2, -20)),
+		((-5, -30), (xend + 5, -30)),
 	)
 	state.addhill(thing.Hill(x = x0, y = 0, z = 0, spec = spec))
 
 	x0 += xend + 5
-	for h in getdata(cname):
+
+	hills, hazards = getdata(cname)
+	for h in hills:
 		x = x0 + h["x"]
 		state.addhill(thing.Hill(x = x, y = h["y"], z = h["z"],
 			spec = hill.getspec(h)))
+	for h in hazards:
+		X0 = x0 + h["X0"]
+		state.hazards.append(thing.Hazard(x = h["x"] - h["X0"], y = h["y"], z = h["z"] - 0.0001,
+			vx = h["vx"], vy = h["vy"],
+			r = h["r"],
+			X0 = X0))
 
 
