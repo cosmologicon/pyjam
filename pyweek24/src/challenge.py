@@ -1,6 +1,6 @@
 # Add a challenge segment to the state
 
-import json, math, os.path
+import json, math, os.path, random
 from . import state, view, thing, hill
 
 data = {}
@@ -36,6 +36,9 @@ def addchallenge(cname):
 		x = x0 + h["x"]
 		state.addhill(thing.Hill(x = x, y = h["y"], z = h["z"],
 			spec = hill.getspec(h)))
+	if cname == "tier3":
+		hazards = list(hazards)
+		del hazards[random.choice((0, 1, 2))]
 	for h in hazards:
 		X0 = x0 + h["X0"]
 		state.hazards.append(thing.Hazard(x = h["x"] - h["X0"], y = h["y"], z = h["z"] - 0.0001,
@@ -43,4 +46,12 @@ def addchallenge(cname):
 			r = h["r"],
 			X0 = X0))
 
+def addsign(text):
+	lasthill = max(state.hills, key = lambda h: view.xmatchatplayer(h.hilltopend()[0], h.z, 0))
+	lastx, lasty = lasthill.hilltopend()
+	lastz = lasthill.z
+	x = view.xmatchatplayer(lastx, lastz, 0) + 60
+	state.effects.append(thing.Sign(text = text,
+		x = x, y = -10, z = 10, fontsize = 6, color = "orange", owidth = 2,
+		angle = random.uniform(-10, 10)))
 

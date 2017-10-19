@@ -64,7 +64,7 @@ def grasspos(layer, thickness, margin = 5):
 			f = random.random() ** 2.5
 			yield 1 - f, x, y - 5 * df * f
 
-def getsurf(spec, z, color0 = (40, 20, 0), color1 = (150, 70, 0)):
+def getsurf(spec, z, color0, color1):
 	key = spec, z, color0, color1, pview.f
 	if key in surfs:
 		countusage(key)
@@ -112,9 +112,9 @@ def getsurf(spec, z, color0 = (40, 20, 0), color1 = (150, 70, 0)):
 	countusage(key)
  	return surfs[key]
 
-def drawhill(p, spec):
+def drawhill(p, spec, color0 = (40, 20, 0), color1 = (150, 70, 0)):
 	x, y, z = p
-	surf, (dx, dy) = getsurf(spec, z)
+	surf, (dx, dy) = getsurf(spec, z, color0, color1)
 	px, py = view.toscreen(x, y, z)
 	pview.screen.blit(surf, (px + dx, py + dy))
 
