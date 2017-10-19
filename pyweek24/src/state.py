@@ -24,7 +24,7 @@ def addhill(hill):
 	hills.append(hill)
 
 def think(dt, kdowns, kpressed):
-	global youftarget
+	global youftarget, boards, blocks, hills, effects
 	kright = (1 if kpressed[pygame.K_RIGHT] else 0) - (1 if kpressed[pygame.K_LEFT] else 0)
 	if kright:
 		dftarget = 2 * dt * kright
@@ -33,7 +33,20 @@ def think(dt, kdowns, kpressed):
 		youftarget = math.softapproach(youftarget, 0, 4 * dt)
 	view.X0 += 24 * dt
 	you.think(dt)
+	removegone()
 
+def removegone():
+	global boards, blocks, hills, effects
+	nboards = {}
+	for boardname, board in boards.items():
+		if board.gone():
+			del blefts[(board.x, board.y, board.z)]
+		else:
+			nboards[boardname] = board
+	boards = nboards
+	blocks = [block for block in blocks if not block.gone()]
+	hills = [h for h in hills if not h.gone()]
+	effects = [effect for effect in effects if effect.alive()]
 
 def youtargetspeed():
 	targetx0 = -30 + 10 * youftarget

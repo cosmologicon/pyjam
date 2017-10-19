@@ -36,6 +36,7 @@ def splitlayer(layer, n = 20):
 	
 
 def splitspec(layers, n = 20):
+	n = max(n, max(len(layer) for layer in layers))
 	nlayer = len(layers)
 	slayers = [splitlayer(layer, n) for layer in layers]
 	scatter = 0.2 * n ** -0.5
@@ -50,7 +51,7 @@ def splitspec(layers, n = 20):
 			f = (f0 + f1 + f2 + f3) / 4 + random.uniform(-1, 1) * scatter
 			yield f, top0, top1, bottom0, bottom1
 
-def grasspos(layer, thickness):
+def grasspos(layer, thickness, margin = 5):
 	for j in range(len(layer) - 1):
 		p0 = layer[j]
 		p1 = layer[j + 1]
@@ -58,8 +59,10 @@ def grasspos(layer, thickness):
 		n = int(d * thickness)
 		for j in range(n + 1):
 			x, y = vmix(p0, p1, j / n)
+			df = min(math.distance((x, y), layer[0]), math.distance((x, y), layer[-1])) / margin
+			df = min(df, 1)
 			f = random.random() ** 2.5
-			yield 1 - f, x, y - 3 * f
+			yield 1 - f, x, y - 5 * df * f
 
 def getsurf(spec, z, color0 = (40, 20, 0), color1 = (150, 70, 0)):
 	key = spec, z, color0, color1, pview.f
@@ -143,6 +146,20 @@ specs = {
 		((-10, -2), (-5, -1.5), (5, 1.5), (10, 2)),
 		((-10, -10), (11, -12)),
 		((-12, -30), (11, -30)),
+	),
+	"tower": (
+		((-5, 0), (-4, 0.5), (-2, 1), (2, 1), (4, 0.5), (5, 0)),
+		((-1, -5), (0, -4.5), (2.5, -4.5)),
+		((0, -9), (2, -8.4)),
+		((1, -15), (2.5, -14.5)),
+		((5, -30), (5.5, -30)),
+	),
+	"towerup": (
+		((-5, 0), (-4, 1), (-2, 2.5), (2, 4), (4, 5), (5, 5.2)),
+		((-1, -5), (0, -4.5), (2.5, -4.5)),
+		((0, -9), (2, -8.4)),
+		((1, -15), (2.5, -14.5)),
+		((5, -30), (5.5, -30)),
 	),
 }
 def getspec(h):

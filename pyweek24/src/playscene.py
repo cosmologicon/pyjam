@@ -1,5 +1,5 @@
 import random, math
-from . import view, pview, state, thing, mist
+from . import view, pview, state, thing, mist, challenge
 
 def init():
 	state.you = thing.You(x = 0, y = 0, z = 0)
@@ -39,8 +39,12 @@ def init():
 		for h in hills:
 			state.addhill(thing.Hill(x = h["x"], y = h["y"], z = h["z"],
 				spec = hill.getspec(h)))
+		challenge.addchallenge(None)
 
-#	state.effects.extend(mist.Mist(z) for z in range(-20, 15, 2))
+	state.effects.append(mist.Mist(20))
+	state.effects.append(mist.Mist(8))
+	state.effects.append(mist.Mist(-8))
+	state.effects.append(mist.Mist(-20))
 
 def think(dt, kdowns, kpressed):
 	state.you.control(kdowns, kpressed)
@@ -48,10 +52,10 @@ def think(dt, kdowns, kpressed):
 	state.resolve()
 
 def draw():
-	pview.fill((0, 0, 0))
+	pview.fill((100, 100, 255))
 	objs = list(state.boards.values()) + list(state.blocks) + list(state.effects)
 	objs = list(state.hills) + list(state.effects)
-	objs.sort(key = lambda obj: obj.z)
+	objs.sort(key = lambda obj: (obj.z, -obj.y))
 	for obj in objs:
 		obj.draw()
 	state.you.draw()

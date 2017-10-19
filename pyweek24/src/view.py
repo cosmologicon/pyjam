@@ -58,6 +58,14 @@ def cameraat0(x, z, x0):
 def atcamera(X0, z, x0):
 	return X0 + x0 / scale(z)
 
+# Determine the x-value x2 such that (x2, z2) is at the player position when (x1, z1) is also at the
+# player position.
+def xmatchatplayer(x1, z1, z2):
+	# playerx = (x1 - X) * scale(z1) = (x2 - X) * scale(z2)
+	playerx = -30
+	X = x1 - playerx / scale(z1)
+	return playerx / scale(z2) + X
+
 if __name__ == "__main__":
 	from . import maff
 	X0, Y0 = 0, 0

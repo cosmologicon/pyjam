@@ -14,6 +14,13 @@ class WorldBound(enco.Component):
 		self.z = z
 	def screenpos(self):
 		return view.toscreen(self.x, self.y, self.z)
+	# For objects that don't change x position or z, they're considered gone once they've completely
+	# scrolled off the left of the screen.
+	def xmax(self):
+		return self.x
+	def gone(self):
+		x, y = view.toscreen(self.xmax(), 0, self.z)
+		return x < -1
 
 class LinearSpan(enco.Component):
 	def __init__(self):
@@ -28,6 +35,9 @@ class LinearSpan(enco.Component):
 		self.dhat = self.dhatx, self.dhaty = math.norm((self.dx, self.dy))
 		self.scale = view.scale(self.z)
 		self.d0 = self.d * self.scale
+	def xmax(self):
+		return self.x1
+
 	# (a, b) in cross coordinates. 
 	def crosspos(self, p0):
 		x, y = p0
@@ -62,6 +72,10 @@ class Polygonal(enco.Component):
 		self.ps = ps
 		n = len(self.ps)
 		self.segments = [(self.ps[j], self.ps[(j + 1) % n]) for j in range(n)]
+		xs, ys = zip(*ps)
+		self._xmax = max(xs)
+	def xmax(self):
+		return self._xmax + self.x
 	# Ray casting algorithm for point in polygon
 	def contains0(self, p0):
 		x0, y0 = p0
@@ -81,6 +95,13 @@ class Polygonal(enco.Component):
 class HillSpec(enco.Component):
 	def setstate(self, spec, **args):
 		self.spec = tuple(tuple(tuple(p) for p in layer) for layer in spec)
+		xs, ys = zip(*[p for layer in self.spec for p in layer])
+		self._xmax = max(xs) + 3
+	def xmax(self):
+		return self._xmax + self.x
+	def hilltopend(self):
+		x, y = self.spec[0][-1]
+		return self.x + x, self.y + y
 	def boards(self):
 		layer = self.spec[0]
 		n = len(layer)
