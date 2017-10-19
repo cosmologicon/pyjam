@@ -12,7 +12,7 @@
 # For the purposes of interactions, it's best to map things to the 0 plane before comparing them.
 
 from __future__ import division, print_function
-import math
+import math, pygame
 from . import pview, settings
 from .pview import T
 
@@ -22,6 +22,7 @@ X0, Y0 = None, None
 def init():
 	global X0, Y0
 	pview.set_mode((1024, 480))
+	pygame.display.set_caption(settings.gamename)
 	X0, Y0 = 0, 0
 
 def scale(z):

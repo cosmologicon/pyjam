@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import view, pview, enco, youstate, state, hill, settings
+from . import view, pview, ptext, enco, youstate, state, hill, settings
 from .pview import T
 
 class WorldBound(enco.Component):
@@ -200,6 +200,29 @@ class RoundFlashing(enco.Component):
 		color = colormix((255, 200, 0), (180, 90, 0), math.sin(2 * self.t * math.tau) ** 2)
 		r = view.screenscale(self.r, self.z)
 		pygame.draw.circle(pview.screen, color, self.screenpos(), r)
+
+class DrawText(enco.Component):
+	def setstate(self, text, fontsize = 3, color = None, ocolor = None, owidth = 0, angle = 0, **args):
+		self.text = text
+		self.fontsize = fontsize
+		self.color = color
+		self.ocolor = ocolor
+		self.owidth = owidth
+		self.angle = angle
+	def draw(self):
+		p = view.toscreen(self.x, self.y, self.z)
+		ptext.draw(self.text,
+			center = view.toscreen(self.x, self.y, self.z),
+			fontsize = view.screenscale(self.fontsize, self.z),
+			color = self.color,
+			ocolor = self.ocolor,
+			owidth = self.owidth,
+			angle = self.angle
+		)
+	def xmax(self):
+		return self.x + 0.5 * self.fontsize * len(self.text)
+	def alive(self):
+		return not self.gone()
 		
 
 @WorldBound()
@@ -246,5 +269,12 @@ class Hazard(object):
 	def __init__(self, **args):
 		self.setstate(**args)
 		self.recalibratemotion(**args)
-	
+
+@WorldBound()
+@DrawText()
+class Sign(object):
+	def __init__(self, **args):
+		self.setstate(**args)
+	def think(self, dt):
+		pass
 

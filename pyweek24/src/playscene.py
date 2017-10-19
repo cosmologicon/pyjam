@@ -1,5 +1,5 @@
 import random, math
-from . import view, pview, state, thing, mist, challenge
+from . import view, pview, state, thing, mist, challenge, settings
 
 def init():
 	state.reset()
@@ -49,6 +49,13 @@ def init():
 	state.effects.append(mist.Mist(8))
 	state.effects.append(mist.Mist(-8))
 	state.effects.append(mist.Mist(-20))
+
+	state.effects.append(thing.Sign(text = settings.gamename,
+		x = 120, y = -20, z = -25, fontsize = 15, color = "orange", owidth = 2,
+		angle = 10))
+	state.effects.append(thing.Sign(text = "by Christopher Night",
+		x = 200, y = -20, z = -18, fontsize = 5, color = "orange", owidth = 2,
+		angle = 10))
 
 def think(dt, kdowns, kpressed):
 	state.you.control(kdowns, kpressed)

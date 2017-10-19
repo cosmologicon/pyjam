@@ -1,10 +1,11 @@
 from __future__ import division, print_function
 import pygame
-from . import settings, view, pview, ptext, playscene
+from . import settings, view, pview, ptext
+from . import scene, playscene
 from .pview import T
 
 view.init()
-playscene.init()
+scene.set(playscene)
 
 clock = pygame.time.Clock()
 playing = True
@@ -21,11 +22,15 @@ while playing:
 	
 	kpressed = pygame.key.get_pressed()
 
-	playscene.think(dt, kdowns, kpressed)
+	currentscene = scene.current
+	if not currentscene:
+		break
+
+	currentscene.think(dt, kdowns, kpressed)
 
 	if pygame.K_F11 in kdowns:
 		pview.toggle_fullscreen()
-	playscene.draw()
+	currentscene.draw()
 	if settings.DEBUG:
 		ptext.draw("%.1ffps" % clock.get_fps(), bottomleft = T(10, 470), fontsize = T(16))
 
