@@ -29,6 +29,9 @@ class BaseState(object):
 	@staticmethod
 	def exit(self):
 		pass
+	@staticmethod
+	def gethit(self):
+		pass
 
 class Falling(BaseState):
 	@staticmethod
@@ -61,6 +64,9 @@ class Falling(BaseState):
 	@staticmethod
 	def draw(self):
 		pass
+	@staticmethod
+	def gethit(self):
+		self.enterstate(Dying)
 
 class Running(BaseState):
 	@staticmethod
@@ -82,7 +88,7 @@ class Running(BaseState):
 		slopefactor = max(slopefactor, 0.25)
 		vx *= slopefactor
 		self.boarda += vx * dt / self.parent.d
-		self.tdraw += 2 * dt * vx / 24
+		self.tdraw += 2 * dt * vx / settings.speed
 		self.tdraw %= 1
 	@staticmethod
 	def resolve(self):
@@ -116,6 +122,9 @@ class Running(BaseState):
 	@staticmethod
 	def draw(self):
 		drawyou.running(self.screenpos(), 8 * pview.f, self.tdraw)
+	@staticmethod
+	def gethit(self):
+		self.enterstate(Dying)
 
 class Dying(BaseState):
 	@staticmethod
@@ -145,6 +154,8 @@ class YouStates(enco.Component):
 		self.state.exit(self)
 		self.state = state
 		self.state.enter(self, *args, **kw)
+	def gethit(self):
+		self.state.gethit(self)
 
 
 

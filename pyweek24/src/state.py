@@ -1,12 +1,15 @@
 import pygame, math
-from . import view
+from . import view, settings
 
-boards = {}
-blefts = {}
-crosscoords = {}
-blocks = []
-hills = []
-effects = []
+def reset():
+	global boards, blefts, crosscoords, blocks, hills, effects, hazards, you
+	boards = {}
+	blefts = {}
+	crosscoords = {}
+	blocks = []
+	hills = []
+	effects = []
+	hazards = []
 
 youftarget = 0
 
@@ -31,12 +34,17 @@ def think(dt, kdowns, kpressed):
 		youftarget = math.clamp(youftarget + dftarget, -1, 1)
 	else:
 		youftarget = math.softapproach(youftarget, 0, 4 * dt)
-	view.X0 += 24 * dt
+	view.X0 += settings.speed * dt
 	you.think(dt)
+	for hazard in hazards:
+		hazard.think(dt)
 	removegone()
+	for hazard in hazards:
+		if hazard.hitsyou():
+			you.gethit()
 
 def removegone():
-	global boards, blocks, hills, effects
+	global boards, blocks, hills, hazards, effects
 	nboards = {}
 	for boardname, board in boards.items():
 		if board.gone():
@@ -46,13 +54,14 @@ def removegone():
 	boards = nboards
 	blocks = [block for block in blocks if not block.gone()]
 	hills = [h for h in hills if not h.gone()]
+	hazards = [h for h in hazards if not h.gone()]
 	effects = [effect for effect in effects if effect.alive()]
 
 def youtargetspeed():
-	targetx0 = -30 + 10 * youftarget
+	targetx0 = -settings.lag + 10 * youftarget
 	x0, _ = view.to0plane(you.x, you.y, you.z)
 	dx = targetx0 - x0
-	return 24 + 2 * dx
+	return settings.speed + 2 * dx
 
 def resolve():
 	global crosscoords, crossings

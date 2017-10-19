@@ -2,6 +2,7 @@ import random, math
 from . import view, pview, state, thing, mist, challenge
 
 def init():
+	state.reset()
 	state.you = thing.You(x = 0, y = 0, z = 0)
 	if False:
 		state.addhill(thing.Hill(x = 0, y = 0, z = 0, spec = [
@@ -41,6 +42,8 @@ def init():
 		]))
 		challenge.addchallenge("backunder")
 		challenge.addchallenge("arcade")
+		state.hazards.append(thing.Hazard(x = -30, y = 2, z = 0, vx = 10, vy = -20, r = 2, X0 = 60))
+#		state.hazards.append(thing.Hazard(x = -30, y = 2, z = 0, vx = -20, vy = -10, r = 20, X0 = 60))
 
 	state.effects.append(mist.Mist(20))
 	state.effects.append(mist.Mist(8))
@@ -54,8 +57,8 @@ def think(dt, kdowns, kpressed):
 
 def draw():
 	pview.fill((100, 100, 255))
-	objs = list(state.boards.values()) + list(state.blocks) + list(state.effects)
-	objs = list(state.hills) + list(state.effects)
+#	objs = list(state.boards.values()) + list(state.blocks) + list(state.effects) + list(state.hazards)
+	objs = list(state.hills) + list(state.effects) + list(state.hazards)
 	objs.sort(key = lambda obj: (obj.z, -obj.y))
 	for obj in objs:
 		obj.draw()

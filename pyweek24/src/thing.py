@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import view, pview, enco, youstate, state, hill
+from . import view, pview, enco, youstate, state, hill, settings
 from .pview import T
 
 class WorldBound(enco.Component):
@@ -21,6 +21,33 @@ class WorldBound(enco.Component):
 	def gone(self):
 		x, y = view.toscreen(self.xmax(), 0, self.z)
 		return x < -1
+
+class Timer(enco.Component):
+	def __init__(self):
+		self.t = 0
+	def setstate(self, t = 0, **args):
+		self.t = t
+	def think(self, dt):
+		self.t += dt
+
+class LinearMotion(enco.Component):
+	def __init__(self):
+		self.vx = 0
+		self.vy = 0
+	def setstate(self, vx, vy, **args):
+		self.vx = vx
+		self.vy = vy
+	def think(self, dt):
+		self.x += dt * self.vx
+		self.y += dt * self.vy
+	def recalibratemotion(self, X0, **args):
+		# Reinterpret self.x and self.y and adjust accordingly.
+		# Let the current (self.x, self.y) be the 0-plane position of self when view.X0 = X0.
+		# Should probably only be called once on initialization.
+		dt = (X0 - view.X0) / settings.speed - self.t
+		x, y = view.from0planeatP0(self.x, self.y, self.z, (X0, 0))
+		self.x = x - dt * self.vx
+		self.y = y - dt * self.vy
 
 class LinearSpan(enco.Component):
 	def __init__(self):
@@ -93,6 +120,20 @@ class Polygonal(enco.Component):
 			ncross += xcross < 0
 		return ncross % 2 == 1
 
+class RoundHitBox(enco.Component):
+	def __init__(self):
+		self.r = 10
+	def setstate(self, r, **args):
+		self.r = r
+	def xmax(self):
+		return self.x + 2 * self.r
+	def hitsyou(self):
+		R = self.r * view.scale(self.z) + state.you.r * view.scale(state.you.z)
+		p0 = view.to0(self.x, self.y, self.z)
+		pyou = view.to0(*state.you.center())
+		return math.distance(p0, pyou) <= R
+	
+
 class HillSpec(enco.Component):
 	def setstate(self, spec, **args):
 		self.spec = tuple(tuple(tuple(p) for p in layer) for layer in spec)
@@ -124,11 +165,17 @@ class HillSpec(enco.Component):
 		hill.drawhill((self.x, self.y, self.z), self.spec)
 
 class DrawYou(enco.Component):
+	def __init__(self):
+		self.r = 1.5
+	def setstate(self, r = 1.5, **args):
+		self.r = r
 	def draw(self):
 		px, py = self.screenpos()
-		R = T(10)
+		R = view.screenscale(self.r, self.z)
 		pygame.draw.circle(pview.screen, (255, 0, 255), (px, py - R), R, T(1))
 		pygame.draw.circle(pview.screen, (255, 200, 255), (px, py), T(3), 0)
+	def center(self):
+		return self.x, self.y + self.r, self.z
 
 class DrawBoard(enco.Component):
 	def draw(self):
@@ -145,7 +192,18 @@ class DrawShield(enco.Component):
 		ps = [view.toscreen(self.x + dx, self.y + dy, self.z) for dx, dy in self.ps]
 		pygame.draw.polygon(pview.screen, self.scolor, ps)
 
+def colormix(x, y, a):
+	return tuple(int(math.clamp(math.mix(p, q, a), 0, 255)) for p, q in zip(x, y))
+
+class RoundFlashing(enco.Component):
+	def draw(self):
+		color = colormix((255, 200, 0), (180, 90, 0), math.sin(2 * self.t * math.tau) ** 2)
+		r = view.screenscale(self.r, self.z)
+		pygame.draw.circle(pview.screen, color, self.screenpos(), r)
+		
+
 @WorldBound()
+@Timer()
 @DrawYou()
 @youstate.YouStates()
 class You(object):
@@ -178,5 +236,15 @@ class Hill(object):
 		self.setstate(**args)
 	def think(self, dt):
 		pass
+
+@WorldBound()
+@Timer()
+@LinearMotion()
+@RoundHitBox()
+@RoundFlashing()
+class Hazard(object):
+	def __init__(self, **args):
+		self.setstate(**args)
+		self.recalibratemotion(**args)
 	
 

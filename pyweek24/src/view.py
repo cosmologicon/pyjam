@@ -27,6 +27,9 @@ def init():
 def scale(z):
 	return math.phi ** (z / 10)
 
+def screenscale(r, z):
+	return T(settings.gamescale * r * scale(z))
+
 # Given an (x, y, z) position, return the position (x0, y0) such that (x, y, z) currently occupies
 # the same screen position as (x0, y0, 0).
 def to0(x, y, z):
@@ -40,13 +43,20 @@ def from0(x0, y0, z):
 def to0plane(x, y, z):
 	s = scale(z)
 	return (x - X0) * s, (y - Y0) * s
+def from0plane(x, y, z):
+	s = scale(z)
+	return X0 + x / s, Y0 + y / s
+def from0planeatP0(x, y, z, P0):
+	s = scale(-z)
+	X0, Y0 = P0
+	return X0 + x / s, Y0 + y / s
 
 def toscreen(gx, gy, gz = 0):
 	x, y = to0plane(gx, gy, gz)
-	return T(pview.centerx0 + 10 * x, pview.centery0 - 10 * y)
+	return T(pview.centerx0 + settings.gamescale * x, pview.centery0 - settings.gamescale * y)
 
 def screenoffset(dx, dy, z):
-	s = scale(z) * 10
+	s = scale(z) * settings.gamescale
 	return T(dx * s, -dy * s)
 
 # The value of X0 at which the given x-coordinate in the z plane is at the same horizontal screen
