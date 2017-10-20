@@ -45,10 +45,14 @@ def init():
 			((-40, -30), (10, -30)),
 		]))
 
-		challenge.addchallenge("tier3")
-		challenge.addchallenge("tier3")
-		challenge.addchallenge("tier3")
-		challenge.addchallenge("tier3")
+		challenge.addchallenge("wall")
+		challenge.addchallenge("leapoffaith")
+		challenge.addchallenge("firstbranch")
+		challenge.addchallenge("branch3")
+
+#		challenge.addchallenge("tier3")
+#		challenge.addchallenge("tier3")
+#		challenge.addchallenge("tier3")
 #		challenge.addsign("Hold Left then Right\nto Long Jump")
 #		challenge.addchallenge("longjump3")
 #		challenge.addchallenge("rolling")

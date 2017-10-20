@@ -3,6 +3,9 @@ import pygame, math, random
 from . import view, pview, ptext, enco, youstate, state, hill, settings
 from .pview import T
 
+def vmix(x, y, a):
+	return tuple(math.mix(p, q, a) for p, q in zip(x, y))
+
 class WorldBound(enco.Component):
 	def __init__(self):
 		self.x = 0
@@ -80,7 +83,7 @@ class LinearSpan(enco.Component):
 
 	def blockedat(self, a):
 		p0 = view.to0(*self.along(a))
-		return any(block.z > self.z and block.contains0(p0) for block in state.blocks)
+		return state.blockedat0(p0, self.z)
 
 	# Nearest position along this span in the 0 plane
 	def pos0along(self, p0):
@@ -131,8 +134,12 @@ class RoundHitBox(enco.Component):
 		R = self.r * view.scale(self.z) + state.you.r * view.scale(state.you.z)
 		p0 = view.to0(self.x, self.y, self.z)
 		pyou = view.to0(*state.you.center())
-		return math.distance(p0, pyou) <= R
-	
+		d = math.distance(p0, pyou)
+		if d > R:
+			return False
+		fR = state.you.r * view.scale(state.you.r) / R
+		phit0 = vmix(p0, pyou, fR)
+		return not state.blockedat0(phit0, self.z)
 
 class HillSpec(enco.Component):
 	def setstate(self, spec, **args):

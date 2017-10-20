@@ -26,6 +26,10 @@ def addhill(hill):
 	blocks.append(hill.block())
 	hills.append(hill)
 
+def blockedat0(p0, z):
+	return any(block.z > z and block.contains0(p0) for block in blocks)
+
+
 def think(dt, kdowns, kpressed):
 	global youftarget, boards, blocks, hills, effects
 	kright = (1 if kpressed[pygame.K_RIGHT] else 0) - (1 if kpressed[pygame.K_LEFT] else 0)
