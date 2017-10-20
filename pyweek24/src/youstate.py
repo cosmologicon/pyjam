@@ -63,7 +63,7 @@ class Falling(BaseState):
 		self.enterstate(Running, state.boards[boardname], a)
 	@staticmethod
 	def draw(self):
-		pass
+		drawyou.falling(self.screenpos(), 8 * pview.f, self.vy)
 	@staticmethod
 	def gethit(self):
 		self.enterstate(Dying)
@@ -137,6 +137,9 @@ class Dying(BaseState):
 		self.y += self.vy * dt - 0.5 * a * dt ** 2
 		self.vy -= a * dt
 		self.x += self.vx * dt
+	@staticmethod
+	def draw(self):
+		drawyou.falling(self.screenpos(), 8 * pview.f, self.vy)
 
 class YouStates(enco.Component):
 	def setstate(self, state = Falling, **args):
