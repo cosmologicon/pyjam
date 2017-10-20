@@ -35,12 +35,21 @@ class BaseState(object):
 
 class Falling(BaseState):
 	@staticmethod
+	def enter(self):
+		self.tprejump = 0
+		self.prejumping = False
+		self.slowfall = True
+	@staticmethod
 	def control(self, kdowns, kpressed):
-#		if pygame.K_SPACE in kdowns:
-#			self.vy = 30
+		if pygame.K_SPACE in kdowns:
+			self.prejumping = True
+			self.tprejump = 0
 		if settings.DEBUG and pygame.K_BACKSPACE in kdowns:
 			self.enterstate(Dying)
 		self.slowfall = kpressed[pygame.K_SPACE]
+		if self.prejumping and not kpressed[pygame.K_SPACE]:
+			self.prejumping = False
+			self.tprejump = 0
 	@staticmethod
 	def think(self, dt):
 		a = 60 if self.slowfall else 160
@@ -48,6 +57,8 @@ class Falling(BaseState):
 		self.vy -= a * dt
 		vx = state.youtargetspeed()
 		self.x += vx * dt
+		if self.prejumping:
+			self.tprejump += dt
 	@staticmethod
 	def resolve(self):
 		catchers = []
@@ -61,6 +72,9 @@ class Falling(BaseState):
 			return
 		y, boardname, a = max(catchers)
 		self.enterstate(Running, state.boards[boardname], a)
+		if self.prejumping and self.tprejump < settings.prejumptime:
+			self.vy = 30
+			self.enterstate(Falling)
 	@staticmethod
 	def draw(self):
 		drawyou.falling(self.screenpos(), 8 * pview.f, self.vy)
@@ -70,23 +84,37 @@ class Falling(BaseState):
 
 class Running(BaseState):
 	@staticmethod
-	def enter(self, parent, a):
-		self.parent = parent
-		self.boarda = a
-		self.tdraw = 0
-	@staticmethod
-	def control(self, kdowns, kpressed):
-		if pygame.K_SPACE in kdowns:
-			self.vy = 30
-			self.enterstate(Falling)
-		if settings.DEBUG and pygame.K_BACKSPACE in kdowns:
-			self.enterstate(Dying)
-	@staticmethod
-	def think(self, dt):
+	def runspeed(self):
 		vx = state.youtargetspeed()
 		slopefactor = 1 - 0.5 * self.parent.slope
 		slopefactor = max(slopefactor, 0.25)
 		vx *= slopefactor
+		return vx
+	@staticmethod
+	def enter(self, parent, a):
+		self.parent = parent
+		self.boarda = a
+		self.tdraw = 0
+		self.cliffhanging = False
+	@staticmethod
+	def control(self, kdowns, kpressed):
+		if pygame.K_SPACE in kdowns:
+			vx = Running.runspeed(self)
+			tcliff = (1 - self.boarda) * self.parent.d0 / vx
+			cancliffhang = tcliff < settings.cliffhangtime and self.parent.handoff() is None
+			if cancliffhang:
+				self.cliffhanging = True
+			else:
+				self.vy = 30
+				self.enterstate(Falling)
+		if settings.DEBUG and pygame.K_BACKSPACE in kdowns:
+			self.enterstate(Dying)
+		if self.cliffhanging and not kpressed[pygame.K_SPACE]:
+			self.vy = 30
+			self.enterstate(Falling)
+	@staticmethod
+	def think(self, dt):
+		vx = Running.runspeed(self)
 		self.boarda += vx * dt / self.parent.d
 		self.tdraw += 2 * dt * vx / settings.speed
 		self.tdraw %= 1
@@ -94,16 +122,20 @@ class Running(BaseState):
 	def resolve(self):
 		if not 0 <= self.boarda or self.parent.blockedat(self.boarda):
 			self.enterstate(Falling)
-			self.vy = 0
+			self.vy = 30 if self.cliffhanging else 0
 			return
 		if not self.boarda < 1:
-			nextparent = self.parent.handoff()
-			if nextparent is None:
+			if self.cliffhanging:
+				self.vy = 30
 				self.enterstate(Falling)
-				self.vy = 0
-				return
-			self.parent = nextparent
-			self.boarda -= 1
+			else:
+				nextparent = self.parent.handoff()
+				if nextparent is None:
+					self.enterstate(Falling)
+					self.vy = 0
+					return
+				self.parent = nextparent
+				self.boarda -= 1
 		self.x, self.y = view.to0(*self.parent.along(self.boarda))
 		return
 
@@ -143,8 +175,10 @@ class Dying(BaseState):
 
 class YouStates(enco.Component):
 	def setstate(self, state = Falling, **args):
+		self.state = None
 		self.state = state
 		self.vy = 10
+		self.state.enter(self)
 	def control(self, kdowns, kpressed):
 		self.state.control(self, kdowns, kpressed)
 	def think(self, dt):
@@ -154,9 +188,11 @@ class YouStates(enco.Component):
 	def resolve(self):
 		self.state.resolve(self)
 	def enterstate(self, state, *args, **kw):
-		self.state.exit(self)
+		if self.state is not None:
+			self.state.exit(self)
 		self.state = state
 		self.state.enter(self, *args, **kw)
+		self.think(0)
 	def gethit(self):
 		self.state.gethit(self)
 

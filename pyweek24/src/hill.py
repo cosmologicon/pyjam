@@ -12,6 +12,14 @@ def countusage(key):
 	tick[key] = tick[None]
 	tick[None] += 1
 
+def clear():
+	total = sum(s.get_width() * s.get_height() * 4 for s, _ in surfs.values())
+	while total > 64 * 2 ** 20:
+		key = min(surfs, key = tick.get)
+		surf, _ = surfs[key]
+		del surfs[key]
+		total -= surf.get_width() * surf.get_height() * 4
+
 # TODO: add to maff
 def vmix(x, y, a):
 	return tuple(math.mix(p, q, a) for p, q in zip(x, y))
@@ -110,6 +118,7 @@ def getsurf(spec, z, color0, color1):
 		pygame.draw.circle(surf, color, (int(cx) - x0, int(cy) - y0), T(r))
 	surfs[key] = surf, (x0, y0)
 	countusage(key)
+	clear()
  	return surfs[key]
 
 def drawhill(p, spec, color0 = (40, 20, 0), color1 = (150, 70, 0)):
