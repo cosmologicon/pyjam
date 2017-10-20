@@ -1,3 +1,5 @@
+import os.path
+
 gamename = "They're Behind Everything"
 DEBUG = True
 
@@ -10,4 +12,6 @@ speed = 24
 lag = 30
 # Pixels per game unit at the baseline resolution
 gamescale = 10
+
+savename = os.path.join("save", "progress.txt")
 

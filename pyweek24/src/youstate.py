@@ -36,8 +36,8 @@ class BaseState(object):
 class Falling(BaseState):
 	@staticmethod
 	def control(self, kdowns, kpressed):
-		if pygame.K_SPACE in kdowns:
-			self.vy = 30
+#		if pygame.K_SPACE in kdowns:
+#			self.vy = 30
 		if settings.DEBUG and pygame.K_BACKSPACE in kdowns:
 			self.enterstate(Dying)
 		self.slowfall = kpressed[pygame.K_SPACE]

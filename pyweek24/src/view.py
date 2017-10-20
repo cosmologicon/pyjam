@@ -25,6 +25,10 @@ def init():
 	pygame.display.set_caption(settings.gamename)
 	X0, Y0 = 0, 0
 
+def reset():
+	global X0, Y0
+	X0, Y0 = 0, 0
+
 def scale(z):
 	return math.phi ** (z / 10)
 

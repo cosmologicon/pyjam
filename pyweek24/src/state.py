@@ -2,7 +2,7 @@ import pygame, math
 from . import view, settings
 
 def reset():
-	global boards, blefts, crosscoords, blocks, hills, effects, hazards, you
+	global boards, blefts, crosscoords, blocks, hills, effects, hazards, you, youftarget
 	boards = {}
 	blefts = {}
 	crosscoords = {}
@@ -10,8 +10,7 @@ def reset():
 	hills = []
 	effects = []
 	hazards = []
-
-youftarget = 0
+	youftarget = 0
 
 def addboard(board):
 	boards[board.name] = board
@@ -80,4 +79,16 @@ def resolve():
 			crossings.append((name, a0, b0, a1, b1))
 	crosscoords = newcrosscoords
 	you.resolve()
+
+def losing():
+	return you.y < -30
+
+# Return the camera position X0 at which all hills will be left of the given x0 position on the
+# screen. e.g. x0 = 0 means all hills currently in the state will be left of the center.
+def endingX0at(x0):
+	return max(
+		view.cameraat0(h.hilltopend()[0], h.z, x0)
+		for h in hills
+	)
+
 
