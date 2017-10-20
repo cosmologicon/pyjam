@@ -7,6 +7,10 @@ from .pview import T
 
 surfs = {}
 tick = { None: 0 }
+incomplete = {}
+
+def next(gen):
+	return gen.next()
 
 def countusage(key):
 	tick[key] = tick[None]
@@ -18,6 +22,8 @@ def clear():
 		key = min(surfs, key = tick.get)
 		surf, _ = surfs[key]
 		del surfs[key]
+		if key in incomplete:
+			del incomplete[key]
 		total -= surf.get_width() * surf.get_height() * 4
 
 # TODO: add to maff
@@ -72,11 +78,7 @@ def grasspos(layer, thickness, margin = 5):
 			f = random.random() ** 2.5
 			yield 1 - f, x, y - 5 * df * f
 
-def getsurf(spec, z, color0, color1):
-	key = spec, z, color0, color1, pview.f
-	if key in surfs:
-		countusage(key)
-		return surfs[key]
+def generator(spec, z, color0, color1):
 	s = view.scale(z)
 	ps = [p for layer in spec for p in layer]
 	ps = [view.screenoffset(x, y, z) for x, y in ps]
@@ -86,9 +88,10 @@ def getsurf(spec, z, color0, color1):
 	ps = [(x - x0, y - y0) for x, y in ps]
 	xs, ys = zip(*ps)
 	surf = pygame.Surface((max(xs) + margin, max(ys) + margin)).convert_alpha()
+	yield surf, (x0, y0)
 	surf.fill((0, 0, 0, 0))
-#	surf.fill((40, 40, 40, 255))
-	for split in splitspec(spec, 10):
+	yield
+	for split in splitspec(spec, 40):
 		f, top0, top1, bottom0, bottom1 = split
 		rps = bottom0, top0, top1, bottom1
 		rps = [view.screenoffset(x, y, z) for x, y in rps]
@@ -96,9 +99,11 @@ def getsurf(spec, z, color0, color1):
 		color = colormix(color0, color1, f)
 		pygame.draw.polygon(surf, color, rps)
 #		pygame.draw.line(surf, (255, 255, 0), rps[1], rps[2], 5)
-	for nsplit in (5, 6, 7, 8, 9):
-		subsurf = pygame.Surface(surf.get_size()).convert_alpha()
-		subsurf.fill((0, 0, 0, 0))
+		yield
+	# Shame. This effect looked good, but it was taking way too long to render.
+	for nsplit in []:
+		subsurf = surf.convert()
+		subsurf.fill((0, 0, 0))
 		for split in splitspec(spec, nsplit):
 			f, top0, top1, bottom0, bottom1 = split
 			rps = bottom0, top0, top1, bottom1
@@ -106,25 +111,73 @@ def getsurf(spec, z, color0, color1):
 			rps = [(x - x0, y - y0) for x, y in rps]
 			color = colormix(color0, color1, f)
 			pygame.draw.polygon(subsurf, color, rps)
-		pygame.surfarray.pixels_alpha(subsurf)[:,:] //= 3
+			print("B", end = " ")
+			yield
+		arr = pygame.surfarray.pixels_alpha(surf)
+		arr[:,:] = (arr[:,:] * 0.3).astype(arr.dtype)
+		del arr
+		#print("C1", end = " ")
+		yield
+		t0 = pygame.time.get_ticks()
+		# TODO: this is taking up to 70ms for a 2000x700 surf to blit.
+		# What could cause it?
 		surf.blit(subsurf, (0, 0))
+		#print("C2", pygame.time.get_ticks() - t0, surf.get_size(), end = " ")
+		yield
 
 	thickness = 20
+	ndot = 0
 	for f, cx, cy in sorted(grasspos(spec[0], thickness)):
 		f += random.uniform(-0.2, 0.2)
 		color = 20 + 20 * f, 50 + 50 * f, 20 + 20 * f
 		r = random.uniform(3, 6) * s
 		cx, cy = view.screenoffset(cx, cy, z)
 		pygame.draw.circle(surf, color, (int(cx) - x0, int(cy) - y0), T(r))
-	surfs[key] = surf, (x0, y0)
+		ndot += 1
+		if ndot == 20:
+			yield
+			ndot = 0
+
+def getsurf(spec, z, color0, color1):
+	key = spec, z, color0, color1, pview.f
+	if key in surfs:
+		countusage(key)
+		return key, surfs[key], key not in incomplete
+	gen = incomplete[key] = generator(spec, z, color0, color1)
+	surfs[key] = next(gen)
 	countusage(key)
 	clear()
- 	return surfs[key]
+ 	return key, surfs[key], key not in incomplete
+
+def materialize(key):
+	list(incomplete[key])
+	del incomplete[key]
+
+def killtime(dt):
+	end = pygame.time.get_ticks() + 1000 * dt
+	key, gen = None, None
+	nstep = 0
+	while pygame.time.get_ticks() < end:
+		if gen is None:
+			if not incomplete:
+				return
+			key = next(iter(incomplete))
+			gen = incomplete[key]
+		nstep += 1
+		try:
+			next(gen)
+		except StopIteration:
+			del incomplete[key]
+			key, gen = None, None
 
 def drawhill(p, spec, color0 = (40, 20, 0), color1 = (150, 70, 0)):
 	x, y, z = p
-	surf, (dx, dy) = getsurf(spec, z, color0, color1)
+	key, (surf, (dx, dy)), ready = getsurf(spec, z, color0, color1)
 	px, py = view.toscreen(x, y, z)
+	if px + dx >= pview.w:
+		return
+	if not ready:
+		materialize(key)
 	pview.screen.blit(surf, (px + dx, py + dy))
 
 

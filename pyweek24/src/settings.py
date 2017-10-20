@@ -19,7 +19,7 @@ prejumptime = 0.2
 
 # Approximate time to reach the cliff when jump is pressed when we'll hold off on jumping
 # until the cliff is reached.
-cliffhangtime = 0.3
+cliffhangtime = 0.2
 
 savename = os.path.join("save", "progress.txt")
 

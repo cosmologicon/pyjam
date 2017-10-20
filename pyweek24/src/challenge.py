@@ -11,12 +11,14 @@ def getdata(cname):
 	return data[cname]
 
 
-def addchallenge(cname):
+def addchallenge(cname, signs = True):
 	# Add connector hill to reset to 0
 	lasthill = max(state.hills, key = lambda h: view.xmatchatplayer(h.hilltopend()[0], h.z, 0))
 	lastx, lasty = lasthill.hilltopend()
 	lastz = lasthill.z
 	x0 = view.xmatchatplayer(lastx, lastz, 0) + 5
+	if signs:
+		addsigns(cname, x0)
 	ystart = lasty - 5
 	xend = 10 + 2 * abs(ystart)
 	fracs = [0, 0.2, 0.4, 0.6, 0.8, 1]
@@ -45,6 +47,22 @@ def addchallenge(cname):
 			vx = h["vx"], vy = h["vy"],
 			r = h["r"],
 			X0 = X0))
+
+def addsigns(cname, x0):
+	return
+	if cname == "hopper0":
+		state.effects.append(thing.Sign(text = "Space or Up\nJump",
+			x = x0 + 40, y = -10, z = 10, fontsize = 6, color = "orange", shadow = (1, 1),
+			angle = -10))
+	if cname == "forward":
+		state.effects.append(thing.Sign(text = "Hold right\nRun ahead",
+			x = x0 + 40, y = -10, z = 10, fontsize = 6, color = "orange", shadow = (1, 1),
+			angle = -10))
+	if cname == "fallback":
+		state.effects.append(thing.Sign(text = "Hold left\nFall back",
+			x = x0 + 40, y = -10, z = 10, fontsize = 6, color = "orange", shadow = (1, 1),
+			angle = -10))
+
 
 def addsign(text):
 	lasthill = max(state.hills, key = lambda h: view.xmatchatplayer(h.hilltopend()[0], h.z, 0))

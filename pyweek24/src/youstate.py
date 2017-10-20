@@ -7,7 +7,7 @@
 # Player state classes are never instantiated. They have static methods that act on the player
 # object (referred to as self).
 
-import pygame
+import pygame, math
 from . import enco, state, view, pview, settings, drawyou
 
 class BaseState(object):
@@ -96,11 +96,11 @@ class Running(BaseState):
 		self.boarda = a
 		self.tdraw = 0
 		self.cliffhanging = False
+		self.vx = Running.runspeed(self)
 	@staticmethod
 	def control(self, kdowns, kpressed):
 		if pygame.K_SPACE in kdowns:
-			vx = Running.runspeed(self)
-			tcliff = (1 - self.boarda) * self.parent.d0 / vx
+			tcliff = (1 - self.boarda) * self.parent.d0 / self.vx
 			cancliffhang = tcliff < settings.cliffhangtime and self.parent.handoff() is None
 			if cancliffhang:
 				self.cliffhanging = True
@@ -115,6 +115,7 @@ class Running(BaseState):
 	@staticmethod
 	def think(self, dt):
 		vx = Running.runspeed(self)
+		self.vx = math.approach(self.vx, vx, 10 * dt)
 		self.boarda += vx * dt / self.parent.d
 		self.tdraw += 2 * dt * vx / settings.speed
 		self.tdraw %= 1
