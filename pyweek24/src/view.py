@@ -12,7 +12,7 @@
 # For the purposes of interactions, it's best to map things to the 0 plane before comparing them.
 
 from __future__ import division, print_function
-import math, pygame
+import math, pygame, bisect
 from . import pview, settings
 from .pview import T
 
@@ -24,6 +24,11 @@ def init():
 	pview.set_mode((1024, 480))
 	pygame.display.set_caption(settings.gamename)
 	X0, Y0 = 0, 0
+
+def cycleresolution():
+	js = [j for j, h in enumerate(settings.resolutions) if pview.h < h]
+	j = min(js) if js else 0
+	pview.set_mode(height = settings.resolutions[j])
 
 def reset():
 	global X0, Y0

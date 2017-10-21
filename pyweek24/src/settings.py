@@ -7,6 +7,11 @@ minfps, maxfps = 10, 60
 
 lowres = "--lowres" in sys.argv
 
+resolutions = 360, 480, 720, 900
+
+res = 480
+
+
 # The uniform motion of the camera.
 # Don't change this. It will mis-calibrate the position of everything.
 speed = 24

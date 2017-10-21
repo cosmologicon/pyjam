@@ -38,15 +38,18 @@ def draw():
 		obj.draw()
 
 	frun = self.t * 2 % 1
-	ptext.draw(settings.gamename, T(30, 40), fontsize = T(100), color = "yellow", gcolor = "orange",
-		shadow = (1, 1))
-	ptext.draw("by Christopher Night", T(260, 120), fontsize = T(50), color = "yellow", gcolor = "orange",
-		shadow = (1, 1))
+	ptext.draw(settings.gamename, T(30, 40), fontsize = T(70), color = "yellow", gcolor = "orange",
+		shadow = (1, 1), fontname = "SpicyRice")
+	ptext.draw("by Christopher Night", T(260, 120), fontsize = T(30), color = "yellow", gcolor = "orange",
+		shadow = (1, 1), fontname = "SpicyRice")
 
-	ptext.draw("Story Mode", T(400, 240), fontsize = T(80), color = "yellow", gcolor = "orange",
-		shadow = (1, 1))
-	ptext.draw("Endless Mode", T(400, 340), fontsize = T(80), color = "yellow", gcolor = "orange",
-		shadow = (1, 1))
+	ptext.draw("Story Mode", T(400, 220), fontsize = T(70), color = "yellow", gcolor = "orange",
+		shadow = (1, 1), fontname = "SpicyRice")
+	ptext.draw("Endless Mode", T(400, 320), fontsize = T(70), color = "yellow", gcolor = "orange",
+		shadow = (1, 1), fontname = "SpicyRice")
+
+	ptext.draw("F10: toggle window size\nF11: toggle fullscreen", fontsize = T(20), color = "black",
+		topright = T(1000, 20), fontname = "Acme")
 
 	p = T(340, 320 + 100 * self.choice)
 	drawyou.running(p, T(16), frun)

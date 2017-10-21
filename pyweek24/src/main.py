@@ -4,6 +4,7 @@ from . import settings, view, pview, ptext
 from . import scene, playscene, menuscene
 from .pview import T
 
+ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 view.init()
 scene.set(menuscene)
 
@@ -28,6 +29,8 @@ while playing:
 
 	currentscene.think(dt, kdowns, kpressed)
 
+	if pygame.K_F10 in kdowns:
+		view.cycleresolution()
 	if pygame.K_F11 in kdowns:
 		pview.toggle_fullscreen()
 	currentscene.draw()
