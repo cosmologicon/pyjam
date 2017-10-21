@@ -63,6 +63,7 @@ def addchallenge():
 def think(dt, kdowns, kpressed):
 	resetprofile()
 	startprofile("think")
+	dt *= settings.playspeed
 	self.t += dt
 	state.you.control(kdowns, kpressed)
 	self.taccum += dt

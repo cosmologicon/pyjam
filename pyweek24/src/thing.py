@@ -181,8 +181,8 @@ class DrawYou(enco.Component):
 	def draw(self):
 		px, py = self.screenpos()
 		R = view.screenscale(self.r, self.z)
-		pygame.draw.circle(pview.screen, (255, 0, 255), (px, py - R), R, T(1))
-		pygame.draw.circle(pview.screen, (255, 200, 255), (px, py), T(3), 0)
+#		pygame.draw.circle(pview.screen, (255, 0, 255), (px, py - R), R, T(1))
+#		pygame.draw.circle(pview.screen, (255, 200, 255), (px, py), T(3), 0)
 	def center(self):
 		return self.x, self.y + self.r, self.z
 

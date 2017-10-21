@@ -1,6 +1,10 @@
-import os
-from . import settings
+from __future__ import division, print_function
+import os, random, math, pygame
+from . import settings, view, state, thing, mist, challenge, sound, hill, pview, ptext
+from .pview import T
 
+def currentscore():
+	return view.X0 * 0.02
 def isunlocked():
 	return os.path.exists(settings.scorename)
 def unlock():
@@ -11,4 +15,87 @@ def gethiscore():
 	if not isunlocked():
 		return None
 	return int(open(settings.scorename, "r").read().strip())
+def savescore():
+	hiscore = gethiscore()
+	if hiscore is None or currentscore() > hiscore:
+		open(settings.scorename, "w").write(str(int(currentscore())))
+
+def colormix(x, y, a):
+	return tuple(int(math.clamp(math.mix(p, q, a), 0, 255)) for p, q in zip(x, y))
+
+
+class self:
+	pass
+
+def getspeed():
+	x = currentscore() / 1000
+	return 1 + 1.2 * (1 - math.exp(-x))
+
+def init():
+	self.t = 0
+	self.tlose = 0
+
+	state.reset()
+	view.reset()
+	state.you = thing.You(x = -settings.lag, y = 0, z = 0)
+	state.addhill(thing.Hill(x = 0, y = 0, z = 0, spec = [
+		((-40, 0), (10, 0)),
+		((-40, -30), (10, -30)),
+	]))
+	mist.init()
+
+	addchallenge()
+	sound.playmusic("party")
+	self.taccum = 0
+
+def resetprofile():
+	self.profile = {}
+def startprofile(name):
+	self.profile[name] = pygame.time.get_ticks()
+def stopprofile(name):
+	self.profile[name] = pygame.time.get_ticks() - self.profile[name]
+
+def addchallenge():
+	cname = "rolling"
+	challenge.addchallenge(cname)
+	self.nextaddX0 = state.endingX0at(90)
+
+def think(dt, kdowns, kpressed):
+	dt *= getspeed()
+	self.t += dt
+	state.you.control(kdowns, kpressed)
+	self.taccum += dt
+	dtaccum = 1 / settings.ups
+	while self.taccum >= 0.5 * dtaccum:
+		self.taccum -= dtaccum
+		state.think(dtaccum, kdowns, kpressed)
+		state.resolve()
+	while view.X0 > self.nextaddX0:
+		addchallenge()
+	if state.losing():
+		self.tlose += dt
+	if self.tlose >= 1:
+		from . import menuscene, scene
+		scene.set(menuscene)
+	hill.killtime(0.005)
+
+def draw():
+	skycolor = colormix((100, 100, 255), (120, 0, 0), currentscore() / 50)
+
+	pview.fill(skycolor)
+	objs = list(state.hills) + list(state.effects) + list(state.hazards)
+	objs.sort(key = lambda obj: (obj.z, -obj.y))
+	for obj in objs:
+		obj.draw()
+	state.you.draw()
+	if self.t < 1:
+		a = math.clamp(int(255 * (1 - math.smoothfade(self.t, 0, 1))), 0, 255)
+		pview.fill((255, 255, 255, a))
+	if self.tlose > 0:
+		a = math.clamp(int(255 * math.smoothfade(self.tlose, 0, 0.5)), 0, 255)
+		pview.fill((255, 255, 255, a))
+	ptext.draw("Distance: %d m" % currentscore(), topright = T(1000, 24),
+		fontsize = T(30), color = "black",
+		fontname = "Acme")
+
 

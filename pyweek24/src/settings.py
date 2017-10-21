@@ -21,6 +21,13 @@ audio = "--noaudio" not in sys.argv
 music = audio and "--nomusic" not in sys.argv
 sfx = audio and "--nosfx" not in sys.argv
 
+playspeed = 1
+if "--slow" in sys.argv:
+	playspeed = 0.75
+for arg in sys.argv:
+	if arg.startswith("--speed="):
+		playspeed = float(arg[8:])
+
 
 # The uniform motion of the camera.
 # Don't change this. It will mis-calibrate the position of everything.
