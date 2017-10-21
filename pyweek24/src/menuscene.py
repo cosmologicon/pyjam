@@ -1,5 +1,5 @@
 import pygame, math
-from . import state, view, mist, ptext, drawyou, settings, scene, playscene, pview, sound
+from . import state, view, mist, ptext, drawyou, settings, scene, playscene, pview, sound, endless
 from .pview import T
 
 class self:
@@ -15,6 +15,7 @@ def init():
 	view.reset()
 	mist.init()
 	sound.playmusic("pamgaea")
+	self.hiscore = endless.gethiscore()
 
 
 def think(dt, kdowns, kpressed):
@@ -23,9 +24,13 @@ def think(dt, kdowns, kpressed):
 	if self.ending:
 		self.tend += dt
 	if self.tend > 1:
-		scene.set(playscene)
+		if self.choice == 0:
+			scene.set(playscene)
+		else:
+			scene.set(endless)
 	if not self.ending and settings.isdown(kdowns, "select"):
-		self.ending = True
+		if self.choice == 0 or self.hiscore is not None:
+			self.ending = True
 	if not self.ending:
 		if any(settings.isdown(kdowns, kname) for kname in ["up", "down", "left", "right"]):
 			self.choice = 1 - self.choice
@@ -38,24 +43,30 @@ def draw():
 	for obj in objs:
 		obj.draw()
 
-	color = (120, 0, 255)
-	gcolor = (60, 0, 200)
+	color = (200, 150, 255)
+	gcolor = (160, 80, 200)
 	frun = self.t * 2 % 1
-	ptext.draw(settings.gamename, T(30, 40), fontsize = T(70), color = color, gcolor = gcolor,
+	ptext.draw(settings.gamename, T(30, 20), fontsize = T(100), color = color, gcolor = gcolor,
 		shadow = (1, 1), fontname = "SpicyRice")
-	ptext.draw("by Christopher Night", T(260, 120), fontsize = T(30), color = color, gcolor = gcolor,
+	ptext.draw("by Christopher Night", T(460, 140), fontsize = T(30), color = color, gcolor = gcolor,
 		shadow = (1, 1), fontname = "SpicyRice")
 
-	ptext.draw("Story Mode", T(400, 220), fontsize = T(70), color = color, gcolor = gcolor,
+	ptext.draw("Story Mode / Tutorial", T(300, 220), fontsize = T(70), color = color, gcolor = gcolor,
 		shadow = (1, 1), fontname = "SpicyRice")
-	ptext.draw("Endless Mode", T(400, 320), fontsize = T(70), color = color, gcolor = gcolor,
-		shadow = (1, 1), fontname = "SpicyRice")
+
+	ptext.draw("Endless Mode", T(300, 320), fontsize = T(70), color = color, gcolor = gcolor,
+		shadow = (1, 1), fontname = "SpicyRice",
+		alpha = 0.2 if self.hiscore is None else 1)
 
 	ptext.draw("F10: toggle window size\nF11: toggle fullscreen\nEsc: quit",
 		fontsize = T(20), color = "black",
 		topright = T(1000, 20), fontname = "Acme")
+	if self.hiscore is not None:
+		ptext.draw("High score: %d m" % self.hiscore, midbottom = T(512, 460),
+		fontsize = T(30), color = "black",
+		fontname = "Acme")
 
-	p = T(340, 320 + 100 * self.choice)
+	p = T(240, 320 + 100 * self.choice)
 	drawyou.running(p, T(16), frun)
 
 	if self.t < 1:

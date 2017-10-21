@@ -22,7 +22,7 @@ X0, Y0 = None, None
 def init():
 	global X0, Y0
 	# TODO: pview dump options
-	pview.set_mode((1024, 480))
+	pview.set_mode((1024, 480), height = settings.res, fullscreen = settings.fullscreen, forceres = settings.forceres)
 	pygame.display.set_caption(settings.gamename)
 	pygame.mouse.set_visible(False)
 	X0, Y0 = 0, 0

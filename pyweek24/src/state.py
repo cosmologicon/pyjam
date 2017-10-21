@@ -31,7 +31,7 @@ def blockedat0(p0, z):
 
 def think(dt, kdowns, kpressed):
 	global youftarget, boards, blocks, hills, effects
-	kright = (1 if kpressed[pygame.K_RIGHT] else 0) - (1 if kpressed[pygame.K_LEFT] else 0)
+	kright = (1 if settings.ispressed(kpressed, "right") else 0) - (1 if settings.ispressed(kpressed, "left") else 0)
 	if kright:
 		dftarget = 2 * dt * kright
 		youftarget = math.clamp(youftarget + dftarget, -1, 1)

@@ -5,6 +5,7 @@ from . import scene, playscene, menuscene
 from .pview import T
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
+pygame.init()
 view.init()
 pygame.mixer.init()
 scene.set(menuscene)

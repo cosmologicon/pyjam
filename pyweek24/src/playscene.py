@@ -1,6 +1,6 @@
 from __future__ import division, print_function
-import random, math, os.path, pygame
-from . import view, pview, state, thing, mist, challenge, settings, hill, sound
+import random, math, os, pygame
+from . import view, pview, state, thing, mist, challenge, settings, hill, sound, endless
 
 class self:
 	pass
@@ -9,16 +9,16 @@ def init():
 	self.t = 0
 	self.tlose = 0
 	self.sequence = [
-		"dialogue A barrier lies in the hills,\nwhich I have never crossed", "", "hopper0", "save-0",
+		"dialogue A barrier lies in the hills,\nwhich I have never crossed", "", "hopper0", "tier3", "tier3", "save-0",
 		"dialogue But today I will cross it.\nToday is different.", "forward", "save-1",
 		"dialogue Because now I see things\nfrom a new perspective.", "fallback", "save-2",
 		"dialogue What lies in front....\nWhat lies behind....", "longjump3", "save-3",
 		"dialogue They're all the same from\nthe right point of view.", "leapoffaith", "leapoffaith", "save-4",
-#		"wall", "firstbranch", "branch3",
-#		"rolling", "hopper0", "save-0",
-#		"rolling", "forward", "fallback", "save-1",
-#		"longjump3", "save-2",
-#		"leapoffaith", "arcade", "save-3",
+		"firstbranch", "dialogue I can only rely on\nwhat can be seen.", "branch3", "save-5",
+		"dialogue Whatever is behind something\nI can ignore.", "ascend", "save-6",
+		"dialogue Can I really avoid the barrier,\nby placing it behind something?", "arcade", "save-7",
+		"dialogue I've reached the barrier.\nNow is my chance.", "wall", "save-99",
+		"dialogue The only question left is:\nhow far will I run?", "save-end",
 	]
 
 	state.reset()
@@ -76,6 +76,9 @@ def think(dt, kdowns, kpressed):
 	while self.nextsaveX0 is not None and view.X0 > self.nextsaveX0:
 		self.nextsaveX0 = None
 		open(settings.savename, "w").write(self.nextsavename)
+		if "end" in self.nextsavename:
+			os.remove(settings.savename)
+			endless.unlock()
 	if state.losing():
 		self.tlose += dt
 	if self.tlose >= 1:

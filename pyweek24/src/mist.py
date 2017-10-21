@@ -24,7 +24,7 @@ class Mist(object):
 		surf = pygame.Surface((w0, h0)).convert_alpha()
 		surf.fill((200, 200, 255, 0))
 		arr = pygame.surfarray.pixels_alpha(surf)
-		y0 = h0 / 2 + 5
+		y0 = h0 / 2 + 5 * pview.f
 		for y in range(h0):
 			a0 = 100 + 600 * (y - y0) / h0
 			for x in range(w0):

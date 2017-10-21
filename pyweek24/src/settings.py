@@ -1,16 +1,20 @@
 import os, sys, pygame
 
-gamename = "They're Behind Everything"
+gamename = "Faraway Near"
 DEBUG = "--DEBUG" in sys.argv
 
 minfps, maxfps = 10, 60
 ups = 120
 
-lowres = "--lowres" in sys.argv
+lowres = "--lowfi" in sys.argv
 
 resolutions = 360, 480, 720, 900
-
 res = 480
+for arg in sys.argv:
+	if arg.startswith("--res="):
+		res = int(arg[6:])
+forceres = "--forceres" in sys.argv
+fullscreen = "--fullscreen" in sys.argv
 
 
 audio = "--noaudio" not in sys.argv
@@ -35,8 +39,13 @@ prejumptime = 0.2
 cliffhangtime = 0.2
 
 savename = os.path.join("save", "progress.txt")
+scorename = os.path.join("save", "hiscore.txt")
 try:
 	os.makedirs(os.path.dirname(savename))
+except OSError:
+	pass
+try:
+	os.makedirs(os.path.dirname(scorename))
 except OSError:
 	pass
 if "--reset" in sys.argv:
