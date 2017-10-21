@@ -36,6 +36,8 @@ def think(dt, kdowns, kpressed):
 	if not self.ending:
 		if any(settings.isdown(kdowns, kname) for kname in ["up", "down", "left", "right"]):
 			self.choice = 1 - self.choice
+	if pygame.K_ESCAPE in kdowns:
+		scene.set()
 
 def draw():
 	pview.fill((100, 100, 255))

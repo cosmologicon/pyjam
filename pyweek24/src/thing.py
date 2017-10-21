@@ -241,7 +241,7 @@ class DrawArrow(enco.Component):
 	def setstate(self, right = False, left = False, **args):
 		self.right = right
 		self.left = left
-		self.angle = random.uniform(-25, 25)
+		self.angle = random.uniform(-15, 15)
 	def draw(self):
 		x0, y0 = self.screenpos()
 		C, S = math.CS(math.radians(self.angle))

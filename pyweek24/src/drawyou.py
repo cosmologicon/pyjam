@@ -5,7 +5,7 @@ from . import pview
 scolor = 200, 100, 250
 
 def i(x):
-	return max(int(round(x)), 1)
+	return max(int(round(x)), 1) if x > 0 else int(round(x))
 
 def drawfoot(pos, scale):
 	x, y = pos
@@ -111,6 +111,8 @@ if __name__ == "__main__":
 		fcycle = pygame.time.get_ticks() / 3000 % 1
 		vy = 30 * math.cos(fcycle * math.tau / 2)
 		falling((800, 200), 16, vy)
+
+		running((500, 20), 12, 0)
 
 		pygame.display.flip()
 

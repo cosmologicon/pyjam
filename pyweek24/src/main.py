@@ -47,6 +47,4 @@ while playing:
 		pview.screenshot()
 
 	pygame.display.flip()
-	if pygame.K_ESCAPE in kdowns:
-		playing = False
 

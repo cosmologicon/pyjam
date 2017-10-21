@@ -26,10 +26,6 @@ def addchallenge(cname, signs = True, hillcolor = (180, 100, 40), grasscolor = (
 	lastx, lasty = lasthill.hilltopend()
 	lastz = lasthill.z
 	x0 = view.xmatchatplayer(lastx, lastz, 0) + 5
-	if signs:
-		addsigns(cname, x0)
-	if dialogue is not None:
-		adddialogue(dialogue, x0 + 80)
 	ystart = lasty - 5
 	xend = 10 + 2 * abs(ystart)
 	fracs = [0, 0.2, 0.4, 0.6, 0.8, 1]
@@ -45,6 +41,9 @@ def addchallenge(cname, signs = True, hillcolor = (180, 100, 40), grasscolor = (
 		spec = spec))
 
 	x0 += xend + 5
+	if dialogue is not None:
+		adddialogue(dialogue, x0 + 60)
+	addsigns(cname, x0, signs = signs)
 
 	hills, hazards = getdata(cname)
 	for h in hills:
@@ -55,6 +54,20 @@ def addchallenge(cname, signs = True, hillcolor = (180, 100, 40), grasscolor = (
 	if cname == "tier3":
 		hazards = list(hazards)
 		del hazards[random.choice((0, 1, 2))]
+	if cname == "hazard3":
+		hazards = [dict(hazard) for hazard in hazards]
+		right = random.choice((False, True))
+		hazards[0]["x"] += 5 if right else -5
+		dx = -3 if right else 3
+		addarrow(x0 + 14 + dx, -10, 6, right, not right)
+		right = random.choice((False, True))
+		hazards[1]["x"] += 5 if right else -5
+		dx = -3 if right else 3
+		addarrow(x0 + 23 + dx, -10, 6, right, not right)
+		right = random.choice((False, True))
+		hazards[2]["x"] += 5 if right else -5
+		dx = -3 if right else 3
+		addarrow(x0 + 32 + dx, -10, 6, right, not right)
 	for h in hazards:
 		X0 = x0 + h["X0"]
 		state.hazards.append(thing.Hazard(x = h["x"] - h["X0"], y = h["y"], z = h["z"] - 0.0001,
@@ -78,23 +91,30 @@ def adddialogue(text, x):
 def addarrow(x, y = -15, z = 0, right=False, left=False):
 	state.effects.append(thing.Arrow(x = x, y = y, z = z, right = right, left = left))
 
-def addsigns(cname, x0):
+def addsigns(cname, x0, signs):
+	if cname == "forward":
+		addarrow(x0 + 40, right = True)
+	if cname == "backunder":
+		addarrow(x0 + 62, y = -8, z = 15, left = True, right = True)
+	if cname == "fallback":
+		addarrow(x0 + 40, left = True)
+	if cname == "longjump3":
+		addarrow(x0 + 30, left = True, right = True)
+		addarrow(x0 + 90, left = True, right = True)
+		addarrow(x0 + 150, left = True, right = True)
+	if cname == "wall":
+		addarrow(x0 + 105, y = -10, right = True)
+		addarrow(x0 + 255, y = -10, left = True)
+
+	if not signs:
+		return
+
 	if cname == "hopper0":
 		addsign("Space or Up\nJump", x0 - 20)
 	if cname == "forward":
 		addsign("Hold right\nRun ahead", x0 + 20)
-		addarrow(x0 + 60, right = True)
-	if cname == "backunder":
-		addarrow(x0 + 86, y = -8, z = 15, left = True, right = True)
 	if cname == "fallback":
 		addsign("Hold left\nFall back", x0 + 20)
-		addarrow(x0 + 60, left = True)
 	if cname == "longjump3":
 		addsign("Left then right\nLong jump", x0 + 20)
-		addarrow(x0 + 60, left = True, right = True)
-		addarrow(x0 + 130, left = True, right = True)
-		addarrow(x0 + 190, left = True, right = True)
-	if cname == "wall":
-		addarrow(x0 + 145, y = -10, right = True)
-		addarrow(x0 + 295, y = -10, left = True)
 

@@ -7,8 +7,8 @@ def init():
 		state.effects.append(Mist(8))
 #		state.effects.append(Mist(-8))
 	else:
-		state.effects.append(Mist(20))
-		state.effects.append(Mist(8))
+		state.effects.append(Mist(12))
+		state.effects.append(Mist(6))
 		state.effects.append(Mist(-8))
 		state.effects.append(Mist(-20))
 

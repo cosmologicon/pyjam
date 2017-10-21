@@ -1,7 +1,8 @@
 
 current = None
-def set(s):
+def set(s = None):
 	global current
 	current = s
-	current.init()
+	if s is not None:
+		current.init()
 

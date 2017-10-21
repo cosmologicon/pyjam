@@ -4,7 +4,7 @@ from . import settings, view, state, thing, mist, challenge, sound, hill, pview,
 from .pview import T
 
 def currentscore():
-	return view.X0 * 0.02
+	return view.X0 * 0.02 + self.score0
 def isunlocked():
 	return os.path.exists(settings.scorename)
 def unlock():
@@ -28,7 +28,7 @@ class self:
 	pass
 
 def getspeed():
-	x = currentscore() / 1000
+	x = currentscore() / 200
 	return 1 + 1.2 * (1 - math.exp(-x))
 
 skycolors = {
@@ -47,8 +47,8 @@ hillcolors = {
 
 def getscene():
 	nscene = len(skycolors)
-	scenelength = 100
-	dlength = 10
+	scenelength = 40
+	dlength = 4
 	score = currentscore()
 	jscene = int(score / scenelength) % nscene
 	lastscene = (jscene - 1) % nscene if score > scenelength else 0
@@ -58,6 +58,7 @@ def getscene():
 def init():
 	self.t = 0
 	self.tlose = 0
+	self.score0 = 0.5 * (gethiscore() or 0)
 
 	state.reset()
 	view.reset()
@@ -68,6 +69,7 @@ def init():
 	]))
 	mist.init()
 
+	self.lastchallenges = []
 	addchallenge()
 	sound.playmusic("party")
 	self.taccum = 0
@@ -79,12 +81,28 @@ def startprofile(name):
 def stopprofile(name):
 	self.profile[name] = pygame.time.get_ticks() - self.profile[name]
 
+def getchallenge():
+	challenges = ["hopper0", "tier3", "arcade", "backunder", "leapoffaith", "forward", "fallback"]
+	if currentscore() > 40:
+		challenges += ["ascend", "longjump3", "hazard3", "shortcliff"]
+	if currentscore() > 80:
+		challenges += ["longjump3", "hazard3", "tier3"]
+	if currentscore() > 120:
+		challenges += ["hazard3", "tier3"]
+	while True:
+		c = random.choice(challenges)
+		if c not in self.lastchallenges:
+			break
+	self.lastchallenges.append(c)
+	self.lastchallenges = self.lastchallenges[-3:]
+	return c
+
 def addchallenge():
-	cname = "rolling"
+	cname = getchallenge()
 	_, s, _ = getscene()
 	hillcolor, grasscolor = hillcolors[s]
-	challenge.addchallenge(cname, hillcolor = hillcolor, grasscolor = grasscolor)
-	self.nextaddX0 = state.endingX0at(90)
+	challenge.addchallenge(cname, signs = False, hillcolor = hillcolor, grasscolor = grasscolor)
+	self.nextaddX0 = state.endingX0at(120)
 
 def think(dt, kdowns, kpressed):
 	dt *= getspeed()
@@ -100,7 +118,8 @@ def think(dt, kdowns, kpressed):
 		addchallenge()
 	if state.losing():
 		self.tlose += dt
-	if self.tlose >= 1:
+	if self.tlose >= 1 or pygame.K_ESCAPE in kdowns:
+		savescore()
 		from . import menuscene, scene
 		scene.set(menuscene)
 	hill.killtime(0.005)
