@@ -29,6 +29,10 @@ prejumptime = 0.2
 cliffhangtime = 0.2
 
 savename = os.path.join("save", "progress.txt")
+try:
+	os.makedirs(os.path.dirname(savename))
+except OSError:
+	pass
 if "--reset" in sys.argv:
 	if os.path.exists(savename):
 		os.remove(savename)

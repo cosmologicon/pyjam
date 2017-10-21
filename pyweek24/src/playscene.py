@@ -24,6 +24,8 @@ def init():
 
 	mist.init()
 
+	state.effects.append(thing.Arrow(x = 50, y = -15, z = 0, right = True, left = True))
+
 	state.effects.append(thing.Sign(text = settings.gamename,
 		x = 120, y = -20, z = -25, fontsize = 15, color = "orange", shadow = (1, 1),
 		angle = 10))

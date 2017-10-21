@@ -210,13 +210,16 @@ class RoundFlashing(enco.Component):
 		r = view.screenscale(self.r, self.z)
 		pygame.draw.circle(pview.screen, color, self.screenpos(), r)
 
+class LivesOnscreen(enco.Component):
+	def alive(self):
+		return not self.gone()
+
 class DrawText(enco.Component):
-	def setstate(self, text, fontsize = 3, color = None, ocolor = None, owidth = 0, angle = 0, **args):
+	def setstate(self, text, fontsize = 3, color = None, shadow = None, angle = 0, **args):
 		self.text = text
 		self.fontsize = fontsize
 		self.color = color
-		self.ocolor = ocolor
-		self.owidth = owidth
+		self.shadow = shadow
 		self.angle = angle
 	def draw(self):
 		p = view.toscreen(self.x, self.y, self.z)
@@ -224,15 +227,34 @@ class DrawText(enco.Component):
 			center = view.toscreen(self.x, self.y, self.z),
 			fontsize = view.screenscale(self.fontsize, self.z),
 			color = self.color,
-			ocolor = self.ocolor,
-			owidth = self.owidth,
+			shadow = self.shadow,
 			angle = self.angle
 		)
 	def xmax(self):
 		return self.x + 0.5 * self.fontsize * len(self.text)
-	def alive(self):
-		return not self.gone()
-		
+
+class DrawArrow(enco.Component):
+	def setstate(self, right = False, left = False, **args):
+		self.right = right
+		self.left = left
+		self.angle = random.uniform(-25, 25)
+	def draw(self):
+		x0, y0 = self.screenpos()
+		C, S = math.CS(math.radians(self.angle))
+		# TODO: maff.R
+		if self.right:
+			dxys = [(1, 5), (6, 0), (1, -5)]
+			dxys = [(C * dx + S * dy, -S * dx + C * dy) for dx, dy in dxys]
+			ps = [view.toscreen(self.x + dx, self.y + dy, self.z) for dx, dy in dxys]
+			pygame.draw.polygon(pview.screen, (50, 50, 100), ps)
+		if self.left:
+			dxys = [(-1, 5), (-6, 0), (-1, -5)]
+			dxys = [(C * dx + S * dy, -S * dx + C * dy) for dx, dy in dxys]
+			ps = [view.toscreen(self.x + dx, self.y + dy, self.z) for dx, dy in dxys]
+			pygame.draw.polygon(pview.screen, (50, 50, 100), ps)
+	def xmax(self):
+		return self.x + 4
+
 
 @WorldBound()
 @Timer()
@@ -281,7 +303,17 @@ class Hazard(object):
 
 @WorldBound()
 @DrawText()
+@LivesOnscreen()
 class Sign(object):
+	def __init__(self, **args):
+		self.setstate(**args)
+	def think(self, dt):
+		pass
+
+@WorldBound()
+@DrawArrow()
+@LivesOnscreen()
+class Arrow(object):
 	def __init__(self, **args):
 		self.setstate(**args)
 	def think(self, dt):
