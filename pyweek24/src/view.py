@@ -17,6 +17,7 @@ from . import pview, settings
 from .pview import T
 
 # Camera offset. The position (X0, Y0, 0) is at the center of the screen.
+# Y0 remains at 0 for the entire game.
 X0, Y0 = None, None
 
 def init():
@@ -36,6 +37,7 @@ def reset():
 	global X0, Y0
 	X0, Y0 = 0, 0
 
+# Scale factor at the given z plane, with respect to the z = 0 plane.
 def scale(z):
 	return math.phi ** (z / 10)
 

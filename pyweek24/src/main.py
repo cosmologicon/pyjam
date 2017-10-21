@@ -1,3 +1,5 @@
+# Main game loop and setup.
+
 from __future__ import division, print_function
 import pygame
 from . import settings, view, pview, ptext

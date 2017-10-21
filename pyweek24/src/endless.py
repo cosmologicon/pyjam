@@ -1,3 +1,5 @@
+# Endless mode
+
 from __future__ import division, print_function
 import os, random, math, pygame
 from . import settings, view, state, thing, mist, challenge, sound, hill, pview, ptext
@@ -45,6 +47,7 @@ hillcolors = {
 	3: [(120, 160, 255), (200, 200, 255)],
 }
 
+# Returns previous scene, current scene, and fraction of transition between them (for sky)
 def getscene():
 	nscene = len(skycolors)
 	scenelength = 40
@@ -81,6 +84,8 @@ def startprofile(name):
 def stopprofile(name):
 	self.profile[name] = pygame.time.get_ticks() - self.profile[name]
 
+# Randomly select the next challenge.
+# Hopefully add harder challenges as we go along.
 def getchallenge():
 	challenges = ["hopper0", "tier3", "arcade", "backunder", "leapoffaith", "forward", "fallback"]
 	if currentscore() > 40:

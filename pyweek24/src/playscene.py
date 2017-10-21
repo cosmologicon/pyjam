@@ -1,7 +1,10 @@
+# Gameplay scene for story mode.
+
 from __future__ import division, print_function
 import random, math, os, pygame
 from . import view, pview, state, thing, mist, challenge, settings, hill, sound, endless
 
+# Handy module-level global to store this scene's state.
 class self:
 	pass
 
@@ -14,7 +17,7 @@ def init():
 		"dialogue Now I see things from\na new perspective.", "fallback", "save-2",
 		"dialogue What lies in front....\nWhat lies behind....", "longjump3", "save-3",
 		"dialogue They're all the same from\nthe right point of view.", "leapoffaith", "leapoffaith", "save-4",
-		"firstbranch", "dialogue I can only rely on\nwhat can be seen.", "branch3", "save-5",
+		"dialogue I can only rely on\nwhat can be seen.", "firstbranch", "branch3", "save-5",
 		"dialogue Whatever is behind something\nmay not even exist.", "ascend", "save-6",
 		"dialogue I will avoid the barrier,\nby placing it behind something!", "arcade", "save-7",
 		"dialogue I've reached the barrier.\nNow is my chance.", "wall", "save-99",

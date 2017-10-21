@@ -1,3 +1,5 @@
+# Sound module to play music/sound. Pretty straightforward.
+
 import pygame, os.path
 from . import settings
 

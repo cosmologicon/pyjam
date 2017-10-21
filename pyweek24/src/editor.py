@@ -1,3 +1,18 @@
+# The editor module. Very buggy but I don't have time to make it good.
+# Arrow keys: move camera
+# Tab or shift-tab: cycle through objects
+# WASD (in Dvorak): move currently selected object
+# IJKL (in Dvorak): stretch/compress hill in x and y dimensions.
+# 1/2 (for hills): rotate
+# 1/2 (for hazards): resize
+# Enter: add object
+# Space: toggle hill type
+# Backspace: flip hill horizontally
+# Del: remove selected object
+# Backquote: switch between hills and hazards
+# Hazards' X0 values are given by wherever the camera is last time they were selected
+
+
 from __future__ import division, print_function
 import pygame, math, json, os.path, sys
 from . import maff, view, pview, ptext, hill

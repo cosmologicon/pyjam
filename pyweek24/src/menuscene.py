@@ -1,3 +1,5 @@
+# Menu selection scene.
+
 import pygame, math
 from . import state, view, mist, ptext, drawyou, settings, scene, playscene, pview, sound, endless
 from .pview import T

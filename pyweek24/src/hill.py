@@ -1,5 +1,10 @@
 # Procedural hill graphics
 
+# A hill consists of multiple sequences of points, corresponding to horizontal layers.
+# The top layer may be run across, and is decorated with grass.
+
+# Branches are a special case of hills with no top layer.
+
 from __future__ import division, print_function
 import pygame, random, math
 from . import view, pview

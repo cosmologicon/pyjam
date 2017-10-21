@@ -1,3 +1,6 @@
+# A mist object wraps a blurred surface onto the screen.
+# The z-coordinate ensures that it's drawn at the proper position.
+
 from __future__ import division
 import pygame, random, math
 from . import pview, view, settings, state

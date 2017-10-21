@@ -1,3 +1,5 @@
+# Game settings, including command-line options and mechanics.
+
 import os, sys, pygame
 
 gamename = "Faraway Near"

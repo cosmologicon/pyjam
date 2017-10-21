@@ -1,3 +1,5 @@
+# The drawyou module. Procedural animation of the player character using pygame primitives.
+
 from __future__ import division, print_function
 import pygame, math, settings
 from . import pview
@@ -7,6 +9,7 @@ scolor = 200, 100, 250
 def i(x):
 	return max(int(round(x)), 1) if x > 0 else int(round(x))
 
+# Foot or hand. Either way it's just a skin-colored ball.
 def drawfoot(pos, scale):
 	x, y = pos
 	pos = i(x), i(y)
@@ -19,22 +22,28 @@ def drawnoggin(pos, scale, angle = 0):
 	def p(dx, dy):
 		dx, dy = C * dx + S * dy, -S * dx + C * dy
 		return (i(x + dx * scale), i(y + dy * scale))
+	# The head itself
 	pygame.draw.circle(pview.screen, (0, 0, 0), p(0, 0), i(1.4 * scale))
 	pygame.draw.circle(pview.screen, scolor, p(0, 0), i(1.1 * scale))
+	# Hair or hat or whatever that is on top.
 	ps = [p(dx, dy) for dx, dy in [(-1.5, 0), (2, -1.5), (-4, -1), (-1.8, -2.5)]]
 	pygame.draw.polygon(pview.screen, (240, 40, 180), ps)
 	pygame.draw.lines(pview.screen, (0, 0, 0), True, ps, i(0.3 * scale))
+	# Eye
 	pygame.draw.line(pview.screen, (0, 0, 0), p(0.2, 0.3), p(0.3, -0.7), i(0.3 * scale))
 	pygame.draw.line(pview.screen, (255, 255, 255), p(0.45, 0.1), p(0.5, -0.5), i(0.3 * scale))
 	
 
+# fcycle is a number in [0, 1), the fraction of the way through the run cycle.
 def running(screenpos, scale, fcycle):
 	x, y = screenpos
 	C, S = math.CS(fcycle * math.tau)
 	C2, S2 = math.CS(2 * fcycle * math.tau)
+	# Arms and legs don't quite follow a sinusoidal pattern. They spend extra time at the extrema.
+	# This gives them a more natural swing.
+	fC = abs(C) ** 0.7 * math.sign(C)
 	# foots
 	x0, y0 = x - 1 * scale, y - 1 * scale
-	fC = abs(C) ** 0.7 * math.sign(C)
 	dx = 1.3 * fC
 	dy = 0.4 * S + 0.2 * C
 	drawfoot((x0 + dx * scale, y0 + dy * scale), scale)
@@ -63,6 +72,8 @@ def running(screenpos, scale, fcycle):
 	if settings.DEBUG:
 		pygame.draw.circle(pview.screen, (255, 0, 255), screenpos, i(0.3 * scale))
 
+# Essentially stretch out the body during the fall animation. Stretch vertically for upward motion,
+# and compress vertically for downward motion.
 def falling(screenpos, scale, vy):
 	vy = math.clamp(vy, -30, 30)
 	x, y = screenpos
@@ -83,7 +94,7 @@ def falling(screenpos, scale, vy):
 	# front fist
 	drawfoot((x - (1.5 * math.cos(dystretch)) * scale, y + (-2.5 + 3 * dystretch) * scale), scale)
 
-	# noggin
+	# Tilt head to look up during upward motion and down during downward motion.
 	x0, y0 = x + 0.5 * scale, y - 5 * scale
 	drawnoggin((x0, y0), scale, angle = 0.2 + 0.5 * dystretch)
 

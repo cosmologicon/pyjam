@@ -1,3 +1,4 @@
+# Module that just keeps track of the current scene.
 
 current = None
 def set(s = None):

@@ -1,6 +1,8 @@
 # "Are you asking for a challenge?!" -Stinkoman
 
-# Add a challenge segment to the state
+# Add a challenge segment to the game state.
+
+# Challenge segment specs are produced by the editor module and found in the leveldata subdirectory.
 
 import json, math, os.path, random
 from . import state, view, thing, hill
@@ -17,11 +19,14 @@ def getdata(cname):
 
 def addchallenge(cname, signs = True, hillcolor = (180, 100, 40), grasscolor = (40, 100, 40)):
 	dialogue = None
+	# Special case: challenges that start with dialogue are simply the rolling hill with dialogue
+	# text in front.
 	if cname.startswith("dialogue"):
 		dialogue = cname[cname.index(" ") + 1:]
 		cname = "rolling"
 
-	# Add connector hill to reset to 0
+	# Add connector hill to reset to 0, so that we can match up segments without worrying about
+	# ending elevation.
 	lasthill = max(state.hills, key = lambda h: view.xmatchatplayer(h.hilltopend()[0], h.z, 0))
 	lastx, lasty = lasthill.hilltopend()
 	lastz = lasthill.z
@@ -40,6 +45,7 @@ def addchallenge(cname, signs = True, hillcolor = (180, 100, 40), grasscolor = (
 		color0 = hillcolor, grasscolor = grasscolor,
 		spec = spec))
 
+	# x0 is now the start of the new segment.
 	x0 += xend + 5
 	if dialogue is not None:
 		adddialogue(dialogue, x0 + 60)
@@ -51,9 +57,12 @@ def addchallenge(cname, signs = True, hillcolor = (180, 100, 40), grasscolor = (
 		state.addhill(thing.Hill(x = x, y = h["y"], z = h["z"],
 			color0 = hillcolor, grasscolor = grasscolor,
 			spec = hill.getspec(h)))
+	# Randomly remove one of the three hazards in this challenge.
 	if cname == "tier3":
 		hazards = list(hazards)
 		del hazards[random.choice((0, 1, 2))]
+	# Randomly choose either right or left for each of the three hazards in this challenge. Move the
+	# hazards, and put a corresponding indicator arrow on the hill at the beginning.
 	if cname == "hazard3":
 		hazards = [dict(hazard) for hazard in hazards]
 		right = random.choice((False, True))
@@ -91,6 +100,8 @@ def adddialogue(text, x):
 def addarrow(x, y = -15, z = 0, right=False, left=False):
 	state.effects.append(thing.Arrow(x = x, y = y, z = z, right = right, left = left))
 
+# A little bit of a misnomer. This function adds both signs and arrows. If signs is set to False
+# (in endless mode), then only arrows will be added.
 def addsigns(cname, x0, signs):
 	if cname == "forward":
 		addarrow(x0 + 40, right = True)

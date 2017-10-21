@@ -1,3 +1,5 @@
+# thing module - entity defintions.
+
 from __future__ import division
 import pygame, math, random
 from . import view, pview, ptext, enco, youstate, state, hill, settings
@@ -18,9 +20,11 @@ class WorldBound(enco.Component):
 	def screenpos(self):
 		return view.toscreen(self.x, self.y, self.z)
 	# For objects that don't change x position or z, they're considered gone once they've completely
-	# scrolled off the left of the screen.
+	# scrolled off the left of the screen. Override this function with the rightmost x-coordinate of
+	# an object.
 	def xmax(self):
 		return self.x
+	# Has it scrolled off the left of the screen?
 	def gone(self):
 		x, y = view.toscreen(self.xmax(), 0, self.z)
 		return x < -1
@@ -78,9 +82,11 @@ class LinearSpan(enco.Component):
 		b = self.dhatx * cy - self.dhaty * cx
 		return a, b
 
+	# a is the fraction along this object: a = 0 is left edge, a = 1 is right edge.
 	def along(self, a):
 		return self.x + self.dx * a, self.y + self.dy * a, self.z
 
+	# Is this object blocked by a block at a greater z value?
 	def blockedat(self, a):
 		p0 = view.to0(*self.along(a))
 		return state.blockedat0(p0, self.z)
@@ -182,17 +188,18 @@ class DrawYou(enco.Component):
 	def draw(self):
 		px, py = self.screenpos()
 		R = view.screenscale(self.r, self.z)
-#		pygame.draw.circle(pview.screen, (255, 0, 255), (px, py - R), R, T(1))
-#		pygame.draw.circle(pview.screen, (255, 200, 255), (px, py), T(3), 0)
+		# The rest is now handled by the drawyou module.
 	def center(self):
 		return self.x, self.y + self.r, self.z
 
+# DrawBoard not used in the game - hills are drawn separately now.
 class DrawBoard(enco.Component):
 	def draw(self):
 		pos0 = view.toscreen(self.x, self.y, self.z)
 		pos1 = view.toscreen(self.x1, self.y1, self.z)
 		pygame.draw.line(pview.screen, (255, 255, 0), pos0, pos1, T(3 * view.scale(self.z)))
 
+# DrawShield not used in the game - hills are drawn separately now.
 class DrawShield(enco.Component):
 	def setstate(self, scolor = None, **args):
 		self.scolor = scolor
