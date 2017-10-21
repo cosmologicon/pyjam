@@ -1,5 +1,5 @@
 import random, math, os.path, pygame
-from . import view, pview, state, thing, mist, challenge, settings, hill
+from . import view, pview, state, thing, mist, challenge, settings, hill, sound
 
 class self:
 	pass
@@ -39,6 +39,7 @@ def init():
 	self.nextsaveX0 = None
 	resetprofile()
 	addchallenge()
+	sound.playmusic("call")
 
 def resetprofile():
 	self.profile = {}

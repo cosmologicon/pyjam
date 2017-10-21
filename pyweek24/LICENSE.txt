@@ -15,17 +15,34 @@ If you are interested in additional licensing terms, please contact Christopher 
 Source code license
 -------------------
 
-The source code (everything in the `src` directory) is by Christopher Night, and is additionally
-dedicated to the public domain under a CC0 public domain dedication.
+The source code for this game is everything in the `src` directory, with the following exceptions:
+
+* `enco.py`
+* `maff.py`
+* `ptext.py`
+* `pview.py`
+
+These are all by Christopher Night, and available on Github.
+
+The game source code (everything else in the `src` directory) is by Christopher Night, and is
+additionally dedicated to the public domain under a CC0 public domain dedication.
 
 https://creativecommons.org/publicdomain/zero/1.0/
 
-The source code is also released under an MIT license.
+The game source code is also released under an MIT license.
 
 https://opensource.org/licenses/MIT
 
-Asset licenses
---------------
+Music license
+-------------
 
-Some assets (in the `data` directory) may have additional licenses. If so, these licenses may be
-found in the subdirectory alongside the assets themselves.
+Music by Kevin MacLeod (`incompetech.com`), distributed under a CC-BY license:
+
+http://incompetech.com/music/royalty-free/index.html?isrc=usuan1300036
+http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300022
+https://incompetech.com/wordpress/2014/08/jay-jay/
+
+Fonts license
+-------------
+
+Fonts are distributed under their respective licenses, found in the `fonts` subdirectory.

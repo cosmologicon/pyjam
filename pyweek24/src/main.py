@@ -6,6 +6,7 @@ from .pview import T
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 view.init()
+pygame.mixer.init()
 scene.set(menuscene)
 
 clock = pygame.time.Clock()

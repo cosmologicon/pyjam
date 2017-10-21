@@ -1,5 +1,5 @@
 import pygame, math
-from . import state, view, mist, ptext, drawyou, settings, scene, playscene, pview
+from . import state, view, mist, ptext, drawyou, settings, scene, playscene, pview, sound
 from .pview import T
 
 class self:
@@ -14,6 +14,7 @@ def init():
 	state.reset()
 	view.reset()
 	mist.init()
+	sound.playmusic("pamgaea")
 
 
 def think(dt, kdowns, kpressed):

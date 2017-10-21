@@ -12,6 +12,11 @@ resolutions = 360, 480, 720, 900
 res = 480
 
 
+audio = "--noaudio" not in sys.argv
+music = audio and "--nomusic" not in sys.argv
+sfx = audio and "--nosfx" not in sys.argv
+
+
 # The uniform motion of the camera.
 # Don't change this. It will mis-calibrate the position of everything.
 speed = 24
