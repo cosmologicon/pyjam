@@ -96,7 +96,7 @@ def dying(screenpos, scale):
 	
 
 if __name__ == "__main__":
-	from . import maff, view
+	from . import maff, view, pview
 	view.init()
 	clock = pygame.time.Clock()
 	while not any(event.type == pygame.KEYDOWN for event in pygame.event.get()):

@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import random, math, os.path, pygame
 from . import view, pview, state, thing, mist, challenge, settings, hill, sound
 
@@ -24,15 +25,6 @@ def init():
 
 	mist.init()
 
-	state.effects.append(thing.Arrow(x = 50, y = -15, z = 0, right = True, left = True))
-
-	state.effects.append(thing.Sign(text = settings.gamename,
-		x = 120, y = -20, z = -25, fontsize = 15, color = "orange", shadow = (1, 1),
-		angle = 10))
-	state.effects.append(thing.Sign(text = "by Christopher Night",
-		x = 200, y = -20, z = -18, fontsize = 5, color = "orange", shadow = (1, 1),
-		angle = 10))
-
 	if os.path.exists(settings.savename):
 		lastsave = open(settings.savename, "r").read().strip()
 		del self.sequence[:self.sequence.index(lastsave)+1]
@@ -40,6 +32,7 @@ def init():
 	resetprofile()
 	addchallenge()
 	sound.playmusic("call")
+	self.taccum = 0
 
 def resetprofile():
 	self.profile = {}
@@ -66,8 +59,12 @@ def think(dt, kdowns, kpressed):
 	startprofile("think")
 	self.t += dt
 	state.you.control(kdowns, kpressed)
-	state.think(dt, kdowns, kpressed)
-	state.resolve()
+	self.taccum += dt
+	dtaccum = 1 / settings.ups
+	while self.taccum >= 0.5 * dtaccum:
+		self.taccum -= dtaccum
+		state.think(dtaccum, kdowns, kpressed)
+		state.resolve()
 	while self.sequence and view.X0 > self.nextaddX0:
 		addchallenge()
 	while self.nextsaveX0 is not None and view.X0 > self.nextsaveX0:

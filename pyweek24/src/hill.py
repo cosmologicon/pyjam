@@ -9,8 +9,8 @@ surfs = {}
 tick = { None: 0 }
 incomplete = {}
 
-def next(gen):
-	return gen.next()
+#def next(gen):
+#	return gen.next()
 
 def countusage(key):
 	tick[key] = tick[None]

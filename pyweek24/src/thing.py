@@ -215,8 +215,9 @@ class LivesOnscreen(enco.Component):
 		return not self.gone()
 
 class DrawText(enco.Component):
-	def setstate(self, text, fontsize = 3, color = None, shadow = None, angle = 0, **args):
+	def setstate(self, text, fontsize = 3, fontname = None, color = None, shadow = None, angle = 0, **args):
 		self.text = text
+		self.fontname = fontname
 		self.fontsize = fontsize
 		self.color = color
 		self.shadow = shadow
@@ -226,6 +227,8 @@ class DrawText(enco.Component):
 		ptext.draw(self.text,
 			center = view.toscreen(self.x, self.y, self.z),
 			fontsize = view.screenscale(self.fontsize, self.z),
+			fontname = self.fontname,
+			lineheight = 0.8,
 			color = self.color,
 			shadow = self.shadow,
 			angle = self.angle

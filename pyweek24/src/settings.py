@@ -4,6 +4,7 @@ gamename = "They're Behind Everything"
 DEBUG = "--DEBUG" in sys.argv
 
 minfps, maxfps = 10, 60
+ups = 120
 
 lowres = "--lowres" in sys.argv
 

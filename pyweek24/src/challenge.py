@@ -1,3 +1,5 @@
+# "Are you asking for a challenge?!" -Stinkoman
+
 # Add a challenge segment to the state
 
 import json, math, os.path, random
@@ -48,28 +50,28 @@ def addchallenge(cname, signs = True):
 			r = h["r"],
 			X0 = X0))
 
-def addsigns(cname, x0):
-	return
-	if cname == "hopper0":
-		state.effects.append(thing.Sign(text = "Space or Up\nJump",
-			x = x0 + 40, y = -10, z = 10, fontsize = 6, color = "orange", shadow = (1, 1),
-			angle = -10))
-	if cname == "forward":
-		state.effects.append(thing.Sign(text = "Hold right\nRun ahead",
-			x = x0 + 40, y = -10, z = 10, fontsize = 6, color = "orange", shadow = (1, 1),
-			angle = -10))
-	if cname == "fallback":
-		state.effects.append(thing.Sign(text = "Hold left\nFall back",
-			x = x0 + 40, y = -10, z = 10, fontsize = 6, color = "orange", shadow = (1, 1),
-			angle = -10))
 
-
-def addsign(text):
-	lasthill = max(state.hills, key = lambda h: view.xmatchatplayer(h.hilltopend()[0], h.z, 0))
-	lastx, lasty = lasthill.hilltopend()
-	lastz = lasthill.z
-	x = view.xmatchatplayer(lastx, lastz, 0) + 60
+def addsign(text, x):
 	state.effects.append(thing.Sign(text = text,
-		x = x, y = -10, z = 10, fontsize = 6, color = "orange", owidth = 2,
-		angle = random.uniform(-10, 10)))
+		x = x, y = -7, z = 10, fontsize = 4, color = "orange", shadow = (1, 1),
+		fontname = "Oswald",
+		angle = random.uniform(-12, 12)))
+
+def addarrow(x, right=False, left=False):
+	state.effects.append(thing.Arrow(x = x, y = -15, z = 0, right = right, left = left))
+
+def addsigns(cname, x0):
+	if cname == "hopper0":
+		addsign("Space or Up\nJump", x0 - 20)
+	if cname == "forward":
+		addsign("Hold right\nRun ahead", x0 + 20)
+		addarrow(x0 + 60, right = True)
+	if cname == "fallback":
+		addsign("Hold left\nFall back", x0 + 20)
+		addarrow(x0 + 60, left = True)
+	if cname == "longjump3":
+		addsign("Left then right\nLong jump", x0 + 20)
+		addarrow(x0 + 60, left = True, right = True)
+		addarrow(x0 + 130, left = True, right = True)
+		addarrow(x0 + 200, left = True, right = True)
 

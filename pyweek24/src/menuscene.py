@@ -38,15 +38,17 @@ def draw():
 	for obj in objs:
 		obj.draw()
 
+	color = (120, 0, 255)
+	gcolor = (60, 0, 200)
 	frun = self.t * 2 % 1
-	ptext.draw(settings.gamename, T(30, 40), fontsize = T(70), color = "yellow", gcolor = "orange",
+	ptext.draw(settings.gamename, T(30, 40), fontsize = T(70), color = color, gcolor = gcolor,
 		shadow = (1, 1), fontname = "SpicyRice")
-	ptext.draw("by Christopher Night", T(260, 120), fontsize = T(30), color = "yellow", gcolor = "orange",
+	ptext.draw("by Christopher Night", T(260, 120), fontsize = T(30), color = color, gcolor = gcolor,
 		shadow = (1, 1), fontname = "SpicyRice")
 
-	ptext.draw("Story Mode", T(400, 220), fontsize = T(70), color = "yellow", gcolor = "orange",
+	ptext.draw("Story Mode", T(400, 220), fontsize = T(70), color = color, gcolor = gcolor,
 		shadow = (1, 1), fontname = "SpicyRice")
-	ptext.draw("Endless Mode", T(400, 320), fontsize = T(70), color = "yellow", gcolor = "orange",
+	ptext.draw("Endless Mode", T(400, 320), fontsize = T(70), color = color, gcolor = gcolor,
 		shadow = (1, 1), fontname = "SpicyRice")
 
 	ptext.draw("F10: toggle window size\nF11: toggle fullscreen\nEsc: quit",
