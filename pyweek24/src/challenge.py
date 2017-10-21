@@ -7,6 +7,8 @@ from . import state, view, thing, hill
 
 data = {}
 def getdata(cname):
+	if not cname:
+		return [], []
 	if cname in data:
 		return data[cname]
 	data[cname] = json.load(open(os.path.join("leveldata", cname + ".json"), "r"))
@@ -14,6 +16,11 @@ def getdata(cname):
 
 
 def addchallenge(cname, signs = True):
+	dialogue = None
+	if cname.startswith("dialogue"):
+		dialogue = cname[cname.index(" ") + 1:]
+		cname = "rolling"
+
 	# Add connector hill to reset to 0
 	lasthill = max(state.hills, key = lambda h: view.xmatchatplayer(h.hilltopend()[0], h.z, 0))
 	lastx, lasty = lasthill.hilltopend()
@@ -21,6 +28,8 @@ def addchallenge(cname, signs = True):
 	x0 = view.xmatchatplayer(lastx, lastz, 0) + 5
 	if signs:
 		addsigns(cname, x0)
+	if dialogue is not None:
+		adddialogue(dialogue, x0 + 80)
 	ystart = lasty - 5
 	xend = 10 + 2 * abs(ystart)
 	fracs = [0, 0.2, 0.4, 0.6, 0.8, 1]
@@ -56,9 +65,15 @@ def addsign(text, x):
 		x = x, y = -7, z = 10, fontsize = 4, color = "orange", shadow = (1, 1),
 		fontname = "Oswald",
 		angle = random.uniform(-12, 12)))
+def adddialogue(text, x):
+	state.effects.append(thing.Sign(text = text,
+		x = x, y = -7, z = 10, fontsize = 4, color = (150, 50, 250), gcolor = (100, 0, 200),
+		shadow = (1, 1),
+		fontname = "Anton",
+		angle = random.uniform(-3, 3)))
 
-def addarrow(x, right=False, left=False):
-	state.effects.append(thing.Arrow(x = x, y = -15, z = 0, right = right, left = left))
+def addarrow(x, y = -15, z = 0, right=False, left=False):
+	state.effects.append(thing.Arrow(x = x, y = y, z = z, right = right, left = left))
 
 def addsigns(cname, x0):
 	if cname == "hopper0":
@@ -66,6 +81,8 @@ def addsigns(cname, x0):
 	if cname == "forward":
 		addsign("Hold right\nRun ahead", x0 + 20)
 		addarrow(x0 + 60, right = True)
+	if cname == "backunder":
+		addarrow(x0 + 86, y = -8, z = 15, left = True, right = True)
 	if cname == "fallback":
 		addsign("Hold left\nFall back", x0 + 20)
 		addarrow(x0 + 60, left = True)
@@ -73,5 +90,8 @@ def addsigns(cname, x0):
 		addsign("Left then right\nLong jump", x0 + 20)
 		addarrow(x0 + 60, left = True, right = True)
 		addarrow(x0 + 130, left = True, right = True)
-		addarrow(x0 + 200, left = True, right = True)
+		addarrow(x0 + 190, left = True, right = True)
+	if cname == "wall":
+		addarrow(x0 + 145, y = -10, right = True)
+		addarrow(x0 + 295, y = -10, left = True)
 

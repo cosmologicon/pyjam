@@ -9,10 +9,16 @@ def init():
 	self.t = 0
 	self.tlose = 0
 	self.sequence = [
-		"rolling", "hopper0", "save-0",
-		"rolling", "forward", "fallback", "save-1",
-		"longjump3", "save-2",
-		"leapoffaith", "arcade", "save-3",
+		"dialogue A barrier lies in the hills,\nwhich I have never crossed", "", "hopper0", "save-0",
+		"dialogue But today I will cross it.\nToday is different.", "forward", "save-1",
+		"dialogue Because now I see things\nfrom a new perspective.", "fallback", "save-2",
+		"dialogue What lies in front....\nWhat lies behind....", "longjump3", "save-3",
+		"dialogue They're all the same from\nthe right point of view.", "leapoffaith", "leapoffaith", "save-4",
+#		"wall", "firstbranch", "branch3",
+#		"rolling", "hopper0", "save-0",
+#		"rolling", "forward", "fallback", "save-1",
+#		"longjump3", "save-2",
+#		"leapoffaith", "arcade", "save-3",
 	]
 
 	state.reset()

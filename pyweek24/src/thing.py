@@ -245,16 +245,17 @@ class DrawArrow(enco.Component):
 		x0, y0 = self.screenpos()
 		C, S = math.CS(math.radians(self.angle))
 		# TODO: maff.R
+		color = 140, 140, 180
 		if self.right:
 			dxys = [(1, 5), (6, 0), (1, -5)]
 			dxys = [(C * dx + S * dy, -S * dx + C * dy) for dx, dy in dxys]
 			ps = [view.toscreen(self.x + dx, self.y + dy, self.z) for dx, dy in dxys]
-			pygame.draw.polygon(pview.screen, (50, 50, 100), ps)
+			pygame.draw.polygon(pview.screen, color, ps)
 		if self.left:
 			dxys = [(-1, 5), (-6, 0), (-1, -5)]
 			dxys = [(C * dx + S * dy, -S * dx + C * dy) for dx, dy in dxys]
 			ps = [view.toscreen(self.x + dx, self.y + dy, self.z) for dx, dy in dxys]
-			pygame.draw.polygon(pview.screen, (50, 50, 100), ps)
+			pygame.draw.polygon(pview.screen, color, ps)
 	def xmax(self):
 		return self.x + 4
 
