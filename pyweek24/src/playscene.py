@@ -22,10 +22,7 @@ def init():
 		((-40, -30), (10, -30)),
 	]))
 
-	state.effects.append(mist.Mist(20))
-	state.effects.append(mist.Mist(8))
-	state.effects.append(mist.Mist(-8))
-	state.effects.append(mist.Mist(-20))
+	mist.init()
 
 	state.effects.append(thing.Sign(text = settings.gamename,
 		x = 120, y = -20, z = -25, fontsize = 15, color = "orange", shadow = (1, 1),

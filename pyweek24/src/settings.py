@@ -1,9 +1,11 @@
-import os.path
+import os.path, sys, pygame
 
 gamename = "They're Behind Everything"
-DEBUG = True
+DEBUG = "--DEBUG" in sys.argv
 
 minfps, maxfps = 10, 60
+
+lowres = "--lowres" in sys.argv
 
 # The uniform motion of the camera.
 # Don't change this. It will mis-calibrate the position of everything.
@@ -22,4 +24,17 @@ prejumptime = 0.2
 cliffhangtime = 0.2
 
 savename = os.path.join("save", "progress.txt")
+
+keys = {
+	"jump": [pygame.K_SPACE, pygame.K_RETURN, pygame.K_UP, pygame.K_w, pygame.K_COMMA],
+	"select": [pygame.K_SPACE, pygame.K_RETURN],
+	"up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],
+	"down": [pygame.K_DOWN, pygame.K_s, pygame.K_o],
+	"left": [pygame.K_LEFT, pygame.K_a],
+	"right": [pygame.K_RIGHT, pygame.K_d, pygame.K_e],
+}
+def isdown(kdowns, keyname):
+	return any(key in kdowns for key in keys[keyname])
+def ispressed(kpressed, keyname):
+	return any(kpressed[key] for key in keys[keyname])
 

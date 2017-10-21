@@ -1,11 +1,11 @@
 from __future__ import division, print_function
 import pygame
 from . import settings, view, pview, ptext
-from . import scene, playscene
+from . import scene, playscene, menuscene
 from .pview import T
 
 view.init()
-scene.set(playscene)
+scene.set(menuscene)
 
 clock = pygame.time.Clock()
 playing = True
@@ -34,6 +34,9 @@ while playing:
 	if settings.DEBUG:
 		text = "X0 = %.1f\n%.1ffps" % (view.X0, clock.get_fps())
 		ptext.draw(text, bottomleft = T(10, 470), fontsize = T(16))
+		
+		text = "Hold F2: print profiling info"
+		ptext.draw(text, T(10, 10), fontsize = T(16))
 
 	if pygame.K_F12 in kdowns:
 		pview.screenshot()

@@ -1,6 +1,16 @@
 from __future__ import division
 import pygame, random, math
-from . import pview, view
+from . import pview, view, settings, state
+
+def init():
+	if settings.lowres:
+		state.effects.append(Mist(8))
+#		state.effects.append(Mist(-8))
+	else:
+		state.effects.append(Mist(20))
+		state.effects.append(Mist(8))
+		state.effects.append(Mist(-8))
+		state.effects.append(Mist(-20))
 
 class Mist(object):
 	def __init__(self, z):
