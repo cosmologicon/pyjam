@@ -1,4 +1,4 @@
-import os.path, sys, pygame
+import os, sys, pygame
 
 gamename = "They're Behind Everything"
 DEBUG = "--DEBUG" in sys.argv
@@ -29,6 +29,9 @@ prejumptime = 0.2
 cliffhangtime = 0.2
 
 savename = os.path.join("save", "progress.txt")
+if "--reset" in sys.argv:
+	if os.path.exists(savename):
+		os.remove(savename)
 
 keys = {
 	"jump": [pygame.K_SPACE, pygame.K_RETURN, pygame.K_UP, pygame.K_w, pygame.K_COMMA],

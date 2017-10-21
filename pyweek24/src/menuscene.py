@@ -48,7 +48,8 @@ def draw():
 	ptext.draw("Endless Mode", T(400, 320), fontsize = T(70), color = "yellow", gcolor = "orange",
 		shadow = (1, 1), fontname = "SpicyRice")
 
-	ptext.draw("F10: toggle window size\nF11: toggle fullscreen", fontsize = T(20), color = "black",
+	ptext.draw("F10: toggle window size\nF11: toggle fullscreen\nEsc: quit",
+		fontsize = T(20), color = "black",
 		topright = T(1000, 20), fontname = "Acme")
 
 	p = T(340, 320 + 100 * self.choice)

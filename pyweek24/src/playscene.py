@@ -73,8 +73,8 @@ def think(dt, kdowns, kpressed):
 	if state.losing():
 		self.tlose += dt
 	if self.tlose >= 1:
-		from . import playscene, scene
-		scene.set(playscene)
+		from . import menuscene, scene
+		scene.set(menuscene)
 	startprofile("hills")
 	hill.killtime(0.005)
 	stopprofile("hills")

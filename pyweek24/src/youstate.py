@@ -41,13 +41,13 @@ class Falling(BaseState):
 		self.slowfall = True
 	@staticmethod
 	def control(self, kdowns, kpressed):
-		if settings.isdown(kdown, "jump"):
+		if settings.isdown(kdowns, "jump"):
 			self.prejumping = True
 			self.tprejump = 0
 		if settings.DEBUG and pygame.K_BACKSPACE in kdowns:
 			self.enterstate(Dying)
-		self.slowfall = settings.isdown(kdown, "jump")
-		if self.prejumping and not settings.isdown(kdown, "jump"):
+		self.slowfall = settings.ispressed(kpressed, "jump")
+		if self.prejumping and not settings.isdown(kdowns, "jump"):
 			self.prejumping = False
 			self.tprejump = 0
 	@staticmethod
@@ -99,7 +99,7 @@ class Running(BaseState):
 		self.vx = Running.runspeed(self)
 	@staticmethod
 	def control(self, kdowns, kpressed):
-		if settings.isdown(kdown, "jump"):
+		if settings.isdown(kdowns, "jump"):
 			tcliff = (1 - self.boarda) * self.parent.d0 / self.vx
 			cancliffhang = tcliff < settings.cliffhangtime and self.parent.handoff() is None
 			if cancliffhang:
@@ -109,7 +109,7 @@ class Running(BaseState):
 				self.enterstate(Falling)
 		if settings.DEBUG and pygame.K_BACKSPACE in kdowns:
 			self.enterstate(Dying)
-		if self.cliffhanging and not settings.isdown(kdown, "jump"):
+		if self.cliffhanging and not settings.isdown(kdowns, "jump"):
 			self.vy = 30
 			self.enterstate(Falling)
 	@staticmethod
