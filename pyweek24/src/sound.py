@@ -15,7 +15,7 @@ def playmusic(mname):
 sounds = {}
 def getsound(sname):
 	if sname not in sounds:
-		sounds[sname] = pygame.mixer.Sound(os.path.join("sfx", mname + ".ogg"))
+		sounds[sname] = pygame.mixer.Sound(os.path.join("sfx", sname + ".ogg"))
 	return sounds[sname]
 
 def playsound(sname):

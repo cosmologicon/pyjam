@@ -8,7 +8,7 @@
 # object (referred to as self).
 
 import pygame, math
-from . import enco, state, view, pview, settings, drawyou
+from . import enco, state, view, pview, settings, drawyou, sound
 
 class BaseState(object):
 	@staticmethod
@@ -81,6 +81,7 @@ class Falling(BaseState):
 	@staticmethod
 	def gethit(self):
 		self.enterstate(Dying)
+		sound.playsound("ouch")
 
 class Running(BaseState):
 	@staticmethod
@@ -158,6 +159,7 @@ class Running(BaseState):
 	@staticmethod
 	def gethit(self):
 		self.enterstate(Dying)
+		sound.playsound("ouch")
 
 class Dying(BaseState):
 	@staticmethod

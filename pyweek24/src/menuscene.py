@@ -31,10 +31,14 @@ def think(dt, kdowns, kpressed):
 		else:
 			scene.set(endless)
 	if not self.ending and settings.isdown(kdowns, "select"):
-		if self.choice == 0 or self.hiscore is not None:
+		if self.choice == 1 and self.hiscore is None:
+			sound.playsound("no")
+		else:
+			sound.playsound("select")
 			self.ending = True
 	if not self.ending:
 		if any(settings.isdown(kdowns, kname) for kname in ["up", "down", "left", "right"]):
+			sound.playsound("option")
 			self.choice = 1 - self.choice
 	if pygame.K_ESCAPE in kdowns:
 		scene.set()
