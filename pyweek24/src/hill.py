@@ -78,7 +78,7 @@ def grasspos(layer, thickness, margin = 5):
 			f = random.random() ** 2.5
 			yield 1 - f, x, y - 5 * df * f
 
-def generator(spec, z, color0, color1):
+def generator(spec, z, color0, color1, grasscolor):
 	s = view.scale(z)
 	ps = [p for layer in spec for p in layer]
 	ps = [view.screenoffset(x, y, z) for x, y in ps]
@@ -129,7 +129,7 @@ def generator(spec, z, color0, color1):
 	ndot = 0
 	for f, cx, cy in sorted(grasspos(spec[0], thickness)):
 		f += random.uniform(-0.2, 0.2)
-		color = 20 + 20 * f, 50 + 50 * f, 20 + 20 * f
+		color = colormix((0, 0, 0), grasscolor, 0.5 + 0.4 * f)
 		r = random.uniform(3, 6) * s
 		cx, cy = view.screenoffset(cx, cy, z)
 		pygame.draw.circle(surf, color, (int(cx) - x0, int(cy) - y0), T(r))
@@ -138,12 +138,12 @@ def generator(spec, z, color0, color1):
 			yield
 			ndot = 0
 
-def getsurf(spec, z, color0, color1):
+def getsurf(spec, z, color0, color1, grasscolor):
 	key = spec, z, color0, color1, pview.f
 	if key in surfs:
 		countusage(key)
 		return key, surfs[key], key not in incomplete
-	gen = incomplete[key] = generator(spec, z, color0, color1)
+	gen = incomplete[key] = generator(spec, z, color0, color1, grasscolor)
 	surfs[key] = next(gen)
 	countusage(key)
 	clear()
@@ -170,9 +170,9 @@ def killtime(dt):
 			del incomplete[key]
 			key, gen = None, None
 
-def drawhill(p, spec, color0 = (40, 20, 0), color1 = (150, 70, 0)):
+def drawhill(p, spec, color0 = (40, 20, 0), color1 = (150, 70, 0), grasscolor = (40, 100, 40)):
 	x, y, z = p
-	key, (surf, (dx, dy)), ready = getsurf(spec, z, color0, color1)
+	key, (surf, (dx, dy)), ready = getsurf(spec, z, color0, color1, grasscolor)
 	px, py = view.toscreen(x, y, z)
 	if px + dx >= pview.w:
 		return

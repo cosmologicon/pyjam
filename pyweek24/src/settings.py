@@ -28,6 +28,7 @@ for arg in sys.argv:
 	if arg.startswith("--speed="):
 		playspeed = float(arg[8:])
 
+unlock = "--unlock" in sys.argv
 
 # The uniform motion of the camera.
 # Don't change this. It will mis-calibrate the position of everything.

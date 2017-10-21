@@ -31,6 +31,30 @@ def getspeed():
 	x = currentscore() / 1000
 	return 1 + 1.2 * (1 - math.exp(-x))
 
+skycolors = {
+	0: (100, 100, 255),
+	1: (255, 150, 100),
+	2: (180, 180, 220),
+	3: (150, 255, 100),
+}
+
+hillcolors = {
+	0: [(180, 100, 40), (40, 100, 40)],
+	1: [(180, 180, 20), (160, 120, 40)],
+	2: [(80, 80, 80), (30, 30, 30)],
+	3: [(120, 160, 255), (200, 200, 255)],
+}
+
+def getscene():
+	nscene = len(skycolors)
+	scenelength = 100
+	dlength = 10
+	score = currentscore()
+	jscene = int(score / scenelength) % nscene
+	lastscene = (jscene - 1) % nscene if score > scenelength else 0
+	f = math.clamp(score % scenelength / dlength, 0, 1)
+	return lastscene, jscene, f
+
 def init():
 	self.t = 0
 	self.tlose = 0
@@ -57,7 +81,9 @@ def stopprofile(name):
 
 def addchallenge():
 	cname = "rolling"
-	challenge.addchallenge(cname)
+	_, s, _ = getscene()
+	hillcolor, grasscolor = hillcolors[s]
+	challenge.addchallenge(cname, hillcolor = hillcolor, grasscolor = grasscolor)
 	self.nextaddX0 = state.endingX0at(90)
 
 def think(dt, kdowns, kpressed):
@@ -80,7 +106,8 @@ def think(dt, kdowns, kpressed):
 	hill.killtime(0.005)
 
 def draw():
-	skycolor = colormix((100, 100, 255), (120, 0, 0), currentscore() / 50)
+	s0, s1, fs = getscene()
+	skycolor = colormix(skycolors[s0], skycolors[s1], fs)
 
 	pview.fill(skycolor)
 	objs = list(state.hills) + list(state.effects) + list(state.hazards)

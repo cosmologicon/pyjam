@@ -142,12 +142,13 @@ class RoundHitBox(enco.Component):
 		return not state.blockedat0(phit0, self.z)
 
 class HillSpec(enco.Component):
-	def setstate(self, spec, **args):
+	def setstate(self, spec, color0 = (180, 100, 40), grasscolor = (40, 100, 40), **args):
 		self.spec = tuple(tuple(tuple(p) for p in layer) for layer in spec)
 		xs, ys = zip(*[p for layer in self.spec for p in layer])
 		self._xmax = max(xs) + 3
-		self.color0 = (random.uniform(30, 50), random.uniform(20, 40), random.uniform(0, 20))
-		self.color1 = (random.uniform(100, 180), random.uniform(50, 100), random.uniform(0, 50))
+		self.color0 = tuple(int(random.uniform(0.1, 0.3) * a) for a in color0)
+		self.color1 = tuple(int(random.uniform(0.7, 1) * a) for a in color0)
+		self.grasscolor = grasscolor
 	def xmax(self):
 		return self._xmax + self.x
 	def hilltopend(self):
@@ -171,7 +172,7 @@ class HillSpec(enco.Component):
 			list(reversed(self.spec[-1])) + [layer[0] for layer in reversed(midlayers)])
 		return Block(x = self.x, y = self.y, ps = ps, z = self.z)
 	def draw(self):
-		hill.drawhill((self.x, self.y, self.z), self.spec, color0 = self.color0, color1 = self.color1)
+		hill.drawhill((self.x, self.y, self.z), self.spec, color0 = self.color0, color1 = self.color1, grasscolor = self.grasscolor)
 
 class DrawYou(enco.Component):
 	def __init__(self):

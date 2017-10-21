@@ -15,7 +15,7 @@ def getdata(cname):
 	return data[cname]
 
 
-def addchallenge(cname, signs = True):
+def addchallenge(cname, signs = True, hillcolor = (180, 100, 40), grasscolor = (40, 100, 40)):
 	dialogue = None
 	if cname.startswith("dialogue"):
 		dialogue = cname[cname.index(" ") + 1:]
@@ -40,7 +40,9 @@ def addchallenge(cname, signs = True):
 		((-2, ystart - 20), (xend + 2, -20)),
 		((-5, -30), (xend + 5, -30)),
 	)
-	state.addhill(thing.Hill(x = x0, y = 0, z = 0, spec = spec))
+	state.addhill(thing.Hill(x = x0, y = 0, z = 0,
+		color0 = hillcolor, grasscolor = grasscolor,
+		spec = spec))
 
 	x0 += xend + 5
 
@@ -48,6 +50,7 @@ def addchallenge(cname, signs = True):
 	for h in hills:
 		x = x0 + h["x"]
 		state.addhill(thing.Hill(x = x, y = h["y"], z = h["z"],
+			color0 = hillcolor, grasscolor = grasscolor,
 			spec = hill.getspec(h)))
 	if cname == "tier3":
 		hazards = list(hazards)

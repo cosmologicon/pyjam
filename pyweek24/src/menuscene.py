@@ -6,6 +6,8 @@ class self:
 	pass
 
 def init():
+	if settings.unlock:
+		endless.unlock()
 	self.t = 0
 	self.ending = False
 	self.tend = 0
