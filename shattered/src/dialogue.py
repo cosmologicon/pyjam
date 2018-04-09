@@ -111,6 +111,44 @@ def draw():
 		ptext.draw(line, bottomleft = F(160, 470), fontsize = F(30), fontname = fontname,
 			width = F(540), shadow = (1, 1))
 
-
+if __name__ == "__main__":
+	from . import state, thing
+	state.state.team = [thing.ShipA, thing.ShipB, thing.ShipC, thing.ShipD, thing.ShipE, thing.ShipF]
+	cnames = sorted(convos)
+	current = cnames[0]
+	playing = True
+	clock = pygame.time.Clock()
+	pygame.mixer.init()
+	screen = pygame.display.set_mode((854, 900))
+	play(current)
+	while playing:
+		dt = 0.001 * clock.tick()
+		think(dt)
+		for event in pygame.event.get():
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_ESCAPE:
+					playing = False
+				if event.key == pygame.K_LEFT:
+					current = cnames[(cnames.index(current) - 1) % len(cnames)]
+					clear()
+					play(current)
+				if event.key == pygame.K_RIGHT:
+					current = cnames[(cnames.index(current) + 1) % len(cnames)]
+					clear()
+					play(current)
+		screen.fill((0, 0, 0))
+		ptext.draw("Current dialogue sequence: %s" % current, midtop = (427, 10),
+			fontsize = 50)
+		y = 60
+		for filename, who, text in convos[current]:
+			color0, color1 = "yellow", "orange"
+			if currentline and who.endswith(currentline[1]) and text == currentline[2]:
+				color1 = "white"
+			ptext.draw(who, top = y, right = 120, fontsize = 32, color = color0)
+			surf, _ = ptext.draw(text, top = y, left = 130, fontsize = 32, color = color1, width = 700)
+			y += surf.get_height() + 10
+		ptext.draw("Left: previous dialogue\nRight: next dialogue", bottom = 896, right = 850,
+			fontsize = 24, color = "gray")
+		pygame.display.flip()
 
 
