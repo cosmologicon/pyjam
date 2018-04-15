@@ -1,3 +1,4 @@
+DEBUG = True
 gamename = "Universe Factory 25"
 minfps, maxfps = 10, 60
 

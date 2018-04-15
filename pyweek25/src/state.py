@@ -1,5 +1,5 @@
 from __future__ import division
-from . import view
+from . import view, thing
 
 
 level = """
@@ -18,7 +18,7 @@ def load():
 			if char.strip():
 				grid[(x, -y)] = char.strip().lower()
 				if char.isupper():
-					pieces[char] = x, -y
+					pieces[char] = thing.Piece(name = char, color = colors[char.lower()], xG = x, yG = -y)
 	xmin = min(x for x, y in grid)
 	xmax = max(x for x, y in grid)
 	ymin = min(y for x, y in grid)
@@ -35,5 +35,17 @@ def gettiles():
 	for x, y in sorted(grid, key = view.sortkeyG):
 		yield colors[grid[(x, y)]], (x, y)
 def getpieces():
-	for name, (x, y) in sorted(pieces.items(), key = lambda kv: view.sortkeyG(kv[1])):
-		yield name, colors[name.lower()], (x, y)
+	return sorted(pieces.values())
+
+def distanceG(p0G, p1G):
+	x0G, y0G, _ = view.ifzG(p0G)
+	x1G, y1G, _ = view.ifzG(p1G)
+	return max(abs(x0G - x1G), abs(y0G - y1G))
+def isoccupiedG(pG):
+	return any(distanceG(piece.pG(), pG) == 0 for piece in pieces.values())
+def canmoveto(name, pG):
+	d = distanceG(pieces[name].pG(), pG)
+	return d == 1 and not isoccupiedG(pG)
+def moveto(name, pG):
+	pieces[name].xG, pieces[name].yG = pG
+

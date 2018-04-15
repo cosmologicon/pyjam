@@ -4,32 +4,46 @@ from . import settings, pview, tile, ptext
 from .pview import T
 
 S = 160
+zskew = 0.7
 xV0 = 640
 yV0 = 520
 xG0 = 0
 yG0 = 0
 
+# potentially add a third zG = 0 coordinate
+def ifzG(pG):
+	return pG if len(pG) == 3 else tuple(pG) + (0,)
+
+def VconvertP(pP):
+	xP, yP = pP
+	return xP / pview.f, yP / pview.f
 def VconvertG(pG):
-	xG, yG = pG
+	xG, yG, zG = ifzG(pG)
 	xG -= xG0
 	yG -= yG0
-	return [
+	return (
 		xV0 + S * (1/2 * xG + 1/2 * yG),
-		yV0 + S * (1/4 * xG - 1/4 * yG),
-	]
+		yV0 + S * (1/4 * xG - 1/4 * yG) - S * zskew * zG,
+	)
+def GconvertV(pV, zG = 0):
+	xV, yV = pV
+	zV = S * zskew * zG
+	xV -= xV0
+	yV -= yV0
+	yV += zV
+	return (
+		xG0 + 1/S * (1 * xV + 2 * yV),
+		yG0 + 1/S * (1 * xV - 2 * yV),
+		zG,
+	)
 def sortkeyG(pG):
-	xG, yG = pG
-	return xG - yG
+	xG, yG, zG = ifzG(pG)
+	return xG - yG, zG
+
+def GnearesttileV(pV, zG = 0):
+	xG, yG, _ = GconvertV(pV, zG)
+	return int(round(xG)), int(round(yG))
 
 def drawtile(color, pG):
 	tile.draw(color, VconvertG(pG), 0.94 * S)
-
-def drawpiece(name, color, pG):
-	xV, yV = VconvertG(pG)
-	ps = [T(xV + S * a, yV + S * b) for a, b in
-		[(0.25, 0), (-0.25, 0), (-0.15, -0.6), (0.15, -0.6)]]
-	pygame.draw.polygon(pview.screen, pygame.Color(color), ps)
-	pygame.draw.lines(pview.screen, pygame.Color("black"), True, ps, T(0.05 * S))
-	ptext.draw(name, center = T(xV, yV - S * 0.25), fontsize = T(0.35 * S), color = "white",
-		ocolor = "black", owidth = 1)
 
