@@ -9,7 +9,7 @@ pview.set_mode(settings.size0, settings.height,
 pygame.display.set_caption(settings.gamename)
 clock = pygame.time.Clock()
 playing = True
-scene.push(scene.play)
+scene.push(scene.select)
 while playing:
 	dt = min(clock.tick(settings.maxfps) * 0.001, 1 / settings.minfps)
 	class control:
