@@ -1,5 +1,5 @@
 import math, pygame
-from . import state, view, pview, settings, ptext, progress, space
+from . import state, view, pview, settings, ptext, progress, space, hud
 from .pview import T
 
 scenes = []
@@ -26,6 +26,7 @@ class Select(object):
 	def init(self):
 		self.lspots = sorted(level.split(".")[0] for level in progress.unlocked)
 		self.targets = sorted(progress.unlocked)
+		self.target = None
 	def targetpV(self, target):
 		lspot, act = target.split(".")
 		xV, yV = self.lspotpVs[lspot]
@@ -61,8 +62,16 @@ class Play(object):
 		state.load()
 		self.player = "X"
 		self.pointedG = None
+		self.cursor = None
+		hud.controls = ["Reset", "Back", "Give up"]
+		if settings.DEBUG:
+			hud.controls += ["Win"]
 	def think(self, dt, control):
-		self.pointedG = view.GnearesttileV(control.mposV)
+		self.cursor = hud.getpointed(control.mposV)
+		self.pointedG = view.GnearesttileV(control.mposV) if self.cursor is None else None
+		if control.down and self.cursor:
+			if self.cursor == "Give up":
+				push(Wipe(select))
 		if control.down and self.pointedG:
 			if state.canmoveto(self.player, self.pointedG):
 				state.moveto(self.player, self.pointedG)
@@ -80,6 +89,7 @@ class Play(object):
 			view.drawtile(color, pG)
 		for piece in state.getpieces():
 			piece.draw()
+		hud.draw(cursor = self.cursor)
 play = Play()
 
 

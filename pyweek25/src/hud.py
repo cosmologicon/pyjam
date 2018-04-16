@@ -1,0 +1,24 @@
+import pygame, math
+from . import pview, ptext
+from .pview import T
+
+controls = []
+
+def getpointed(mposV):
+	for j, control in enumerate(controls):
+		xV, yV = 50, 50 + 100 * j
+		if math.distance(mposV, (xV, yV)) < 40:
+			return control
+
+def think(dt):
+	pass
+
+def draw(cursor = None):
+	for j, control in enumerate(controls):
+		xV, yV = 50, 50 + 100 * j
+		color = (200, 200, 200) if control == cursor else (50, 50, 50)
+		pygame.draw.circle(pview.screen, color, T(xV, yV), T(40), 0)
+		ptext.draw(control, center = T(xV, yV), fontsize = T(30), owidth = 1, ocolor = "black",
+			color = "white")
+	
+
