@@ -23,48 +23,90 @@ def arrays(shape, Np):
 		i = numpy.floor(a)
 		j = (i + 1) % Np
 		f = a - i
-		g = 1 - f * f * (3 - 2 * f)
+		g = (1 - f * f * (3 - 2 * f))
 		arrayscache[key] = i.astype('int'), j.astype('int'), f, g
 	return arrayscache[key]
 
-def getlayer(size, Ns, imin, imax):
+def generatelayer(size, Ns, imin, imax):
 	w, h = size
 	s = numpy.zeros((w, h))
 	for N in Ns:
 		Nw, Nh = int(round(N)), int(round(N * h / w))
 		grid = numpy.random.rand(Nw * Nh) * math.tau
+		yield
 		Sgrid, Cgrid = numpy.sin(grid), numpy.cos(grid)
+		yield
 		ix, jx, fx, gx = arrays((w, 1), Nw)
+		yield
 		iy, jy, fy, gy = arrays((1, h), Nh)
-		s += (gx * (
-			gy * (fx * Sgrid[ix + Nh * iy] + fy * Cgrid[ix + Nh * iy]) +
-			(1 - gy) * (fx * Sgrid[ix + Nh * jy] + (fy - 1) * Cgrid[ix + Nh * jy])
-		) + (1 - gx) * (
-			gy * ((fx - 1) * Sgrid[jx + Nh * iy] + fy * Cgrid[jx + Nh * iy]) +
-			(1 - gy) * ((fx - 1) * Sgrid[jx + Nh * jy] + (fy - 1) * Cgrid[jx + Nh * jy])
-		)) / math.sqrt(N)
+		yield
+		A0 = fx * Sgrid[ix + Nh * iy] + fy * Cgrid[ix + Nh * iy]
+		yield
+		A1 = fx * Sgrid[ix + Nh * jy] + (fy - 1) * Cgrid[ix + Nh * jy]
+		yield
+		A2 = (fx - 1) * Sgrid[jx + Nh * iy] + fy * Cgrid[jx + Nh * iy]
+		yield
+		A3 = (fx - 1) * Sgrid[jx + Nh * jy] + (fy - 1) * Cgrid[jx + Nh * jy]
+		yield
+		s += gx * gy * A0 / math.sqrt(N)
+		yield
+		s += gx * (1 - gy) * A1 / math.sqrt(N)
+		yield
+		s += (1 - gx) * gy * A2 / math.sqrt(N)
+		yield
+		s += (1 - gx) * (1 - gy) * A3 / math.sqrt(N)
+		yield
 	smin, smax = numpy.min(s), numpy.max(s)
-	return ((s - smin) * ((imax - imin) / (smax - smin)) + imin).astype('uint8')
+	yield ((s - smin) * ((imax - imin) / (smax - smin)) + imin).astype('uint8')
+
+def getlayer(size, Ns, imin, imax):
+	for layer in generatelayer(size, Ns, imin, imax):
+		if layer is not None:
+			return layer
 
 screensize = None
 alayers = []
 dsurf = None
 nlayer = 2
+sgenerator = None
+def generatelayers(size):
+	global alayers
+	alayers = []
+	for _ in range(nlayer):
+		for layer in generatelayer(size, [5, 8, 13, 21], 5, 255 / nlayer - 5):
+			yield
+			if layer is not None:
+				alayers.append(layer)
+				yield
+def killtime(dt):
+	global screensize, alayers, dsurf, sgenerator
+	global sgenerator
+	if screensize != pview.size:
+		screensize = pview.size
+		dsurf = pygame.Surface(pview.size).convert_alpha()
+		sgenerator = generatelayers(pview.size)
+		next(sgenerator)
+	if not sgenerator:
+		return
+	endtime = pygame.time.get_ticks() + dt * 1000
+	while sgenerator is not None and pygame.time.get_ticks() < endtime:
+		try:
+			next(sgenerator)
+		except StopIteration:
+			sgenerator = None
+
 def draw(color0, color1):
-	global screensize, alayers, dsurf
+	killtime(0)
 	w, h = pview.size
 #	w //= 4
 #	h //= 4
-	if screensize != pview.size:
-		screensize = pview.size
-		alayers = [getlayer((w, h), [3, 5, 8, 13, 21], 5, 255 / nlayer - 5) for _ in range(3)]
-		dsurf = pygame.Surface((w, h)).convert_alpha()
 	directions = [math.CS(math.tau * (0.3 + jtheta / nlayer), 0.05 * 0.9 ** jtheta) for jtheta in range(nlayer)]
 	t = 0.001 * pygame.time.get_ticks()
 	offsets = [(int(dx * w * t) % w, int(dy * h * t) % h) for dx, dy in directions]
 	pview.screen.fill(color0)
 	dsurf.fill(color1)
-	applyalpha(dsurf, alayers, offsets)
+	if alayers:
+		applyalpha(dsurf, alayers, offsets[:len(alayers)])
 #	pview.screen.blit(pygame.transform.scale(dsurf, pview.size), (0, 0))
 	pview.screen.blit(dsurf, (0, 0))
 

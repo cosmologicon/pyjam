@@ -39,6 +39,7 @@ class Select(object):
 				self.target = target
 		if control.down and self.target is not None:
 			swap(play)
+		space.killtime(0.01)
 	def draw(self):
 		pview.fill((0, 50, 120))
 		for lspot in self.lspots:
@@ -66,6 +67,7 @@ class Play(object):
 				state.moveto(self.player, self.pointedG)
 		for piece in state.getpieces():
 			piece.think(dt)
+		space.killtime(0.01)
 	def draw(self):
 		space.draw((40, 40, 255), (40, 40, 40))
 		ptext.draw(settings.gamename, center = pview.T(400, 100), color = "white", shade = 2,
