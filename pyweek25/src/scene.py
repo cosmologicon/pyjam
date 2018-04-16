@@ -38,7 +38,7 @@ class Select(object):
 			if math.distance(pV, control.mposV) < 20:
 				self.target = target
 		if control.down and self.target is not None:
-			swap(play)
+			push(Wipe(play))
 		space.killtime(0.01)
 	def draw(self):
 		pview.fill((0, 50, 120))
@@ -60,9 +60,10 @@ class Play(object):
 	def init(self):
 		state.load()
 		self.player = "X"
+		self.pointedG = None
 	def think(self, dt, control):
 		self.pointedG = view.GnearesttileV(control.mposV)
-		if control.down:
+		if control.down and self.pointedG:
 			if state.canmoveto(self.player, self.pointedG):
 				state.moveto(self.player, self.pointedG)
 		for piece in state.getpieces():
@@ -80,4 +81,37 @@ class Play(object):
 		for piece in state.getpieces():
 			piece.draw()
 play = Play()
+
+
+class Wipe(object):
+	def __init__(self, nextscene):
+		self.nextscene = nextscene
+	def init(self):
+		self.t = 0
+		self.T = 0.6
+		self.starting = True
+	def think(self, dt, control):
+		if self.starting:
+			self.t += dt
+			if self.t >= self.T:
+				self.t = self.T
+				self.starting = False
+				scenes[-2] = self.nextscene
+				self.nextscene.init()
+		else:
+			self.t -= dt
+			if self.t <= 0:
+				scenes.pop()
+		space.killtime(0.01)
+	def draw(self):
+		if self is not top():
+			return
+		scenes[-2].draw()
+		x = int(round(1.2 * self.t / self.T * pview.w))
+		if x <= 0:
+			return
+		ys = [int(round(j * pview.h / 6)) for j in range(7)]
+		for j in range(6):
+			x0 = 0 if j % 2 == self.starting else pview.w - x
+			pview.screen.fill((0, 0, 0), (x0, ys[j], x, ys[j+1] - ys[j]))
 

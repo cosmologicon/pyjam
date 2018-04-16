@@ -56,6 +56,7 @@ class Thing(object):
 	def __init__(self, **kw):
 		for k, v in kw.items():
 			setattr(self, k, v)
+		self.think(0)
 	def __lt__(self, other):
 		return view.sortkeyG(self.pG()) < view.sortkeyG(other.pG())
 
@@ -63,4 +64,3 @@ class Thing(object):
 @DrawPiece()
 class Piece(Thing):
 	pass
-
