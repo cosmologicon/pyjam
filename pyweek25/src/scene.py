@@ -1,5 +1,5 @@
 import math, pygame
-from . import state, view, pview, settings, ptext, progress
+from . import state, view, pview, settings, ptext, progress, space
 from .pview import T
 
 scenes = []
@@ -53,7 +53,6 @@ class Select(object):
 			pV = self.targetpV(target)
 			pygame.draw.circle(pview.screen, color, T(pV), T(20))
 			pygame.draw.circle(pview.screen, (60, 60, 60), T(pV), T(16))
-
 select = Select()
 
 class Play(object):
@@ -68,7 +67,7 @@ class Play(object):
 		for piece in state.getpieces():
 			piece.think(dt)
 	def draw(self):
-		pview.fill((0, 50, 120))
+		space.draw((40, 40, 255), (40, 40, 40))
 		ptext.draw(settings.gamename, center = pview.T(400, 100), color = "white", shade = 2,
 			scolor = "black", shadow = (1, 1), angle = 10,
 			fontsize = pview.T(120))
