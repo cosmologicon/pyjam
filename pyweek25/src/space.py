@@ -4,15 +4,13 @@ from pygame.locals import *
 from . import pview, ptext
 
 def applyalpha(surf, alayers, offsets):
-	alpha = pygame.surfarray.pixels_alpha(surf)
-	alpha[:,:] = 0
 	w, h = surf.get_size()
-	for alayer, (dx, dy) in zip(alayers, offsets):
-		alpha[dx:w,dy:h] += alayer[0:w-dx,0:h-dy]
-		alpha[dx:w,0:dy] += alayer[0:w-dx,h-dy:h]
-		alpha[0:dx,dy:h] += alayer[w-dx:w,0:h-dy]
-		alpha[0:dx,0:dy] += alayer[w-dx:w,h-dy:h]
-	del alpha
+	alpha = pygame.surfarray.pixels_alpha(surf)
+	for jlayer, (alayer, (dx, dy)) in enumerate(zip(alayers, offsets)):
+		if jlayer == 0:
+			alpha[:,:] = alayer[dx:dx+w,dy:dy+h]
+		else:
+			alpha += alayer[dx:dx+w,dy:dy+h]
 
 arrayscache = {}
 def arrays(shape, Np):
@@ -57,7 +55,12 @@ def generatelayer(size, Ns, imin, imax):
 		s += (1 - gx) * (1 - gy) * A3 / math.sqrt(N)
 		yield
 	smin, smax = numpy.min(s), numpy.max(s)
-	yield ((s - smin) * ((imax - imin) / (smax - smin)) + imin).astype('uint8')
+	s = ((s - smin) * ((imax - imin) / (smax - smin)) + imin).astype('uint8')
+	yield
+	s = numpy.hstack([s, s])
+	yield
+	s = numpy.vstack([s, s])
+	yield s
 
 def getlayer(size, Ns, imin, imax):
 	for layer in generatelayer(size, Ns, imin, imax):

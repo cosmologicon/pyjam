@@ -3,10 +3,10 @@ import pygame
 from . import settings, pview, tile, ptext
 from .pview import T
 
-S = 160
+S = 100
 zskew = 0.7
 xV0 = 640
-yV0 = 520
+yV0 = 440
 xG0 = 0
 yG0 = 0
 
@@ -46,4 +46,10 @@ def GnearesttileV(pV, zG = 0):
 
 def drawtile(color, pG):
 	tile.draw(color, VconvertG(pG), 0.94 * S)
+
+def drawimpact(pG):
+	rect = pygame.Rect(T(0, 0, 0.4 * S, 0.2 * S))
+	rect.center = VconvertG(pG)
+	pygame.draw.ellipse(pview.screen, pygame.Color("#440044"), rect, T(0.05 * S))
+
 

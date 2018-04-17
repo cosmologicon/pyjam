@@ -63,7 +63,7 @@ class Play(object):
 		self.player = "X"
 		self.pointedG = None
 		self.cursor = None
-		hud.controls = ["Reset", "Back", "Give up"]
+		hud.controls = ["Reset", "Undo", "Give up"]
 		if settings.DEBUG:
 			hud.controls += ["Win"]
 	def think(self, dt, control):
@@ -72,11 +72,16 @@ class Play(object):
 		if control.down and self.cursor:
 			if self.cursor == "Give up":
 				push(Wipe(select))
+			if self.cursor == "Reset":
+				state.resetstate()
+			if self.cursor == "Undo":
+				state.popstate()
 		if control.down and self.pointedG:
 			if state.canmoveto(self.player, self.pointedG):
+				state.pushstate()
 				state.moveto(self.player, self.pointedG)
-		for piece in state.getpieces():
-			piece.think(dt)
+		for obj in state.getthinkers():
+			obj.think(dt)
 		space.killtime(0.01)
 	def draw(self):
 		space.draw((40, 40, 255), (40, 40, 40))
@@ -87,8 +92,10 @@ class Play(object):
 			if pG == self.pointedG and state.canmoveto(self.player, self.pointedG):
 				color = "white"
 			view.drawtile(color, pG)
-		for piece in state.getpieces():
-			piece.draw()
+		for pos in state.meteors:
+			view.drawimpact(pos)
+		for obj in state.getboardobjs():
+			obj.draw()
 		hud.draw(cursor = self.cursor)
 play = Play()
 

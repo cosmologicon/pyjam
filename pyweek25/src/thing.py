@@ -51,12 +51,28 @@ class DrawPiece(Component):
 		ptext.draw(self.name, center = T(xV, yV - S * 0.25), fontsize = T(0.35 * S),
 			color = "white", ocolor = "black", owidth = 1)
 
+class DrawPart(Component):
+	def __init__(self, name = "", color = ""):
+		self.name = name
+		self.color = color
+	def draw(self):
+		xV, yV = self.pdrawV()
+		S = view.S
+		ps = [T(xV + S * a, yV + S * b) for a, b in
+			[(0.25, 0), (-0.25, 0), (-0.15, -0.6), (0.15, -0.6)]]
+		pygame.draw.polygon(pview.screen, pygame.Color(self.color), ps)
+		pygame.draw.lines(pview.screen, pygame.Color("black"), True, ps, T(0.05 * S))
+		ptext.draw(self.name, center = T(xV, yV - S * 0.25), fontsize = T(0.35 * S),
+			color = "white", ocolor = "black", owidth = 1)
+
 @WorldBound()
 class Thing(object):
 	def __init__(self, **kw):
 		for k, v in kw.items():
 			setattr(self, k, v)
 		self.think(0)
+	def think(self, dt):
+		pass
 	def __lt__(self, other):
 		return view.sortkeyG(self.pG()) < view.sortkeyG(other.pG())
 
@@ -64,3 +80,9 @@ class Thing(object):
 @DrawPiece()
 class Piece(Thing):
 	pass
+
+@ArcMove()
+@DrawPart()
+class Part(Thing):
+	pass
+
