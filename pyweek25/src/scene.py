@@ -1,4 +1,4 @@
-import math, pygame
+import math, pygame, random
 from . import state, view, pview, settings, ptext, progress, space, hud
 from .pview import T
 
@@ -66,9 +66,16 @@ class Play(object):
 		hud.controls = ["Reset", "Undo", "Give up"]
 		if settings.DEBUG:
 			hud.controls += ["Win"]
+		self.turn = "X"
+		self.tthink = 0
+		self.scolor = (0, 0, 0)
 	def think(self, dt, control):
-		self.cursor = hud.getpointed(control.mposV)
-		self.pointedG = view.GnearesttileV(control.mposV) if self.cursor is None else None
+		if self.turn == self.player:
+			self.cursor = hud.getpointed(control.mposV)
+			self.pointedG = view.GnearesttileV(control.mposV) if self.cursor is None else None
+		else:
+			self.cursor = None
+			self.pointedG = None
 		if control.down and self.cursor:
 			if self.cursor == "Give up":
 				push(Wipe(select))
@@ -80,20 +87,47 @@ class Play(object):
 			if state.canmoveto(self.player, self.pointedG):
 				state.pushstate()
 				state.moveto(self.player, self.pointedG)
+				self.nextturn()
+		if self.turn != self.player:
+			self.tthink += dt
+			if self.tthink > 1:
+				self.move()
 		for obj in state.getthinkers():
 			obj.think(dt)
 		space.killtime(0.01)
+		scolor = {
+			"X": (80, 80, 255),
+			"Y": (200, 40, 40),
+			"Z": (0, 0, 0),
+		}[self.turn]
+		self.scolor = math.approach(self.scolor, scolor, 300 * dt)
+	def nextturn(self):
+		turnorder = "XYZ"
+		self.turn = turnorder[(turnorder.index(self.turn) + 1) % len(turnorder)]
+		self.tthink = 0
+	def move(self):
+		if self.turn == "Y":
+			while True:
+				tile = random.choice(list(state.grid))
+				if state.canmoveto(self.turn, tile):
+					state.moveto(self.turn, tile)
+					break
+			self.nextturn()
+		elif self.turn == "Z":
+			todestroy = [impact for impact in state.meteors.values() if impact.turnsleft() == 0]
+			if todestroy:
+				impact = random.choice(todestroy)
+				state.destroy((impact.xG, impact.yG))
+				self.tthink = 0
+			else:
+				self.nextturn()
 	def draw(self):
-		space.draw((40, 40, 255), (40, 40, 40))
+		space.draw(pview.I(self.scolor), (40, 40, 40))
 		ptext.draw(settings.gamename, center = pview.T(400, 100), color = "white", shade = 2,
 			scolor = "black", shadow = (1, 1), angle = 10,
 			fontsize = pview.T(120))
-		for color, pG in state.gettiles():
-			if pG == self.pointedG and state.canmoveto(self.player, self.pointedG):
-				color = "white"
-			view.drawtile(color, pG)
-		for pos in state.meteors:
-			view.drawimpact(pos)
+		for tile in state.gettiles():
+			tile.draw()
 		for obj in state.getboardobjs():
 			obj.draw()
 		hud.draw(cursor = self.cursor)
