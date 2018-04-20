@@ -1,5 +1,9 @@
 from __future__ import division
-import pickle, math
+import math
+try:
+	import cPickle as pickle
+except ImportError:
+	import pickle
 from . import view, thing
 
 
@@ -15,6 +19,18 @@ x	x	xP	.	y	yY	y8	y	y
 		x	x12	P	y	y		
 """
 
+
+level = """
+y	y	y	y	10	.	.	P
+y	.	.	y	10	.	.	.
+y	.	.	y	10	.	.	.
+yY	.	.	y	10	10	10	10
+x	x	x	P	x	x	x	x
+x	.	.	y	.	.	.	x
+x	.	.	y	.	.	.	x
+P	y	y	y	xX	x	x	x
+"""
+
 grid = {}
 meteors = {}
 pieces = {}
@@ -22,7 +38,7 @@ parts = {}
 statestack = []
 def pushstate():
 	obj = grid, meteors, pieces, parts
-	statestack.append(pickle.dumps(obj))
+	statestack.append(pickle.dumps(obj, 2))
 def popstate():
 	global grid, meteors, pieces, parts
 	if not statestack:

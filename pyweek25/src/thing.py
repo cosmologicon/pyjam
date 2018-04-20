@@ -120,7 +120,7 @@ class DrawPiece(Component):
 		self.color = color
 	def draw(self):
 		xV, yV = self.pdrawV()
-		S = view.S
+		S = view.IscaleG
 		ps = [T(xV + S * a, yV + S * b) for a, b in
 			[(0.25, 0), (-0.25, 0), (-0.15, -0.6), (0.15, -0.6)]]
 		pygame.draw.polygon(pview.screen, pygame.Color(self.color), ps)
@@ -133,24 +133,28 @@ class DrawPart(Component):
 		self.name = name
 		self.color = color
 	def draw(self):
-		xV, yV = self.pdrawV()
-		S = view.S
-		ps = [T(xV + S * a, yV + S * b) for a, b in
-			[(0.25, 0), (-0.25, 0), (-0.15, -0.6), (0.15, -0.6)]]
-		pygame.draw.polygon(pview.screen, pygame.Color(self.color), ps)
-		pygame.draw.lines(pview.screen, pygame.Color("black"), True, ps, T(0.05 * S))
-		ptext.draw(self.name, center = T(xV, yV - S * 0.25), fontsize = T(0.35 * S),
-			color = "white", ocolor = "black", owidth = 1)
+		scaleP = T(0.65 * view.IscaleG)
+		img = tile.getimg("part", scaleP)
+		xP, yP = T(self.pdrawV())
+		rect = img.get_rect()
+		rect.center = xP, yP - int(0.8 * scaleP)
+		pview.screen.blit(img, rect)
+#		pygame.draw.circle(pview.screen, (255, 127, 0), (xP, yP), 3)
 
 class DrawTile(Component):
 	def __init__(self, name = "", color = ""):
 		self.name = name
 		self.color = color
 	def draw(self):
-		S = view.S
-		pV = view.VconvertG(self.pshiftG())
-		tile.draw(self.color, pV, 0.94 * S)
-
+		tile.draw(pygame.Color(self.color), self.pdrawV())
+		return
+		dG = 0.45
+		xG, yG, zG = self.pdrawG()
+		pGs = [(xG + dxG, yG + dyG, zG) for dxG, dyG in
+			[(dG, dG), (dG, -dG), (-dG, -dG), (-dG, dG)]]
+		pVs = T([view.VconvertG(pG) for pG in pGs])
+		pygame.draw.polygon(pview.screen, pygame.Color(self.color), pVs)
+		pygame.draw.lines(pview.screen, pygame.Color("black"), True, pVs, T(0.05 * view.IscaleG))
 
 class DrawImpact(Component):
 	def __init__(self, turn = None):
@@ -160,8 +164,8 @@ class DrawImpact(Component):
 		return self.turn - state.turn()
 	def draw(self):
 		xG, yG, zG = self.pdrawG()
-		pV0 = self.pdrawV()
-		pV1 = view.VconvertG((xG, yG, zG + 1))
+		pV0 = T(self.pdrawV())
+		pV1 = T(view.VconvertG((xG, yG, zG + 1)))
 		color = 100, 0, 100
 		pygame.draw.line(pview.screen, color, pV0, pV1, T(5))
 		label = str(self.turnsleft())

@@ -1,12 +1,56 @@
 from __future__ import division
-import pygame
-from . import pview
+import pygame, numpy
+from . import pview, view
 from .pview import T
 
-def draw(color, pos, scale):
-	x0, y0 = pos
-	ps = [T(x0 + a * scale, y0 + b * scale) for a, b in
-		[(0.5, 0), (0, 0.25), (-0.5, 0), (0, -0.25)]]
-	pygame.draw.polygon(pview.screen, pygame.Color(color), ps)
-	pygame.draw.lines(pview.screen, pygame.Color("black"), True, ps, T(0.05 * scale))
+def recolortile(img0, color):
+	img = img0.copy()
+	w, h = img.get_size()
+	arr = pygame.surfarray.pixels3d(img)
+	red = arr[:,:,0] - arr[:,:,1]
+	arr[:,:,0] -= red
+	arr[:,:,:] += (numpy.array(color).reshape((1, 1, 3)) / 255.0 * red.reshape(w, h, 1)).astype(arr.dtype)
+	return img
+
+
+cache = {}
+def gettileimg(color, scale):
+	key = color, scale
+	if key in cache:
+		return cache[key]
+	if scale is None:
+		img = pygame.image.load("img/tile0.png").convert_alpha()
+	elif color is None:
+		img0 = gettileimg(None, None)
+		w = int(round(scale))
+		h = int(round(scale * img0.get_height() / img0.get_width()))
+		img = pygame.transform.smoothscale(img0, (w, h))
+	else:
+		img = recolortile(gettileimg(None, scale), color)
+	cache[key] = img
+	return img
+
+def getimg(name, scale):
+	key = name, scale
+	if key in cache:
+		return cache[key]
+	if scale is None:
+		img = pygame.image.load("img/%s.png" % name).convert_alpha()
+	else:
+		img0 = getimg(name, None)
+		w = int(round(scale))
+		h = int(round(scale * img0.get_height() / img0.get_width()))
+		img = pygame.transform.smoothscale(img0, (w, h))
+	cache[key] = img
+	return img
+
+def draw(color, pV):
+	color = tuple(color)[:3]
+	scaleP = T(1.2 * view.IscaleG)
+	img = gettileimg(color, scaleP)
+	xP, yP = T(pV)
+	rect = img.get_rect()
+	rect.center = xP, yP + int(0.15 * scaleP)
+	pview.screen.blit(img, rect)
+#	pygame.draw.circle(pview.screen, (255, 127, 0), (xP, yP), 3)
 
