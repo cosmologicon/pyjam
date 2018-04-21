@@ -17,5 +17,5 @@ forceres = "--forceres" in sys.argv
 fullscreen = "--fullscreen" in sys.argv
 
 savename = "savegame.pkl"
-reset = "--reset" in sys.argv
+reset = "--reset" in sys.argv or DEBUG
 

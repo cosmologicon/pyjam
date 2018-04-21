@@ -19,10 +19,11 @@ def draw():
 		color = (200, 200, 200) if control == cstate.cursor else (50, 50, 50)
 		pygame.draw.circle(pview.screen, color, T(xV, yV), T(40), 0)
 		ptext.draw(control, center = T(xV, yV), fontsize = T(30), owidth = 1, ocolor = "black",
-			color = "white")
+			color = "white", fontname = "Passion")
 	img = tile.getimg("part", T(70))
 	pview.screen.blit(img, img.get_rect(topright = pview.topright))
-	ptext.draw("%s/%s" % (state.scores["X"], state.goal), fontsize = T(50), top = T(30), right = pview.right - 70,
+	ptext.draw("%s/%s" % (state.scores["X"], state.goal), fontsize = T(50), fontname = "Passion",
+		top = T(30), right = pview.right - 70,
 		ocolor = "black", owidth = 2, shade = 2)
 
 

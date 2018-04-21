@@ -21,6 +21,54 @@
   <defs
      id="defs4">
     <linearGradient
+       id="linearGradient5955-6"
+       inkscape:collect="always">
+      <stop
+         id="stop5965"
+         offset="0"
+         style="stop-color:#c8c864;stop-opacity:1" />
+      <stop
+         id="stop5967"
+         offset="1"
+         style="stop-color:#f0f08c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient5933">
+      <stop
+         style="stop-color:#dc8c8c;stop-opacity:1"
+         offset="0"
+         id="stop5935" />
+      <stop
+         style="stop-color:#b46464;stop-opacity:1"
+         offset="1"
+         id="stop5937" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5911-5"
+       inkscape:collect="always">
+      <stop
+         id="stop5921"
+         offset="0"
+         style="stop-color:#f0f0f0;stop-opacity:1;" />
+      <stop
+         id="stop5923"
+         offset="1"
+         style="stop-color:#b4b4f0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="light_gray-3">
+      <stop
+         style="stop-color:#f0f0f0;stop-opacity:1"
+         offset="0"
+         id="stop5883" />
+      <stop
+         style="stop-color:#c8c8c8;stop-opacity:1"
+         offset="1"
+         id="stop5885" />
+    </linearGradient>
+    <linearGradient
        id="linearGradient5833"
        inkscape:collect="always">
       <stop
@@ -268,6 +316,125 @@
        x2="412.72263"
        y2="142.54132"
        gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#light_gray-3"
+       id="linearGradient5873"
+       x1="185.66777"
+       y1="329.21979"
+       x2="190.18939"
+       y2="374.80292"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5933"
+       id="linearGradient5893"
+       x1="199.56494"
+       y1="339.79401"
+       x2="199.30156"
+       y2="366.30679"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5791-3"
+       id="linearGradient5901"
+       x1="161.03767"
+       y1="337.98102"
+       x2="181.47459"
+       y2="347.35602"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5791-3"
+       id="linearGradient5909"
+       x1="210.87296"
+       y1="322.85895"
+       x2="211.79016"
+       y2="341.8768"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5911-5"
+       id="linearGradient5917"
+       x1="187.73849"
+       y1="316.35858"
+       x2="202.89726"
+       y2="327.69788"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5933"
+       id="linearGradient5931"
+       x1="181.45639"
+       y1="309.06747"
+       x2="194.07976"
+       y2="336.65677"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#light_gray-3"
+       id="linearGradient5945"
+       x1="151.45093"
+       y1="352.81924"
+       x2="178.6179"
+       y2="352.81924"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#light_gray-3"
+       id="linearGradient5953"
+       x1="209.54671"
+       y1="341.29681"
+       x2="227.0381"
+       y2="341.29681"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5955-6"
+       id="linearGradient5961"
+       x1="199.33104"
+       y1="354.19287"
+       x2="199.80872"
+       y2="342.05002"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5933"
+       id="linearGradient5975"
+       x1="170.25664"
+       y1="364.23157"
+       x2="185.51755"
+       y2="364.23157"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5933"
+       id="linearGradient5983"
+       x1="208.59554"
+       y1="356.29453"
+       x2="220.62315"
+       y2="356.29453"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4261"
+       id="linearGradient5993"
+       gradientUnits="userSpaceOnUse"
+       x1="49.5"
+       y1="387.36221"
+       x2="90.5"
+       y2="387.36221"
+       gradientTransform="translate(120,-6.8571429)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4261"
+       id="linearGradient5995"
+       gradientUnits="userSpaceOnUse"
+       x1="51.243197"
+       y1="381.36221"
+       x2="88.756803"
+       y2="381.36221"
+       gradientTransform="translate(120,-6.8571429)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -276,9 +443,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8"
-     inkscape:cx="405.5894"
-     inkscape:cy="941.98087"
+     inkscape:zoom="7.9195959"
+     inkscape:cx="215.14049"
+     inkscape:cy="685.03797"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -307,6 +474,38 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <ellipse
+       inkscape:export-ydpi="800"
+       inkscape:export-xdpi="800"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       ry="10"
+       rx="20"
+       cy="380.50507"
+       cx="190"
+       id="ellipse5989"
+       style="fill:url(#linearGradient5993);fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <ellipse
+       inkscape:export-ydpi="800"
+       inkscape:export-xdpi="800"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       style="fill:url(#linearGradient5995);fill-opacity:1;stroke:#000000;stroke-width:0.91496599;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="ellipse5991"
+       cx="190"
+       cy="374.50507"
+       rx="18.29932"
+       ry="9.1496601" />
+    <path
+       style="fill:url(#linearGradient5873);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="m 175,326.20148 c -2.85714,1.96429 -4.64286,2.50001 -6.33929,8.39287 0,0 -4.375,8.57143 -2.23214,19.375 8.21429,5.08929 12.08421,8.35455 15.1046,20.02451 5.04465,5.49107 14.19512,4.08416 17.90048,0.33416 1.16071,-13.60995 2.53063,-20.71582 13.60206,-29.91225 -0.26786,-4.73214 -0.53571,-15 -9.10714,-18.66071 z"
+       id="path5849"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc" />
+    <path
+       style="fill:url(#linearGradient5953);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1.0"
+       d="m 217.58929,328.16577 c 0,0 7.23214,6.33929 8.92857,13.92858 -2.32143,6.25 -6.35012,12.58387 -6.35012,12.58387 l -10,-4.13872 z"
+       id="path5865"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
     <circle
        style="fill:url(#radialGradient4313);fill-opacity:1.0;stroke:#000000;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4301"
@@ -324,18 +523,16 @@
        d="m 5,47.362205 60,-30 60,30 -60,30 z"
        id="path4159"
        inkscape:connector-curvature="0" />
-    <path
-       inkscape:connector-curvature="0"
-       id="path4161"
-       d="m 10.12728,387.74675 59.999998,-30 60.000002,30 -60.000002,30 z"
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <ellipse
        style="fill:url(#linearGradient4275);fill-opacity:1.0;stroke:#000000;stroke-width:1;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path4165"
        cx="70"
        cy="387.36221"
        rx="20"
-       ry="10" />
+       ry="10"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        inkscape:connector-curvature="0"
        id="path4197"
@@ -392,93 +589,144 @@
        cy="381.36221"
        cx="70"
        id="ellipse4217"
-       style="fill:url(#linearGradient4267);fill-opacity:1;stroke:#000000;stroke-width:0.91496599;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:url(#linearGradient4267);fill-opacity:1;stroke:#000000;stroke-width:0.91496599;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path4249"
        d="m 65.850035,377.95285 -0.09293,-27.342"
-       style="fill:#ffffcb;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient4251);stroke-width:3.84807634;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:#ffffcb;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient4251);stroke-width:3.84807634;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path4257"
        d="M 77.844367,378.04214 C 78.112224,363.5028 59.990868,368.47961 59.723011,353.28942"
-       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient4259);stroke-width:3.84807634;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient4259);stroke-width:3.84807634;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:#ffffcb;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient4247);stroke-width:3.84807634;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 78.885749,381.07785 -0.09293,-27.342"
        id="path4245"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:#ffffcb;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient4239);stroke-width:5.19999981;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 63.660714,382.9872 63.482143,357.00506"
        id="path4219"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        sodipodi:nodetypes="cc"
        inkscape:connector-curvature="0"
        id="path4241"
        d="M 72.142857,385.93363 71.964286,359.95149"
-       style="fill:#ffffcb;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient4243);stroke-width:5.19999981;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:#ffffcb;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient4243);stroke-width:5.19999981;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient4255);stroke-width:3.84807634;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 57.903606,383.75642 C 57.635749,369.21708 75.757105,374.19389 76.024962,359.0037"
        id="path4253"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:#ffff3d;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.98064911px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
        d="M 53.149774,329.15378 56.519819,323.4466 70,314.31512 l 13.480181,9.13148 3.370045,5.70718 -33.700452,0"
        id="path4187"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:#ffffb5;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.98064911px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 70,363.39686 16.850226,-11.41435 0,-22.82873 L 70,317.73943 l -16.850226,11.41435 0,22.82873 z"
        id="path4167"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        inkscape:connector-curvature="0"
        id="path4169"
        d="m 70,363.39686 16.850226,-11.41435 0,-22.82873 L 70,317.73943 l -16.850226,11.41435 0,22.82873 z"
-       style="fill:#ffff9d;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.98064911px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+       style="fill:#ffff9d;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.98064911px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.98064911px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 70,363.39686 0,-2.28287 0,0"
        id="path4173"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.98064911px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 86.850226,351.98251 -8.425112,2.28287"
        id="path4177"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.98064911px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 86.850226,329.15378 -7.582601,12.55579"
        id="path4179"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.06339395px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 70,314.92892 0,18.79061"
        id="path4181"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.98064911px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 53.149774,329.15378 7.582601,12.55579"
        id="path4183"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.98064911px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 53.149774,351.98251 12.637669,3.4243"
        id="path4185"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <path
        style="fill:#ffffcb;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.98064911;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 70,361.65887 12.605855,-8.53922 0,-17.07845 L 70,327.50199 l -12.605855,8.53921 0,17.07845 z"
        id="path4171"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/part.png"
+       inkscape:export-xdpi="800"
+       inkscape:export-ydpi="800" />
     <rect
        transform="matrix(0.95553335,0.29488307,-0.7795196,0.62637784,0,0)"
        y="-53.74963"
@@ -571,5 +819,59 @@
        inkscape:export-filename="/home/christopher/pyjam/pyweek25/img/tile0.png"
        inkscape:export-xdpi="800"
        inkscape:export-ydpi="800" />
+    <path
+       style="fill:url(#linearGradient5909);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1.0"
+       d="m 221.09714,318.29697 c -6.43972,0.75762 -14.77348,4.29316 -19.44544,8.64944 l 7.57615,17.29886 c 0,0 3.97747,-2.20971 7.3236,-3.15673 2.90419,-7.00793 4.29315,-12.81631 4.54569,-22.79157 z"
+       id="path5851"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       style="fill:url(#linearGradient5931);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="m 171.07143,326.46935 c 2.67335,7.20213 9.4516,10.9724 16.07143,10.80806 8.08122,0 19.0276,-5.05199 21.67925,-10.41843 -0.88388,-4.10374 -5.43791,-12.94348 -12.57211,-18.24678 -3.03046,-1.51523 -13.4467,-1.94634 -18.75,-0.17857 -2.52538,4.35628 -5.86036,11.53286 -6.42857,18.03572 z"
+       id="path5841"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc" />
+    <path
+       style="fill:url(#linearGradient5917);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="m 196.159,311.85725 c -1.89404,1.07329 -6.62912,2.27285 -11.74302,2.02031 -0.44194,6.25032 0.63134,17.362 1.07328,20.45559 8.83883,-0.50508 16.66752,-3.78808 20.96067,-7.89182 -0.82075,-3.34613 -4.92449,-10.10153 -10.29093,-14.58408 z"
+       id="path5843"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       style="fill:url(#linearGradient5945);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1.0"
+       d="m 159.28843,337.55301 c -3.97747,4.41941 -6.9448,13.95273 -7.32361,18.94036 4.04061,4.86135 12.4375,9.78585 19.06663,11.55362 l 5.3033,-10.2278 c 0,0 -7.26046,-2.0203 -8.08121,-4.48254 1.6415,-2.77792 9.40704,-7.38675 9.40704,-7.38675 0,0 -10.79601,-6.81853 -18.37215,-8.39689 z"
+       id="path5857"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccc" />
+    <path
+       style="fill:url(#linearGradient5901);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1.0"
+       d="m 169.95816,331.61836 c 4.73509,4.48255 7.32362,6.43972 13.5108,7.95495 -0.0631,4.41942 -2.08344,11.30108 -5.3033,15.02602 -4.35628,-5.80838 -14.89976,-13.32138 -26.70592,-17.17259 5.17704,-4.86136 13.06885,-5.36644 18.49842,-5.80838 z"
+       id="path5845"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       style="fill:url(#linearGradient5893);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1.0"
+       d="m 187.14286,340.75506 c 0,3.21986 -1.43569,9.72022 -3.39286,13.57143 0,0 10.10089,6.01509 10.03775,14.91706 l 7.68229,-2.44956 c 1.70463,-10.29093 4.6246,-15.53725 9.9279,-20.2092 0.3788,-6.18719 -2.95804,-13.9323 -2.95804,-13.9323 -3.91434,2.90419 -12.45821,6.58734 -21.29704,8.10257 z"
+       id="path5847"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccc" />
+    <path
+       style="fill:url(#linearGradient5975);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1.0"
+       d="m 176.42671,357.68685 -5.53571,10.35714 c 4.23001,3.4724 10.69788,3.90351 14.10714,0.17857 0.25254,-1.95717 -2.25798,-9.14675 -8.57143,-10.53571 z"
+       id="path5853"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:url(#linearGradient5983);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1.0"
+       d="m 210.17487,350.685 c 6.18718,0.75761 8.20749,2.46224 9.84899,4.29314 -2.96732,5.93465 -8.33376,6.81853 -10.16466,6.9448 -0.56821,-1.6415 -1.51523,-6.37658 0.31567,-11.23794 z"
+       id="path5861"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:url(#linearGradient5961);fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="m 199.19643,340.21935 c -1.96428,5 -6.60714,9.82143 -7.23214,16.25 l 13.83928,-5.98215 c -0.44643,-6.51785 -2.58928,-8.12499 -6.60714,-10.26785 z"
+       id="path5863"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
   </g>
 </svg>

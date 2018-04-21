@@ -3,17 +3,18 @@ try:
 	import cPickle as pickle
 except ImportError:
 	import pickle
-from . import settings
+from . import settings, dialog
 
 unlocked = set(["level1.act1", "level3.act1", "level5.act1"])
 beaten = set()
 current = None
+seen = set()
 
 def getstate():
-	return unlocked, beaten, current
+	return unlocked, beaten, current, seen
 def setstate(obj):
-	global unlocked, beaten, current
-	unlocked, beaten, current = obj
+	global unlocked, beaten, current, seen
+	unlocked, beaten, current, seen = obj
 
 
 def save():
@@ -37,4 +38,5 @@ def select(level):
 def win():
 	beaten.add(current)
 	save()
-
+def shouldtalk():
+	return current in dialog.texts and current not in seen

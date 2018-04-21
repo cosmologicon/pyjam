@@ -4,6 +4,7 @@ from . import pview, view
 from .pview import T
 
 def recolortile(img0, color):
+	color = tuple(color)[:3]
 	img = img0.copy()
 	w, h = img.get_size()
 	arr = pygame.surfarray.pixels3d(img)
@@ -30,17 +31,20 @@ def gettileimg(color, scale):
 	cache[key] = img
 	return img
 
-def getimg(name, scale):
-	key = name, scale
+def getimg(name, scale = None, recolor = None):
+	key = name, scale, recolor
 	if key in cache:
 		return cache[key]
-	if scale is None:
-		img = pygame.image.load("img/%s.png" % name).convert_alpha()
-	else:
-		img0 = getimg(name, None)
+	if recolor is not None:
+		img0 = getimg(name, scale)
+		img = recolortile(img0, recolor)
+	elif scale is not None:
+		img0 = getimg(name)
 		w = int(round(scale))
 		h = int(round(scale * img0.get_height() / img0.get_width()))
 		img = pygame.transform.smoothscale(img0, (w, h))
+	else:
+		img = pygame.image.load("img/%s.png" % name).convert_alpha()
 	cache[key] = img
 	return img
 

@@ -1,5 +1,5 @@
 import math, pygame, random
-from . import state, view, pview, settings, ptext, progress, space, hud, cstate, pathfind, program, sound
+from . import state, view, pview, settings, ptext, progress, space, hud, cstate, pathfind, program, sound, tile, dialog
 from .pview import T
 
 scenes = []
@@ -75,7 +75,13 @@ class Play(object):
 		self.turn = "X"
 		self.tthink = 0
 		self.scolor = (0, 0, 0)
+		self.checkeddialog = False
 	def think(self, dt, control):
+		if not self.checkeddialog:
+			if progress.shouldtalk():
+				push(Dialog())
+			self.checkeddialog = True
+
 		if self.turn == self.player:
 			cstate.cursor = hud.getpointed(control.mposV)
 			cstate.pointedG = view.GnearesttileV(control.mposV) if cstate.cursor is None else None
@@ -153,7 +159,7 @@ class Play(object):
 	def draw(self):
 		space.draw(pview.I(self.scolor), (40, 40, 40))
 		ptext.draw(settings.gamename, center = pview.T(400, 100), color = "white", shade = 2,
-			scolor = "black", shadow = (1, 1), angle = 10,
+			scolor = "black", shadow = (1, 1), angle = 10, fontname = "Londrina",
 			fontsize = pview.T(120))
 		for tile in state.gettiles():
 			tile.draw()
@@ -199,5 +205,43 @@ class Wipe(object):
 			alpha = math.clamp(3 * self.t / self.T, 0, 1)
 			ptext.draw(self.message, center = pview.center, fontsize = T(150),
 				owidth = 2, ocolor = "black", color = "yellow", shade = 2,
+				fontname = "Londrina",
 				alpha = alpha)
+
+class Dialog(object):
+	def __init__(self):
+		pass
+	def init(self):
+		self.texts = dialog.texts[progress.current]
+		self.current = None
+		progress.seen.add(progress.current)
+		progress.save()
+		self.t = 0
+	def think(self, dt, control):
+		if self.current is None and self.t > 0.25:
+			if not self.texts:
+				scenes.pop()
+				return
+			self.current = self.texts.pop(0)
+			self.t = 0
+		self.t += dt
+		if control.down:
+			self.current = None
+		space.killtime(0.01)
+	def draw(self):
+		if self is not top():
+			return
+		scenes[-2].draw()
+		play.draw()
+		pview.fill((0, 0, 0, 200))
+		if not self.current:
+			return
+		who, text = self.current
+		color = 255, 0, 0
+		img = tile.getimg(who, T(250), color)
+		textcolor = 255, 128, 128
+		pview.screen.blit(img, T(80, 480))
+		ptext.draw(text, T(400, 500), width = T(700), fontname = "CuteFont", fontsize = T(60),
+			owidth = 2, ocolor = "black", lineheight = 0.7,
+			color = textcolor, shade = 1.5)
 

@@ -3,6 +3,7 @@ import pygame, math
 from pygame.locals import *
 from . import settings, view, pview, ptext, state, scene
 
+ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 pygame.init()
 pview.set_mode(settings.size0, settings.height,
 	forceres = settings.forceres, fullscreen = settings.fullscreen)
