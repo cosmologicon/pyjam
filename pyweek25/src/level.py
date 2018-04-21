@@ -1,4 +1,21 @@
 
+def name(levelname):
+	if levelname == "act0.level1":
+		return "Tutorial 1"
+	if levelname == "act0.level2":
+		return "Tutorial 2"
+	if levelname == "act0.level3":
+		return "Tutorial 3"
+	if levelname == "act0.level5":
+		return "Tutorial 4"
+	if levelname.endswith("level1"):
+		return "Not alone"
+	if levelname.endswith("level2"):
+		return "One another"
+	if levelname.endswith("level3"):
+		return "Race to win"
+	if levelname.endswith("level5"):
+		return "The End"
 
 class act0:
 	pass
@@ -134,7 +151,7 @@ act2.level5 = """
 	.	xX	.	y	.	x	
 gP	x	.	eP	x	.	bP	.
 x	y	y	.	aP	x	x	y
-	x	.	y	.	Y	.	
+	x	.	y	.	yY	.	
 	.	h	x	.	.	y	
 			dP	y			
 """

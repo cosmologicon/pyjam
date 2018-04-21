@@ -1,5 +1,5 @@
 import math, pygame, random
-from . import state, view, pview, settings, ptext, progress, space, hud, cstate, pathfind, program, sound, tile, dialog
+from . import state, view, pview, settings, ptext, progress, space, hud, cstate, pathfind, program, sound, tile, dialog, level
 from .pview import T
 
 scenes = []
@@ -51,7 +51,7 @@ class Select(object):
 				self.target = target
 		if control.down and self.target is not None:
 			progress.select(self.target)
-			push(Wipe(play, self.target))
+			push(Wipe(play, level.name(self.target)))
 			sound.play("reset")
 		space.killtime(0.01)
 	def draw(self):
@@ -64,19 +64,22 @@ class Select(object):
 			color = (self.color1 if target == self.target else self.color0)[int(target[3])]
 			img = tile.getimg("button", T(100), color)
 			pview.screen.blit(img, img.get_rect(center = T(pV)))
-			ptext.draw(target, center = T(pV), fontsize = T(30), owidth = 1.5, ocolor = "black",
+			ptext.draw(level.name(target), center = T(pV), fontsize = T(30), owidth = 1.5, ocolor = "black",
 				color = "white", fontname = "Londrina")
 		ptext.draw(settings.gamename, midtop = pview.midtop, fontsize = T(140),
 			owidth = 1.5, ocolor = "black", shade = 2, fontname = "Passion")
 		if progress.done():
 			ptext.draw("Thank you for playing", midbottom = pview.midbottom, fontsize = T(100),
 				owidth = 1.5, ocolor = "black", shade = 2, fontname = "Passion")
+		else:
+			ptext.draw("by team Universe Factory", midbottom = pview.midbottom, fontsize = T(60),
+				owidth = 1.5, ocolor = "black", shade = 2, fontname = "Passion")
 select = Select()
 
 class Play(object):
 	def init(self):
-		sound.playmusic("magic-forest")
 		self.act = int(progress.current[3])
+		sound.playmusic("magic-forest" if self.act in (0, 1, 2) else "metaphysik")
 		if self.act == 0:
 			self.turnorder = "XZ"
 			self.players = ["X"]
@@ -201,8 +204,9 @@ class Play(object):
 		sound.play("lose")
 	def draw(self):
 		space.draw(pview.I(self.scolor), (40, 40, 40))
-		ptext.draw(settings.gamename, center = pview.T(400, 100), color = "white", shade = 2,
-			scolor = "black", shadow = (1, 1), angle = 10, fontname = "Londrina",
+		ptext.draw(level.name(progress.current), center = pview.T(pview.centerx0, 100),
+			color = "white", shade = 2,
+			owidth = 2, ocolor = "black", fontname = "Passion",
 			fontsize = pview.T(120))
 		for tile in state.gettiles():
 			tile.draw()

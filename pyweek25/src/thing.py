@@ -128,8 +128,7 @@ class DrawPiece(Component):
 		dy = { "X": 0.4, "Y": 0.62 }[self.name]
 		rect.center = xP, yP - int(dy * scaleP)
 		pview.screen.blit(img, rect)
-		pygame.draw.circle(pview.screen, (255, 127, 0), (xP, yP), 3)
-		return
+#		pygame.draw.circle(pview.screen, (255, 127, 0), (xP, yP), 3)
 
 class DrawPart(Component):
 	def __init__(self, name = "", color = ""):
