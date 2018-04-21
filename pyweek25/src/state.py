@@ -63,6 +63,8 @@ def load():
 			if field.isdigit():
 				meteors[p] = thing.Impact(turn = int(field), pG = p)
 	goal = (len(parts) + 1) // 2
+	if act == "act3":
+		goal = len(parts)
 	xmin = min(x for x, y in grid)
 	xmax = max(x for x, y in grid)
 	ymin = min(y for x, y in grid)

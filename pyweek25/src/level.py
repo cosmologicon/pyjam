@@ -62,3 +62,20 @@ x	y	y	.	aP	x	x	y
 			dP	y			
 """
 
+act1.level6 = """
+			y	xdP			
+	xeP	y	x	ys	x	y	
+	y	x	xs	yc	ybP	x	
+xX	x	y	xs	xS	xa	y	y
+x	x	y	x	y	xs	y	yY
+	x	fP	y	x	y	x	
+	ys	y	xs	y	gP	ys	
+			y	ys			
+"""
+
+act3.level1 = act1.level1
+act3.level3 = act1.level3
+act3.level5 = act1.level5
+act3.level6 = act1.level6
+
+

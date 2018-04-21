@@ -51,6 +51,7 @@ class Select(object):
 		if control.down and self.target is not None:
 			progress.select(self.target)
 			push(Wipe(play, self.target))
+			sound.play("reset")
 		space.killtime(0.01)
 	def draw(self):
 		for act in range(self.act + 1):
@@ -74,11 +75,18 @@ class Play(object):
 		self.act = int(progress.current[3])
 		if self.act == 0:
 			self.turnorder = "XZ"
+			self.players = ["X"]
 		elif self.act == 1:
 			self.turnorder = "XYZ"
+			self.players = ["X"]
+		elif self.act == 2:
+			self.turnorder = "YXZ"
+			self.players = ["Y"]
+		elif self.act == 3:
+			self.turnorder = "XYZ"
+			self.players = ["X", "Y"]
 		state.load()
 		pathfind.clear()
-		self.players = ["X"]
 		cstate.pointedG = None
 		cstate.cursor = None
 		hud.controls = ["Reset", "Undo", "Give up"]
@@ -105,8 +113,10 @@ class Play(object):
 				self.lose()
 			if cstate.cursor == "Reset":
 				push(Wipe(play))
+				sound.play("reset")
 			if cstate.cursor == "Undo":
 				state.popstate()
+				sound.play("undo")
 			if cstate.cursor == "Win":
 				self.win()
 		if control.down and cstate.pointedG:
@@ -114,14 +124,17 @@ class Play(object):
 				state.pushstate()
 				state.claimpart(self.turn, cstate.pointedG)
 				self.nextturn()
+				sound.play("claimpart")
 			elif state.canmoveto(self.turn, cstate.pointedG):
 				state.pushstate()
 				state.moveto(self.turn, cstate.pointedG)
 				self.nextturn()
+				sound.play("move")
 			elif state.canclaimtile(self.turn, cstate.pointedG):
 				state.pushstate()
 				state.claimtile(self.turn, cstate.pointedG)
 				self.nextturn()
+				sound.play("claimtile")
 			else:
 				sound.play("no")
 		if self.turn in self.players and not state.alive(self.turn):
@@ -149,15 +162,18 @@ class Play(object):
 		self.turn = self.turnorder[(self.turnorder.index(self.turn) + 1) % len(self.turnorder)]
 		self.tthink = 0
 	def move(self):
-		if self.turn == "Y":
-			if state.alive("Y"):
+		if self.turn in ["X", "Y"]:
+			if state.alive(self.turn):
 				togo = program.move()
-				if state.canclaimpart("Y", togo):
-					state.claimpart("Y", togo)
-				elif state.canclaimtile("Y", togo):
-					state.claimtile("Y", togo)
-				elif state.canmoveto("Y", togo):
-					state.moveto("Y", togo)
+				if state.canclaimpart(self.turn, togo):
+					state.claimpart(self.turn, togo)
+					sound.play("claimpart")
+				elif state.canclaimtile(self.turn, togo):
+					state.claimtile(self.turn, togo)
+					sound.play("claimtile")
+				elif state.canmoveto(self.turn, togo):
+					state.moveto(self.turn, togo)
+					sound.play("move")
 			self.nextturn()
 		elif self.turn == "Z":
 			todestroy = [impact for impact in state.meteors.values() if impact.turnsleft() == 0]
@@ -165,13 +181,16 @@ class Play(object):
 				impact = random.choice(todestroy)
 				state.destroy((impact.xG, impact.yG))
 				self.tthink = 0
+				sound.play("destroy")
 			else:
 				self.nextturn()
 	def win(self):
 		# progress.unlock...
 		push(Wipe(select, "Level complete"))
+		sound.play("win")
 	def lose(self):
 		push(Wipe(select, "Level failed"))
+		sound.play("lose")
 	def draw(self):
 		space.draw(pview.I(self.scolor), (40, 40, 40))
 		ptext.draw(settings.gamename, center = pview.T(400, 100), color = "white", shade = 2,
@@ -181,7 +200,7 @@ class Play(object):
 			tile.draw()
 		for obj in state.getboardobjs():
 			obj.draw()
-		hud.draw()
+		hud.draw(self.players)
 play = Play()
 
 

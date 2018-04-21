@@ -8,29 +8,20 @@ def attag(who, tag):
 	return state.tags[tag] == state.pieces[who].xyG()
 
 def gettargettags():
-	if progress.current == "level1.act1":
-		for tag in "abcde":
+	if progress.current == "act1.level1":
+		for tag in "abecd":
 			if not tagclaimed(tag):
 				return [tag]
 		return [None]
-	if progress.current == "level3.act1":
-		if state.AIstep == 0:
-			if attag("Y", "d"):
-				state.AIstep = 1
-				return gettargettags()
-			return ["d"]
-		if state.AIstep == 1:
-			if tagclaimed("b"):
-				state.AIstep = 2
-				return gettargettags()
-			return ["b"]
-		if state.AIstep == 2:
-			if state.scores["Y"] > 0:
-				return ["a"]
-			else:
-				return ["c"]
-		return [None]
-	if progress.current == "level5.act1":
+	if progress.current == "act1.level3":
+		for step, tag in enumerate("dba"):
+			if state.AIstep == step:
+				if attag("Y", tag):
+					state.AIstep += 1
+					return gettargettags()
+				return [tag]
+		return ["a"]
+	if progress.current == "act1.level5":
 		for tag in "abcd":
 			if not tagclaimed(tag):
 				return [tag]

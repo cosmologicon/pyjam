@@ -13,7 +13,7 @@ def getpointed(mposV):
 def think(dt):
 	pass
 
-def draw():
+def draw(players):
 	for j, control in enumerate(controls):
 		xV, yV = 50, 50 + 100 * j
 		color = (200, 200, 200) if control == cstate.cursor else (50, 50, 50)
@@ -23,7 +23,8 @@ def draw():
 			color = "white", fontname = "Passion")
 	img = tile.getimg("part", T(70))
 	pview.screen.blit(img, img.get_rect(topright = pview.topright))
-	ptext.draw("%s/%s" % (state.scores["X"], state.goal), fontsize = T(50), fontname = "Passion",
+	score = sum(state.scores[who] for who in players)
+	ptext.draw("%s/%s" % (score, state.goal), fontsize = T(50), fontname = "Passion",
 		top = T(30), right = pview.right - 70,
 		ocolor = "black", owidth = 2, shade = 2)
 
