@@ -122,10 +122,11 @@ class DrawPiece(Component):
 		self.color = color
 	def draw(self):
 		scaleP = T(1 * view.IscaleG)
-		img = tile.getimg("X", scaleP, tuple(pygame.Color(self.color)))
+		img = tile.getimg(self.name, scaleP, tuple(pygame.Color(self.color)))
 		xP, yP = T(self.pdrawV())
 		rect = img.get_rect()
-		rect.center = xP, yP - int(0.4 * scaleP)
+		dy = { "X": 0.4, "Y": 0.62 }[self.name]
+		rect.center = xP, yP - int(dy * scaleP)
 		pview.screen.blit(img, rect)
 		pygame.draw.circle(pview.screen, (255, 127, 0), (xP, yP), 3)
 		return
