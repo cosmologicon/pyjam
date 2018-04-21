@@ -7,7 +7,8 @@ from . import settings, dialog
 
 unlocked = set([
 	"act0.level1", "act0.level2",
-	"act1.level1", "act1.level3", "act1.level5",
+	"act1.level1", "act1.level2", "act1.level3", "act1.level5",
+	"act2.level1",
 	"act3.level1", "act3.level3", "act3.level5",
 ])
 beaten = set()

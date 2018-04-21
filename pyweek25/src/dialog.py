@@ -17,4 +17,12 @@ texts["act1.level1"] = [
 	("X", "I'm clearly not alone. Something else is messing with the life support settings."),
 	("X", "And it's going after the crystals. I'd better collect them before that thing does."),
 ]
+texts["act1.level2"] = [
+	("X", "Hey, who are you? What is this place?"),
+	("Y", "I have no knowledge of this place. Identify yourself."),
+]
+
+texts["act2.level1"] = [
+	("Y", "I've been here before. I don't understand."),
+]
 

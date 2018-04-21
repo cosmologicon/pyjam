@@ -39,6 +39,17 @@ x	x	exP	y	y	yY	y8	y	y
 		x	x12	bP	y	y		
 """
 
+act1.level2 = """
+		yY		
+		y		
+	.	y	.	
+bP	y	y	.	eP
+cP	.	aP	11	fP
+dP	.	x	x	gP
+	.	x	.	
+		x		
+		xX		
+"""
 
 act1.level3 = """
 y	y	y	dy	10	.	.	cP
@@ -73,7 +84,20 @@ x	x	y	x	y	xs	y	yY
 			y	ys			
 """
 
+act2.level1 = """
+		x	x	dP	y12	y		
+	x	x8	x8	x	.	y	y	
+x	x	x8	xX	x	x	cyP	y	y
+x	x	x	x	kx	.	y	y	y
+x	x	x	jx	aP	y	y	y	y
+x	x	x	.	y	y	y	y	y
+x	x	exP	y	y	yY	y8	y	y
+	x	x	.	y	y8	y8	y	
+		x	x12	bP	y	y		
+"""
+
 act3.level1 = act1.level1
+act3.level2 = act1.level2
 act3.level3 = act1.level3
 act3.level5 = act1.level5
 act3.level6 = act1.level6

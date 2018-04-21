@@ -39,7 +39,7 @@ class Select(object):
 		for level in sorted(progress.unlocked):
 			act = int(level[3])
 			jlevel = level[5:]
-			x0 = pview.w0 / (self.act + 2) * (act + 1)
+			x0 = pview.w0 / (self.act + 1) * (act + 0.5)
 			xV, yV = self.lspotpVs[jlevel]
 			self.targets[level] = x0 + xV, yV
 		self.target = None
@@ -55,7 +55,7 @@ class Select(object):
 		space.killtime(0.01)
 	def draw(self):
 		for act in range(self.act + 1):
-			x0 = pview.w0 / (self.act + 2) * (act + 0.5 if act else 0)
+			x0 = pview.w0 / (self.act + 1) * act
 			pview.fill(self.color0[act], T(x0, 0, pview.w0, pview.h0))
 			if act:
 				pygame.draw.line(pview.screen, (255, 255, 255), T(x0, 0), T(x0, pview.h0), T(6))
@@ -92,7 +92,7 @@ class Play(object):
 		hud.controls = ["Reset", "Undo", "Give up"]
 		if settings.DEBUG:
 			hud.controls += ["Win"]
-		self.turn = "X"
+		self.turn = self.turnorder[0]
 		self.tthink = 0
 		self.scolor = (0, 0, 0)
 		self.checkeddialog = False
@@ -272,11 +272,21 @@ class Dialog(object):
 		if not self.current:
 			return
 		who, text = self.current
-		color = 255, 0, 0
-		img = tile.getimg(who, T(250), color)
-		textcolor = 255, 128, 128
-		pview.screen.blit(img, T(80, 480))
-		ptext.draw(text, T(400, 500), width = T(700), fontname = "CuteFont", fontsize = T(60),
+		if who == "X":
+			color = 0, 0, 255
+			textcolor = 128, 128, 255
+			size = 250
+			fontname = "CuteFont"
+			fontsize = 60
+		elif who == "Y":
+			color = 255, 0, 0
+			textcolor = 255, 128, 128
+			size = 200
+			fontname = "Kirang"
+			fontsize = 48
+		img = tile.getimg(who, T(size), color)
+		pview.screen.blit(img, img.get_rect(center = T(180, 600)))
+		ptext.draw(text, T(400, 500), width = T(700), fontname = fontname, fontsize = T(fontsize),
 			owidth = 2, ocolor = "black", lineheight = 0.7,
 			color = textcolor, shade = 1.5)
 

@@ -56,7 +56,7 @@ def find(who, ptarget):
 	board = tuple(sorted((pG, tile.name) for pG, tile in state.grid.items()))
 	meteors = tuple(sorted((pG, impact.turn - state.turn()) for pG, impact in state.meteors.items()))
 	steps = distances(board, meteors, ptarget, who.name)
-	print(steps, steps[(who.xG, who.yG)])
+#	print(steps, steps[(who.xG, who.yG)])
 	return steps[(who.xG, who.yG)]
 
 def clear():

@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, math
 from pygame.locals import *
-from . import settings, view, pview, ptext, state, scene
+from . import sound, settings, view, pview, ptext, state, scene
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 pygame.init()
