@@ -5,7 +5,7 @@ except ImportError:
 	import pickle
 from . import settings
 
-unlocked = set(["level1.x", "level1.y", "level1.xy", "level2.x", "level2.y"])
+unlocked = set(["level1.act1", "level3.act1", "level5.act1"])
 beaten = set()
 current = None
 
@@ -23,7 +23,7 @@ def load():
 		setstate(pickle.load(open(settings.savename, "rb")))
 def reset():
 	if os.path.exists(settings.savename):
-		os.delete(settings.savename)
+		os.remove(settings.savename)
 
 if settings.reset:
 	reset()

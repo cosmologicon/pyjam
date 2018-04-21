@@ -16,12 +16,13 @@ def top():
 class Select(object):
 	lspotpVs = {
 		"level1": (300, 400),
-		"level2": (500, 200),
+		"level3": (500, 200),
+		"level5": (800, 400),
 	}
 	actdVs = {
-		"x": (-45, 10),
-		"y": (45, 10),
-		"xy": (0, 30),
+		"act1": (-45, 10),
+		"act2": (45, 10),
+		"act3": (0, 30),
 	}
 	def init(self):
 		self.lspots = sorted(level.split(".")[0] for level in progress.unlocked)
@@ -39,6 +40,7 @@ class Select(object):
 			if math.distance(pV, control.mposV) < 20:
 				self.target = target
 		if control.down and self.target is not None:
+			progress.select(self.target)
 			push(Wipe(play, self.target))
 		space.killtime(0.01)
 	def draw(self):

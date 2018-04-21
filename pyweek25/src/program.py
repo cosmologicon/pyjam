@@ -1,5 +1,5 @@
 import random
-from . import state, pathfind
+from . import state, pathfind, progress
 
 # Whether the part with the given tag has been claimed
 def tagclaimed(tag):
@@ -8,22 +8,33 @@ def attag(who, tag):
 	return state.tags[tag] == state.pieces[who].xyG()
 
 def gettargettags():
-	if state.AIstep == 0:
-		if attag("Y", "d"):
-			state.AIstep = 1
-			return gettargettags()
-		return ["d"]
-	if state.AIstep == 1:
-		if tagclaimed("b"):
-			state.AIstep = 2
-			return gettargettags()
-		return ["b"]
-	if state.AIstep == 2:
-		if state.scores["Y"] > 0:
-			return ["a"]
-		else:
-			return ["c"]
-	return [None]
+	if progress.current == "level1.act1":
+		for tag in "abcde":
+			if not tagclaimed(tag):
+				return [tag]
+		return [None]
+	if progress.current == "level3.act1":
+		if state.AIstep == 0:
+			if attag("Y", "d"):
+				state.AIstep = 1
+				return gettargettags()
+			return ["d"]
+		if state.AIstep == 1:
+			if tagclaimed("b"):
+				state.AIstep = 2
+				return gettargettags()
+			return ["b"]
+		if state.AIstep == 2:
+			if state.scores["Y"] > 0:
+				return ["a"]
+			else:
+				return ["c"]
+		return [None]
+	if progress.current == "level5.act1":
+		for tag in "abcd":
+			if not tagclaimed(tag):
+				return [tag]
+		return [None]
 
 def randommove():
 	for cell in state.neighbors(state.pieces["Y"].xyG()):

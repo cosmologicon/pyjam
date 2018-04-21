@@ -4,7 +4,7 @@ try:
 	import cPickle as pickle
 except ImportError:
 	import pickle
-from . import view, thing, level
+from . import view, thing, level, progress
 
 grid = {}
 meteors = {}
@@ -30,9 +30,23 @@ def turn():
 	return len(statestack)
 
 def load():
-	global goal
+	global goal, grid, meteors, pieces, parts, scores, AIstep, goal, tags
+	leveldata = None
+	if progress.current == "level1.act1":
+		leveldata = level.level1.act1
+	elif progress.current == "level3.act1":
+		leveldata = level.level3.act1
+	elif progress.current == "level5.act1":
+		leveldata = level.level5.act1
+	
+	grid = {}
+	meteors = {}
+	pieces = {}
+	parts = {}
+	scores = {}
+	tags = {}
 	AIstep = 0
-	for yline, line in enumerate(level.splitlines()):
+	for yline, line in enumerate(leveldata.splitlines()):
 		for xfield, field in enumerate(line.split("\t")):
 			field = field.strip()
 			p = x, y = xfield, -yline
