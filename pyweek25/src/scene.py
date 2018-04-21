@@ -116,6 +116,8 @@ class Play(object):
 		if self.turn in self.players and state.alive(self.turn):
 			cstate.cursor = hud.getpointed(control.mposV)
 			cstate.pointedG = view.GnearesttileV(control.mposV) if cstate.cursor is None else None
+			if not any(claim(self.turn, cstate.pointedG) for claim in [state.canclaimpart, state.canclaimtile, state.canmoveto]):
+				cstate.pointedG = None
 		else:
 			cstate.cursor = None
 			cstate.pointedG = None

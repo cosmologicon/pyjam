@@ -23,4 +23,5 @@ unlockall = "--unlockall" in sys.argv or DEBUG
 nomusic = "--nomusic" in sys.argv or "--noaudio" in sys.argv
 nosound = "--nosound" in sys.argv or "--noaudio" in sys.argv
 
+lowfi = "--lowfi" in sys.argv
 

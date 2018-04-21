@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, random, math, numpy
 from pygame.locals import *
-from . import pview, ptext
+from . import pview, ptext, settings
 
 def applyalpha(surf, alayers, offsets):
 	w, h = surf.get_size()
@@ -84,6 +84,8 @@ def generatelayers(size):
 def killtime(dt):
 	global screensize, alayers, dsurf, sgenerator
 	global sgenerator
+	if settings.lowfi:
+		return
 	if screensize != pview.size:
 		screensize = pview.size
 		dsurf = pygame.Surface(pview.size).convert_alpha()
@@ -99,6 +101,9 @@ def killtime(dt):
 			sgenerator = None
 
 def draw(color0, color1):
+	if settings.lowfi:
+		pview.screen.fill(math.imix(color0, color1, 0.5))
+		return
 	killtime(0)
 	w, h = pview.size
 #	w //= 4
