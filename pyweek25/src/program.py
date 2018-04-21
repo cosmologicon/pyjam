@@ -48,6 +48,31 @@ def gettargettags():
 			for tag in "cd":
 				if not tagclaimed(tag):
 					return [tag]
+	if progress.current == "act2.level2":
+		toget = "abcdefg" if state.scores["X"] == 0 else "acdefg"
+		for tag in toget:
+			if not tagclaimed(tag):
+				return [tag]
+	if progress.current == "act2.level3":
+		for tag in "ab":
+			if not tagclaimed(tag):
+				return [tag]
+	if progress.current == "act2.level5":
+		if state.AIstep == 0:
+			for tag in "fgea":
+				if not tagclaimed(tag):
+					return [tag]
+			state.AIstep += 1
+		if state.AIstep == 1:
+			if tagclaimed("d"):
+				state.AIstep += 1
+			else:
+				return seekandstep("X", "h")
+		if state.AIstep == 2:
+			for tag in "dbc":
+				if not tagclaimed(tag):
+					return [tag]
+			state.AIstep += 1
 	return [None]
 
 

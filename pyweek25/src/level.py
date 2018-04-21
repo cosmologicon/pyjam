@@ -10,6 +10,10 @@ class act3:
 	pass
 
 act0.level1 = """
+xP	x	x	xX
+"""
+
+act0.level2 = """
 xX	x	x3	x	xP
 x		x		x
 x1	x	x	x	x5
@@ -17,7 +21,7 @@ x		x		x
 xP	x	x11	x	xP
 """
 
-act0.level2 = """
+act0.level3 = """
 xX	x	x	32	P
 .		x		.
 .		x		.
@@ -25,6 +29,10 @@ xX	x	x	32	P
 .		x		.
 .		x		.
 16	.	xP	x10	xP
+"""
+
+act0.level5 = """
+yP	y	y	xX
 """
 
 act1.level1 = """
@@ -94,6 +102,41 @@ x	x	x	.	y	y	y	y	y
 x	x	exP	y	y	yY	y8	y	y
 	x	x	.	y	y8	y8	y	
 		x	x12	bP	y	y		
+"""
+
+act2.level2 = """
+		yY		
+		y		
+	.	y	.	
+fP	y	y	.	eP
+gP	10	aP	8	bP
+cP	.	x	x	dP
+	.	x	.	
+		x		
+		xX		
+"""
+
+act2.level3 = """
+y	y	y	y	11	.	.	P
+y	.	.	y	11	.	.	.
+y	.	.	y	11	.	.	.
+yY	.	.	y	11	11	11	11
+x	x	x	aP	x	x	x	x
+x	.	.	y	.	.	.	x
+x	.	.	y	.	.	.	x
+bP	y	y	y	xX	x	x	x
+"""
+
+
+act2.level5 = """
+			y	.			
+	fP	y	.	.	x	cP	
+	.	xX	.	y	.	x	
+gP	x	.	eP	x	.	bP	.
+x	y	y	.	aP	x	x	y
+	x	.	y	.	Y	.	
+	.	h	x	.	.	y	
+			dP	y			
 """
 
 act3.level1 = act1.level1

@@ -1,6 +1,6 @@
 import sys
 
-gamename = "Universe Factory 25"
+gamename = "Otherworlder"
 minfps, maxfps = 10, 60
 
 DEBUG = True
@@ -18,6 +18,7 @@ fullscreen = "--fullscreen" in sys.argv
 
 savename = "savegame.pkl"
 reset = "--reset" in sys.argv or DEBUG
+unlockall = "--unlockall" in sys.argv or DEBUG
 
 nomusic = "--nomusic" in sys.argv or "--noaudio" in sys.argv
 nosound = "--nosound" in sys.argv or "--noaudio" in sys.argv

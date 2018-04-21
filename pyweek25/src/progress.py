@@ -5,13 +5,17 @@ except ImportError:
 	import pickle
 from . import settings, dialog
 
-unlocked = set([
-	"act0.level1", "act0.level2",
+unlocked = set()
+unlocked0 = set([
+	"act0.level1", "act0.level2", "act0.level3", "act0.level5",
 	"act1.level1", "act1.level2", "act1.level3", "act1.level5",
-	"act2.level1",
-	"act3.level1", "act3.level3", "act3.level5",
+	"act2.level1", "act2.level2", "act2.level3", "act2.level5",
+	"act3.level1", "act3.level2", "act3.level3", "act3.level5",
 ])
 beaten = set()
+if settings.unlockall:
+	unlocked = unlocked0
+	beaten = set(unlocked0)
 current = None
 seen = set()
 
@@ -21,6 +25,8 @@ def setstate(obj):
 	global unlocked, beaten, current, seen
 	unlocked, beaten, current, seen = obj
 
+def done():
+	return len(beaten) == len(unlocked0)
 
 def save():
 	pickle.dump(getstate(), open(settings.savename, "wb"), 2)

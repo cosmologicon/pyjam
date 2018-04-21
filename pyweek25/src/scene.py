@@ -15,11 +15,11 @@ def top():
 
 class Select(object):
 	lspotpVs = {
-		"level1": (-50, 200),
-		"level2": (50, 300),
-		"level3": (-50, 400),
-		"level4": (50, 500),
-		"level5": (-50, 600),
+		"level1": (-50, 230),
+		"level2": (50, 330),
+		"level3": (-50, 430),
+		"level5": (50, 530),
+#		"level5": (-50, 600),
 	}
 	color0 = {
 		0: (120, 120, 120),
@@ -66,9 +66,11 @@ class Select(object):
 			pview.screen.blit(img, img.get_rect(center = T(pV)))
 			ptext.draw(target, center = T(pV), fontsize = T(30), owidth = 1.5, ocolor = "black",
 				color = "white", fontname = "Londrina")
-		if self.target is not None:
-			ptext.draw(self.target, midtop = pview.midtop, fontsize = T(120),
-				owidth = 1.5, ocolor = "black", shade = 2)
+		ptext.draw(settings.gamename, midtop = pview.midtop, fontsize = T(140),
+			owidth = 1.5, ocolor = "black", shade = 2, fontname = "Passion")
+		if progress.done():
+			ptext.draw("Thank you for playing", midbottom = pview.midbottom, fontsize = T(100),
+				owidth = 1.5, ocolor = "black", shade = 2, fontname = "Passion")
 select = Select()
 
 class Play(object):
@@ -122,18 +124,22 @@ class Play(object):
 			if cstate.cursor == "Win":
 				self.win()
 		if control.down and cstate.pointedG:
+			topush = self.turn == self.turnorder[0]
 			if state.canclaimpart(self.turn, cstate.pointedG):
-				state.pushstate()
+				if topush:
+					state.pushstate()
 				state.claimpart(self.turn, cstate.pointedG)
 				self.nextturn()
 				sound.play("claimpart")
 			elif state.canmoveto(self.turn, cstate.pointedG):
-				state.pushstate()
+				if topush:
+					state.pushstate()
 				state.moveto(self.turn, cstate.pointedG)
 				self.nextturn()
 				sound.play("move")
 			elif state.canclaimtile(self.turn, cstate.pointedG):
-				state.pushstate()
+				if topush:
+					state.pushstate()
 				state.claimtile(self.turn, cstate.pointedG)
 				self.nextturn()
 				sound.play("claimtile")
