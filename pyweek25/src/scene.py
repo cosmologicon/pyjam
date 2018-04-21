@@ -1,5 +1,5 @@
 import math, pygame, random
-from . import state, view, pview, settings, ptext, progress, space, hud, cstate, pathfind, program
+from . import state, view, pview, settings, ptext, progress, space, hud, cstate, pathfind, program, sound
 from .pview import T
 
 scenes = []
@@ -39,7 +39,7 @@ class Select(object):
 			if math.distance(pV, control.mposV) < 20:
 				self.target = target
 		if control.down and self.target is not None:
-			push(Wipe(play))
+			push(Wipe(play, self.target))
 		space.killtime(0.01)
 	def draw(self):
 		pview.fill((0, 50, 120))
@@ -55,6 +55,9 @@ class Select(object):
 			pV = self.targetpV(target)
 			pygame.draw.circle(pview.screen, color, T(pV), T(20))
 			pygame.draw.circle(pview.screen, (60, 60, 60), T(pV), T(16))
+		if self.target is not None:
+			ptext.draw(self.target, midtop = pview.midtop, fontsize = T(120),
+				owidth = 1.5, ocolor = "black", shade = 2)
 select = Select()
 
 class Play(object):
@@ -79,20 +82,32 @@ class Play(object):
 			cstate.pointedG = None
 		if control.down and cstate.cursor:
 			if cstate.cursor == "Give up":
-				push(Wipe(select))
+				self.lose()
 			if cstate.cursor == "Reset":
-				state.resetstate()
+				push(Wipe(play))
 			if cstate.cursor == "Undo":
 				state.popstate()
+			if cstate.cursor == "Win":
+				self.win()
 		if control.down and cstate.pointedG:
-			if state.canmoveto(self.player, cstate.pointedG):
+			if state.canclaimpart(self.player, cstate.pointedG):
+				state.pushstate()
+				state.claimpart(self.player, cstate.pointedG)
+				self.nextturn()
+			elif state.canmoveto(self.player, cstate.pointedG):
 				state.pushstate()
 				state.moveto(self.player, cstate.pointedG)
 				self.nextturn()
-			elif state.canclaim(self.player, cstate.pointedG):
+			elif state.canclaimtile(self.player, cstate.pointedG):
 				state.pushstate()
-				state.claim(self.player, cstate.pointedG)
+				state.claimtile(self.player, cstate.pointedG)
 				self.nextturn()
+			else:
+				sound.play("no")
+		if state.won(self.player):
+			self.win()
+		elif not state.canwin(self.player) and self.turn == self.player:
+			self.lose()
 		if self.turn != self.player:
 			self.tthink += dt
 			if self.tthink > 1:
@@ -113,8 +128,10 @@ class Play(object):
 	def move(self):
 		if self.turn == "Y":
 			togo = program.move()
-			if state.canclaim("Y", togo):
-				state.claim("Y", togo)
+			if state.canclaimpart("Y", togo):
+				state.claimpart("Y", togo)
+			elif state.canclaimtile("Y", togo):
+				state.claimtile("Y", togo)
 			elif state.canmoveto("Y", togo):
 				state.moveto("Y", togo)
 			self.nextturn()
@@ -126,6 +143,11 @@ class Play(object):
 				self.tthink = 0
 			else:
 				self.nextturn()
+	def win(self):
+		# progress.unlock...
+		push(Wipe(select, "Level complete"))
+	def lose(self):
+		push(Wipe(select, "Level failed"))
 	def draw(self):
 		space.draw(pview.I(self.scolor), (40, 40, 40))
 		ptext.draw(settings.gamename, center = pview.T(400, 100), color = "white", shade = 2,
@@ -140,8 +162,9 @@ play = Play()
 
 
 class Wipe(object):
-	def __init__(self, nextscene):
+	def __init__(self, nextscene, message = None):
 		self.nextscene = nextscene
+		self.message = message
 	def init(self):
 		self.t = 0
 		self.T = 0.6
@@ -170,4 +193,9 @@ class Wipe(object):
 		for j in range(6):
 			x0 = 0 if j % 2 == self.starting else pview.w - x
 			pview.screen.fill((0, 0, 0), (x0, ys[j], x, ys[j+1] - ys[j]))
+		if self.message is not None:
+			alpha = math.clamp(3 * self.t / self.T, 0, 1)
+			ptext.draw(self.message, center = pview.center, fontsize = T(150),
+				owidth = 2, ocolor = "black", color = "yellow", shade = 2,
+				alpha = alpha)
 

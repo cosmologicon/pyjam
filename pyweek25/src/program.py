@@ -19,7 +19,7 @@ def gettargettags():
 			return gettargettags()
 		return ["b"]
 	if state.AIstep == 2:
-		if state.score["Y"] > 0:
+		if state.scores["Y"] > 0:
 			return ["a"]
 		else:
 			return ["c"]
@@ -27,12 +27,11 @@ def gettargettags():
 
 def randommove():
 	for cell in state.neighbors(state.pieces["Y"].xyG()):
-		if state.canclaim("Y", cell) or state.canmoveto("Y", cell):
+		if state.canclaimpart("Y", cell) or state.canclaimtile("Y", cell) or state.canmoveto("Y", cell):
 			return cell
 	return state.pieces["Y"].xyG()
 
 def move():
-	print(state.AIstep, gettargettags())
 	for target in list(gettargettags()) + [None]:
 		if target is None:
 			return randommove()

@@ -16,4 +16,6 @@ for arg in sys.argv:
 forceres = "--forceres" in sys.argv
 fullscreen = "--fullscreen" in sys.argv
 
+savename = "savegame.pkl"
+reset = "--reset" in sys.argv
 
