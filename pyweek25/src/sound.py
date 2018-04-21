@@ -24,5 +24,6 @@ def playmusic(mname):
 	if settings.nomusic:
 		return
 	pygame.mixer.music.load("sound/%s.ogg" % mname)
+	pygame.mixer.music.set_volume(0.5)
 	pygame.mixer.music.play(-1)
 

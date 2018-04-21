@@ -34,6 +34,7 @@ class Select(object):
 		3: (255, 120, 255),
 	}
 	def init(self):
+		sound.playmusic("space-in-time")
 		self.act = int(max(level[3] for level in progress.unlocked))
 		self.targets = {}
 		for level in sorted(progress.unlocked):
@@ -72,6 +73,7 @@ select = Select()
 
 class Play(object):
 	def init(self):
+		sound.playmusic("magic-forest")
 		self.act = int(progress.current[3])
 		if self.act == 0:
 			self.turnorder = "XZ"
