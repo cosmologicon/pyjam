@@ -32,12 +32,8 @@ def turn():
 def load():
 	global goal, grid, meteors, pieces, parts, scores, AIstep, goal, tags
 	leveldata = None
-	if progress.current == "level1.act1":
-		leveldata = level.level1.act1
-	elif progress.current == "level3.act1":
-		leveldata = level.level3.act1
-	elif progress.current == "level5.act1":
-		leveldata = level.level5.act1
+	act, jlevel = progress.current.split(".")
+	leveldata = getattr(getattr(level, act), jlevel)
 	del statestack[:]
 	grid = {}
 	meteors = {}

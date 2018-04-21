@@ -5,7 +5,10 @@ except ImportError:
 	import pickle
 from . import settings, dialog
 
-unlocked = set(["level1.act1", "level3.act1", "level5.act1"])
+unlocked = set([
+	"act0.level1", "act0.level2",
+	"act1.level1", "act1.level3", "act1.level5",
+])
 beaten = set()
 current = None
 seen = set()

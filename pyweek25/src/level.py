@@ -1,16 +1,33 @@
 
-class level1:
+
+class act0:
 	pass
-class level2:
+class act1:
 	pass
-class level3:
+class act2:
 	pass
-class level4:
-	pass
-class level5:
+class act3:
 	pass
 
-level1.act1 = """
+act0.level1 = """
+xX	x	x3	x	xP
+x		x		x
+x1	x	x	x	x5
+x		x		x
+xP	x	x11	x	xP
+"""
+
+act0.level2 = """
+xX	x	x	32	P
+.		x		.
+.		x		.
+.	x	x9	x	.
+.		x		.
+.		x		.
+16	.	xP	x10	xP
+"""
+
+act1.level1 = """
 		x	x	dP	y12	y		
 	x	x8	x8	x	.	y	y	
 x	x	x8	xX	x	x	cyP	y	y
@@ -23,7 +40,7 @@ x	x	exP	y	y	yY	y8	y	y
 """
 
 
-level3.act1 = """
+act1.level3 = """
 y	y	y	dy	10	.	.	cP
 y	.	.	y	10	.	.	.
 y	.	.	y	10	.	.	.
@@ -34,7 +51,7 @@ x	.	.	y	.	.	.	x
 aP	y	y	y	xX	x	x	x
 """
 
-level5.act1 = """
+act1.level5 = """
 			y	.			
 	P	y	.	.	x	cP	
 	.	xX	.	y	.	x	

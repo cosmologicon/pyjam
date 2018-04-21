@@ -15,48 +15,55 @@ def top():
 
 class Select(object):
 	lspotpVs = {
-		"level1": (300, 400),
-		"level3": (500, 200),
-		"level5": (800, 400),
+		"level1": (-50, 200),
+		"level2": (50, 300),
+		"level3": (-50, 400),
+		"level4": (50, 500),
+		"level5": (-50, 600),
 	}
-	actdVs = {
-		"act1": (-45, 10),
-		"act2": (45, 10),
-		"act3": (0, 30),
+	color0 = {
+		0: (120, 120, 120),
+		1: (0, 0, 255),
+		2: (255, 0, 0),
+		3: (200, 0, 200),
+	}
+	color1 = {
+		0: (200, 200, 200),
+		1: (120, 120, 255),
+		2: (255, 120, 120),
+		3: (255, 120, 255),
 	}
 	def init(self):
-		self.lspots = sorted(level.split(".")[0] for level in progress.unlocked)
-		self.targets = sorted(progress.unlocked)
+		self.act = int(max(level[3] for level in progress.unlocked))
+		self.targets = {}
+		for level in sorted(progress.unlocked):
+			act = int(level[3])
+			jlevel = level[5:]
+			x0 = pview.w0 / (self.act + 2) * (act + 1)
+			xV, yV = self.lspotpVs[jlevel]
+			self.targets[level] = x0 + xV, yV
 		self.target = None
-	def targetpV(self, target):
-		lspot, act = target.split(".")
-		xV, yV = self.lspotpVs[lspot]
-		dxV, dyV = self.actdVs[act]
-		return xV + dxV, yV + dyV
 	def think(self, dt, control):
 		self.target = None
-		for target in self.targets:
-			pV = self.targetpV(target)
-			if math.distance(pV, control.mposV) < 20:
+		for target, pV in self.targets.items():
+			if math.distance(pV, control.mposV) < 50:
 				self.target = target
 		if control.down and self.target is not None:
 			progress.select(self.target)
 			push(Wipe(play, self.target))
 		space.killtime(0.01)
 	def draw(self):
-		pview.fill((0, 50, 120))
-		for lspot in self.lspots:
-			xV, yV = self.lspotpVs[lspot]
-			pygame.draw.circle(pview.screen, (0, 0, 0), T(xV, yV), T(50))
-			ps = [T(xV + dx, yV + dy) for dx, dy in [math.CS(j / 40 * math.tau, 43) for j in range(10, 31)]]
-			pygame.draw.polygon(pview.screen, (0, 0, 160), ps)
-			ps = [T(xV + dx, yV + dy) for dx, dy in [math.CS(j / 40 * math.tau, 43) for j in range(30, 51)]]
-			pygame.draw.polygon(pview.screen, (120, 0, 0), ps)
-		for target in self.targets:
-			color = (255, 255, 255) if target == self.target else (0, 0, 0)
-			pV = self.targetpV(target)
-			pygame.draw.circle(pview.screen, color, T(pV), T(20))
-			pygame.draw.circle(pview.screen, (60, 60, 60), T(pV), T(16))
+		for act in range(self.act + 1):
+			x0 = pview.w0 / (self.act + 2) * (act + 0.5 if act else 0)
+			pview.fill(self.color0[act], T(x0, 0, pview.w0, pview.h0))
+			if act:
+				pygame.draw.line(pview.screen, (255, 255, 255), T(x0, 0), T(x0, pview.h0), T(6))
+		for target, pV in self.targets.items():
+			color = (self.color1 if target == self.target else self.color0)[int(target[3])]
+			img = tile.getimg("button", T(100), color)
+			pview.screen.blit(img, img.get_rect(center = T(pV)))
+			ptext.draw(target, center = T(pV), fontsize = T(30), owidth = 1.5, ocolor = "black",
+				color = "white", fontname = "Londrina")
 		if self.target is not None:
 			ptext.draw(self.target, midtop = pview.midtop, fontsize = T(120),
 				owidth = 1.5, ocolor = "black", shade = 2)
@@ -64,6 +71,11 @@ select = Select()
 
 class Play(object):
 	def init(self):
+		self.act = int(progress.current[3])
+		if self.act == 0:
+			self.turnorder = "XZ"
+		elif self.act == 1:
+			self.turnorder = "XYZ"
 		state.load()
 		pathfind.clear()
 		self.players = ["X"]
@@ -122,6 +134,8 @@ class Play(object):
 			self.tthink += dt
 			if self.tthink > 1:
 				self.move()
+			elif self.turn == "Z" and not any(impact.turnsleft() == 0 for impact in state.meteors.values()):
+				self.nextturn()
 		for obj in state.getthinkers():
 			obj.think(dt)
 		space.killtime(0.01)
@@ -132,8 +146,7 @@ class Play(object):
 		}[self.turn]
 		self.scolor = math.approach(self.scolor, scolor, 300 * dt)
 	def nextturn(self):
-		turnorder = "XYZ"
-		self.turn = turnorder[(turnorder.index(self.turn) + 1) % len(turnorder)]
+		self.turn = self.turnorder[(self.turnorder.index(self.turn) + 1) % len(self.turnorder)]
 		self.tthink = 0
 	def move(self):
 		if self.turn == "Y":
