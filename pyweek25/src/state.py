@@ -21,30 +21,33 @@ x	x	xP	.	y	yY	y8	y	y
 
 
 level = """
-y	y	y	y	10	.	.	P
+y	y	y	dy	10	.	.	cP
 y	.	.	y	10	.	.	.
 y	.	.	y	10	.	.	.
 yY	.	.	y	10	10	10	10
-x	x	x	P	x	x	x	x
+x	x	x	bP	x	x	x	x
 x	.	.	y	.	.	.	x
 x	.	.	y	.	.	.	x
-P	y	y	y	xX	x	x	x
+aP	y	y	y	xX	x	x	x
 """
 
 grid = {}
 meteors = {}
 pieces = {}
 parts = {}
+scores = {}
+tags = {}
+AIstep = 0
 statestack = []
 def pushstate():
-	obj = grid, meteors, pieces, parts
+	obj = grid, meteors, pieces, parts, scores, AIstep
 	statestack.append(pickle.dumps(obj, 2))
 def popstate():
-	global grid, meteors, pieces, parts
+	global grid, meteors, pieces, parts, scores, AIstep
 	if not statestack:
 		return
 	obj = pickle.loads(statestack.pop())
-	grid, meteors, pieces, parts = obj
+	grid, meteors, pieces, parts, scores, AIstep = obj
 def resetstate():
 	del statestack[1:]
 	popstate()
@@ -52,6 +55,7 @@ def turn():
 	return len(statestack)
 
 def load():
+	AIstep = 0
 	for yline, line in enumerate(level.splitlines()):
 		for xfield, field in enumerate(line.split("\t")):
 			field = field.strip()
@@ -65,7 +69,11 @@ def load():
 			for name in "XYZ":
 				if name in field:
 					pieces[name] = thing.Piece(name = name, color = colors[name.lower()], pG = p)
+					scores[name] = 0
 			field = "".join(c for c in field if c not in "xy.XYZP")
+			for tag in "abcdefghijklmn":
+				if tag in field:
+					tags[tag] = p
 			if field.isdigit():
 				meteors[p] = thing.Impact(turn = int(field), pG = p)
 	xmin = min(x for x, y in grid)
@@ -81,7 +89,8 @@ colors = {
 	"y": "red",
 	"z": "#444444",
 }
-canstand = set([("X", "x"), ("X", "."), ("Y", "y"), ("Y", ".")])
+canstand = set([("X", "x"), ("Y", "y")])
+cantake = set([("X", "."), ("Y", ".")])
 def getthinkers():
 	objs = list(pieces.values()) + list(parts.values()) + list(grid.values()) + list(meteors.values())
 	return objs
@@ -96,6 +105,9 @@ def distanceG(p0G, p1G):
 	x0G, y0G, _ = view.ifzG(p0G)
 	x1G, y1G, _ = view.ifzG(p1G)
 	return abs(x0G - x1G) + abs(y0G - y1G)
+def neighbors(pG):
+	xG, yG = pG
+	return [(xG, yG + 1), (xG, yG - 1), (xG + 1, yG), (xG - 1, yG)]
 # Euclidean distance
 def edistanceG(p0G, p1G):
 	x0G, y0G, _ = view.ifzG(p0G)
@@ -108,9 +120,20 @@ def canmoveto(name, pG):
 		return False
 	d = distanceG(pieces[name].pG(), pG)
 	return d == 1 and not isoccupiedG(pG)
+def canclaim(name, pG):
+	if pG not in grid or (name, grid[pG].name) not in cantake:
+		return False
+	d = distanceG(pieces[name].pG(), pG)
+	return d == 1 and not isoccupiedG(pG)
 def moveto(name, pG):
 	pieces[name].xG, pieces[name].yG = pG
-
+def claim(name, pG):
+	tile = grid[pG]
+	tile.name = name.lower()
+	tile.color = colors[name.lower()]
+def claimpart(name, pG):
+	pass
+#	scores[name] += 1
 def destroy(pG):
 	for objs in [pieces, parts, grid, meteors]:
 		for key in [key for key, obj in objs.items() if (obj.xG, obj.yG) == pG]:

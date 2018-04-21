@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import view, pview, ptext, tile
+from . import view, pview, ptext, tile, cstate
 from .pview import T
 from .enco import Component
 
@@ -11,6 +11,8 @@ class WorldBound(Component):
 		self.zG = zG
 	def pG(self):
 		return self.xG, self.yG, self.zG
+	def xyG(self):
+		return self.xG, self.yG
 	def pV(self):
 		return view.VconvertG(self.pG())
 	def pdrawG(self):
@@ -146,7 +148,11 @@ class DrawTile(Component):
 		self.name = name
 		self.color = color
 	def draw(self):
-		tile.draw(pygame.Color(self.color), self.pdrawV())
+#		print(self.xG, self.yG, control.pointedG)
+		color = tuple(pygame.Color(self.color))
+		if cstate.pointedG == (self.xG, self.yG):
+			color = ptext._applyshade(color, -3)
+		tile.draw(color, self.pdrawV())
 		return
 		dG = 0.45
 		xG, yG, zG = self.pdrawG()

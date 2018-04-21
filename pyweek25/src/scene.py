@@ -1,5 +1,5 @@
 import math, pygame, random
-from . import state, view, pview, settings, ptext, progress, space, hud
+from . import state, view, pview, settings, ptext, progress, space, hud, cstate, pathfind, program
 from .pview import T
 
 scenes = []
@@ -60,9 +60,10 @@ select = Select()
 class Play(object):
 	def init(self):
 		state.load()
+		pathfind.clear()
 		self.player = "X"
-		self.pointedG = None
-		self.cursor = None
+		cstate.pointedG = None
+		cstate.cursor = None
 		hud.controls = ["Reset", "Undo", "Give up"]
 		if settings.DEBUG:
 			hud.controls += ["Win"]
@@ -71,22 +72,26 @@ class Play(object):
 		self.scolor = (0, 0, 0)
 	def think(self, dt, control):
 		if self.turn == self.player:
-			self.cursor = hud.getpointed(control.mposV)
-			self.pointedG = view.GnearesttileV(control.mposV) if self.cursor is None else None
+			cstate.cursor = hud.getpointed(control.mposV)
+			cstate.pointedG = view.GnearesttileV(control.mposV) if cstate.cursor is None else None
 		else:
-			self.cursor = None
-			self.pointedG = None
-		if control.down and self.cursor:
-			if self.cursor == "Give up":
+			cstate.cursor = None
+			cstate.pointedG = None
+		if control.down and cstate.cursor:
+			if cstate.cursor == "Give up":
 				push(Wipe(select))
-			if self.cursor == "Reset":
+			if cstate.cursor == "Reset":
 				state.resetstate()
-			if self.cursor == "Undo":
+			if cstate.cursor == "Undo":
 				state.popstate()
-		if control.down and self.pointedG:
-			if state.canmoveto(self.player, self.pointedG):
+		if control.down and cstate.pointedG:
+			if state.canmoveto(self.player, cstate.pointedG):
 				state.pushstate()
-				state.moveto(self.player, self.pointedG)
+				state.moveto(self.player, cstate.pointedG)
+				self.nextturn()
+			elif state.canclaim(self.player, cstate.pointedG):
+				state.pushstate()
+				state.claim(self.player, cstate.pointedG)
 				self.nextturn()
 		if self.turn != self.player:
 			self.tthink += dt
@@ -107,11 +112,11 @@ class Play(object):
 		self.tthink = 0
 	def move(self):
 		if self.turn == "Y":
-			while True:
-				tile = random.choice(list(state.grid))
-				if state.canmoveto(self.turn, tile):
-					state.moveto(self.turn, tile)
-					break
+			togo = program.move()
+			if state.canclaim("Y", togo):
+				state.claim("Y", togo)
+			elif state.canmoveto("Y", togo):
+				state.moveto("Y", togo)
 			self.nextturn()
 		elif self.turn == "Z":
 			todestroy = [impact for impact in state.meteors.values() if impact.turnsleft() == 0]
@@ -130,7 +135,7 @@ class Play(object):
 			tile.draw()
 		for obj in state.getboardobjs():
 			obj.draw()
-		hud.draw(cursor = self.cursor)
+		hud.draw()
 play = Play()
 
 
