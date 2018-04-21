@@ -66,7 +66,7 @@ class Play(object):
 	def init(self):
 		state.load()
 		pathfind.clear()
-		self.player = "X"
+		self.players = ["X"]
 		cstate.pointedG = None
 		cstate.cursor = None
 		hud.controls = ["Reset", "Undo", "Give up"]
@@ -82,7 +82,7 @@ class Play(object):
 				push(Dialog())
 			self.checkeddialog = True
 
-		if self.turn == self.player:
+		if self.turn in self.players and state.alive(self.turn):
 			cstate.cursor = hud.getpointed(control.mposV)
 			cstate.pointedG = view.GnearesttileV(control.mposV) if cstate.cursor is None else None
 		else:
@@ -98,25 +98,27 @@ class Play(object):
 			if cstate.cursor == "Win":
 				self.win()
 		if control.down and cstate.pointedG:
-			if state.canclaimpart(self.player, cstate.pointedG):
+			if state.canclaimpart(self.turn, cstate.pointedG):
 				state.pushstate()
-				state.claimpart(self.player, cstate.pointedG)
+				state.claimpart(self.turn, cstate.pointedG)
 				self.nextturn()
-			elif state.canmoveto(self.player, cstate.pointedG):
+			elif state.canmoveto(self.turn, cstate.pointedG):
 				state.pushstate()
-				state.moveto(self.player, cstate.pointedG)
+				state.moveto(self.turn, cstate.pointedG)
 				self.nextturn()
-			elif state.canclaimtile(self.player, cstate.pointedG):
+			elif state.canclaimtile(self.turn, cstate.pointedG):
 				state.pushstate()
-				state.claimtile(self.player, cstate.pointedG)
+				state.claimtile(self.turn, cstate.pointedG)
 				self.nextturn()
 			else:
 				sound.play("no")
-		if state.won(self.player):
-			self.win()
-		elif not state.canwin(self.player) and self.turn == self.player:
+		if self.turn in self.players and not state.alive(self.turn):
 			self.lose()
-		if self.turn != self.player:
+		if state.won(self.players):
+			self.win()
+		elif not state.canwin(self.players) and self.turn in self.players:
+			self.lose()
+		if self.turn not in self.players:
 			self.tthink += dt
 			if self.tthink > 1:
 				self.move()
@@ -135,13 +137,14 @@ class Play(object):
 		self.tthink = 0
 	def move(self):
 		if self.turn == "Y":
-			togo = program.move()
-			if state.canclaimpart("Y", togo):
-				state.claimpart("Y", togo)
-			elif state.canclaimtile("Y", togo):
-				state.claimtile("Y", togo)
-			elif state.canmoveto("Y", togo):
-				state.moveto("Y", togo)
+			if state.alive("Y"):
+				togo = program.move()
+				if state.canclaimpart("Y", togo):
+					state.claimpart("Y", togo)
+				elif state.canclaimtile("Y", togo):
+					state.claimtile("Y", togo)
+				elif state.canmoveto("Y", togo):
+					state.moveto("Y", togo)
 			self.nextturn()
 		elif self.turn == "Z":
 			todestroy = [impact for impact in state.meteors.values() if impact.turnsleft() == 0]

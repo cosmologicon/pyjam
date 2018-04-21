@@ -38,7 +38,7 @@ def load():
 		leveldata = level.level3.act1
 	elif progress.current == "level5.act1":
 		leveldata = level.level5.act1
-	
+	del statestack[:]
 	grid = {}
 	meteors = {}
 	pieces = {}
@@ -130,10 +130,10 @@ def claimtile(name, pG):
 def claimpart(name, pG):
 	del parts[pG]
 	scores[name] += 1
-def won(name):
-	return scores[name] >= goal
-def canwin(name):
-	return scores[name] + len(parts) >= goal
+def won(players):
+	return sum(scores[name] for name in players) >= goal
+def canwin(players):
+	return sum(scores[name] for name in players) + len(parts) >= goal
 def destroy(pG):
 	for objs in [pieces, parts, grid, meteors]:
 		for key in [key for key, obj in objs.items() if (obj.xG, obj.yG) == pG]:
@@ -141,5 +141,6 @@ def destroy(pG):
 	for tile in grid.values():
 		d = edistanceG(pG, tile.pG())
 		tile.jolt(0.1 * d)
-
+def alive(who):
+	return who in pieces
 

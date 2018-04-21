@@ -17,7 +17,8 @@ def draw():
 	for j, control in enumerate(controls):
 		xV, yV = 50, 50 + 100 * j
 		color = (200, 200, 200) if control == cstate.cursor else (50, 50, 50)
-		pygame.draw.circle(pview.screen, color, T(xV, yV), T(40), 0)
+		img = tile.getimg("button", T(80), color)
+		pview.screen.blit(img, img.get_rect(center = T(xV, yV)))
 		ptext.draw(control, center = T(xV, yV), fontsize = T(30), owidth = 1, ocolor = "black",
 			color = "white", fontname = "Passion")
 	img = tile.getimg("part", T(70))
