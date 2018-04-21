@@ -14,19 +14,19 @@ texts["act0.level3"] = [
 ]
 texts["act0.level5"] = [
 	("X", "Some of these areas have life support active, but the settings are way off."),
-	("X", "I'll need to adjust the settings to something more tolerable before I enter these areas."),
-	("X", "I think I can see something ahead."),
+	("X", "I'll need to adjust it to something more tolerable before I enter these areas."),
 ]
 
 
 texts["act1.level1"] = [
-	("X", "I'm clearly not alone. Someone else is messing with the life support settings."),
-	("X", "And they're going after the crystals. I'd better collect them before that thing does."),
+	("X", "Finally, I think I'm getting somewhere."),
+	("X", "But I'm clearly not alone. Someone else is messing with the life support settings."),
+	("X", "And they're going after the crystals. I'd better collect enough before they do."),
 ]
 texts["act1.level2"] = [
 	("X", "Hey, who are you? Why are you sabotaging the life support?"),
 	("Y", "Sabotage? If anyone is breaking the life support it's you."),
-	("Y", "How can you survive in those settings?"),
+	("Y", "How can you survive with those settings? Why there's barely any X-rays at all!"),
 ]
 texts["act1.level3"] = [
 	("X", "Look, I don't have anything against you, but I need these crystals to get out of here."),
@@ -42,19 +42,20 @@ texts["act1.level5"] = [
 texts["act2.level1"] = [
 	("Y", "I'm clearly not alone. Someone else is messing with the life support settings."),
 	("X", "You again! How did you pull me out of the escape pod? How did I get back here?"),
-	("Y", "What are you talking about? Who are you?"),
+	("Y", "What are you talking about? Escape pod? Who are you?"),
 ]
 texts["act2.level2"] = [
-	("Y", "What's this about an escape pod? Where is it?"),
+	("Y", "So what's this about an escape pod? Where is it?"),
 	("X", "Don't act like you don't know."),
-	("X", "I'll get back there, and this time I'll be sure to get out of here."),
+	("X", "I got there once. I'll do it again. And this time I'll be sure nothing stops me."),
 ]
 texts["act2.level3"] = [
 	("Y", "Why are you trying to prevent me from advancing?"),
 	("Y", "Just because you and I are from two different worlds?"),
+	("X", "You're not making it easy to get along with you. I literally can't be in the same room as you."),
 ]
 texts["act2.level5"] = [
-	("Y", "The final section! There's the escape pod the alien spoke of."),
+	("Y", "There's the escape pod that alien spoke of!"),
 	("X", "What makes you think you'll get there first?"),
 ]
 

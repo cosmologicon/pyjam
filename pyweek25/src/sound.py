@@ -15,8 +15,9 @@ def play(sname):
 			cache[sname] = pygame.mixer.Sound(fname)
 		else:
 			cache[sname] = None
-			print("Missing sound:", sname)
-	if settings.DEBUG and cache[sname] is not None:
+			if settings.DEBUG:
+				print("Missing sound:", sname)
+	if cache[sname] is not None:
 		cache[sname].play()
 	
 

@@ -25,7 +25,7 @@ def draw(players):
 	pview.screen.blit(img, img.get_rect(topright = pview.topright))
 	score = sum(state.scores[who] for who in players)
 	ptext.draw("%s/%s" % (score, state.goal), fontsize = T(50), fontname = "Passion",
-		top = T(30), right = pview.right - 70,
+		top = T(30), right = pview.right - T(70),
 		ocolor = "black", owidth = 2, shade = 2)
 
 

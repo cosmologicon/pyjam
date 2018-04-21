@@ -5,7 +5,7 @@ except ImportError:
 	import pickle
 from . import settings, dialog
 
-unlocked = set()
+unlocked = set(["act0.level1"])
 unlocked0 = set([
 	"act0.level1", "act0.level2", "act0.level3", "act0.level5",
 	"act1.level1", "act1.level2", "act1.level3", "act1.level5",
@@ -47,6 +47,9 @@ def select(level):
 	current = level
 	save()
 def win():
+	unbeaten = unlocked0 - unlocked
+	if current not in beaten and unbeaten:
+		unlocked.add(min(unbeaten))
 	beaten.add(current)
 	save()
 def shouldtalk():

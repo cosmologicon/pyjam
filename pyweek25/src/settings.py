@@ -4,7 +4,7 @@ gamename = "Otherworlder"
 minfps, maxfps = 10, 60
 
 DEBUG = True
-# DEBUG = "--DEBUG" in sys.argv
+DEBUG = "--DEBUG" in sys.argv
 
 # Screen resolution
 size0 = 1280, 720

@@ -49,7 +49,11 @@ xX	x	x	32	P
 """
 
 act0.level5 = """
-yP	y	y	xX
+yP10	y8	y6	y4	xX2
+x8				x8
+x8	x8		x8	x8
+	x8		x8	
+	x8	x8	x8	
 """
 
 act1.level1 = """

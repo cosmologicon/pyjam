@@ -74,6 +74,10 @@ class Select(object):
 		else:
 			ptext.draw("by team Universe Factory", midbottom = pview.midbottom, fontsize = T(60),
 				owidth = 1.5, ocolor = "black", shade = 2, fontname = "Passion")
+		if len(progress.unlocked) < 5:
+			ptext.draw("F10: change resolution\nF11: fullscreen", bottomright = pview.bottomright, fontsize = T(26),
+				color = "#aaaaff", owidth = 1.5, ocolor = "black", shade = 1, fontname = "Passion")
+			
 select = Select()
 
 class Play(object):
@@ -196,7 +200,7 @@ class Play(object):
 			else:
 				self.nextturn()
 	def win(self):
-		# progress.unlock...
+		progress.win()
 		push(Wipe(select, "Level complete"))
 		sound.play("win")
 	def lose(self):
