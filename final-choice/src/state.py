@@ -131,7 +131,7 @@ def think(dt):
 		shieldhp -= 2
 		shieldhp0 -= 2
 		apickup0 *= 2
-		shieldrate -= 2
+		shieldrate /= 2
 	tslow = max(tslow - dt, 0)
 	if tslow > 0:
 		dt /= min(3, 1 + 2 * tslow)

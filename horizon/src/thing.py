@@ -718,7 +718,7 @@ class DrawTeleport(Component):
 			return
 		ds = [-0.02 * j for j in range(8, -1, -1)]
 		ss = [2, 2, 2, 3.2, 3.2, 3.2, 4, 4, 4]
-		for d, s in zip(ds, ss):
+		for j, (d, s) in enumerate(zip(ds, ss)):
 			f = math.clamp((self.flife + d) * 1.2 - 0.1, 0, 1)
 			if not 0 < f < 1:
 				continue
@@ -740,7 +740,7 @@ class DrawSlowTeleport(Component):
 			return
 		ds = [-0.02 * j for j in range(8, -1, -1)]
 		ss = [2, 2, 2, 3.2, 3.2, 3.2, 4, 4, 4]
-		for d, s in zip(ds, ss):
+		for j, (d, s) in enumerate(zip(ds, ss)):
 			f = math.clamp((self.flife + d) * 1.1, 0, 1)
 			if not 0 < f < 1:
 				continue
@@ -767,7 +767,7 @@ class DrawCutsceneTeleport(Component):
 	def draw(self):
 		ds = [-0.02 * j for j in range(8, -1, -1)]
 		ss = [2, 2, 2, 3.2, 3.2, 3.2, 4, 4, 4]
-		for d, s in zip(ds, ss):
+		for j, (d, s) in enumerate(zip(ds, ss)):
 			f = math.clamp((self.flife + d) * 1.1, 0, 1)
 			if not 0 < f < 1:
 				continue

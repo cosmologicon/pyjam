@@ -15,6 +15,9 @@ def init(stage):
 
 def think(dt, kdowns, kpressed):
 	global tlastsave
+	if settings.DEBUG and kpressed[K_F5]:
+		dt *= 20
+		state.heal(1000)
 	sound.mplay(2)
 	if settings.isdown("swap", kdowns):
 		settings.swapaction = not settings.swapaction
