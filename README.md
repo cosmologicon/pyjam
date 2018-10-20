@@ -8,6 +8,7 @@ Code for my Python game jam entries (PyWeek).
 * PyWeek 23 (`final-choice`): The Final Choice.
 * PyWeek 24 (`faraway`): Faraway Near.
 * PyWeek 25 (`pyweek25`)
+* PyWeek 26 (`pyweek26`)
 
 ## Setup process
 
