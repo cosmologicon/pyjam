@@ -1,10 +1,12 @@
 from pygame.locals import *
+import sys
 
 DEBUG = True  # TODO: change to False before submitting
 
 gamename = "Flow"
 
 resolution = 854, 480
+fullscreen = "--fullscreen" in sys.argv
 
 maxfps = 120
 

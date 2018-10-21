@@ -1,15 +1,17 @@
 import math
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLUT import *
+#from OpenGL.GLUT import *
 from . import state
 
 def init():
-	glutInit()
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
+	global quadric
+	quadric = gluNewQuadric()
+	gluQuadricNormals(quadric, GLU_SMOOTH)
+	gluQuadricTexture(quadric, GL_TRUE)
 
 def drawsphere(r = 1):
-	glutSolidSphere(r, 10, 10)
+	gluSphere(quadric, r, 10, 10)
 
 def drawyou():
 	glPushMatrix()
@@ -24,7 +26,7 @@ def drawyou():
 # Placeholder - for now everything's spheres
 def drawobj(obj):
 	glPushMatrix()
-	glColor4f(*obj.color, 1)
+	glColor4f(*(list(obj.color) + [1]))
 	glTranslate(*obj.pos)
 	drawsphere(obj.r)
 	glPopMatrix()

@@ -9,7 +9,10 @@ screen = None
 
 def init():
 	global screen
-	screen = pygame.display.set_mode(settings.resolution, pygame.DOUBLEBUF | pygame.OPENGL)
+	flags = pygame.DOUBLEBUF | pygame.OPENGL
+	if settings.fullscreen:
+		flags |= pygame.FULLSCREEN
+	screen = pygame.display.set_mode(settings.resolution, flags)
 
 def clear(color = (0, 0, 0, 1)):
 	glClearColor(*color)
@@ -27,7 +30,8 @@ def look():
 	fov = 45
 	gluPerspective(fov, w / h, 0.001, 1000.0)
 	camera = state.you.pos - 20 * state.you.face + pygame.math.Vector3(0, 0, 16)
-	gluLookAt(*camera, *state.you.pos, 0, 0, 1)
+	args = list(camera) + list(state.you.pos) + [0, 0, 1]
+	gluLookAt(*args)
 	glEnable(GL_BLEND)
 	# TODO: get water transparency working
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)

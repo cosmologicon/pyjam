@@ -22,7 +22,7 @@ def clamp(x, a, b):
 def mix(x, y, a):
 	a = clamp(a, 0, 1)
 	try:
-		return tuple(b * (1 - a) + c * a for b, c in zip(x, y))
+		return type(a)(b * (1 - a) + c * a for b, c in zip(x, y))
 	except TypeError:
 		return x * (1 - a) + y * a
 def imix(x, y, a):
