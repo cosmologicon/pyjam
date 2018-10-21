@@ -1,0 +1,4 @@
+
+# Player character
+you = None
+

@@ -27,4 +27,6 @@ while playing:
 		text = "%s: %.1ffps" % (settings.gamename, clock.get_fps())
 		pygame.display.set_caption(text)
 	pygame.display.flip()
+	if K_F12 in kdowns:
+		view.screenshot()
 pygame.quit()
