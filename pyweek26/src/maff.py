@@ -105,6 +105,19 @@ def softapproach(x, target, dlogx, dxmax = float("inf"), dymin = 0.1):
 		return target
 	return mix(x, target, f)
 
+# test this and add it to the main maff repo
+
+# zero-centered mod
+def zmod(x, z):
+	return (x + z / 2) % z - z / 2
+
+def angleapproach(theta, target, dtheta):
+	dtarget = zmod(target - theta, tau)
+	return target - approach(dtarget, 0, dtheta)
+
+def anglesoftapproach(theta, target, dlogtheta, dthetamax = float("inf"), dymin = 0.1):
+	dtarget = zmod(target - theta, tau)
+	return target - softapproach(dtarget, 0, dlogtheta, dthetamax, dymin)
 
 # Polar coordinates
 def CS(theta, r = 1):

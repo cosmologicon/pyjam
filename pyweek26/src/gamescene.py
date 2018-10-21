@@ -13,6 +13,8 @@ def init():
 def think(dt, kpressed, kdowns):
 	dx = kpressed["right"] - kpressed["left"]
 	dy = kpressed["up"] - kpressed["down"]
+	if kdowns["turn"]:
+		state.you.upstream = not state.you.upstream
 	state.you.move(dt, dx, dy)
 	state.you.think(dt)
 

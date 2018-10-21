@@ -14,6 +14,7 @@ keymap = {
 	"down": [K_DOWN, K_s, K_o],
 	"left": [K_LEFT, K_a],
 	"right": [K_RIGHT, K_d, K_e],
+	"turn": [K_LSHIFT, K_z, K_SEMICOLON],
 	
 	"quit": [K_ESCAPE],
 }
