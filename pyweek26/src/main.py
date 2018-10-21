@@ -1,8 +1,9 @@
 import pygame
 from pygame.locals import *
-from . import settings, view, scene, gamescene
+from . import maff, settings, view, scene, gamescene, graphics
 
 view.init()
+graphics.init()
 scene.push(gamescene)
 
 playing = True
@@ -15,13 +16,15 @@ while playing:
 			kdowns.add(event.key)
 		if event.type == QUIT:
 			playing = False
-	if K_ESCAPE in kdowns:
-		playing = False
 	kpressed = pygame.key.get_pressed()
+	pressed = { key: any(kpressed[code] for code in codes) for key, codes in settings.keymap.items() }
+	downs = { key: any(code in kdowns for code in codes) for key, codes in settings.keymap.items() }
+	if downs["quit"]:
+		playing = False
 	s = scene.top()
 	if s is None:
 		break
-	s.think(dt, kpressed, kdowns)
+	s.think(dt, pressed, downs)
 	s.draw()
 	if settings.DEBUG:
 		text = "%s: %.1ffps" % (settings.gamename, clock.get_fps())

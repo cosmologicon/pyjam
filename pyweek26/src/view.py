@@ -15,7 +15,9 @@ def clear(color = (0, 0, 0, 1)):
 	glClearColor(*color)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+# Set up camera perspective and settings for drawing game entities
 def look():
+	# TODO: get lighting working
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
 
@@ -27,11 +29,15 @@ def look():
 	camera = state.you.pos - 10 * state.you.face + pygame.math.Vector3(0, 0, 5)
 	gluLookAt(*camera, *state.you.pos, 0, 0, 1)
 	glEnable(GL_BLEND)
+	# TODO: get water transparency working
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+	glEnable(GL_DEPTH_TEST)
+	# TODO: cull faces
+	# TODO: need to swap cull direction when drawing tunnel so that the top won't be drawn
 
 
 def screenshot():
-	# TODO: get this working
+	# TODO: get screenshot working
 	filename = datetime.datetime.now().strftime("screenshot-%Y%m%d%H%M%S.png")
 	w, h = screen.get_size()
 	data = glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE)
