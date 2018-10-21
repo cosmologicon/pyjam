@@ -11,6 +11,7 @@ def init():
 def drawsphere(r = 1):
 	glutSolidSphere(r, 10, 10)
 
+"""
 def drawwater():
 	glColor4f(0, 0, 1, 0.3)
 	y0 = state.you.pos.y
@@ -27,7 +28,7 @@ def drawwater():
 			glTranslate(x, y0 + 10 * dy, 0)
 			drawsphere(0.3)
 			glPopMatrix()
-
+"""
 
 def drawyou():
 	glPushMatrix()
