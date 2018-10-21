@@ -1,7 +1,14 @@
+import random
 from . import view, state, thing, graphics, settings
 
 def init():
 	state.you = thing.You()
+	for _ in range(100):
+		obj = thing.Debris()
+		obj.pos.x = random.uniform(-4 + obj.r, 4 - obj.r)
+		obj.pos.y = random.uniform(-400, 400)
+		state.objs.append(obj)
+	
 
 def think(dt, kpressed, kdowns):
 	dx = kpressed["right"] - kpressed["left"]
@@ -10,14 +17,18 @@ def think(dt, kpressed, kdowns):
 	state.you.think(dt)
 
 	# Flow
-	# TODO: apply to all entities
 	state.you.pos.y -= 10 * dt
+	for obj in state.objs:
+		obj.pos.y -= 10 * dt
 
 def draw():
 	view.clear((0.1, 0.1, 0.1, 1))
 	view.look()
 	
 	graphics.drawwater()
+	
+	for obj in state.objs:
+		graphics.drawobj(obj)
 	graphics.drawyou()
 
 
