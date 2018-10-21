@@ -12,6 +12,7 @@ class WaterBound(enco.Component):
 		if self.section is not None:
 			self.section.flow(dt, self)
 			self.section.handoff(self)
+			self.section.constrain(self)
 
 class Lives(enco.Component):
 	def start(self):
@@ -49,6 +50,7 @@ class MovesWithArrows(enco.Component):
 @MovesWithArrows()
 class You():
 	def __init__(self):
+		self.r = 0.6
 		self.start()
 
 @WorldBound()

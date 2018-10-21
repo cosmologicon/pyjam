@@ -47,11 +47,18 @@ class Pool():
 	def handoff(self, obj):
 		d = (obj.pos - self.pos).length()
 		if d > self.r - 1 and self.connections:
-			path = min(self.connections, key = lambda c: c.dcenter(obj.pos))
-			if path.dcenter(obj.pos) < 1:
-				obj.section = path
-				obj.upstream = self.pos == path.pos1
-				self.toturn = 0
+			paths = [c for c in self.connections if c.acquires(obj)]
+			if paths:
+				path = min(paths, key = lambda c: c.dcenter(obj.pos))
+				if path.dcenter(obj.pos) < 1:
+					obj.section = path
+					obj.upstream = self.pos == path.pos1
+					self.toturn = 0
+	def constrain(self, obj):
+		p = obj.pos - self.pos
+		pmax = self.r - obj.r
+		if p.length() > pmax:
+			obj.pos = self.pos + pmax * p.normalize()
 	def draw(self):
 		glPushMatrix()
 		glColor4f(0, 0, 1, 0.3)
@@ -109,6 +116,13 @@ class StraightConnector():
 		for connection in self.connections:
 			if connection.acquires(obj):
 				obj.section = connection
+	def constrain(self, obj):
+		p = obj.pos - self.pos0
+		d0 = p.dot(self.face) * self.face + self.pos0
+		d = obj.pos - d0
+		dmax = self.width - obj.r
+		if d.length() > dmax:
+			obj.pos = d0 + dmax * d.normalize()
 	def acquires(self, obj):
 		return 0 <= self.afactor(obj.pos) < 1
 	def influence(self, obj):
@@ -192,7 +206,14 @@ class CurvedConnector():
 		return self.keeps(obj)
 	def influence(self, obj):
 		return 0
-	
+	def constrain(self, obj):
+		p = obj.pos - self.center
+		pmin = self.r - (self.width - obj.r)
+		pmax = self.r + (self.width - obj.r)
+		if p.length() < pmin:
+			obj.pos = self.center + pmin * p.normalize()
+		if p.length() > pmax:
+			obj.pos = self.center + pmax * p.normalize()
 	def draw(self):
 		glPushMatrix()
 		glColor4f(0, 0, 1, 0.3)
