@@ -23,7 +23,7 @@ def Material(mtl_dir, filename, wrap_type):
         if values[0] == 'newmtl':
             mtl = contents[values[1]] = {}
         elif mtl is None:
-            raise ValueError, "mtl file doesn't start with newmtl stmt"
+            raise ValueError
         elif values[0] == 'map_Kd':
             # load the texture referred to by this declaration
             mtl[values[0]] = values[1]
@@ -47,7 +47,8 @@ def Material(mtl_dir, filename, wrap_type):
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ix, iy, 0, GL_RGBA,
                 GL_UNSIGNED_BYTE, image)
         else:
-            mtl[values[0]] = map(float, values[1:])
+            #mtl[values[0]] = map(float, values[1:])
+            mtl[values[0]] = values[1:]
     return contents
 
 # model3d: load in obj file and creates vertex, face, texture buffers of OpenGL rendering
@@ -72,12 +73,10 @@ class Model3D(object):
             values = line.split()
             if not values: continue
             if values[0] == 'v':
-                v = map(float, values[1:4])
-                v = v[1], -v[2], -v[0]
+                v = [float(values[2]), -float(values[3]), -float(values[1])]
                 self.vertices.append(v)
             elif values[0] == 'vn':
-                v = map(float, values[1:4])
-                v = v[1], -v[2], -v[0]
+                v = [float(values[2]), -float(values[3]), -float(values[1])]
                 self.normals.append(v)
             elif values[0] == 'vt':
                 self.texcoords.append(map(float, values[1:3]))
@@ -127,12 +126,16 @@ class Model3D(object):
                     # use diffuse texmap
                     glBindTexture(GL_TEXTURE_2D, mtl['texture_Kd'])
                     if coltex:
-                    	glColor(*mtl['Kd'])
+                    	#glColor(*mtl['Kd'])
+                    	kd = [float(i) for i in mtl['Kd']]
+                    	glColor(kd[0], kd[1], kd[2])
                     else:
                     	glColor(1,1,1)
                 else:
                     # just use diffuse colour
-                    glColor(*mtl['Kd'])
+                    #glColor(*mtl['Kd'])
+                    kd = [float(i) for i in mtl['Kd']]
+                    glColor(kd[0], kd[1], kd[2])
             else:
                 glColor(1,1,1)
 
