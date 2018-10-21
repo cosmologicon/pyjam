@@ -11,6 +11,7 @@ class WaterBound(enco.Component):
 	def flow(self, dt):
 		if self.section is not None:
 			self.section.flow(dt, self)
+			self.section.handoff(self)
 
 class Lives(enco.Component):
 	def start(self):
@@ -39,8 +40,6 @@ class MovesWithArrows(enco.Component):
 		v = self.v.length()
 		f = math.smoothfadebetween(v, 0, 0.5, 20, 3)
 		self.Tswim += dt * f
-#		heading = 0 if self.upstream else math.tau / 2
-#		self.heading = math.anglesoftapproach(self.heading, heading, 10 * dt, dymin = 0.01)
 		
 
 @WorldBound()
