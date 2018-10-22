@@ -28,14 +28,19 @@ def look():
 	# can we put it 3/4 of the way down the window?
 	w, h = screen.get_size()
 	fov = 45
-	gluPerspective(fov, w / h, 0.001, 1000.0)
+	gluPerspective(fov, w / h, 0.1, 1000.0)
 	camera = state.you.pos - 20 * state.you.face + pygame.math.Vector3(0, 0, 16)
 	args = list(camera) + list(state.you.pos) + [0, 0, 1]
 	gluLookAt(*args)
-	glEnable(GL_BLEND)
+	
+	#glEnable(GL_BLEND)
 	# TODO: get water transparency working
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+	#glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+	
+	glMatrixMode(GL_MODELVIEW)
 	glEnable(GL_DEPTH_TEST)
+	glDepthMask(GL_TRUE)
+	
 	# TODO: cull faces
 	# TODO: need to swap cull direction when drawing tunnel so that the top won't be drawn
 

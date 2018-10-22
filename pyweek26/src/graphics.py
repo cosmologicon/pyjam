@@ -23,9 +23,9 @@ def init():
 	
 	# Init OpenGL lighting
 	# TODO: figure out strange lighting directions
-	glLightfv(GL_LIGHT0, GL_POSITION,  (0, 200, 0, 0.0))
+	glLightfv(GL_LIGHT0, GL_POSITION,  (0, 0, 200, 0.0))
 	glLightfv(GL_LIGHT0, GL_AMBIENT, (0.2, 0.2, 0.2, 1.0))
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.9, 0.9, 0.9, 1.0))
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.1, 0.1, 0.1, 1.0))
 	glEnable(GL_LIGHT0)
 	glEnable(GL_LIGHTING)
 	glEnable(GL_COLOR_MATERIAL)
