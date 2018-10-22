@@ -17,6 +17,7 @@ def init():
 	model_tail = modelloader.Model3D(os.path.join('models','fish001_tail_colour.obj'))
 	
 	# Init OpenGL lighting
+	# TODO: figure out strange lighting directions
 	glLightfv(GL_LIGHT0, GL_POSITION,  (0, 200, 0, 0.0))
 	glLightfv(GL_LIGHT0, GL_AMBIENT, (0.2, 0.2, 0.2, 1.0))
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.9, 0.9, 0.9, 1.0))
@@ -25,6 +26,9 @@ def init():
 	glEnable(GL_COLOR_MATERIAL)
 	glEnable(GL_DEPTH_TEST)
 	glShadeModel(GL_SMOOTH)
+
+def create_section_straight(section):
+	print(section)
 
 def drawsphere(r = 1):
 	gluSphere(quadric, r, 10, 10)
@@ -46,7 +50,8 @@ def drawcylinder(p0, r, h, color):
 	
 def drawyou():
 	glPushMatrix()
-	glColor4f(0.8, 0.5, 0, 1)
+	#glColor4f(0.8, 0.5, 0, 1)
+	glColor4f(1.0, 1.0, 1.0, 1)
 	#glTranslate(*state.you.pos)
 	glTranslate(state.you.pos[0], state.you.pos[1], state.you.pos[2]+0.5)
 	angle = 20 * math.sin(state.you.Tswim * math.tau) - math.degrees(state.you.heading)
