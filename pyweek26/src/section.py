@@ -1,9 +1,9 @@
 # A section of the sewer
 
 from __future__ import division
-import math, pygame
+import math, pygame, random
 from OpenGL.GL import *
-from . import graphics
+from . import graphics, thing, state
 
 # A circular section without a current
 # In this section the left and right arrow keys rotate you
@@ -52,7 +52,7 @@ class Pool():
 				path = min(paths, key = lambda c: c.dcenter(obj.pos))
 				if path.dcenter(obj.pos) < 1:
 					obj.section = path
-					obj.upstream = self.pos == path.pos1
+					obj.upstream = obj.face.dot(path.face) < 0
 					self.toturn = 0
 	def constrain(self, obj):
 		p = obj.pos - self.pos
@@ -75,6 +75,9 @@ class Pool():
 			graphics.drawsphere(0.2)
 			glPopMatrix()
 		glPopMatrix()
+	def spawn(self, dt):
+		pass
+
 
 class StraightConnector():
 	def __init__(self, pos0, pos1, rate = 10, width = 4):
@@ -87,6 +90,7 @@ class StraightConnector():
 		self.length = d.length()
 		self.angle = math.atan2(self.face.x, self.face.y)
 		self.connections = []
+		self.blockers = []
 	# Distance to the section center line, in units of the width.
 	def dcenter(self, pos):
 		p = pos - self.pos0
@@ -118,11 +122,19 @@ class StraightConnector():
 				obj.section = connection
 	def constrain(self, obj):
 		p = obj.pos - self.pos0
-		d0 = p.dot(self.face) * self.face + self.pos0
+		a = p.dot(self.face)
+		d0 = a * self.face + self.pos0
 		d = obj.pos - d0
 		dmax = self.width - obj.r
 		if d.length() > dmax:
 			obj.pos = d0 + dmax * d.normalize()
+		for blocker in self.blockers:
+			a0 = blocker.afactor * self.length
+			da = a - a0
+			if 0 <= da < obj.r:
+				obj.pos += self.face * (obj.r - da)
+			elif -obj.r < da < 0:
+				obj.pos -= self.face * (obj.r + da)
 	def acquires(self, obj):
 		return 0 <= self.afactor(obj.pos) < 1
 	def influence(self, obj):
@@ -136,6 +148,16 @@ class StraightConnector():
 		for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
 			glVertex(dx * self.width, dy * self.length, 0)
 		glEnd()
+		for blocker in self.blockers:
+			glColor4f(0.3, 0.3, 0.3, 1)
+			glBegin(GL_QUADS)
+			w = int(round(self.width)) - 1
+			y = blocker.afactor * self.length
+			for x in range(-w, w+1):
+				z = math.sqrt(self.width ** 2 - x ** 2)
+				for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
+					glVertex(x + 0.25 * dx, y, dy * z)
+			glEnd()
 		glColor4f(0.8, 0.8, 0.8, 1)
 		n = int(round(self.length / 4))
 		for jball in range(n+1):
@@ -146,6 +168,18 @@ class StraightConnector():
 				graphics.drawsphere(0.3)
 				glPopMatrix()
 		glPopMatrix()
+	def spawn(self, dt):
+		return
+		if isinstance(self.connections[0], Pool) and random.uniform(0, 0.5) < dt:
+			obj = thing.Debris()
+			obj.section = self
+			d = self.width - obj.r
+			obj.pos = self.pos0 + random.uniform(-d, d) * self.face.rotate_z(90)
+			while self.connections[0].acquires(obj):
+				obj.pos += 0.1 * self.vflow(obj.pos)
+			for _ in range(3):
+				obj.pos += 0.1 * self.vflow(obj.pos)
+			state.objs.append(obj)
 
 class CurvedConnector():
 	def __init__(self, pA, pB, pC, r, rate = 10, width = 4):
@@ -239,7 +273,8 @@ class CurvedConnector():
 		glColor4f(0.8, 0, 0, 1)
 		graphics.drawsphere(0.6)
 		glPopMatrix()
-
+	def spawn(self, dt):
+		pass
 
 def connectpools(pool0, pool1, rate = 10, width = 4, r = 10, waypoints = []):
 	ps = [pool0.pos] + waypoints + [pool1.pos]

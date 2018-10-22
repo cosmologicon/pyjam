@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame
 from pygame.locals import *
 from . import maff, settings, view, scene, gamescene, graphics
@@ -8,8 +9,10 @@ scene.push(gamescene)
 
 playing = True
 clock = pygame.time.Clock()
+dt0 = 1 / settings.maxfps
+dt = 0
 while playing:
-	dt = clock.tick(settings.maxfps) * 0.001
+	dt += min(clock.tick(settings.maxfps) * 0.001, 1 / settings.minfps)
 	kdowns = set()
 	for event in pygame.event.get():
 		if event.type == KEYDOWN:
@@ -24,7 +27,10 @@ while playing:
 	s = scene.top()
 	if s is None:
 		break
-	s.think(dt, pressed, downs)
+	while dt > dt0:
+		dt -= dt0
+		s.think(dt0, pressed, downs)
+		downs = { key: False for key in downs }
 	s.draw()
 	if settings.DEBUG:
 		text = "%s: %.1ffps" % (settings.gamename, clock.get_fps())

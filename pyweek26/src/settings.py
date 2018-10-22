@@ -9,6 +9,7 @@ resolution = 854, 480
 fullscreen = "--fullscreen" in sys.argv
 
 maxfps = 120
+minfps = 10
 
 keymap = {
 	# Dvorak key layout too.

@@ -4,12 +4,15 @@ from . import enco
 class WorldBound(enco.Component):
 	def start(self):
 		self.pos = pygame.math.Vector3(0, 0, 0)
+		self.alive = True
 
 class WaterBound(enco.Component):
+	def __init__(self, fixed = False):
+		self.fixed = fixed
 	def start(self):
 		self.section = None
 	def flow(self, dt):
-		if self.section is not None:
+		if not self.fixed and self.section is not None:
 			self.section.flow(dt, self)
 			self.section.handoff(self)
 			self.section.constrain(self)
@@ -41,7 +44,14 @@ class MovesWithArrows(enco.Component):
 		v = self.v.length()
 		f = math.smoothfadebetween(v, 0, 0.5, 20, 3)
 		self.Tswim += dt * f
-		
+
+class SinksInPool(enco.Component):
+	def think(self, dt):
+		from . import section
+		if isinstance(self.section, section.Pool):
+			self.pos.z -= 1 * dt
+			if self.pos.z < -self.r:
+				self.alive = False
 
 @WorldBound()
 @WaterBound()
@@ -55,12 +65,25 @@ class You():
 
 @WorldBound()
 @WaterBound()
+@SinksInPool()
 @Lives()
 class Debris():
 	def __init__(self):
 		self.start()
 		self.color = [random.uniform(0.2, 0.4) for _ in "rgb"]
 		self.r = random.uniform(0.7, 1.5)
+	def think(self, dt):
+		pass
+
+@WorldBound()
+@WaterBound(fixed = True)
+@Lives()
+class SolidGrate():
+	def __init__(self, section, afactor):
+		self.start()
+		self.section = section
+		self.section.blockers.append(self)
+		self.afactor = afactor
 	def think(self, dt):
 		pass
 
