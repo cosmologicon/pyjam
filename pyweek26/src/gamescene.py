@@ -27,9 +27,9 @@ def think(dt, kpressed, kdowns):
 
 	for section in state.sections:
 		section.spawn(dt)
-	state.you.move(dt, dx, dy, kdowns["turn"])
+	state.you.move(dt, dx, dy, kdowns["turn"], kdowns["act"], kpressed["act"])
 	state.you.think(dt)
-	for obj in state.objs:
+	for obj in state.objs + state.effects:
 		obj.think(dt)
 
 	state.you.flow(dt)
@@ -37,6 +37,7 @@ def think(dt, kpressed, kdowns):
 		obj.flow(dt)
 
 	state.objs = [obj for obj in state.objs if obj.alive]
+	state.effects = [effect for effect in state.effects if obj.alive]
 #	state.you.pos.y -= 10 * dt
 #	for obj in state.objs:
 #		obj.pos.y -= 10 * dt
@@ -51,5 +52,7 @@ def draw():
 	for obj in state.objs:
 		graphics.drawobj(obj)
 	graphics.drawyou()
+	for effect in state.effects:
+		effect.draw()
 
 

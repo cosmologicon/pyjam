@@ -5,3 +5,5 @@ you = None
 sections = []
 # Floating game objects - will rename once we know what will be there
 objs = []
+# Non-interactive special effects
+effects = []

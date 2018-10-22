@@ -1,7 +1,6 @@
 import math
 from OpenGL.GL import *
 from OpenGL.GLU import *
-#from OpenGL.GLUT import *
 from . import state
 
 def init():
@@ -13,6 +12,23 @@ def init():
 def drawsphere(r = 1):
 	gluSphere(quadric, r, 10, 10)
 
+def drawcircle(center, r, axis, color):
+	# note: axis doesn't work - all horizontal circles for now
+	glPushMatrix()
+	glColor4f(*color)
+	glTranslate(*center)
+	gluDisk(quadric, 0.95 * r, 1.05 * r, 10, 10)
+	glPopMatrix()
+
+def drawcylinder(p0, r, h, color):
+	glPushMatrix()
+	glColor4f(*color)
+	glTranslate(*p0)
+	gluCylinder(quadric, r, r, h, 10, 1)
+	glPopMatrix()
+	
+
+# TODO: use the imported fish model instead of a sphere. Don't worry about angle.
 def drawyou():
 	glPushMatrix()
 	glColor4f(0.8, 0.5, 0, 1)
@@ -30,4 +46,4 @@ def drawobj(obj):
 	glTranslate(*obj.pos)
 	drawsphere(obj.r)
 	glPopMatrix()
-	
+

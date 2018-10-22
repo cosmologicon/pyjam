@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import enco
+from . import enco, state, graphics
 
 class WorldBound(enco.Component):
 	def start(self):
@@ -23,6 +23,16 @@ class Lives(enco.Component):
 	def think(self, dt):
 		self.t += dt
 
+class Lifetime(enco.Component):
+	def __init__(self, lifetime = 1):
+		self.lifetime = lifetime
+	def start(self):
+		self.f = 0
+	def think(self, dt):
+		self.f = self.t / self.lifetime
+		if self.f >= 1:
+			self.alive = False
+
 class Faces(enco.Component):
 	def start(self):
 		self.heading = 0
@@ -35,11 +45,28 @@ class MovesWithArrows(enco.Component):
 		self.v = pygame.math.Vector3(0, 0, 0)
 		self.Tswim = 0  # Animation timer for swimming
 		self.upstream = True
-	def move(self, dt, dx, dy, turn):
-		if self.section is not None:
+		self.landed = True
+	def move(self, dt, dx, dy, turn, act, acthold):
+		if self.landed and self.section is not None:
 			self.section.move(self, dt, dx, dy, turn)
 		self.pos += dt * self.v
+		if act and self.landed:
+			self.landed = False
+			self.toleap = 20
+			self.v.z = 5
+		if not acthold:
+			self.toleap = 0
 	def think(self, dt):
+		if not self.landed:
+			toleap = min(self.toleap, 200 * dt)
+			self.toleap -= toleap
+			self.v.z += toleap
+			self.v.z -= 60 * dt
+			if self.pos.z < 0:
+				self.landed = True
+				self.v.z = 0
+				self.pos.z = 0
+				state.effects.append(Splash(self.pos))
 		# Swim faster if you're going forward.
 		v = self.v.length()
 		f = math.smoothfadebetween(v, 0, 0.5, 20, 3)
@@ -83,7 +110,23 @@ class SolidGrate():
 		self.start()
 		self.section = section
 		self.section.blockers.append(self)
-		self.afactor = afactor
+		self.afactor = afactor	
 	def think(self, dt):
 		pass
+
+@WorldBound()
+@Lives()
+@Lifetime()
+class Splash():
+	def __init__(self, pos, lifetime=0.35):
+		self.start()
+		self.pos = pos * 1
+		self.color = [0, 0.8, 0.8, 0.5]
+		self.lifetime = lifetime
+	def draw(self):
+		z = self.f * (1 - self.f) * 4
+		z = 0.1
+		r = 2.5 * self.f
+		graphics.drawcircle(self.pos + pygame.math.Vector3(0, 0, z), r, pygame.math.Vector3(0, 0, 1), self.color)
+	
 

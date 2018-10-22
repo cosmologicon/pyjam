@@ -149,15 +149,12 @@ class StraightConnector():
 			glVertex(dx * self.width, dy * self.length, 0)
 		glEnd()
 		for blocker in self.blockers:
-			glColor4f(0.3, 0.3, 0.3, 1)
-			glBegin(GL_QUADS)
 			w = int(round(self.width)) - 1
 			y = blocker.afactor * self.length
 			for x in range(-w, w+1):
 				z = math.sqrt(self.width ** 2 - x ** 2)
-				for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
-					glVertex(x + 0.25 * dx, y, dy * z)
-			glEnd()
+				p0 = x + 0.25 * dx, y, 0
+				graphics.drawcylinder(p0, 0.25, z, [0.3, 0.3, 0.3, 1])
 		glColor4f(0.8, 0.8, 0.8, 1)
 		n = int(round(self.length / 4))
 		for jball in range(n+1):
