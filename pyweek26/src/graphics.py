@@ -1,13 +1,19 @@
 import math
+import os
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from . import state
+from . import modelloader
 
 def init():
 	global quadric
 	quadric = gluNewQuadric()
 	gluQuadricNormals(quadric, GLU_SMOOTH)
 	gluQuadricTexture(quadric, GL_TRUE)
+	
+	global model_fish, model_tail
+	model_fish = modelloader.Model3D(os.path.join('models','fish001_tailfree_colour.obj'))
+	model_tail = modelloader.Model3D(os.path.join('models','fish001_tail_colour.obj'))
 
 def drawsphere(r = 1):
 	gluSphere(quadric, r, 10, 10)
@@ -27,16 +33,20 @@ def drawcylinder(p0, r, h, color):
 	gluCylinder(quadric, r, r, h, 10, 1)
 	glPopMatrix()
 	
-
-# TODO: use the imported fish model instead of a sphere. Don't worry about angle.
 def drawyou():
 	glPushMatrix()
 	glColor4f(0.8, 0.5, 0, 1)
-	glTranslate(*state.you.pos)
+	#glTranslate(*state.you.pos)
+	glTranslate(state.you.pos[0], state.you.pos[1], state.you.pos[2]+0.5)
 	angle = 20 * math.sin(state.you.Tswim * math.tau) - math.degrees(state.you.heading)
+	angle_tail = 20 * math.cos(state.you.Tswim * math.tau) # tail waves out of phase
 	glRotate(angle, 0, 0, 1)
-	glScale(0.4, 1, 0.7)
-	drawsphere()
+	glRotate(90, 1, 0, 0)
+	glScale(0.1, 0.1, 0.1)
+	glCallList(model_fish.gl_list)
+	glTranslate(0, 0, 7.0)
+	glRotate(-angle_tail, 0, 1, 0)
+	glCallList(model_tail.gl_list)
 	glPopMatrix()
 
 # Placeholder - for now everything's spheres
