@@ -11,9 +11,20 @@ def init():
 	gluQuadricNormals(quadric, GLU_SMOOTH)
 	gluQuadricTexture(quadric, GL_TRUE)
 	
+	# load in model files
 	global model_fish, model_tail
 	model_fish = modelloader.Model3D(os.path.join('models','fish001_tailfree_colour.obj'))
 	model_tail = modelloader.Model3D(os.path.join('models','fish001_tail_colour.obj'))
+	
+	# Init OpenGL lighting
+	glLightfv(GL_LIGHT0, GL_POSITION,  (0, 200, 0, 0.0))
+	glLightfv(GL_LIGHT0, GL_AMBIENT, (0.2, 0.2, 0.2, 1.0))
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.9, 0.9, 0.9, 1.0))
+	glEnable(GL_LIGHT0)
+	glEnable(GL_LIGHTING)
+	glEnable(GL_COLOR_MATERIAL)
+	glEnable(GL_DEPTH_TEST)
+	glShadeModel(GL_SMOOTH)
 
 def drawsphere(r = 1):
 	gluSphere(quadric, r, 10, 10)
