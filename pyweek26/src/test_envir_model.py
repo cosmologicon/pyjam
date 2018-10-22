@@ -53,7 +53,7 @@ class ModelScene(object):
 		self.tail_ani_step = 0
 		
 		# Build models
-		graphics.create_section_straight(state.sections[4])
+		self.str_model = graphics.create_section_straight(state.sections[4])
 		
 		# Init Open GL lighting
 		glLightfv(GL_LIGHT0, GL_POSITION,  (100, 200, 100, 0.0))

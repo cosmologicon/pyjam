@@ -54,7 +54,7 @@ def Material(mtl_dir, filename, wrap_type):
 # model3d: load in obj file and creates vertex, face, texture buffers of OpenGL rendering
 class Model3D(object):
 	
-    def __init__(self, filename, wrap_type='repeat', coltex=False):
+    def __init__(self, filename, wrap_type='repeat', flipz=False, coltex=False):
         
         self.filename = filename
         self.vertices = []
@@ -74,9 +74,13 @@ class Model3D(object):
             if not values: continue
             if values[0] == 'v':
                 v = [float(values[2]), -float(values[3]), -float(values[1])]
+                if flipz:
+                	v[1] = -v[1]
                 self.vertices.append(v)
             elif values[0] == 'vn':
                 v = [float(values[2]), -float(values[3]), -float(values[1])]
+                if flipz:
+                	v[1] = -v[1]
                 self.normals.append(v)
             elif values[0] == 'vt':
                 self.texcoords.append(map(float, values[1:3]))

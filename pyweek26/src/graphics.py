@@ -5,6 +5,8 @@ from OpenGL.GLU import *
 from . import state
 from . import modelloader
 
+import numpy as np
+
 def init():
 	global quadric
 	quadric = gluNewQuadric()
@@ -15,6 +17,9 @@ def init():
 	global model_fish, model_tail
 	model_fish = modelloader.Model3D(os.path.join('models','fish001_tailfree_colour.obj'))
 	model_tail = modelloader.Model3D(os.path.join('models','fish001_tail_colour.obj'))
+	
+	global model_sect_straight
+	model_sect_straight = modelloader.Model3D(os.path.join('models','section_straight.obj'),flipz=True)
 	
 	# Init OpenGL lighting
 	# TODO: figure out strange lighting directions
@@ -27,9 +32,15 @@ def init():
 	glEnable(GL_DEPTH_TEST)
 	glShadeModel(GL_SMOOTH)
 
-def create_section_straight(section):
-	print(section)
-
+def drawmodel_sect_straight(pos0, length, width, angle):
+	glPushMatrix()
+	glColor4f(1.0, 1.0, 1.0, 1)
+	glTranslate(*pos0)
+	glRotate(math.degrees(-angle), 0, 0, 1)
+	glRotate(90, 1, 0, 0)
+	glCallList(model_sect_straight.gl_list)
+	glPopMatrix()
+	
 def drawsphere(r = 1):
 	gluSphere(quadric, r, 10, 10)
 

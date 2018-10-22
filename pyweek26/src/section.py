@@ -165,6 +165,9 @@ class StraightConnector():
 				graphics.drawsphere(0.3)
 				glPopMatrix()
 		glPopMatrix()
+		# experimenting with rendering of sections
+		#graphics.drawmodel_sect_straight(self.pos0, self.length, self.width, self.angle)
+		
 	def spawn(self, dt):
 		return
 		if isinstance(self.connections[0], Pool) and random.uniform(0, 0.5) < dt:
