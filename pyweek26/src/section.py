@@ -166,7 +166,7 @@ class StraightConnector():
 				glPopMatrix()
 		glPopMatrix()
 		# experimenting with rendering of sections
-		#graphics.drawmodel_sect_straight(self.pos0, self.length, self.width, self.angle)
+		#graphics.drawmodel_sect_straight(self, self.pos0, self.length, self.width, self.angle)
 		
 	def spawn(self, dt):
 		return

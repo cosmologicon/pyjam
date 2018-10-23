@@ -12,6 +12,17 @@ from OpenGL.arrays import ArrayDatatype as ADT
 
 import numpy as np
 
+# TextureSurf: load in image file for use as textur
+class TextureSurf(object):
+	def __init__(self, path):
+		surf = pygame.image.load(path)
+		self.w, self.h = surf.get_width(), surf.get_height()
+		surf_data = pygame.image.tostring(surf, 'RGBA', 1)
+		self.texture = glGenTextures(1)
+		glBindTexture(GL_TEXTURE_2D, self.texture)
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0)
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, self.w, self.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surf_data)
+
 # Material: loads a mtl material description file
 def Material(mtl_dir, filename, wrap_type):
     contents = {}
