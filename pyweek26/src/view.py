@@ -3,7 +3,7 @@ import datetime
 import pygame
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from . import settings, state
+from . import settings, state, graphics
 
 screen = None
 
@@ -20,6 +20,10 @@ def clear(color = (0, 0, 0, 1)):
 
 # Set up camera perspective and settings for drawing game entities
 def look():
+	
+	# cycle animation variables
+	graphics.animation.cycle()
+	
 	# TODO: get lighting working
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()

@@ -7,6 +7,14 @@ from . import modelloader
 
 import numpy as np
 
+class Animations(object):
+	def __init__(self):
+		self.water_flow = 0
+	def cycle(self):
+		self.water_flow = (self.water_flow+1) % 30
+
+animation = Animations()
+
 def init():
 	global quadric
 	quadric = gluNewQuadric()
@@ -19,11 +27,13 @@ def init():
 	model_tail = modelloader.Model3D(os.path.join('models','fish001_tail_colour.obj'))
 	
 	global model_sect_straight
-	model_sect_straight = modelloader.Model3D(os.path.join('models','section_straight.obj'),flipz=True)
+	model_sect_straight = modelloader.Model3D(os.path.join('models','section_straight.obj'),flipz=True,alpha=0.3)
 	
 	# Load in water texture
 	global water_texture
 	water_texture = modelloader.TextureSurf(os.path.join('models','water_texture_darkgreen.png'))
+	global water_texture_blue
+	water_texture_blue = modelloader.TextureSurf(os.path.join('models','water_texture.png'))
 	
 	# Init OpenGL lighting
 	# TODO: figure out strange lighting directions
@@ -37,6 +47,33 @@ def init():
 	glShadeModel(GL_SMOOTH)
 
 def drawmodel_sect_straight(section, pos0, length, width, angle):
+	
+	"""
+	# test render water (with texture) as see-through structure
+	glEnable(GL_TEXTURE_2D)
+	glPushMatrix()
+	glColor4f(1, 1, 1, 0.3)
+	glTranslate(pos0[0],pos0[1],pos0[2]+1.0)
+	glRotate(math.degrees(-angle), 0, 0, 1)
+	glDisable(GL_DEPTH_TEST)
+	glEnable(GL_BLEND)
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+	glColor(1, 1, 1, 0.5)
+	glBindTexture(GL_TEXTURE_2D, water_texture_blue.texture)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+	glBegin(GL_QUADS)
+	for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
+		glTexCoord2f((dx+1)/2, dy)
+		glVertex(dx * width, dy * length, 0.1)
+	glEnd()
+	glDisable(GL_BLEND)
+	glEnable(GL_DEPTH_TEST)
+	glPopMatrix()
+	glDisable(GL_TEXTURE_2D)
+	"""
+	
+	
 	
 	# draw water surface
 	glEnable(GL_TEXTURE_2D)
@@ -55,7 +92,7 @@ def drawmodel_sect_straight(section, pos0, length, width, angle):
 	glPopMatrix()
 	glDisable(GL_TEXTURE_2D)
 	
-	"""
+	# render structure
 	glPushMatrix()
 	glColor4f(1.0, 1.0, 1.0, 1)
 	glTranslate(*pos0)
@@ -66,7 +103,7 @@ def drawmodel_sect_straight(section, pos0, length, width, angle):
 		glDisable(GL_DEPTH_TEST)
 		glEnable(GL_BLEND)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-		glColor(1, 1, 1, 0.5)
+		#glColor(1, 1, 1, 0.5)
 		glCallList(model_sect_straight.gl_list)
 		glDisable(GL_BLEND)
 		glEnable(GL_DEPTH_TEST)
@@ -74,7 +111,6 @@ def drawmodel_sect_straight(section, pos0, length, width, angle):
 	else:
 		glCallList(model_sect_straight.gl_list)
 	glPopMatrix()
-	"""
 	
 def drawsphere(r = 1):
 	gluSphere(quadric, r, 10, 10)

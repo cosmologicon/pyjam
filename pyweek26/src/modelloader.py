@@ -65,7 +65,7 @@ def Material(mtl_dir, filename, wrap_type):
 # model3d: load in obj file and creates vertex, face, texture buffers of OpenGL rendering
 class Model3D(object):
 	
-    def __init__(self, filename, wrap_type='repeat', flipz=False, coltex=False):
+    def __init__(self, filename, wrap_type='repeat', flipz=False, coltex=False, alpha=1.0):
         
         self.filename = filename
         self.vertices = []
@@ -143,16 +143,16 @@ class Model3D(object):
                     if coltex:
                     	#glColor(*mtl['Kd'])
                     	kd = [float(i) for i in mtl['Kd']]
-                    	glColor(kd[0], kd[1], kd[2])
+                    	glColor(kd[0], kd[1], kd[2], alpha)
                     else:
-                    	glColor(1,1,1)
+                    	glColor(1,1,1,alpha)
                 else:
                     # just use diffuse colour
                     #glColor(*mtl['Kd'])
                     kd = [float(i) for i in mtl['Kd']]
-                    glColor(kd[0], kd[1], kd[2])
+                    glColor(kd[0], kd[1], kd[2], alpha)
             else:
-                glColor(1,1,1)
+                glColor(1,1,1,alpha)
 
             glBegin(GL_POLYGON)
             for i in range(0, len(vertices)):
