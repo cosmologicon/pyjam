@@ -58,7 +58,7 @@ class MovesWithArrows(enco.Component):
 			self.toleap = 0
 	def think(self, dt):
 		if not self.landed:
-			toleap = min(self.toleap, 200 * dt)
+			toleap = min(self.toleap, 100 * dt)
 			self.toleap -= toleap
 			self.v.z += toleap
 			self.v.z -= 60 * dt
