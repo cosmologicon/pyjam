@@ -3,7 +3,7 @@
 from __future__ import division
 import math, pygame, random
 from OpenGL.GL import *
-from . import graphics, thing, state
+from . import graphics, thing, state, settings
 
 # A circular section without a current
 # In this section the left and right arrow keys rotate you
@@ -13,6 +13,7 @@ class Pool():
 		self.r = r
 		self.connections = []
 		self.toturn = 0
+		self.label = 'pool'
 	def penter(self):
 		return self.pos
 	def pexit(self):
@@ -63,10 +64,11 @@ class Pool():
 		glPushMatrix()
 		glColor4f(0, 0, 1, 0.3)
 		glTranslate(*self.pos)
-		glBegin(GL_POLYGON)
-		for x, y in math.CSround(int(round(10 * self.r)), r = self.r):
-			glVertex(x, y, 0)
-		glEnd()
+		if settings.debug_graphics:
+			glBegin(GL_POLYGON) # replaced by drawmodel_sect_pool
+			for x, y in math.CSround(int(round(10 * self.r)), r = self.r):
+				glVertex(x, y, 0)
+			glEnd()
 		# Fixed barriers
 		glColor4f(0.8, 0.8, 0.8, 1)
 		for x, y in math.CSround(int(round(2 * self.r)), r = self.r):
@@ -75,6 +77,9 @@ class Pool():
 			graphics.drawsphere(0.2)
 			glPopMatrix()
 		glPopMatrix()
+		# rendering bits handled by graphics
+		if not settings.debug_graphics:
+			graphics.drawmodel_sect_pool(self)
 	def spawn(self, dt):
 		pass
 
@@ -91,6 +96,7 @@ class StraightConnector():
 		self.angle = math.atan2(self.face.x, self.face.y)
 		self.connections = []
 		self.blockers = []
+		self.label = 'straight'
 	# Distance to the section center line, in units of the width.
 	def dcenter(self, pos):
 		p = pos - self.pos0
@@ -144,16 +150,18 @@ class StraightConnector():
 		glColor4f(0, 0, 1, 0.3)
 		glTranslate(*self.pos0)
 		glRotate(math.degrees(-self.angle), 0, 0, 1)
-		glBegin(GL_QUADS)
-		for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
-			glVertex(dx * self.width, dy * self.length, 0)
-		glEnd()
+		if settings.debug_graphics:
+			glBegin(GL_QUADS) # replaced by drawmodel_sect_straight
+			for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
+				glVertex(dx * self.width, dy * self.length, 0)
+			glEnd()
 		for blocker in self.blockers:
 			w = int(round(self.width)) - 1
 			y = blocker.afactor * self.length
 			for x in range(-w, w+1):
 				z = math.sqrt(self.width ** 2 - x ** 2)
-				p0 = x + 0.25 * dx, y, 0
+				#p0 = x + 0.25 * dx, y, 0
+				p0 = x + 0.25 * 1, y, 0
 				graphics.drawcylinder(p0, 0.25, z, [0.3, 0.3, 0.3, 1])
 		glColor4f(0.8, 0.8, 0.8, 1)
 		n = int(round(self.length / 4))
@@ -165,8 +173,9 @@ class StraightConnector():
 				graphics.drawsphere(0.3)
 				glPopMatrix()
 		glPopMatrix()
-		# experimenting with rendering of sections
-		#graphics.drawmodel_sect_straight(self, self.pos0, self.length, self.width, self.angle)
+		# rendering bits handled by graphics
+		if not settings.debug_graphics:
+			graphics.drawmodel_sect_straight(self)
 		
 	def spawn(self, dt):
 		return
@@ -204,6 +213,7 @@ class CurvedConnector():
 		self.vertices = [d * (self.r - self.width) for d in ds] + [d * (self.r + self.width) for d in ds[::-1]]
 		self.pB = pB
 		self.connections = []
+		self.label = 'curve'
 	def penter(self):
 		return self.p0
 	def pexit(self):
@@ -254,10 +264,11 @@ class CurvedConnector():
 		glTranslate(*self.center)
 #		angle = math.atan2(self.n.x, self.n.y)
 #		glRotate(math.degrees(angle), 0, 0, 1)
-		glBegin(GL_POLYGON)
-		for vertex in self.vertices:
-			glVertex(*vertex)
-		glEnd()
+		if settings.debug_graphics:
+			glBegin(GL_POLYGON) # replaced by drawmodel_sect_curve
+			for vertex in self.vertices:
+				glVertex(*vertex)
+			glEnd()
 		glColor4f(0.8, 0.8, 0.8, 1)
 		for vertex in self.vertices:
 			glPushMatrix()
@@ -273,6 +284,10 @@ class CurvedConnector():
 		glColor4f(0.8, 0, 0, 1)
 		graphics.drawsphere(0.6)
 		glPopMatrix()
+		# rendering bits handled by graphics
+		if not settings.debug_graphics:
+			graphics.drawmodel_sect_curve(self)
+		
 	def spawn(self, dt):
 		pass
 

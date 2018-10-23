@@ -1,17 +1,47 @@
-import math
+from math import *
 import os
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from . import state
-from . import modelloader
+#from . import modelloader, settings, section
+from . import modelloader, settings
 
 import numpy as np
 
 class Animations(object):
 	def __init__(self):
 		self.water_flow = 0
+		self.init_trigger = True
 	def cycle(self):
-		self.water_flow = (self.water_flow+1) % 30
+		self.water_flow += 1
+		"""
+		if self.init_trigger: # hackish thing to print out OpenSCAD function calls from section objects
+			count = 0
+			for sect in state.sections:
+				#print(sect)
+				if isinstance(sect,section.Pool):
+					#print(sect.connections)
+					exit_points = []
+					for c in sect.connections:
+						if sqrt(pow(sect.pos[0]-c.pos0[0],2)+pow(sect.pos[1]-c.pos0[1],2)) > sect.r:
+							exit_points.append([c.pos0[0],c.pos0[1],c.width])
+						else:
+							exit_points.append([c.pos1[0],c.pos1[1],c.width])
+					con_str = ", ".join(['[%.4f,%.4f,%.4f]'%(p[0]-sect.pos[0],p[1]-sect.pos[1],p[2]) for p in exit_points])
+					#print('pool(diameter=%.4f, wall_height=%.4f, connections=[%s]); // sect: %d'%(sect.r,max([p[2] for p in exit_points])+1.0,con_str,count))
+				elif isinstance(sect,section.StraightConnector):
+					if isinstance(sect.connections[0],section.Pool):
+						dy1 = sqrt(pow(sect.connections[0].r,2)-pow(sect.width,2))
+					else:
+						dy1 = 0
+					if isinstance(sect.connections[1],section.Pool):
+						dy2 = sqrt(pow(sect.connections[1].r,2)-pow(sect.width,2))
+					else:
+						dy2 = 0
+					print('straight(length=%.4f, width=%.4f, dy1=%.4f, dy2=%.4f); // sect: %d'%(sect.length,sect.width,dy1,dy2,count))
+				count += 1
+			self.init_trigger = False
+		"""
 
 animation = Animations()
 
@@ -26,14 +56,23 @@ def init():
 	model_fish = modelloader.Model3D(os.path.join('models','fish001_tailfree_colour.obj'))
 	model_tail = modelloader.Model3D(os.path.join('models','fish001_tail_colour.obj'))
 	
-	global model_sect_straight
-	model_sect_straight = modelloader.Model3D(os.path.join('models','section_straight.obj'),flipz=True,alpha=0.3)
-	
 	# Load in water texture
 	global water_texture
 	water_texture = modelloader.TextureSurf(os.path.join('models','water_texture_darkgreen.png'))
-	global water_texture_blue
-	water_texture_blue = modelloader.TextureSurf(os.path.join('models','water_texture.png'))
+	global water_texture_pool
+	water_texture_pool = modelloader.TextureSurf(os.path.join('models','water_texture_darkgreen_pool.png'))
+	
+	# Load in Environment model files
+	global model3d_sections
+	model3d_sections = []
+	model3d_sections.append([])
+	model_paths = [i for i in os.listdir(os.path.join('models','level_test')) if "obj" in i]
+	max_ind = max([int(path[-7:-4]) for path in model_paths])
+	for i in range(max_ind+1):
+		model3d_sections[-1].append([])
+	for path in model_paths:
+		ind = int(path[-7:-4])
+		model3d_sections[-1][ind] = modelloader.Model3D(os.path.join('models','level_test',path),alpha=0.3)
 	
 	# Init OpenGL lighting
 	# TODO: figure out strange lighting directions
@@ -46,48 +85,81 @@ def init():
 	glEnable(GL_DEPTH_TEST)
 	glShadeModel(GL_SMOOTH)
 
-def drawmodel_sect_straight(section, pos0, length, width, angle):
-	
-	"""
-	# test render water (with texture) as see-through structure
-	glEnable(GL_TEXTURE_2D)
-	glPushMatrix()
-	glColor4f(1, 1, 1, 0.3)
-	glTranslate(pos0[0],pos0[1],pos0[2]+1.0)
-	glRotate(math.degrees(-angle), 0, 0, 1)
-	glDisable(GL_DEPTH_TEST)
-	glEnable(GL_BLEND)
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-	glColor(1, 1, 1, 0.5)
-	glBindTexture(GL_TEXTURE_2D, water_texture_blue.texture)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-	glBegin(GL_QUADS)
-	for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
-		glTexCoord2f((dx+1)/2, dy)
-		glVertex(dx * width, dy * length, 0.1)
-	glEnd()
-	glDisable(GL_BLEND)
-	glEnable(GL_DEPTH_TEST)
-	glPopMatrix()
-	glDisable(GL_TEXTURE_2D)
-	"""
-	
-	
+def drawmodel_sect_pool(sect):
 	
 	# draw water surface
 	glEnable(GL_TEXTURE_2D)
 	glPushMatrix()
 	glColor4f(1, 1, 1, 0.3)
-	glTranslate(*pos0)
-	glRotate(math.degrees(-angle), 0, 0, 1)
+	glTranslate(*sect.pos)
+	glBindTexture(GL_TEXTURE_2D, water_texture_pool.texture)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+	glBegin(GL_POLYGON)
+	for x, y in math.CSround(int(round(10 * sect.r)), r = sect.r):
+		glVertex(x, y, 0.1)
+		dx = 0.5*sin(animation.water_flow/100.0)+1.0*cos(animation.water_flow/80.0)
+		dy = 0.5*cos(animation.water_flow/100.0)+1.0*sin(animation.water_flow/80.0)
+		glTexCoord2f((x+dx)/10, (y+dy)/10)
+	glEnd()
+	glPopMatrix()
+	glDisable(GL_TEXTURE_2D)
+	
+	# draw structure
+	glPushMatrix()
+	glColor4f(1.0, 1.0, 1.0, 1)
+	glTranslate(*sect.pos)
+	glRotate(-90, 1, 0, 0)
+	glRotate(-90, 0, 1, 0)
+	sect_ind = state.sections.index(sect)
+	#if sect == state.you.section or sect in state.you.section.connections:
+	if False:
+		glDisable(GL_DEPTH_TEST) # can I get around needing this?
+		glEnable(GL_BLEND)
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+		glCallList(model3d_sections[0][sect_ind].gl_list)
+		glDisable(GL_BLEND)
+		glEnable(GL_DEPTH_TEST)
+	else:
+		glCallList(model3d_sections[0][sect_ind].gl_list)
+	glPopMatrix()
+
+def drawmodel_sect_straight(sect):
+	
+	# adjust length for connections
+	#if isinstance(sect.connections[0],section.Pool):
+	if sect.connections[0].label == 'pool':
+		dy1 = sqrt(pow(sect.connections[0].r,2)-pow(sect.width,2))
+	else:
+		dy1 = 0
+	#if isinstance(sect.connections[1],section.Pool):
+	if sect.connections[1].label == 'pool':
+		dy2 = sqrt(pow(sect.connections[1].r,2)-pow(sect.width,2))
+	else:
+		dy2 = 0
+	
+	# draw water surface
+	glEnable(GL_TEXTURE_2D)
+	glPushMatrix()
+	glColor4f(1, 1, 1, 0.3)
+	glTranslate(*sect.pos0)
+	glRotate(math.degrees(-sect.angle), 0, 0, 1)
 	glBindTexture(GL_TEXTURE_2D, water_texture.texture)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 	glBegin(GL_QUADS)
-	for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
-		glTexCoord2f((dx+1)/2, dy)
-		glVertex(dx * width, dy * length, 0.1)
+	if fabs(sect.rate) > 0:
+		steps = ceil(sect.length/(sect.rate/float(settings.maxfps)))
+	else:
+		steps = 0
+	glTexCoord2f(0, -(animation.water_flow % steps)/steps)
+	glVertex(-sect.width, dy1, 0.1)
+	glTexCoord2f(0, (0.2*(sect.length-dy1-dy2)/sect.width)-(animation.water_flow % steps)/steps)
+	glVertex(-sect.width, sect.length-dy2, 0.1)
+	glTexCoord2f(1, (0.2*(sect.length-dy1-dy2)/sect.width)-(animation.water_flow % steps)/steps)
+	glVertex(sect.width, sect.length-dy2, 0.1)
+	glTexCoord2f(1, -(animation.water_flow % steps)/steps)
+	glVertex(sect.width, dy1, 0.1)
 	glEnd()
 	glPopMatrix()
 	glDisable(GL_TEXTURE_2D)
@@ -95,23 +167,45 @@ def drawmodel_sect_straight(section, pos0, length, width, angle):
 	# render structure
 	glPushMatrix()
 	glColor4f(1.0, 1.0, 1.0, 1)
-	glTranslate(*pos0)
-	glRotate(math.degrees(-angle), 0, 0, 1)
+	glTranslate(*sect.pos0)
+	glRotate(math.degrees(-sect.angle), 0, 0, 1)
 	glRotate(90, 1, 0, 0)
-	if section == state.you.section:
-		#glDisable(GL_LIGHTING)
-		glDisable(GL_DEPTH_TEST)
+	glRotate(180, 0, 0, 1)
+	sect_ind = state.sections.index(sect)
+	#if sect == state.you.section or sect in state.you.section.connections:
+	if True:
+	#if sect == state.you.section:
+		glDisable(GL_DEPTH_TEST) # can I get around needing this?
 		glEnable(GL_BLEND)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-		#glColor(1, 1, 1, 0.5)
-		glCallList(model_sect_straight.gl_list)
+		glCallList(model3d_sections[0][sect_ind].gl_list)
 		glDisable(GL_BLEND)
 		glEnable(GL_DEPTH_TEST)
-		#glEnable(GL_LIGHTING)
 	else:
-		glCallList(model_sect_straight.gl_list)
+		glCallList(model3d_sections[0][sect_ind].gl_list)
 	glPopMatrix()
+
+def drawmodel_sect_curve(sect):
 	
+	# draw water surface
+	glEnable(GL_TEXTURE_2D)
+	glPushMatrix()
+	glColor4f(1, 1, 1, 0.3)
+	glTranslate(*sect.center)
+	glBindTexture(GL_TEXTURE_2D, water_texture_pool.texture)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+	glBegin(GL_POLYGON)
+	angle = sect.z[2]*(animation.water_flow*(0.2*sect.rate/settings.maxfps) % (2*pi))
+	for vertex in sect.vertices:
+		glVertex(vertex[0],vertex[1],vertex[2]+0.1)
+		vx = vertex[0]*cos(angle) - vertex[1]*sin(angle)
+		vy = vertex[0]*sin(angle) + vertex[1]*cos(angle)
+		glTexCoord2f((vx)/10+0.5, (vy)/10+0.5)
+	glEnd()
+	glPopMatrix()
+	glDisable(GL_TEXTURE_2D)
+
 def drawsphere(r = 1):
 	gluSphere(quadric, r, 10, 10)
 
