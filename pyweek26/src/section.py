@@ -64,11 +64,10 @@ class Pool():
 		glPushMatrix()
 		glColor4f(0, 0, 1, 0.3)
 		glTranslate(*self.pos)
-		if settings.debug_graphics:
-			glBegin(GL_POLYGON) # replaced by drawmodel_sect_pool
-			for x, y in math.CSround(int(round(10 * self.r)), r = self.r):
-				glVertex(x, y, 0)
-			glEnd()
+		glBegin(GL_POLYGON) # replaced by drawmodel_sect_pool
+		for x, y in math.CSround(int(round(10 * self.r)), r = self.r):
+			glVertex(x, y, 0)
+		glEnd()
 		# Fixed barriers
 		glColor4f(0.8, 0.8, 0.8, 1)
 		for x, y in math.CSround(int(round(2 * self.r)), r = self.r):
@@ -77,9 +76,6 @@ class Pool():
 			graphics.drawsphere(0.2)
 			glPopMatrix()
 		glPopMatrix()
-		# rendering bits handled by graphics
-		if not settings.debug_graphics:
-			graphics.drawmodel_sect_pool(self)
 	def spawn(self, dt):
 		pass
 
@@ -150,11 +146,10 @@ class StraightConnector():
 		glColor4f(0, 0, 1, 0.3)
 		glTranslate(*self.pos0)
 		glRotate(math.degrees(-self.angle), 0, 0, 1)
-		if settings.debug_graphics:
-			glBegin(GL_QUADS) # replaced by drawmodel_sect_straight
-			for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
-				glVertex(dx * self.width, dy * self.length, 0)
-			glEnd()
+		glBegin(GL_QUADS) # replaced by drawmodel_sect_straight
+		for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
+			glVertex(dx * self.width, dy * self.length, 0)
+		glEnd()
 		for blocker in self.blockers:
 			w = int(round(self.width)) - 1
 			y = blocker.afactor * self.length
@@ -173,9 +168,6 @@ class StraightConnector():
 				graphics.drawsphere(0.3)
 				glPopMatrix()
 		glPopMatrix()
-		# rendering bits handled by graphics
-		if not settings.debug_graphics:
-			graphics.drawmodel_sect_straight(self)
 		
 	def spawn(self, dt):
 		return
@@ -264,11 +256,10 @@ class CurvedConnector():
 		glTranslate(*self.center)
 #		angle = math.atan2(self.n.x, self.n.y)
 #		glRotate(math.degrees(angle), 0, 0, 1)
-		if settings.debug_graphics:
-			glBegin(GL_POLYGON) # replaced by drawmodel_sect_curve
-			for vertex in self.vertices:
-				glVertex(*vertex)
-			glEnd()
+		glBegin(GL_POLYGON) # replaced by drawmodel_sect_curve
+		for vertex in self.vertices:
+			glVertex(*vertex)
+		glEnd()
 		glColor4f(0.8, 0.8, 0.8, 1)
 		for vertex in self.vertices:
 			glPushMatrix()
@@ -284,9 +275,6 @@ class CurvedConnector():
 		glColor4f(0.8, 0, 0, 1)
 		graphics.drawsphere(0.6)
 		glPopMatrix()
-		# rendering bits handled by graphics
-		if not settings.debug_graphics:
-			graphics.drawmodel_sect_curve(self)
 		
 	def spawn(self, dt):
 		pass

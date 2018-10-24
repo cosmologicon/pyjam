@@ -88,7 +88,28 @@ def init():
 	glEnable(GL_DEPTH_TEST)
 	glShadeModel(GL_SMOOTH)
 
-def drawmodel_sect_pool(sect):
+def drawmodel_watersurface():
+	for sect in state.sections:
+		if sect.label == 'pool':
+			drawmodel_sect_pool_water(sect)
+		elif sect.label == 'straight':
+			drawmodel_sect_straight_water(sect)
+		elif sect.label == 'curve':
+			drawmodel_sect_curve_water(sect)
+
+def drawmodel_section_pools():
+	for sect in state.sections:
+		if sect.label == 'pool':
+			drawmodel_sect_pool(sect)
+
+def drawmodel_section_tubes():
+	for sect in state.sections:
+		if sect.label == 'straight':
+			drawmodel_sect_straight(sect)
+		elif sect.label == 'curve':
+			drawmodel_sect_curve(sect)
+
+def drawmodel_sect_pool_water(sect):
 	
 	# draw water surface
 	glEnable(GL_TEXTURE_2D)
@@ -107,6 +128,8 @@ def drawmodel_sect_pool(sect):
 	glEnd()
 	glPopMatrix()
 	glDisable(GL_TEXTURE_2D)
+
+def drawmodel_sect_pool(sect):
 	
 	# draw structure
 	glPushMatrix()
@@ -127,15 +150,13 @@ def drawmodel_sect_pool(sect):
 		glCallList(model3d_sections[0][sect_ind].gl_list)
 	glPopMatrix()
 
-def drawmodel_sect_straight(sect):
+def drawmodel_sect_straight_water(sect):
 	
 	# adjust length for connections
-	#if isinstance(sect.connections[0],section.Pool):
 	if sect.connections[0].label == 'pool':
 		dy1 = sqrt(pow(sect.connections[0].r,2)-pow(sect.width,2))
 	else:
 		dy1 = 0
-	#if isinstance(sect.connections[1],section.Pool):
 	if sect.connections[1].label == 'pool':
 		dy2 = sqrt(pow(sect.connections[1].r,2)-pow(sect.width,2))
 	else:
@@ -167,6 +188,8 @@ def drawmodel_sect_straight(sect):
 	glPopMatrix()
 	glDisable(GL_TEXTURE_2D)
 	
+def drawmodel_sect_straight(sect):
+	
 	# render structure
 	glPushMatrix()
 	glColor4f(1.0, 1.0, 1.0, 1)
@@ -188,7 +211,7 @@ def drawmodel_sect_straight(sect):
 		glCallList(model3d_sections[0][sect_ind].gl_list)
 	glPopMatrix()
 
-def drawmodel_sect_curve(sect):
+def drawmodel_sect_curve_water(sect):
 	
 	# draw water surface
 	glEnable(GL_TEXTURE_2D)
@@ -208,6 +231,8 @@ def drawmodel_sect_curve(sect):
 	glEnd()
 	glPopMatrix()
 	glDisable(GL_TEXTURE_2D)
+
+def drawmodel_sect_curve(sect):
 	
 	# render structure
 	glPushMatrix()

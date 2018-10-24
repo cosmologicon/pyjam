@@ -46,8 +46,13 @@ def draw():
 	view.clear((0.1, 0.1, 0.1, 1))
 	view.look()
 	
-	for section in state.sections:
-		section.draw()
+	if settings.debug_graphics:
+		for section in state.sections:
+			section.draw()
+	else:
+		graphics.drawmodel_watersurface()
+		graphics.drawmodel_section_pools()
+		graphics.drawmodel_section_tubes()
 	
 	for obj in state.objs:
 		graphics.drawobj(obj)
