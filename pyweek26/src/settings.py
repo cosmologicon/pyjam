@@ -11,7 +11,7 @@ fullscreen = "--fullscreen" in sys.argv
 maxfps = 120
 minfps = 10
 
-debug_graphics = False
+debug_graphics = True
 
 keymap = {
 	# Dvorak key layout too.

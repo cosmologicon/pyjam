@@ -8,12 +8,12 @@ from . import graphics, thing, state, settings
 # A circular section without a current
 # In this section the left and right arrow keys rotate you
 class Pool():
+	label = 'pool'
 	def __init__(self, pos, r):
 		self.pos = pos
 		self.r = r
 		self.connections = []
 		self.toturn = 0
-		self.label = 'pool'
 	def penter(self):
 		return self.pos
 	def pexit(self):
@@ -85,6 +85,7 @@ class Pool():
 
 
 class StraightConnector():
+	label = 'straight'
 	def __init__(self, pos0, pos1, rate = 10, width = 4):
 		self.pos0 = pos0
 		self.pos1 = pos1
@@ -93,10 +94,10 @@ class StraightConnector():
 		d = self.pos1 - self.pos0
 		self.face = d.normalize()
 		self.length = d.length()
+		self.dz = d.z
 		self.angle = math.atan2(self.face.x, self.face.y)
 		self.connections = []
 		self.blockers = []
-		self.label = 'straight'
 	# Distance to the section center line, in units of the width.
 	def dcenter(self, pos):
 		p = pos - self.pos0
@@ -153,7 +154,7 @@ class StraightConnector():
 		if settings.debug_graphics:
 			glBegin(GL_QUADS) # replaced by drawmodel_sect_straight
 			for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
-				glVertex(dx * self.width, dy * self.length, 0)
+				glVertex(dx * self.width, dy * self.length, dy * self.dz)
 			glEnd()
 		for blocker in self.blockers:
 			w = int(round(self.width)) - 1
@@ -167,9 +168,10 @@ class StraightConnector():
 		n = int(round(self.length / 4))
 		for jball in range(n+1):
 			y = jball / n * self.length
+			z = jball / n * self.dz
 			for x in (-self.width, self.width):
 				glPushMatrix()
-				glTranslate(x, y, 0)
+				glTranslate(x, y, z)
 				graphics.drawsphere(0.3)
 				glPopMatrix()
 		glPopMatrix()
@@ -190,30 +192,32 @@ class StraightConnector():
 				obj.pos += 0.1 * self.vflow(obj.pos)
 			state.objs.append(obj)
 
+# TODO: I'm 90% sure this class doesn't need to exist.
+class SlopeConnector(StraightConnector):
+	label = 'slope'
+
 class CurvedConnector():
-	def __init__(self, pA, pB, pC, r, rate = 10, width = 4):
-		self.r = r
+	label = 'curve'
+	def __init__(self, p0, p1, center, beta, right, R, rate = 10, width = 4):
+		self.R = R
 		self.rate = rate
 		self.width = width
-		face0 = (pB - pA).normalize()
-		face1 = (pC - pB).normalize()
-		self.beta = 1/2 * math.acos(face0.dot(face1))
-		self.d = self.r * math.tan(self.beta)
-		self.p0 = pB - face0 * self.d
-		self.p1 = pB + face1 * self.d
-		self.n = (face0 - face1).normalize()
-		self.z = face1.cross(face0).normalize()  # Upward for rightward turns
-		self.right = self.z.z > 0
-		self.center = self.p0 + self.r * face0.cross(self.z)
+		self.beta = beta
+		self.p0 = p0
+		self.p1 = p1
+		self.center = center
+		# TODO: might fail if beta > tau/4
+		self.n = ((self.p0 + self.p1) / 2 - self.center).normalize()
+		self.right = right
+		self.z = pygame.math.Vector3(0, 0, (1 if self.right else -1))  # Upward for rightward turns
 
 		self.vertices = []
 		nseg = int(math.ceil(self.beta * 6))
 		angles = [360 + math.degrees(jseg / nseg * self.beta) for jseg in range(-nseg, nseg + 1)]
 		ds = [self.n.rotate(-angle, self.z) for angle in angles]
-		self.vertices = [d * (self.r - self.width) for d in ds] + [d * (self.r + self.width) for d in ds[::-1]]
-		self.pB = pB
+		self.vertices = [d * (self.R - self.width) for d in ds] + [d * (self.R + self.width) for d in ds[::-1]]
+#		self.pB = pB
 		self.connections = []
-		self.label = 'curve'
 	def penter(self):
 		return self.p0
 	def pexit(self):
@@ -238,7 +242,7 @@ class CurvedConnector():
 		obj.pos += dt * self.vflow(obj.pos)
 	def vflow(self, pos):
 		p = pos - self.center
-		speed = self.rate * p.length() / self.r
+		speed = self.rate * p.length() / self.R
 		return p.cross(self.z).normalize() * speed
 
 	def handoff(self, obj):
@@ -252,8 +256,8 @@ class CurvedConnector():
 		return 0
 	def constrain(self, obj):
 		p = obj.pos - self.center
-		pmin = self.r - (self.width - obj.r)
-		pmax = self.r + (self.width - obj.r)
+		pmin = self.R - (self.width - obj.r)
+		pmax = self.R + (self.width - obj.r)
 		if p.length() < pmin:
 			obj.pos = self.center + pmin * p.normalize()
 		if p.length() > pmax:
@@ -279,11 +283,11 @@ class CurvedConnector():
 		graphics.drawsphere(0.6)
 		glPopMatrix()
 
-		glPushMatrix()
-		glTranslate(*self.pB)
-		glColor4f(0.8, 0, 0, 1)
-		graphics.drawsphere(0.6)
-		glPopMatrix()
+#		glPushMatrix()
+#		glTranslate(*self.pB)
+#		glColor4f(0.8, 0, 0, 1)
+#		graphics.drawsphere(0.6)
+#		glPopMatrix()
 		# rendering bits handled by graphics
 		if not settings.debug_graphics:
 			graphics.drawmodel_sect_curve(self)
