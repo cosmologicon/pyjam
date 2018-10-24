@@ -196,7 +196,6 @@ def drawmodel_sect_straight_water(sect):
 	glDisable(GL_TEXTURE_2D)
 	
 def drawmodel_sect_straight(sect):
-	
 	# render structure
 	glPushMatrix()
 	glColor4f(1.0, 1.0, 1.0, 1)

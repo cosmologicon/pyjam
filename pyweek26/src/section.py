@@ -3,7 +3,7 @@
 from __future__ import division
 import math, pygame, random
 from OpenGL.GL import *
-from . import graphics, thing, state, settings
+from . import graphics, thing, state, settings, view
 
 # A circular section without a current
 # In this section the left and right arrow keys rotate you
@@ -40,14 +40,17 @@ class Pool():
 		if v.length() > 1:
 			v = v.normalize()
 		return v
+	# Distance from wall - negative for objects outside
+	def dwall(self, obj):
+		d = obj.pos - self.pos
+		d.z = 0
+		return self.r - d.length()
 	def acquires(self, obj):
-		return (obj.pos - self.pos).length() < self.r - 2
+		return self.dwall(obj) > 2
 	def influence(self, obj):
-		d = (obj.pos - self.pos).length()
-		return math.clamp((self.r - d) / 2, 0, 1)
+		return math.clamp(self.dwall(obj) / 2, 0, 1)
 	def handoff(self, obj):
-		d = (obj.pos - self.pos).length()
-		if d > self.r - 1 and self.connections:
+		if self.dwall(obj) < 1 and self.connections:
 			paths = [c for c in self.connections if c.acquires(obj)]
 			if paths:
 				path = min(paths, key = lambda c: c.dcenter(obj.pos))
@@ -79,6 +82,68 @@ class Pool():
 	def spawn(self, dt):
 		pass
 
+class Pipe():
+	label = 'pipe'
+	def __init__(self, pos0, pos1, width = 1):
+		self.pos0 = pos0
+		self.pos1 = pos1
+		self.rate = 20
+		self.width = width
+		d = self.pos1 - self.pos0
+		self.face = d.normalize()
+		self.length = d.length()
+		self.angle = math.atan2(self.face.x, self.face.y)
+		self.connections = []
+	# Distance to the section center line, in units of the width.
+	def dcenter(self, pos):
+		p = pos - self.pos0
+		proj = p.dot(self.face) * self.face
+		return (p - proj).length() / self.width / 1.4  # Pipes have a wider influence than they appear
+	# Distance along the line
+	def afactor(self, pos):
+		return (pos - self.pos0).dot(self.face) / self.length
+	def move(self, you, dt, dx, dy, turn):
+		heading = self.angle
+		you.heading = math.anglesoftapproach(you.heading, heading, 50 * dt, dymin = 0.01)
+		you.v = pygame.math.Vector3(0, 0, 0)
+	def flow(self, dt, obj):
+		v = self.vflow(obj.pos)
+		obj.pos += dt * v
+	def vflow(self, pos):
+		return self.face * self.rate
+	def handoff(self, obj):
+		# Just drops you off as soon as you're beyond the bottom pool.
+		pool0, pool1 = self.connections
+		if pool0.dwall(obj) < 0:
+			obj.section = self.connections[1]
+			obj.pos = 1 * obj.section.pos
+			view.addsnap(0.5)
+			# TODO: bob to the surface when you appear
+#			obj.pos.z -= 3
+	def constrain(self, obj):
+		p = obj.pos - self.pos0
+		a = p.dot(self.face)
+		d0 = a * self.face + self.pos0
+		d = obj.pos - d0
+		dmax = self.width - obj.r
+		if d.length() > dmax:
+			obj.pos = d0 + dmax * d.normalize()
+	def acquires(self, obj):
+		return True
+	def influence(self, obj):
+		return 0
+	def draw(self):
+		glPushMatrix()
+		glTranslate(*self.pos0)
+		glRotate(90 + math.degrees(-self.angle), 0, 0, 1)
+		if settings.debug_graphics:
+			glTranslate(self.length - 2, 0, 0)
+			glRotate(90, 0, 1, 0)
+			graphics.drawcylinder((0, 0, 0), self.width, h = 2, color = [0.4, 0.4, 0.4, 1])
+		glPopMatrix()
+	def spawn(self, dt):
+		return
+		
 
 class StraightConnector():
 	label = 'straight'

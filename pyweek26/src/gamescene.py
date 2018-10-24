@@ -31,6 +31,7 @@ def think(dt, kpressed, kdowns):
 #	state.you.pos.y -= 10 * dt
 #	for obj in state.objs:
 #		obj.pos.y -= 10 * dt
+	view.think(dt)
 
 def draw():
 	view.clear((0.1, 0.1, 0.1, 1))
