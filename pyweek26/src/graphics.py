@@ -12,7 +12,15 @@ class Animations(object):
 	def __init__(self):
 		self.water_flow = 0
 		self.init_trigger = True
+		self.fadepipe = 1.0
 	def cycle(self):
+		"""
+		faderate = 0.01
+		if state.you.section.label == 'pool':
+			self.fadepipe = min(1.0,self.fadepipe+faderate)
+		else:
+			self.fadepipe = max(0.5,self.fadepipe-faderate)
+		"""
 		self.water_flow += 1
 		"""
 		if self.init_trigger: # hackish thing to print out OpenSCAD function calls from section objects
@@ -207,7 +215,8 @@ def drawmodel_sect_straight(sect):
 	sect_ind = state.sections.index(sect)
 	#if (state.you.section.label == 'pool' and sect in state.you.section.connections) or (not state.you.section.label == 'pool'):
 	#if sect == state.you.section or sect in state.you.section.connections:
-	if True:
+	#if True:
+	if not state.you.section.label == 'pool':
 		glEnable(GL_BLEND)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 		glCallList(model3d_sections[0][sect_ind].gl_list)
@@ -252,8 +261,8 @@ def drawmodel_sect_curve(sect):
 	glRotate(180, 0, 0, 1)
 	sect_ind = state.sections.index(sect)
 	#if sect == state.you.section or sect in state.you.section.connections:
-	if True:
-	#if sect == state.you.section:
+	#if True:
+	if not state.you.section.label == 'pool':
 		glEnable(GL_BLEND)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 		glCallList(model3d_sections[0][sect_ind].gl_list)

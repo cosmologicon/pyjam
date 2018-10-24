@@ -94,7 +94,7 @@ class Model3D(object):
                 	v[1] = -v[1]
                 self.normals.append(v)
             elif values[0] == 'vt':
-                self.texcoords.append(map(float, values[1:3]))
+                self.texcoords.append([float(values[1]),float(values[2])])
             elif values[0] in ('usemtl', 'usemat'):
                 material = values[1]
             elif values[0] == 'mtllib':
