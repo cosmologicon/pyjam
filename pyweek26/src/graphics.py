@@ -18,7 +18,6 @@ class Animations(object):
 		if self.init_trigger: # hackish thing to print out OpenSCAD function calls from section objects
 			count = 0
 			for sect in state.sections:
-				#print(sect)
 				if sect.label == 'pool':
 					exit_points = []
 					for c in sect.connections:
@@ -27,8 +26,9 @@ class Animations(object):
 						else:
 							exit_points.append([c.pos1[0],c.pos1[1],c.width])
 					con_str = ", ".join(['[%.4f,%.4f,%.4f]'%(p[0]-sect.pos[0],p[1]-sect.pos[1],p[2]) for p in exit_points])
-					#print('pool(diameter=%.4f, wall_height=%.4f, connections=[%s]); // sect: %d'%(sect.r,max([p[2] for p in exit_points])+1.0,con_str,count))
-				elif sect.label == 'straight':
+					print('pool(diameter=%.4f, wall_height=%.4f, connections=[%s]); // sect: %d'%(sect.r,max([p[2] for p in exit_points])+1.0,con_str,count))
+					#print('pool')
+				elif sect.label == 'straight' or sect.label == 'slope':
 					if sect.connections[0].label == 'pool':
 						dy1 = sqrt(pow(sect.connections[0].r,2)-pow(sect.width,2))
 					else:
@@ -37,10 +37,10 @@ class Animations(object):
 						dy2 = sqrt(pow(sect.connections[1].r,2)-pow(sect.width,2))
 					else:
 						dy2 = 0
-					#print('straight(length=%.4f, width=%.4f, dy1=%.4f, dy2=%.4f); // sect: %d'%(sect.length,sect.width,dy1,dy2,count))
+					print('straight(length=%.4f, width=%.4f, dy1=%.4f, dy2=%.4f, dz=%.4f); // sect: %d'%(sect.length,sect.width,dy1,dy2,sect.dz,count))
+					#print('straight')
 				elif sect.label == 'curve':
-					#self.right, center, beta
-					#print('curve(p0=[%.4f, %.4f], p1=[%.4f, %.4f], dir=%.4f, radius=%.4f); // sect: %d'%(sect.p0[0],sect.p0[1],sect.p1[0],sect.p1[1],sect.z[2],sect.r,count))
+					#print('curve')
 					print('curve(p0=[%.4f, %.4f], center=[%.4f, %.4f], dir=%d, angle=%.4f, width=%.4f); // sect: %d'%(sect.p0[0],sect.p0[1],sect.center[0],sect.center[1],sect.right,2*sect.beta*180.0/pi,sect.width,count))
 				count += 1
 			self.init_trigger = False
@@ -69,13 +69,13 @@ def init():
 	global model3d_sections
 	model3d_sections = []
 	model3d_sections.append([])
-	model_paths = [i for i in os.listdir(os.path.join('models','level_test')) if "obj" in i]
+	model_paths = [i for i in os.listdir(os.path.join('models','level_new')) if "obj" in i]
 	max_ind = max([int(path[-7:-4]) for path in model_paths])
 	for i in range(max_ind+1):
 		model3d_sections[-1].append([])
 	for path in model_paths:
 		ind = int(path[-7:-4])
-		model3d_sections[-1][ind] = modelloader.Model3D(os.path.join('models','level_test',path),alpha=0.3)
+		model3d_sections[-1][ind] = modelloader.Model3D(os.path.join('models','level_new',path),alpha=0.3)
 	
 	# Init OpenGL lighting
 	# TODO: figure out strange lighting directions
@@ -92,7 +92,7 @@ def drawmodel_watersurface():
 	for sect in state.sections:
 		if sect.label == 'pool':
 			drawmodel_sect_pool_water(sect)
-		elif sect.label == 'straight':
+		elif sect.label == 'straight' or sect.label == 'slope':
 			drawmodel_sect_straight_water(sect)
 		elif sect.label == 'curve':
 			drawmodel_sect_curve_water(sect)
@@ -104,7 +104,7 @@ def drawmodel_section_pools():
 
 def drawmodel_section_tubes():
 	for sect in state.sections:
-		if sect.label == 'straight':
+		if sect.label == 'straight' or sect.label == 'slope':
 			drawmodel_sect_straight(sect)
 		elif sect.label == 'curve':
 			drawmodel_sect_curve(sect)
@@ -174,16 +174,23 @@ def drawmodel_sect_straight_water(sect):
 	glBegin(GL_QUADS)
 	if fabs(sect.rate) > 0:
 		steps = ceil(sect.length/(sect.rate/float(settings.maxfps)))
+		glTexCoord2f(0, -(animation.water_flow % steps)/steps)
+		glVertex(-sect.width, dy1, 0.1)
+		glTexCoord2f(0, (0.2*(sect.length-dy1-dy2)/sect.width)-(animation.water_flow % steps)/steps)
+		glVertex(-sect.width, sect.length-dy2, sect.dz+0.1)
+		glTexCoord2f(1, (0.2*(sect.length-dy1-dy2)/sect.width)-(animation.water_flow % steps)/steps)
+		glVertex(sect.width, sect.length-dy2, sect.dz+0.1)
+		glTexCoord2f(1, -(animation.water_flow % steps)/steps)
+		glVertex(sect.width, dy1, 0.1)
 	else:
-		steps = 0
-	glTexCoord2f(0, -(animation.water_flow % steps)/steps)
-	glVertex(-sect.width, dy1, 0.1)
-	glTexCoord2f(0, (0.2*(sect.length-dy1-dy2)/sect.width)-(animation.water_flow % steps)/steps)
-	glVertex(-sect.width, sect.length-dy2, 0.1)
-	glTexCoord2f(1, (0.2*(sect.length-dy1-dy2)/sect.width)-(animation.water_flow % steps)/steps)
-	glVertex(sect.width, sect.length-dy2, 0.1)
-	glTexCoord2f(1, -(animation.water_flow % steps)/steps)
-	glVertex(sect.width, dy1, 0.1)
+		glTexCoord2f(0, 0)
+		glVertex(-sect.width, dy1, 0.1)
+		glTexCoord2f(0, (0.2*(sect.length-dy1-dy2)/sect.width))
+		glVertex(-sect.width, sect.length-dy2, sect.dz+0.1)
+		glTexCoord2f(1, (0.2*(sect.length-dy1-dy2)/sect.width))
+		glVertex(sect.width, sect.length-dy2, sect.dz+0.1)
+		glTexCoord2f(1, 0)
+		glVertex(sect.width, dy1, 0.1)
 	glEnd()
 	glPopMatrix()
 	glDisable(GL_TEXTURE_2D)
@@ -198,15 +205,13 @@ def drawmodel_sect_straight(sect):
 	glRotate(90, 1, 0, 0)
 	glRotate(180, 0, 0, 1)
 	sect_ind = state.sections.index(sect)
+	#if (state.you.section.label == 'pool' and sect in state.you.section.connections) or (not state.you.section.label == 'pool'):
 	#if sect == state.you.section or sect in state.you.section.connections:
 	if True:
-	#if sect == state.you.section:
-		glDisable(GL_DEPTH_TEST) # can I get around needing this?
 		glEnable(GL_BLEND)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 		glCallList(model3d_sections[0][sect_ind].gl_list)
 		glDisable(GL_BLEND)
-		glEnable(GL_DEPTH_TEST)
 	else:
 		glCallList(model3d_sections[0][sect_ind].gl_list)
 	glPopMatrix()
@@ -249,12 +254,10 @@ def drawmodel_sect_curve(sect):
 	#if sect == state.you.section or sect in state.you.section.connections:
 	if True:
 	#if sect == state.you.section:
-		glDisable(GL_DEPTH_TEST) # can I get around needing this?
 		glEnable(GL_BLEND)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 		glCallList(model3d_sections[0][sect_ind].gl_list)
 		glDisable(GL_BLEND)
-		glEnable(GL_DEPTH_TEST)
 	else:
 		glCallList(model3d_sections[0][sect_ind].gl_list)
 	glPopMatrix()

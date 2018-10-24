@@ -36,6 +36,12 @@ def draw():
 	view.clear((0.1, 0.1, 0.1, 1))
 	view.look()
 	
+	for obj in state.objs:
+		graphics.drawobj(obj)
+	graphics.drawyou()
+	for effect in state.effects:
+		effect.draw()
+	
 	if settings.debug_graphics:
 		for section in state.sections:
 			section.draw()
@@ -44,10 +50,5 @@ def draw():
 		graphics.drawmodel_section_pools()
 		graphics.drawmodel_section_tubes()
 	
-	for obj in state.objs:
-		graphics.drawobj(obj)
-	graphics.drawyou()
-	for effect in state.effects:
-		effect.draw()
 
 
