@@ -109,6 +109,21 @@ def load():
 if not "--reset" in sys.argv:
 	load()
 
+def totuple(*args):
+	return tuple(args)
+
+def pipedata(jpipe, pipe):
+	jp0 = pipe["jp0"]
+	jp1 = pipe["jp1"]
+	r = 1.5
+	R = pools[jp0]["r"] + 2
+	p0 = Vector3(*pools[jp0]["pos"]) + Vector3(0, 0, 0.8 * r)
+	d = Vector3(*pools[jp1]["pos"]) - p0
+	d.z = 0
+	d = R * d.normalize()
+	p1 = p0 + d
+	return totuple("pipe", jpipe, "pool", jp0, "pool", jp1, *p0, *p1, r)
+
 def extractjoiner(jjoiner, joiner):
 	jp0 = joiner["jp0"]
 	jp1 = joiner["jp1"]
@@ -152,16 +167,10 @@ def extractjoiner(jjoiner, joiner):
 			iscurve.append(True)
 			iscurve.append(False)
 	ps.append(p1)
-	print(p0s)
-	print(ps)
-	print(iscurve)
-	def totuple(*args):
-		return tuple(args)
 	cons = [("pool", jp0)] + [(jjoiner, k) for k in range(len(ps) - 1)] + [("pool", jp1)]
 
 	k = 0
 	while len(ps) > 2:
-		print(k, iscurve[k], ps[0], ps[1], ps[0][2] != ps[1][2])
 		if ps[0][2] != ps[1][2]:
 			yield totuple("slope", jjoiner, k, *cons[k], *cons[k+2], *ps[0], *ps[1], w)
 		elif iscurve[k]:
@@ -185,6 +194,8 @@ def dump():
 			f.write("\t".join(map(str, args)) + "\n")
 		for jpool, pool in enumerate(pools):
 			write("pool", jpool, *pool["pos"], pool["r"])
+		for jpipe, pipe in enumerate(pipes):
+			write(*pipedata(jpipe, pipe))
 		for jjoiner, joiner in enumerate(joiners):
 			for args in extractjoiner(jjoiner, joiner):
 				write(*args)
@@ -262,6 +273,8 @@ while playing:
 		cjoin = len(joiners) - 1
 	if K_p in kdowns and len(cpools) == 2:
 		jp0, jp1 = cpools
+		if pools[jp0]["pos"][2] > pools[jp1]["pos"][2]:
+			jp0, jp1 = jp1, jp0
 		pipes.append({ "jp0": jp0, "jp1": jp1 })
 	for r, K in [(0, K_e), (5, K_w)]:
 		if K in kdowns and cjoin is not None:

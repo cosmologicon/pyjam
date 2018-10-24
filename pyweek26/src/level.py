@@ -14,6 +14,8 @@ def load():
 		fields = line.split()
 		if fields[0] == "pool":
 			loadpool(*fields)
+		if fields[0] == "pipe":
+			loadpipe(*fields)
 		if fields[0] == "straight":
 			loadstraight(*fields)
 		if fields[0] == "slope":
@@ -22,7 +24,7 @@ def load():
 			loadcurve(*fields)
 	state.sections = list(sections_by_id.values())
 	connectsections()
-	state.you.section = state.sections[0]
+	state.you.section = state.sections[2]
 	state.you.pos = 1 * state.you.section.pos
 
 def loadpool(pool, jpool, cx, cy, cz, r):
@@ -31,21 +33,30 @@ def loadpool(pool, jpool, cx, cy, cz, r):
 	r = float(r)
 	sections_by_id[sectionid] = section.Pool(center, r)
 
+def maybeint(j):
+	return int(j) if j.isdigit() else j
+
 def gettunnelids(jtunnel, jsection, jfrom, kfrom, jto, kto):
-	sectionid = int(jtunnel), int(jsection)
-	jfrom = "pool" if jfrom == "pool" else int(jfrom)
-	jto = "pool" if jto == "pool" else int(jto)
-	fromid = jfrom, int(kfrom)
-	toid = jto, int(kto)
+	sectionid = maybeint(jtunnel), int(jsection)
+	fromid = maybeint(jfrom), int(kfrom)
+	toid = maybeint(jto), int(kto)
 	return sectionid, fromid, toid
 
-def tunnelconnect(sectionid, fromid, toid):
+def tunnelconnect(sectionid, fromid, toid, oneway = False):
 	connection_ids[sectionid].append(fromid)
 	connection_ids[sectionid].append(toid)
 	if fromid[0] == "pool":
 		connection_ids[fromid].append(sectionid)
-	if toid[0] == "pool":
+	if toid[0] == "pool" and not oneway:
 		connection_ids[toid].append(sectionid)
+
+def loadpipe(pipe, jpipe, jfrom, kfrom, jto, kto, x0, y0, z0, x1, y1, z1, w):
+	sectionid, fromid, toid = gettunnelids("pipe", jpipe, jfrom, kfrom, jto, kto)
+	p0 = Vector3(float(x0), float(y0), float(z0))
+	p1 = Vector3(float(x1), float(y1), float(z1))
+	w = float(w)
+	sections_by_id[sectionid] = section.Pipe(p0, p1, width=w)
+	tunnelconnect(sectionid, fromid, toid, oneway = True)
 
 def loadstraight(straight, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0, x1, y1, z1, w):
 	sectionid, fromid, toid = gettunnelids(jtunnel, jsection, jfrom, kfrom, jto, kto)
