@@ -19,8 +19,7 @@ class Animations(object):
 			count = 0
 			for sect in state.sections:
 				#print(sect)
-				if isinstance(sect,section.Pool):
-					#print(sect.connections)
+				if sect.label == 'pool':
 					exit_points = []
 					for c in sect.connections:
 						if sqrt(pow(sect.pos[0]-c.pos0[0],2)+pow(sect.pos[1]-c.pos0[1],2)) > sect.r:
@@ -29,16 +28,20 @@ class Animations(object):
 							exit_points.append([c.pos1[0],c.pos1[1],c.width])
 					con_str = ", ".join(['[%.4f,%.4f,%.4f]'%(p[0]-sect.pos[0],p[1]-sect.pos[1],p[2]) for p in exit_points])
 					#print('pool(diameter=%.4f, wall_height=%.4f, connections=[%s]); // sect: %d'%(sect.r,max([p[2] for p in exit_points])+1.0,con_str,count))
-				elif isinstance(sect,section.StraightConnector):
-					if isinstance(sect.connections[0],section.Pool):
+				elif sect.label == 'straight':
+					if sect.connections[0].label == 'pool':
 						dy1 = sqrt(pow(sect.connections[0].r,2)-pow(sect.width,2))
 					else:
 						dy1 = 0
-					if isinstance(sect.connections[1],section.Pool):
+					if sect.connections[1].label == 'pool':
 						dy2 = sqrt(pow(sect.connections[1].r,2)-pow(sect.width,2))
 					else:
 						dy2 = 0
-					print('straight(length=%.4f, width=%.4f, dy1=%.4f, dy2=%.4f); // sect: %d'%(sect.length,sect.width,dy1,dy2,count))
+					#print('straight(length=%.4f, width=%.4f, dy1=%.4f, dy2=%.4f); // sect: %d'%(sect.length,sect.width,dy1,dy2,count))
+				elif sect.label == 'curve':
+					#self.right, center, beta
+					#print('curve(p0=[%.4f, %.4f], p1=[%.4f, %.4f], dir=%.4f, radius=%.4f); // sect: %d'%(sect.p0[0],sect.p0[1],sect.p1[0],sect.p1[1],sect.z[2],sect.r,count))
+					print('curve(p0=[%.4f, %.4f], center=[%.4f, %.4f], dir=%d, angle=%.4f, width=%.4f); // sect: %d'%(sect.p0[0],sect.p0[1],sect.center[0],sect.center[1],sect.right,2*sect.beta*180.0/pi,sect.width,count))
 				count += 1
 			self.init_trigger = False
 		"""
@@ -85,7 +88,28 @@ def init():
 	glEnable(GL_DEPTH_TEST)
 	glShadeModel(GL_SMOOTH)
 
-def drawmodel_sect_pool(sect):
+def drawmodel_watersurface():
+	for sect in state.sections:
+		if sect.label == 'pool':
+			drawmodel_sect_pool_water(sect)
+		elif sect.label == 'straight':
+			drawmodel_sect_straight_water(sect)
+		elif sect.label == 'curve':
+			drawmodel_sect_curve_water(sect)
+
+def drawmodel_section_pools():
+	for sect in state.sections:
+		if sect.label == 'pool':
+			drawmodel_sect_pool(sect)
+
+def drawmodel_section_tubes():
+	for sect in state.sections:
+		if sect.label == 'straight':
+			drawmodel_sect_straight(sect)
+		elif sect.label == 'curve':
+			drawmodel_sect_curve(sect)
+
+def drawmodel_sect_pool_water(sect):
 	
 	# draw water surface
 	glEnable(GL_TEXTURE_2D)
@@ -104,6 +128,8 @@ def drawmodel_sect_pool(sect):
 	glEnd()
 	glPopMatrix()
 	glDisable(GL_TEXTURE_2D)
+
+def drawmodel_sect_pool(sect):
 	
 	# draw structure
 	glPushMatrix()
@@ -124,15 +150,13 @@ def drawmodel_sect_pool(sect):
 		glCallList(model3d_sections[0][sect_ind].gl_list)
 	glPopMatrix()
 
-def drawmodel_sect_straight(sect):
+def drawmodel_sect_straight_water(sect):
 	
 	# adjust length for connections
-	#if isinstance(sect.connections[0],section.Pool):
 	if sect.connections[0].label == 'pool':
 		dy1 = sqrt(pow(sect.connections[0].r,2)-pow(sect.width,2))
 	else:
 		dy1 = 0
-	#if isinstance(sect.connections[1],section.Pool):
 	if sect.connections[1].label == 'pool':
 		dy2 = sqrt(pow(sect.connections[1].r,2)-pow(sect.width,2))
 	else:
@@ -164,6 +188,8 @@ def drawmodel_sect_straight(sect):
 	glPopMatrix()
 	glDisable(GL_TEXTURE_2D)
 	
+def drawmodel_sect_straight(sect):
+	
 	# render structure
 	glPushMatrix()
 	glColor4f(1.0, 1.0, 1.0, 1)
@@ -185,7 +211,7 @@ def drawmodel_sect_straight(sect):
 		glCallList(model3d_sections[0][sect_ind].gl_list)
 	glPopMatrix()
 
-def drawmodel_sect_curve(sect):
+def drawmodel_sect_curve_water(sect):
 	
 	# draw water surface
 	glEnable(GL_TEXTURE_2D)
@@ -205,6 +231,33 @@ def drawmodel_sect_curve(sect):
 	glEnd()
 	glPopMatrix()
 	glDisable(GL_TEXTURE_2D)
+
+def drawmodel_sect_curve(sect):
+	
+	# render structure
+	glPushMatrix()
+	glColor4f(1.0, 1.0, 1.0, 1)
+	glTranslate(*sect.center)
+	if sect.right:
+		angle = (180.0/pi)*atan2(sect.p0[1]-sect.center[1],sect.p0[0]-sect.center[0])-180
+	else:
+		angle = (180.0/pi)*atan2(sect.p0[1]-sect.center[1],sect.p0[0]-sect.center[0])
+	glRotate(angle, 0, 0, 1)
+	glRotate(90, 1, 0, 0)
+	glRotate(180, 0, 0, 1)
+	sect_ind = state.sections.index(sect)
+	#if sect == state.you.section or sect in state.you.section.connections:
+	if True:
+	#if sect == state.you.section:
+		glDisable(GL_DEPTH_TEST) # can I get around needing this?
+		glEnable(GL_BLEND)
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+		glCallList(model3d_sections[0][sect_ind].gl_list)
+		glDisable(GL_BLEND)
+		glEnable(GL_DEPTH_TEST)
+	else:
+		glCallList(model3d_sections[0][sect_ind].gl_list)
+	glPopMatrix()
 
 def drawsphere(r = 1):
 	gluSphere(quadric, r, 10, 10)
