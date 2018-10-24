@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame
 from pygame.locals import *
-from . import maff, settings, view, scene, gamescene, graphics
+from . import maff, settings, view, scene, gamescene, graphics, ptext
 
 view.init()
 graphics.init()
@@ -35,6 +35,8 @@ while playing:
 	if settings.DEBUG:
 		text = "%s: %.1ffps" % (settings.gamename, clock.get_fps())
 		pygame.display.set_caption(text)
+		text = "%.1ffps" % clock.get_fps()
+		ptext.draw(text, bottomleft = (10, 10), fontsize = 22)
 	pygame.display.flip()
 	if K_F12 in kdowns:
 		view.screenshot()
