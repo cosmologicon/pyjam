@@ -1,4 +1,5 @@
 import pygame, math, random
+from OpenGL.GL import *
 from . import enco, state, graphics, settings
 
 class WorldBound(enco.Component):
@@ -175,5 +176,27 @@ class Splash():
 		z = 0.1
 		r = 2.5 * self.f
 		graphics.drawcircle(self.pos + pygame.math.Vector3(0, 0, z), r, pygame.math.Vector3(0, 0, 1), self.color)
+
+# Just needed for debug graphics.
+@WorldBound()
+@WaterBound(fixed = True)
+@Lives()
+class Tentacles():
+	def __init__(self, pool):
+		self.start()
+		self.pos = pool.pos * 1
+	def draw(self):
+		if not settings.debug_graphics:
+			return
+		glPushMatrix()
+		glTranslate(*self.pos)
+		for jtheta in range(5):
+			glPushMatrix()
+			tilt = math.mix(10, 70, math.cycle(jtheta / 5 + self.t / 5))
+			glRotate(jtheta * 360 * 2 / 5, 0, 0, 1)
+			glRotate(tilt, 1, 0, 0)
+			graphics.drawcone((0, 0, 0), 2, 12, (1, 0, 0.5, 1))
+			glPopMatrix()
+		glPopMatrix()
 	
 

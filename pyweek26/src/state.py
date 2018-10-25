@@ -28,7 +28,7 @@ def triggermatch(id0, id1):
 
 def currentmusic():
 	for sectionid, track in musics.items():
-		if triggermatch(you.section.id, sectionid):
+		if triggermatch(you.section.sectionid, sectionid):
 			return track
 	return "level"
 

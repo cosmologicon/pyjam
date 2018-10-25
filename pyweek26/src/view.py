@@ -34,6 +34,9 @@ def think(dt):
 	# Hard-coded (for now) perspective change when you go east.
 	back = math.smoothfadebetween(state.you.pos.x, 50, 20, 70, 10)
 	up = math.smoothfadebetween(state.you.pos.x, 50, 16, 70, 4)
+	if state.you.section.label == "pool" and state.you.section.final:
+		camera = state.you.section.pos
+		back *= 1.5
 	# TODO: face needs to take into account slopes
 	vantage = camera - back * state.you.face + pygame.math.Vector3(0, 0, up)
 	if self.tosnap:

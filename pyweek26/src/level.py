@@ -33,9 +33,7 @@ def load():
 	state.you.section = state.sections[0]
 	state.you.pos = 1 * state.you.section.pos
 
-	loadtriggers("data/%s-triggers.csv" % settings.leveldataname)
-	sections_by_id[("pool", 2)].drain(state.you)
-		
+	loadtriggers("data/%s-triggers.csv" % settings.leveldataname)		
 
 def loadpool(pool, jpool, cx, cy, cz, r, pressure0, drainable):
 	sectionid = pool, int(jpool)
@@ -122,10 +120,14 @@ def loadtriggers(filename):
 			triggerfood(*fields)
 		if fields[0] == "whirl":
 			triggerwhirl(*fields)
+		if fields[0] == "drain":
+			triggerwhirl(*fields)
 		if fields[0] == "dialog":
 			triggerdialog(*fields)
 		if fields[0] == "music":
-			triggerdialog(*fields)
+			triggermusic(*fields)
+		if fields[0] == "endboss":
+			triggerendboss(*fields)
 
 def triggerstart(start, j, k):
 	section = sections_by_id[parseid(j, k)]
@@ -140,11 +142,20 @@ def triggerwhirl(whirl, j, k, strength):
 	section = sections_by_id[parseid(j, k)]
 	section.whirl = float(strength)
 
+def triggerdrain(whirl, j, k):
+	section = sections_by_id[parseid(j, k)]
+	section.drainable = True
+	section.drain()
+
 def triggerdialog(dialog, convo, j, k):
 	state.dtriggers[convo] = parseid(j, k)
 
 def triggermusic(music, track, j, k):
 	state.musics[parseid(j, k)] = track
 
+def triggerendboss(endboss, j, k):
+	section = sections_by_id[parseid(j, k)]
+	state.effects.append(thing.Tentacles(section))
+	section.final = True
 
 

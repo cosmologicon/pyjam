@@ -20,6 +20,7 @@ class Pool():
 		self.drainers = []  # pools above that are draining into this one
 		self.hasfood = False
 		self.whirl = 0
+		self.final = False  # Is the final boss arena
 	def penter(self):
 		return self.pos
 	def pexit(self):
@@ -35,15 +36,15 @@ class Pool():
 		pools = [s for s in state.sections if s.label == "pool" and s.dwall(self) > 0 and s.pos.z < self.pos.z]
 		assert pools, "Drainable pool at %s not above another pool!" % (self.pos,)
 		return max(pools, key=lambda pool: pool.pos.z)
-	def drain(self, you):
+	def drain(self, you=None):
 		self.draining = True
-		self.drop(you)
-		# TODO: add waterfall object
+		if you is not None:
+			self.drop(you)
 		dt = self.draintarget()
 		sound.manager.PlaySound('drain')
 		graphics.animation.waterfalls.append(graphics.Waterfall([self.pos[0],self.pos[1],self.pos[2]],dt,self.pos[2]-dt.pos[2]))
-		self.draintarget().drainers.append(self)
-		state.effects.append(thing.Waterfall(self, self.draintarget()))
+		state.effects.append(thing.Waterfall(self, dt))
+		dt.drainers.append(self)
 	def drop(self, you):
 		you.landed = False
 		you.toleap = 0
@@ -78,6 +79,8 @@ class Pool():
 		v = (self.pos - pos) / 10
 		if v.length() > 1:
 			v = v.normalize()
+		if self.final:
+			self.whirl = [2, 4, 6, 8, 9, 10, 11][len(self.drainers)]
 		if self.draining or self.whirl != 0:
 			v *= 4
 		if self.whirl != 0:
@@ -154,8 +157,8 @@ class Pool():
 class Pipe():
 	label = 'pipe'
 	def __init__(self, pos0, pos1, width = 1):
-		self.pos0 = pos0
-		self.pos1 = pos1
+		self.pos0 = 1 * pos0
+		self.pos1 = 1 * pos1
 		self.rate = 20
 		self.width = width
 		d = self.pos1 - self.pos0
@@ -204,7 +207,7 @@ class Pipe():
 		if d.length() > dmax:
 			obj.pos = d0 + dmax * d.normalize()
 	def acquires(self, obj):
-		return state.food > 0
+		return state.food > 0 and 0 < self.afactor(obj.pos) < 1
 	def influence(self, obj):
 		return 0
 	def draw(self):

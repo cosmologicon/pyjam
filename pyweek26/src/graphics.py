@@ -582,6 +582,13 @@ def drawcylinder(p0, r, h, color):
 	glTranslate(*p0)
 	gluCylinder(quadric, r, r, h, 10, 1)
 	glPopMatrix()
+
+def drawcone(p0, r, h, color):
+	glPushMatrix()
+	glColor4f(*color)
+	glTranslate(*p0)
+	gluCylinder(quadric, r, 0, h, 10, 1)
+	glPopMatrix()
 	
 def drawyou():
 	glPushMatrix()
