@@ -24,7 +24,7 @@ def load():
 			loadcurve(*fields)
 	state.sections = list(sections_by_id.values())
 	connectsections()
-	state.you.section = state.sections[2]
+	state.you.section = state.sections[0]
 	state.you.pos = 1 * state.you.section.pos
 
 def loadpool(pool, jpool, cx, cy, cz, r, pressure0, drainable):

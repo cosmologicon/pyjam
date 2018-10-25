@@ -359,7 +359,7 @@ class CurvedConnector(Connector):
 		return False
 
 	def dzwater(self, pos):
-		return pos.z - self.pos.z
+		return pos.z - self.p0.z
 	def flow(self, dt, obj):
 		obj.pos += dt * self.vflow(obj.pos)
 	def vflow(self, pos):
