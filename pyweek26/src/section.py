@@ -3,7 +3,7 @@
 from __future__ import division
 import math, pygame, random
 from OpenGL.GL import *
-from . import graphics, thing, state, settings, view
+from . import graphics, thing, state, settings, view, sound
 
 # A circular section without a current
 # In this section the left and right arrow keys rotate you
@@ -38,6 +38,7 @@ class Pool():
 		self.drop(you)
 		# TODO: add waterfall object
 		dt = self.draintarget()
+		sound.manager.PlaySound('drain')
 		graphics.animation.waterfalls.append(graphics.Waterfall([self.pos[0],self.pos[1],self.pos[2]],dt,self.pos[2]-dt.pos[2]))
 		self.draintarget().drainers.append(self)
 	def drop(self, you):

@@ -3,7 +3,6 @@ import os
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from . import state
-#from . import modelloader, settings, section
 from . import modelloader, settings
 
 import random

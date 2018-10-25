@@ -1,10 +1,11 @@
 from __future__ import division
 import pygame
 from pygame.locals import *
-from . import maff, settings, view, scene, gamescene, graphics, ptext
+from . import maff, settings, view, scene, gamescene, graphics, ptext, sound
 
 view.init()
 graphics.init()
+pygame.mixer.init()
 scene.push(gamescene)
 
 playing = True
