@@ -1,5 +1,5 @@
 import random, pygame
-from . import view, state, thing, graphics, settings, section, level, ptext
+from . import view, state, thing, graphics, settings, section, level, ptext, sound
 
 def init():
 	state.you = thing.You()
@@ -32,6 +32,8 @@ def think(dt, kpressed, kdowns):
 #	for obj in state.objs:
 #		obj.pos.y -= 10 * dt
 	view.think(dt)
+	
+	sound.manager.Update()
 
 def draw():
 	view.clear((0.1, 0.1, 0.1, 1))
