@@ -46,6 +46,7 @@ class MovesWithArrows(enco.Component):
 		self.Tswim = 0  # Animation timer for swimming
 		self.upstream = True
 		self.landed = True
+		self.tjump = 0
 	def move(self, dt, dx, dy, turn, act, acthold):
 		if self.landed and self.section is not None:
 			self.section.move(self, dt, dx, dy, turn)
@@ -53,27 +54,49 @@ class MovesWithArrows(enco.Component):
 		if act:
 			if self.section.act(self):
 				pass
-			elif self.landed:
+			elif self.landed:  # Jump
 				self.landed = False
 				self.toleap = 20
 				self.v.z = 5
+			elif self.tjump < 0.4:  # Dive
+				self.toleap = 0
+				self.v.z = -40
 		if not acthold:
 			self.toleap = 0
 	def think(self, dt):
-		if not self.landed:
+		dz = self.section.dzwater(self.pos)
+		if self.landed:
+			# Damped constant-force motion to settle
+			self.v.z -= 60 * dz * dt
+			self.v.z *= math.exp(-0.4 * dt)
+			self.tjump = 0
+		else:
+			self.tjump += dt
 			toleap = min(self.toleap, 100 * dt)
 			self.toleap -= toleap
 			self.v.z += toleap
 			self.v.z -= 60 * dt
-			if self.pos.z < self.section.pos.z:
+			if dz < 0 and self.v.z < 0:
 				self.landed = True
-				self.v.z = 0
-				self.pos.z = self.section.pos.z
+#				self.v.z = 0
+#				self.pos.z = self.section.pos.z
 				state.effects.append(Splash(self.pos))
 		# Swim faster if you're going forward.
 		v = self.v.length()
 		f = math.smoothfadebetween(v, 0, 0.5, 20, 3)
 		self.Tswim += dt * f
+	# Up/down angle for the purpose of rendering
+	def rangle(self):
+		vz = self.v.z
+		if self.landed:
+			p = 1 * self.pos
+			dp = p + self.v
+			p.z = 0
+			dp.z = 0
+			vz += self.section.dzwater(dp) - self.section.dzwater(p)
+		return math.degrees(math.atan(vz / 20))
+			
+			
 
 class SinksInPool(enco.Component):
 	def think(self, dt):

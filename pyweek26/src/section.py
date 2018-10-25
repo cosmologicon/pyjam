@@ -71,6 +71,9 @@ class Pool():
 		if self.draining:
 			v *= 3
 		return v
+	# Distance above the water level - negative for underwater
+	def dzwater(self, pos):
+		return pos.z - self.pos.z
 	# Distance from wall - negative for objects outside
 	def dwall(self, obj):
 		d = obj.pos - self.pos
@@ -151,8 +154,10 @@ class Pipe():
 			obj.section = self.connections[1]
 			obj.pos = 1 * obj.section.pos
 			view.addsnap(0.5)
-			# TODO: bob to the surface when you appear
-#			obj.pos.z -= 3
+			obj.pos.z -= 3
+
+	def dzwater(self, pos):
+		return pos.z - self.connections[0].pos.z
 	def constrain(self, obj):
 		p = obj.pos - self.pos0
 		a = p.dot(self.face)
@@ -228,6 +233,9 @@ class StraightConnector(Connector):
 	def act(self, you):
 		return False
 
+	def dzwater(self, pos):
+		# Not exactly right for slopes but probably close enough.
+		return pos.z - (self.pos0.z + self.dz * self.afactor(pos))
 	def flow(self, dt, obj):
 		v = self.vflow(obj.pos)
 		for c in self.connections:
@@ -350,6 +358,8 @@ class CurvedConnector(Connector):
 	def act(self, you):
 		return False
 
+	def dzwater(self, pos):
+		return pos.z - self.pos.z
 	def flow(self, dt, obj):
 		obj.pos += dt * self.vflow(obj.pos)
 	def vflow(self, pos):
