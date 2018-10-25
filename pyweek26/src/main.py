@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame
 from pygame.locals import *
-from . import maff, settings, view, scene, gamescene, graphics, ptext, sound
+from . import maff, settings, view, scene, gamescene, graphics, ptext, sound, state
 
 view.init()
 graphics.init()
@@ -27,6 +27,7 @@ while playing:
 		playing = False
 	if settings.DEBUG and pressed["debugspeed"]:
 		dt *= 10
+		state.food = 1000
 	s = scene.top()
 	if s is None:
 		break

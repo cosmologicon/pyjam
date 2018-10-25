@@ -639,4 +639,5 @@ def clean():
 		_surf_size_total -= 4 * w * h
 		if _surf_size_total < memory_limit:
 			break
+	print("ptext cleaning", _surf_size_total)
 

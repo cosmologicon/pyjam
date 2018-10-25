@@ -253,6 +253,7 @@ class StraightConnector(Connector):
 		self.face = d.normalize()
 		self.length = d.length()
 		self.dz = d.z
+		self.dl = (d - pygame.math.Vector3(0, 0, self.dz)).length()
 		self.angle = math.atan2(self.face.x, self.face.y)
 		self.connections = []
 		self.blockers = []
@@ -318,7 +319,7 @@ class StraightConnector(Connector):
 		if settings.debug_graphics:
 			glBegin(GL_QUADS) # replaced by drawmodel_sect_straight
 			for dx, dy in [(-1, 0), (-1, 1), (1, 1), (1, 0)]:
-				glVertex(dx * self.width, dy * self.length, dy * self.dz)
+				glVertex(dx * self.width, dy * self.dl, dy * self.dz)
 			glEnd()
 		for blocker in self.blockers:
 			w = int(round(self.width)) - 1

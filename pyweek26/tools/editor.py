@@ -37,8 +37,8 @@ p0 = Vector3(0, 0, 0)
 theta = 1
 phi = 0
 
-w, h = 1024, 720
-screen = pygame.display.set_mode((w, h))
+screenw, screenh = 1024, 720
+screen = pygame.display.set_mode((screenw, screenh))
 
 # previous value  within sorted list vs less than v
 def pvalue(vs, v, wrap=True):
@@ -61,8 +61,8 @@ def xysnap(p0, p1, p):
 def screenpos(pos):
 	p = (pos - p0).rotate_z(math.degrees(phi)).rotate_x(math.degrees(-theta)) * zoom
 	return (
-		int(w / 2 + p.x),
-		int(h / 2 - p.y),
+		int(screenw / 2 + p.x),
+		int(screenh / 2 - p.y),
 	)
 def near(p, spos):
 	return (Vector2(*screenpos(p)) - Vector2(spos)).length() < 10
@@ -343,9 +343,13 @@ while playing:
 			waypoints = joiner["waypoints"]
 			jp0 = joiner["jp0"]
 			jp1 = joiner["jp1"]
+			w = joiner["w"]
 			pool0 = pools[jp0]
 			pool1 = pools[jp1]
 			n = len(waypoints)
+			for k, (p, r) in enumerate(waypoints):
+				if 0 < r <= w:
+					print("Warning: pinch point at waypoint %d,%d %s" % (j, k, p))
 			# Fix waypoint z-coordinate.
 			# z-coordinate can only change between consecutive waypoints if they both have radius 0.
 			zrs = [(pool0["pos"][2], None)] + [(z, r) for (x, y, z), r in waypoints] + [(pool1["pos"][2], None)]
@@ -366,7 +370,6 @@ while playing:
 						else:
 							ks.append(k)
 						last0 = True
-			print(zsections)
 			if len(zsections) == 1 and zsections[-1][0] != zrs[-1][0]:
 				print("Unable to fix joiner %d: %s" % (k, joiner))
 				continue
@@ -388,13 +391,38 @@ while playing:
 				if r is not None and r > 0:
 					xysections.append([])
 					xysections[-1].append((x, y, k))
+			# Find waypoints that are too close together
+			fs = []
 			for xysection in xysections:
 				x0, y0, _ = xysection[0]
 				x1, y1, _ = xysection[-1]
+				fs.append(Vector2(x1 - x0, y1 - y0).normalize())
 				for x, y, k in xysection[1:-1]:
 					x, y = xysnap((x0, y0), (x1, y1), (x, y))
 					(_, _, z), r = waypoints[k-1]
 					waypoints[k-1] = (x, y, z), r
+			xybs = [(pool0["pos"][0], pool0["pos"][1], pool0["r"])]
+			for ksec, xysection in enumerate(xysections):
+				if ksec > 0:
+					f0 = fs[ksec-1]
+					f1 = fs[ksec]
+					beta = 1/2 * math.acos(f0.dot(f1))
+					x, y, k = xysection[0]
+					_, r = waypoints[k-1]
+					b = r * math.tan(beta)
+					xybs.append((x, y, b))
+				for x, y, _ in xysection[1:-1]:
+					xybs.append((x, y, 0))
+			xybs.append((pool1["pos"][0], pool1["pos"][1], pool1["r"]))
+			for k in range(1, len(xybs)):
+				x0, y0, b0 = xybs[k-1]
+				x1, y1, b1 = xybs[k]
+				d = math.sqrt((x0 - x1) ** 2 + (y0 - y1) ** 2)
+				b = b0 + b1
+				if d <= b:
+					print("Warning: pinch point between waypoints %d,%d (%f) and %d,%d (%f): %f, %s" %
+						(j, k-2, b0, j, k-1, b1, d, (x0, y0)))
+
 	for jpool in cpools:
 		pools[jpool]["pos"] = tuple(Vector3(pools[jpool]["pos"]) + vscoot)
 	for j, k in cway:
@@ -522,7 +550,7 @@ while playing:
 		text.append("Select 2 pools at once to create a joining tunnel")
 		text.append("Select 2 pools on different levels to create a pipe")
 
-	ptext.draw("\n".join(text), bottomleft = (2, screen.get_height() - 2), fontsize = 21, owidth = 2)
+	ptext.draw("\n".join(text), bottomleft = (2, screenh - 2), fontsize = 21, owidth = 2)
 
 	pygame.display.flip()
 	save()

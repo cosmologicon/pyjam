@@ -113,6 +113,9 @@ def loadtriggers(filename):
 	if not os.path.exists(filename):
 		return
 	for line in open(filename, "r"):
+		line = line.split("#")[0].strip()
+		if not line:
+			continue
 		fields = line.split()
 		if fields[0] == "start":
 			triggerstart(*fields)

@@ -5,7 +5,7 @@ DEBUG = True  # TODO: change to False before submitting
 
 gamename = "Flow"
 
-resolution = 854, 480
+resolution = 1024, 720
 fullscreen = "--fullscreen" in sys.argv
 
 leveldataname = "leveldata"
