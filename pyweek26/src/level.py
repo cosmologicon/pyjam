@@ -27,11 +27,13 @@ def load():
 	state.you.section = state.sections[2]
 	state.you.pos = 1 * state.you.section.pos
 
-def loadpool(pool, jpool, cx, cy, cz, r):
+def loadpool(pool, jpool, cx, cy, cz, r, pressure0, drainable):
 	sectionid = pool, int(jpool)
 	center = Vector3(float(cx), float(cy), float(cz))
 	r = float(r)
-	sections_by_id[sectionid] = section.Pool(center, r)
+	pressure0 = int(pressure0)
+	drainable = drainable == "True"
+	sections_by_id[sectionid] = section.Pool(center, r, pressure0, drainable)
 
 def maybeint(j):
 	return int(j) if j.isdigit() else j
@@ -63,7 +65,7 @@ def loadstraight(straight, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0
 	p0 = Vector3(float(x0), float(y0), float(z0))
 	p1 = Vector3(float(x1), float(y1), float(z1))
 	w = float(w)
-	sections_by_id[sectionid] = section.StraightConnector(p0, p1, rate=0, width=w)
+	sections_by_id[sectionid] = section.StraightConnector(p0, p1, width=w)
 	tunnelconnect(sectionid, fromid, toid)
 
 def loadslope(slope, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0, x1, y1, z1, w):
@@ -71,7 +73,7 @@ def loadslope(slope, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0, x1, 
 	p0 = Vector3(float(x0), float(y0), float(z0))
 	p1 = Vector3(float(x1), float(y1), float(z1))
 	w = float(w)
-	sections_by_id[sectionid] = section.SlopeConnector(p0, p1, rate=0, width=w)
+	sections_by_id[sectionid] = section.SlopeConnector(p0, p1, width=w)
 	tunnelconnect(sectionid, fromid, toid)
 
 def loadcurve(curve, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0, x1, y1, z1, w, cx, cy, cz, beta, right, R):
@@ -83,11 +85,14 @@ def loadcurve(curve, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0, x1, 
 	R = float(R)
 	beta = float(beta)
 	right = right == "True"
-	sections_by_id[sectionid] = section.CurvedConnector(p0, p1, center, beta, right, R, rate=0, width=w)
+	sections_by_id[sectionid] = section.CurvedConnector(p0, p1, center, beta, right, R, width=w)
 	tunnelconnect(sectionid, fromid, toid)
 
 # One everything is loaded, connect everything to the appropriate section objects
 def connectsections():
 	for sectionid, conids in connection_ids.items():
 		sections_by_id[sectionid].connections = [sections_by_id[conid] for conid in conids]
+	for sect in state.sections:
+		if isinstance(sect, section.Connector):
+			sect.setpools()
 

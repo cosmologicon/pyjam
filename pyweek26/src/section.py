@@ -9,16 +9,39 @@ from . import graphics, thing, state, settings, view
 # In this section the left and right arrow keys rotate you
 class Pool():
 	label = 'pool'
-	def __init__(self, pos, r):
+	def __init__(self, pos, r, pressure0, drainable):
 		self.pos = pos
 		self.r = r
+		self.pressure0 = pressure0
+		self.drainable = drainable
+		self.draining = False
 		self.connections = []
 		self.toturn = 0
+		self.drainers = []  # pools above that are draining into this one
 	def penter(self):
 		return self.pos
 	def pexit(self):
 		return self.pos
-
+	def pressure(self):
+		return self.pressure0 - self.draining + len(self.drainers)
+	def candrainfrom(self, obj):
+		return self.drainable and not self.draining and self.dwall(obj) > self.r / 2
+	def candropfrom(self, obj):
+		return self.draining and self.dwall(obj) > self.r / 2
+	def draintarget(self):
+		# Pools directly below this one.
+		pools = [s for s in state.sections if s.label == "pool" and s.dwall(self) > 0 and s.pos.z < self.pos.z]
+		assert pools, "Drainable pool at %s not above another pool!" % (self.pos,)
+		return max(pools, key=lambda pool: pool.pos.z)
+	def drain(self, you):
+		self.draining = True
+		self.drop(you)
+		# TODO: add waterfall object
+		self.draintarget().drainers.append(self)
+	def drop(self, you):
+		you.landed = False
+		you.toleap = 0
+		you.section = self.draintarget()
 	def move(self, you, dt, dx, dy, turn):
 		if turn:
 			you.heading += self.toturn
@@ -31,7 +54,13 @@ class Pool():
 		speed = 10 if dy > 0 else -3 if dy < 0 else 0
 		v = pygame.math.Vector3(0, speed, 0).rotate_z(math.degrees(-you.heading))
 		you.v = math.approach(you.v, v, 50 * dt)
-
+		if self.candropfrom(you):
+			self.drop(you)
+	def act(self, you):
+		if self.candrainfrom(you):
+			self.drain(you)
+			return True
+		return False
 	def flow(self, dt, obj):
 		# Very gentle flow toward the center
 		obj.pos += dt * self.vflow(obj.pos)
@@ -39,7 +68,12 @@ class Pool():
 		v = (self.pos - pos) / 10
 		if v.length() > 1:
 			v = v.normalize()
+		if self.draining:
+			v *= 3
 		return v
+	# Distance above the water level - negative for underwater
+	def dzwater(self, pos):
+		return pos.z - self.pos.z
 	# Distance from wall - negative for objects outside
 	def dwall(self, obj):
 		d = obj.pos - self.pos
@@ -106,6 +140,8 @@ class Pipe():
 		heading = self.angle
 		you.heading = math.anglesoftapproach(you.heading, heading, 50 * dt, dymin = 0.01)
 		you.v = pygame.math.Vector3(0, 0, 0)
+	def act(self, you):
+		return False
 	def flow(self, dt, obj):
 		v = self.vflow(obj.pos)
 		obj.pos += dt * v
@@ -118,8 +154,10 @@ class Pipe():
 			obj.section = self.connections[1]
 			obj.pos = 1 * obj.section.pos
 			view.addsnap(0.5)
-			# TODO: bob to the surface when you appear
-#			obj.pos.z -= 3
+			obj.pos.z -= 3
+
+	def dzwater(self, pos):
+		return pos.z - self.connections[0].pos.z
 	def constrain(self, obj):
 		p = obj.pos - self.pos0
 		a = p.dot(self.face)
@@ -143,14 +181,31 @@ class Pipe():
 		glPopMatrix()
 	def spawn(self, dt):
 		return
-		
 
-class StraightConnector():
+class Connector():
+	def setpools(self):
+		self.pool0 = self
+		while self.pool0.label != "pool":
+			self.pool0 = self.pool0.connections[0]		
+		self.pool1 = self
+		while self.pool1.label != "pool":
+			self.pool1 = self.pool1.connections[1]		
+	def getflowrate(self):
+		if self.pool0.pos.z > self.pool1.pos.z:
+			return 10
+		elif self.pool0.pos.z < self.pool1.pos.z:
+			return -10
+		dpressure = self.pool0.pressure() - self.pool1.pressure()
+		return 5 * dpressure
+	# Speed with respect to the current that the player swims while pressing these buttons
+	def swimrate(self, dx, dy):
+		return pygame.math.Vector3(5 * dx, 3 + 5 * dy, 0)
+
+class StraightConnector(Connector):
 	label = 'straight'
-	def __init__(self, pos0, pos1, rate = 10, width = 4):
+	def __init__(self, pos0, pos1, width = 4):
 		self.pos0 = pos0
 		self.pos1 = pos1
-		self.rate = rate
 		self.width = width
 		d = self.pos1 - self.pos0
 		self.face = d.normalize()
@@ -172,17 +227,22 @@ class StraightConnector():
 			you.upstream = not you.upstream
 		heading = self.angle + (math.tau / 2 if you.upstream else 0)
 		you.heading = math.anglesoftapproach(you.heading, heading, 10 * dt, dymin = 0.01)
-		v = pygame.math.Vector3(5 * dx, 10 + 12 * dy, 0).rotate_z(math.degrees(-heading))
+		v = self.swimrate(dx, dy).rotate_z(math.degrees(-heading))
 		
 		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
+	def act(self, you):
+		return False
 
+	def dzwater(self, pos):
+		# Not exactly right for slopes but probably close enough.
+		return pos.z - (self.pos0.z + self.dz * self.afactor(pos))
 	def flow(self, dt, obj):
 		v = self.vflow(obj.pos)
 		for c in self.connections:
 			v = math.mix(v, c.vflow(obj.pos), c.influence(obj))
 		obj.pos += dt * v
 	def vflow(self, pos):
-		return self.face * self.rate
+		return self.face * self.getflowrate()
 
 	def handoff(self, obj):
 		for connection in self.connections:
@@ -254,7 +314,7 @@ class StraightConnector():
 class SlopeConnector(StraightConnector):
 	label = 'slope'
 
-class CurvedConnector():
+class CurvedConnector(Connector):
 	label = 'curve'
 	def __init__(self, p0, p1, center, beta, right, R, rate = 10, width = 4):
 		self.R = R
@@ -293,14 +353,18 @@ class CurvedConnector():
 		angle = math.atan2(p.y, -p.x)
 		heading = angle + (math.tau / 2 if you.upstream else 0)
 		you.heading = math.anglesoftapproach(you.heading, heading, 10 * dt, dymin = 0.01)
-		v = pygame.math.Vector3(5 * dx, 10 + 12 * dy, 0).rotate_z(math.degrees(-heading))
+		v = self.swimrate(dx, dy).rotate_z(math.degrees(-heading))
 		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
+	def act(self, you):
+		return False
 
+	def dzwater(self, pos):
+		return pos.z - self.pos.z
 	def flow(self, dt, obj):
 		obj.pos += dt * self.vflow(obj.pos)
 	def vflow(self, pos):
 		p = pos - self.center
-		speed = self.rate * p.length() / self.R
+		speed = self.getflowrate() * p.length() / self.R
 		return p.cross(self.z).normalize() * speed
 
 	def handoff(self, obj):
@@ -352,6 +416,7 @@ class CurvedConnector():
 	def spawn(self, dt):
 		pass
 
+"""
 def connectpools(pool0, pool1, rate = 10, width = 4, r = 10, waypoints = []):
 	ps = [pool0.pos] + waypoints + [pool1.pos]
 	curves = [
@@ -373,5 +438,5 @@ def connectpools(pool0, pool1, rate = 10, width = 4, r = 10, waypoints = []):
 		seg0.connections.append(seg1)
 		seg1.connections.append(seg0)
 	return segs[1:-1]
-
+"""
 

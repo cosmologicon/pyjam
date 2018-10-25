@@ -1,5 +1,5 @@
 import random, pygame
-from . import view, state, thing, graphics, settings, section, level
+from . import view, state, thing, graphics, settings, section, level, ptext
 
 def init():
 	state.you = thing.You()
@@ -50,7 +50,11 @@ def draw():
 		graphics.drawmodel_watersurface()
 		graphics.drawmodel_section_pools()
 		graphics.drawmodel_section_tubes()
-		graphics.animation.draw()
-	
 
+	if state.you.section.label == "pool":
+		pool = state.you.section
+		text = "Current pressure: %d\nBaseline pressure: %d" % (pool.pressure(), pool.pressure0)	
+		ptext.draw(text, fontsize = 28, midbottom = (512, 20))
+		if pool.candrainfrom(state.you):
+			ptext.draw("Space: drain", fontsize = 35, midbottom = (512, 60))
 
