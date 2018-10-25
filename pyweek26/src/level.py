@@ -121,7 +121,7 @@ def loadtriggers(filename):
 		if fields[0] == "whirl":
 			triggerwhirl(*fields)
 		if fields[0] == "drain":
-			triggerwhirl(*fields)
+			triggerdrain(*fields)
 		if fields[0] == "dialog":
 			triggerdialog(*fields)
 		if fields[0] == "music":

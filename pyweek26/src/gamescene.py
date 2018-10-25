@@ -47,7 +47,10 @@ def draw():
 		effect.draw()
 	
 	if settings.debug_graphics:
+		p0 = state.you.section.pos
 		for section in state.sections:
+			if section.pos.z > p0.z + 3 or (section.pos - p0).length() > 50:
+				continue
 			section.draw()
 	else:
 		graphics.drawmodel_watersurface()

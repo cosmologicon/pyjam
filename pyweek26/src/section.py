@@ -159,6 +159,7 @@ class Pipe():
 	def __init__(self, pos0, pos1, width = 1):
 		self.pos0 = 1 * pos0
 		self.pos1 = 1 * pos1
+		self.pos = (self.pos0 + self.pos1) / 2
 		self.rate = 20
 		self.width = width
 		d = self.pos1 - self.pos0
@@ -246,6 +247,7 @@ class StraightConnector(Connector):
 	def __init__(self, pos0, pos1, width = 4):
 		self.pos0 = pos0
 		self.pos1 = pos1
+		self.pos = (self.pos0 + self.pos1) / 2
 		self.width = width
 		d = self.pos1 - self.pos0
 		self.face = d.normalize()
@@ -364,6 +366,7 @@ class CurvedConnector(Connector):
 		self.beta = beta
 		self.p0 = p0
 		self.p1 = p1
+		self.pos = (self.p0 + self.p1) / 2
 		self.center = center
 		# TODO: might fail if beta > tau/4
 		self.n = ((self.p0 + self.p1) / 2 - self.center).normalize()
