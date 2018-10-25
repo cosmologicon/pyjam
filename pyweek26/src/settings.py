@@ -8,7 +8,7 @@ gamename = "Flow"
 resolution = 854, 480
 fullscreen = "--fullscreen" in sys.argv
 
-leveldataname = "flow"
+leveldataname = "leveldata"
 
 maxfps = 120
 minfps = 10
