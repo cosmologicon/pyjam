@@ -10,9 +10,10 @@ import random
 import numpy as np
 
 class Splashes(object):
-	def __init__(self, pos, lifetime = -1):
+	def __init__(self, pos, section, lifetime = -1):
 		self.n = 20
 		self.pos = pos[:]
+		self.section = section
 		self.x = [pos[0]+2.0*(random.random()-0.5) for i in range(self.n)]
 		self.y = [pos[1]+2.0*(random.random()-0.5) for i in range(self.n)]
 		self.z = [pos[2]+2.0*(random.random()-0.5) for i in range(self.n)]
@@ -53,8 +54,9 @@ class Splashes(object):
 			glPopMatrix()
 
 class Vortex(object):
-	def __init__(self, pos, radius=1.0, speed=1.0):
+	def __init__(self, pos, section, radius=1.0, speed=1.0):
 		self.pos = pos
+		self.section = section
 		self.radius = radius
 		self.speed = speed
 		self.angle = 0
@@ -86,13 +88,14 @@ class Vortex(object):
 		glDisable(GL_TEXTURE_2D)
 
 class Waterfall(object):
-	def __init__(self, pos, drop_height, radius=1.0):
+	def __init__(self, pos, section, drop_height, radius=1.0):
 		self.pos = pos
+		self.section = section
 		self.height = drop_height
 		self.frame = 0
 		self.radius = radius
-		self.vortex_top = Vortex([pos[0],pos[1],pos[2]], radius=1.5, speed=2.5)
-		self.splash_bottom = Splashes([pos[0],pos[1],pos[2]-drop_height+1.0])
+		self.vortex_top = Vortex([pos[0],pos[1],pos[2]], self.section, radius=1.5, speed=2.5)
+		self.splash_bottom = Splashes([pos[0],pos[1],pos[2]-drop_height+1.0], self.section)
 	
 	def Update(self):
 		self.frame += 1
@@ -203,9 +206,11 @@ class Animations(object):
 		
 	def draw(self):
 		for splash in self.splashes:
-			splash.Draw()
+			if splash.section in get_sections_to_draw():
+				splash.Draw()
 		for waterfall in self.waterfalls:
-			waterfall.Draw()
+			if waterfall.section in get_sections_to_draw():
+				waterfall.Draw()
 
 animation = Animations()
 
@@ -243,7 +248,7 @@ def init():
 	global model3d_sections
 	model3d_sections = []
 	model3d_sections.append([])
-	level_name = 'level_test001_obj'
+	level_name = 'level_thurs_obj'
 	model_paths = [i for i in os.listdir(os.path.join('models',level_name)) if "obj" in i]
 	max_ind = max([int(path[-7:-4]) for path in model_paths])
 	for i in range(max_ind+1):
@@ -263,8 +268,29 @@ def init():
 	glEnable(GL_DEPTH_TEST)
 	glShadeModel(GL_SMOOTH)
 
+def get_sections_to_draw():
+	if state.you.section.label == 'pool':
+		draw_sections = [state.you.section]+state.you.section.connections
+	else:
+		draw_sections = [state.you.section]
+		while draw_sections[-1].label != "pool":
+			if draw_sections[-1].label == 'pipe':
+				break
+			draw_sections.append(draw_sections[-1].connections[0])
+		if draw_sections[-1].label == "pool":
+			draw_sections.extend(draw_sections[-1].connections)
+		draw_sections.append(state.you.section.connections[1])
+		while draw_sections[-1].label != "pool":
+			if draw_sections[-1].label == 'pipe':
+				break
+			draw_sections.append(draw_sections[-1].connections[1])
+		if draw_sections[-1].label == "pool":
+			draw_sections.extend(draw_sections[-1].connections)
+	return draw_sections
+
 def drawmodel_watersurface():
-	for sect in state.sections:
+	#for sect in state.sections:
+	for sect in get_sections_to_draw():
 		if sect.label == 'pool':
 			dist2you = sqrt(pow(state.you.pos[0]-sect.pos[0],2)+pow(state.you.pos[0]-sect.pos[0],2))
 			if dist2you < 20 and (state.you.pos[2]-sect.pos[2]) < -8:
@@ -282,7 +308,8 @@ def drawmodel_watersurface():
 			drawmodel_sect_curve_water(sect)
 
 def drawmodel_section_pools():
-	for sect in state.sections:
+	#for sect in state.sections:
+	for sect in get_sections_to_draw():
 		if sect.label == 'pool':
 			dist2you = sqrt(pow(state.you.pos[0]-sect.pos[0],2)+pow(state.you.pos[0]-sect.pos[0],2))
 			if dist2you < 20 and (state.you.pos[2]-sect.pos[2]) < -8:
@@ -290,13 +317,15 @@ def drawmodel_section_pools():
 			drawmodel_sect_pool(sect)
 
 def drawmodel_section_tubes():
-	for sect in state.sections:
+	#for sect in state.sections:
+	for sect in get_sections_to_draw():
 		if sect.label == 'pipe':
 			dist2you = sqrt(pow(state.you.pos[0]-sect.pos0[0],2)+pow(state.you.pos[0]-sect.pos0[0],2))
 			if dist2you < 20 and (state.you.pos[2]-sect.pos0[2]) < -8:
 				continue
 			drawmodel_sect_pipe(sect)
-	for sect in state.sections:
+	#for sect in state.sections:
+	for sect in get_sections_to_draw():
 		if sect.label == 'straight' or sect.label == 'slope':
 			dist2you = sqrt(pow(state.you.pos[0]-sect.pos0[0],2)+pow(state.you.pos[0]-sect.pos0[0],2))
 			if dist2you < 20 and (state.you.pos[2]-sect.pos0[2]) < -8:
@@ -438,56 +467,58 @@ def drawmodel_sect_straight(sect):
 	glPopMatrix()
 	
 	# render arrows
-	glPushMatrix()
-	glColor4f(1.0, 1.0, 1.0, 1)
-	glTranslate(sect.pos0[0],sect.pos0[1],sect.pos0[2]+sect.width+1.0)
-	glRotate(math.degrees(-sect.angle), 0, 0, 1)
-	glRotate(90, 1, 0, 0)
-	glRotate(180, 0, 0, 1)
-	glTranslate(0,0,-dy1)
-	if not state.you.section.label == 'pool':
-		glEnable(GL_BLEND)
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-	if sect.pool0.pos.z > sect.pool1.pos.z:
-		glCallList(model3d_arrowdown.gl_list)
-	elif sect.pool0.pos.z < sect.pool1.pos.z:
-		glCallList(model3d_arrowup.gl_list)
-	else:
-		if (sect.pool0.pressure() - sect.pool1.pressure()) > -1:
+	if sect.connections[0].label == 'pool':
+		glPushMatrix()
+		glColor4f(1.0, 1.0, 1.0, 1)
+		glTranslate(sect.pos0[0],sect.pos0[1],sect.pos0[2]+sect.width+1.0)
+		glRotate(math.degrees(-sect.angle), 0, 0, 1)
+		glRotate(90, 1, 0, 0)
+		glRotate(180, 0, 0, 1)
+		glTranslate(0,0,-dy1)
+		if not state.you.section.label == 'pool':
+			glEnable(GL_BLEND)
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+		if sect.pool0.pos.z > sect.pool1.pos.z:
 			glCallList(model3d_arrowdown.gl_list)
-		elif (sect.pool0.pressure() - sect.pool1.pressure()) == -1:
-			glCallList(model3d_arrowdown_yellow.gl_list)
-		else:
+		elif sect.pool0.pos.z < sect.pool1.pos.z:
 			glCallList(model3d_arrowup.gl_list)
-	if not state.you.section.label == 'pool':
-		glDisable(GL_BLEND)
-	glPopMatrix()
+		else:
+			if (sect.pool0.pressure() - sect.pool1.pressure()) > -1:
+				glCallList(model3d_arrowdown.gl_list)
+			elif (sect.pool0.pressure() - sect.pool1.pressure()) == -1:
+				glCallList(model3d_arrowdown_yellow.gl_list)
+			else:
+				glCallList(model3d_arrowup.gl_list)
+		if not state.you.section.label == 'pool':
+			glDisable(GL_BLEND)
+		glPopMatrix()
 	
-	glPushMatrix()
-	glColor4f(1.0, 1.0, 1.0, 1)
-	glTranslate(sect.pos0[0],sect.pos0[1],sect.pos0[2]+sect.width+1.0+sect.dz)
-	glRotate(math.degrees(-sect.angle), 0, 0, 1)
-	glRotate(90, 1, 0, 0)
-	glRotate(180, 0, 0, 1)
-	glTranslate(0,0,-sect.length+dy2)
-	glRotate(180, 0, 1, 0)
-	if not state.you.section.label == 'pool':
-		glEnable(GL_BLEND)
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-	if sect.pool1.pos.z > sect.pool0.pos.z:
-		glCallList(model3d_arrowdown.gl_list)
-	elif sect.pool1.pos.z < sect.pool0.pos.z:
-		glCallList(model3d_arrowup.gl_list)
-	else:
-		if (sect.pool1.pressure() - sect.pool0.pressure()) > -1:
+	if sect.connections[1].label == 'pool':
+		glPushMatrix()
+		glColor4f(1.0, 1.0, 1.0, 1)
+		glTranslate(sect.pos0[0],sect.pos0[1],sect.pos0[2]+sect.width+1.0+sect.dz)
+		glRotate(math.degrees(-sect.angle), 0, 0, 1)
+		glRotate(90, 1, 0, 0)
+		glRotate(180, 0, 0, 1)
+		glTranslate(0,0,-sect.length+dy2)
+		glRotate(180, 0, 1, 0)
+		if not state.you.section.label == 'pool':
+			glEnable(GL_BLEND)
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+		if sect.pool1.pos.z > sect.pool0.pos.z:
 			glCallList(model3d_arrowdown.gl_list)
-		elif (sect.pool1.pressure() - sect.pool0.pressure()) == -1:
-			glCallList(model3d_arrowdown_yellow.gl_list)
-		else:
+		elif sect.pool1.pos.z < sect.pool0.pos.z:
 			glCallList(model3d_arrowup.gl_list)
-	if not state.you.section.label == 'pool':
-		glDisable(GL_BLEND)
-	glPopMatrix()
+		else:
+			if (sect.pool1.pressure() - sect.pool0.pressure()) > -1:
+				glCallList(model3d_arrowdown.gl_list)
+			elif (sect.pool1.pressure() - sect.pool0.pressure()) == -1:
+				glCallList(model3d_arrowdown_yellow.gl_list)
+			else:
+				glCallList(model3d_arrowup.gl_list)
+		if not state.you.section.label == 'pool':
+			glDisable(GL_BLEND)
+		glPopMatrix()
 
 def drawmodel_sect_curve_water(sect):
 	

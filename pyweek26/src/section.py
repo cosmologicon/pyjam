@@ -38,7 +38,7 @@ class Pool():
 		self.drop(you)
 		# TODO: add waterfall object
 		dt = self.draintarget()
-		graphics.animation.waterfalls.append(graphics.Waterfall([self.pos[0],self.pos[1],self.pos[2]],self.pos[2]-dt.pos[2]))
+		graphics.animation.waterfalls.append(graphics.Waterfall([self.pos[0],self.pos[1],self.pos[2]],dt,self.pos[2]-dt.pos[2]))
 		self.draintarget().drainers.append(self)
 	def drop(self, you):
 		you.landed = False
@@ -157,7 +157,7 @@ class Pipe():
 			obj.pos = 1 * obj.section.pos
 			view.addsnap(0.5)
 			obj.pos.z -= 3
-			graphics.animation.splashes.append(graphics.Splashes([obj.section.pos[0],obj.section.pos[1],obj.section.pos[2]], lifetime=60))
+			graphics.animation.splashes.append(graphics.Splashes([obj.section.pos[0],obj.section.pos[1],obj.section.pos[2]], obj.section, lifetime=60))
 
 	def dzwater(self, pos):
 		return pos.z - self.connections[0].pos.z

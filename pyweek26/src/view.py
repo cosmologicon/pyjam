@@ -71,10 +71,6 @@ def look():
 	glMatrixMode(GL_MODELVIEW)
 	glEnable(GL_DEPTH_TEST)
 	glDepthMask(GL_TRUE)
-	
-	# TODO: cull faces
-	# TODO: need to swap cull direction when drawing tunnel so that the top won't be drawn
-
 
 def screenshot():
 	# TODO: get screenshot working
