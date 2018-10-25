@@ -50,6 +50,7 @@ def draw():
 		graphics.drawmodel_watersurface()
 		graphics.drawmodel_section_pools()
 		graphics.drawmodel_section_tubes()
+		graphics.animation.draw()
 
 	if state.you.section.label == "pool":
 		pool = state.you.section
