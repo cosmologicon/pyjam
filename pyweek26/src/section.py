@@ -286,7 +286,7 @@ class StraightConnector(Connector):
 				p0 = x + 0.25 * 1, y, 0
 				graphics.drawcylinder(p0, 0.25, z, [0.3, 0.3, 0.3, 1])
 		glColor4f(0.8, 0.8, 0.8, 1)
-		n = int(round(self.length / 4))
+		n = int(math.ceil(self.length / 4))
 		for jball in range(n+1):
 			y = jball / n * self.length
 			z = jball / n * self.dz

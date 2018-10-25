@@ -1,7 +1,8 @@
+from __future__ import print_function
 from collections import defaultdict, OrderedDict
 from pygame.math import Vector3
 
-from . import state, section, thing
+from . import state, section, thing, settings
 
 # Map from section id to section object
 sections_by_id = OrderedDict()
@@ -9,9 +10,11 @@ sections_by_id = OrderedDict()
 connection_ids = defaultdict(list)
 
 def load():
-	filename = "data/leveldata.csv"
+	filename = "data/%s.csv" % settings.leveldataname
 	for line in open(filename, "r"):
 		fields = line.split()
+#		if settings.DEBUG:
+#			print(*fields)
 		if fields[0] == "pool":
 			loadpool(*fields)
 		if fields[0] == "pipe":

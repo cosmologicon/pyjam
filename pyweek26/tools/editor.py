@@ -25,8 +25,10 @@ from pygame.locals import *
 from pygame.math import Vector2, Vector3
 from . import ptext
 
-savefile = "/tmp/flow.json"
-dumpfile = "/tmp/leveldata.csv"
+fname = sys.argv[1]
+
+savefile = "/tmp/%s.json" % fname
+dumpfile = "/tmp/%s.csv" % fname
 
 zoom = 1
 p0 = Vector3(0, 0, 0)
@@ -299,13 +301,14 @@ while playing:
 		p = list(map(int, p0))
 		pools.append({ "pos": p, "r": 10, "pressure": 3, "drainable": False })
 	if K_1 in kdowns:
-		for jpool in cpools:
-			pools[jpool]["r"] = pvalue(rpools, pools[jpool]["r"])
+		if cjoin is not None:
+			joiners[cjoin]["w"] = pvalue(rpools, joiners[cjoin]["w"], wrap=False)
+		else:
+			for jpool in cpools:
+				pools[jpool]["r"] = pvalue(rpools, pools[jpool]["r"])
 		for j, k in cway:
 			p, r = joiners[j]["waypoints"][k]
 			joiners[j]["waypoints"][k] = p, pvalue(rways, r, wrap=False)
-		if cjoin is not None:
-			joiners[cjoin]["w"] = pvalue(rpools, joiners[cjoin]["w"], wrap=False)
 	if K_2 in kdowns:
 		if cjoin is not None:
 			joiners[cjoin]["w"] = nvalue(rpools, joiners[cjoin]["w"], wrap=False)
@@ -397,6 +400,11 @@ while playing:
 	for j, k in cway:
 		p, r = joiners[j]["waypoints"][k]
 		joiners[j]["waypoints"][k] = tuple(Vector3(p) + vscoot), r
+	if not cpools and not cway and vscoot.length() != 0:
+		p0 += vscoot
+		p0.x = int(round(p0.x))
+		p0.y = int(round(p0.y))
+		p0.z = int(round(p0.z))
 	if mright:
 		phi += 0.01 * dmx
 		theta -= 0.01 * dmy
@@ -479,13 +487,14 @@ while playing:
 		drawline(jp0, jp1, (100, 100, 0))
 	
 	text = [
+		"p0: (%.1f, %.1f, %.1f)" % (p0.x, p0.y, p0.z),
 		"Left click: select pools and waypoints",
 		"Shift + left click: select multiple pools and waypoints",
 		"Space: cycle pool selection",
 		"Scroll wheel: zoom",
 		"Right drag: rotate",
 		"Middle drag: move viewport",
-		"Arrow keys + A/Z: move selected pools/waypoints",
+		"Arrow keys + A/Z: move viewport or selected pools/waypoints",
 		"N: new pool",
 #		"Ctrl + Arrow keys/A/Z: move viewport",
 		"O: reset orientation",

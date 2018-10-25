@@ -8,10 +8,18 @@ gamename = "Flow"
 resolution = 854, 480
 fullscreen = "--fullscreen" in sys.argv
 
+leveldataname = "flow"
+
 maxfps = 120
 minfps = 10
 
 debug_graphics = "--debuggfx" in sys.argv
+
+for arg in sys.argv:
+	if "=" in arg:
+		oname, ovalue = arg.lstrip("-").split("=")
+		if oname == "level":
+			leveldataname = ovalue
 
 keymap = {
 	# Dvorak key layout too.
