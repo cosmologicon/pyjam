@@ -160,7 +160,7 @@ def extractjoiner(jjoiner, joiner):
 			center = pB + f * r / math.cos(beta)
 			ps.append(center - r * f.rotate(math.degrees(beta), z))
 			ps.append(center - r * f.rotate(math.degrees(-beta), z))
-			curvedata.append((center, beta, z.z > 0))
+			curvedata.append((center, beta, z.z > 0, r))
 			iscurve.append(True)
 			iscurve.append(False)
 	ps.append(p1)
@@ -171,7 +171,7 @@ def extractjoiner(jjoiner, joiner):
 		if ps[0][2] != ps[1][2]:
 			yield totuple("slope", jjoiner, k, *cons[k], *cons[k+2], *ps[0], *ps[1], w)
 		elif iscurve[k]:
-			center, beta, right = curvedata[0]
+			center, beta, right, r = curvedata[0]
 			del curvedata[0]
 			yield totuple("curve", jjoiner, k, *cons[k], *cons[k+2], *ps[0], *ps[1], w, *center, beta, right, r)
 			k += 1
@@ -318,6 +318,8 @@ while playing:
 	if K_3 in kdowns:
 		for j, k in cway:
 			joiner = joiners[j]
+			jp0 = joiner["jp0"]
+			jp1 = joiner["jp1"]
 			p, r = joiner["waypoints"][k]
 			p0s = [pools[jp0]["pos"]] + [p0 for p0, r0 in joiner["waypoints"]] + [pools[jp1]["pos"]]
 			z0 = p0s[k][2]

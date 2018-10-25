@@ -95,8 +95,6 @@ class MovesWithArrows(enco.Component):
 			dp.z = 0
 			vz += self.section.dzwater(dp) - self.section.dzwater(p)
 		return math.degrees(math.atan(vz / 20))
-			
-			
 
 class SinksInPool(enco.Component):
 	def think(self, dt):

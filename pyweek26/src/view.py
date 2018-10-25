@@ -31,7 +31,11 @@ def addsnap(dt):
 def think(dt):
 	self.tosnap = max(self.tosnap - dt, 0)
 	camera = 1 * state.you.pos
-	vantage = camera - 20 * state.you.face + pygame.math.Vector3(0, 0, 16)
+	# Hard-coded (for now) perspective change when you go east.
+	back = math.smoothfadebetween(state.you.pos.x, 50, 20, 70, 10)
+	up = math.smoothfadebetween(state.you.pos.x, 50, 16, 70, 4)
+	# TODO: face needs to take into account slopes
+	vantage = camera - back * state.you.face + pygame.math.Vector3(0, 0, up)
 	if self.tosnap:
 		# f is approximately dt / self.tosnap for large values of self.tosnap
 		# rapidly approaches 1 as self.tosnap goes to 0
