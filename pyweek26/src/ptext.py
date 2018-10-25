@@ -592,7 +592,7 @@ def draw(text, pos=None, **kwargs):
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 		glEnable(GL_TEXTURE_2D)
 		glDisable(GL_DEPTH_TEST)
-		glDisable(GL_CULL_FACE)
+		#glDisable(GL_CULL_FACE)
 		glDisable(GL_LIGHTING)
 		glBindTexture(GL_TEXTURE_2D, texid)
 		glBegin(GL_QUADS)
@@ -605,8 +605,9 @@ def draw(text, pos=None, **kwargs):
 		glEnd()
 		glDisable(GL_TEXTURE_2D)
 		glEnable(GL_DEPTH_TEST)
-		glEnable(GL_CULL_FACE)
+		#glEnable(GL_CULL_FACE)
 		glEnable(GL_LIGHTING)
+		glDisable(GL_BLEND)
 #		options.surf.blit(tsurf, pos)
 
 		
