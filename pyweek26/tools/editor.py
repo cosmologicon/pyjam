@@ -507,6 +507,7 @@ while playing:
 		text.append("W: add waypoint to currently selected joiner")
 		text.append("E: add zero-radius waypoint to currently selected joiner")
 		text.append("S: scatter waypoints of selected joiner")
+		text.append("Selected joiners: %s" % cjoin)
 	if cpools:
 		text.append("1/2: adjust selected pool size")
 		text.append("4/5: adjust selected pool pressure")

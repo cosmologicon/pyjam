@@ -31,6 +31,7 @@ def think(dt, kpressed, kdowns):
 #	state.you.pos.y -= 10 * dt
 #	for obj in state.objs:
 #		obj.pos.y -= 10 * dt
+	state.think(dt)
 	view.think(dt)
 
 def draw():
@@ -52,10 +53,14 @@ def draw():
 		graphics.drawmodel_section_tubes()
 		graphics.animation.draw()
 	
+	text = ["Current music: %s" % state.currentmusic()]
 	if state.you.section.label == "pool":
 		pool = state.you.section
-		text = "Current pressure: %d\nBaseline pressure: %d" % (pool.pressure(), pool.pressure0)	
-		ptext.draw(text, fontsize = 28, midbottom = (512, 20))
+		text += [
+			"Current pressure: %d" % pool.pressure(),
+			"Baseline pressure: %d" % pool.pressure0,
+		]
 		if pool.candrainfrom(state.you):
-			ptext.draw("Space: drain", fontsize = 35, midbottom = (512, 60))
+			ptext.draw("Space: drain", fontsize = 35, midbottom = (512, 100))
+	ptext.draw("\n".join(text), fontsize = 28, midbottom = (512, 20))
 

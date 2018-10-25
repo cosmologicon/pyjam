@@ -1,4 +1,5 @@
 from __future__ import print_function
+import os
 from collections import defaultdict, OrderedDict
 from pygame.math import Vector3
 
@@ -25,10 +26,15 @@ def load():
 			loadslope(*fields)
 		if fields[0] == "curve":
 			loadcurve(*fields)
-	state.sections = list(sections_by_id.values())
+	for sectionid, section in sections_by_id.items():
+		state.sections.append(section)
+		section.sectionid = sectionid
 	connectsections()
 	state.you.section = state.sections[0]
 	state.you.pos = 1 * state.you.section.pos
+
+	loadtriggers("data/%s-triggers.csv" % settings.leveldataname)
+		
 
 def loadpool(pool, jpool, cx, cy, cz, r, pressure0, drainable):
 	sectionid = pool, int(jpool)
@@ -41,10 +47,13 @@ def loadpool(pool, jpool, cx, cy, cz, r, pressure0, drainable):
 def maybeint(j):
 	return int(j) if j.isdigit() else j
 
+def parseid(j, k):
+	return maybeint(j), int(k)
+
 def gettunnelids(jtunnel, jsection, jfrom, kfrom, jto, kto):
-	sectionid = maybeint(jtunnel), int(jsection)
-	fromid = maybeint(jfrom), int(kfrom)
-	toid = maybeint(jto), int(kto)
+	sectionid = parseid(jtunnel, jsection)
+	fromid = parseid(jfrom, kfrom)
+	toid = parseid(jto, kto)
 	return sectionid, fromid, toid
 
 def tunnelconnect(sectionid, fromid, toid, oneway = False):
@@ -98,4 +107,31 @@ def connectsections():
 	for sect in state.sections:
 		if isinstance(sect, section.Connector):
 			sect.setpools()
+
+# The triggers file has dialog trigger locations and various other things I couldn't be bothered
+# to implement in the level editor - just have to make it manually.
+def loadtriggers(filename):
+	if not os.path.exists(filename):
+		return
+	for line in open(filename, "r"):
+		fields = line.split()
+		if fields[0] == "start":
+			triggerstart(*fields)
+		if fields[0] == "dialog":
+			triggerdialog(*fields)
+		if fields[0] == "music":
+			triggerdialog(*fields)
+
+def triggerstart(start, j, k):
+	section = sections_by_id[parseid(j, k)]
+	state.you.section = section
+	state.you.pos = 1 * section.pos
+
+def triggerdialog(dialog, convo, j, k):
+	state.dtriggers[convo] = parseid(j, k)
+
+def triggermusic(music, track, j, k):
+	state.musics[parseid(j, k)] = track
+
+
 
