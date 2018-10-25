@@ -19,6 +19,7 @@ class Pool():
 		self.toturn = 0
 		self.drainers = []  # pools above that are draining into this one
 		self.hasfood = False
+		self.whirl = 0
 	def penter(self):
 		return self.pos
 	def pexit(self):
@@ -77,8 +78,14 @@ class Pool():
 		v = (self.pos - pos) / 10
 		if v.length() > 1:
 			v = v.normalize()
-		if self.draining:
-			v *= 3
+		if self.draining or self.whirl != 0:
+			v *= 4
+		if self.whirl != 0:
+			dpos = pos - self.pos
+			dpos.z = 0
+			d = dpos.length() / self.r
+			if d > 0:
+				v += pygame.math.Vector3(0, 0, 1).cross(dpos).normalize() * self.whirl
 		# Waterfalls push you away
 		if not self.draining:
 			for drainer in self.drainers:

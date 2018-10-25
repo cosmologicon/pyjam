@@ -120,6 +120,8 @@ def loadtriggers(filename):
 			triggerstart(*fields)
 		if fields[0] == "food":
 			triggerfood(*fields)
+		if fields[0] == "whirl":
+			triggerwhirl(*fields)
 		if fields[0] == "dialog":
 			triggerdialog(*fields)
 		if fields[0] == "music":
@@ -133,6 +135,10 @@ def triggerstart(start, j, k):
 def triggerfood(start, j, k):
 	section = sections_by_id[parseid(j, k)]
 	section.hasfood = True
+
+def triggerwhirl(whirl, j, k, strength):
+	section = sections_by_id[parseid(j, k)]
+	section.whirl = float(strength)
 
 def triggerdialog(dialog, convo, j, k):
 	state.dtriggers[convo] = parseid(j, k)
