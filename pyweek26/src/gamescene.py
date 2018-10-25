@@ -56,6 +56,7 @@ def draw():
 		graphics.animation.draw()
 	
 	text = [
+		"Food: %d/%d" % (state.food, state.foodmax),
 		"Current section: %s %s" % (state.you.section.label, state.you.section.sectionid),
 		"Current music: %s" % state.currentmusic()
 	]

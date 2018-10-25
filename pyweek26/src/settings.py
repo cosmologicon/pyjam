@@ -31,5 +31,7 @@ keymap = {
 	"act": [K_SPACE, K_RETURN],
 	
 	"quit": [K_ESCAPE],
+	
+	"debugspeed": [K_F1],
 }
 

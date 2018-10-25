@@ -18,6 +18,7 @@ class Pool():
 		self.connections = []
 		self.toturn = 0
 		self.drainers = []  # pools above that are draining into this one
+		self.hasfood = False
 	def penter(self):
 		return self.pos
 	def pexit(self):
@@ -45,6 +46,8 @@ class Pool():
 		you.landed = False
 		you.toleap = 0
 		you.section = self.draintarget()
+	def canfeed(self, you):
+		return state.food < state.foodmax and self.hasfood and self.dwall(you) > self.r / 2
 	def move(self, you, dt, dx, dy, turn):
 		if turn:
 			you.heading += self.toturn
@@ -59,6 +62,8 @@ class Pool():
 		you.v = math.approach(you.v, v, 50 * dt)
 		if self.candropfrom(you):
 			self.drop(you)
+		if self.canfeed(you):
+			state.food = state.foodmax
 	def act(self, you):
 		if self.candrainfrom(you):
 			self.drain(you)
@@ -115,7 +120,18 @@ class Pool():
 			glTranslate(x, y, 0)
 			graphics.drawsphere(0.2)
 			glPopMatrix()
+		# Food fountain
+		if self.hasfood:
+			glColor4f(1, 0, 1, 1)
+			glPointSize(2)
+			glBegin(GL_POINTS)
+			for jfood in range(50):
+				x, y = math.CS(jfood * math.phi, self.r / 2 * (jfood ** 2 * math.phi % 1))
+				z = 3 * ((jfood ** 3 * math.phi + pygame.time.get_ticks() * 0.001) % 1) ** 2
+				glVertex(x, y, z)
+			glEnd()
 		glPopMatrix()
+
 	def spawn(self, dt):
 		pass
 
@@ -154,6 +170,7 @@ class Pipe():
 		# Just drops you off as soon as you're beyond the bottom pool.
 		pool0, pool1 = self.connections
 		if pool0.dwall(obj) < 0:
+			state.food -= 1
 			obj.section = self.connections[1]
 			obj.pos = 1 * obj.section.pos
 			view.addsnap(0.5)
@@ -171,7 +188,7 @@ class Pipe():
 		if d.length() > dmax:
 			obj.pos = d0 + dmax * d.normalize()
 	def acquires(self, obj):
-		return True
+		return state.food > 0
 	def influence(self, obj):
 		return 0
 	def draw(self):

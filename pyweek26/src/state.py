@@ -2,6 +2,9 @@ from . import dialog
 
 # Player character
 you = None
+# Current amount of fish food
+food = 0
+foodmax = 1
 # Sewer sections
 sections = []
 # Floating game objects - will rename once we know what will be there

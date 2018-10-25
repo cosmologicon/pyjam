@@ -25,6 +25,8 @@ while playing:
 	downs = { key: any(code in kdowns for code in codes) for key, codes in settings.keymap.items() }
 	if downs["quit"]:
 		playing = False
+	if settings.DEBUG and pressed["debugspeed"]:
+		dt *= 10
 	s = scene.top()
 	if s is None:
 		break

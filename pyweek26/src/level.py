@@ -117,6 +117,8 @@ def loadtriggers(filename):
 		fields = line.split()
 		if fields[0] == "start":
 			triggerstart(*fields)
+		if fields[0] == "food":
+			triggerfood(*fields)
 		if fields[0] == "dialog":
 			triggerdialog(*fields)
 		if fields[0] == "music":
@@ -126,6 +128,10 @@ def triggerstart(start, j, k):
 	section = sections_by_id[parseid(j, k)]
 	state.you.section = section
 	state.you.pos = 1 * section.pos
+
+def triggerfood(start, j, k):
+	section = sections_by_id[parseid(j, k)]
+	section.hasfood = True
 
 def triggerdialog(dialog, convo, j, k):
 	state.dtriggers[convo] = parseid(j, k)

@@ -410,7 +410,7 @@ while playing:
 		theta -= 0.01 * dmy
 		theta = min(max(theta, 0), math.pi / 2)
 	if mcenter:
-		pd = 2 * Vector3(dmx, -dmy, 0) / zoom
+		pd = 5 * Vector3(dmx, -dmy, 0) / zoom
 		p0 -= pd.rotate_x(math.degrees(theta)).rotate_z(-math.degrees(phi))
 	if scroll:
 		zoom *= math.exp(0.1 * scroll)
