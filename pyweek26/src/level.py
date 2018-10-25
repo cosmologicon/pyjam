@@ -125,6 +125,8 @@ def loadtriggers(filename):
 			triggerwhirl(*fields)
 		if fields[0] == "drain":
 			triggerdrain(*fields)
+		if fields[0] == "rapid":
+			triggerrapid(*fields)
 		if fields[0] == "dialog":
 			triggerdialog(*fields)
 		if fields[0] == "music":
@@ -149,6 +151,13 @@ def triggerdrain(whirl, j, k):
 	section = sections_by_id[parseid(j, k)]
 	section.drainable = True
 	section.drain()
+
+def triggerrapid(rapid, j0, amount):
+	j0 = int(j0)
+	amount = float(amount)
+	for (j, k), section in sections_by_id.items():
+		if j == j0:
+			section.rapid = amount
 
 def triggerdialog(dialog, convo, j, k):
 	state.dtriggers[convo] = parseid(j, k)

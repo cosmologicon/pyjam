@@ -459,7 +459,7 @@ while playing:
 			drawellipse(pos + Vector3(0, 0, dz), r, color)
 		color = (200, 200, 200) if jpool in cpools else (30, 30, 30)
 		text = "\n".join([
-			"%d" % jpool,
+			"#%d" % jpool,
 			"%d" % r,
 			"",
 			"%.0f,%.0f,%.0f" % tuple(pos),
@@ -507,7 +507,7 @@ while playing:
 		for k, (p, r) in enumerate(joiner["waypoints"]):
 			color = (255, 255, 255) if (jjoin, k) in cway else (0, 0, 200)
 			drawpoint(p, 0.1, color)
-			text = "\n".join(["%d,%d" % (jjoin, k), "", "%.0f,%.0f,%.0f %.0f" % (p[0], p[1], p[2], r)])
+			text = "\n".join(["#%d,%d" % (jjoin, k), "", "%.0f,%.0f,%.0f %.0f" % (p[0], p[1], p[2], r)])
 			ptext.draw(text, center = screenpos(p), fontsize = 18, color = color, owidth = 2)
 	for jpipe, pipe in enumerate(pipes):
 		jp0 = Vector3(pools[pipe["jp0"]]["pos"])

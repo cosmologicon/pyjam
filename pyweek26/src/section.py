@@ -224,6 +224,7 @@ class Pipe():
 		return
 
 class Connector():
+	rapid = 1
 	def setpools(self):
 		self.pool0 = self
 		while self.pool0.label != "pool":
@@ -233,11 +234,13 @@ class Connector():
 			self.pool1 = self.pool1.connections[1]		
 	def getflowrate(self):
 		if self.pool0.pos.z > self.pool1.pos.z:
-			return 10
+			rate = 10
 		elif self.pool0.pos.z < self.pool1.pos.z:
-			return -10
-		dpressure = self.pool0.pressure() - self.pool1.pressure()
-		return 5 * dpressure
+			rate = -10
+		else:
+			dpressure = self.pool0.pressure() - self.pool1.pressure()
+			rate = 5 * dpressure
+		return rate * self.rapid
 	# Speed with respect to the current that the player swims while pressing these buttons
 	def swimrate(self, dx, dy):
 		return pygame.math.Vector3(5 * dx, 3 + 5 * dy, 0)
