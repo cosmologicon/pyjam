@@ -50,10 +50,13 @@ class MovesWithArrows(enco.Component):
 		if self.landed and self.section is not None:
 			self.section.move(self, dt, dx, dy, turn)
 		self.pos += dt * self.v
-		if act and self.landed:
-			self.landed = False
-			self.toleap = 20
-			self.v.z = 5
+		if act:
+			if self.section.act(self):
+				pass
+			elif self.landed:
+				self.landed = False
+				self.toleap = 20
+				self.v.z = 5
 		if not acthold:
 			self.toleap = 0
 	def think(self, dt):
@@ -62,10 +65,10 @@ class MovesWithArrows(enco.Component):
 			self.toleap -= toleap
 			self.v.z += toleap
 			self.v.z -= 60 * dt
-			if self.pos.z < 0:
+			if self.pos.z < self.section.pos.z:
 				self.landed = True
 				self.v.z = 0
-				self.pos.z = 0
+				self.pos.z = self.section.pos.z
 				state.effects.append(Splash(self.pos))
 		# Swim faster if you're going forward.
 		v = self.v.length()

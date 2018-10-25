@@ -27,11 +27,13 @@ def load():
 	state.you.section = state.sections[2]
 	state.you.pos = 1 * state.you.section.pos
 
-def loadpool(pool, jpool, cx, cy, cz, r):
+def loadpool(pool, jpool, cx, cy, cz, r, pressure0, drainable):
 	sectionid = pool, int(jpool)
 	center = Vector3(float(cx), float(cy), float(cz))
 	r = float(r)
-	sections_by_id[sectionid] = section.Pool(center, r)
+	pressure0 = int(pressure0)
+	drainable = drainable == "True"
+	sections_by_id[sectionid] = section.Pool(center, r, pressure0, drainable)
 
 def maybeint(j):
 	return int(j) if j.isdigit() else j

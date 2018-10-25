@@ -83,14 +83,11 @@ def drawwideline(p0, p1, w, color):
 		drawline(p0 + d * f, p1 + d * f, color)
 
 rpools = 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 17, 20, 22, 25, 27, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100
+pressures = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 pools = [
-#	{ "pos": (5, 5, 0), "r": 10, },
-#	{ "pos": (5, 5, 20), "r": 8, },
-#	{ "pos": (40, 40, 0), "r": 8, },
 ]
 rways = 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 17, 20, 22, 25, 27, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100
 joiners = [
-#	{ "jp0": 0, "jp1": 2, "w": 5, "waypoints": [((5, 40, 0), 5),], },
 ]
 pipes = [
 ]
@@ -193,7 +190,7 @@ def dump():
 		def write(*args):
 			f.write("\t".join(map(str, args)) + "\n")
 		for jpool, pool in enumerate(pools):
-			write("pool", jpool, *pool["pos"], pool["r"])
+			write("pool", jpool, *pool["pos"], pool["r"], pool["pressure"], pool["drainable"])
 		for jpipe, pipe in enumerate(pipes):
 			write(*pipedata(jpipe, pipe))
 		for jjoiner, joiner in enumerate(joiners):
@@ -300,7 +297,7 @@ while playing:
 			waypoints[k] = (x, y, z), r
 	if K_n in kdowns:
 		p = list(map(int, p0))
-		pools.append({ "pos": p, "r": 10, })
+		pools.append({ "pos": p, "r": 10, "pressure": 3, "drainable": False })
 	if K_1 in kdowns:
 		for jpool in cpools:
 			pools[jpool]["r"] = pvalue(rpools, pools[jpool]["r"])
@@ -327,6 +324,15 @@ while playing:
 			z1 = p0s[k+2][2]
 			p = p[0], p[1], (z1 if p[2] == z0 else z0)
 			joiner["waypoints"][k] = p, r
+	if K_4 in kdowns:
+		for jpool in cpools:
+			pools[jpool]["pressure"] = pvalue(pressures, pools[jpool]["pressure"], wrap=False)
+	if K_5 in kdowns:
+		for jpool in cpools:
+			pools[jpool]["pressure"] = nvalue(pressures, pools[jpool]["pressure"], wrap=False)
+	if K_6 in kdowns:
+		for jpool in cpools:
+			pools[jpool]["drainable"] = not pools[jpool]["drainable"]
 	if K_RETURN in kdowns:
 		for j, joiner in enumerate(joiners):
 			waypoints = joiner["waypoints"]
@@ -407,12 +413,20 @@ while playing:
 	for jpool, pool in enumerate(pools):
 		pos = Vector3(pool["pos"])
 		r = pool["r"]
+		pressure = pool["pressure"]
+		drainable = pool["drainable"]
 		drawpoint(pos, 0.3, [255, 255, 255])
 		color = (255, 200, 200) if jpool in cpools else (255, 0, 0)
 		for dz in (-r / 4, r / 4):
 			drawellipse(pos + Vector3(0, 0, dz), r, color)
 		color = (200, 200, 200) if jpool in cpools else (30, 30, 30)
-		text = "\n".join(["%d" % jpool, "", "%.0f,%.0f,%.0f" % tuple(pos)])
+		text = "\n".join([
+			"%d" % jpool,
+			"%d" % r,
+			"",
+			"%.0f,%.0f,%.0f" % tuple(pos),
+			"%d %s" % (pressure, drainable)
+		])
 		ptext.draw(text, center = screenpos(pos), fontsize = 18, color = color, owidth = 2)
 	for jjoin, joiner in enumerate(joiners):
 		jp0 = joiner["jp0"]
@@ -484,6 +498,8 @@ while playing:
 		text.append("S: scatter waypoints of selected joiner")
 	if cpools:
 		text.append("1/2: adjust selected pool size")
+		text.append("4/5: adjust selected pool pressure")
+		text.append("6: toggle selected pool drainability")
 	if cway:
 		text.append("1/2: adjust selected waypoint radii")
 		text.append("3: align selected waypoint z-value")

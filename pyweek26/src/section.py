@@ -9,16 +9,39 @@ from . import graphics, thing, state, settings, view
 # In this section the left and right arrow keys rotate you
 class Pool():
 	label = 'pool'
-	def __init__(self, pos, r):
+	def __init__(self, pos, r, pressure0, drainable):
 		self.pos = pos
 		self.r = r
+		self.pressure0 = pressure0
+		self.drainable = drainable
+		self.draining = False
 		self.connections = []
 		self.toturn = 0
+		self.drainers = []  # pools above that are draining into this one
 	def penter(self):
 		return self.pos
 	def pexit(self):
 		return self.pos
-
+	def pressure(self):
+		return self.pressure0 - self.draining + len(self.drainers)
+	def candrainfrom(self, obj):
+		return self.drainable and not self.draining and self.dwall(obj) > self.r / 2
+	def candropfrom(self, obj):
+		return self.draining and self.dwall(obj) > self.r / 2
+	def draintarget(self):
+		# Pools directly below this one.
+		pools = [s for s in state.sections if s.label == "pool" and s.dwall(self) > 0 and s.pos.z < self.pos.z]
+		assert pools, "Drainable pool at %s not above another pool!" % (self.pos,)
+		return max(pools, key=lambda pool: pool.pos.z)
+	def drain(self, you):
+		self.draining = True
+		self.drop(you)
+		# TODO: add waterfall object
+		self.draintarget().drainers.append(self)
+	def drop(self, you):
+		you.landed = False
+		you.toleap = 0
+		you.section = self.draintarget()
 	def move(self, you, dt, dx, dy, turn):
 		if turn:
 			you.heading += self.toturn
@@ -31,7 +54,13 @@ class Pool():
 		speed = 10 if dy > 0 else -3 if dy < 0 else 0
 		v = pygame.math.Vector3(0, speed, 0).rotate_z(math.degrees(-you.heading))
 		you.v = math.approach(you.v, v, 50 * dt)
-
+		if self.candropfrom(you):
+			self.drop(you)
+	def act(self, you):
+		if self.candrainfrom(you):
+			self.drain(you)
+			return True
+		return False
 	def flow(self, dt, obj):
 		# Very gentle flow toward the center
 		obj.pos += dt * self.vflow(obj.pos)
@@ -106,6 +135,8 @@ class Pipe():
 		heading = self.angle
 		you.heading = math.anglesoftapproach(you.heading, heading, 50 * dt, dymin = 0.01)
 		you.v = pygame.math.Vector3(0, 0, 0)
+	def act(self, you):
+		return False
 	def flow(self, dt, obj):
 		v = self.vflow(obj.pos)
 		obj.pos += dt * v
@@ -175,6 +206,8 @@ class StraightConnector():
 		v = pygame.math.Vector3(5 * dx, 10 + 12 * dy, 0).rotate_z(math.degrees(-heading))
 		
 		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
+	def act(self, you):
+		return False
 
 	def flow(self, dt, obj):
 		v = self.vflow(obj.pos)
@@ -295,6 +328,8 @@ class CurvedConnector():
 		you.heading = math.anglesoftapproach(you.heading, heading, 10 * dt, dymin = 0.01)
 		v = pygame.math.Vector3(5 * dx, 10 + 12 * dy, 0).rotate_z(math.degrees(-heading))
 		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
+	def act(self, you):
+		return False
 
 	def flow(self, dt, obj):
 		obj.pos += dt * self.vflow(obj.pos)
