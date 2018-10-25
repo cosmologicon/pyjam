@@ -172,8 +172,8 @@ def drawmodel_sect_straight_water(sect):
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 	glBegin(GL_QUADS)
-	if fabs(sect.rate) > 0:
-		steps = ceil(sect.length/(sect.rate/float(settings.maxfps)))
+	if fabs(sect.getflowrate()) > 0:
+		steps = ceil(sect.length/(sect.getflowrate()/float(settings.maxfps)))
 		glTexCoord2f(0, -(animation.water_flow % steps)/steps)
 		glVertex(-sect.width, dy1, 0.1)
 		glTexCoord2f(0, (0.2*(sect.length-dy1-dy2)/sect.width)-(animation.water_flow % steps)/steps)
@@ -226,7 +226,7 @@ def drawmodel_sect_curve_water(sect):
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 	glBegin(GL_POLYGON)
-	angle = sect.z[2]*(animation.water_flow*(0.2*sect.rate/settings.maxfps) % (2*pi))
+	angle = sect.z[2]*(animation.water_flow*(0.2*sect.getflowrate()/settings.maxfps) % (2*pi))
 	for vertex in sect.vertices:
 		glVertex(vertex[0],vertex[1],vertex[2]+0.1)
 		vx = vertex[0]*cos(angle) - vertex[1]*sin(angle)

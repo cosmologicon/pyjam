@@ -68,6 +68,8 @@ class Pool():
 		v = (self.pos - pos) / 10
 		if v.length() > 1:
 			v = v.normalize()
+		if self.draining:
+			v *= 3
 		return v
 	# Distance from wall - negative for objects outside
 	def dwall(self, obj):
@@ -174,14 +176,31 @@ class Pipe():
 		glPopMatrix()
 	def spawn(self, dt):
 		return
-		
 
-class StraightConnector():
+class Connector():
+	def setpools(self):
+		self.pool0 = self
+		while self.pool0.label != "pool":
+			self.pool0 = self.pool0.connections[0]		
+		self.pool1 = self
+		while self.pool1.label != "pool":
+			self.pool1 = self.pool1.connections[1]		
+	def getflowrate(self):
+		if self.pool0.pos.z > self.pool1.pos.z:
+			return 10
+		elif self.pool0.pos.z < self.pool1.pos.z:
+			return -10
+		dpressure = self.pool0.pressure() - self.pool1.pressure()
+		return 5 * dpressure
+	# Speed with respect to the current that the player swims while pressing these buttons
+	def swimrate(self, dx, dy):
+		return pygame.math.Vector3(5 * dx, 3 + 5 * dy, 0)
+
+class StraightConnector(Connector):
 	label = 'straight'
-	def __init__(self, pos0, pos1, rate = 10, width = 4):
+	def __init__(self, pos0, pos1, width = 4):
 		self.pos0 = pos0
 		self.pos1 = pos1
-		self.rate = rate
 		self.width = width
 		d = self.pos1 - self.pos0
 		self.face = d.normalize()
@@ -203,7 +222,7 @@ class StraightConnector():
 			you.upstream = not you.upstream
 		heading = self.angle + (math.tau / 2 if you.upstream else 0)
 		you.heading = math.anglesoftapproach(you.heading, heading, 10 * dt, dymin = 0.01)
-		v = pygame.math.Vector3(5 * dx, 10 + 12 * dy, 0).rotate_z(math.degrees(-heading))
+		v = self.swimrate(dx, dy).rotate_z(math.degrees(-heading))
 		
 		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
 	def act(self, you):
@@ -215,7 +234,7 @@ class StraightConnector():
 			v = math.mix(v, c.vflow(obj.pos), c.influence(obj))
 		obj.pos += dt * v
 	def vflow(self, pos):
-		return self.face * self.rate
+		return self.face * self.getflowrate()
 
 	def handoff(self, obj):
 		for connection in self.connections:
@@ -287,7 +306,7 @@ class StraightConnector():
 class SlopeConnector(StraightConnector):
 	label = 'slope'
 
-class CurvedConnector():
+class CurvedConnector(Connector):
 	label = 'curve'
 	def __init__(self, p0, p1, center, beta, right, R, rate = 10, width = 4):
 		self.R = R
@@ -326,7 +345,7 @@ class CurvedConnector():
 		angle = math.atan2(p.y, -p.x)
 		heading = angle + (math.tau / 2 if you.upstream else 0)
 		you.heading = math.anglesoftapproach(you.heading, heading, 10 * dt, dymin = 0.01)
-		v = pygame.math.Vector3(5 * dx, 10 + 12 * dy, 0).rotate_z(math.degrees(-heading))
+		v = self.swimrate(dx, dy).rotate_z(math.degrees(-heading))
 		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
 	def act(self, you):
 		return False
@@ -335,7 +354,7 @@ class CurvedConnector():
 		obj.pos += dt * self.vflow(obj.pos)
 	def vflow(self, pos):
 		p = pos - self.center
-		speed = self.rate * p.length() / self.R
+		speed = self.getflowrate() * p.length() / self.R
 		return p.cross(self.z).normalize() * speed
 
 	def handoff(self, obj):
@@ -387,6 +406,7 @@ class CurvedConnector():
 	def spawn(self, dt):
 		pass
 
+"""
 def connectpools(pool0, pool1, rate = 10, width = 4, r = 10, waypoints = []):
 	ps = [pool0.pos] + waypoints + [pool1.pos]
 	curves = [
@@ -408,5 +428,5 @@ def connectpools(pool0, pool1, rate = 10, width = 4, r = 10, waypoints = []):
 		seg0.connections.append(seg1)
 		seg1.connections.append(seg0)
 	return segs[1:-1]
-
+"""
 
