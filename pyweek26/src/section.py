@@ -218,6 +218,7 @@ class StraightConnector(Connector):
 		self.angle = math.atan2(self.face.x, self.face.y)
 		self.connections = []
 		self.blockers = []
+		
 	# Distance to the section center line, in units of the width.
 	def dcenter(self, pos):
 		p = pos - self.pos0
@@ -268,7 +269,7 @@ class StraightConnector(Connector):
 			elif -obj.r < da < 0:
 				obj.pos -= self.face * (obj.r + da)
 	def acquires(self, obj):
-		return 0 <= self.afactor(obj.pos) < 1
+		return -0.1 <= self.afactor(obj.pos) < 1.1
 	def influence(self, obj):
 		return 0
 	def draw(self):

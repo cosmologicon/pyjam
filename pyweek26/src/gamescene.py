@@ -55,7 +55,10 @@ def draw():
 		graphics.drawmodel_section_tubes()
 		graphics.animation.draw()
 	
-	text = ["Current music: %s" % state.currentmusic()]
+	text = [
+		"Current section: %s %s" % (state.you.section.label, state.you.section.sectionid),
+		"Current music: %s" % state.currentmusic()
+	]
 	if state.you.section.label == "pool":
 		pool = state.you.section
 		text += [
