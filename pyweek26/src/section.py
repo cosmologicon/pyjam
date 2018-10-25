@@ -409,9 +409,9 @@ class CurvedConnector(Connector):
 #		glColor4f(0.8, 0, 0, 1)
 #		graphics.drawsphere(0.6)
 #		glPopMatrix()
-		# rendering bits handled by graphics
-		if not settings.debug_graphics:
-			graphics.drawmodel_sect_curve(self)
+		# not needed anymore: calls made directly in gamescene
+		#if not settings.debug_graphics:
+		#	graphics.drawmodel_sect_curve(self)
 		
 	def spawn(self, dt):
 		pass
