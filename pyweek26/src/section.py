@@ -42,6 +42,7 @@ class Pool():
 		sound.manager.PlaySound('drain')
 		graphics.animation.waterfalls.append(graphics.Waterfall([self.pos[0],self.pos[1],self.pos[2]],dt,self.pos[2]-dt.pos[2]))
 		self.draintarget().drainers.append(self)
+		state.effects.append(thing.Waterfall(self, self.draintarget()))
 	def drop(self, you):
 		you.landed = False
 		you.toleap = 0
@@ -70,14 +71,22 @@ class Pool():
 			return True
 		return False
 	def flow(self, dt, obj):
-		# Very gentle flow toward the center
 		obj.pos += dt * self.vflow(obj.pos)
 	def vflow(self, pos):
+		# Very gentle flow toward the center
 		v = (self.pos - pos) / 10
 		if v.length() > 1:
 			v = v.normalize()
 		if self.draining:
 			v *= 3
+		# Waterfalls push you away
+		if not self.draining:
+			for drainer in self.drainers:
+				dpos = pos - drainer.pos
+				dpos.z = 0
+				d = dpos.length() / 6
+				if 0 < d < 1:
+					v += dpos.normalize() * (1 - d) ** 2 * 12
 		return v
 	# Distance above the water level - negative for underwater
 	def dzwater(self, pos):

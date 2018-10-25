@@ -27,7 +27,7 @@ def think(dt, kpressed, kdowns):
 		obj.flow(dt)
 
 	state.objs = [obj for obj in state.objs if obj.alive]
-	state.effects = [effect for effect in state.effects if obj.alive]
+	state.effects = [effect for effect in state.effects if effect.alive]
 #	state.you.pos.y -= 10 * dt
 #	for obj in state.objs:
 #		obj.pos.y -= 10 * dt

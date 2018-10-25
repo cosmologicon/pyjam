@@ -34,6 +34,7 @@ def load():
 	state.you.pos = 1 * state.you.section.pos
 
 	loadtriggers("data/%s-triggers.csv" % settings.leveldataname)
+	sections_by_id[("pool", 2)].drain(state.you)
 		
 
 def loadpool(pool, jpool, cx, cy, cz, r, pressure0, drainable):

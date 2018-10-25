@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import enco, state, graphics
+from . import enco, state, graphics, settings
 
 class WorldBound(enco.Component):
 	def start(self):
@@ -137,6 +137,29 @@ class SolidGrate():
 		self.afactor = afactor	
 	def think(self, dt):
 		pass
+
+# Note: this class is only here for debug graphics. You can get the same information from
+# pool.drainers.
+@WorldBound()
+@WaterBound(fixed = True)
+@Lives()
+class Waterfall():
+	def __init__(self, top, bottom):
+		self.start()
+		self.top = 1 * top.pos
+		self.top.z -= 3
+		self.bottom = 1 * self.top
+		self.bottom.z = bottom.pos.z
+		self.section = bottom
+		self.pos = self.bottom
+		self.h = self.top.z - self.bottom.z
+	def think(self, dt):
+		pass
+	def draw(self):
+		if not settings.debug_graphics:
+			return
+		graphics.drawcylinder(self.pos, 1, self.h, (0, 0, 0.3, 1))
+
 
 @WorldBound()
 @Lives()
