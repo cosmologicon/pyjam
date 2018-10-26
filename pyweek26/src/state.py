@@ -88,3 +88,5 @@ def load():
 		return
 	setstate(pickle.load(open(settings.savename, "rb")))
 
+
+load()
