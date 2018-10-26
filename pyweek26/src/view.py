@@ -35,6 +35,10 @@ def addsnap(dt):
 
 def think(dt):
 	self.tosnap = max(self.tosnap - dt, 0)
+	# f is approximately dt / self.tosnap for large values of self.tosnap
+	# rapidly approaches 1 as self.tosnap goes to 0
+	fsnap = 1 - math.exp(-dt / self.tosnap) if self.tosnap > 0 else 1
+
 	camera = 1 * state.you.pos
 
 	ytilt, xtilt = state.you.section.atilt(state.you)
@@ -43,27 +47,36 @@ def think(dt):
 	# Hard-coded (for now) perspective change when you go east.
 	back = math.smoothfadebetween(state.you.pos.x, 50, 20, 70, 10)
 	up = math.smoothfadebetween(state.you.pos.x, 50, 16, 70, 4)
-	if state.you.section.label == "pool" and state.you.section.final:
-		camera = state.you.section.pos
-		back *= 1.5
 	face = state.you.face.normalize()
+	if state.you.section.label == "pool" and state.you.section.final:
+		face = self.finalface
+		camera = state.you.section.pos
+		back = 25
+		up = 15
+		try:
+			d0 = (state.you.pos - camera).normalize()
+			z = d0.cross(self.finalface).normalize()
+			d1 = z.cross(d0).normalize()
+			fturn = self.finalface.rotate(-50, z)
+			if fturn.dot(d0) > fturn.dot(d1) > 0:
+				fnew = (d0 + d1).normalize().rotate(50, z).normalize()
+				self.finalface = math.softapproach(self.finalface, fnew, 2 * dt)
+				face = self.finalface
+		except ValueError:
+			pass
+	else:
+		self.finalface = face
 	right = face.cross(pygame.math.Vector3(0, 0, 1)).normalize()
 	self.up = pygame.math.Vector3(0, 0, up)
 	self.up = self.up.rotate(self.xtilt, face)
 	self.up = self.up.rotate(self.ytilt, right)
+#	print(self.up, face, xtilt, right)
 #	face = face.rotate(self.xtilt, face)
 	face = face.rotate(self.ytilt, right)
 #	print(self.xtilt, self.ytilt, face, self.up)
 	vantage = camera - back * face + self.up
-	if self.tosnap:
-		# f is approximately dt / self.tosnap for large values of self.tosnap
-		# rapidly approaches 1 as self.tosnap goes to 0
-		f = 1 - math.exp(-dt / self.tosnap)
-		self.camera += f * (camera - self.camera)
-		self.vantage += f * (vantage - self.vantage)
-	else:
-		self.camera = camera
-		self.vantage = vantage
+	self.camera += fsnap * (camera - self.camera)
+	self.vantage += fsnap * (vantage - self.vantage)
 
 # Set up camera perspective and settings for drawing game entities
 def look():

@@ -1,6 +1,7 @@
 from math import *
 import os
 from OpenGL.GL import *
+from OpenGL.GL import shaders
 from OpenGL.GLU import *
 from . import state
 from . import modelloader, settings
@@ -614,4 +615,40 @@ def drawobj(obj):
 	glTranslate(*obj.pos)
 	drawsphere(obj.r)
 	glPopMatrix()
+
+
+
+# TODO: get this to compile
+glowvshader = shaders.compileShader("""
+#version 120
+attribute
+void main() {
+	gl_Position = gl_Vertex;
+}
+""",
+GL_VERTEX_SHADER)
+
+glowfshader = shaders.compileShader("""
+#version 120
+// uniform vec4 color;
+void main() {
+//	gl_FragColor = vec4(color);
+	gl_FragColor = vec4(1.0, 0.0, 0.0, 0.5);
+}
+""", GL_FRAGMENT_SHADER)
+#glowshader = shaders.compileProgram(glowvshader, glowfshader)
+#unitbuffer = vbo.VBO(numpy.array([[-1, -1], [1, -1], [1, 1], [-1, 1]], "f"))
+
+def drawglow(a, color):
+	return
+	glLoadIdentity()
+	shaders.glUseProgram(glowshader)
+	unitbuffer.bind()
+	glEnableClientState(GL_VERTEX_ARRAY)
+	glVertexPointerf(unitbuffer)
+	glUniform4f(glGetUniformLocation(glowshader, 'color'), *color)
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
+	unitbuffer.unbind()
+	glDisableClientState(GL_VERTEX_ARRAY)
+	shaders.glUseProgram(0)
 

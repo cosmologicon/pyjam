@@ -414,9 +414,9 @@ class CurvedConnector(Connector):
 		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
 	def atilt(self, you):
 		r = you.pos - self.center
-		a = -you.v.dot(r) * (you.v.length() / r.length_squared())
-		print(a)
-		return 0, 35 * math.tanh(a * 30)
+		v = self.vflow(you.pos)
+		a = -v.cross(r).z * (v.length() / r.length_squared())
+		return 0, 25 * math.tanh(a * 0.2)
 	def act(self, you):
 		return False
 
