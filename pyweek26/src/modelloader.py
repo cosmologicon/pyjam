@@ -10,8 +10,6 @@ from OpenGL.GL import *
 from OpenGL.raw import GL
 from OpenGL.arrays import ArrayDatatype as ADT
 
-import numpy as np
-
 # TextureSurf: load in image file for use as textur
 class TextureSurf(object):
 	def __init__(self, path):

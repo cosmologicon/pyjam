@@ -6,7 +6,8 @@ from . import state
 from . import modelloader, settings
 
 import random
-import numpy as np
+
+#graphics.animation.stalker.append(graphics.Stalker(state.sections[5].pos,state.sections[5]))
 
 class Splashes(object):
 	def __init__(self, pos, section, lifetime = -1):
@@ -132,6 +133,183 @@ class Waterfall(object):
 		self.vortex_top.Draw()
 		self.splash_bottom.Draw()
 
+class Stalker(object):
+	def __init__(self, pos, section):
+		self.pos = pos[:]
+		self.section = section
+		self.inds = [random.randint(1,100),random.randint(1,100),random.randint(1,100)]
+		
+		self.armpos = [[0,0],[0,0],[0,0]]
+		self.angle_body = 0
+		self.angle_eye = 0
+		
+		tdist = 5.0
+		self.splashes = []
+		for i in range(3):
+			ang = i*(2*pi/3.0)
+			self.MoveArms(i, tdist, ang)
+			self.splashes.append(Splashes([self.armpos[i][0], self.armpos[i][1], self.pos[2]], self.section))
+	
+	def MoveArms(self, arm_ind, tdist, ang):
+		ang_nom = arm_ind*(2*pi/3.0)
+		self.armpos[arm_ind][0] = self.pos[0]+tdist*sin(ang)
+		self.armpos[arm_ind][1] = self.pos[1]+tdist*cos(ang)
+	
+	def UpdateHeadEye(self):
+		self.angle_eye = -atan2(state.you.pos[1]-self.pos[1], state.you.pos[0]-self.pos[0])*180/pi-90
+		self.angle_body = self.angle_eye
+	
+	def Update(self):
+		self.inds[0] += 1
+		self.inds[1] += 1
+		self.inds[2] += 1
+		self.UpdateHeadEye()
+		for splash in self.splashes:
+			splash.Update()
+	
+	def get_normal(self, p0, p1, p3):
+		u = [p3[0]-p0[0], p3[1]-p0[1], p3[2]-p0[2]]
+		v = [p1[0]-p0[0], p1[1]-p0[1], p1[2]-p0[2]]
+		n = [u[1]*v[2]-u[2]*v[1], u[2]*v[0] - u[0]*v[2], u[0]*v[1]-u[1]*v[0]]
+		return n
+	
+	def Draw(self):
+		
+		steps_h = 3
+		steps_w = 5
+		
+		height = 5.0
+		trad_base = 0.5
+		
+		sway_distx = 1.0
+		curvynessx = 2.0
+		sway_speedx = 0.1
+		
+		sway_disty = 1.0
+		curvynessy = 2.0
+		sway_speedy = 0.1
+		
+		# draw body
+		glPushMatrix()
+		glTranslate(self.pos[0], self.pos[1], self.pos[2])
+		glRotate(-90, 1, 0, 0)
+		glRotate(self.angle_body, 0, 1, 0)
+		glScale(0.3, 0.3, 0.3)
+		glCallList(model_stalkerbody.gl_list)
+		glTranslate(0, -10.0, 0)
+		#glRotate(self.angle_eye, 0, 1, 0)
+		glCallList(model_stalkereye.gl_list)
+		glPopMatrix()
+		
+		# draw arms
+		for arm_ind in range(3):
+			glPushMatrix()
+			glColor(1.0, 0.5, 1.0, 1)
+			glTranslate(self.armpos[arm_ind][0],self.armpos[arm_ind][1],self.pos[2])
+			for i in range(steps_h):
+				off_x1 = sway_distx*sin(curvynessx*(i/steps_h)-sway_speedx*self.inds[arm_ind])
+				off_y1 = sway_disty*cos(curvynessy*(i/steps_h)-sway_speedy*self.inds[arm_ind])
+				if i == (steps_h-1):
+					off_x2 = off_x1
+					off_y2 = off_y1
+				else:
+					off_x2 = sway_distx*sin(curvynessx*((i+1)/steps_h)-sway_speedx*self.inds[arm_ind])
+					off_y2 = sway_disty*cos(curvynessy*((i+1)/steps_h)-sway_speedy*self.inds[arm_ind])
+				for j in range(steps_w):
+					if j % 2 == 0:
+						glColor(1.0, 0.5, 1.0, 1)
+					else:
+						glColor(1.0, 0.3, 1.0, 1)
+					rad1 = trad_base*(1-pow((i/(steps_h)),2))
+					rad2 = trad_base*(1-pow(((i+1)/(steps_h)),2))
+					theta1 = j*2*pi/steps_w
+					theta2 = (j+1)*2*pi/steps_w
+					if i == (steps_h-1):
+						h2 = (i)*height/float(steps_h)
+					else:
+						h2 = (i+1)*height/float(steps_h)
+					glBegin(GL_QUADS)
+					p0 = [rad1*sin(theta1)+off_x1, rad1*cos(theta1)+off_y1, i*height/float(steps_h)]
+					p1 = [rad1*sin(theta2)+off_x1, rad1*cos(theta2)+off_y1, i*height/float(steps_h)]
+					p2 = [rad2*sin(theta2)+off_x2, rad2*cos(theta2)+off_y2, h2]
+					p3 = [rad2*sin(theta1)+off_x2, rad2*cos(theta1)+off_y2, h2]
+					n = self.get_normal(p0, p1, p3)
+				
+					glNormal3fv(n)
+					glVertex3fv(p0)
+					glNormal3fv(n)
+					glVertex3fv(p1)
+					glNormal3fv(n)
+					glVertex3fv(p2)
+					glNormal3fv(n)
+					glVertex3fv(p3)
+					glEnd()
+			glPopMatrix()
+		
+		for splash in self.splashes:
+			splash.Draw()
+
+def build_openscad_commands():
+	
+	openscad_path = '/Applications/OpenSCAD_2018.app/Contents/MacOS/OpenSCAD'
+	output_dir = '/Users/mitch/Code/games/pyweek/week26_entry/environment'
+	level_stub = 'level_fri'
+	scad_stub = 'level_fri_scad'
+	
+	f = open(os.path.join(output_dir,scad_stub,'openscad_script.sh'), "w");
+	f.write('#!/bin/bash\n')
+	count = 0
+	for sect in state.sections:
+		f.write('echo Building section %d of %d\n'%(count+1,len(state.sections)))
+		if sect.label == 'pool':
+			exit_points = []
+			step_width = 3.0
+			for sect2 in state.sections:
+				if sect2 == sect or not sect2.label == 'pool':
+					continue
+				if fabs(sect2.pos[2]-sect.pos[2]) < 5.0:
+					wall_margin = (sqrt(pow(sect2.pos[0]-sect.pos[0],2)+pow(sect2.pos[1]-sect.pos[1],2))-sect2.r-sect.r)
+					if wall_margin < 2.5:
+						step_width = 0.0
+					elif wall_margin < 7.0:
+						step_width = min(1.0,step_width)
+			for c in sect.connections:
+				if c.label == 'pipe':
+					continue
+				if sqrt(pow(sect.pos[0]-c.pos0[0],2)+pow(sect.pos[1]-c.pos0[1],2)) > sect.r:
+					exit_points.append([c.pos0[0],c.pos0[1],c.width])
+				else:
+					exit_points.append([c.pos1[0],c.pos1[1],c.width])
+			con_str = ", ".join(['[%.4f,%.4f,%.4f]'%(p[0]-sect.pos[0],p[1]-sect.pos[1],p[2]) for p in exit_points])
+			f2 = open(os.path.join(output_dir,scad_stub,'pool_%03d.scad'%(count)), "w");
+			f2.write('include <build_environments.scad>;\n')
+			f2.write('pool(diameter=%.4f, wall_height=%.4f, step_width=%.4f, connections=[%s]);\n'%(sect.r,max([p[2] for p in exit_points])+1.0,step_width,con_str))
+			f2.close()
+			f.write('%s -o %s/%s/pool_%03d.stl pool_%03d.scad\n'%(openscad_path,output_dir,level_stub,count,count))
+		elif sect.label == 'straight' or sect.label == 'slope':
+			if sect.connections[0].label == 'pool':
+				dy1 = sqrt(pow(sect.connections[0].r,2)-pow(sect.width,2))
+			else:
+				dy1 = 0
+			if sect.connections[1].label == 'pool':
+				dy2 = sqrt(pow(sect.connections[1].r,2)-pow(sect.width,2))
+			else:
+				dy2 = 0	
+			f2 = open(os.path.join(output_dir,scad_stub,'section_%03d.scad'%(count)), "w");
+			f2.write('include <build_environments.scad>;\n')
+			f2.write('straight(length=%.4f, width=%.4f, dy1=%.4f, dy2=%.4f, dz=%.4f);\n'%(sect.length,sect.width,dy1,dy2,sect.dz))
+			f2.close()
+			f.write('%s -o %s/%s/section_%03d.stl section_%03d.scad\n'%(openscad_path,output_dir,level_stub,count,count))
+		elif sect.label == 'curve':
+			f2 = open(os.path.join(output_dir,scad_stub,'section_%03d.scad'%(count)), "w");
+			f2.write('include <build_environments.scad>;\n')
+			f2.write('curve(p0=[%.4f, %.4f], center=[%.4f, %.4f], dir=%d, angle=%.4f, width=%.4f);\n'%(sect.p0[0],sect.p0[1],sect.center[0],sect.center[1],sect.right,2*sect.beta*180.0/pi,sect.width))
+			f2.close()
+			f.write('%s -o %s/%s/section_%03d.stl section_%03d.scad\n'%(openscad_path,output_dir,level_stub,count,count))
+			
+		count += 1
+	f.close()
+
 class Animations(object):
 	def __init__(self):
 		self.water_flow = 0
@@ -141,14 +319,10 @@ class Animations(object):
 		self.splashes = []
 		#self.waterfalls = [Waterfall([0.0,0.0,0.0],20.0)]
 		self.waterfalls = []
+		self.stalker = []
+		
 	def cycle(self):
-		"""
-		faderate = 0.01
-		if state.you.section.label == 'pool':
-			self.fadepipe = min(1.0,self.fadepipe+faderate)
-		else:
-			self.fadepipe = max(0.5,self.fadepipe-faderate)
-		"""
+		
 		self.water_flow += 1
 		for splash in self.splashes:
 			splash.Update()
@@ -156,50 +330,13 @@ class Animations(object):
 				self.splashes.remove(splash)
 		for waterfall in self.waterfalls:
 			waterfall.Update()
+		for stalker in self.stalker:
+			stalker.Update()
 		
 		"""
-		if self.init_trigger: # hackish thing to print out OpenSCAD function calls from section objects
-			count = 0
-			for sect in state.sections:
-				if sect.label == 'pool':
-					exit_points = []
-					step_width = 3.0
-					for sect2 in state.sections:
-						if sect2 == sect or not sect2.label == 'pool':
-							continue
-						if fabs(sect2.pos[2]-sect.pos[2]) < 5.0:
-							wall_margin = (sqrt(pow(sect2.pos[0]-sect.pos[0],2)+pow(sect2.pos[1]-sect.pos[1],2))-sect2.r-sect.r)
-							if wall_margin < 2.5:
-								step_width = 0.0
-							elif wall_margin < 7.0:
-								step_width = min(1.0,step_width)
-					for c in sect.connections:
-						if c.label == 'pipe':
-							continue
-						if sqrt(pow(sect.pos[0]-c.pos0[0],2)+pow(sect.pos[1]-c.pos0[1],2)) > sect.r:
-							exit_points.append([c.pos0[0],c.pos0[1],c.width])
-						else:
-							exit_points.append([c.pos1[0],c.pos1[1],c.width])
-					con_str = ", ".join(['[%.4f,%.4f,%.4f]'%(p[0]-sect.pos[0],p[1]-sect.pos[1],p[2]) for p in exit_points])
-					print('pool(diameter=%.4f, wall_height=%.4f, step_width=%.4f, connections=[%s]); // sect: %d'%(sect.r,max([p[2] for p in exit_points])+1.0,step_width,con_str,count))
-					#print('pool')
-				elif sect.label == 'straight' or sect.label == 'slope':
-					if sect.connections[0].label == 'pool':
-						dy1 = sqrt(pow(sect.connections[0].r,2)-pow(sect.width,2))
-					else:
-						dy1 = 0
-					if sect.connections[1].label == 'pool':
-						dy2 = sqrt(pow(sect.connections[1].r,2)-pow(sect.width,2))
-					else:
-						dy2 = 0
-					print('straight(length=%.4f, width=%.4f, dy1=%.4f, dy2=%.4f, dz=%.4f); // sect: %d'%(sect.length,sect.width,dy1,dy2,sect.dz,count))
-					#print('straight')
-				elif sect.label == 'curve':
-					#print('curve')
-					print('curve(p0=[%.4f, %.4f], center=[%.4f, %.4f], dir=%d, angle=%.4f, width=%.4f); // sect: %d'%(sect.p0[0],sect.p0[1],sect.center[0],sect.center[1],sect.right,2*sect.beta*180.0/pi,sect.width,count))
-				elif sect.label == 'pipe':
-					print('// pipe // sect %d'%(count))
-				count += 1
+		# Use currently read sections, generate a command script for OpenSCAD rendering
+		if self.init_trigger:
+			build_openscad_commands()
 			self.init_trigger = False
 		"""
 		
@@ -210,6 +347,11 @@ class Animations(object):
 		for waterfall in self.waterfalls:
 			if waterfall.section in get_sections_to_draw():
 				waterfall.Draw()
+		for stalker in self.stalker:
+			stalker.Update()
+			if stalker.section in get_sections_to_draw():
+				stalker.Draw()
+		
 
 animation = Animations()
 
@@ -223,6 +365,10 @@ def init():
 	global model_fish, model_tail
 	model_fish = modelloader.Model3D(os.path.join('models','fish001_tailfree_colour.obj'))
 	model_tail = modelloader.Model3D(os.path.join('models','fish001_tail_colour.obj'))
+	
+	global model_stalkerbody, model_stalkereye
+	model_stalkerbody = modelloader.Model3D(os.path.join('models','stalker_body.obj'))
+	model_stalkereye = modelloader.Model3D(os.path.join('models','stalker_eye.obj'))
 	
 	# Load in water texture
 	global water_texture
@@ -247,7 +393,7 @@ def init():
 	global model3d_sections
 	model3d_sections = []
 	model3d_sections.append([])
-	level_name = 'level_thurs_obj'
+	level_name = 'level_fri_obj'
 	model_paths = [i for i in os.listdir(os.path.join('models',level_name)) if "obj" in i]
 	max_ind = max([int(path[-7:-4]) for path in model_paths])
 	for i in range(max_ind+1):
