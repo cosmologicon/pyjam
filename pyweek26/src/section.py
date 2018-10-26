@@ -153,7 +153,9 @@ class Pool():
 				glVertex(x, y, z)
 			glEnd()
 		glPopMatrix()
-
+	def drawmap(self):
+		graphics.drawdisk(self.pos, self.r, (0, 0.4, 1, 1))
+		graphics.drawdisk(self.pos + pygame.math.Vector3(0, 0, -1), self.r + 1, (0, 0, 0, 1))
 	def spawn(self, dt):
 		pass
 
@@ -228,6 +230,9 @@ class Pipe():
 	def spawn(self, dt):
 		return
 
+	def drawmap(self):
+		pass
+
 class Connector():
 	rapid = 1
 	def setpools(self):
@@ -249,7 +254,9 @@ class Connector():
 	# Speed with respect to the current that the player swims while pressing these buttons
 	def swimrate(self, dx, dy):
 		return pygame.math.Vector3(5 * dx, 3 + 5 * dy, 0)
-
+	def drawmap(self):
+		pass
+	
 class StraightConnector(Connector):
 	label = 'straight'
 	def __init__(self, pos0, pos1, width = 4):
@@ -266,6 +273,21 @@ class StraightConnector(Connector):
 		self.angle = math.atan2(self.face.x, self.face.y)
 		self.connections = []
 		self.blockers = []
+		y = self.face.cross(pygame.math.Vector3(0, 0, 1)).normalize()
+		self.ps = [
+			self.pos0 + self.width * y,
+			self.pos1 + self.width * y,
+			self.pos1 - self.width * y,
+			self.pos0 - self.width * y,
+		]
+		
+		dw = 1  # outline width
+		self.ops = [
+			self.pos0 + (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
+			self.pos1 + (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
+			self.pos1 - (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
+			self.pos0 - (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
+		]
 		
 	# Distance to the section center line, in units of the width.
 	def dcenter(self, pos):
@@ -352,6 +374,17 @@ class StraightConnector(Connector):
 				graphics.drawsphere(0.3)
 				glPopMatrix()
 		glPopMatrix()
+	def drawmap(self):
+		glColor(0, 0.4, 1, 1)
+		glBegin(GL_QUADS)
+		for p in self.ps:
+			glVertex(*p)
+		glEnd()
+		glColor(0, 0, 0, 0)
+		glBegin(GL_QUADS)
+		for p in self.ops:
+			glVertex(*p)
+		glEnd()
 		
 	def spawn(self, dt):
 		return
@@ -475,6 +508,9 @@ class CurvedConnector(Connector):
 		#if not settings.debug_graphics:
 		#	graphics.drawmodel_sect_curve(self)
 		
+	def drawmap(self):
+		pass
+		# TODO
 	def spawn(self, dt):
 		pass
 

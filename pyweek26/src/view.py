@@ -104,6 +104,13 @@ def look():
 	glEnable(GL_DEPTH_TEST)
 	glDepthMask(GL_TRUE)
 
+def maplook():
+	glMatrixMode(GL_PROJECTION)
+	glLoadIdentity()
+	w, h = screen.get_size()
+	glScale(1 / 140, 1 / 140 * w / h, -1 / 1000)
+
+
 def screenshot():
 	# TODO: get screenshot working
 	filename = datetime.datetime.now().strftime("screenshot-%Y%m%d%H%M%S.png")

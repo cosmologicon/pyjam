@@ -1,12 +1,13 @@
 from __future__ import division
 import pygame
 from pygame.locals import *
-from . import maff, settings, view, scene, gamescene, graphics, ptext, sound, state
+from . import maff, settings, view, scene, gamescene, graphics, ptext, sound, state, mapscene
 
 view.init()
 graphics.init()
 pygame.mixer.init()
 scene.push(gamescene)
+# scene.push(mapscene)
 
 playing = True
 clock = pygame.time.Clock()

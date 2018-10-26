@@ -577,6 +577,13 @@ def drawcircle(center, r, axis, color):
 	gluDisk(quadric, 0.95 * r, 1.05 * r, 10, 10)
 	glPopMatrix()
 
+def drawdisk(center, r, color):
+	glPushMatrix()
+	glColor4f(*color)
+	glTranslate(*center)
+	gluDisk(quadric, 0, r, 20, 1)
+	glPopMatrix()
+
 def drawcylinder(p0, r, h, color):
 	glPushMatrix()
 	glColor4f(*color)
