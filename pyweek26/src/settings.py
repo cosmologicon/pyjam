@@ -11,7 +11,7 @@ fullscreen = "--fullscreen" in sys.argv
 
 leveldataname = "leveldata"
 
-manualcamera = True
+manualcamera = False
 
 maxfps = 120
 minfps = 10
