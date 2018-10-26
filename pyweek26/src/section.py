@@ -2,6 +2,7 @@
 
 from __future__ import division
 import math, pygame, random
+from pygame.math import Vector3
 from OpenGL.GL import *
 from . import graphics, thing, state, settings, view, sound
 
@@ -69,7 +70,7 @@ class Pool():
 		if self.canfeed(you):
 			state.food = state.foodmax
 	def atilt(self, you):
-		return 0, 0
+		return Vector3(0, 0, 0)
 	def act(self, you):
 		if self.candrainfrom(you):
 			self.drain(you)
@@ -185,7 +186,7 @@ class Pipe():
 		you.heading = math.anglesoftapproach(you.heading, heading, 50 * dt, dymin = 0.01)
 		you.v = pygame.math.Vector3(0, 0, 0)
 	def atilt(self, you):
-		return 0, 0
+		return Vector3(0, 0, 0)
 	def act(self, you):
 		return False
 	def flow(self, dt, obj):
@@ -274,20 +275,20 @@ class StraightConnector(Connector):
 		self.angle = math.atan2(self.face.x, self.face.y)
 		self.connections = []
 		self.blockers = []
-		y = self.face.cross(pygame.math.Vector3(0, 0, 1)).normalize()
+		self.right = self.face.cross(pygame.math.Vector3(0, 0, 1)).normalize()
 		self.ps = [
-			self.pos0 + self.width * y,
-			self.pos1 + self.width * y,
-			self.pos1 - self.width * y,
-			self.pos0 - self.width * y,
+			self.pos0 + self.width * self.right,
+			self.pos1 + self.width * self.right,
+			self.pos1 - self.width * self.right,
+			self.pos0 - self.width * self.right,
 		]
 		
 		dw = 1  # outline width
 		self.ops = [
-			self.pos0 + (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
-			self.pos1 + (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
-			self.pos1 - (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
-			self.pos0 - (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
+			self.pos0 + (self.width + dw) * self.right + pygame.math.Vector3(0, 0, -1),
+			self.pos1 + (self.width + dw) * self.right + pygame.math.Vector3(0, 0, -1),
+			self.pos1 - (self.width + dw) * self.right + pygame.math.Vector3(0, 0, -1),
+			self.pos0 - (self.width + dw) * self.right + pygame.math.Vector3(0, 0, -1),
 		]
 		
 	# Distance to the section center line, in units of the width.
@@ -307,8 +308,7 @@ class StraightConnector(Connector):
 		
 		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
 	def atilt(self, you):
-		aslope = self.aslope * (-1 if you.upstream else 1)
-		return math.degrees(aslope), 0
+		return math.degrees(self.aslope) * self.right
 	def act(self, you):
 		return False
 
@@ -448,9 +448,12 @@ class CurvedConnector(Connector):
 		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
 	def atilt(self, you):
 		r = you.pos - self.center
+		if r.length() < 6:
+			r.scale_to_length(6)
 		v = self.vflow(you.pos)
-		a = -v.cross(r).z * (v.length() / r.length_squared())
-		return 0, 25 * math.tanh(a * 0.2)
+		u = r.cross(Vector3(0, 0, 1)).normalize()
+		a = -abs(v.cross(r).z * (v.length() / r.length_squared()))
+		return u * 25 * math.tanh(a * 0.1)
 	def act(self, you):
 		return False
 

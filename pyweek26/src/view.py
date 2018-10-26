@@ -35,7 +35,7 @@ class self:
 	# Current actual settings
 	gamma = 40
 	phi = 0
-	eta = 0
+	atilt = Vector3(0, 0, 0)
 
 def init():
 	global screen
@@ -74,7 +74,7 @@ def think(dt, dmx, dmy):
 
 
 	camera = 1 * state.you.pos
-	ytilt, xtilt = state.you.section.atilt(state.you)
+	atilt = state.you.section.atilt(state.you)
 	Rvantage = 20
 	gamma = 55
 	phi = -math.degrees(state.you.heading)
@@ -84,20 +84,26 @@ def think(dt, dmx, dmy):
 		phi = self.mphi
 
 	self.gamma = math.mix(self.gamma, gamma, fsnap)
-	self.phi = math.mix(self.phi, phi, fsnap)
+	self.phi += fsnap * math.zmod(phi - self.phi, 360)
+	if fsnap == 0:
+		self.phi = phi
+	self.atilt = math.mix(self.atilt, atilt, 2 * dt)
 
 	if not settings.manualcamera:
 		self.mgamma = self.gamma
 		self.mphi = self.phi
 
-	kappa = -ytilt
-	eta = xtilt
-	theta = self.gamma - kappa
+#	kappa = -ytilt
+#	eta = xtilt
+#	theta = self.gamma - kappa
+	theta = self.gamma
 	uvantage = Vector3(0, 0, 1).rotate_x(theta).rotate_z(self.phi)
 	
+	dtilt = self.atilt.length()
+	utilt = self.atilt.normalize() if dtilt else Vector3(0, 0, 1)
 	self.camera = camera
-	self.vantage = camera + Rvantage * uvantage
-	self.up = Vector3(0, 0, 1).rotate_y(eta).rotate_z(self.phi)
+	self.vantage = camera + Rvantage * uvantage.rotate(dtilt, utilt)
+	self.up = Vector3(0, 0, 1).rotate_z(self.phi).rotate(dtilt, utilt)
 
 	
 
