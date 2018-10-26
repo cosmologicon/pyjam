@@ -133,6 +133,8 @@ def loadtriggers(filename):
 			triggermusic(*fields)
 		if fields[0] == "endboss":
 			triggerendboss(*fields)
+		if fields[0] == "save":
+			triggersave(*fields)
 
 def triggerstart(start, j, k):
 	section = sections_by_id[parseid(j, k)]
@@ -170,4 +172,7 @@ def triggerendboss(endboss, j, k):
 	state.effects.append(thing.Tentacles(section))
 	section.final = True
 
+def triggersave(save, k):
+	section = sections_by_id[parseid("pool", k)]
+	section.cansave = True
 

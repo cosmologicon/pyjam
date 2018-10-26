@@ -21,6 +21,7 @@ class Pool():
 		self.hasfood = False
 		self.whirl = 0
 		self.final = False  # Is the final boss arena
+		self.cansave = False
 	def penter(self):
 		return self.pos
 	def pexit(self):

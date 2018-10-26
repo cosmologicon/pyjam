@@ -1,7 +1,8 @@
 from pygame.locals import *
-import sys
+import sys, os
 
 DEBUG = True  # TODO: change to False before submitting
+# TODO: empty savegame subdirectory before submitting
 
 gamename = "Flow"
 
@@ -12,6 +13,9 @@ leveldataname = "leveldata"
 
 maxfps = 120
 minfps = 10
+
+savename = os.path.join("savegame", "save.pkl")
+asavename = os.path.join("savegame", "save-%Y%m%d%H%M%S.pkl")
 
 debug_graphics = "--debuggfx" in sys.argv
 

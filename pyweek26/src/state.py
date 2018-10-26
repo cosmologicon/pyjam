@@ -1,4 +1,11 @@
-from . import dialog
+from __future__ import print_function
+import datetime, os
+from . import dialog, settings
+
+try:
+	import cPickle as pickle
+except ImportError:
+	import pickle
 
 # Player character
 you = None
@@ -20,6 +27,11 @@ dtriggered = set()
 # For all sections where the music is not regular gameplay music.
 musics = {}
 
+# To avoid spamming the "game saved" message, we keep track of how long the player has spent in
+# "save" areas and "non-save" areas since the last save.
+tsave = 0
+tnosave = 0
+
 # For the purpose of triggering, every section of a tunnel has the same trigger logic.
 def triggermatch(id0, id1):
 	j0, k0 = id0
@@ -33,10 +45,46 @@ def currentmusic():
 	return "level"
 
 def think(dt):
+	global tsave, tnosave
+	if you.section.label == "pool":
+		cansave = you.section.cansave
+		if cansave:
+			tsave += dt
+			if tsave > 3 and tnosave > 1:
+				save()
+		else:
+			tsave = 0
+			tnosave += dt
+		
 	for convo, sectionid in dtriggers.items():
 		if convo in dtriggered:
 			continue
 		if triggermatch(you.section.sectionid, sectionid):
 			dtriggered.add(convo)
 			dialog.trigger(convo)
+
+def getstate():
+	return you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics
+
+def setstate(s):
+	global you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics
+	you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics = s
+
+def save():
+	global tsave, tnosave
+	tsave = 0
+	tnosave = 0
+	# TODO: onscreen save message
+	if settings.DEBUG:
+		print("saving")
+	asavename = datetime.datetime.now().strftime(settings.asavename)
+	for fname in (settings.savename, asavename):
+		if not os.path.exists(os.path.dirname(fname)):
+			os.makedirs(os.path.dirname(fname))
+		pickle.dump(getstate(), open(fname, "wb"))
+
+def load():
+	if not os.path.exists(settings.savename):
+		return
+	setstate(pickle.load(open(settings.savename, "rb")))
 
