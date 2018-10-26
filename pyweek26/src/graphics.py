@@ -78,6 +78,7 @@ class Vortex(object):
 			glBindTexture(GL_TEXTURE_2D, water_texture_vortex.texture)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+		glColor4f(1, 1, 1, 0.5)
 		glBegin(GL_POLYGON)
 		radius_text = 0.5
 		for i in range(npoints):
@@ -318,6 +319,7 @@ class Animations(object):
 		self.fadepipe = 1.0
 		#self.splashes = [Splashes([-30.0,30.0,3.0])]
 		self.splashes = []
+		self.vortexes = []
 		#self.waterfalls = [Waterfall([0.0,0.0,0.0],20.0)]
 		self.waterfalls = []
 		self.stalker = []
@@ -329,6 +331,8 @@ class Animations(object):
 			splash.Update()
 			if splash.active == False:
 				self.splashes.remove(splash)
+		for vortex in self.vortexes:
+			vortex.Update()
 		for waterfall in self.waterfalls:
 			waterfall.Update()
 		for stalker in self.stalker:
@@ -345,6 +349,8 @@ class Animations(object):
 		for splash in self.splashes:
 			if splash.section in get_sections_to_draw():
 				splash.Draw()
+		for vortex in self.vortexes:
+			vortex.Draw()
 		for waterfall in self.waterfalls:
 			if waterfall.section in get_sections_to_draw():
 				waterfall.Draw()
@@ -362,6 +368,8 @@ def init():
 	gluQuadricNormals(quadric, GLU_SMOOTH)
 	gluQuadricTexture(quadric, GL_TRUE)
 	
+	print('loading model files ...')
+	
 	# load in model files
 	global model_fish, model_tail
 	model_fish = modelloader.Model3D(os.path.join('models','fish001_tailfree_colour.obj'))
@@ -370,6 +378,9 @@ def init():
 	global model_stalkerbody, model_stalkereye
 	model_stalkerbody = modelloader.Model3D(os.path.join('models','stalker_body.obj'))
 	model_stalkereye = modelloader.Model3D(os.path.join('models','stalker_eye.obj'))
+	
+	global model_fishfood
+	model_fishfood = modelloader.Model3D(os.path.join('models','fishfood.obj'))
 	
 	# Load in water texture
 	global water_texture
@@ -761,6 +772,15 @@ def drawyou():
 	glCallList(model_tail.gl_list)
 	glPopMatrix()
 
+def drawfishfood(pos):
+	glPushMatrix()
+	glColor4f(1.0, 1.0, 1.0, 1)
+	glTranslate(pos[0], pos[1], pos[2])
+	glRotate(-90, 1, 0, 0)
+	glScale(2.0, 2.0, 2.0)
+	glCallList(model_fishfood.gl_list)
+	glPopMatrix()
+
 # Placeholder - for now everything's spheres
 def drawobj(obj):
 	glPushMatrix()
@@ -768,8 +788,6 @@ def drawobj(obj):
 	glTranslate(*obj.pos)
 	drawsphere(obj.r)
 	glPopMatrix()
-
-
 
 # TODO: get this to compile
 glowvshader = shaders.compileShader("""
@@ -804,4 +822,5 @@ def drawglow(a, color):
 	unitbuffer.unbind()
 	glDisableClientState(GL_VERTEX_ARRAY)
 	shaders.glUseProgram(0)
+
 

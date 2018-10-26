@@ -4,6 +4,17 @@ from . import view, state, thing, graphics, settings, section, level, ptext, sou
 def init():
 	state.you = thing.You()
 	level.load()
+	
+	"""
+	pygame.mixer.music.load('/Users/mitch/Code/games/pyweek/week26_entry/music/Flow_Sample1_A-Section-OnlyB.ogg')
+	pygame.mixer.music.set_volume(0.5)
+	pygame.mixer.music.play(-1)
+	"""
+	
+	# turn these on to see final boss and vortex animation
+	#graphics.animation.stalker.append(graphics.Stalker(state.sections[5].pos,state.sections[5]))
+	#graphics.animation.vortexes.append(graphics.Vortex(state.sections[5].pos,state.sections[5],state.sections[5].r,speed=2.0))
+	
 #	for _ in range(100):
 #		obj = thing.Debris()
 #		obj.pos.x = random.uniform(-4 + obj.r, 4 - obj.r)
@@ -39,7 +50,6 @@ def think(dt, kpressed, kdowns):
 def draw():
 	view.clear((0.1, 0.1, 0.1, 1))
 	view.look()
-	
 	for obj in state.objs:
 		graphics.drawobj(obj)
 	graphics.drawyou()
@@ -57,7 +67,7 @@ def draw():
 		graphics.drawmodel_section_pools()
 		graphics.drawmodel_section_tubes()
 		graphics.animation.draw()
-
+	
 	graphics.drawglow(0.5, [1, 0, 0, 1])
 	
 	text = [
@@ -74,4 +84,5 @@ def draw():
 		if pool.candrainfrom(state.you):
 			ptext.draw("Space: drain", fontsize = 35, midbottom = (512, 100))
 	ptext.draw("\n".join(text), fontsize = 28, midbottom = (512, 20))
+	
 

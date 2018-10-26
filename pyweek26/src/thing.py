@@ -1,6 +1,6 @@
 import pygame, math, random
 from OpenGL.GL import *
-from . import enco, state, graphics, settings
+from . import enco, state, graphics, settings, sound
 
 class WorldBound(enco.Component):
 	def start(self):
@@ -78,6 +78,7 @@ class MovesWithArrows(enco.Component):
 			self.v.z += toleap
 			self.v.z -= 60 * dt
 			if dz < 0 and self.v.z < 0:
+				sound.manager.PlaySound('splash%03d'%(random.randint(1,3)))
 				self.landed = True
 #				self.v.z = 0
 #				self.pos.z = self.section.pos.z

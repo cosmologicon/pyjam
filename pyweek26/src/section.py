@@ -203,6 +203,7 @@ class Pipe():
 			view.addsnap(0.5)
 			obj.pos.z -= 3
 			graphics.animation.splashes.append(graphics.Splashes([obj.section.pos[0],obj.section.pos[1],obj.section.pos[2]], obj.section, lifetime=60))
+			sound.manager.PlaySound('gurgle001')
 
 	def dzwater(self, pos):
 		return pos.z - self.connections[0].pos.z
