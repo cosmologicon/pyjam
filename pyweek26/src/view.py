@@ -11,8 +11,13 @@ screen = None
 class self:
 	camera = pygame.math.Vector3(0, 0, 0)
 	vantage = pygame.math.Vector3(1, 0, 0)
+	up = pygame.math.Vector3(0, 0, 1)
 	# Countdown timer of how long the camera should lag in catching up to the player
 	tosnap = 0
+
+	# axial tilt of the camera when going around turns
+	xtilt = 0
+	ytilt = 0
 
 def init():
 	global screen
@@ -31,14 +36,25 @@ def addsnap(dt):
 def think(dt):
 	self.tosnap = max(self.tosnap - dt, 0)
 	camera = 1 * state.you.pos
+
+	ytilt, xtilt = state.you.section.atilt(state.you)
+	self.xtilt = math.softapproach(self.xtilt, xtilt, 4 * dt)
+	self.ytilt = math.softapproach(self.ytilt, ytilt, 4 * dt)
 	# Hard-coded (for now) perspective change when you go east.
 	back = math.smoothfadebetween(state.you.pos.x, 50, 20, 70, 10)
 	up = math.smoothfadebetween(state.you.pos.x, 50, 16, 70, 4)
 	if state.you.section.label == "pool" and state.you.section.final:
 		camera = state.you.section.pos
 		back *= 1.5
-	# TODO: face needs to take into account slopes
-	vantage = camera - back * state.you.face + pygame.math.Vector3(0, 0, up)
+	face = state.you.face.normalize()
+	right = face.cross(pygame.math.Vector3(0, 0, 1)).normalize()
+	self.up = pygame.math.Vector3(0, 0, up)
+	self.up = self.up.rotate(self.xtilt, face)
+	self.up = self.up.rotate(self.ytilt, right)
+#	face = face.rotate(self.xtilt, face)
+	face = face.rotate(self.ytilt, right)
+#	print(self.xtilt, self.ytilt, face, self.up)
+	vantage = camera - back * face + self.up
 	if self.tosnap:
 		# f is approximately dt / self.tosnap for large values of self.tosnap
 		# rapidly approaches 1 as self.tosnap goes to 0
@@ -64,7 +80,7 @@ def look():
 	w, h = screen.get_size()
 	fov = 45
 	gluPerspective(fov, w / h, 0.1, 1000.0)
-	args = list(self.vantage) + list(self.camera) + [0, 0, 1]
+	args = list(self.vantage) + list(self.camera) + list(self.up)
 	gluLookAt(*args)
 	
 	#glEnable(GL_BLEND)

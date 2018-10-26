@@ -68,6 +68,8 @@ class Pool():
 			self.drop(you)
 		if self.canfeed(you):
 			state.food = state.foodmax
+	def atilt(self, you):
+		return 0, 0
 	def act(self, you):
 		if self.candrainfrom(you):
 			self.drain(you)
@@ -180,6 +182,8 @@ class Pipe():
 		heading = self.angle
 		you.heading = math.anglesoftapproach(you.heading, heading, 50 * dt, dymin = 0.01)
 		you.v = pygame.math.Vector3(0, 0, 0)
+	def atilt(self, you):
+		return 0, 0
 	def act(self, you):
 		return False
 	def flow(self, dt, obj):
@@ -258,6 +262,7 @@ class StraightConnector(Connector):
 		self.length = d.length()
 		self.dz = d.z
 		self.dl = (d - pygame.math.Vector3(0, 0, self.dz)).length()
+		self.aslope = math.atan2(self.dz, self.dl)
 		self.angle = math.atan2(self.face.x, self.face.y)
 		self.connections = []
 		self.blockers = []
@@ -278,6 +283,9 @@ class StraightConnector(Connector):
 		v = self.swimrate(dx, dy).rotate_z(math.degrees(-heading))
 		
 		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
+	def atilt(self, you):
+		aslope = self.aslope * (-1 if you.upstream else 1)
+		return math.degrees(aslope), 0
 	def act(self, you):
 		return False
 
@@ -404,6 +412,11 @@ class CurvedConnector(Connector):
 		you.heading = math.anglesoftapproach(you.heading, heading, 10 * dt, dymin = 0.01)
 		v = self.swimrate(dx, dy).rotate_z(math.degrees(-heading))
 		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
+	def atilt(self, you):
+		r = you.pos - self.center
+		a = -you.v.dot(r) * (you.v.length() / r.length_squared())
+		print(a)
+		return 0, 35 * math.tanh(a * 30)
 	def act(self, you):
 		return False
 
