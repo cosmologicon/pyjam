@@ -131,7 +131,7 @@ def draw():
 		text = {
 			"skipse": "It's possible to get stuck in this section with no way to complete it. If you're stuck, press 4 to skip this section.",
 		}[note]
-		ptext.draw(text, topleft = (20, 400), width = 200, fontsize = 32, color = "orange", shade = 1,
+		ptext.draw(text, topleft = (20, 400), width = 400, fontsize = 32, color = "orange", shade = 1,
 			ocolor = "black", owidth = 1)
 	text = [
 		"M: map/help",
