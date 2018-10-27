@@ -12,14 +12,13 @@ screen = None
 #   Rvantage = distance from camera to vantage point
 #   theta = 0: directly overhead
 #   theta = 90: from the side
-#   theta = gamma - kappa
-#   gamma is the baseline tilt due to the vantage point looking down on the object.
-#   kappa is additional tilt due to the camera position being on a slope.
 #   phi = 0: camera faces north
 #   phi = 90: camera faces west
 #   eta = 0: up for the camera is in the z direction
 #   eta > 0: up is tilted to the right (so the horizon goes from lower left to upper right
 #   eta < 0: up is tilted to the left
+#   In addition there is a vector atilt that rotates the entire setup based on flow of the current
+#   section (slope or curved).
 
 # Hack to allow some "global" variables in this method.
 class self:
@@ -40,6 +39,10 @@ class self:
 
 	# Currently in rapid mode
 	rapid = False
+
+	# Whether we're in "f"-mode (as in fixed), i.e. in the northwest puzzle
+	fmode = True
+	fcamera = Vector3(0, 0, 0)
 
 def init():
 	global screen
@@ -79,6 +82,25 @@ def think(dt, dmx, dmy):
 	gamma = 55
 	phi = -math.degrees(state.you.heading)
 
+	if state.you.section.fmode is None:
+		pass
+	elif state.you.section.fmode:
+		if not self.fmode:
+			self.fmode = True
+			self.tosnap = 1
+	else:
+		if self.fmode:
+			self.fmode = False
+			self.tosnap = 1
+
+	if self.fmode:
+		if state.you.section.label == "pool":
+			self.fcamera = state.you.section.pos * 1	
+		camera = math.softapproach(self.camera, self.fcamera, 3 * dt)
+		phi = 0
+		gamma = 40
+		Rvantage = math.softapproach(self.Rvantage, 40, 3 * dt)
+
 	if state.you.section.rapid > 1:
 		if not self.rapid:
 			self.tosnap = 1
@@ -93,8 +115,6 @@ def think(dt, dmx, dmy):
 	# f is approximately dt / self.tosnap for large values of self.tosnap
 	# rapidly approaches 1 as self.tosnap goes to 0
 	fsnap = 1 - math.exp(-dt / self.tosnap) if self.tosnap > 0 else 1
-		
-
 
 	if settings.manualcamera:
 		gamma = self.mgamma
@@ -111,16 +131,13 @@ def think(dt, dmx, dmy):
 		self.mgamma = self.gamma
 		self.mphi = self.phi
 
-#	kappa = -ytilt
-#	eta = xtilt
-#	theta = self.gamma - kappa
 	theta = self.gamma
 	uvantage = Vector3(0, 0, 1).rotate_x(theta).rotate_z(self.phi)
 	
 	dtilt = self.atilt.length()
 	utilt = self.atilt.normalize() if dtilt else Vector3(0, 0, 1)
 	self.camera = camera
-	self.vantage = camera + self.Rvantage * uvantage.rotate(dtilt, utilt)
+	self.vantage = self.camera + self.Rvantage * uvantage.rotate(dtilt, utilt)
 	self.up = Vector3(0, 0, 1).rotate_z(self.phi).rotate(dtilt, utilt)
 
 
@@ -130,21 +147,14 @@ def look():
 	# cycle animation variables
 	graphics.animation.cycle()
 	
-	# TODO: get lighting working
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
 
-	# TODO: probably don't need to center the player character
-	# can we put it 3/4 of the way down the window?
 	w, h = screen.get_size()
 	fov = 45
 	gluPerspective(fov, w / h, 0.1, 1000.0)
 	args = list(self.vantage) + list(self.camera) + list(self.up)
 	gluLookAt(*args)
-	
-	#glEnable(GL_BLEND)
-	# TODO: get water transparency working
-	#glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 	
 	glMatrixMode(GL_MODELVIEW)
 	glEnable(GL_DEPTH_TEST)
