@@ -2,9 +2,9 @@ import random, pygame
 from . import view, state, thing, graphics, settings, section, level, ptext, sound, scene, mapscene
 
 def init():
+	state.animation = graphics.Animations()
 	state.you = thing.You()
 	level.load()
-	
 	if settings.GenerateOpenSCADScripts: # output scad scripts for building section 3D models
 		graphics.build_openscad_commands()
 	
@@ -15,8 +15,8 @@ def init():
 	"""
 	
 	# turn these on to see final boss and vortex animation
-	#graphics.animation.stalker.append(graphics.Stalker(state.sections[5].pos,state.sections[5]))
-	#graphics.animation.vortexes.append(graphics.Vortex(state.sections[5].pos,state.sections[5],state.sections[5].r,speed=2.0))
+	#state.animation.stalker.append(graphics.Stalker(state.sections[5].pos,state.sections[5]))
+	#state.animation.vortexes.append(graphics.Vortex(state.sections[5].pos,state.sections[5],state.sections[5].r,speed=2.0))
 	
 #	for _ in range(100):
 #		obj = thing.Debris()
@@ -72,7 +72,7 @@ def draw():
 		graphics.drawmodel_watersurface()
 		graphics.drawmodel_section_pools()
 		graphics.drawmodel_section_tubes()
-		graphics.animation.draw()
+		state.animation.draw()
 	
 	#graphics.drawglow(0.5, [1, 0, 0, 1])
 	

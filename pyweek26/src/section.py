@@ -47,7 +47,7 @@ class Pool():
 			self.drop(you)
 		dt = self.draintarget()
 		sound.manager.PlaySound('drain')
-		graphics.animation.waterfalls.append(graphics.Waterfall([self.pos[0],self.pos[1],self.pos[2]],dt,self.pos[2]-dt.pos[2]))
+		state.animation.waterfalls.append(graphics.Waterfall([self.pos[0],self.pos[1],self.pos[2]],dt,self.pos[2]-dt.pos[2]))
 		state.effects.append(thing.Waterfall(self, dt))
 		dt.drainers.append(self)
 	def drop(self, you):
@@ -72,6 +72,7 @@ class Pool():
 			self.drop(you)
 		if self.canfeed(you):
 			state.food = state.foodmax
+			sound.manager.PlaySound('food_got')
 	def atilt(self, you):
 		return Vector3(0, 0, 0)
 	def act(self, you):
@@ -208,7 +209,7 @@ class Pipe():
 			obj.pos = 1 * obj.section.pos
 			view.addsnap(0.5)
 			obj.pos.z -= 3
-			graphics.animation.splashes.append(graphics.Splashes([obj.section.pos[0],obj.section.pos[1],obj.section.pos[2]], obj.section, lifetime=60))
+			state.animation.splashes.append(graphics.Splashes([obj.section.pos[0],obj.section.pos[1],obj.section.pos[2]], obj.section, lifetime=60))
 			sound.manager.PlaySound('gurgle001')
 
 	def dzwater(self, pos):

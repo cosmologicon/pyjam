@@ -7,6 +7,8 @@ try:
 except ImportError:
 	import pickle
 
+# animation objects
+animation = None
 # Player character
 you = None
 # Current amount of fish food
@@ -68,11 +70,11 @@ def think(dt):
 			dialog.trigger(convo)
 
 def getstate():
-	return you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored
+	return you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored, animation
 
 def setstate(s):
 	global you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored
-	you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored = s
+	you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored, animation = s
 
 def save():
 	global tsave, tnosave

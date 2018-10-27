@@ -3,12 +3,11 @@ import os
 from OpenGL.GL import *
 from OpenGL.GL import shaders
 from OpenGL.GLU import *
+import pygame
 from . import state
 from . import modelloader, settings
 
 import random
-
-#graphics.animation.stalker.append(graphics.Stalker(state.sections[5].pos,state.sections[5]))
 
 class Splashes(object):
 	def __init__(self, pos, section, lifetime = -1):
@@ -330,13 +329,7 @@ class Animations(object):
 			waterfall.Update()
 		for stalker in self.stalker:
 			stalker.Update()
-		
-		# Use currently read sections, generate a command script for OpenSCAD rendering
-		#if self.init_trigger:
-		#	build_openscad_commands()
-		#	self.init_trigger = False
-		
-		
+				
 	def draw(self):
 		for splash in self.splashes:
 			if splash.section in get_sections_to_draw():
@@ -351,8 +344,7 @@ class Animations(object):
 			if stalker.section in get_sections_to_draw():
 				stalker.Draw()
 		
-
-animation = Animations()
+#animation = Animations()
 
 def init():
 	global quadric
@@ -374,15 +366,15 @@ def init():
 	global model_fishfood
 	model_fishfood = modelloader.Model3D(os.path.join('models','fishfood.obj'))
 	
-	# Load in water texture
+	# Load in water textures
 	global water_texture
-	water_texture = modelloader.TextureSurf(os.path.join('models','water_texture_darkgreen.png'))
+	water_texture = modelloader.TextureSurf(os.path.join('models','textures','water_texture_darkgreen.png'))
 	global water_texture_pool
-	water_texture_pool = modelloader.TextureSurf(os.path.join('models','water_texture_darkgreen_pool.png'))
+	water_texture_pool = modelloader.TextureSurf(os.path.join('models','textures','water_texture_darkgreen_pool.png'))
 	global water_texture_vortex
-	water_texture_vortex = modelloader.TextureSurf(os.path.join('models','water_texture_vortex.png'))
+	water_texture_vortex = modelloader.TextureSurf(os.path.join('models','textures','water_texture_vortex.png'))
 	global water_texture_vortex_small
-	water_texture_vortex_small = modelloader.TextureSurf(os.path.join('models','water_texture_vortex_small.png'))
+	water_texture_vortex_small = modelloader.TextureSurf(os.path.join('models','textures','water_texture_vortex_small.png'))
 	
 	# Load in Environment model files
 	global model3d_pipe
@@ -515,8 +507,8 @@ def drawmodel_sect_pool_water(sect):
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 	glBegin(GL_POLYGON)
 	for x, y in math.CSround(int(round(10 * sect.r)), r = sect.r):
-		dx = 0.5*sin(animation.water_flow/100.0)+1.0*cos(animation.water_flow/80.0)
-		dy = 0.5*cos(animation.water_flow/100.0)+1.0*sin(animation.water_flow/80.0)
+		dx = 0.5*sin(state.animation.water_flow/100.0)+1.0*cos(state.animation.water_flow/80.0)
+		dy = 0.5*cos(state.animation.water_flow/100.0)+1.0*sin(state.animation.water_flow/80.0)
 		glTexCoord2f((x+dx)/10, (y+dy)/10)
 		glVertex(x, y, 0.1)
 	glEnd()
@@ -542,6 +534,19 @@ def drawmodel_sect_pool(sect):
 	else:
 		glCallList(model3d_sections[0][sect_ind].gl_list)
 	glPopMatrix()
+	if sect.hasfood:
+		glPushMatrix()
+		glTranslate(*sect.pos)
+		glColor4f(1, 1, 0, 1)
+		glPointSize(5)
+		glBegin(GL_POINTS)
+		for jfood in range(50):
+			x, y = math.CS(jfood * math.phi, sect.r / 2 * (jfood ** 2 * math.phi % 1))
+			z = 3 * ((jfood ** 3 * math.phi + pygame.time.get_ticks() * 0.001) % 1) ** 2
+			glVertex(x, y, z)
+		glEnd()
+		glPopMatrix()
+		drawfishfood(sect.pos)
 
 def drawmodel_sect_straight_water(sect):
 	
@@ -567,13 +572,13 @@ def drawmodel_sect_straight_water(sect):
 	glBegin(GL_QUADS)
 	if fabs(sect.getflowrate()) > 0:
 		steps = ceil(sect.length/(3*sect.getflowrate()/float(settings.maxfps)))
-		glTexCoord2f(0, -(animation.water_flow % steps)/steps)
+		glTexCoord2f(0, -(state.animation.water_flow % steps)/steps)
 		glVertex(-sect.width, dy1, 0.1)
-		glTexCoord2f(0, (0.2*(sect.length-dy1-dy2)/sect.width)-(animation.water_flow % steps)/steps)
+		glTexCoord2f(0, (0.2*(sect.length-dy1-dy2)/sect.width)-(state.animation.water_flow % steps)/steps)
 		glVertex(-sect.width, sect.length-dy2, sect.dz+0.1)
-		glTexCoord2f(1, (0.2*(sect.length-dy1-dy2)/sect.width)-(animation.water_flow % steps)/steps)
+		glTexCoord2f(1, (0.2*(sect.length-dy1-dy2)/sect.width)-(state.animation.water_flow % steps)/steps)
 		glVertex(sect.width, sect.length-dy2, sect.dz+0.1)
-		glTexCoord2f(1, -(animation.water_flow % steps)/steps)
+		glTexCoord2f(1, -(state.animation.water_flow % steps)/steps)
 		glVertex(sect.width, dy1, 0.1)
 	else:
 		glTexCoord2f(0, 0)
@@ -685,7 +690,7 @@ def drawmodel_sect_curve_water(sect):
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 	glBegin(GL_POLYGON)
-	angle = sect.z[2]*(animation.water_flow*(0.2*sect.getflowrate()/settings.maxfps) % (2*pi))
+	angle = sect.z[2]*(state.animation.water_flow*(0.2*sect.getflowrate()/settings.maxfps) % (2*pi))
 	for vertex in sect.vertices:
 		vx = vertex[0]*cos(angle) - vertex[1]*sin(angle)
 		vy = vertex[0]*sin(angle) + vertex[1]*cos(angle)
@@ -773,9 +778,14 @@ def drawfishfood(pos):
 	glPushMatrix()
 	glColor4f(1.0, 1.0, 1.0, 1)
 	glTranslate(pos[0], pos[1], pos[2])
-	glRotate(-90, 1, 0, 0)
+	glRotate(180, 1, 0, 0)
+	glRotate(20, 0, 0, 1)
 	glScale(2.0, 2.0, 2.0)
+	if not state.food:
+		glDisable(GL_LIGHTING)
 	glCallList(model_fishfood.gl_list)
+	if not state.food:
+		glEnable(GL_LIGHTING)
 	glPopMatrix()
 
 # Placeholder - for now everything's spheres
