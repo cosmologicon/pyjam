@@ -69,7 +69,13 @@ def draw():
 		graphics.drawmodel_section_tubes()
 		state.animation.draw()
 
+
+	glMatrixMode(GL_PROJECTION)
+	glLoadIdentity()
+	glClear(GL_DEPTH_BUFFER_BIT)
+
 	drawminimap()
+	drawhud()
 	
 	text = [
 		"Food: %d/%d" % (state.food, state.foodmax),
@@ -88,14 +94,11 @@ def draw():
 	
 def drawminimap():
 	w, h = settings.resolution
+	glPushMatrix()
 	a = int(h / 4)
 	d = int(h / 30)
 	glEnable(GL_BLEND)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-	glMatrixMode(GL_PROJECTION)
-	glPushMatrix()
-	glClear(GL_DEPTH_BUFFER_BIT)
-	glLoadIdentity()
 	glEnable(GL_SCISSOR_TEST)
 	glScissor(w - a - d, d, a, a)
 	glColor(0, 0, 0.4, 1)
@@ -118,3 +121,32 @@ def drawminimap():
 	glEnable(GL_DEPTH_TEST)
 	glDisable(GL_SCISSOR_TEST)
 	glPopMatrix()
+
+def drawhud():
+	glMatrixMode(GL_PROJECTION)
+	glPushMatrix()
+	glLoadIdentity()
+	glClear(GL_DEPTH_BUFFER_BIT)
+	glDisable(GL_DEPTH_TEST)
+	section = state.you.section
+	if section.label == "pool":
+		pressure = section.pressure()
+		glPushMatrix()
+		ptext.draw("WATER\nPRESSURE", fontsize = 40, color = "gray", ocolor = "black", owidth = 2,
+			shade = 2, center = (1160, 540), fontname = "PassionOne")
+		glPopMatrix()
+		glTranslate(-1, -1, 0)
+		glScale(2 / 1280, 2 / 720, 1)
+		glColor(0.2, 0.2, 0.2, 1)
+		x0, y0 = 1160, 600
+#		glRectf(x0 - 42, y0 - 14 - 6 * 26, x0 + 42, y0 + 14)
+		for jpressure in range(6):
+			if jpressure < pressure:
+				glColor(0, 0, 0.5, 1)
+			else:
+				glColor(0, 0, 0, 1)
+			x0, y0 = 1160, 600 + 26 * (jpressure - 6)
+			glRectf(x0 - 40, y0 - 12, x0 + 40, y0 + 12)
+	glEnable(GL_DEPTH_TEST)
+	glPopMatrix()
+

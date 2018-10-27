@@ -6,7 +6,7 @@ DEBUG = True  # TODO: change to False before submitting
 
 gamename = "Flow"
 
-resolution = 1024, 720
+resolution = 1280, 720
 fullscreen = "--fullscreen" in sys.argv
 
 leveldataname = "leveldata"
@@ -28,7 +28,7 @@ debug_graphics = "--debuggfx" in sys.argv
 GenerateOpenSCADScripts = "--build" in sys.argv
 openscad_path = '/Applications/OpenSCAD_2018.app/Contents/MacOS/OpenSCAD' # varies on different systems
 if not os.path.exists(openscad_path):
-	openscad_path = "/usr/bin/openscad"
+	openscad_path = "/snap/bin/openscad-nightly"
 
 # Bash scripts/OpenSCAD files go to: tools/generated_section_models/scad. Run "openscad_script.sh"
 # to build all models as stl.

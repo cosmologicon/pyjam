@@ -3,6 +3,8 @@ import pygame
 from pygame.locals import *
 from . import maff, settings, view, scene, gamescene, graphics, ptext, sound, state, mapscene
 
+ptext.FONT_NAME_TEMPLATE = "data/fonts/%s.ttf"
+
 view.init()
 graphics.init()
 pygame.mixer.init()
