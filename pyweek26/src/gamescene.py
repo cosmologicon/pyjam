@@ -48,6 +48,14 @@ def think(dt, kpressed, kdowns, dmx, dmy):
 def draw():
 	view.clear((0.1, 0.1, 0.1, 1))
 	view.look()
+	
+#	for obj in state.objs:
+#		graphics.drawobj(obj)
+	
+	# If you are rendering the ocean, call the skybox here first:
+	#if state.sections.index(state.you.section) == section_ocean: etc.
+	#	graphics.draw_skybox(state.you.section.pos)
+	
 	graphics.drawyou()
 	for obj in state.objs:
 		obj.draw()
@@ -65,6 +73,11 @@ def draw():
 		graphics.drawmodel_section_pools()
 		graphics.drawmodel_section_tubes()
 		state.animation.draw()
+		
+		# If rendering the ocean:
+		#graphics.drawmodel_ocean(state.you.section)
+		#graphics.drawfriendfish(state.you.section.pos,0.0)
+		# etc.
 
 
 	glMatrixMode(GL_PROJECTION)
