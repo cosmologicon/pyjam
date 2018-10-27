@@ -4,7 +4,7 @@ Game Title
 Entry in PyWeek 26  <http://www.pyweek.org/26/>
 URL: https://www.pyweek.org/e/unifac26/
 Team: Universe Factory 26
-Members: Christopher Night (Cosmologicon), Mary Bichner (marybee), Mitch Bryson (mit-mit)
+Members: Christopher Night (Cosmologicon), Mitch Bryson (mit-mit), Mary Bichner (marybee), Charles McPillan (EnigmaticArcher), Minh Huynh, Jules Van Oosterom
 License: see LICENSE.txt
 
 Requirements

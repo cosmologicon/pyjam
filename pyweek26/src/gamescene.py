@@ -90,6 +90,7 @@ def draw():
 	drawminimap()
 	drawhud()
 	
+	text = []
 	text = [
 		"Food: %d/%d" % (state.food, state.foodmax),
 		"Current section: %s %s" % (state.you.section.label, state.you.section.sectionid),
@@ -102,8 +103,42 @@ def draw():
 			"Baseline pressure: %d" % pool.pressure0,
 		]
 		if pool.candrainfrom(state.you):
-			ptext.draw("Space: drain", fontsize = 35, midbottom = (512, 100))
-	ptext.draw("\n".join(text), fontsize = 28, midbottom = (512, 20))
+			ptext.draw("Space: open drain", fontsize = 80, center = (1280/2, 500),
+				fontname = "PassionOne", color = "orange", shade = 1, owidth = 1, ocolor = "black"
+				)
+	if settings.DEBUG:
+		ptext.draw("\n".join(text), fontsize = 28, midbottom = (512, 20))
+
+	text = [
+		"M: map/help",
+	]
+	if ("pool", 0) in state.explored:
+		pass
+	else:
+		text += [
+			"",
+			"CONTROLS:",
+			"Arrows or WASD: move",
+			"Click: enable/disable manual camera control",
+			"Space or Enter: jump / open drains",
+			"Double-tap space to dive",
+			"",
+			"HOW TO PLAY:",
+			"Can't swim uphill.",
+			"Can only swim against the current if the",
+			"pressure difference betewen rooms is 1.",
+			"Watch the pressure gauge in each room.",
+			"Opening a drain into a room raises the",
+			"lower room's pressure value by 1.",
+			"",
+			"Find fish food to gain the ability to go",
+			"up one pipe.",
+		]
+	ptext.draw("\n".join(text), fontsize = 21, owidth = 2, ocolor = "black", color = "white",
+		shade = 1, fontname = "PassionOne", bottomleft = (20, 20)
+	)
+
+
 	
 def drawminimap():
 	w, h = settings.resolution
