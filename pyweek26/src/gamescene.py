@@ -1,4 +1,5 @@
-import random, pygame
+import random, pygame, math
+from OpenGL.GL import *
 from . import view, state, thing, graphics, settings, section, level, ptext, sound, scene, mapscene
 
 def init():
@@ -63,8 +64,8 @@ def draw():
 		graphics.drawmodel_section_pools()
 		graphics.drawmodel_section_tubes()
 		state.animation.draw()
-	
-	#graphics.drawglow(0.5, [1, 0, 0, 1])
+
+	drawminimap()
 	
 	text = [
 		"Food: %d/%d" % (state.food, state.foodmax),
@@ -81,4 +82,35 @@ def draw():
 			ptext.draw("Space: drain", fontsize = 35, midbottom = (512, 100))
 	ptext.draw("\n".join(text), fontsize = 28, midbottom = (512, 20))
 	
-
+def drawminimap():
+	w, h = settings.resolution
+	a = int(h / 4)
+	d = int(h / 30)
+	glEnable(GL_BLEND)
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+	glMatrixMode(GL_PROJECTION)
+	glPushMatrix()
+	glClear(GL_DEPTH_BUFFER_BIT)
+	glLoadIdentity()
+	glEnable(GL_SCISSOR_TEST)
+	glScissor(w - a - d, d, a, a)
+	glColor(0, 0, 0.4, 1)
+	glBegin(GL_QUADS)
+	glVertex(1, 1, 0.8)
+	glVertex(-1, 1, 0.8)
+	glVertex(-1, -1, 0.8)
+	glVertex(1, -1, 0.8)
+	glEnd()
+	glScale(2 / w, 2 / h, 2 / 1000)
+	glTranslate((w - d - a / 2) - (w / 2), -(h / 2) + (d + a / 2), 0)
+	glRotate(-math.degrees(state.you.heading), 0, 0, 1)
+	glDisable(GL_DEPTH_TEST)
+	glColor(1, 0.5, 0, 1)
+	glBegin(GL_TRIANGLES)
+	glVertex(-5, -5)
+	glVertex(5, -5)
+	glVertex(0, 10)
+	glEnd()
+	glEnable(GL_DEPTH_TEST)
+	glDisable(GL_SCISSOR_TEST)
+	glPopMatrix()

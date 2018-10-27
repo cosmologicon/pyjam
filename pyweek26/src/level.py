@@ -173,6 +173,7 @@ def triggerendboss(endboss, j, k):
 	section = sections_by_id[parseid(j, k)]
 	state.effects.append(thing.Tentacles(section))
 	section.final = True
+	section.bmode = True
 
 def triggersave(save, k):
 	section = sections_by_id[parseid("pool", k)]

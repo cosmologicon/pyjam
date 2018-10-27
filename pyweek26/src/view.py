@@ -41,8 +41,11 @@ class self:
 	rapid = False
 
 	# Whether we're in "f"-mode (as in fixed), i.e. in the northwest puzzle
-	fmode = True
+	fmode = False
 	fcamera = Vector3(0, 0, 0)
+	# Whether we're in "b"-mode (as in final boss), semifixed
+	bmode = False
+	bphi = 0
 
 def init():
 	global screen
@@ -93,6 +96,17 @@ def think(dt, dmx, dmy):
 			self.fmode = False
 			self.tosnap = 1
 
+	if state.you.section.bmode is None:
+		pass
+	elif state.you.section.bmode:
+		if not self.bmode:
+			self.bmode = True
+			self.tosnap = 1
+	else:
+		if self.bmode:
+			self.bmode = False
+			self.tosnap = 0.5
+
 	if self.fmode:
 		if state.you.section.label == "pool":
 			self.fcamera = state.you.section.pos * 1	
@@ -100,6 +114,24 @@ def think(dt, dmx, dmy):
 		phi = 0
 		gamma = 40
 		Rvantage = math.softapproach(self.Rvantage, 40, 3 * dt)
+
+	if self.bmode:
+		camera = math.softapproach(self.camera, state.you.section.pos, 3 * dt)
+		d = state.you.pos - state.you.section.pos
+		d.z = 0
+		
+		if d.x == 0 and d.y == 0:
+			kappa = 0
+		else:
+			kappa = math.degrees(math.atan2(d.y, d.x)) - 90
+		dphi = math.zmod(self.bphi - kappa, 360)
+		if 0 < dphi < 70:
+			self.bphi += 70 - dphi
+		elif -70 < dphi < 0:
+			self.bphi += -70 - dphi
+		phi = self.bphi
+		gamma = 55
+		Rvantage = math.softapproach(self.Rvantage, 45, 3 * dt)
 
 	if state.you.section.rapid > 1:
 		if not self.rapid:

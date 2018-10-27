@@ -1,13 +1,25 @@
+start pool 83  # TUTORIAL START
+dialog A pool 83
+music level pool 83
+
+# start pool 72  # TUTORIAL HALFWAY
+food pool 75
+food pool 67
+food pool 68
+
+# start pool 65  # FIRST BOSS ENCOUNTER
+dialog B 61 0
+dialog C pool 0
 # start	pool	0
 
 
-start pool 43 # NORTHWEST - THE PRESSURE MAZE
+# start pool 43 # NORTHWEST - THE PRESSURE MAZE
 food pool 54
 food pool 58
 fmode pool 43 True
 fmode pool 62 False
 
-# start pool 38  # NORTHEAST - THE RAPIDS
+start pool 38  # NORTHEAST - THE RAPIDS
 food pool 37
 rapid 28 2.5
 food pool 39
@@ -40,7 +52,8 @@ music boss 9 0
 dialog E 9 0
 
 # END BOSS
-#start pool 5
+start pool 5
+music boss pool 5
 endboss	pool 6
 food pool 6
 dialog F pool 6

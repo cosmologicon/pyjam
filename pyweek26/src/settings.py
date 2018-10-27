@@ -25,8 +25,10 @@ debug_graphics = "--debuggfx" in sys.argv
 # files in current map. Function to do this is "build_openscad_commands" in graphics.py,
 # and it reads from the currently loaded section data (load up in debug mode) to generate
 # CAD commands
-GenerateOpenSCADScripts = True
+GenerateOpenSCADScripts = "--build" in sys.argv
 openscad_path = '/Applications/OpenSCAD_2018.app/Contents/MacOS/OpenSCAD' # varies on different systems
+if not os.path.exists(openscad_path):
+	openscad_path = "/usr/bin/openscad"
 
 # Bash scripts/OpenSCAD files go to: tools/generated_section_models/scad. Run "openscad_script.sh"
 # to build all models as stl.

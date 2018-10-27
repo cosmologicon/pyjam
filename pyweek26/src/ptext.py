@@ -584,6 +584,7 @@ def draw(text, pos=None, **kwargs):
 		# TODO: a custom shader here would probably be a little faster
 		w0, h0 = options.surf.get_size()
 		# TODO: make it so you don't need to set this up each time for repeated calls
+		glColor(1, 1, 1, 1)
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
 		glTranslate(-1, -1, 0)

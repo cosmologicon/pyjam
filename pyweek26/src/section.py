@@ -13,6 +13,7 @@ class Pool():
 	label = 'pool'
 	rapid = 1
 	fmode = None
+	bmode = False
 	def __init__(self, pos, r, pressure0, drainable):
 		self.pos = pos
 		self.r = r
@@ -33,7 +34,7 @@ class Pool():
 	def pressure(self):
 		return self.pressure0 - self.draining + len(self.drainers)
 	def candrainfrom(self, obj):
-		return self.drainable and not self.draining and self.dwall(obj) > self.r - 2
+		return self.drainable and not self.draining and self.dwall(obj) > 2
 	def candropfrom(self, obj):
 		return self.draining and self.dwall(obj) > self.r - 3
 	def draintarget(self):
@@ -168,6 +169,7 @@ class Pipe():
 	label = 'pipe'
 	rapid = 1
 	fmode = None
+	bmode = False
 	def __init__(self, pos0, pos1, width = 1):
 		self.pos0 = 1 * pos0
 		self.pos1 = 1 * pos1
@@ -244,6 +246,7 @@ class Pipe():
 class Connector():
 	rapid = 1
 	fmode = None
+	bmode = False
 	def setpools(self):
 		self.pool0 = self
 		while self.pool0.label != "pool":

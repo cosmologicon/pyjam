@@ -398,13 +398,14 @@ def init():
 	max_ind = max([int(path[-7:-4]) for path in model_paths])
 	for i in range(max_ind+1):
 		model3d_sections[-1].append([])
-	c = 0
-	for path in model_paths:
-		ind = int(path[-7:-4])
-		if c % 20 == 0:
-			print('Loading 3D Models: %d of %d'%(c+1,len(model_paths)))
-		c += 1
-		model3d_sections[-1][ind] = modelloader.Model3D(os.path.join('models',level_name,path),alpha=0.3)
+	if not settings.debug_graphics:
+		c = 0
+		for path in model_paths:
+			ind = int(path[-7:-4])
+			if c % 20 == 0:
+				print('Loading 3D Models: %d of %d'%(c+1,len(model_paths)))
+			c += 1
+			model3d_sections[-1][ind] = modelloader.Model3D(os.path.join('models',level_name,path),alpha=0.3)
 	
 	# Init OpenGL lighting
 	# TODO: figure out strange lighting directions

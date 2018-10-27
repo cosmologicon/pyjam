@@ -48,36 +48,38 @@ class MovesWithArrows(enco.Component):
 		self.upstream = True
 		self.landed = True
 		self.tjump = 0
+		# Confusing but this is your speed with respect to the water, not the speed of the water.
+		self.vwater = pygame.math.Vector3(0, 0, 0)
 	def move(self, dt, dx, dy, turn, act, acthold):
 		if self.landed and self.section is not None:
 			self.section.move(self, dt, dx, dy, turn)
-		self.pos += dt * self.v
+		self.pos += dt * (self.v + self.vwater)
 		if act:
 			if self.section.act(self):
 				pass
 			elif self.landed:  # Jump
 				self.landed = False
 				self.toleap = 20
-				self.v.z = 5
+				self.vwater.z = 5
 			elif self.tjump < 0.4:  # Dive
 				self.toleap = 0
-				self.v.z = -40
+				self.vwater.z = -40
 		if not acthold:
 			self.toleap = 0
 	def think(self, dt):
 		dz = self.section.dzwater(self.pos)
 		if self.landed:
 			# Damped constant-force motion to settle
-			self.v.z -= 60 * dz * dt
-			self.v.z *= math.exp(-0.4 * dt)
+			self.vwater.z -= 50 * dz * dt
+			self.vwater.z *= math.exp(-2 * dt)
 			self.tjump = 0
 		else:
 			self.tjump += dt
 			toleap = min(self.toleap, 100 * dt)
 			self.toleap -= toleap
-			self.v.z += toleap
-			self.v.z -= 60 * dt
-			if dz < 0 and self.v.z < 0:
+			self.vwater.z += toleap
+			self.vwater.z -= 60 * dt
+			if dz < 0 and self.vwater.z < 0:
 				sound.manager.PlaySound('splash%03d'%(random.randint(1,3)))
 				self.landed = True
 #				self.v.z = 0
@@ -89,10 +91,10 @@ class MovesWithArrows(enco.Component):
 		self.Tswim += dt * f
 	# Up/down angle for the purpose of rendering
 	def rangle(self):
-		vz = self.v.z
+		vz = (self.v + self.vwater).z
 		if self.landed:
 			p = 1 * self.pos
-			dp = p + self.v
+			dp = p + self.v + self.vwater
 			p.z = 0
 			dp.z = 0
 			vz += self.section.dzwater(dp) - self.section.dzwater(p)

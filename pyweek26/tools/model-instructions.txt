@@ -1,0 +1,11 @@
+(1) you run the game in debug mode for the current level you want to build. In settings, set "GenerateOpenSCADScripts" to True and edit the path to your binary for openscad.
+There is a script in the code that builds a series of openscad scripts (one for each section) and a master shell script for building all. These get output to tools->generated_section_models->scad
+this is built when the game starts, and the game can continue as normal
+
+(2) in a new shell, go to tools/generated_section_models/scad and run the shell script "openscad_script.sh"
+this script will generate stl model files (one for each section) and place them in tools/generated_section_models/stl
+
+(3) go to tools/generated_section_models, open a python session and run the script "finalisemodels.py": this will grab each stl, convert it to obj and add in materials/texturing.
+(once the script is finished)
+You now have the final files you need in the tools/generated_section_models/obj folder. you can copy this folder into models, and rename is to the name of the level this data corresponds to (i.e. game)
+So the final thing should be that you have a folder in models/<level_name> and in it a bunch of obj files, one for each section in the level
