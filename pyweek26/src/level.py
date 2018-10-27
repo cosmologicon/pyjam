@@ -139,6 +139,8 @@ def loadtriggers(filename):
 			triggersave(*fields)
 		if fields[0] == "ocean":
 			triggerocean(*fields)
+		if fields[0] == "note":
+			triggernote(*fields)
 
 def triggerstart(start, j, k):
 	section = sections_by_id[parseid(j, k)]
@@ -190,4 +192,8 @@ def triggerfmode(fmode, j, k, value):
 def triggerocean(ocean, j, k):
 	section = sections_by_id[parseid(j, k)]
 	section.ocean = True
+
+def triggernote(note, name, j, k, value):
+	value = value == "True"
+	state.notetriggers[parseid(j, k)] = name, value
 

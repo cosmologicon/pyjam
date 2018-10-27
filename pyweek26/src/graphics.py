@@ -196,6 +196,7 @@ class Stalker(object):
 		glRotate(-90, 1, 0, 0)
 		glRotate(self.angle_body, 0, 1, 0)
 		glScale(0.5, 0.5, 0.5)
+		glTranslate(0, 0, -7)
 		glCallList(model_stalkerbody.gl_list)
 		glTranslate(0, -10.0, 0)
 		#glRotate(self.angle_eye, 0, 1, 0)
@@ -205,9 +206,9 @@ class Stalker(object):
 		# draw arms
 		for arm_ind in range(3):
 			glPushMatrix()
-			glScale(2, 2, 2)
 			glColor(1.0, 0.5, 1.0, 1)
 			glTranslate(self.armpos[arm_ind][0],self.armpos[arm_ind][1],self.pos[2])
+			glScale(2, 2, 2)
 			for i in range(steps_h):
 				off_x1 = sway_distx*sin(curvynessx*(i/steps_h)-sway_speedx*self.inds[arm_ind])
 				off_y1 = sway_disty*cos(curvynessy*(i/steps_h)-sway_speedy*self.inds[arm_ind])
@@ -592,9 +593,9 @@ def drawmodel_sect_pool(sect):
 		glPushMatrix()
 		glTranslate(*sect.pos)
 		glColor4f(1, 1, 0, 1)
-		glPointSize(5)
+		glPointSize(10)
 		glBegin(GL_POINTS)
-		for jfood in range(50):
+		for jfood in range(100):
 			x, y = math.CS(jfood * math.phi, sect.r / 2 * (jfood ** 2 * math.phi % 1))
 			z = 3 * ((jfood ** 3 * math.phi + pygame.time.get_ticks() * 0.001) % 1) ** 2
 			glVertex(x, y, z)

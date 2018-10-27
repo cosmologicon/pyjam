@@ -21,7 +21,7 @@ def init():
 
 def think(dt, kpressed, kdowns, dmx, dmy):
 	if kdowns["map"]:
-		if not state.section.ocean:
+		if not state.you.section.ocean:
 			scene.push(mapscene)
 
 	dx = kpressed["right"] - kpressed["left"]
@@ -113,6 +113,13 @@ def draw():
 	if settings.DEBUG:
 		ptext.draw("\n".join(text), fontsize = 28, midbottom = (512, 20))
 
+	note = state.currentnote()
+	if note is not None:
+		text = {
+			"skipse": "It's possible to get stuck in this section with no way to complete it. If you're stuck, press 4 to skip this section.",
+		}[note]
+		ptext.draw(text, topleft = (20, 400), width = 200, fontsize = 32, color = "orange", shade = 1,
+			ocolor = "black", owidth = 1)
 	text = [
 		"M: map/help",
 	]
@@ -169,22 +176,30 @@ def drawminimap():
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 	glEnable(GL_SCISSOR_TEST)
 	glScissor(w - a - d, d, a, a)
-	glColor(0, 0, 0.4, 1)
+	glColor(0, 0, 0.1, 1)
 	glBegin(GL_QUADS)
 	glVertex(1, 1, 0.8)
 	glVertex(-1, 1, 0.8)
 	glVertex(-1, -1, 0.8)
 	glVertex(1, -1, 0.8)
 	glEnd()
-	glScale(2 / w, 2 / h, 2 / 1000)
+	glScale(2 / w, 2 / h, -2 / 1000)
 	glTranslate((w - d - a / 2) - (w / 2), -(h / 2) + (d + a / 2), 0)
+	glScale(3, 3, 3)
+	glTranslate(*(-state.you.pos))
+	glEnable(GL_DEPTH_TEST)
+	for section in state.sections:
+		d = section.pos - state.you.pos
+		if math.sqrt(d.x ** 2 + d.y ** 2) < 100 and d.z < 3:
+			section.drawmap()
+	glTranslate(*state.you.pos)
 	glRotate(-math.degrees(state.you.heading), 0, 0, 1)
 	glDisable(GL_DEPTH_TEST)
 	glColor(1, 0.5, 0, 1)
 	glBegin(GL_TRIANGLES)
-	glVertex(-5, -5)
-	glVertex(5, -5)
-	glVertex(0, 10)
+	glVertex(-2, -2)
+	glVertex(2, -2)
+	glVertex(0, 4)
 	glEnd()
 	glEnable(GL_DEPTH_TEST)
 	glDisable(GL_SCISSOR_TEST)

@@ -56,6 +56,10 @@ food pool 21
 # start pool 17  # SE CUTSCENE
 music boss 9 0
 dialog E 9 0
+note skipse pool 16 True
+note skipse pool 17 False
+note skipse pool 3 False
+note skipse pool 0 False
 
 start pool 5 # END BOSS
 music boss pool 5
@@ -68,9 +72,8 @@ music boss pool 13
 dialog G 80 0
 rapid 80 8
 
-# FINAL CUTSCENE
+# start pool 84 # FINAL CUTSCENE
 dialog H pool 84
 music end pool 84
-start pool 84
 ocean pool 84
 

@@ -52,6 +52,9 @@ tnosave = 0
 # Section IDs of places you've visited, that show up unfaded on the map.
 explored = set()
 
+notetriggers = {}
+currentnotes = {}
+
 # For the purpose of triggering, every section of a tunnel has the same trigger logic.
 def triggermatch(id0, id1):
 	j0, k0 = id0
@@ -102,6 +105,16 @@ def think(dt):
 		if t <= 0:
 			dialog.trigger(convo)
 	dtotrigger = [(t, convo) for t, convo in dtotrigger if t > 0]
+
+	for sectionid, (notename, value) in notetriggers.items():
+		if triggermatch(you.section.sectionid, sectionid):
+			currentnotes[notename] = value
+
+def currentnote():
+	for notename, value in currentnotes.items():
+		if value:
+			return notename
+	return None
 
 def getstate():
 	return you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored, animation
