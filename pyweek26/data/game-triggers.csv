@@ -1,4 +1,7 @@
-start pool 83  # TUTORIAL START
+save 0
+start pool 1
+
+# start pool 83  # TUTORIAL START
 dialog A pool 83
 music level pool 83
 
@@ -19,7 +22,7 @@ food pool 58
 fmode pool 43 True
 fmode pool 62 False
 
-start pool 38  # NORTHEAST - THE RAPIDS
+# start pool 38  # NORTHEAST - THE RAPIDS
 food pool 37
 rapid 28 2.5
 food pool 39
@@ -51,12 +54,18 @@ food pool 21
 music boss 9 0
 dialog E 9 0
 
-# END BOSS
-start pool 5
+# start pool 5 # END BOSS
 music boss pool 5
 endboss	pool 6
 food pool 6
 dialog F pool 6
-# dialog G 25 0
-# dialog H pool 36
+
+# start pool 13 # END ESCAPE
+music boss pool 13
+dialog G 80 0
+rapid 80 8
+
+# FINAL CUTSCENE
+dialog H pool 84
+music end pool 84
 

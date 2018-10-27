@@ -25,6 +25,20 @@ class Lives(enco.Component):
 	def think(self, dt):
 		self.t += dt
 
+
+class TakesHit(enco.Component):
+	def start(self):
+		self.thurt = 0
+	def stunned(self):
+		return self.thurt > 0.5
+	def invulnerable(self):
+		return self.thurt > 0
+	def think(self, dt):
+		self.thurt = max(self.thurt - dt, 0)
+	def pickvector(self):
+		self.uspin = Vector3(random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1))
+		self.uspin = self.uspin.normalize() if self.uspin.length() else Vector3(0, 0, 1)
+
 class Collides(enco.Component):
 	def __init__(self, r = 1):
 		self.r = r
@@ -35,15 +49,23 @@ class Collides(enco.Component):
 class BossKnocks(enco.Component):
 	def hit(self, you):
 		d = you.pos - self.pos
-		you.thurt = 1
+		if d.length() == 0:
+			d = Vector3(1, 0, 0)
+		if not you.invulnerable():
+			you.thurt = 1
 		you.vwater += 12 * d.normalize() + Vector3(0, 0, 10)
 		you.landed = False
+		you.pickvector()
 
 class Knocks(enco.Component):
 	def hit(self, you):
 		d = you.pos - self.pos
-		you.thurt = 0.4
+		if d.length() == 0:
+			d = Vector3(1, 0, 0)
+		if not you.invulnerable():
+			you.thurt = 1
 		you.vwater += 5 * d.normalize()
+		you.pickvector()
 
 
 class Lifetime(enco.Component):
@@ -93,7 +115,7 @@ class MovesWithArrows(enco.Component):
 		if self.landed:
 			# Damped constant-force motion to settle
 			self.vwater.z -= 50 * dz * dt
-			self.vwater.z *= math.exp(-2 * dt)
+			self.vwater *= math.exp(-2 * dt)
 			self.tjump = 0
 		else:
 			self.tjump += dt
@@ -134,6 +156,7 @@ class SinksInPool(enco.Component):
 @WaterBound()
 @Lives()
 @Faces()
+@TakesHit()
 @MovesWithArrows()
 class You():
 	def __init__(self):
@@ -141,18 +164,41 @@ class You():
 		self.start()
 
 @WorldBound()
-@WaterBound()
+@WaterBound(fixed = True)
 @SinksInPool()
 @Collides()
 @Knocks()
 @Lives()
 class Debris():
-	def __init__(self):
+	def __init__(self, pos, section):
 		self.start()
+		self.pos = pos
+		self.section = section
 		self.color = [random.uniform(0.2, 0.4) for _ in "rgb"]
 		self.r = random.uniform(0.7, 1.5)
 	def think(self, dt):
 		pass
+	def draw(self):
+		if settings.debug_graphics:
+			graphics.drawobj(self)
+
+@WorldBound()
+@WaterBound(fixed = True)
+@Collides()
+@Knocks()
+@Lives()
+class Column():
+	def __init__(self, pos, section):
+		self.start()
+		self.color = [random.uniform(0.3, 0.4) for _ in "rgb"]
+		self.r = random.uniform(0.7, 1.5)
+		self.section = section
+	def think(self, dt):
+		pass
+	def draw(self):
+		if not settings.debug_graphics:
+			return
+		graphics.drawcylinder(self.pos, 1, self.h, (0, 0, 0.3, 1))
 
 @WorldBound()
 @WaterBound(fixed = True)
@@ -177,6 +223,8 @@ class BossHitbox():
 		self.section = section
 		self.pos = self.section.pos
 	def think(self, dt):
+		pass
+	def draw(self):
 		pass
 
 

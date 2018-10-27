@@ -462,7 +462,7 @@ _surf_tick_usage = {}
 _surf_size_total = 0
 _unrotated_size = {}
 _tick = 0
-def getsurf(text, **kwargs):
+def getsurf(text, maketex = True, **kwargs):
 	global _tick, _surf_size_total
 	options = _GetsurfOptions(**kwargs)
 	key = text, options.key()
@@ -473,15 +473,15 @@ def getsurf(text, **kwargs):
 		return _surf_cache[key], _texid_cache[key]
 	texts = wrap(text, **options.towrapoptions())
 	if options.angle:
-		surf0 = getsurf(text, **options.update(angle = 0))
+		surf0 = getsurf(text, False, **options.update(angle = 0))
 		surf = _rotatesurf(surf0, options.angle)
 		_unrotated_size[(surf.get_size(), options.angle, text)] = surf0.get_size()
 	elif options.alpha < 1.0:
-		surf = _fadesurf(getsurf(text, **options.update(alpha = 1.0)), options.alpha)
+		surf = _fadesurf(getsurf(text, False, **options.update(alpha = 1.0)), options.alpha)
 	elif options._spx is not None:
 		color = (0, 0, 0) if _istransparent(options.color) else options.color
-		surf0 = getsurf(text, **options.update(background = (0, 0, 0, 0), color = color, shadow = None, scolor = None))
-		ssurf = getsurf(text, **options.update(background = (0, 0, 0, 0), color = options.scolor, shadow = None, scolor = None, gcolor = None))
+		surf0 = getsurf(text, False, **options.update(background = (0, 0, 0, 0), color = color, shadow = None, scolor = None))
+		ssurf = getsurf(text, False, **options.update(background = (0, 0, 0, 0), color = options.scolor, shadow = None, scolor = None, gcolor = None))
 		w0, h0 = surf0.get_size()
 		sx, sy = options._spx
 		surf = pygame.Surface((w0 + abs(sx), h0 + abs(sy))).convert_alpha()
@@ -495,8 +495,8 @@ def getsurf(text, **kwargs):
 			surf.blit(surf0, (x0, y0))
 	elif options._opx is not None:
 		color = (0, 0, 0) if _istransparent(options.color) else options.color
-		surf0 = getsurf(text, **options.update(color = color, ocolor = None, owidth = None))
-		osurf = getsurf(text, **options.update(color = options.ocolor, ocolor = None, owidth = None, background = (0,0,0,0), gcolor = None))
+		surf0 = getsurf(text, False, **options.update(color = color, ocolor = None, owidth = None))
+		osurf = getsurf(text, False, **options.update(color = options.ocolor, ocolor = None, owidth = None, background = (0,0,0,0), gcolor = None))
 		w0, h0 = surf0.get_size()
 		opx = options._opx
 		surf = pygame.Surface((w0 + 2 * opx, h0 + 2 * opx)).convert_alpha()
@@ -536,23 +536,30 @@ def getsurf(text, **kwargs):
 				x = int(round(options.align * (w - lsurf.get_width())))
 				surf.blit(lsurf, (x, y))
 	w, h = surf.get_size()
-	glEnable(GL_TEXTURE_2D)
-	texid = glGenTextures(1)
-	glBindTexture(GL_TEXTURE_2D, texid)
-	tdata = pygame.image.tostring(surf, "RGBA", 1)
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata)
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+	if maketex:
+		glEnable(GL_TEXTURE_2D)
+		texid = glGenTextures(1)
+		glBindTexture(GL_TEXTURE_2D, texid)
+		tdata = pygame.image.tostring(surf, "RGBA", 1)
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata)
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
 
-	_surf_size_total += 4 * w * h
-	_surf_cache[key] = surf
-	_texid_cache[key] = texid
-	_surf_tick_usage[key] = _tick
-	_tick += 1
+		_surf_size_total += 4 * w * h
+		_surf_cache[key] = surf
+		_texid_cache[key] = texid
+		_surf_tick_usage[key] = _tick
+		_tick += 1
 
-	return surf, texid
+		return surf, texid
+	else:
+		_surf_size_total += 4 * w * h
+		_surf_cache[key] = surf
+		_surf_tick_usage[key] = _tick
+		_tick += 1
+		return surf
 
 # The actual position on the screen where the surf is to be blitted, rather than the specified
 # anchor position.
@@ -633,7 +640,8 @@ def clean():
 	memory_limit *= MEMORY_REDUCTION_FACTOR
 	keys = sorted(_surf_cache, key=_surf_tick_usage.get)
 	for key in keys:
-		glDeleteTextures([_texid_cache[key]])
+		if key in _texid_cache:
+			glDeleteTextures([_texid_cache[key]])
 		w, h = _surf_cache[key].get_size()
 		del _surf_cache[key]
 		del _surf_tick_usage[key]

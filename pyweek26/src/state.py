@@ -1,11 +1,25 @@
 from __future__ import print_function
-import datetime, os
+import datetime, os, pygame
 from . import dialog, settings
 
 try:
 	import cPickle as pickle
 except ImportError:
 	import pickle
+"""
+def get2(self):
+	return self.x, self.y
+def set2(self, obj):
+	self.x, self.y = obj
+def get3(self):
+	return self.x, self.y, self.z
+def set3(self, obj):
+	self.x, self.y, self.z = obj
+pygame.math.Vector2.__getstate__ = get2
+pygame.math.Vector2.__setstate__ = set2
+pygame.math.Vector3.__getstate__ = get3
+pygame.math.Vector3.__setstate__ = set3
+"""
 
 # animation objects
 animation = None
@@ -97,9 +111,10 @@ def save():
 	for fname in (settings.savename, asavename):
 		if not os.path.exists(os.path.dirname(fname)):
 			os.makedirs(os.path.dirname(fname))
-		pickle.dump(getstate(), open(fname, "wb"))
+		pickle.dump(getstate(), open(fname, "wb"), protocol=2, fix_imports=True)
 
 def load():
+	return
 	if not os.path.exists(settings.savename):
 		return
 	setstate(pickle.load(open(settings.savename, "rb")))
@@ -107,4 +122,4 @@ def load():
 def mapcolor(sectionid):
 	return (0.3, 0.3, 1, 1) if sectionid in explored else (0, 0, 0.4, 1)
 
-load()
+

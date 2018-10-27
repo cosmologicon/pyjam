@@ -5,7 +5,7 @@ modified from code found at:
 https://www.pygame.org/wiki/OBJFileLoader
 """
 
-import pygame, os
+import pygame, os, time
 from OpenGL.GL import *
 from OpenGL.raw import GL
 from OpenGL.arrays import ArrayDatatype as ADT
