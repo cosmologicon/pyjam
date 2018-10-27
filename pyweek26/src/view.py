@@ -36,6 +36,10 @@ class self:
 	gamma = 40
 	phi = 0
 	atilt = Vector3(0, 0, 0)
+	Rvantage = 20
+
+	# Currently in rapid mode
+	rapid = False
 
 def init():
 	global screen
@@ -64,20 +68,33 @@ def grabmouse(snap = False):
 
 def think(dt, dmx, dmy):
 	self.tosnap = max(self.tosnap - dt, 0)
-	# f is approximately dt / self.tosnap for large values of self.tosnap
-	# rapidly approaches 1 as self.tosnap goes to 0
-	fsnap = 1 - math.exp(-dt / self.tosnap) if self.tosnap > 0 else 1
 
 	if settings.manualcamera:
 		self.mgamma = math.clamp(self.mgamma - 100 * dmy, 5, 85)
 		self.mphi -= 100 * dmx
-
 
 	camera = 1 * state.you.pos
 	atilt = state.you.section.atilt(state.you)
 	Rvantage = 20
 	gamma = 55
 	phi = -math.degrees(state.you.heading)
+
+	if state.you.section.rapid > 1:
+		if not self.rapid:
+			self.tosnap = 1
+			self.rapid = True
+		Rvantage = 12
+		gamma = 68
+	else:
+		if self.rapid:
+			self.tosnap = 1
+			self.rapid = False
+
+	# f is approximately dt / self.tosnap for large values of self.tosnap
+	# rapidly approaches 1 as self.tosnap goes to 0
+	fsnap = 1 - math.exp(-dt / self.tosnap) if self.tosnap > 0 else 1
+		
+
 
 	if settings.manualcamera:
 		gamma = self.mgamma
@@ -87,7 +104,10 @@ def think(dt, dmx, dmy):
 	self.phi += fsnap * math.zmod(phi - self.phi, 360)
 	if fsnap == 0:
 		self.phi = phi
+	self.Rvantage = math.mix(self.Rvantage, Rvantage, fsnap)
 	self.atilt = math.mix(self.atilt, atilt, 2 * dt)
+	
+	print(self.rapid, self.Rvantage, Rvantage, fsnap)
 
 	if not settings.manualcamera:
 		self.mgamma = self.gamma
@@ -102,7 +122,7 @@ def think(dt, dmx, dmy):
 	dtilt = self.atilt.length()
 	utilt = self.atilt.normalize() if dtilt else Vector3(0, 0, 1)
 	self.camera = camera
-	self.vantage = camera + Rvantage * uvantage.rotate(dtilt, utilt)
+	self.vantage = camera + self.Rvantage * uvantage.rotate(dtilt, utilt)
 	self.up = Vector3(0, 0, 1).rotate_z(self.phi).rotate(dtilt, utilt)
 
 	

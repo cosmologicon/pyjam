@@ -10,6 +10,7 @@ from . import graphics, thing, state, settings, view, sound
 # In this section the left and right arrow keys rotate you
 class Pool():
 	label = 'pool'
+	rapid = 1
 	def __init__(self, pos, r, pressure0, drainable):
 		self.pos = pos
 		self.r = r
@@ -64,7 +65,7 @@ class Pool():
 			self.toturn = toturn
 		speed = 10 if dy > 0 else -3 if dy < 0 else 0
 		v = pygame.math.Vector3(0, speed, 0).rotate_z(math.degrees(-you.heading))
-		you.v = math.approach(you.v, v, 50 * dt)
+		you.v = math.approach(you.v, v, 200 * dt)
 		if self.candropfrom(you):
 			self.drop(you)
 		if self.canfeed(you):
@@ -162,6 +163,7 @@ class Pool():
 
 class Pipe():
 	label = 'pipe'
+	rapid = 1
 	def __init__(self, pos0, pos1, width = 1):
 		self.pos0 = 1 * pos0
 		self.pos1 = 1 * pos1
@@ -255,7 +257,8 @@ class Connector():
 		return rate * self.rapid
 	# Speed with respect to the current that the player swims while pressing these buttons
 	def swimrate(self, dx, dy):
-		return pygame.math.Vector3(5 * dx, 3 + 5 * dy, 0)
+		ax = 5 + 10 * (self.rapid - 1)
+		return pygame.math.Vector3(ax * dx, 3 + 5 * dy, 0)
 	def drawmap(self):
 		pass
 	
@@ -306,7 +309,7 @@ class StraightConnector(Connector):
 		you.heading = math.anglesoftapproach(you.heading, heading, 10 * dt, dymin = 0.01)
 		v = self.swimrate(dx, dy).rotate_z(math.degrees(-heading))
 		
-		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
+		you.v = pygame.math.Vector3(math.approach(you.v, v, 200 * dt))
 	def atilt(self, you):
 		return math.degrees(self.aslope) * self.right
 	def act(self, you):
@@ -445,7 +448,7 @@ class CurvedConnector(Connector):
 		heading = angle + (math.tau / 2 if you.upstream else 0)
 		you.heading = math.anglesoftapproach(you.heading, heading, 10 * dt, dymin = 0.01)
 		v = self.swimrate(dx, dy).rotate_z(math.degrees(-heading))
-		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
+		you.v = pygame.math.Vector3(math.approach(you.v, v, 200 * dt))
 	def atilt(self, you):
 		r = you.pos - self.center
 		if r.length() < 6:
