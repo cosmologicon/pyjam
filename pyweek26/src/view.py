@@ -41,7 +41,7 @@ class self:
 	rapid = False
 
 	# Whether we're in "f"-mode (as in fixed), i.e. in the northwest puzzle
-	fmode = True
+	fmode = False
 	fcamera = Vector3(0, 0, 0)
 
 def init():
