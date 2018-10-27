@@ -44,10 +44,20 @@ def triggermatch(id0, id1):
 	return j0 == j1 and (j0 != "pool" or k0 == k1)
 
 def currentmusic():
+	current = None
 	for sectionid, track in musics.items():
+		if sectionid == "current":
+			continue
 		if triggermatch(you.section.sectionid, sectionid):
-			return track
-	return "level"
+			current = track
+	if current is not None:
+		musics["current"] = current
+	elif "current" not in musics:
+		musics["current"] = "level"
+
+	if musics["current"] == "level":
+		return "levelA"
+	return musics["current"]
 
 def think(dt):
 	global tsave, tnosave, explored
