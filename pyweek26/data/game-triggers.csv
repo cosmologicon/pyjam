@@ -3,7 +3,9 @@
 
 start pool 43 # NORTHWEST - THE PRESSURE MAZE
 food pool 54
+food pool 58
 fmode pool 43 True
+fmode pool 62 False
 
 # start pool 38  # NORTHEAST - THE RAPIDS
 food pool 37
