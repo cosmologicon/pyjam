@@ -172,6 +172,7 @@ def triggermusic(music, track, j, k):
 def triggerendboss(endboss, j, k):
 	section = sections_by_id[parseid(j, k)]
 	state.effects.append(thing.Tentacles(section))
+	state.objs.append(thing.BossHitbox(section))
 	section.final = True
 	section.bmode = True
 
