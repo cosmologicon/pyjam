@@ -1,14 +1,18 @@
 from __future__ import division
 import pygame
 from pygame.locals import *
-from . import maff, settings, view, scene, gamescene, graphics, ptext, sound, state, mapscene
+from . import maff, settings, view, scene, gamescene, graphics, ptext, sound, state, mapscene, loadscene
 
 ptext.FONT_NAME_TEMPLATE = "data/fonts/%s.ttf"
 
 view.init()
-graphics.init()
+pygame.display.set_caption(settings.gamename)
 pygame.mixer.init()
-scene.push(gamescene)
+if settings.debug_graphics:
+	scene.push(gamescene)
+else:
+	scene.push(loadscene)
+graphics.init()
 #scene.push(mapscene)
 
 playing = True

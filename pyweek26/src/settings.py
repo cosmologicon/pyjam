@@ -1,15 +1,14 @@
 from pygame.locals import *
 import sys, os
 
-DEBUG = True  # TODO: change to False before submitting
-# TODO: empty savegame subdirectory before submitting
+DEBUG = False
 
-gamename = "Flow"
+gamename = "Storm Drain Odyssey"
 
 resolution = 1280, 720
 fullscreen = "--fullscreen" in sys.argv
 
-leveldataname = "leveldata"
+leveldataname = "game"
 
 manualcamera = False
 

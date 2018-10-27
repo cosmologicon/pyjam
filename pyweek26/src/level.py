@@ -3,7 +3,7 @@ import os
 from collections import defaultdict, OrderedDict
 from pygame.math import Vector3
 
-from . import state, section, thing, settings
+from . import state, section, thing, settings, graphics
 
 # Map from section id to section object
 sections_by_id = OrderedDict()
@@ -154,11 +154,12 @@ def triggerfood(start, j, k):
 def triggerwhirl(whirl, j, k, strength):
 	section = sections_by_id[parseid(j, k)]
 	section.whirl = float(strength)
+	state.animation.vortexes.append(graphics.Vortex(section.pos,section,section.r,speed=section.whirl * 0.3))
 
 def triggerdrain(whirl, j, k):
 	section = sections_by_id[parseid(j, k)]
 	section.drainable = True
-	section.drain()
+	section.drain(silent = True)
 
 def triggerrapid(rapid, j0, amount):
 	j0 = int(j0)

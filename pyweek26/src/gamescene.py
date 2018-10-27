@@ -1,3 +1,4 @@
+from __future__ import division
 import random, pygame, math
 from pygame.math import Vector3
 from OpenGL.GL import *
@@ -51,14 +52,26 @@ def draw():
 	view.clear((0.1, 0.1, 0.1, 1))
 	view.look()
 	
-#	for obj in state.objs:
-#		graphics.drawobj(obj)
-	
 	# If you are rendering the ocean, call the skybox here first:
-	#if state.sections.index(state.you.section) == section_ocean: etc.
-	#	graphics.draw_skybox(state.you.section.pos)
-	
+	if state.you.section.ocean:
+		graphics.draw_skybox(state.you.section.pos)
+
+
 	graphics.drawyou()
+	if state.food:
+		d = max((state.you.pos - view.self.vantage).length(), 1)
+		pointsize = math.clamp(200 / d, 1, 10)
+		glPushMatrix()
+		glTranslate(*state.you.pos)
+		glColor4f(1, 1, 0.5, 1)
+		glPointSize(pointsize)
+		glBegin(GL_POINTS)
+		for jfood in range(30):
+			x, y = math.CS(jfood * math.phi, 2 * state.you.r * (jfood ** 2 * math.phi % 1))
+			z = 3 * ((jfood ** 3 * math.phi + pygame.time.get_ticks() * 0.001) % 1) ** 2
+			glVertex(x, y, z)
+		glEnd()
+		glPopMatrix()
 
 	sections = graphics.get_sections_to_draw()
 	for obj in state.objs:

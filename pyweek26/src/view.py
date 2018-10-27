@@ -4,7 +4,7 @@ import pygame
 from pygame.math import Vector3
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from . import settings, state, graphics
+from . import settings, state
 
 screen = None
 
@@ -108,12 +108,12 @@ def think(dt, dmx, dmy):
 			self.tosnap = 0.5
 
 	if self.fmode:
-		if state.you.section.label == "pool":
-			self.fcamera = state.you.section.pos * 1	
+#		if state.you.section.label == "pool":
+		self.fcamera = state.you.section.pos * 1	
 		camera = math.softapproach(self.camera, self.fcamera, 3 * dt)
 		phi = 0
 		gamma = 40
-		Rvantage = math.softapproach(self.Rvantage, 40, 3 * dt)
+		Rvantage = math.softapproach(self.Rvantage, 28, 3 * dt)
 
 	if self.bmode:
 		camera = math.softapproach(self.camera, state.you.section.pos, 3 * dt)

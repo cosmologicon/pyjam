@@ -62,6 +62,9 @@ def triggermatch(id0, id1):
 	return j0 == j1 and (j0 != "pool" or k0 == k1)
 
 def currentmusic():
+	from . import level
+	if not musics:
+		return "intro"
 	current = None
 	for sectionid, track in musics.items():
 		if sectionid == "current":
@@ -74,7 +77,8 @@ def currentmusic():
 		musics["current"] = "level"
 
 	if musics["current"] == "level":
-		return "levelB"
+		progress = len(level.sections_by_id[("pool", 0)].drainers)
+		return "levelA" if progress % 2 else "levelB"
 	return musics["current"]
 
 def think(dt):

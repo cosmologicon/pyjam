@@ -1,6 +1,6 @@
 import os
 import pygame
-from . import settings, state
+from . import settings
 
 pygame.mixer.init()
 
@@ -85,14 +85,15 @@ class SoundManager(object):
 		self.playing_intro = False
 	
 	def Update_Ambient(self):
+		from . import state
 		if self.CheckVoice() == True:
-			pygame.mixer.music.set_volume(0.1)
+			pygame.mixer.music.set_volume(0.3)
 			self.vol_a = 0.0
 			self.vol_b = 0.05
 			vol_a_target = self.vol_a
 			vol_b_target = self.vol_b
 		else:
-			pygame.mixer.music.set_volume(0.5)
+			pygame.mixer.music.set_volume(0.7)
 			if state.you.section.label in ['straight','slope','pipe','curve']:
 				vol_a_target = 0.0
 				vol_b_target = 0.5
@@ -132,6 +133,7 @@ class SoundManager(object):
 				self.current_dind = -1
 	
 	def Update_Music(self):
+		from . import state
 		new_track = state.currentmusic()
 		if new_track == 'level': # whats 'level' ???
 			new_track = 'levelA' 

@@ -43,12 +43,13 @@ class Pool():
 		pools = [s for s in state.sections if s.label == "pool" and s.dwall(self) > 0 and s.pos.z < self.pos.z]
 		assert pools, "Drainable pool at %s not above another pool!" % (self.pos,)
 		return max(pools, key=lambda pool: pool.pos.z)
-	def drain(self, you=None):
+	def drain(self, you=None, silent=False):
 		self.draining = True
 		if you is not None:
 			self.drop(you)
 		dt = self.draintarget()
-		sound.manager.PlaySound('drain')
+		if not silent:
+			sound.manager.PlaySound('drain')
 		state.animation.waterfalls.append(graphics.Waterfall([self.pos[0],self.pos[1],self.pos[2]],dt,self.pos[2]-dt.pos[2]))
 		state.effects.append(thing.Waterfall(self, dt))
 		dt.drainers.append(self)
@@ -450,7 +451,9 @@ class CurvedConnector(Connector):
 		nseg = int(math.ceil(self.beta * 6))
 		angles = [360 + math.degrees(jseg / nseg * self.beta) for jseg in range(-nseg, nseg + 1)]
 		ds = [self.n.rotate(-angle, self.z) for angle in angles]
-		self.vertices = [d * (self.R - self.width) for d in ds] + [d * (self.R + self.width) for d in ds[::-1]]
+		for d in ds:
+			self.vertices.append(d * (self.R - self.width))
+			self.vertices.append(d * (self.R + self.width))
 #		self.pB = pB
 		self.connections = []
 
@@ -522,7 +525,7 @@ class CurvedConnector(Connector):
 		glTranslate(*self.center)
 #		angle = math.atan2(self.n.x, self.n.y)
 #		glRotate(math.degrees(angle), 0, 0, 1)
-		glBegin(GL_POLYGON) # replaced by drawmodel_sect_curve
+		glBegin(GL_TRIANGLE_STRIP) # replaced by drawmodel_sect_curve
 		for vertex in self.vertices:
 			glVertex(*vertex)
 		glEnd()

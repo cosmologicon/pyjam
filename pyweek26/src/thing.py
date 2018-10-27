@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame, math, random
 from pygame.math import Vector3
 from OpenGL.GL import *
@@ -272,12 +273,16 @@ class Splash():
 class Tentacles():
 	def __init__(self, pool):
 		self.start()
+		self.pool = pool
 		self.pos = pool.pos * 1
 		
 		# turn these on to set final boss and vortex animations
 		state.animation.stalker.append(graphics.Stalker(pool.pos,pool))
-		state.animation.vortexes.append(graphics.Vortex(pool.pos,pool,pool.r,speed=2.0))
-		
+		self.vortex = graphics.Vortex(pool.pos,pool,pool.r,speed=2.0)
+		state.animation.vortexes.append(self.vortex)
+	
+	def think(self, dt):
+		self.vortex.speed = abs(self.pool.whirl) * 0.3
 	def draw(self):
 		if not settings.debug_graphics:
 			return

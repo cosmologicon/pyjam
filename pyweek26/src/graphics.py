@@ -1,3 +1,5 @@
+
+from __future__ import division
 from math import *
 import os
 from OpenGL.GL import *
@@ -5,7 +7,7 @@ from OpenGL.GL import shaders
 from OpenGL.GLU import *
 import pygame
 from . import state
-from . import modelloader, settings
+from . import modelloader, settings, view
 
 import random
 
@@ -354,6 +356,7 @@ class Animations(object):
 
 def init():
 	global quadric
+	glShadeModel(GL_SMOOTH)
 	quadric = gluNewQuadric()
 	gluQuadricNormals(quadric, GLU_SMOOTH)
 	gluQuadricTexture(quadric, GL_TRUE)
@@ -590,10 +593,12 @@ def drawmodel_sect_pool(sect):
 		glCallList(model3d_sections[0][sect_ind].gl_list)
 	glPopMatrix()
 	if sect.hasfood:
+		d = max((sect.pos - view.self.vantage).length(), 1)
+		pointsize = math.clamp(200 / d, 1, 10)
 		glPushMatrix()
 		glTranslate(*sect.pos)
-		glColor4f(1, 1, 0, 1)
-		glPointSize(10)
+		glColor4f(1, 1, 0.5, 1)
+		glPointSize(pointsize)
 		glBegin(GL_POINTS)
 		for jfood in range(100):
 			x, y = math.CS(jfood * math.phi, sect.r / 2 * (jfood ** 2 * math.phi % 1))
@@ -744,7 +749,7 @@ def drawmodel_sect_curve_water(sect):
 	glBindTexture(GL_TEXTURE_2D, water_texture_pool.texture)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-	glBegin(GL_POLYGON)
+	glBegin(GL_TRIANGLE_STRIP)
 	angle = sect.z[2]*(state.animation.water_flow*(0.2*sect.getflowrate()/settings.maxfps) % (2*pi))
 	for vertex in sect.vertices:
 		vx = vertex[0]*cos(angle) - vertex[1]*sin(angle)
@@ -820,6 +825,10 @@ def drawyou():
 	glTranslate(state.you.pos[0], state.you.pos[1], state.you.pos[2]+0.5)
 	if state.you.thurt:
 		glRotate(360 * state.you.thurt ** 1.5, *state.you.uspin)
+		a = state.you.thurt ** 2 * 6 % 1
+		if a < 0.2:
+			glPopMatrix()
+			return
 	angle = 20 * math.sin(state.you.Tswim * math.tau) - math.degrees(state.you.heading)
 	angle_tail = 20 * math.cos(state.you.Tswim * math.tau) # tail waves out of phase
 	glRotate(angle, 0, 0, 1)
