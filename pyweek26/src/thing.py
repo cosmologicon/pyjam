@@ -186,6 +186,11 @@ class Tentacles():
 	def __init__(self, pool):
 		self.start()
 		self.pos = pool.pos * 1
+		
+		# turn these on to set final boss and vortex animations
+		state.animation.stalker.append(graphics.Stalker(pool.pos,pool))
+		state.animation.vortexes.append(graphics.Vortex(pool.pos,pool,pool.r,speed=2.0))
+		
 	def draw(self):
 		if not settings.debug_graphics:
 			return

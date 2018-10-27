@@ -279,7 +279,11 @@ def build_openscad_commands():
 			con_str = ", ".join(['[%.4f,%.4f,%.4f]'%(p[0]-sect.pos[0],p[1]-sect.pos[1],p[2]) for p in exit_points])
 			f2 = open(os.path.join('tools','generated_section_models','scad','pool_%03d.scad'%(count)), "w");
 			f2.write('use <../build_environments.scad>;\n')
-			f2.write('pool(diameter=%.4f, wall_height=%.4f, step_width=%.4f, connections=[%s]);\n'%(sect.r,max([p[2] for p in exit_points])+1.0,step_width,con_str))
+			if len(exit_points) == 0:
+				wall_height = 2.0
+			else:
+				wall_height = max([p[2] for p in exit_points])+1.0
+			f2.write('pool(diameter=%.4f, wall_height=%.4f, step_width=%.4f, connections=[%s]);\n'%(sect.r,wall_height,step_width,con_str))
 			f2.close()
 			f.write('%s -o ../stl/pool_%03d.stl pool_%03d.scad\n'%(settings.openscad_path,count,count))
 		elif sect.label == 'straight' or sect.label == 'slope':
@@ -335,12 +339,12 @@ class Animations(object):
 			if splash.section in get_sections_to_draw():
 				splash.Draw()
 		for vortex in self.vortexes:
-			vortex.Draw()
+			if vortex.section in get_sections_to_draw():
+				vortex.Draw()
 		for waterfall in self.waterfalls:
 			if waterfall.section in get_sections_to_draw():
 				waterfall.Draw()
 		for stalker in self.stalker:
-			stalker.Update()
 			if stalker.section in get_sections_to_draw():
 				stalker.Draw()
 		

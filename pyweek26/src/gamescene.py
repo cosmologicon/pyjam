@@ -8,16 +8,6 @@ def init():
 	if settings.GenerateOpenSCADScripts: # output scad scripts for building section 3D models
 		graphics.build_openscad_commands()
 	
-	"""
-	pygame.mixer.music.load('/Users/mitch/Code/games/pyweek/week26_entry/music/Flow_Sample1_A-Section-OnlyB.ogg')
-	pygame.mixer.music.set_volume(0.5)
-	pygame.mixer.music.play(-1)
-	"""
-	
-	# turn these on to see final boss and vortex animation
-	#state.animation.stalker.append(graphics.Stalker(state.sections[5].pos,state.sections[5]))
-	#state.animation.vortexes.append(graphics.Vortex(state.sections[5].pos,state.sections[5],state.sections[5].r,speed=2.0))
-	
 #	for _ in range(100):
 #		obj = thing.Debris()
 #		obj.pos.x = random.uniform(-4 + obj.r, 4 - obj.r)
