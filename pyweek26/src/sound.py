@@ -70,7 +70,7 @@ class SoundManager(object):
 			vol_b_target = self.vol_b
 		else:
 			#pygame.mixer.music.set_volume(0.5)
-			if state.you.section.label in ['straight','pipe','curve']:
+			if state.you.section.label in ['straight','slope','pipe','curve']:
 				vol_a_target = 0.0
 				vol_b_target = 0.5
 			elif state.you.section.label == 'pool':
@@ -80,6 +80,10 @@ class SoundManager(object):
 				else:
 					vol_a_target = 0.2
 					vol_b_target = 0.0
+			else:
+				vol_a_target = 0
+				vol_b_target = 0
+				#print(state.you.section.label)
 		
 		if vol_a_target > self.vol_a:
 			self.vol_a = min((self.vol_a+self.mixrate),vol_a_target)

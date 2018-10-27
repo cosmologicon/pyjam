@@ -68,7 +68,7 @@ def draw():
 		graphics.drawmodel_section_tubes()
 		graphics.animation.draw()
 	
-	graphics.drawglow(0.5, [1, 0, 0, 1])
+	#graphics.drawglow(0.5, [1, 0, 0, 1])
 	
 	text = [
 		"Food: %d/%d" % (state.food, state.foodmax),
