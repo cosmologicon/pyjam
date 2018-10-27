@@ -5,6 +5,9 @@ def init():
 	state.you = thing.You()
 	level.load()
 	
+	if settings.GenerateOpenSCADScripts: # output scad scripts for building section 3D models
+		graphics.build_openscad_commands()
+	
 	"""
 	pygame.mixer.music.load('/Users/mitch/Code/games/pyweek/week26_entry/music/Flow_Sample1_A-Section-OnlyB.ogg')
 	pygame.mixer.music.set_volume(0.5)

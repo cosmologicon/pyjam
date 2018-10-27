@@ -253,12 +253,7 @@ class Stalker(object):
 
 def build_openscad_commands():
 	
-	openscad_path = '/Applications/OpenSCAD_2018.app/Contents/MacOS/OpenSCAD'
-	output_dir = '/Users/mitch/Code/games/pyweek/week26_entry/environment'
-	level_stub = 'level_fri'
-	scad_stub = 'level_fri_scad'
-	
-	f = open(os.path.join(output_dir,scad_stub,'openscad_script.sh'), "w");
+	f = open(os.path.join('tools','generated_section_models','scad','openscad_script.sh'), "w");
 	f.write('#!/bin/bash\n')
 	count = 0
 	for sect in state.sections:
@@ -283,11 +278,11 @@ def build_openscad_commands():
 				else:
 					exit_points.append([c.pos1[0],c.pos1[1],c.width])
 			con_str = ", ".join(['[%.4f,%.4f,%.4f]'%(p[0]-sect.pos[0],p[1]-sect.pos[1],p[2]) for p in exit_points])
-			f2 = open(os.path.join(output_dir,scad_stub,'pool_%03d.scad'%(count)), "w");
-			f2.write('include <build_environments.scad>;\n')
+			f2 = open(os.path.join('tools','generated_section_models','scad','pool_%03d.scad'%(count)), "w");
+			f2.write('use <../build_environments.scad>;\n')
 			f2.write('pool(diameter=%.4f, wall_height=%.4f, step_width=%.4f, connections=[%s]);\n'%(sect.r,max([p[2] for p in exit_points])+1.0,step_width,con_str))
 			f2.close()
-			f.write('%s -o %s/%s/pool_%03d.stl pool_%03d.scad\n'%(openscad_path,output_dir,level_stub,count,count))
+			f.write('%s -o ../stl/pool_%03d.stl pool_%03d.scad\n'%(settings.openscad_path,count,count))
 		elif sect.label == 'straight' or sect.label == 'slope':
 			if sect.connections[0].label == 'pool':
 				dy1 = sqrt(pow(sect.connections[0].r,2)-pow(sect.width,2))
@@ -297,17 +292,17 @@ def build_openscad_commands():
 				dy2 = sqrt(pow(sect.connections[1].r,2)-pow(sect.width,2))
 			else:
 				dy2 = 0	
-			f2 = open(os.path.join(output_dir,scad_stub,'section_%03d.scad'%(count)), "w");
-			f2.write('include <build_environments.scad>;\n')
+			f2 = open(os.path.join('tools','generated_section_models','scad','section_%03d.scad'%(count)), "w");
+			f2.write('use <../build_environments.scad>;\n')
 			f2.write('straight(length=%.4f, width=%.4f, dy1=%.4f, dy2=%.4f, dz=%.4f);\n'%(sect.length,sect.width,dy1,dy2,sect.dz))
 			f2.close()
-			f.write('%s -o %s/%s/section_%03d.stl section_%03d.scad\n'%(openscad_path,output_dir,level_stub,count,count))
+			f.write('%s -o ../stl/section_%03d.stl section_%03d.scad\n'%(settings.openscad_path,count,count))
 		elif sect.label == 'curve':
-			f2 = open(os.path.join(output_dir,scad_stub,'section_%03d.scad'%(count)), "w");
-			f2.write('include <build_environments.scad>;\n')
+			f2 = open(os.path.join('tools','generated_section_models','scad','section_%03d.scad'%(count)), "w");
+			f2.write('use <../build_environments.scad>;\n')
 			f2.write('curve(p0=[%.4f, %.4f], center=[%.4f, %.4f], dir=%d, angle=%.4f, width=%.4f);\n'%(sect.p0[0],sect.p0[1],sect.center[0],sect.center[1],sect.right,2*sect.beta*180.0/pi,sect.width))
 			f2.close()
-			f.write('%s -o %s/%s/section_%03d.stl section_%03d.scad\n'%(openscad_path,output_dir,level_stub,count,count))
+			f.write('%s -o ../stl/section_%03d.stl section_%03d.scad\n'%(settings.openscad_path,count,count))
 			
 		count += 1
 	f.close()
@@ -317,10 +312,8 @@ class Animations(object):
 		self.water_flow = 0
 		self.init_trigger = True
 		self.fadepipe = 1.0
-		#self.splashes = [Splashes([-30.0,30.0,3.0])]
 		self.splashes = []
 		self.vortexes = []
-		#self.waterfalls = [Waterfall([0.0,0.0,0.0],20.0)]
 		self.waterfalls = []
 		self.stalker = []
 		
@@ -338,12 +331,11 @@ class Animations(object):
 		for stalker in self.stalker:
 			stalker.Update()
 		
-		"""
 		# Use currently read sections, generate a command script for OpenSCAD rendering
-		if self.init_trigger:
-			build_openscad_commands()
-			self.init_trigger = False
-		"""
+		#if self.init_trigger:
+		#	build_openscad_commands()
+		#	self.init_trigger = False
+		
 		
 	def draw(self):
 		for splash in self.splashes:
@@ -405,13 +397,17 @@ def init():
 	global model3d_sections
 	model3d_sections = []
 	model3d_sections.append([])
-	level_name = 'level_fri_obj'
+	level_name = settings.leveldataname
 	model_paths = [i for i in os.listdir(os.path.join('models',level_name)) if "obj" in i]
 	max_ind = max([int(path[-7:-4]) for path in model_paths])
 	for i in range(max_ind+1):
 		model3d_sections[-1].append([])
+	c = 0
 	for path in model_paths:
 		ind = int(path[-7:-4])
+		if c % 20 == 0:
+			print('Loading 3D Models: %d of %d'%(c+1,len(model_paths)))
+		c += 1
 		model3d_sections[-1][ind] = modelloader.Model3D(os.path.join('models',level_name,path),alpha=0.3)
 	
 	# Init OpenGL lighting
