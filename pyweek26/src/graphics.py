@@ -767,6 +767,8 @@ def drawyou():
 	glColor4f(1.0, 1.0, 1.0, 1)
 	#glTranslate(*state.you.pos)
 	glTranslate(state.you.pos[0], state.you.pos[1], state.you.pos[2]+0.5)
+	if state.you.thurt:
+		glRotate(360 * state.you.thurt ** 1.5, *state.you.uspin)
 	angle = 20 * math.sin(state.you.Tswim * math.tau) - math.degrees(state.you.heading)
 	angle_tail = 20 * math.cos(state.you.Tswim * math.tau) # tail waves out of phase
 	glRotate(angle, 0, 0, 1)

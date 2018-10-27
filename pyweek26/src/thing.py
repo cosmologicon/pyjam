@@ -25,6 +25,20 @@ class Lives(enco.Component):
 	def think(self, dt):
 		self.t += dt
 
+
+class TakesHit(enco.Component):
+	def start(self):
+		self.thurt = 0
+	def stunned(self):
+		return self.thurt > 0.5
+	def invulnerable(self):
+		return self.thurt > 0
+	def think(self, dt):
+		self.thurt = max(self.thurt - dt, 0)
+	def pickvector(self):
+		self.uspin = Vector3(random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1))
+		self.uspin = self.uspin.normalize() if self.uspin.length() else Vector3(0, 0, 1)
+
 class Collides(enco.Component):
 	def __init__(self, r = 1):
 		self.r = r
@@ -35,15 +49,19 @@ class Collides(enco.Component):
 class BossKnocks(enco.Component):
 	def hit(self, you):
 		d = you.pos - self.pos
-		you.thurt = 1
+		if not you.invulnerable():
+			you.thurt = 1
 		you.vwater += 12 * d.normalize() + Vector3(0, 0, 10)
 		you.landed = False
+		you.pickvector()
 
 class Knocks(enco.Component):
 	def hit(self, you):
 		d = you.pos - self.pos
-		you.thurt = 0.4
+		if not you.invulnerable():
+			you.thurt = 1
 		you.vwater += 5 * d.normalize()
+		you.pickvector()
 
 
 class Lifetime(enco.Component):
@@ -93,7 +111,7 @@ class MovesWithArrows(enco.Component):
 		if self.landed:
 			# Damped constant-force motion to settle
 			self.vwater.z -= 50 * dz * dt
-			self.vwater.z *= math.exp(-2 * dt)
+			self.vwater *= math.exp(-2 * dt)
 			self.tjump = 0
 		else:
 			self.tjump += dt
@@ -134,6 +152,7 @@ class SinksInPool(enco.Component):
 @WaterBound()
 @Lives()
 @Faces()
+@TakesHit()
 @MovesWithArrows()
 class You():
 	def __init__(self):
