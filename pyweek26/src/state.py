@@ -32,6 +32,9 @@ musics = {}
 tsave = 0
 tnosave = 0
 
+# Section IDs of places you've visited, that show up unfaded on the map.
+explored = set()
+
 # For the purpose of triggering, every section of a tunnel has the same trigger logic.
 def triggermatch(id0, id1):
 	j0, k0 = id0
@@ -45,7 +48,8 @@ def currentmusic():
 	return "level"
 
 def think(dt):
-	global tsave, tnosave
+	global tsave, tnosave, explored
+	explored.add(you.section.sectionid)
 	if you.section.label == "pool":
 		cansave = you.section.cansave
 		if cansave:
@@ -64,11 +68,11 @@ def think(dt):
 			dialog.trigger(convo)
 
 def getstate():
-	return you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics
+	return you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored
 
 def setstate(s):
-	global you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics
-	you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics = s
+	global you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored
+	you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored = s
 
 def save():
 	global tsave, tnosave
@@ -88,5 +92,7 @@ def load():
 		return
 	setstate(pickle.load(open(settings.savename, "rb")))
 
+def mapcolor(sectionid):
+	return (0.3, 0.3, 1, 1) if sectionid in explored else (0, 0, 0.4, 1)
 
 load()

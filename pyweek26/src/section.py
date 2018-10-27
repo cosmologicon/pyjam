@@ -4,6 +4,7 @@ from __future__ import division
 import math, pygame, random
 from pygame.math import Vector3
 from OpenGL.GL import *
+from OpenGL.GLU import *
 from . import graphics, thing, state, settings, view, sound
 
 # A circular section without a current
@@ -156,7 +157,7 @@ class Pool():
 			glEnd()
 		glPopMatrix()
 	def drawmap(self):
-		graphics.drawdisk(self.pos, self.r, (0, 0.4, 1, 1))
+		graphics.drawdisk(self.pos, self.r, state.mapcolor(self.sectionid))
 		graphics.drawdisk(self.pos + pygame.math.Vector3(0, 0, -1), self.r + 1, (0, 0, 0, 1))
 	def spawn(self, dt):
 		pass
@@ -379,7 +380,7 @@ class StraightConnector(Connector):
 				glPopMatrix()
 		glPopMatrix()
 	def drawmap(self):
-		glColor(0, 0.4, 1, 1)
+		glColor(*state.mapcolor(self.sectionid))
 		glBegin(GL_QUADS)
 		for p in self.ps:
 			glVertex(*p)
@@ -430,6 +431,10 @@ class CurvedConnector(Connector):
 		self.vertices = [d * (self.R - self.width) for d in ds] + [d * (self.R + self.width) for d in ds[::-1]]
 #		self.pB = pB
 		self.connections = []
+
+		alpha = math.atan2(self.n.x, self.n.y)
+		self.mapstart = math.degrees(alpha - self.beta)
+		self.mapsweep = math.degrees(2 * self.beta)
 	def penter(self):
 		return self.p0
 	def pexit(self):
@@ -516,8 +521,16 @@ class CurvedConnector(Connector):
 		#	graphics.drawmodel_sect_curve(self)
 		
 	def drawmap(self):
-		pass
-		# TODO
+		glPushMatrix()
+		glColor4f(*state.mapcolor(self.sectionid))
+		glTranslate(*self.center)
+		r0 = self.R - self.width
+		r1 = self.R + self.width
+		gluPartialDisk(graphics.quadric, r0, r1, 40, 1, self.mapstart, self.mapsweep)
+		glColor4f(0, 0, 0, 1)
+		glTranslate(0, 0, -1)
+		gluPartialDisk(graphics.quadric, r0 - 1, r1 + 1, 40, 1, self.mapstart, self.mapsweep)
+		glPopMatrix()
 	def spawn(self, dt):
 		pass
 

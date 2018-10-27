@@ -7,7 +7,7 @@ view.init()
 graphics.init()
 pygame.mixer.init()
 scene.push(gamescene)
-# scene.push(mapscene)
+#scene.push(mapscene)
 
 playing = True
 clock = pygame.time.Clock()

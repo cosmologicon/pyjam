@@ -36,6 +36,7 @@ keymap = {
 	"turn": [K_LSHIFT, K_z, K_SEMICOLON],
 	"act": [K_SPACE, K_RETURN],
 	
+	"map": [K_m],
 	"quit": [K_ESCAPE],
 	
 	"debugspeed": [K_F1],
