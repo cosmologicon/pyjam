@@ -71,7 +71,7 @@ def currentmusic():
 		musics["current"] = "level"
 
 	if musics["current"] == "level":
-		return "levelA"
+		return "levelB"
 	return musics["current"]
 
 def think(dt):
@@ -132,4 +132,16 @@ def load():
 def mapcolor(sectionid):
 	return (0.3, 0.3, 1, 1) if sectionid in explored else (0, 0, 0.4, 1)
 
+
+def teleport(where):
+	from . import level
+	jpool = {
+		"home": 0,
+		"NE": 1,
+		"NW": 2,
+		"SW": 3,
+		"SE": 4,
+	}[where]
+	you.section = level.sections_by_id[("pool", jpool)]
+	you.pos = you.section.pos + pygame.math.Vector3(0, 0, 3)
 

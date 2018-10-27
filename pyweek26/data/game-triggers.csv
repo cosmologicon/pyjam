@@ -1,5 +1,6 @@
 # save 0
 # start pool 1
+music level pool 0
 
 start pool 83  # TUTORIAL START
 dialog A pool 83
@@ -11,7 +12,9 @@ food pool 67
 food pool 68
 
 # start pool 65  # FIRST BOSS ENCOUNTER
+music boss 61 0
 dialog B 61 0
+rapid 61 1.5
 dialog C pool 0
 # start	pool	0
 
@@ -54,7 +57,7 @@ food pool 21
 music boss 9 0
 dialog E 9 0
 
-# start pool 5 # END BOSS
+start pool 5 # END BOSS
 music boss pool 5
 endboss	pool 6
 food pool 6

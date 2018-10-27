@@ -110,7 +110,7 @@ class Pool():
 			dpos.z = 0
 			d = dpos.length() / self.r
 			if d > 0:
-				v += pygame.math.Vector3(0, 0, 1).cross(dpos).normalize() * self.whirl
+				v -= pygame.math.Vector3(0, 0, 1).cross(dpos).normalize() * self.whirl
 		# Waterfalls push you away
 		if not self.draining:
 			for drainer in self.drainers:

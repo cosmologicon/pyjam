@@ -35,6 +35,19 @@ while playing:
 	downs = { key: any(code in kdowns for code in codes) for key, codes in settings.keymap.items() }
 	if downs["quit"]:
 		playing = False
+	# CHEAT CODES
+	if K_1 in kdowns:
+		state.teleport("NW")
+	if K_2 in kdowns:
+		state.teleport("NE")
+	if K_3 in kdowns:
+		state.teleport("SW")
+	if K_4 in kdowns:
+		state.teleport("SE")
+	if K_0 in kdowns:
+		state.teleport("home")
+	if K_5 in kdowns:
+		state.food = state.foodmax
 	if settings.DEBUG and pressed["debugspeed"]:
 		dt *= 10
 		state.food = 1000

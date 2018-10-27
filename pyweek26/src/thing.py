@@ -174,7 +174,7 @@ class Debris():
 		self.start()
 		self.pos = pos
 		self.section = section
-		self.color = [random.uniform(0.2, 0.4) for _ in "rgb"]
+		self.color = [random.uniform(0.6, 0.8), random.uniform(0, 0.1), random.uniform(0, 0.5)]
 		self.r = random.uniform(0.7, 1.5)
 	def think(self, dt):
 		pass

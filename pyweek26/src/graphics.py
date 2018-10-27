@@ -195,7 +195,7 @@ class Stalker(object):
 		glTranslate(self.pos[0], self.pos[1], self.pos[2])
 		glRotate(-90, 1, 0, 0)
 		glRotate(self.angle_body, 0, 1, 0)
-		glScale(0.3, 0.3, 0.3)
+		glScale(0.5, 0.5, 0.5)
 		glCallList(model_stalkerbody.gl_list)
 		glTranslate(0, -10.0, 0)
 		#glRotate(self.angle_eye, 0, 1, 0)
@@ -205,6 +205,7 @@ class Stalker(object):
 		# draw arms
 		for arm_ind in range(3):
 			glPushMatrix()
+			glScale(2, 2, 2)
 			glColor(1.0, 0.5, 1.0, 1)
 			glTranslate(self.armpos[arm_ind][0],self.armpos[arm_ind][1],self.pos[2])
 			for i in range(steps_h):

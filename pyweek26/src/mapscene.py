@@ -23,16 +23,16 @@ def draw():
 		section.drawmap()
 
 	# TODO: no idea why it's not showing up!
-	if pygame.time.get_ticks() % 1 > 0.2:
+	if pygame.time.get_ticks() * 0.001 % 0.6 > 0.1:
 		glDisable(GL_DEPTH_TEST)
 		glPushMatrix()
 		glTranslate(*state.you.pos)
 #		glRotate(-math.degrees(state.you.heading), 0, 0, 1)
 		glColor(1, 0.8, 0.5, 1)
 		glBegin(GL_TRIANGLES)
-		glVertex(-5, -5, 500)
-		glVertex(5, -5, 500)
-		glVertex(0, 10, 500)
+		glVertex(-3, -3, 500)
+		glVertex(3, -3, 500)
+		glVertex(0, 6, 500)
 		glEnd()
 		glPopMatrix()
 		glEnable(GL_DEPTH_TEST)
