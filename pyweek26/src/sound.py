@@ -19,7 +19,12 @@ class SoundManager(object):
 		voice_files = [i for i in os.listdir(os.path.join('data','voice')) if "ogg" in i]
 		self.voice_samples = {}
 		for file in voice_files:
-			self.voice_samples[file] = pygame.mixer.Sound(os.path.join('data','voice',file))
+			name = file[:-4]
+			self.voice_samples[name] = pygame.mixer.Sound(os.path.join('data','voice',file))
+		
+		self.current_dialog = None
+		self.current_dind = -1
+		self.paused = False
 		
 		# Load sound samples
 		sound_files = [i for i in os.listdir(os.path.join('data','sound')) if "ogg" in i]
@@ -62,9 +67,11 @@ class SoundManager(object):
 	
 	def PauseVoice(self):
 		self.voice_channel.pause()
+		self.paused = True
 	
 	def ResumeVoice(self):
 		self.voice_channel.unpause()
+		self.paused = False
 	
 	def StopVoice(self):
 		self.voice_channel.stop()
@@ -113,16 +120,22 @@ class SoundManager(object):
 		self.ambient_channel_b.set_volume(self.vol_b)
 	
 	def Update_Voice(self):
-		pass
+		if self.current_dialog == None:
+			return
+		if self.CheckVoice() == False and self.paused == False:
+			self.current_dind += 1
+			next_stub = self.current_dialog+'%d'%(self.current_dind+1)
+			if next_stub in self.voice_samples.keys():
+				self.PlayVoice(next_stub)
+			else:
+				self.current_dialog = None
+				self.current_dind = -1
 	
 	def Update_Music(self):
-		pass
-		"""
 		new_track = state.currentmusic()
 		if new_track == 'level': # whats 'level' ???
 			new_track = 'levelA' 
 		if not new_track == self.current_music:
-			print('new track', new_track)
 			self.current_music = new_track
 			if new_track in ['levelA','levelB']:
 				self.playing_intro = True
@@ -135,12 +148,10 @@ class SoundManager(object):
 		if self.playing_intro:
 			if not pygame.mixer.music.get_busy():
 				pygame.mixer.music.stop()
-				print('finished: playing loop')
 				self.playing_intro = False
 				pygame.mixer.music.load(self.music_tracks[self.current_music][1])
-				pygame.mixer.music.set_volume(0.1)
+				pygame.mixer.music.set_volume(0.0)
 				pygame.mixer.music.play(-1)
-		"""
 	
 	def Update(self):
 		self.Update_Music()
