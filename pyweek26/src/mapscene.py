@@ -22,6 +22,18 @@ def draw():
 	for section in state.sections:
 		section.drawmap()
 
-	glDisable(GL_DEPTH_TEST)
-#	graphics.drawyou()
+	# TODO: no idea why it's not showing up!
+	if pygame.time.get_ticks() % 1 > 0.2:
+		glDisable(GL_DEPTH_TEST)
+		glPushMatrix()
+		glTranslate(*state.you.pos)
+#		glRotate(-math.degrees(state.you.heading), 0, 0, 1)
+		glColor(1, 0.8, 0.5, 1)
+		glBegin(GL_TRIANGLES)
+		glVertex(-5, -5, 500)
+		glVertex(5, -5, 500)
+		glVertex(0, 10, 500)
+		glEnd()
+		glPopMatrix()
+		glEnable(GL_DEPTH_TEST)
 
