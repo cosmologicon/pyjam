@@ -49,6 +49,8 @@ class Collides(enco.Component):
 class BossKnocks(enco.Component):
 	def hit(self, you):
 		d = you.pos - self.pos
+		if d.length() == 0:
+			d = Vector3(1, 0, 0)
 		if not you.invulnerable():
 			you.thurt = 1
 		you.vwater += 12 * d.normalize() + Vector3(0, 0, 10)
@@ -58,6 +60,8 @@ class BossKnocks(enco.Component):
 class Knocks(enco.Component):
 	def hit(self, you):
 		d = you.pos - self.pos
+		if d.length() == 0:
+			d = Vector3(1, 0, 0)
 		if not you.invulnerable():
 			you.thurt = 1
 		you.vwater += 5 * d.normalize()

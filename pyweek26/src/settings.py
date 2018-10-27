@@ -18,6 +18,7 @@ minfps = 10
 
 savename = os.path.join("savegame", "save.pkl")
 asavename = os.path.join("savegame", "save-%Y%m%d%H%M%S.pkl")
+reset = "--reset" in sys.argv
 
 debug_graphics = "--debuggfx" in sys.argv
 

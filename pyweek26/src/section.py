@@ -535,7 +535,13 @@ class CurvedConnector(Connector):
 		gluPartialDisk(graphics.quadric, r0 - 1, r1 + 1, 40, 1, self.mapstart, self.mapsweep)
 		glPopMatrix()
 	def spawn(self, dt):
-		pass
+		if self.rapid > 1:
+			a = self.R * self.beta * self.width
+			for j in range(int(a * 0.01)):
+				theta = random.uniform(-1, 1) * self.beta
+				r = random.uniform(-1, 1) * (self.width - 1) + self.R
+				pos = self.center + self.n.rotate_z(theta) * r
+				state.objs.append(thing.Debris(pos, self))
 
 """
 def connectpools(pool0, pool1, rate = 10, width = 4, r = 10, waypoints = []):
