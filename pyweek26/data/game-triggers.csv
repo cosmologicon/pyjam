@@ -51,12 +51,18 @@ food pool 21
 music boss 9 0
 dialog E 9 0
 
-# END BOSS
-start pool 5
+start pool 5 # END BOSS
 music boss pool 5
 endboss	pool 6
 food pool 6
 dialog F pool 6
-# dialog G 25 0
-# dialog H pool 36
+
+start pool 13 # END ESCAPE
+music boss pool 13
+dialog G 80 0
+rapid 80 8
+
+# FINAL CUTSCENE
+dialog H pool 84
+music end pool 84
 
