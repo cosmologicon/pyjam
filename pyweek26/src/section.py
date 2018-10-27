@@ -30,9 +30,9 @@ class Pool():
 	def pressure(self):
 		return self.pressure0 - self.draining + len(self.drainers)
 	def candrainfrom(self, obj):
-		return self.drainable and not self.draining and self.dwall(obj) > self.r / 2
+		return self.drainable and not self.draining and self.dwall(obj) > self.r - 2
 	def candropfrom(self, obj):
-		return self.draining and self.dwall(obj) > self.r / 2
+		return self.draining and self.dwall(obj) > self.r - 3
 	def draintarget(self):
 		# Pools directly below this one.
 		pools = [s for s in state.sections if s.label == "pool" and s.dwall(self) > 0 and s.pos.z < self.pos.z]

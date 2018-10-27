@@ -1,7 +1,16 @@
 # start	pool	0
 
-# End boss
-start pool 5
+
+# SOUTHEAST - THE LOGIC PUZZLE
+start pool 0
+food pool 21
+# SE cutscene
+start pool 17
+music boss 9 0
+dialog E 9 0
+
+# END BOSS
+#start pool 5
 endboss	pool 6
 food pool 6
 dialog F pool 6
