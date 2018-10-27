@@ -370,6 +370,13 @@ def init():
 	global model_fishfood
 	model_fishfood = modelloader.Model3D(os.path.join('models','fishfood.obj'))
 	
+	global model_friendfish, model_friendtail
+	model_friendfish = modelloader.Model3D(os.path.join('models','friendfish.obj'))
+	model_friendtail = modelloader.Model3D(os.path.join('models','friendfish_tail.obj'))
+	
+	global model_skybox
+	model_skybox = modelloader.Model3D(os.path.join('models','skybox.obj'))
+	
 	# Load in water textures
 	global water_texture
 	water_texture = modelloader.TextureSurf(os.path.join('models','textures','water_texture_darkgreen.png'))
@@ -379,6 +386,8 @@ def init():
 	water_texture_vortex = modelloader.TextureSurf(os.path.join('models','textures','water_texture_vortex.png'))
 	global water_texture_vortex_small
 	water_texture_vortex_small = modelloader.TextureSurf(os.path.join('models','textures','water_texture_vortex_small.png'))
+	global water_texture_ocean
+	water_texture_ocean = modelloader.TextureSurf(os.path.join('models','textures','water_texture.png'))
 	
 	# Load in Environment model files
 	global model3d_pipe
@@ -437,6 +446,9 @@ def get_sections_to_draw():
 		if draw_sections[-1].label == "pool":
 			draw_sections.extend(draw_sections[-1].connections)
 	return draw_sections
+
+def drawmodel_ocean(sect):
+	draw_water_ocean(sect.pos,rad=100)
 
 def drawmodel_watersurface():
 	#for sect in state.sections:
@@ -498,6 +510,42 @@ def drawmodel_sect_pipe(sect):
 	glRotate(180, 0, 0, 1)
 	glCallList(model3d_pipe.gl_list)
 	glPopMatrix()
+
+def draw_water_ocean(pos,rad=100):
+	
+	# draw water surface
+	glEnable(GL_TEXTURE_2D)
+	glPushMatrix()
+	glColor4f(1, 1, 1, 0.3)
+	glTranslate(pos[0],pos[1],pos[2])
+	glBindTexture(GL_TEXTURE_2D, water_texture_ocean.texture)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+	glBegin(GL_POLYGON)
+	for x, y in math.CSround(int(round(10 * rad)), r = rad):
+		dx = 0.5*sin(state.animation.water_flow/100.0)+1.0*cos(state.animation.water_flow/80.0)
+		dy = 0.5*cos(state.animation.water_flow/100.0)+1.0*sin(state.animation.water_flow/80.0)
+		glTexCoord2f((x+dx)/20, (y+dy)/20)
+		glVertex(x, y, 0.1)
+	glEnd()
+	glPopMatrix()
+	glDisable(GL_TEXTURE_2D)
+
+def draw_skybox(pos):
+
+	# draw sky box
+	glDisable(GL_LIGHTING)
+	glDisable(GL_DEPTH_TEST)
+	glDepthMask(GL_FALSE)
+	glPushMatrix()
+	glColor4f(1, 1, 1, 0.3)
+	glTranslate(pos[0],pos[1],pos[2])
+	glScale(1000.0, 1000.0, 1000.0)
+	glCallList(model_skybox.gl_list)
+	glPopMatrix()
+	glEnable(GL_LIGHTING)
+	glEnable(GL_DEPTH_TEST)
+	glDepthMask(GL_TRUE)
 
 def drawmodel_sect_pool_water(sect):
 	
@@ -776,6 +824,23 @@ def drawyou():
 	glTranslate(0, 0, 7.0)
 	glRotate(-angle_tail, 0, 1, 0)
 	glCallList(model_tail.gl_list)
+	glPopMatrix()
+
+def drawfriendfish(pos, heading):
+	glPushMatrix()
+	#glColor4f(0.8, 0.5, 0, 1)
+	glColor4f(1.0, 1.0, 1.0, 1)
+	#glTranslate(*state.you.pos)
+	glTranslate(pos[0], pos[1], pos[2]+0.2)
+	angle = 20 * math.sin(state.you.Tswim * math.tau+10.0) - heading
+	angle_tail = 20 * math.cos(state.you.Tswim * math.tau+10.0) # tail waves out of phase
+	glRotate(angle, 0, 0, 1)
+	glRotate(90 + state.you.rangle(), 1, 0, 0)
+	glScale(0.1, 0.1, 0.1)
+	glCallList(model_friendfish.gl_list)
+	glTranslate(0, 0, 7.0)
+	glRotate(-angle_tail, 0, 1, 0)
+	glCallList(model_friendtail.gl_list)
 	glPopMatrix()
 
 def drawfishfood(pos):
