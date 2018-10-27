@@ -1,4 +1,5 @@
 import pygame, math, random
+from pygame.math import Vector3
 from OpenGL.GL import *
 from . import enco, state, graphics, settings, sound
 
@@ -23,6 +24,27 @@ class Lives(enco.Component):
 		self.t = 0
 	def think(self, dt):
 		self.t += dt
+
+class Collides(enco.Component):
+	def __init__(self, r = 1):
+		self.r = r
+	def collides(self, obj):
+		d = obj.pos - self.pos
+		return d.length() < self.r + obj.r
+
+class BossKnocks(enco.Component):
+	def hit(self, you):
+		d = you.pos - self.pos
+		you.thurt = 1
+		you.vwater += 12 * d.normalize() + Vector3(0, 0, 10)
+		you.landed = False
+
+class Knocks(enco.Component):
+	def hit(self, you):
+		d = you.pos - self.pos
+		you.thurt = 0.4
+		you.vwater += 5 * d.normalize()
+
 
 class Lifetime(enco.Component):
 	def __init__(self, lifetime = 1):
@@ -121,6 +143,8 @@ class You():
 @WorldBound()
 @WaterBound()
 @SinksInPool()
+@Collides()
+@Knocks()
 @Lives()
 class Debris():
 	def __init__(self):
@@ -141,6 +165,20 @@ class SolidGrate():
 		self.afactor = afactor	
 	def think(self, dt):
 		pass
+
+@WorldBound()
+@WaterBound(fixed = True)
+@Collides(3)
+@BossKnocks()
+@Lives()
+class BossHitbox():
+	def __init__(self, section):
+		self.start()
+		self.section = section
+		self.pos = self.section.pos
+	def think(self, dt):
+		pass
+
 
 # Note: this class is only here for debug graphics. You can get the same information from
 # pool.drainers.

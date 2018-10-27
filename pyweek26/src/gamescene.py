@@ -34,6 +34,10 @@ def think(dt, kpressed, kdowns, dmx, dmy):
 	for obj in state.objs:
 		obj.flow(dt)
 
+	for obj in state.objs:
+		if obj.collides(state.you):
+			obj.hit(state.you)
+
 	state.objs = [obj for obj in state.objs if obj.alive]
 	state.effects = [effect for effect in state.effects if effect.alive]
 #	state.you.pos.y -= 10 * dt
@@ -47,8 +51,8 @@ def think(dt, kpressed, kdowns, dmx, dmy):
 def draw():
 	view.clear((0.1, 0.1, 0.1, 1))
 	view.look()
-	for obj in state.objs:
-		graphics.drawobj(obj)
+#	for obj in state.objs:
+#		graphics.drawobj(obj)
 	graphics.drawyou()
 	for effect in state.effects:
 		effect.draw()
