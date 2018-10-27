@@ -60,7 +60,8 @@ for file in stl_paths:
 				f.write('vt %.4f %.4f\n'%(0,0))
 				f.write('vt %.4f %.4f\n'%(0,0))
 			
-		f.write('usemtl material_brick\n')
+		#f.write('usemtl material_brick\n')
+		f.write('usemtl material_concrete\n')
 		for i in range(stl_data.v0.shape[0]):
 			f.write('f %d/%d/%d %d/%d/%d %d/%d/%d\n'%(3*i+1,3*i+1,3*i+1,3*i+2,3*i+2,3*i+2,3*i+3,3*i+3,3*i+3))
 		f.close()
