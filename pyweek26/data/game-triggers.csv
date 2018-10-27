@@ -1,0 +1,49 @@
+# start	pool	0
+
+
+start pool 43 # NORTHWEST - THE PRESSURE MAZE
+food pool 54
+food pool 58
+fmode pool 43 True
+fmode pool 62 False
+
+# start pool 38  # NORTHEAST - THE RAPIDS
+food pool 37
+rapid 28 2.5
+food pool 39
+rapid 30 3.5
+food pool 42
+
+# start pool 26  # SOUTHWEST - THE WHIRLPOOL MAZE
+food pool 34
+food pool 32
+whirl pool 27 2
+whirl pool 28 3
+whirl pool 29 3
+whirl pool 30 4
+whirl pool 31 5
+whirl pool 32 5
+drain pool 27
+drain pool 28
+drain pool 29
+drain pool 30
+drain pool 31
+drain pool 32
+# start pool 33  # SW CUTSCENE
+music boss 26 0
+dialog D 26 0
+
+# start pool 0  # SOUTHEAST - THE LOGIC PUZZLE
+food pool 21
+# start pool 17  # SE CUTSCENE
+music boss 9 0
+dialog E 9 0
+
+# END BOSS
+#start pool 5
+endboss	pool 6
+food pool 6
+dialog F pool 6
+# dialog G 25 0
+# dialog H pool 36
+

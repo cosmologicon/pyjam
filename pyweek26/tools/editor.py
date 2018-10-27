@@ -149,12 +149,12 @@ def extractjoiner(jjoiner, joiner):
 			f0.z = 0
 			f1.z = 0
 			if f0.length() == 0 or f1.length == 0:
-				print("Error dumping joiner %d: %s" % (jjoiner, joiner))
+				print("Error dumping joiner %d: %s, %d, %s" % (jjoiner, joiner, k, p))
 				return
 			f0 = f0.normalize()
 			f1 = f1.normalize()
 			if abs(f0.dot(f1)) > 0.999:
-				print("Error dumping joiner %d: %s" % (jjoiner, joiner))
+				print("Error dumping joiner %d: %s, %d, %s" % (jjoiner, joiner, k, p))
 				return
 			f = (f1 - f0).normalize()
 			z = f1.cross(f0).normalize()

@@ -7,12 +7,13 @@ view.init()
 graphics.init()
 pygame.mixer.init()
 scene.push(gamescene)
-# scene.push(mapscene)
+#scene.push(mapscene)
 
 playing = True
 clock = pygame.time.Clock()
 dt0 = 1 / settings.maxfps
 dt = 0
+pygame.mouse.get_rel()
 while playing:
 	dt += min(clock.tick(settings.maxfps) * 0.001, 1 / settings.minfps)
 	kdowns = set()
@@ -21,6 +22,12 @@ while playing:
 			kdowns.add(event.key)
 		if event.type == QUIT:
 			playing = False
+		if event.type == MOUSEBUTTONDOWN and event.button == 1:
+			settings.manualcamera = not settings.manualcamera
+			view.grabmouse(True)
+	dmx, dmy = pygame.mouse.get_rel()
+	dmx /= settings.resolution[1]
+	dmy /= settings.resolution[1]
 	kpressed = pygame.key.get_pressed()
 	pressed = { key: any(kpressed[code] for code in codes) for key, codes in settings.keymap.items() }
 	downs = { key: any(code in kdowns for code in codes) for key, codes in settings.keymap.items() }
@@ -34,7 +41,7 @@ while playing:
 		break
 	while dt > dt0:
 		dt -= dt0
-		s.think(dt0, pressed, downs)
+		s.think(dt0, pressed, downs, dmx, dmy)
 		downs = { key: False for key in downs }
 	s.draw()
 	if settings.DEBUG:

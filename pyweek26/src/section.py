@@ -2,13 +2,17 @@
 
 from __future__ import division
 import math, pygame, random
+from pygame.math import Vector3
 from OpenGL.GL import *
+from OpenGL.GLU import *
 from . import graphics, thing, state, settings, view, sound
 
 # A circular section without a current
 # In this section the left and right arrow keys rotate you
 class Pool():
 	label = 'pool'
+	rapid = 1
+	fmode = None
 	def __init__(self, pos, r, pressure0, drainable):
 		self.pos = pos
 		self.r = r
@@ -29,9 +33,9 @@ class Pool():
 	def pressure(self):
 		return self.pressure0 - self.draining + len(self.drainers)
 	def candrainfrom(self, obj):
-		return self.drainable and not self.draining and self.dwall(obj) > self.r / 2
+		return self.drainable and not self.draining and self.dwall(obj) > self.r - 2
 	def candropfrom(self, obj):
-		return self.draining and self.dwall(obj) > self.r / 2
+		return self.draining and self.dwall(obj) > self.r - 3
 	def draintarget(self):
 		# Pools directly below this one.
 		pools = [s for s in state.sections if s.label == "pool" and s.dwall(self) > 0 and s.pos.z < self.pos.z]
@@ -63,13 +67,13 @@ class Pool():
 			self.toturn = toturn
 		speed = 10 if dy > 0 else -3 if dy < 0 else 0
 		v = pygame.math.Vector3(0, speed, 0).rotate_z(math.degrees(-you.heading))
-		you.v = math.approach(you.v, v, 50 * dt)
+		you.v = math.approach(you.v, v, 200 * dt)
 		if self.candropfrom(you):
 			self.drop(you)
 		if self.canfeed(you):
 			state.food = state.foodmax
 	def atilt(self, you):
-		return 0, 0
+		return Vector3(0, 0, 0)
 	def act(self, you):
 		if self.candrainfrom(you):
 			self.drain(you)
@@ -154,13 +158,15 @@ class Pool():
 			glEnd()
 		glPopMatrix()
 	def drawmap(self):
-		graphics.drawdisk(self.pos, self.r, (0, 0.4, 1, 1))
+		graphics.drawdisk(self.pos, self.r, state.mapcolor(self.sectionid))
 		graphics.drawdisk(self.pos + pygame.math.Vector3(0, 0, -1), self.r + 1, (0, 0, 0, 1))
 	def spawn(self, dt):
 		pass
 
 class Pipe():
 	label = 'pipe'
+	rapid = 1
+	fmode = None
 	def __init__(self, pos0, pos1, width = 1):
 		self.pos0 = 1 * pos0
 		self.pos1 = 1 * pos1
@@ -185,7 +191,7 @@ class Pipe():
 		you.heading = math.anglesoftapproach(you.heading, heading, 50 * dt, dymin = 0.01)
 		you.v = pygame.math.Vector3(0, 0, 0)
 	def atilt(self, you):
-		return 0, 0
+		return Vector3(0, 0, 0)
 	def act(self, you):
 		return False
 	def flow(self, dt, obj):
@@ -236,6 +242,7 @@ class Pipe():
 
 class Connector():
 	rapid = 1
+	fmode = None
 	def setpools(self):
 		self.pool0 = self
 		while self.pool0.label != "pool":
@@ -254,7 +261,8 @@ class Connector():
 		return rate * self.rapid
 	# Speed with respect to the current that the player swims while pressing these buttons
 	def swimrate(self, dx, dy):
-		return pygame.math.Vector3(5 * dx, 3 + 5 * dy, 0)
+		ax = 5 + 10 * (self.rapid - 1)
+		return pygame.math.Vector3(ax * dx, 3 + 5 * dy, 0)
 	def drawmap(self):
 		pass
 	
@@ -274,20 +282,20 @@ class StraightConnector(Connector):
 		self.angle = math.atan2(self.face.x, self.face.y)
 		self.connections = []
 		self.blockers = []
-		y = self.face.cross(pygame.math.Vector3(0, 0, 1)).normalize()
+		self.right = self.face.cross(pygame.math.Vector3(0, 0, 1)).normalize()
 		self.ps = [
-			self.pos0 + self.width * y,
-			self.pos1 + self.width * y,
-			self.pos1 - self.width * y,
-			self.pos0 - self.width * y,
+			self.pos0 + self.width * self.right,
+			self.pos1 + self.width * self.right,
+			self.pos1 - self.width * self.right,
+			self.pos0 - self.width * self.right,
 		]
 		
 		dw = 1  # outline width
 		self.ops = [
-			self.pos0 + (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
-			self.pos1 + (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
-			self.pos1 - (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
-			self.pos0 - (self.width + dw) * y + pygame.math.Vector3(0, 0, -1),
+			self.pos0 + (self.width + dw) * self.right + pygame.math.Vector3(0, 0, -1),
+			self.pos1 + (self.width + dw) * self.right + pygame.math.Vector3(0, 0, -1),
+			self.pos1 - (self.width + dw) * self.right + pygame.math.Vector3(0, 0, -1),
+			self.pos0 - (self.width + dw) * self.right + pygame.math.Vector3(0, 0, -1),
 		]
 		
 	# Distance to the section center line, in units of the width.
@@ -305,10 +313,9 @@ class StraightConnector(Connector):
 		you.heading = math.anglesoftapproach(you.heading, heading, 10 * dt, dymin = 0.01)
 		v = self.swimrate(dx, dy).rotate_z(math.degrees(-heading))
 		
-		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
+		you.v = pygame.math.Vector3(math.approach(you.v, v, 200 * dt))
 	def atilt(self, you):
-		aslope = self.aslope * (-1 if you.upstream else 1)
-		return math.degrees(aslope), 0
+		return math.degrees(self.aslope) * self.right
 	def act(self, you):
 		return False
 
@@ -376,7 +383,7 @@ class StraightConnector(Connector):
 				glPopMatrix()
 		glPopMatrix()
 	def drawmap(self):
-		glColor(0, 0.4, 1, 1)
+		glColor(*state.mapcolor(self.sectionid))
 		glBegin(GL_QUADS)
 		for p in self.ps:
 			glVertex(*p)
@@ -427,6 +434,10 @@ class CurvedConnector(Connector):
 		self.vertices = [d * (self.R - self.width) for d in ds] + [d * (self.R + self.width) for d in ds[::-1]]
 #		self.pB = pB
 		self.connections = []
+
+		alpha = math.atan2(self.n.x, self.n.y)
+		self.mapstart = math.degrees(alpha - self.beta)
+		self.mapsweep = math.degrees(2 * self.beta)
 	def penter(self):
 		return self.p0
 	def pexit(self):
@@ -445,12 +456,15 @@ class CurvedConnector(Connector):
 		heading = angle + (math.tau / 2 if you.upstream else 0)
 		you.heading = math.anglesoftapproach(you.heading, heading, 10 * dt, dymin = 0.01)
 		v = self.swimrate(dx, dy).rotate_z(math.degrees(-heading))
-		you.v = pygame.math.Vector3(math.approach(you.v, v, 50 * dt))
+		you.v = pygame.math.Vector3(math.approach(you.v, v, 200 * dt))
 	def atilt(self, you):
 		r = you.pos - self.center
+		if r.length() < 6:
+			r.scale_to_length(6)
 		v = self.vflow(you.pos)
-		a = -v.cross(r).z * (v.length() / r.length_squared())
-		return 0, 25 * math.tanh(a * 0.2)
+		u = r.cross(Vector3(0, 0, 1)).normalize()
+		a = -abs(v.cross(r).z * (v.length() / r.length_squared()))
+		return u * 25 * math.tanh(a * 0.1)
 	def act(self, you):
 		return False
 
@@ -510,8 +524,16 @@ class CurvedConnector(Connector):
 		#	graphics.drawmodel_sect_curve(self)
 		
 	def drawmap(self):
-		pass
-		# TODO
+		glPushMatrix()
+		glColor4f(*state.mapcolor(self.sectionid))
+		glTranslate(*self.center)
+		r0 = self.R - self.width
+		r1 = self.R + self.width
+		gluPartialDisk(graphics.quadric, r0, r1, 40, 1, self.mapstart, self.mapsweep)
+		glColor4f(0, 0, 0, 1)
+		glTranslate(0, 0, -1)
+		gluPartialDisk(graphics.quadric, r0 - 1, r1 + 1, 40, 1, self.mapstart, self.mapsweep)
+		glPopMatrix()
 	def spawn(self, dt):
 		pass
 

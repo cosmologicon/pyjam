@@ -127,6 +127,8 @@ def loadtriggers(filename):
 			triggerdrain(*fields)
 		if fields[0] == "rapid":
 			triggerrapid(*fields)
+		if fields[0] == "fmode":
+			triggerfmode(*fields)
 		if fields[0] == "dialog":
 			triggerdialog(*fields)
 		if fields[0] == "music":
@@ -175,4 +177,9 @@ def triggerendboss(endboss, j, k):
 def triggersave(save, k):
 	section = sections_by_id[parseid("pool", k)]
 	section.cansave = True
+
+def triggerfmode(fmode, j, k, value):
+	value = value == "True"
+	section = sections_by_id[parseid(j, k)]
+	section.fmode = value
 

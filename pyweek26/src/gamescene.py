@@ -1,5 +1,5 @@
 import random, pygame
-from . import view, state, thing, graphics, settings, section, level, ptext, sound
+from . import view, state, thing, graphics, settings, section, level, ptext, sound, scene, mapscene
 
 def init():
 	state.you = thing.You()
@@ -22,7 +22,10 @@ def init():
 #		state.objs.append(obj)
 	
 
-def think(dt, kpressed, kdowns):
+def think(dt, kpressed, kdowns, dmx, dmy):
+	if kdowns["map"]:
+		scene.push(mapscene)
+
 	dx = kpressed["right"] - kpressed["left"]
 	dy = kpressed["up"] - kpressed["down"]
 
@@ -43,7 +46,7 @@ def think(dt, kpressed, kdowns):
 #	for obj in state.objs:
 #		obj.pos.y -= 10 * dt
 	state.think(dt)
-	view.think(dt)
+	view.think(dt, dmx, dmy)
 	
 	sound.manager.Update()
 

@@ -62,6 +62,7 @@ class SoundManager(object):
 		return self.voice_channel.get_busy()
 	
 	def Update_Ambient(self):
+		# FIXME: should probably be CheckVoice()
 		if self.CheckVoice == True:
 			#pygame.mixer.music.set_volume(0.1)
 			self.vol_a = 0.0
@@ -83,7 +84,6 @@ class SoundManager(object):
 			else:
 				vol_a_target = 0
 				vol_b_target = 0
-				#print(state.you.section.label)
 		
 		if vol_a_target > self.vol_a:
 			self.vol_a = min((self.vol_a+self.mixrate),vol_a_target)
