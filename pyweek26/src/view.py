@@ -205,7 +205,7 @@ def maplook():
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
 	w, h = screen.get_size()
-	glScale(1 / 200, 1 / 200 * w / h, -1 / 1000)
+	glScale(1 / 250, 1 / 250 * w / h, -1 / 1000)
 
 
 def screenshot():

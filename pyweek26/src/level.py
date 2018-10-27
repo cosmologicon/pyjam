@@ -137,6 +137,8 @@ def loadtriggers(filename):
 			triggerendboss(*fields)
 		if fields[0] == "save":
 			triggersave(*fields)
+		if fields[0] == "ocean":
+			triggerocean(*fields)
 
 def triggerstart(start, j, k):
 	section = sections_by_id[parseid(j, k)]
@@ -184,4 +186,8 @@ def triggerfmode(fmode, j, k, value):
 	value = value == "True"
 	section = sections_by_id[parseid(j, k)]
 	section.fmode = value
+
+def triggerocean(ocean, j, k):
+	section = sections_by_id[parseid(j, k)]
+	section.ocean = True
 

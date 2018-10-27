@@ -446,6 +446,7 @@ def get_sections_to_draw():
 			draw_sections.append(draw_sections[-1].connections[1])
 		if draw_sections[-1].label == "pool":
 			draw_sections.extend(draw_sections[-1].connections)
+	draw_sections = [ds for ds in draw_sections if not ds.ocean]
 	return draw_sections
 
 def drawmodel_ocean(sect):

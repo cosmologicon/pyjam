@@ -1,4 +1,5 @@
 import random, pygame, math
+from pygame.math import Vector3
 from OpenGL.GL import *
 from . import view, state, thing, graphics, settings, section, level, ptext, sound, scene, mapscene
 
@@ -20,7 +21,8 @@ def init():
 
 def think(dt, kpressed, kdowns, dmx, dmy):
 	if kdowns["map"]:
-		scene.push(mapscene)
+		if not state.section.ocean:
+			scene.push(mapscene)
 
 	dx = kpressed["right"] - kpressed["left"]
 	dy = kpressed["up"] - kpressed["down"]
@@ -77,18 +79,20 @@ def draw():
 		graphics.drawmodel_section_tubes()
 		state.animation.draw()
 		
-		# If rendering the ocean:
-		#graphics.drawmodel_ocean(state.you.section)
-		#graphics.drawfriendfish(state.you.section.pos,0.0)
-		# etc.
+		if state.you.section.ocean:
+			graphics.drawmodel_ocean(state.you.section)
+			graphics.drawfriendfish(state.you.section.pos + Vector3(0, 0, 0.2), 0.0)
+			graphics.drawfriendfish(state.you.section.pos + Vector3(5, 8, 0.2), -20.0)
+			graphics.drawfriendfish(state.you.section.pos + Vector3(-8, 5, 0.2), 10.0)
 
 
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
 	glClear(GL_DEPTH_BUFFER_BIT)
 
-	drawminimap()
-	drawhud()
+	if not state.you.section.ocean:
+		drawminimap()
+		drawhud()
 	
 	text = []
 	text = [
@@ -134,11 +138,27 @@ def draw():
 			"Find fish food to gain the ability to go",
 			"up one pipe.",
 		]
-	ptext.draw("\n".join(text), fontsize = 21, owidth = 2, ocolor = "black", color = "white",
-		shade = 1, fontname = "PassionOne", bottomleft = (20, 20)
-	)
-
-
+	if not state.you.section.ocean:
+		ptext.draw("\n".join(text), fontsize = 21, owidth = 2, ocolor = "black", color = "white",
+			shade = 1, fontname = "PassionOne", bottomleft = (20, 20)
+		)
+	if state.you.section.ocean:
+		ptext.draw(settings.gamename, fontsize = 100, owidth = 1, ocolor = "black", color = "white",
+			shade = 1, fontname = "PassionOne", bottomleft = (20, 500))
+		text = [
+			"by Team Universe Factory 26",
+			"",
+			"Christopher Night",
+			"Mitch Bryson",
+			"Mary Bichner",
+			"Charles McPillan",
+			"Minh Huynh",
+			"Jules Van Oosterom",
+		]
+		ptext.draw("\n".join(text), fontsize = 40, owidth = 1, ocolor = "black", color = "yellow",
+			shade = 1, fontname = "PassionOne", bottomleft = (50, 100))
+		ptext.draw("Thank you for playing!", fontsize = 40, owidth = 1, ocolor = "black", color = "white",
+			shade = 1, fontname = "PassionOne", bottomleft = (20, 20))
 	
 def drawminimap():
 	w, h = settings.resolution
