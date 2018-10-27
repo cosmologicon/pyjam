@@ -5,9 +5,6 @@ start pool 83  # TUTORIAL START
 dialog A pool 83
 music level pool 83
 
-
-start pool 79
-
 # start pool 72  # TUTORIAL HALFWAY
 food pool 75
 food pool 67
@@ -25,7 +22,7 @@ food pool 58
 fmode pool 43 True
 fmode pool 62 False
 
-# start pool 38  # NORTHEAST - THE RAPIDS
+start pool 38  # NORTHEAST - THE RAPIDS
 food pool 37
 rapid 28 2.5
 food pool 39

@@ -179,8 +179,7 @@ class Debris():
 	def think(self, dt):
 		pass
 	def draw(self):
-		if settings.debug_graphics:
-			graphics.drawobj(self)
+		graphics.drawobj(self)
 
 @WorldBound()
 @WaterBound(fixed = True)

@@ -57,8 +57,11 @@ def draw():
 	#	graphics.draw_skybox(state.you.section.pos)
 	
 	graphics.drawyou()
+
+	sections = graphics.get_sections_to_draw()
 	for obj in state.objs:
-		obj.draw()
+		if obj.section in sections:
+			obj.draw()
 	for effect in state.effects:
 		effect.draw()
 	
