@@ -8,12 +8,8 @@ def init():
 	level.load()
 	if settings.GenerateOpenSCADScripts: # output scad scripts for building section 3D models
 		graphics.build_openscad_commands()
-	
-#	for _ in range(100):
-#		obj = thing.Debris()
-#		obj.pos.x = random.uniform(-4 + obj.r, 4 - obj.r)
-#		obj.pos.y = random.uniform(-400, 400)
-#		state.objs.append(obj)
+	for section in state.sections:
+		section.spawn(None)
 	
 
 def think(dt, kpressed, kdowns, dmx, dmy):
@@ -23,8 +19,6 @@ def think(dt, kpressed, kdowns, dmx, dmy):
 	dx = kpressed["right"] - kpressed["left"]
 	dy = kpressed["up"] - kpressed["down"]
 
-	for section in state.sections:
-		section.spawn(dt)
 	state.you.move(dt, dx, dy, kdowns["turn"], kdowns["act"], kpressed["act"])
 	state.you.think(dt)
 	for obj in state.objs + state.effects:
@@ -40,9 +34,6 @@ def think(dt, kpressed, kdowns, dmx, dmy):
 
 	state.objs = [obj for obj in state.objs if obj.alive]
 	state.effects = [effect for effect in state.effects if effect.alive]
-#	state.you.pos.y -= 10 * dt
-#	for obj in state.objs:
-#		obj.pos.y -= 10 * dt
 	state.think(dt)
 	view.think(dt, dmx, dmy)
 	
@@ -51,9 +42,9 @@ def think(dt, kpressed, kdowns, dmx, dmy):
 def draw():
 	view.clear((0.1, 0.1, 0.1, 1))
 	view.look()
-#	for obj in state.objs:
-#		graphics.drawobj(obj)
 	graphics.drawyou()
+	for obj in state.objs:
+		obj.draw()
 	for effect in state.effects:
 		effect.draw()
 	

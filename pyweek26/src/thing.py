@@ -160,18 +160,41 @@ class You():
 		self.start()
 
 @WorldBound()
-@WaterBound()
+@WaterBound(fixed = True)
 @SinksInPool()
 @Collides()
 @Knocks()
 @Lives()
 class Debris():
-	def __init__(self):
+	def __init__(self, pos, section):
 		self.start()
+		self.pos = pos
+		self.section = section
 		self.color = [random.uniform(0.2, 0.4) for _ in "rgb"]
 		self.r = random.uniform(0.7, 1.5)
 	def think(self, dt):
 		pass
+	def draw(self):
+		if settings.debug_graphics:
+			graphics.drawobj(self)
+
+@WorldBound()
+@WaterBound(fixed = True)
+@Collides()
+@Knocks()
+@Lives()
+class Column():
+	def __init__(self, pos, section):
+		self.start()
+		self.color = [random.uniform(0.3, 0.4) for _ in "rgb"]
+		self.r = random.uniform(0.7, 1.5)
+		self.section = section
+	def think(self, dt):
+		pass
+	def draw(self):
+		if not settings.debug_graphics:
+			return
+		graphics.drawcylinder(self.pos, 1, self.h, (0, 0, 0.3, 1))
 
 @WorldBound()
 @WaterBound(fixed = True)
@@ -196,6 +219,8 @@ class BossHitbox():
 		self.section = section
 		self.pos = self.section.pos
 	def think(self, dt):
+		pass
+	def draw(self):
 		pass
 
 

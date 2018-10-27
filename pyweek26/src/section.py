@@ -399,17 +399,13 @@ class StraightConnector(Connector):
 		glEnd()
 		
 	def spawn(self, dt):
-		return
-		if isinstance(self.connections[0], Pool) and random.uniform(0, 0.5) < dt:
-			obj = thing.Debris()
-			obj.section = self
-			d = self.width - obj.r
-			obj.pos = self.pos0 + random.uniform(-d, d) * self.face.rotate_z(90)
-			while self.connections[0].acquires(obj):
-				obj.pos += 0.1 * self.vflow(obj.pos)
-			for _ in range(3):
-				obj.pos += 0.1 * self.vflow(obj.pos)
-			state.objs.append(obj)
+		if self.rapid > 1:
+			a = self.width * self.length
+			for j in range(int(a * 0.01)):
+				x = random.uniform(-1, 1) * (self.width - 1)
+				y = random.uniform(0, 1)
+				pos = math.mix(self.pos0, self.pos1, y) + self.right * x
+				state.objs.append(thing.Debris(pos, self))
 
 # TODO: I'm 90% sure this class doesn't need to exist.
 class SlopeConnector(StraightConnector):
