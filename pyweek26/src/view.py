@@ -145,7 +145,7 @@ def think(dt, dmx, dmy):
 def look():
 	
 	# cycle animation variables
-	graphics.animation.cycle()
+	state.animation.cycle()
 	
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()

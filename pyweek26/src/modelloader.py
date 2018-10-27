@@ -36,7 +36,8 @@ def Material(mtl_dir, filename, wrap_type):
         elif values[0] == 'map_Kd':
             # load the texture referred to by this declaration
             mtl[values[0]] = values[1]
-            surf = pygame.image.load(os.path.join(mtl_dir,mtl['map_Kd']))
+            #surf = pygame.image.load(os.path.join(mtl_dir,mtl['map_Kd']))
+            surf = pygame.image.load(os.path.join('models','textures',mtl['map_Kd']))
             image = pygame.image.tostring(surf, 'RGBA', 1)
             ix, iy = surf.get_rect().size
             texid = mtl['texture_Kd'] = glGenTextures(1)
@@ -96,7 +97,8 @@ class Model3D(object):
             elif values[0] in ('usemtl', 'usemat'):
                 material = values[1]
             elif values[0] == 'mtllib':
-                self.mtl = Material(path, os.path.join(path, values[1]), wrap_type)
+                #self.mtl = Material(path, os.path.join(path, values[1]), wrap_type)
+                self.mtl = Material(path, os.path.join('models','materials', values[1]), wrap_type)
                 for name in self.mtl:
                     if 'texture_Kd' in self.mtl[name]:
                         use_texture = True
