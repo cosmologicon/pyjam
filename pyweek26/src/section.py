@@ -61,14 +61,27 @@ class Pool():
 		if turn:
 			you.heading += self.toturn
 			self.toturn = math.tau / 2
-		you.heading += 2 * dt * dx
+		vphi = view.getphi()
+		if vphi is None:
+			you.heading += 2 * dt * dx
 		if self.toturn:
 			toturn = math.softapproach(self.toturn, 0, 10 * dt, dymin = 0.01)
 			you.heading += self.toturn - toturn
 			self.toturn = toturn
-		speed = 10 if dy > 0 else -3 if dy < 0 else 0
-		v = pygame.math.Vector3(0, speed, 0).rotate_z(math.degrees(-you.heading))
-		you.v = math.approach(you.v, v, 200 * dt)
+		if vphi is None:
+			speed = 10 if dy > 0 else -3 if dy < 0 else 0
+			v = pygame.math.Vector3(0, speed, 0).rotate_z(math.degrees(-you.heading))
+			you.v = math.approach(you.v, v, 200 * dt)
+		else:
+			v = pygame.math.Vector3(dx, dy, 0)
+			if v.length():
+				v = 10 * v.normalize().rotate_z(vphi)
+			vnew = math.approach(you.v, v, 200 * dt)
+#			if you.v.length() and vnew.length():
+#				you.heading += math.degrees(math.asin(you.v.cross(vnew).z / (you.v.length() * vnew.length())))
+			you.v = vnew
+			if you.v.length():
+				you.heading = math.atan2(you.v.x, you.v.y)
 		if self.candropfrom(you):
 			self.drop(you)
 		if self.canfeed(you):
@@ -311,6 +324,9 @@ class StraightConnector(Connector):
 	def afactor(self, pos):
 		return (pos - self.pos0).dot(self.face) / self.length
 	def move(self, you, dt, dx, dy, turn):
+		vphi = view.getphi()
+		if vphi is not None:
+			dx, dy = pygame.math.Vector2(dx, dy).rotate(-(vphi - math.degrees(state.you.heading)))
 		if turn:
 			you.upstream = not you.upstream
 		heading = self.angle + (math.tau / 2 if you.upstream else 0)
@@ -447,6 +463,9 @@ class CurvedConnector(Connector):
 		p = obj.pos - self.center
 		return p.dot(self.n) > p.length() * math.cos(self.beta)
 	def move(self, you, dt, dx, dy, turn):
+		vphi = view.getphi()
+		if vphi is not None:
+			dx, dy = pygame.math.Vector2(dx, dy).rotate(-(vphi - math.degrees(state.you.heading)))
 		if turn:
 			you.upstream = not you.upstream
 		p = you.pos - self.center

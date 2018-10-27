@@ -10,12 +10,12 @@ def init():
 		graphics.build_openscad_commands()
 	for section in state.sections:
 		section.spawn(None)
-	for section in state.sections:
-		print(section.pos)
+#	for section in state.sections:
+#		print(section.pos)
 	if not settings.reset:
 		state.load()
-	for section in state.sections:
-		print(section.pos)
+#	for section in state.sections:
+#		print(section.pos)
 		
 
 def think(dt, kpressed, kdowns, dmx, dmy):

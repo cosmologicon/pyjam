@@ -4,7 +4,6 @@ from . import settings, sound
 
 # play dialog
 def trigger(convo):
-	print("Triggered conversation: ", convo)
 	sound.manager.current_dialog = convo
 	sound.manager.current_dind = 0
 	sound.manager.PlayVoice(convo+'1')

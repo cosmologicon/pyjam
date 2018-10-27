@@ -1,9 +1,12 @@
-save 0
-start pool 1
+# save 0
+# start pool 1
 
-# start pool 83  # TUTORIAL START
+start pool 83  # TUTORIAL START
 dialog A pool 83
 music level pool 83
+
+
+start pool 79
 
 # start pool 72  # TUTORIAL HALFWAY
 food pool 75

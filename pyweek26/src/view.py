@@ -172,6 +172,15 @@ def think(dt, dmx, dmy):
 	self.vantage = self.camera + self.Rvantage * uvantage.rotate(dtilt, utilt)
 	self.up = Vector3(0, 0, 1).rotate_z(self.phi).rotate(dtilt, utilt)
 
+def getphi():
+	if settings.manualcamera:
+		return self.mphi
+	elif self.fmode:
+		return 0
+	elif self.bmode:
+		return self.bphi
+	return None
+
 
 # Set up camera perspective and settings for drawing game entities
 def look():

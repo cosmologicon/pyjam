@@ -39,6 +39,7 @@ effects = []
 dtriggers = {}
 # Dialog that's already been triggered once.
 dtriggered = set()
+dtotrigger = []
 
 # For all sections where the music is not regular gameplay music.
 musics = {}
@@ -74,7 +75,7 @@ def currentmusic():
 	return musics["current"]
 
 def think(dt):
-	global tsave, tnosave, explored
+	global tsave, tnosave, explored, dtotrigger
 	explored.add(you.section.sectionid)
 	if you.section.label == "pool":
 		cansave = you.section.cansave
@@ -91,7 +92,16 @@ def think(dt):
 			continue
 		if triggermatch(you.section.sectionid, sectionid):
 			dtriggered.add(convo)
+			t = 0
+			if convo in "AH":
+				t = 2
+			dtotrigger.append([t, convo])
+
+	dtotrigger = [(t - dt, convo) for t, convo in dtotrigger]
+	for t, convo in dtotrigger:
+		if t <= 0:
 			dialog.trigger(convo)
+	dtotrigger = [(t, convo) for t, convo in dtotrigger if t > 0]
 
 def getstate():
 	return you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored, animation
