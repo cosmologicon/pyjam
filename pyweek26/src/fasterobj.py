@@ -15,13 +15,15 @@ except ImportError:
 
 # Check for pickled version first, and pickles after loading if it doesn't.
 def load(filename, alpha=1):
+	# TODO: pickling causes issues when going between python 2 and 3 - disabling
+	return OBJ_vbo(filename, alpha)
 	pklname = os.path.splitext(filename)[0] + ".pkl"
 	if os.path.exists(pklname):
 		try:
 			return pickle.load(open(pklname, "rb"))
 		except ValueError:
 			pass
-	obj = OBJ_array(filename, alpha)
+	obj = OBJ_vbo(filename, alpha)
 	pickle.dump(obj, open(pklname, "wb"))
 	return obj
 
@@ -246,9 +248,6 @@ class OBJ(object):
 			self.generated = False
 
 	def __del__(self):
-		# I have no idea why this is causing an error.
-		# TypeError: 'NoneType' object is not iterable - what's up with that?
-		return
 		if self.generated and self.use_list and glDeleteLists:
 			glDeleteLists(self.gl_list,1)
 
@@ -306,10 +305,11 @@ class OBJ_array(OBJ):
 
 class OBJ_vbo(OBJ):
 	"""3-D model using vertex buffer objects"""
+	use_list = False
 
-	def __init__(self, filename):
+	def __init__(self, filename, alpha=1):
 		self.vbo_v = None
-		OBJ.__init__(self, filename)
+		OBJ.__init__(self, filename, alpha)
 
 	def process(self):
 		"""Build index list for VBOs"""
@@ -349,7 +349,7 @@ class OBJ_vbo(OBJ):
 		glEnableClientState(GL_VERTEX_ARRAY)
 		texon, normon = None, None
 		for material, mindices in self.indices:
-			self.mtl.bind(material)
+			self.mtl.bind(material, self.alpha)
 			for nvs, dotex, donorm, ioffset, isize in mindices:
 				if donorm != normon:
 					normon = donorm

@@ -11,6 +11,8 @@ from . import modelloader, settings, view, fasterobj
 
 import random
 
+models = {}  # populated by init
+
 class Splashes(object):
 	def __init__(self, pos, section, lifetime = -1):
 		self.n = 20
@@ -199,10 +201,10 @@ class Stalker(object):
 		glRotate(self.angle_body, 0, 1, 0)
 		glScale(0.5, 0.5, 0.5)
 		glTranslate(0, 0, -7)
-		glCallList(model_stalkerbody.gl_list)
+		models["stalkerbody"].render()
 		glTranslate(0, -10.0, 0)
 		#glRotate(self.angle_eye, 0, 1, 0)
-		glCallList(model_stalkereye.gl_list)
+		models["stalkereye"].render()
 		glPopMatrix()
 		
 		# draw arms
@@ -366,23 +368,18 @@ def init():
 	Model = fasterobj.load if settings.usefasterobj else modelloader.Model3D
 
 	# load in model files
-	global model_fish, model_tail
-	model_fish = Model(os.path.join('models','fish001_tailfree_colour.obj'))
-	model_tail = Model(os.path.join('models','fish001_tail_colour.obj'))
+	models["fish"] = Model(os.path.join('models','fish001_tailfree_colour.obj'))
+	models["tail"] = Model(os.path.join('models','fish001_tail_colour.obj'))
 
-	global model_stalkerbody, model_stalkereye
-	model_stalkerbody = Model(os.path.join('models','stalker_body.obj'))
-	model_stalkereye = Model(os.path.join('models','stalker_eye.obj'))
+	models["stalkerbody"] = Model(os.path.join('models','stalker_body.obj'))
+	models["stalkereye"] = Model(os.path.join('models','stalker_eye.obj'))
 	
-	global model_fishfood
-	model_fishfood = Model(os.path.join('models','fishfood.obj'))
+	models["fishfood"] = Model(os.path.join('models','fishfood.obj'))
 	
-	global model_friendfish, model_friendtail
-	model_friendfish = Model(os.path.join('models','friendfish.obj'))
-	model_friendtail = Model(os.path.join('models','friendfish_tail.obj'))
+	models["friendfish"] = Model(os.path.join('models','friendfish.obj'))
+	models["friendtail"] = Model(os.path.join('models','friendfish_tail.obj'))
 	
-	global model_skybox
-	model_skybox = Model(os.path.join('models','skybox.obj'))
+	models["skybox"] = Model(os.path.join('models','skybox.obj'))
 
 	# Load in water textures
 	global water_texture
@@ -397,23 +394,18 @@ def init():
 	water_texture_ocean = modelloader.TextureSurf(os.path.join('models','textures','water_texture.png'))
 	
 	# Load in Environment model files
-	global model3d_pipe
-	model3d_pipe = Model(os.path.join('models','pipe.obj'),alpha=0.3)
-	global model3d_arrowup
-	model3d_arrowup = Model(os.path.join('models','arrow_up.obj'),alpha=0.3)
-	global model3d_arrowdown
-	model3d_arrowdown = Model(os.path.join('models','arrow_down.obj'),alpha=0.3)
-	global model3d_arrowdown_yellow
-	model3d_arrowdown_yellow = Model(os.path.join('models','arrow_down_yellow.obj'),alpha=0.3)
+	models["pipe"] = Model(os.path.join('models','pipe.obj'),alpha=0.3)
+	models["arrowup"] = Model(os.path.join('models','arrow_up.obj'),alpha=0.3)
+	models["arrowdown"] = Model(os.path.join('models','arrow_down.obj'),alpha=0.3)
+	models["arrowdown_yellow"] = Model(os.path.join('models','arrow_down_yellow.obj'),alpha=0.3)
 	
-	global model3d_sections
-	model3d_sections = []
-	model3d_sections.append([])
+	models["sections"] = []
+	models["sections"].append([])
 	level_name = settings.leveldataname
 	model_paths = [i for i in os.listdir(os.path.join('models',level_name)) if "obj" in i]
 	max_ind = max([int(path[-7:-4]) for path in model_paths])
 	for i in range(max_ind+1):
-		model3d_sections[-1].append([])
+		models["sections"][-1].append([])
 	if not settings.debug_graphics:
 		c = 0
 		for path in model_paths:
@@ -421,7 +413,7 @@ def init():
 			if c % 20 == 0:
 				print('Loading 3D Models: %d of %d'%(c+1,len(model_paths)))
 			c += 1
-			model3d_sections[-1][ind] = Model(os.path.join('models',level_name,path),alpha=0.3)
+			models["sections"][-1][ind] = Model(os.path.join('models',level_name,path),alpha=0.3)
 	
 	# Init OpenGL lighting
 	# TODO: figure out strange lighting directions
@@ -433,6 +425,9 @@ def init():
 	glEnable(GL_COLOR_MATERIAL)
 	glEnable(GL_DEPTH_TEST)
 	glShadeModel(GL_SMOOTH)
+
+def cleanup():
+	models.clear()
 
 def get_sections_to_draw():
 	if state.you.section.label == 'pool':
@@ -516,7 +511,7 @@ def drawmodel_sect_pipe(sect):
 	glTranslate(0,sect.connections[0].r,0)
 	glRotate(90, 1, 0, 0)
 	glRotate(180, 0, 0, 1)
-	glCallList(model3d_pipe.gl_list)
+	models["pipe"].render()
 	glPopMatrix()
 
 def draw_water_ocean(pos,rad=100):
@@ -549,7 +544,7 @@ def draw_skybox(pos):
 	glColor4f(1, 1, 1, 0.3)
 	glTranslate(pos[0],pos[1],pos[2])
 	glScale(1000.0, 1000.0, 1000.0)
-	glCallList(model_skybox.gl_list)
+	models["skybox"].render()
 	glPopMatrix()
 	glEnable(GL_LIGHTING)
 	glEnable(GL_DEPTH_TEST)
@@ -589,10 +584,10 @@ def drawmodel_sect_pool(sect):
 	if False:
 		glEnable(GL_BLEND)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-		glCallList(model3d_sections[0][sect_ind].gl_list)
+		models["sections"][0][sect_ind].render()
 		glDisable(GL_BLEND)
 	else:
-		glCallList(model3d_sections[0][sect_ind].gl_list)
+		models["sections"][0][sect_ind].render()
 	glPopMatrix()
 	if sect.hasfood:
 		d = max((sect.pos - view.self.vantage).length(), 1)
@@ -681,10 +676,10 @@ def drawmodel_sect_straight(sect):
 	if not state.you.section.label == 'pool':
 		glEnable(GL_BLEND)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-		glCallList(model3d_sections[0][sect_ind].gl_list)
+		models["sections"][0][sect_ind].render()
 		glDisable(GL_BLEND)
 	else:
-		glCallList(model3d_sections[0][sect_ind].gl_list)
+		models["sections"][0][sect_ind].render()
 	glPopMatrix()
 	
 	# render arrows
@@ -700,16 +695,16 @@ def drawmodel_sect_straight(sect):
 			glEnable(GL_BLEND)
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 		if sect.pool0.pos.z > sect.pool1.pos.z:
-			glCallList(model3d_arrowdown.gl_list)
+			models["arrowdown"].render()
 		elif sect.pool0.pos.z < sect.pool1.pos.z:
-			glCallList(model3d_arrowup.gl_list)
+			models["arrowup"].render()
 		else:
 			if (sect.pool0.pressure() - sect.pool1.pressure()) > -1:
-				glCallList(model3d_arrowdown.gl_list)
+				models["arrowdown"].render()
 			elif (sect.pool0.pressure() - sect.pool1.pressure()) == -1:
-				glCallList(model3d_arrowdown_yellow.gl_list)
+				models["arrowdown_yellow"].render()
 			else:
-				glCallList(model3d_arrowup.gl_list)
+				models["arrowup"].render()
 		if not state.you.section.label == 'pool':
 			glDisable(GL_BLEND)
 		glPopMatrix()
@@ -727,16 +722,16 @@ def drawmodel_sect_straight(sect):
 			glEnable(GL_BLEND)
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 		if sect.pool1.pos.z > sect.pool0.pos.z:
-			glCallList(model3d_arrowdown.gl_list)
+			models["arrowdown"].render()
 		elif sect.pool1.pos.z < sect.pool0.pos.z:
-			glCallList(model3d_arrowup.gl_list)
+			models["arrowup"].render()
 		else:
 			if (sect.pool1.pressure() - sect.pool0.pressure()) > -1:
-				glCallList(model3d_arrowdown.gl_list)
+				models["arrowdown"].render()
 			elif (sect.pool1.pressure() - sect.pool0.pressure()) == -1:
-				glCallList(model3d_arrowdown_yellow.gl_list)
+				models["arrowdown_yellow"].render()
 			else:
-				glCallList(model3d_arrowup.gl_list)
+				models["arrowup"].render()
 		if not state.you.section.label == 'pool':
 			glDisable(GL_BLEND)
 		glPopMatrix()
@@ -781,10 +776,10 @@ def drawmodel_sect_curve(sect):
 	if not state.you.section.label == 'pool':
 		glEnable(GL_BLEND)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-		glCallList(model3d_sections[0][sect_ind].gl_list)
+		models["sections"][0][sect_ind].render()
 		glDisable(GL_BLEND)
 	else:
-		glCallList(model3d_sections[0][sect_ind].gl_list)
+		models["sections"][0][sect_ind].render()
 	glPopMatrix()
 
 def drawsphere(r = 1):
@@ -836,10 +831,10 @@ def drawyou():
 	glRotate(angle, 0, 0, 1)
 	glRotate(90 + state.you.rangle(), 1, 0, 0)
 	glScale(0.1, 0.1, 0.1)
-	glCallList(model_fish.gl_list)
+	models["fish"].render()
 	glTranslate(0, 0, 7.0)
 	glRotate(-angle_tail, 0, 1, 0)
-	glCallList(model_tail.gl_list)
+	models["tail"].render()
 	glPopMatrix()
 
 def drawfriendfish(pos, heading):
@@ -853,10 +848,10 @@ def drawfriendfish(pos, heading):
 	glRotate(angle, 0, 0, 1)
 	glRotate(90 + state.you.rangle(), 1, 0, 0)
 	glScale(0.1, 0.1, 0.1)
-	glCallList(model_friendfish.gl_list)
+	models["friendfish"].render()
 	glTranslate(0, 0, 7.0)
 	glRotate(-angle_tail, 0, 1, 0)
-	glCallList(model_friendtail.gl_list)
+	models["friendtail"].render()
 	glPopMatrix()
 
 def drawfishfood(pos):
@@ -868,7 +863,7 @@ def drawfishfood(pos):
 	glScale(2.0, 2.0, 2.0)
 	if not state.food:
 		glDisable(GL_LIGHTING)
-	glCallList(model_fishfood.gl_list)
+	models["fishfood"].render()
 	if not state.food:
 		glEnable(GL_LIGHTING)
 	glPopMatrix()

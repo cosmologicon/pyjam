@@ -213,3 +213,6 @@ class Model3D(object):
         glDisable(GL_TEXTURE_2D)
         glEndList()
         """
+    def render(self):
+        glCallList(self.gl_list)
+

@@ -7,6 +7,7 @@ thought = False
 
 def init():
 	draw()
+	pygame.display.flip()
 	sound.manager.Update_Music()
 	
 
@@ -32,4 +33,3 @@ def draw():
 	ptext.draw("\n".join(text), fontsize = 40, owidth = 1, ocolor = "black", color = "yellow",
 		shade = 1, fontname = "PassionOne", bottomleft = (50, 100))
 
-	pygame.display.flip()
