@@ -7,7 +7,7 @@ from OpenGL.GL import shaders
 from OpenGL.GLU import *
 import pygame
 from . import state
-from . import modelloader, settings, view
+from . import modelloader, settings, view, fasterobj
 
 import random
 
@@ -362,26 +362,28 @@ def init():
 	gluQuadricTexture(quadric, GL_TRUE)
 	
 	print('loading model files ...')
-	
+
+	Model = fasterobj.load if settings.usefasterobj else modelloader.Model3D
+
 	# load in model files
 	global model_fish, model_tail
-	model_fish = modelloader.Model3D(os.path.join('models','fish001_tailfree_colour.obj'))
-	model_tail = modelloader.Model3D(os.path.join('models','fish001_tail_colour.obj'))
-	
+	model_fish = Model(os.path.join('models','fish001_tailfree_colour.obj'))
+	model_tail = Model(os.path.join('models','fish001_tail_colour.obj'))
+
 	global model_stalkerbody, model_stalkereye
-	model_stalkerbody = modelloader.Model3D(os.path.join('models','stalker_body.obj'))
-	model_stalkereye = modelloader.Model3D(os.path.join('models','stalker_eye.obj'))
+	model_stalkerbody = Model(os.path.join('models','stalker_body.obj'))
+	model_stalkereye = Model(os.path.join('models','stalker_eye.obj'))
 	
 	global model_fishfood
-	model_fishfood = modelloader.Model3D(os.path.join('models','fishfood.obj'))
+	model_fishfood = Model(os.path.join('models','fishfood.obj'))
 	
 	global model_friendfish, model_friendtail
-	model_friendfish = modelloader.Model3D(os.path.join('models','friendfish.obj'))
-	model_friendtail = modelloader.Model3D(os.path.join('models','friendfish_tail.obj'))
+	model_friendfish = Model(os.path.join('models','friendfish.obj'))
+	model_friendtail = Model(os.path.join('models','friendfish_tail.obj'))
 	
 	global model_skybox
-	model_skybox = modelloader.Model3D(os.path.join('models','skybox.obj'))
-	
+	model_skybox = Model(os.path.join('models','skybox.obj'))
+
 	# Load in water textures
 	global water_texture
 	water_texture = modelloader.TextureSurf(os.path.join('models','textures','water_texture_darkgreen.png'))
@@ -396,13 +398,13 @@ def init():
 	
 	# Load in Environment model files
 	global model3d_pipe
-	model3d_pipe = modelloader.Model3D(os.path.join('models','pipe.obj'),alpha=0.3)
+	model3d_pipe = Model(os.path.join('models','pipe.obj'),alpha=0.3)
 	global model3d_arrowup
-	model3d_arrowup = modelloader.Model3D(os.path.join('models','arrow_up.obj'),alpha=0.3)
+	model3d_arrowup = Model(os.path.join('models','arrow_up.obj'),alpha=0.3)
 	global model3d_arrowdown
-	model3d_arrowdown = modelloader.Model3D(os.path.join('models','arrow_down.obj'),alpha=0.3)
+	model3d_arrowdown = Model(os.path.join('models','arrow_down.obj'),alpha=0.3)
 	global model3d_arrowdown_yellow
-	model3d_arrowdown_yellow = modelloader.Model3D(os.path.join('models','arrow_down_yellow.obj'),alpha=0.3)
+	model3d_arrowdown_yellow = Model(os.path.join('models','arrow_down_yellow.obj'),alpha=0.3)
 	
 	global model3d_sections
 	model3d_sections = []
@@ -419,7 +421,7 @@ def init():
 			if c % 20 == 0:
 				print('Loading 3D Models: %d of %d'%(c+1,len(model_paths)))
 			c += 1
-			model3d_sections[-1][ind] = modelloader.Model3D(os.path.join('models',level_name,path),alpha=0.3)
+			model3d_sections[-1][ind] = Model(os.path.join('models',level_name,path),alpha=0.3)
 	
 	# Init OpenGL lighting
 	# TODO: figure out strange lighting directions

@@ -20,6 +20,7 @@ asavename = os.path.join("savegame", "save-%Y%m%d%H%M%S.pkl")
 reset = "--reset" in sys.argv
 
 debug_graphics = "--debuggfx" in sys.argv
+usefasterobj = "--usefasterobj" in sys.argv
 
 # if set to true, on start-up outputs to file OpenSCAD scripts to generate section model 
 # files in current map. Function to do this is "build_openscad_commands" in graphics.py,

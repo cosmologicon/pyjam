@@ -155,8 +155,8 @@ def draw():
 			"Opening a drain into a room raises the",
 			"lower room's pressure value by 1.",
 			"",
-			"Find fish food to gain the ability to go",
-			"up one pipe.",
+			"Small higher pipes may only be entered when",
+			"charged up with fish food.",
 		]
 	if not state.you.section.ocean:
 		ptext.draw("\n".join(text), fontsize = 21, owidth = 2, ocolor = "black", color = "white",
