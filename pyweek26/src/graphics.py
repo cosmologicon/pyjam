@@ -356,8 +356,9 @@ class Animations(object):
 		
 #animation = Animations()
 
+loadprogress = 0
 def init():
-	global quadric
+	global quadric, model_paths, nmodels, Model
 	glShadeModel(GL_SMOOTH)
 	quadric = gluNewQuadric()
 	gluQuadricNormals(quadric, GLU_SMOOTH)
@@ -402,18 +403,14 @@ def init():
 	models["sections"] = []
 	models["sections"].append([])
 	level_name = settings.leveldataname
-	model_paths = [i for i in os.listdir(os.path.join('models',level_name)) if "obj" in i]
-	max_ind = max([int(path[-7:-4]) for path in model_paths])
-	for i in range(max_ind+1):
-		models["sections"][-1].append([])
-	if not settings.debug_graphics:
-		c = 0
-		for path in model_paths:
-			ind = int(path[-7:-4])
-			if c % 20 == 0:
-				print('Loading 3D Models: %d of %d'%(c+1,len(model_paths)))
-			c += 1
-			models["sections"][-1][ind] = Model(os.path.join('models',level_name,path),alpha=0.3)
+	if settings.debug_graphics:
+		model_paths = []
+	else:
+		model_paths = [i for i in os.listdir(os.path.join('models',level_name)) if "obj" in i]
+		max_ind = max([int(path[-7:-4]) for path in model_paths])
+		for i in range(max_ind+1):
+			models["sections"][-1].append([])
+	nmodels = len(model_paths)
 	
 	# Init OpenGL lighting
 	# TODO: figure out strange lighting directions
@@ -425,6 +422,20 @@ def init():
 	glEnable(GL_COLOR_MATERIAL)
 	glEnable(GL_DEPTH_TEST)
 	glShadeModel(GL_SMOOTH)
+
+# Use up about dt seconds loading models. Returns a number 0-1 of how much
+# progress has been made. Module is done loading when 1 is returned.
+def load(dt):
+	if not model_paths:
+		return 1
+	tend = pygame.time.get_ticks() * 0.001 + dt
+	while model_paths and pygame.time.get_ticks() * 0.001 <= tend:
+		path = model_paths.pop(0)
+		ind = int(path[-7:-4])
+		path = os.path.join('models',settings.leveldataname,path)
+		models["sections"][-1][ind] = Model(path, alpha=0.3)
+	print(1 - len(model_paths) / nmodels)
+	return 1 - len(model_paths) / nmodels
 
 def cleanup():
 	models.clear()
