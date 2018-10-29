@@ -52,7 +52,6 @@ def triggermatch(id0, id1):
 	return j0 == j1 and (j0 != "pool" or k0 == k1)
 
 def currentmusic():
-	from . import level
 	if not musics:
 		return "intro"
 	current = None
@@ -153,11 +152,10 @@ def clean():
 		os.remove(settings.qsavename)
 
 def mapcolor(sectionid):
-	return (0.3, 0.3, 1, 1) if sectionid in explored else (0, 0, 0.4, 1)
+	return (0.5, 0.5, 1, 1) if sectionid in explored else (0.1, 0.1, 0.6, 1)
 
 
 def teleport(where):
-	from . import level
 	jpool = {
 		"home": 0,
 		"NE": 1,
@@ -165,6 +163,8 @@ def teleport(where):
 		"SW": 3,
 		"SE": 4,
 	}[where]
+	if ("pool", jpool) not in sections_by_id:
+		return
 	you.section = sections_by_id[("pool", jpool)]
 	you.pos = you.section.pos + pygame.math.Vector3(0, 0, 3)
 

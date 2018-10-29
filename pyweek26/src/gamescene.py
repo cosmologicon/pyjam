@@ -2,7 +2,8 @@ from __future__ import division
 import random, pygame, math
 from pygame.math import Vector3
 from OpenGL.GL import *
-from . import view, state, thing, graphics, settings, section, level, ptext, sound, scene, mapscene
+from . import view, state, thing, graphics, settings, section, level, ptext, sound, scene, mapscene, pview
+from .pview import T
 
 class self:
 	t = 0
@@ -49,7 +50,7 @@ def think(dt, kpressed, kdowns, dmx, dmy):
 	
 	sound.manager.Update()
 
-def draw():
+def drawgame():
 	view.clear((0.1, 0.1, 0.1, 1))
 	view.look()
 	
@@ -100,6 +101,8 @@ def draw():
 			graphics.drawfriendfish(state.you.section.pos + Vector3(-8, 5, 0.2), 10.0)
 
 
+def draw():
+	drawgame()
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
 	glClear(GL_DEPTH_BUFFER_BIT)
@@ -121,22 +124,22 @@ def draw():
 			"Baseline pressure: %d" % pool.pressure0,
 		]
 		if pool.candrainfrom(state.you):
-			ptext.draw("Space: open drain", fontsize = 80, center = (1280/2, 500),
+			ptext.draw("Space: open drain", fontsize = T(80), center = T(1280/2, 500),
 				fontname = "PassionOne", color = "orange", shade = 1, owidth = 1, ocolor = "black"
 				)
 	if settings.DEBUG:
-		ptext.draw("\n".join(text), fontsize = 28, midbottom = (512, 20))
+		ptext.draw("\n".join(text), fontsize = T(28), midbottom = T(512, 20))
 
 	note = state.currentnote()
 	if note is not None:
 		text = {
 			"skipse": "It's possible to get stuck in this section with no way to complete it. If you're stuck, press 4 to skip this section.",
 		}[note]
-		ptext.draw(text, topleft = (20, 400), width = 400, fontsize = 32, color = "orange", shade = 1,
+		ptext.draw(text, topleft = T(20, 400), width = T(400), fontsize = T(32), color = "orange", shade = 1,
 			ocolor = "black", owidth = 1)
 	if 0 < state.tlastsave < 3 < self.t:
 		alpha = math.dsmoothfade(state.tlastsave, 0, 3, 0.3)
-		ptext.draw("Progress saved", midbottom = (1280/2, 20), fontsize = 42, color = "white", shade = 1,
+		ptext.draw("Progress saved", midbottom = T(1280/2, 20), fontsize = 42, color = "white", shade = 1,
 			fontname = "PassionOne", alpha = alpha,
 			ocolor = "black", owidth = 1)
 		
@@ -166,12 +169,12 @@ def draw():
 			"charged up with fish food.",
 		]
 	if not state.you.section.ocean:
-		ptext.draw("\n".join(text), fontsize = 21, owidth = 2, ocolor = "black", color = "white",
-			shade = 1, fontname = "PassionOne", bottomleft = (20, 20)
+		ptext.draw("\n".join(text), fontsize = T(21), owidth = 2, ocolor = "black", color = "white",
+			shade = 1, fontname = "PassionOne", bottomleft = T(20, 20)
 		)
 	if state.you.section.ocean:
-		ptext.draw(settings.gamename, fontsize = 100, owidth = 1, ocolor = "black", color = "white",
-			shade = 1, fontname = "PassionOne", bottomleft = (20, 500))
+		ptext.draw(settings.gamename, fontsize = T(100), owidth = 1, ocolor = "black", color = "white",
+			shade = 1, fontname = "PassionOne", bottomleft = T(20, 500))
 		text = [
 			"by Team Universe Factory 26",
 			"",
@@ -182,16 +185,16 @@ def draw():
 			"Minh Huynh",
 			"Jules Van Oosterom",
 		]
-		ptext.draw("\n".join(text), fontsize = 40, owidth = 1, ocolor = "black", color = "yellow",
-			shade = 1, fontname = "PassionOne", bottomleft = (50, 100))
-		ptext.draw("Thank you for playing!", fontsize = 40, owidth = 1, ocolor = "black", color = "white",
-			shade = 1, fontname = "PassionOne", bottomleft = (20, 20))
+		ptext.draw("\n".join(text), fontsize = T(40), owidth = 1, ocolor = "black", color = "yellow",
+			shade = 1, fontname = "PassionOne", bottomleft = T(50, 100))
+		ptext.draw("Thank you for playing!", fontsize = T(40), owidth = 1, ocolor = "black", color = "white",
+			shade = 1, fontname = "PassionOne", bottomleft = T(20, 20))
 	
 def drawminimap():
-	w, h = settings.resolution
+	w, h = pview.size
 	glPushMatrix()
-	a = int(h / 4)
-	d = int(h / 30)
+	a = T(h / 4)
+	d = T(h / 30)
 	glEnable(GL_BLEND)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 	glEnable(GL_SCISSOR_TEST)
@@ -205,7 +208,7 @@ def drawminimap():
 	glEnd()
 	glScale(2 / w, 2 / h, -2 / 1000)
 	glTranslate((w - d - a / 2) - (w / 2), -(h / 2) + (d + a / 2), 0)
-	glScale(3, 3, 3)
+	glScale(3 * pview.f, 3 * pview.f, 3 * pview.f)
 	glTranslate(*(-state.you.pos))
 	glEnable(GL_DEPTH_TEST)
 	for section in state.sections:
@@ -235,11 +238,11 @@ def drawhud():
 	if section.label == "pool":
 		pressure = section.pressure()
 		glPushMatrix()
-		ptext.draw("WATER\nPRESSURE", fontsize = 40, color = "gray", ocolor = "black", owidth = 2,
-			shade = 2, center = (1160, 540), fontname = "PassionOne")
+		ptext.draw("WATER\nPRESSURE", fontsize = T(40), color = "gray", ocolor = "black", owidth = 2,
+			shade = 2, center = T(1160, 540), fontname = "PassionOne")
 		glPopMatrix()
 		glTranslate(-1, -1, 0)
-		glScale(2 / 1280, 2 / 720, 1)
+		glScale(2 / pview.w, 2 / pview.h, 1)
 		glColor(0.2, 0.2, 0.2, 1)
 		x0, y0 = 1160, 600
 #		glRectf(x0 - 42, y0 - 14 - 6 * 26, x0 + 42, y0 + 14)
@@ -249,7 +252,7 @@ def drawhud():
 			else:
 				glColor(0, 0, 0, 1)
 			x0, y0 = 1160, 600 + 26 * (jpressure - 6)
-			glRectf(x0 - 40, y0 - 12, x0 + 40, y0 + 12)
+			glRectf(*T(x0 - 40, y0 - 12, x0 + 40, y0 + 12))
 	glEnable(GL_DEPTH_TEST)
 	glPopMatrix()
 

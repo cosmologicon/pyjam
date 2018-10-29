@@ -4,9 +4,7 @@ import pygame
 from pygame.math import Vector3
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from . import settings, state
-
-screen = None
+from . import settings, state, pview
 
 # Camera conventions (all angles in degrees):
 #   Rvantage = distance from camera to vantage point
@@ -48,16 +46,25 @@ class self:
 	bphi = 0
 
 def init():
-	global screen
-	flags = pygame.DOUBLEBUF | pygame.OPENGL
-	if settings.fullscreen:
-		flags |= pygame.FULLSCREEN
-	screen = pygame.display.set_mode(settings.resolution, flags)
+	pview.WINDOW_FLAGS = pygame.DOUBLEBUF | pygame.OPENGL
+	pview.FULLSCREEN_FLAGS = pview.WINDOW_FLAGS | pygame.FULLSCREEN
+	pview.set_mode(settings.resolution0, fullscreen = settings.fullscreen)
 	grabmouse(False)
 
 def clear(color = (0, 0, 0, 1)):
 	glClearColor(*color)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+def overlay(color):
+	glColor(*color)
+	glMatrixMode(GL_PROJECTION)
+	glLoadIdentity()
+	glEnable(GL_BLEND)
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+	glDisable(GL_DEPTH_TEST)
+	glRectf(-1, -1, 1, 1)
+	glColor(1, 1, 1, 1)
+	glEnable(GL_DEPTH_TEST)
 
 def addsnap(dt):
 	self.tosnap += dt
@@ -191,9 +198,8 @@ def look():
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
 
-	w, h = screen.get_size()
 	fov = 45
-	gluPerspective(fov, w / h, 0.1, 1000.0)
+	gluPerspective(fov, pview.aspect, 0.1, 1000.0)
 	args = list(self.vantage) + list(self.camera) + list(self.up)
 	gluLookAt(*args)
 	
@@ -204,15 +210,23 @@ def look():
 def maplook():
 	glMatrixMode(GL_PROJECTION)
 	glLoadIdentity()
-	w, h = screen.get_size()
-	glScale(1 / 250, 1 / 250 * w / h, -1 / 1000)
+	glScale(1 / 250, 1 / 250 * pview.aspect, -1 / 1000)
+
+
+def cycle_height():
+	pview.cycle_height(settings.heights)
+	glViewport(0, 0, pview.w, pview.h)
+
+def toggle_fullscreen():
+	pview.toggle_fullscreen()
+	settings.fullscreen = not settings.fullscreen
+	glViewport(0, 0, pview.w, pview.h)
 
 
 def screenshot():
 	# TODO: get screenshot working
 	filename = datetime.datetime.now().strftime("screenshot-%Y%m%d%H%M%S.png")
-	w, h = screen.get_size()
-	data = glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE)
-	surf = pygame.Surface((w, h)).convert_alpha()
+	data = glReadPixels(0, 0, pview.w, pview.h, GL_RGBA, GL_UNSIGNED_BYTE)
+	surf = pygame.Surface(pview.size).convert_alpha()
 	arr = pygame.surfarray.pixels3d(surf)
 

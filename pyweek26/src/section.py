@@ -374,7 +374,7 @@ class StraightConnector(Connector):
 			elif -obj.r < da < 0:
 				obj.pos -= self.face * (obj.r + da)
 	def acquires(self, obj):
-		return -0.1 <= self.afactor(obj.pos) < 1.1
+		return 0 <= self.afactor(obj.pos) <= 1
 	def influence(self, obj):
 		return 0
 	def draw(self):
@@ -412,7 +412,7 @@ class StraightConnector(Connector):
 		for p in self.ps:
 			glVertex(*p)
 		glEnd()
-		glColor(0, 0, 0, 0)
+		glColor(0, 0, 0, 1)
 		glBegin(GL_QUADS)
 		for p in self.ops:
 			glVertex(*p)

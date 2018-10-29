@@ -1,18 +1,15 @@
 from __future__ import division
 import pygame
 from pygame.locals import *
-from . import maff, settings, view, scene, gamescene, graphics, ptext, sound, state, mapscene, loadscene
+from . import maff, settings, view, scene, gamescene, graphics, ptext, sound, state, mapscene, loadscene, pview
+from .pview import T
 
 ptext.FONT_NAME_TEMPLATE = "data/fonts/%s.ttf"
-
 view.init()
 pygame.display.set_caption(settings.gamename)
 pygame.mixer.init()
-if settings.debug_graphics:
-	scene.push(gamescene)
-else:
-	scene.push(loadscene)
 graphics.init()
+scene.push(loadscene)
 #scene.push(mapscene)
 
 playing = True
@@ -32,8 +29,8 @@ while playing:
 			settings.manualcamera = not settings.manualcamera
 			view.grabmouse(True)
 	dmx, dmy = pygame.mouse.get_rel()
-	dmx /= settings.resolution[1]
-	dmy /= settings.resolution[1]
+	dmx /= pview.w
+	dmy /= pview.w
 	kpressed = pygame.key.get_pressed()
 	pressed = { key: any(kpressed[code] for code in codes) for key, codes in settings.keymap.items() }
 	downs = { key: any(code in kdowns for code in codes) for key, codes in settings.keymap.items() }
@@ -67,10 +64,15 @@ while playing:
 		text = "%s: %.1ffps" % (settings.gamename, clock.get_fps())
 		pygame.display.set_caption(text)
 		text = "%.1ffps" % clock.get_fps()
-		ptext.draw(text, bottomleft = (10, 10), fontsize = 22)
+		ptext.draw(text, bottomleft = T(10, 10), fontsize = T(22))
 	pygame.display.flip()
-	if K_F12 in kdowns:
-		view.screenshot()
+	if loadscene.self.done:
+		if K_F10 in kdowns:
+			view.cycle_height()
+		if K_F11 in kdowns:
+			view.toggle_fullscreen()
+		if K_F12 in kdowns:
+			view.screenshot()
 graphics.cleanup()
 state.clean()
 pygame.quit()

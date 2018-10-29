@@ -5,7 +5,9 @@ DEBUG = "--DEBUG" in sys.argv
 
 gamename = "Storm Drain Odyssey"
 
-resolution = 1280, 720
+resolution0 = 1280, 720
+heights = 360, 480, 720, 1080
+
 fullscreen = "--fullscreen" in sys.argv
 
 leveldataname = "game"

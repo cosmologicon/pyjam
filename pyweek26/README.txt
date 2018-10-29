@@ -45,6 +45,8 @@ Controls
   * Esc: quit
   * M: view map
   * Click with mouse: enable/disable manual camera control
+  * F10: cycle resolutions (360p, 480p, 720p, 1080p)
+  * F11: toggle fullscreen
 
 Cheat codes
 -----------

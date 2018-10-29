@@ -1,9 +1,10 @@
 import random, pygame, math
 from OpenGL.GL import *
 from . import view, state, thing, graphics, settings, section, level, ptext, sound, scene
+from .pview import T
 
 def init():
-	pass	
+	pass
 
 def think(dt, kpressed, kdowns, dmx, dmy):
 	if kdowns["map"]:
@@ -16,7 +17,8 @@ def think(dt, kpressed, kdowns, dmx, dmy):
 
 def draw():
 	from . import gamescene
-	gamescene.draw()
+	gamescene.drawgame()
+	view.overlay((0, 0, 0, 0.8))
 	glClear(GL_DEPTH_BUFFER_BIT)
 
 	if True:
@@ -67,8 +69,8 @@ def draw():
 		"4: jump to end of SE challenge",
 		"5: get food",
 	]
-	ptext.draw("\n".join(text), fontsize = 21, owidth = 2, ocolor = "black", color = "white",
-		shade = 1, fontname = "PassionOne", bottomleft = (20, 20)
+	ptext.draw("\n".join(text), fontsize = T(21), owidth = 2, ocolor = "black", color = "white",
+		shade = 1, fontname = "PassionOne", bottomleft = T(20, 20)
 	)
 
 
