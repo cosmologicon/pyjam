@@ -1,25 +1,12 @@
 from __future__ import print_function
 import datetime, os, pygame
+from collections import OrderedDict
 from . import dialog, settings
 
 try:
 	import cPickle as pickle
 except ImportError:
 	import pickle
-"""
-def get2(self):
-	return self.x, self.y
-def set2(self, obj):
-	self.x, self.y = obj
-def get3(self):
-	return self.x, self.y, self.z
-def set3(self, obj):
-	self.x, self.y, self.z = obj
-pygame.math.Vector2.__getstate__ = get2
-pygame.math.Vector2.__setstate__ = set2
-pygame.math.Vector3.__getstate__ = get3
-pygame.math.Vector3.__setstate__ = set3
-"""
 
 # animation objects
 animation = None
@@ -30,6 +17,7 @@ food = 0
 foodmax = 1
 # Sewer sections
 sections = []
+sections_by_id = OrderedDict()
 # Floating game objects - will rename once we know what will be there
 objs = []
 # Non-interactive special effects
@@ -48,6 +36,8 @@ musics = {}
 # "save" areas and "non-save" areas since the last save.
 tsave = 0
 tnosave = 0
+tlastsave = 0
+tlastqsave = 0
 
 # Section IDs of places you've visited, that show up unfaded on the map.
 explored = set()
@@ -77,14 +67,15 @@ def currentmusic():
 		musics["current"] = "level"
 
 	if musics["current"] == "level":
-		progress = len(level.sections_by_id[("pool", 0)].drainers)
+		progress = len(sections_by_id[("pool", 0)].drainers)
 		return "levelA" if progress % 2 else "levelB"
 	return musics["current"]
 
 def think(dt):
-	global tsave, tnosave, explored, dtotrigger
+	global tsave, tnosave, tlastsave, tlastqsave, explored, dtotrigger
 	explored.add(you.section.sectionid)
 	if you.section.label == "pool":
+#		print(tsave, tnosave, you.section.sectionid, you.section.cansave, (you.section in sections), sections[0].sectionid, sections[0].cansave, sections[0].pos)
 		cansave = you.section.cansave
 		if cansave:
 			tsave += dt
@@ -93,7 +84,9 @@ def think(dt):
 		else:
 			tsave = 0
 			tnosave += dt
-		
+	tlastsave += dt
+	tlastqsave += dt
+
 	for convo, sectionid in dtriggers.items():
 		if convo in dtriggered:
 			continue
@@ -121,16 +114,17 @@ def currentnote():
 	return None
 
 def getstate():
-	return you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored, animation
+	return you, food, foodmax, sections, sections_by_id, objs, effects, dtriggers, dtriggered, musics, explored, animation
 
 def setstate(s):
-	global you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored
-	you, food, foodmax, sections, objs, effects, dtriggers, dtriggered, musics, explored, animation = s
+	global you, food, foodmax, sections, sections_by_id, objs, effects, dtriggers, dtriggered, musics, explored, animation
+	you, food, foodmax, sections, sections_by_id, objs, effects, dtriggers, dtriggered, musics, explored, animation = s
 
 def save():
-	global tsave, tnosave
+	global tsave, tnosave, tlastsave
 	tsave = 0
 	tnosave = 0
+	tlastsave = 0
 	# TODO: onscreen save message
 	if settings.DEBUG:
 		print("saving")
@@ -138,13 +132,25 @@ def save():
 	for fname in (settings.savename, asavename):
 		if not os.path.exists(os.path.dirname(fname)):
 			os.makedirs(os.path.dirname(fname))
-		pickle.dump(getstate(), open(fname, "wb"), protocol=2, fix_imports=True)
+		pickle.dump(getstate(), open(fname, "wb"))
+
+# TODO: quicksave
 
 def load():
-	return
-	if not os.path.exists(settings.savename):
-		return
-	setstate(pickle.load(open(settings.savename, "rb")))
+	if os.path.exists(settings.qsavename):
+		setstate(pickle.load(open(settings.qsavename, "rb")))
+	elif os.path.exists(settings.savename):
+		setstate(pickle.load(open(settings.savename, "rb")))
+
+def reset():
+	if os.path.exists(settings.savename):
+		os.remove(settings.savename)
+	if os.path.exists(settings.qsavename):
+		os.remove(settings.qsavename)
+
+def clean():
+	if os.path.exists(settings.qsavename):
+		os.remove(settings.qsavename)
 
 def mapcolor(sectionid):
 	return (0.3, 0.3, 1, 1) if sectionid in explored else (0, 0, 0.4, 1)
@@ -159,6 +165,6 @@ def teleport(where):
 		"SW": 3,
 		"SE": 4,
 	}[where]
-	you.section = level.sections_by_id[("pool", jpool)]
+	you.section = sections_by_id[("pool", jpool)]
 	you.pos = you.section.pos + pygame.math.Vector3(0, 0, 3)
 

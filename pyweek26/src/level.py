@@ -5,12 +5,11 @@ from pygame.math import Vector3
 
 from . import state, section, thing, settings, graphics
 
-# Map from section id to section object
-sections_by_id = OrderedDict()
 # Map from section id to list of section ids that this section is connected to
 connection_ids = defaultdict(list)
 
 def load():
+	state.sections_by_id = OrderedDict()
 	filename = "data/%s.csv" % settings.leveldataname
 	for line in open(filename, "r"):
 		fields = line.split()
@@ -26,7 +25,7 @@ def load():
 			loadslope(*fields)
 		if fields[0] == "curve":
 			loadcurve(*fields)
-	for sectionid, section in sections_by_id.items():
+	for sectionid, section in state.sections_by_id.items():
 		state.sections.append(section)
 		section.sectionid = sectionid
 	connectsections()
@@ -36,12 +35,12 @@ def load():
 	loadtriggers("data/%s-triggers.csv" % settings.leveldataname)		
 
 def loadpool(pool, jpool, cx, cy, cz, r, pressure0, drainable):
-	sectionid = pool, int(jpool)
+	sectionid = parseid(pool, jpool)
 	center = Vector3(float(cx), float(cy), float(cz))
 	r = float(r)
 	pressure0 = int(pressure0)
 	drainable = drainable == "True"
-	sections_by_id[sectionid] = section.Pool(center, r, pressure0, drainable)
+	state.sections_by_id[sectionid] = section.Pool(center, r, pressure0, drainable)
 
 def maybeint(j):
 	return int(j) if j.isdigit() else j
@@ -68,7 +67,7 @@ def loadpipe(pipe, jpipe, jfrom, kfrom, jto, kto, x0, y0, z0, x1, y1, z1, w):
 	p0 = Vector3(float(x0), float(y0), float(z0))
 	p1 = Vector3(float(x1), float(y1), float(z1))
 	w = float(w)
-	sections_by_id[sectionid] = section.Pipe(p0, p1, width=w)
+	state.sections_by_id[sectionid] = section.Pipe(p0, p1, width=w)
 	tunnelconnect(sectionid, fromid, toid, oneway = True)
 
 def loadstraight(straight, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0, x1, y1, z1, w):
@@ -76,7 +75,7 @@ def loadstraight(straight, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0
 	p0 = Vector3(float(x0), float(y0), float(z0))
 	p1 = Vector3(float(x1), float(y1), float(z1))
 	w = float(w)
-	sections_by_id[sectionid] = section.StraightConnector(p0, p1, width=w)
+	state.sections_by_id[sectionid] = section.StraightConnector(p0, p1, width=w)
 	tunnelconnect(sectionid, fromid, toid)
 
 def loadslope(slope, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0, x1, y1, z1, w):
@@ -84,7 +83,7 @@ def loadslope(slope, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0, x1, 
 	p0 = Vector3(float(x0), float(y0), float(z0))
 	p1 = Vector3(float(x1), float(y1), float(z1))
 	w = float(w)
-	sections_by_id[sectionid] = section.SlopeConnector(p0, p1, width=w)
+	state.sections_by_id[sectionid] = section.SlopeConnector(p0, p1, width=w)
 	tunnelconnect(sectionid, fromid, toid)
 
 def loadcurve(curve, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0, x1, y1, z1, w, cx, cy, cz, beta, right, R):
@@ -96,13 +95,13 @@ def loadcurve(curve, jtunnel, jsection, jfrom, kfrom, jto, kto, x0, y0, z0, x1, 
 	R = float(R)
 	beta = float(beta)
 	right = right == "True"
-	sections_by_id[sectionid] = section.CurvedConnector(p0, p1, center, beta, right, R, width=w)
+	state.sections_by_id[sectionid] = section.CurvedConnector(p0, p1, center, beta, right, R, width=w)
 	tunnelconnect(sectionid, fromid, toid)
 
 # One everything is loaded, connect everything to the appropriate section objects
 def connectsections():
 	for sectionid, conids in connection_ids.items():
-		sections_by_id[sectionid].connections = [sections_by_id[conid] for conid in conids]
+		state.sections_by_id[sectionid].connections = [state.sections_by_id[conid] for conid in conids]
 	for sect in state.sections:
 		if isinstance(sect, section.Connector):
 			sect.setpools()
@@ -143,28 +142,28 @@ def loadtriggers(filename):
 			triggernote(*fields)
 
 def triggerstart(start, j, k):
-	section = sections_by_id[parseid(j, k)]
+	section = state.sections_by_id[parseid(j, k)]
 	state.you.section = section
 	state.you.pos = 1 * section.pos
 
 def triggerfood(start, j, k):
-	section = sections_by_id[parseid(j, k)]
+	section = state.sections_by_id[parseid(j, k)]
 	section.hasfood = True
 
 def triggerwhirl(whirl, j, k, strength):
-	section = sections_by_id[parseid(j, k)]
+	section = state.sections_by_id[parseid(j, k)]
 	section.whirl = float(strength)
 	state.animation.vortexes.append(graphics.Vortex(section.pos,section,section.r,speed=section.whirl * 0.3))
 
 def triggerdrain(whirl, j, k):
-	section = sections_by_id[parseid(j, k)]
+	section = state.sections_by_id[parseid(j, k)]
 	section.drainable = True
 	section.drain(silent = True)
 
 def triggerrapid(rapid, j0, amount):
 	j0 = int(j0)
 	amount = float(amount)
-	for (j, k), section in sections_by_id.items():
+	for (j, k), section in state.sections_by_id.items():
 		if j == j0:
 			section.rapid = amount
 
@@ -175,23 +174,23 @@ def triggermusic(music, track, j, k):
 	state.musics[parseid(j, k)] = track
 
 def triggerendboss(endboss, j, k):
-	section = sections_by_id[parseid(j, k)]
+	section = state.sections_by_id[parseid(j, k)]
 	state.effects.append(thing.Tentacles(section))
 	state.objs.append(thing.BossHitbox(section))
 	section.final = True
 	section.bmode = True
 
 def triggersave(save, k):
-	section = sections_by_id[parseid("pool", k)]
+	section = state.sections_by_id[parseid("pool", k)]
 	section.cansave = True
 
 def triggerfmode(fmode, j, k, value):
 	value = value == "True"
-	section = sections_by_id[parseid(j, k)]
+	section = state.sections_by_id[parseid(j, k)]
 	section.fmode = value
 
 def triggerocean(ocean, j, k):
-	section = sections_by_id[parseid(j, k)]
+	section = state.sections_by_id[parseid(j, k)]
 	section.ocean = True
 
 def triggernote(note, name, j, k, value):

@@ -29,10 +29,10 @@ Open a terminal / console and "cd" to the game directory and run:
     python run_game.py
     python3 run_game.py
 
-For fullscreen mode:
+Command line options:
 
-    python run_game.py --fullscreen
-    python3 run_game.py --fullscreen
+	--fullscreen: full screen mode
+	--reset: delete saved game and start over
 
 Controls
 --------
@@ -42,15 +42,14 @@ Controls
   * Space or Enter: jump
   * Space or Enter: open a drain (when over a drain)
   * Double-tap Space or Enter: dive
-  * Esc: quit (warning, there's no save feature!)
+  * Esc: quit
   * M: view map
   * Click with mouse: enable/disable manual camera control
 
 Cheat codes
 -----------
 
-Because we couldn't implement a save feature, here's some cheats in case you can't finish the game
-in one shot. Don't hesitate to use them if you're stuck!
+Here's some cheats in case you need to skip ahead. Don't hesitate to use them if you're stuck!
 
   * 0: go to central room
   * 1: go to end of Northwest challenge (the maze)
@@ -72,5 +71,5 @@ higher. So you can't go directly from a room with pressure 2 to one with pressur
 Opening a drain above a room will increase the pressure in that room. This will allow you to access
 new areas.
 
-Pipes (smaller and higher than tunnels) may only be entered if you're charged up. Find fish  food to
+Pipes (smaller and higher than tunnels) may only be entered if you're charged up. Find fish food to
 get a charge that can take you up one pipe.

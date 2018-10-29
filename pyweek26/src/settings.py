@@ -1,7 +1,7 @@
 from pygame.locals import *
 import sys, os
 
-DEBUG = False
+DEBUG = "--DEBUG" in sys.argv
 
 gamename = "Storm Drain Odyssey"
 
@@ -17,6 +17,8 @@ minfps = 10
 
 savename = os.path.join("savegame", "save.pkl")
 asavename = os.path.join("savegame", "save-%Y%m%d%H%M%S.pkl")
+qsavename = os.path.join("savegame", "quicksave.pkl")
+qsavetime = 10
 reset = "--reset" in sys.argv
 
 debug_graphics = "--debuggfx" in sys.argv

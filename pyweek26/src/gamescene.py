@@ -4,6 +4,9 @@ from pygame.math import Vector3
 from OpenGL.GL import *
 from . import view, state, thing, graphics, settings, section, level, ptext, sound, scene, mapscene
 
+class self:
+	t = 0
+
 def init():
 	state.animation = graphics.Animations()
 	state.you = thing.You()
@@ -12,15 +15,13 @@ def init():
 		graphics.build_openscad_commands()
 	for section in state.sections:
 		section.spawn(None)
-#	for section in state.sections:
-#		print(section.pos)
-	if not settings.reset:
+	if settings.reset:
+		state.reset()
+	else:
 		state.load()
-#	for section in state.sections:
-#		print(section.pos)
-		
 
 def think(dt, kpressed, kdowns, dmx, dmy):
+	self.t += dt
 	if kdowns["map"]:
 		if not state.you.section.ocean:
 			scene.push(mapscene)
@@ -133,10 +134,16 @@ def draw():
 		}[note]
 		ptext.draw(text, topleft = (20, 400), width = 400, fontsize = 32, color = "orange", shade = 1,
 			ocolor = "black", owidth = 1)
+	if 0 < state.tlastsave < 3 < self.t:
+		alpha = math.dsmoothfade(state.tlastsave, 0, 3, 0.3)
+		ptext.draw("Progress saved", midbottom = (1280/2, 20), fontsize = 42, color = "white", shade = 1,
+			fontname = "PassionOne", alpha = alpha,
+			ocolor = "black", owidth = 1)
+		
 	text = [
 		"M: map/help",
 	]
-	if ("pool", 0) in state.explored:
+	if ("pool", 0) in state.explored:  # finished tutorial
 		pass
 	else:
 		text += [

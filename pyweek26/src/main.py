@@ -72,4 +72,5 @@ while playing:
 	if K_F12 in kdowns:
 		view.screenshot()
 graphics.cleanup()
+state.clean()
 pygame.quit()
