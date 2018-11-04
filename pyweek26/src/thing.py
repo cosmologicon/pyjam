@@ -95,11 +95,12 @@ class MovesWithArrows(enco.Component):
 		self.tjump = 0
 		# Confusing but this is your speed with respect to the water, not the speed of the water.
 		self.vwater = pygame.math.Vector3(0, 0, 0)
+		self.draining = False
 	def move(self, dt, dx, dy, turn, act, acthold):
-		if self.landed and self.section is not None:
+		if self.landed and not self.draining and self.section is not None:
 			self.section.move(self, dt, dx, dy, turn)
 		self.pos += dt * (self.v + self.vwater)
-		if act:
+		if act and not self.draining:
 			if self.section.act(self):
 				pass
 			elif self.landed:  # Jump
@@ -111,9 +112,42 @@ class MovesWithArrows(enco.Component):
 				self.vwater.z = -40
 		if not acthold:
 			self.toleap = 0
+	def startdrain(self):
+		self.draining = True
+		self.tdrain = 0
+		self.draintheta = 0
+		self.drainsink = 0
+	def movedrain(self, dt):
+		dr = 5 * self.tdrain * dt
+		dl = 10 * dt
+		ax, ay, az = self.pos - self.section.pos
+		r = math.sqrt(ax ** 2 + ay ** 2)
+		dtheta = dl / max(r, 0.5)
+		r = max(r - dr, 0)
+		if r > 0.01:
+			theta = math.atan2(ay, ax)
+			theta += dtheta
+		else:
+			theta = 0
+		ax, ay = math.CS(theta, r)
+		self.pos.x = self.section.pos.x + ax
+		self.pos.y = self.section.pos.y + ay
+		self.draintheta += dtheta
+		if r < 0.1:
+			self.drainsink += dt
+			if self.drainsink > 0.1:
+				self.pos.z -= 20 * dt * (self.drainsink - 0.5) ** 2
+				if self.section.dzwater(self.pos) < -2:
+					self.section.drop(self)
+					self.draining = False
 	def think(self, dt):
 		dz = self.section.dzwater(self.pos)
-		if self.landed:
+		if self.draining:
+			self.tdrain += dt
+			self.movedrain(dt)
+			self.vwater *= 0
+			self.v *= 0
+		elif self.landed:
 			# Damped constant-force motion to settle
 			self.vwater.z -= 50 * dz * dt
 			self.vwater *= math.exp(-2 * dt)
@@ -136,6 +170,8 @@ class MovesWithArrows(enco.Component):
 		self.Tswim += dt * f
 	# Up/down angle for the purpose of rendering
 	def rangle(self):
+		if self.draining:
+			return math.clamp(40 * self.tdrain + 100 * self.drainsink, 0, 70)
 		vz = (self.v + self.vwater).z
 		if self.landed:
 			p = 1 * self.pos
@@ -144,6 +180,11 @@ class MovesWithArrows(enco.Component):
 			dp.z = 0
 			vz += self.section.dzwater(dp) - self.section.dzwater(p)
 		return math.degrees(math.atan(vz / 20))
+	# Altitude adjustment while draining
+	def drainangle(self):
+		if not self.draining:
+			return 0
+		return math.smoothfadebetween(self.tdrain, 0.2, 0, 1.5, 30)
 
 class SinksInPool(enco.Component):
 	def think(self, dt):

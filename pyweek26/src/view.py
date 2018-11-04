@@ -89,7 +89,7 @@ def think(dt, dmx, dmy):
 	camera = 1 * state.you.pos
 	atilt = state.you.section.atilt(state.you)
 	Rvantage = 20
-	gamma = 55
+	gamma = 55 - state.you.drainangle()
 	phi = -math.degrees(state.you.heading)
 
 	if state.you.section.fmode is None:
@@ -116,14 +116,14 @@ def think(dt, dmx, dmy):
 
 	if self.fmode:
 #		if state.you.section.label == "pool":
-		self.fcamera = state.you.section.pos * 1	
-		camera = math.softapproach(self.camera, self.fcamera, 3 * dt)
+		self.fcamera = state.you.section.pos * 1
+		camera = math.softapproach(self.camera, self.fcamera, 2 * dt)
 		phi = 0
 		gamma = 40
 		Rvantage = math.softapproach(self.Rvantage, 28, 3 * dt)
 
 	if self.bmode:
-		camera = math.softapproach(self.camera, state.you.section.pos, 3 * dt)
+		camera = math.softapproach(self.camera, state.you.section.pos, 1 * dt)
 		d = state.you.pos - state.you.section.pos
 		d.z = 0
 		

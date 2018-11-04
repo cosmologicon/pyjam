@@ -71,7 +71,7 @@ class Vortex(object):
 	def Draw(self):
 		glEnable(GL_TEXTURE_2D)
 		glPushMatrix()
-		glTranslate(self.pos[0],self.pos[1],self.pos[2]+0.5)
+		glTranslate(self.pos[0],self.pos[1],self.pos[2])
 		glRotate(-self.angle, 0, 0, 1)
 		if self.radius < 2.0:
 			npoints = 10
@@ -84,10 +84,10 @@ class Vortex(object):
 		glColor4f(1, 1, 1, 0.5)
 		glBegin(GL_POLYGON)
 		radius_text = 0.5
-		for i in range(npoints):
-			theta = i*2*pi/npoints
-			glTexCoord2f(radius_text*sin(theta)+0.5, radius_text*cos(theta)+0.5)
-			glVertex(self.radius*sin(theta), self.radius*cos(theta), 0)
+		radius = self.radius + 0.5
+		for C, S in math.CSround(npoints):
+			glTexCoord2f(radius_text*S+0.5, radius_text*C+0.5)
+			glVertex(radius*S, radius*C, 0)
 		glEnd()
 		glPopMatrix()
 		glDisable(GL_TEXTURE_2D)
@@ -433,8 +433,7 @@ def load(dt):
 		path = model_paths.pop(0)
 		ind = int(path[-7:-4])
 		path = os.path.join('models',settings.leveldataname,path)
-		models["sections"][-1][ind] = Model(path, alpha=0.3)
-	print(1 - len(model_paths) / nmodels)
+		models["sections"][-1][ind] = Model(path, allow_pickle = settings.allowgfxpickle, alpha=0.3)
 	return 1 - len(model_paths) / nmodels
 
 def cleanup():
@@ -458,6 +457,10 @@ def get_sections_to_draw():
 			draw_sections.append(draw_sections[-1].connections[1])
 		if draw_sections[-1].label == "pool":
 			draw_sections.extend(draw_sections[-1].connections)
+	for section in list(draw_sections):
+		if section.label == "pool" and section.drainable:
+			# TODO: don't draw the boss arena when you're in the pool just before it.
+			draw_sections.append(section.draintarget())
 	draw_sections = [ds for ds in draw_sections if not ds.ocean]
 	return draw_sections
 
@@ -562,7 +565,8 @@ def draw_skybox(pos):
 	glDepthMask(GL_TRUE)
 
 def drawmodel_sect_pool_water(sect):
-	
+	if sect.whirl:  # Pool has a vortex so will be drawn during animation update
+		return
 	# draw water surface
 	glEnable(GL_TEXTURE_2D)
 	glPushMatrix()
@@ -827,9 +831,7 @@ def drawcone(p0, r, h, color):
 	
 def drawyou():
 	glPushMatrix()
-	#glColor4f(0.8, 0.5, 0, 1)
 	glColor4f(1.0, 1.0, 1.0, 1)
-	#glTranslate(*state.you.pos)
 	glTranslate(state.you.pos[0], state.you.pos[1], state.you.pos[2]+0.5)
 	if state.you.thurt:
 		glRotate(360 * state.you.thurt ** 1.5, *state.you.uspin)
@@ -837,10 +839,14 @@ def drawyou():
 		if a < 0.2:
 			glPopMatrix()
 			return
-	angle = 20 * math.sin(state.you.Tswim * math.tau) - math.degrees(state.you.heading)
+	elif state.you.draining:
+		glRotate(math.degrees(state.you.draintheta), 0, 0, 1)
+	glRotate(-math.degrees(state.you.heading), 0, 0, 1)
+	glRotate(state.you.rangle(), 1, 0, 0)
+	angle = 20 * math.sin(state.you.Tswim * math.tau)
 	angle_tail = 20 * math.cos(state.you.Tswim * math.tau) # tail waves out of phase
 	glRotate(angle, 0, 0, 1)
-	glRotate(90 + state.you.rangle(), 1, 0, 0)
+	glRotate(90, 1, 0, 0)
 	glScale(0.1, 0.1, 0.1)
 	models["fish"].render()
 	glTranslate(0, 0, 7.0)

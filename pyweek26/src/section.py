@@ -46,7 +46,7 @@ class Pool():
 	def drain(self, you=None, silent=False):
 		self.draining = True
 		if you is not None:
-			self.drop(you)
+			you.startdrain()
 		dt = self.draintarget()
 		if not silent:
 			sound.manager.PlaySound('drain')
@@ -84,8 +84,8 @@ class Pool():
 			you.v = vnew
 			if you.v.length():
 				you.heading = math.atan2(you.v.x, you.v.y)
-		if self.candropfrom(you):
-			self.drop(you)
+		if not you.draining and self.candropfrom(you):
+			you.startdrain()
 		if self.canfeed(you):
 			state.food = state.foodmax
 			sound.manager.PlaySound('food_got')

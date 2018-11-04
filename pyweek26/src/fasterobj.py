@@ -14,18 +14,22 @@ except ImportError:
 	import pickle
 
 # Check for pickled version first, and pickles after loading if it doesn't.
-def load(filename, alpha=1):
-	# TODO: pickling causes issues when going between python 2 and 3 - disabling
-	return OBJ_vbo(filename, alpha)
-	pklname = os.path.splitext(filename)[0] + ".pkl"
-	if os.path.exists(pklname):
-		try:
-			return pickle.load(open(pklname, "rb"))
-		except ValueError:
-			pass
-	obj = OBJ_vbo(filename, alpha)
-	pickle.dump(obj, open(pklname, "wb"))
-	return obj
+def load(filename, allow_pickle=False, alpha=1):
+    pklname = os.path.splitext(filename)[0] + ".pkl"
+    if allow_pickle:
+        # TODO: pickling causes issues when going between python 2 and 3 - automatically detect
+        if os.path.exists(pklname):
+            try:
+                return pickle.load(open(pklname, "rb"))
+            except ValueError:
+                pass
+        obj = OBJ_vbo(filename, alpha)
+        pickle.dump(obj, open(pklname, "wb"))
+        return obj
+    else:
+        if os.path.exists(pklname):
+            os.remove(pklname)
+        return OBJ_vbo(filename, alpha)
 
 # Convert a list to a ctype string for pickling
 def toctype(val, btype = ctypes.c_float):
