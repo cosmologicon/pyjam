@@ -28,6 +28,14 @@ class Pool():
 		self.whirl = 0
 		self.final = False  # Is the final boss arena
 		self.cansave = False
+		self.vortex = None
+		if drainable:
+			self.addvortex()
+	def addvortex(self):
+		if self.vortex is not None:
+			return
+		self.vortex = graphics.Vortex(self.pos, self, self.r)
+		state.animation.vortexes.append(self.vortex)
 	def penter(self):
 		return self.pos
 	def pexit(self):
@@ -43,16 +51,20 @@ class Pool():
 		pools = [s for s in state.sections if s.label == "pool" and s.dwall(self) > 0 and s.pos.z < self.pos.z]
 		assert pools, "Drainable pool at %s not above another pool!" % (self.pos,)
 		return max(pools, key=lambda pool: pool.pos.z)
-	def drain(self, you=None, silent=False):
+	def drain(self, you=None, silent=False, whirl=2):
 		self.draining = True
+		self.addvortex()
+		self.whirl = whirl
 		if you is not None:
 			you.startdrain()
-		dt = self.draintarget()
+		target = self.draintarget()
 		if not silent:
 			sound.manager.PlaySound('drain')
-		state.animation.waterfalls.append(graphics.Waterfall([self.pos[0],self.pos[1],self.pos[2]],dt,self.pos[2]-dt.pos[2]))
-		state.effects.append(thing.Waterfall(self, dt))
-		dt.drainers.append(self)
+		x, y, z = self.pos
+		h = z - target.pos.z
+		state.animation.waterfalls.append(graphics.Waterfall([x, y, z - 0.1], self, target, h - 0.1))
+		state.effects.append(thing.Waterfall(self, target))
+		target.drainers.append(self)
 	def drop(self, you):
 		you.landed = False
 		you.toleap = 0

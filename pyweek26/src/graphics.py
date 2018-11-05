@@ -58,14 +58,16 @@ class Splashes(object):
 			glPopMatrix()
 
 class Vortex(object):
-	def __init__(self, pos, section, radius=1.0, speed=1.0):
+	def __init__(self, pos, section, radius=1.0, sfactor=0.3):
 		self.pos = pos
 		self.section = section
 		self.radius = radius
-		self.speed = speed
+		self.sfactor = sfactor
+		self.speed = self.sfactor * self.section.whirl
 		self.angle = 0
 	
 	def Update(self):
+		self.speed = self.sfactor * self.section.whirl
 		self.angle = (self.angle+self.speed) % 360
 	
 	def Draw(self):
@@ -93,14 +95,14 @@ class Vortex(object):
 		glDisable(GL_TEXTURE_2D)
 
 class Waterfall(object):
-	def __init__(self, pos, section, drop_height, radius=1.0):
+	def __init__(self, pos, top_section, bottom_section, drop_height, radius=1.0):
 		self.pos = pos
-		self.section = section
+		self.section = bottom_section
 		self.height = drop_height
 		self.frame = 0
 		self.radius = radius
-		self.vortex_top = Vortex([pos[0],pos[1],pos[2]], self.section, radius=1.5, speed=2.5)
-		self.splash_bottom = Splashes([pos[0],pos[1],pos[2]-drop_height+1.0], self.section)
+		self.vortex_top = Vortex([pos[0],pos[1],pos[2]], top_section, radius=1.5, sfactor=1.5)
+		self.splash_bottom = Splashes([pos[0],pos[1],pos[2]-drop_height+1.0], bottom_section)
 	
 	def Update(self):
 		self.frame += 1
@@ -565,7 +567,7 @@ def draw_skybox(pos):
 	glDepthMask(GL_TRUE)
 
 def drawmodel_sect_pool_water(sect):
-	if sect.whirl:  # Pool has a vortex so will be drawn during animation update
+	if sect.vortex is not None:  # Pool has a vortex so will be drawn during animation update
 		return
 	# draw water surface
 	glEnable(GL_TEXTURE_2D)

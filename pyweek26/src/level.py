@@ -153,9 +153,9 @@ def triggerfood(start, j, k):
 def triggerwhirl(whirl, j, k, strength):
 	section = state.sections_by_id[parseid(j, k)]
 	section.whirl = float(strength)
-	state.animation.vortexes.append(graphics.Vortex(section.pos,section,section.r,speed=section.whirl * 0.3))
+	section.addvortex()
 
-def triggerdrain(whirl, j, k):
+def triggerdrain(drain, j, k):
 	section = state.sections_by_id[parseid(j, k)]
 	section.drainable = True
 	section.drain(silent = True)
@@ -179,6 +179,7 @@ def triggerendboss(endboss, j, k):
 	state.objs.append(thing.BossHitbox(section))
 	section.final = True
 	section.bmode = True
+	section.addvortex()
 
 def triggersave(save, k):
 	section = state.sections_by_id[parseid("pool", k)]

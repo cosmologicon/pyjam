@@ -122,7 +122,7 @@ class MovesWithArrows(enco.Component):
 		dl = 10 * dt
 		ax, ay, az = self.pos - self.section.pos
 		r = math.sqrt(ax ** 2 + ay ** 2)
-		dtheta = dl / max(r, 0.5)
+		dtheta = -dl / max(r, 0.5)
 		r = max(r - dr, 0)
 		if r > 0.01:
 			theta = math.atan2(ay, ax)
@@ -132,7 +132,7 @@ class MovesWithArrows(enco.Component):
 		ax, ay = math.CS(theta, r)
 		self.pos.x = self.section.pos.x + ax
 		self.pos.y = self.section.pos.y + ay
-		self.draintheta += dtheta
+		self.draintheta -= dtheta
 		if r < 0.1:
 			self.drainsink += dt
 			if self.drainsink > 0.1:
@@ -317,13 +317,9 @@ class Tentacles():
 		self.pool = pool
 		self.pos = pool.pos * 1
 		
-		# turn these on to set final boss and vortex animations
+		# turn these on to set final boss animations
 		state.animation.stalker.append(graphics.Stalker(pool.pos,pool))
-		self.vortex = graphics.Vortex(pool.pos,pool,pool.r,speed=2.0)
-		state.animation.vortexes.append(self.vortex)
-	
-	def think(self, dt):
-		self.vortex.speed = abs(self.pool.whirl) * 0.3
+
 	def draw(self):
 		if not settings.debug_graphics:
 			return
