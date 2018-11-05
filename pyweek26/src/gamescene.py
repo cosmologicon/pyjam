@@ -2,7 +2,7 @@ from __future__ import division
 import random, pygame, math
 from pygame.math import Vector3
 from OpenGL.GL import *
-from . import view, state, thing, graphics, settings, section, level, ptext, sound, scene, mapscene, pview
+from . import view, state, thing, graphics, settings, section, level, ptext, sound, scene, mapscene, pview, dialog
 from .pview import T
 
 class self:
@@ -139,10 +139,10 @@ def draw():
 			ocolor = "black", owidth = 1)
 	if 0 < state.tlastsave < 3 < self.t:
 		alpha = math.dsmoothfade(state.tlastsave, 0, 3, 0.3)
-		ptext.draw("Progress saved", midbottom = T(1280/2, 20), fontsize = 42, color = "white", shade = 1,
+		ptext.draw("Progress saved", midbottom = T(1280/2, 600), fontsize = 42, color = "white", shade = 1,
 			fontname = "PassionOne", alpha = alpha,
 			ocolor = "black", owidth = 1)
-		
+	
 	text = [
 		"M: map/help",
 	]
@@ -189,6 +189,7 @@ def draw():
 			shade = 1, fontname = "PassionOne", bottomleft = T(50, 100))
 		ptext.draw("Thank you for playing!", fontsize = T(40), owidth = 1, ocolor = "black", color = "white",
 			shade = 1, fontname = "PassionOne", bottomleft = T(20, 20))
+	dialog.draw_current_dialog()
 	
 def drawminimap():
 	w, h = pview.size
