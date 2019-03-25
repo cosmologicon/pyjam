@@ -42,6 +42,13 @@ class Design:
 		self.img = None
 		self.s = 1000
 
+	@staticmethod
+	def empty():
+		spec = {
+			"circles": [],
+		}
+		return Design(spec)
+
 	def makeimg(self):
 		if self.img is not None:
 			return self.img
@@ -66,16 +73,30 @@ class Design:
 		self.img.blit(pygame.transform.flip(qimg, True, False), (0, 0))
 		self.img.blit(pygame.transform.flip(qimg, True, True), (0, self.s))
 		self.img.blit(pygame.transform.flip(qimg, False, True), (self.s, self.s))
+		self.img0 = imgs[0]
 
 	def draw(self, pos, r):
 		self.makeimg()
-		img = pygame.transform.smoothscale(self.img, T(r, r))
+		img = pygame.transform.smoothscale(self.img, T(2 * r, 2 * r))
 		x, y = pos
-		pview.screen.blit(img, T(x - r / 2, y - r / 2))
+		pview.screen.blit(img, T(x - r, y - r))
+
+	def drawwedge(self, pos, r):
+		self.makeimg()
+		img = pygame.transform.smoothscale(self.img0, T(r, r))
+		x, y = pos
+		pview.screen.blit(img, T(x, y - r))
+		C, S = math.CS(math.radians(30))
+		ps = T([(x, y - r), (x, y), (x + S * r, y - C * r)])
+		pygame.draw.aalines(pview.screen, pygame.Color("white"), False, ps)
+
+	def addcircle(self, pos, r, color):
+		self.spec["circles"].append((pos, r, color))
+		self.img = None
 
 class Flake:
 	def __init__(self, spec, pos, r):
-		self.design = Design(spec)
+		self.design = spec if isinstance(spec, Design) else Design(spec)
 		self.pos = pos
 		self.r = r
 	

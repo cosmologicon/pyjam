@@ -1,50 +1,30 @@
+from __future__ import division
 import random
-from . import pview, thing, flake
+from . import pview, thing, flake, background
 
 class self:
 	pass
 
 def init():
-	self.coins = [
-	]
+	self.coins = []
 	def randomcircle():
 		return (random.uniform(0, 1), random.uniform(0, 1)), random.uniform(0.2, 0.4) ** 2, random.choice(["red", "orange", "yellow", "white", "green"])
-	self.flakes = [
-		flake.Flake({
-			"circles": [
-				randomcircle() for _ in range(40)
-			],
-		}, (400, 300), 400)
-	]
+	self.design = flake.Design.empty()
 	
 	self.pointed = None
 	self.held = None
 
 def think(dt, controls):
-	self.pointed = None
-	if not self.held:
-		for coin in self.coins:
-			if coin.collide(controls.mpos):
-				self.pointed = coin
-	if controls.mdown and self.pointed:
-		self.held = self.pointed
-		self.pointed = None
-		self.coins.remove(self.held)
-	if controls.mup and self.held:
-		self.coins.append(self.held)
-		self.held = None
-	if self.held:
-		self.held.pos = controls.mpos
+	if controls.mdown:
+		x, y = controls.mpos
+		x = (x - 240) / 600
+		y = (660 - y) / 600
+		self.design.addcircle((x, y), 0.2, random.choice(["red", "orange", "yellow", "white", "green"]))
+	background.update(dt)
 
 def draw():
-	pview.fill((80, 80, 200))
-	if self.pointed is not None:
-		self.pointed.highlight()
-	for flake in self.flakes:
-		flake.draw()
-	for coin in self.coins:
-		coin.draw()
+	background.draw()
+	self.design.draw((880, 360), 300)
+	self.design.drawwedge((240, 660), 600)
 
-	if self.held:
-		self.held.draw()
 
