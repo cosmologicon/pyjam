@@ -1,15 +1,22 @@
-from . import pview, thing
+import random
+from . import pview, thing, flake
 
 class self:
 	pass
 
 def init():
 	self.coins = [
-		thing.Coin((100, 100), 6),
-		thing.Coin((700, 200), 6),
-		thing.Coin((500, 300), 6),
-		thing.Coin((1000, 400), 6),
 	]
+	def randomcircle():
+		return (random.uniform(0, 1), random.uniform(0, 1)), random.uniform(0.2, 0.4) ** 2, random.choice(["red", "orange", "yellow", "white", "green"])
+	self.flakes = [
+		flake.Flake({
+			"circles": [
+				randomcircle() for _ in range(40)
+			],
+		}, (400, 300), 400)
+	]
+	
 	self.pointed = None
 	self.held = None
 
@@ -33,6 +40,8 @@ def draw():
 	pview.fill((80, 80, 200))
 	if self.pointed is not None:
 		self.pointed.highlight()
+	for flake in self.flakes:
+		flake.draw()
 	for coin in self.coins:
 		coin.draw()
 
