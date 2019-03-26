@@ -1,5 +1,5 @@
 from __future__ import division
-import pygame, math
+import pygame, math, numpy
 from . import pview, ptext
 from .pview import I, T
 
@@ -17,14 +17,20 @@ def sliceimg(s, sector):
 		pygame.draw.polygon(img, (255, 255, 255, 255), ps)
 	if sector == 1:
 		img.fill((255, 255, 255, 255))
-		img.blit(sliceimg(s, 0), (0, 0), None, pygame.BLEND_RGBA_SUB)
-		img.blit(sliceimg(s, 2), (0, 0), None, pygame.BLEND_RGBA_SUB)
+		p0, a0 = sliceimg(s, 0)
+		p2, a2 = sliceimg(s, 2)
+		p1 = pygame.surfarray.pixels3d(img)
+		p1 -= p0
+		p1 -= p2
+		a1 = pygame.surfarray.pixels_alpha(img)
+		a1 -= a0
+		a1 -= a2
 	if sector == 2:
 		img.fill((0, 0, 0, 0))
 		ps = [(0, s), (s, s), (s, s - a)]
 		pygame.draw.polygon(img, (255, 255, 255, 255), ps)
-	sliceimgcache[key] = img
-	return img
+	sliceimgcache[key] = pygame.surfarray.array3d(img) // 255, pygame.surfarray.array_alpha(img) // 255
+	return sliceimgcache[key]
 
 oalphacache = {}
 def overlayalpha(s):
@@ -73,7 +79,11 @@ class Design:
 	def __init__(self, spec):
 		self.spec = spec
 		self.img = None
-		self.s = 1000
+		self.drawn = False
+		self.s = 700
+
+		self.sscale = None
+		self.s0scale = None
 
 	@staticmethod
 	def empty():
@@ -96,11 +106,24 @@ class Design:
 		return None
 
 	def makeimg(self):
-		if self.img is not None:
+		if self.drawn:
 			return self.img
-		imgs = [pygame.Surface((self.s, self.s)).convert_alpha() for _ in range(3)]
-		for img in imgs:
+		t0 = pygame.time.get_ticks()
+		if self.img is None or self.img.get_width() != 2 * self.s:
+			self.simgs = [pygame.Surface((self.s, self.s)).convert_alpha() for _ in range(3)]
+			self.qimg = pygame.Surface((self.s, self.s)).convert_alpha()
+			self.qpixels = pygame.surfarray.pixels3d(self.qimg)
+			self.qalphas = pygame.surfarray.pixels_alpha(self.qimg)
+			self.img = pygame.Surface((2 * self.s, 2 * self.s)).convert_alpha()
+		for img in self.simgs:
 			img.fill((0, 0, 0, 0))
+		def drawpoly(ps0, color):
+			ps1 = [R1(p) for p in ps0]
+			ps2 = [R2(p) for p in ps0]
+			pygame.draw.polygon(self.simgs[0], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps0]))
+			pygame.draw.polygon(self.simgs[1], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps1]))
+			pygame.draw.polygon(self.simgs[2], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps2]))
+
 		for shape in self.spec["shapes"]:
 			color = pygame.Color(shape["color"])
 			sx, sy = shape["pos"]
@@ -109,9 +132,9 @@ class Design:
 				color = pygame.Color(color)
 				sx1, sy1 = R1((sx, sy))
 				sx2, sy2 = R2((sx, sy))
-				pygame.draw.circle(imgs[0], color, I(sx * self.s, (1 - sy) * self.s), I(r * self.s))
-				pygame.draw.circle(imgs[1], color, I(sx1 * self.s, (1 - sy1) * self.s), I(r * self.s))
-				pygame.draw.circle(imgs[2], color, I(sx2 * self.s, (1 - sy2) * self.s), I(r * self.s))
+				pygame.draw.circle(self.simgs[0], color, I(sx * self.s, (1 - sy) * self.s), I(r * self.s))
+				pygame.draw.circle(self.simgs[1], color, I(sx1 * self.s, (1 - sy1) * self.s), I(r * self.s))
+				pygame.draw.circle(self.simgs[2], color, I(sx2 * self.s, (1 - sy2) * self.s), I(r * self.s))
 			if shape["type"] == "shard":
 				sw, sh = shape["size"]
 				color0 = color
@@ -124,11 +147,7 @@ class Design:
 						(sx - S * sh, sy - C * sh),
 						(sx - C * sw, sy + S * sw),
 					]
-					ps1 = [R1(p) for p in ps0]
-					ps2 = [R2(p) for p in ps0]
-					pygame.draw.polygon(imgs[0], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps0]))
-					pygame.draw.polygon(imgs[1], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps1]))
-					pygame.draw.polygon(imgs[2], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps2]))
+					drawpoly(ps0, color)
 			if shape["type"] == "blade":
 				w = shape["width"]
 				color0 = color
@@ -142,28 +161,52 @@ class Design:
 						(sx + 4 * S, sy + 4 * C),
 						(sx - C, sy + S),
 					]
-					ps1 = [R1(p) for p in ps0]
-					ps2 = [R2(p) for p in ps0]
-					pygame.draw.polygon(imgs[0], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps0]))
-					pygame.draw.polygon(imgs[1], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps1]))
-					pygame.draw.polygon(imgs[2], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps2]))
+					drawpoly(ps0, color)
+		# For some reason making these standalone arrays makes this worse?
+		pixels, alphas = zip(*[sliceimg(self.s, j) for j in (0, 1, 2)])
+		t1 = pygame.time.get_ticks()
+		for j, simg in enumerate(self.simgs):
+			mpixels, malphas = sliceimg(self.s, j)
+			spixels = pygame.surfarray.pixels3d(simg)
+			salphas = pygame.surfarray.pixels_alpha(simg)
+			if j == 0:
+				spixels[:,:,:] *= mpixels
+				salphas[:,:] *= malphas
+				self.qpixels[:,:,:] = spixels
+				self.qalphas[:,:] = salphas
+			else:
+				self.qpixels += spixels * mpixels
+				self.qalphas += salphas * malphas
+		t2 = pygame.time.get_ticks()
+		arr = numpy.concatenate([numpy.flip(self.qpixels, 0), self.qpixels], 0)
+		arr = numpy.concatenate([arr, numpy.flip(arr, 1)], 1)
+		pygame.surfarray.pixels3d(self.img)[:,:,:] = arr
+		arr = numpy.concatenate([numpy.flip(self.qalphas, 0), self.qalphas], 0)
+		arr = numpy.concatenate([arr, numpy.flip(arr, 1)], 1)
+		pygame.surfarray.pixels_alpha(self.img)[:,:] = arr
+		self.drawn = True
+		print(pygame.time.get_ticks() - t0, pygame.time.get_ticks() - t1, pygame.time.get_ticks() - t2)
 
-		qimg = pygame.Surface((self.s, self.s)).convert_alpha()
-		qimg.fill((0, 0, 0, 0))
-		for sector, img in enumerate(imgs):
-			img.blit(sliceimg(self.s, sector), (0, 0), None, pygame.BLEND_RGBA_MIN)
-			qimg.blit(img, (0, 0))
-		self.img = pygame.Surface((2 * self.s, 2 * self.s)).convert_alpha()
-		self.img.fill((0, 0, 0, 0))
-		self.img.blit(qimg, (self.s, 0))
-		self.img.blit(pygame.transform.flip(qimg, True, False), (0, 0))
-		self.img.blit(pygame.transform.flip(qimg, True, True), (0, self.s))
-		self.img.blit(pygame.transform.flip(qimg, False, True), (self.s, self.s))
-		self.img0 = imgs[0]
+	def getimgscale(self, r):
+		key = r, pview.height
+		if self.sscale == key:
+			return self.imgscale
+		self.makeimg()
+		self.sscale = key
+		self.imgscale = pygame.transform.smoothscale(self.img, T(2 * r, 2 * r))
+		return self.imgscale
+
+	def getimg0scale(self, r):
+		key = r, pview.height
+		if self.s0scale == key:
+			return self.img0scale
+		self.makeimg()
+		self.s0scale = key
+		self.img0scale = pygame.transform.smoothscale(self.simgs[0], T(r, r))
+		return self.img0scale
 
 	def draw(self, pos, r):
-		self.makeimg()
-		img = pygame.transform.smoothscale(self.img, T(2 * r, 2 * r))
+		img = self.getimgscale(r)
 		x, y = pos
 		pview.screen.blit(img, T(x - r, y - r))
 
@@ -176,7 +219,7 @@ class Design:
 
 	def drawwedge(self, pos, r):
 		self.makeimg()
-		img = pygame.transform.smoothscale(self.img0, T(r, r))
+		img = self.getimg0scale(r)
 		x, y = pos
 		pview.screen.blit(img, T(x, y - r))
 		C, S = math.CS(math.radians(30))
@@ -191,7 +234,9 @@ class Design:
 		}
 		shape.update(kwargs)
 		self.spec["shapes"].append(shape)
-		self.img = None
+		self.drawn = False
+		self.sscale = None
+		self.s0scale = None
 
 	def addcircle(self, pos, r, color):
 		self.addshape("circle", pos, color, r=r)

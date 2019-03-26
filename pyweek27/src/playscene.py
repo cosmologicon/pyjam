@@ -26,8 +26,8 @@ def think(dt, controls):
 	if controls.mdown:
 #		self.design.addcircle((x, y), 0.2, random.choice(["red", "orange", "yellow", "white", "green"]))
 		colors = ["#ffffff", "#ddddff", "#ddeeff"]
-#		self.design.addshard(self.ppos, (0.06, 0.12), random.choice(colors))
-		self.design.addshape("blade", self.ppos, random.choice(colors), width = 0.01)
+		self.design.addshard(self.ppos, (0.06, 0.12), random.choice(colors))
+#		self.design.addshape("blade", self.ppos, random.choice(colors), width = 0.01)
 	background.update(dt)
 	x, y = controls.mpos
 	x = (x - 880) / 300
@@ -37,7 +37,7 @@ def think(dt, controls):
 def draw():
 	background.draw()
 	self.design.draw((880, 360), 300)
-	self.design.drawwedge((240, 660), 600)
+	self.design.drawwedge((240, 710), 700)
 	
 	for x, y in self.points:
 		color = pygame.Color("#7777ff" if self.design.colorat((x, y)) else "#ff7777")
