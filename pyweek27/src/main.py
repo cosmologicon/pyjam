@@ -3,6 +3,8 @@ import pygame
 from . import settings, control, scene, view, pview, ptext, playscene, background
 from .pview import T
 
+pview.SCREENSHOT_DIRECTORY = "screenshot"
+
 view.init()
 playscene.init()
 

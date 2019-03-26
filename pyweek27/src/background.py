@@ -23,7 +23,7 @@ def update(dt):
 		f = random.uniform(0.3, 0.36)
 		a = random.uniform(55, 65)
 		color = pview.I(f * a, f * a, a)
-		width = pview.T(random.uniform(0, 2))
+		width = pview.T(random.uniform(2, 3))
 		if random.random() < 1 / 3:
 			y = random.random() * self.h
 			pygame.draw.line(self.img, color, (0, y), (self.w, y), width)
