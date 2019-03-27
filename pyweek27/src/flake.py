@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, numpy
-from . import pview, ptext
+from . import pview, ptext, render, shape
 from .pview import I, T
 
 
@@ -46,19 +46,6 @@ def overlayalpha(s):
 	oalphacache[key] = img
 	return img
 
-
-# m = tan(60deg) = sqrt(3)
-# A = 1/(1+m^2) [1-m^2, 2m, 2m, m^2 - 1] = 1/4 [-2, 2sqrt(3), 2sqrt(3), 2]
-def R1(pos):
-	x, y = pos
-	m = math.sqrt(3)
-	return (-x + m * y) / 2, (m * x + y) / 2
-	
-R2 = math.R(math.radians(-60))
-
-def dim(color):
-	return ptext._applyshade(color, 0.2)
-
 def shapecontains(shape, pos):
 	sx, sy = shape["pos"]
 	theta = math.atan2(sx, sy) if sx or sy else 0
@@ -78,6 +65,7 @@ def shapecontains(shape, pos):
 class Design:
 	def __init__(self, spec):
 		self.spec = spec
+		self.shapes = [shape.fromspec(s) for s in spec["shapes"]]
 		self.img = None
 		self.drawn = False
 		self.s = 700
@@ -99,10 +87,11 @@ class Design:
 		if py < 1 / math.sqrt(3) * px:
 			px, py = math.R(math.radians(60), (px, py))
 		elif py < math.sqrt(3) * px:
-			px, py = R1((px, py))
-		for shape in reversed(self.spec["shapes"]):
-			if shapecontains(shape, (px, py)):
-				return shape["color"]
+			px, py = render.R1((px, py))
+		for shape in reversed(self.shapes):
+			shapecolor = shape.colorat((px, py))
+			if shapecolor is not None:
+				return shapecolor
 		return None
 
 	def makeimg(self):
@@ -117,51 +106,49 @@ class Design:
 			self.img = pygame.Surface((2 * self.s, 2 * self.s)).convert_alpha()
 		for img in self.simgs:
 			img.fill((0, 0, 0, 0))
-		def drawpoly(ps0, color):
-			ps1 = [R1(p) for p in ps0]
-			ps2 = [R2(p) for p in ps0]
-			pygame.draw.polygon(self.simgs[0], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps0]))
-			pygame.draw.polygon(self.simgs[1], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps1]))
-			pygame.draw.polygon(self.simgs[2], color, I([(x * self.s, (1 - y) * self.s) for x, y in ps2]))
 
-		for shape in self.spec["shapes"]:
-			color = pygame.Color(shape["color"])
-			sx, sy = shape["pos"]
-			if shape["type"] == "circle":
-				r = shape["r"]
-				color = pygame.Color(color)
-				sx1, sy1 = R1((sx, sy))
-				sx2, sy2 = R2((sx, sy))
-				pygame.draw.circle(self.simgs[0], color, I(sx * self.s, (1 - sy) * self.s), I(r * self.s))
-				pygame.draw.circle(self.simgs[1], color, I(sx1 * self.s, (1 - sy1) * self.s), I(r * self.s))
-				pygame.draw.circle(self.simgs[2], color, I(sx2 * self.s, (1 - sy2) * self.s), I(r * self.s))
-			if shape["type"] == "shard":
-				sw, sh = shape["size"]
-				color0 = color
-				color1 = dim(color0)
-				for f, color in [(1, color1), (0.6, color0)]:
-					S, C = math.norm((sx, sy), f)
-					ps0 = [
-						(sx + S * sh, sy + C * sh),
-						(sx + C * sw, sy - S * sw),
-						(sx - S * sh, sy - C * sh),
-						(sx - C * sw, sy + S * sw),
-					]
-					drawpoly(ps0, color)
-			if shape["type"] == "blade":
-				w = shape["width"]
-				color0 = color
-				color1 = dim(dim(color0))
-				for (a, color) in [(w, color1), (w / 2, color0)]:
-					S, C = math.norm((sx, sy), a)
-					ps0 = [
-						(-C, S),
-						(C, -S),
-						(sx + C, sy - S),
-						(sx + 4 * S, sy + 4 * C),
-						(sx - C, sy + S),
-					]
-					drawpoly(ps0, color)
+		for shape in self.shapes:
+			shape.sectordraw(self.simgs)
+
+		if False:
+			for shape in self.spec["shapes"]:
+				color = pygame.Color(shape["color"])
+				sx, sy = shape["pos"]
+				if shape["type"] == "circle":
+					r = shape["r"]
+					color = pygame.Color(color)
+					sx1, sy1 = R1((sx, sy))
+					sx2, sy2 = R2((sx, sy))
+					pygame.draw.circle(self.simgs[0], color, I(sx * self.s, (1 - sy) * self.s), I(r * self.s))
+					pygame.draw.circle(self.simgs[1], color, I(sx1 * self.s, (1 - sy1) * self.s), I(r * self.s))
+					pygame.draw.circle(self.simgs[2], color, I(sx2 * self.s, (1 - sy2) * self.s), I(r * self.s))
+				if shape["type"] == "shard":
+					sw, sh = shape["size"]
+					color0 = color
+					color1 = dim(color0)
+					for f, color in [(1, color1), (0.6, color0)]:
+						S, C = math.norm((sx, sy), f)
+						ps0 = [
+							(sx + S * sh, sy + C * sh),
+							(sx + C * sw, sy - S * sw),
+							(sx - S * sh, sy - C * sh),
+							(sx - C * sw, sy + S * sw),
+						]
+						render.sectorpoly(self.simgs, ps0, color)
+				if shape["type"] == "blade":
+					w = shape["width"]
+					color0 = color
+					color1 = dim(dim(color0))
+					for (a, color) in [(w, color1), (w / 2, color0)]:
+						S, C = math.norm((sx, sy), a)
+						ps0 = [
+							(-C, S),
+							(C, -S),
+							(sx + C, sy - S),
+							(sx + 4 * S, sy + 4 * C),
+							(sx - C, sy + S),
+						]
+						drawpoly(ps0, color)
 		# For some reason making these standalone arrays makes this worse?
 		pixels, alphas = zip(*[sliceimg(self.s, j) for j in (0, 1, 2)])
 		t1 = pygame.time.get_ticks()
@@ -185,7 +172,7 @@ class Design:
 		arr = numpy.concatenate([arr, numpy.flip(arr, 1)], 1)
 		pygame.surfarray.pixels_alpha(self.img)[:,:] = arr
 		self.drawn = True
-		print(pygame.time.get_ticks() - t0, pygame.time.get_ticks() - t1, pygame.time.get_ticks() - t2)
+#		print(pygame.time.get_ticks() - t0, pygame.time.get_ticks() - t1, pygame.time.get_ticks() - t2)
 
 	def getimgscale(self, r):
 		key = r, pview.height
@@ -205,9 +192,9 @@ class Design:
 		self.img0scale = pygame.transform.smoothscale(self.simgs[0], T(r, r))
 		return self.img0scale
 
-	def draw(self, pos, r):
+	def draw(self, Fspot):
+		(x, y), r = Fspot
 		img = self.getimgscale(r)
-		x, y = pos
 		pview.screen.blit(img, T(x - r, y - r))
 
 	def drawoverlay(self, pos, r):
@@ -217,23 +204,21 @@ class Design:
 		x, y = pos
 		pview.screen.blit(img, T(x - r, y - r))
 
-	def drawwedge(self, pos, r):
+	def drawwedge(self, Fspot):
+		(x, y), r = Fspot
 		self.makeimg()
 		img = self.getimg0scale(r)
-		x, y = pos
 		pview.screen.blit(img, T(x, y - r))
-		C, S = math.CS(math.radians(30))
-		ps = T([(x, y - r), (x, y), (x + S * r, y - C * r)])
-		pygame.draw.aalines(pview.screen, pygame.Color("white"), False, ps)
 
 	def addshape(self, shapetype, pos, color, **kwargs):
-		shape = {
+		shapespec = {
 			"type": shapetype,
 			"pos": pos,
 			"color": color,
 		}
-		shape.update(kwargs)
-		self.spec["shapes"].append(shape)
+		shapespec.update(kwargs)
+		self.spec["shapes"].append(shapespec)
+		self.shapes.append(shape.fromspec(shapespec))
 		self.drawn = False
 		self.sscale = None
 		self.s0scale = None
