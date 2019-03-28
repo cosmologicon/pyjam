@@ -42,7 +42,7 @@ class Button:
 		color = "white"
 		center, size = self.Fspot
 		img = buttonimg(color, T(size), lit = lit)
-		rect = img.get_rect(center = center)
+		rect = img.get_rect(center = T(center))
 		pview.screen.blit(img, rect)
 		if self.drawtext:
 			ptext.draw(self.text, center = T(center), fontsize = T(0.5 * size), owidth = 1)

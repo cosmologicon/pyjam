@@ -64,7 +64,6 @@ def shapecontains(shape, pos):
 
 class Design:
 	def __init__(self, spec):
-		self.spec = spec
 		self.shapes = [shape.fromspec(s) for s in spec["shapes"]]
 		self.img = None
 		self.drawn = False
@@ -79,6 +78,12 @@ class Design:
 			"shapes": [],
 		}
 		return Design(spec)
+
+	def getspec(self):
+		spec = {
+			"shapes": [shape.getspec() for shape in self.shapes],
+		}
+		return spec
 
 	def anchors(self):
 		for i, shape in enumerate(self.shapes):
@@ -120,45 +125,6 @@ class Design:
 		for shape in self.shapes:
 			shape.sectordraw(self.simgs)
 
-		if False:
-			for shape in self.spec["shapes"]:
-				color = pygame.Color(shape["color"])
-				sx, sy = shape["pos"]
-				if shape["type"] == "circle":
-					r = shape["r"]
-					color = pygame.Color(color)
-					sx1, sy1 = R1((sx, sy))
-					sx2, sy2 = R2((sx, sy))
-					pygame.draw.circle(self.simgs[0], color, I(sx * self.s, (1 - sy) * self.s), I(r * self.s))
-					pygame.draw.circle(self.simgs[1], color, I(sx1 * self.s, (1 - sy1) * self.s), I(r * self.s))
-					pygame.draw.circle(self.simgs[2], color, I(sx2 * self.s, (1 - sy2) * self.s), I(r * self.s))
-				if shape["type"] == "shard":
-					sw, sh = shape["size"]
-					color0 = color
-					color1 = dim(color0)
-					for f, color in [(1, color1), (0.6, color0)]:
-						S, C = math.norm((sx, sy), f)
-						ps0 = [
-							(sx + S * sh, sy + C * sh),
-							(sx + C * sw, sy - S * sw),
-							(sx - S * sh, sy - C * sh),
-							(sx - C * sw, sy + S * sw),
-						]
-						render.sectorpoly(self.simgs, ps0, color)
-				if shape["type"] == "blade":
-					w = shape["width"]
-					color0 = color
-					color1 = dim(dim(color0))
-					for (a, color) in [(w, color1), (w / 2, color0)]:
-						S, C = math.norm((sx, sy), a)
-						ps0 = [
-							(-C, S),
-							(C, -S),
-							(sx + C, sy - S),
-							(sx + 4 * S, sy + 4 * C),
-							(sx - C, sy + S),
-						]
-						drawpoly(ps0, color)
 		# For some reason making these standalone arrays makes this worse?
 		pixels, alphas = zip(*[sliceimg(self.s, j) for j in (0, 1, 2)])
 		t1 = pygame.time.get_ticks()
@@ -219,17 +185,6 @@ class Design:
 		self.makeimg()
 		img = self.getimg0scale(r)
 		pview.screen.blit(img, T(x, y - r))
-
-	def addshape(self, shapetype, pos, color, **kwargs):
-		shapespec = {
-			"type": shapetype,
-			"pos": pos,
-			"color": color,
-		}
-		shapespec.update(kwargs)
-		self.spec["shapes"].append(shapespec)
-		self.shapes.append(shape.fromspec(shapespec))
-		self.undraw()
 
 	def addcircle(self, pos, r, color):
 		self.addshape("circle", pos, color, r=r)

@@ -1,11 +1,16 @@
 from __future__ import division
 import pygame
-from . import settings, control, scene, view, pview, ptext, playscene, background
+from . import settings, control, scene, view, pview, ptext, playscene, background, menuscene
 from .pview import T
 
 pview.SCREENSHOT_DIRECTORY = "screenshot"
 view.init()
-scene.push(playscene)
+if playscene.canload() and not settings.reset:
+	scene.push(menuscene)
+	scene.push(playscene)
+	playscene.load()
+else:
+	scene.push(menuscene)
 
 playing = True
 clock = pygame.time.Clock()
@@ -37,6 +42,6 @@ while playing:
 
 	if settings.DEBUG:
 		text = "%.1fps %s" % (clock.get_fps(), pygame.mouse.get_pos())
-		ptext.draw(text, bottomleft = T(10, 710), fontsize = T(30))
+		ptext.draw(text, bottomleft = T(10, 710), fontsize = T(30), owidth = 1.2)
 	pygame.display.flip()
 

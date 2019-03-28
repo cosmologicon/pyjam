@@ -1,6 +1,6 @@
 from __future__ import division
-import random, math, pygame
-from . import pview, thing, flake, background, ptext, render, shape, view, hud, frostscene, scene
+import random, math, pygame, json, os.path
+from . import pview, thing, flake, background, ptext, render, shape, view, hud, settings, frostscene, scene
 from .pview import T
 
 class self:
@@ -33,7 +33,7 @@ def init():
 	self.buttons = [
 		hud.Button(((60, 60), 50), "shard", drawtext = False),
 		hud.Button(((60, 180), 50), "blade", drawtext = False),
-		hud.Button(((1000, 660), 50), "quit"),
+		hud.Button(((pview.w0 - 80, pview.h0 - 80), 50), "quit"),
 	]
 
 def think(dt, controls):
@@ -77,6 +77,9 @@ def think(dt, controls):
 
 	if self.jbutton is not None and controls.mdown:
 		onclick(self.buttons[self.jbutton])
+
+	if pygame.K_F5 in controls.kdowns:
+		save()
 
 def onclick(button):
 	if button.text == "quit":
@@ -123,4 +126,17 @@ def draw():
 #	odesign.addshard(self.ppos, (0.06, 0.12), "#ffffff")
 #	odesign.drawoverlay((880, 360), 300)
 	
+def save():
+	state = {
+		"design": self.design.getspec(),
+	}
+	json.dump(state, open(settings.savefilename, "w"))
+
+def canload():
+	return os.path.exists(settings.savefilename)
+
+def load():
+	state = json.load(open(settings.savefilename, "r"))
+	self.design = flake.Design(state["design"])
+
 

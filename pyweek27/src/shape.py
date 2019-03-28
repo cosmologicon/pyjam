@@ -33,7 +33,10 @@ class Shape(enco.Component):
 	def getspec(self):
 		args = inspect.getargspec(self.__init__).args
 		kw = { arg: getattr(self, arg) for arg in args if arg not in ["self"] }
-		kw["color"] = "#%02x%02x%02x%02x" % tuple(kw["color"])
+		for arg in kw:
+			if "color" in arg:
+				kw[arg] = "#%02x%02x%02x%02x" % tuple(kw[arg])
+		kw["type"] = self.__class__.__name__
 		return json.loads(json.dumps(kw))
 
 	def copy(self):
@@ -41,8 +44,10 @@ class Shape(enco.Component):
 
 	def constrainanchor(self, j, pos):
 		self.anchors[j] = self.constrain(pos, j)
-		if len(self.anchors) == 0:
+		if len(self.anchors) == 1:
 			self.pos = self.anchors[0]
+		else:
+			raise ValueError
 
 	def drawoutline0(self, Fspot):
 		for p0, p1 in self.outlinesegs():
@@ -193,6 +198,7 @@ class Ring:
 		return abs(s - d) < self.width
 
 def fromspec(spec):
-	if spec["type"] == "shard":
-		return Shard(spec["pos"], spec["color"], spec["size"])
+	cls = globals()[spec["type"]]
+	del spec["type"]
+	return cls(**spec)
 

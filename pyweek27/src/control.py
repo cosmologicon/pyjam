@@ -27,6 +27,7 @@ class Controls():
 		self.kdowns = set()
 		self.mdown = False
 		self.mup = False
+		return self
 
 
 
