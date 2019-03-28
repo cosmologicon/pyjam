@@ -58,6 +58,11 @@ def sectors(Fspot):
 	for C, S in math.CSround(6, 1, math.radians(30)):
 		drawlinesF(Fspot, [(S, C), (S/2, C/2)], color)
 
+def anchor(Fspot, anchor, color):
+	p = view.BconvertF(Fspot, anchor)
+	pygame.draw.circle(pview.screen, pygame.Color("black"), T(p), T(10))
+	pygame.draw.circle(pview.screen, pygame.Color(color), T(p), T(7))
+
 
 # m = tan(60deg) = sqrt(3)
 # A = 1/(1+m^2) [1-m^2, 2m, 2m, m^2 - 1] = 1/4 [-2, 2sqrt(3), 2sqrt(3), 2]

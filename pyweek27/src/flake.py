@@ -80,6 +80,16 @@ class Design:
 		}
 		return Design(spec)
 
+	def anchors(self):
+		for i, shape in enumerate(self.shapes):
+			for j, anchor in enumerate(shape.anchors):
+				yield i, j, anchor
+
+	def undraw(self):
+		self.drawn = False
+		self.sscale = None
+		self.s0scale = None
+
 	def colorat(self, pos):
 		px, py = pos
 		px = abs(px)
@@ -219,9 +229,7 @@ class Design:
 		shapespec.update(kwargs)
 		self.spec["shapes"].append(shapespec)
 		self.shapes.append(shape.fromspec(shapespec))
-		self.drawn = False
-		self.sscale = None
-		self.s0scale = None
+		self.undraw()
 
 	def addcircle(self, pos, r, color):
 		self.addshape("circle", pos, color, r=r)

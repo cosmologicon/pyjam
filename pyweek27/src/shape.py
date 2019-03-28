@@ -39,6 +39,9 @@ class Shard:
 			pos = math.norm(pos, 1 - h)
 		return pos
 
+	def constrainanchor(self, j, pos):
+		self.anchors[j] = self.constrain(pos, j)
+
 	def sectordraw(self, simgs):
 		sx, sy = self.anchors[0]
 		sw, sh = self.size
@@ -81,7 +84,7 @@ class Shard:
 			ps = render.cull(p0, p1)
 			if not ps:
 				continue
-			render.drawlinesF(Fspot, ps, pygame.Color("#aaffaa"))
+			render.drawlinesF(Fspot, ps, self.color)
 
 	def drawoutline(self, Fspot):
 		for p0, p1 in self.outlinesegs():
@@ -89,7 +92,7 @@ class Shard:
 			if not ps:
 				continue
 			for sps in scatter(ps):
-				render.drawlinesF(Fspot, sps, pygame.Color("#aaffaa"))	
+				render.drawlinesF(Fspot, sps, self.color)	
 
 def fromspec(spec):
 	if spec["type"] == "shard":
