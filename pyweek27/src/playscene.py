@@ -1,6 +1,6 @@
 from __future__ import division
 import random, math, pygame
-from . import pview, thing, flake, background, ptext, render, shape, view, hud
+from . import pview, thing, flake, background, ptext, render, shape, view, hud, frostscene, scene
 from .pview import T
 
 class self:
@@ -31,8 +31,9 @@ def init():
 	self.held = None
 	
 	self.buttons = [
-		hud.Button(((60, 60), 50), "shard"),
-		hud.Button(((60, 180), 50), "blade"),
+		hud.Button(((60, 60), 50), "shard", drawtext = False),
+		hud.Button(((60, 180), 50), "blade", drawtext = False),
+		hud.Button(((1000, 660), 50), "quit"),
 	]
 
 def think(dt, controls):
@@ -75,7 +76,11 @@ def think(dt, controls):
 				self.jbutton = jbutton
 
 	if self.jbutton is not None and controls.mdown:
-		print(self.buttons[self.jbutton].text)
+		onclick(self.buttons[self.jbutton])
+
+def onclick(button):
+	if button.text == "quit":
+		scene.push(frostscene)
 
 def draw():
 	if pview._fullscreen:

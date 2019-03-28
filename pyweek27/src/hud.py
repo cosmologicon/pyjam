@@ -29,10 +29,11 @@ def buttonimg(color, size, lit = False):
 	return img
 
 class Button:
-	def __init__(self, Fspot, text):
+	def __init__(self, Fspot, text, drawtext = True):
 		self.Fspot = Fspot
 		self.text = text
 		self.rect = view.BrectoverFspot(self.Fspot)
+		self.drawtext = drawtext
 
 	def contains(self, pos):
 		return math.length(view.FconvertB(self.Fspot, pos)) < 1
@@ -43,6 +44,7 @@ class Button:
 		img = buttonimg(color, T(size), lit = lit)
 		rect = img.get_rect(center = center)
 		pview.screen.blit(img, rect)
-		ptext.draw(self.text, center = T(center), fontsize = T(0.5 * size), owidth = 1)
-		
+		if self.drawtext:
+			ptext.draw(self.text, center = T(center), fontsize = T(0.5 * size), owidth = 1)
+	
 
