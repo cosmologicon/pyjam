@@ -25,10 +25,12 @@ class Shard:
 		self.anchors = [pos]
 
 	def constrain(self, pos, j):
-		if math.dot(pos, (S15, C15)) < 0:
-			return 0, 0
+		if pos[1] < 0.0001:
+			pos = pos[0], 0.0001
 		if pos[0] < 0:
 			pos = 0, pos[1]
+#		if math.dot(pos, (S15, C15)) < 0:
+#			return 0, 0
 		if math.dot(pos, (C30, -S30)) > 0:
 			pos, _ = ptoline(pos, (S30, C30))
 		a = math.length(pos)

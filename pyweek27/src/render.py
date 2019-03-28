@@ -13,40 +13,31 @@ def arc0(r):
 def drawlinesF(Fspot, pFs, color):
 	pygame.draw.lines(pview.screen, color, False, T([view.BconvertF(Fspot, pF) for pF in pFs]))
 
+def insector0(p):
+	x, y = p
+	return 0 <= x <= y / math.sqrt(3)
+
 # Return a segment along the given segment within sector 0, or None if completely outside.
 def cull(p0, p1):
-	return p0, p1
-
-
 	x0, y0 = p0
 	x1, y1 = p1
 	dx, dy = x1 - x0, y1 - y0
-	num = -x0
-	den = dx
-	if abs(dx) < 0.0001:
-		t0 = 999
-	else:
-		t0 = num / den
-	den = dy - math.sqrt(3) * dx
-	num = math.sqrt(3) * x0 - y0
-	if abs(den) < 0.0001:
-		t1 = -999
-	else:
-		t1 = num / den
-	if t0 > t1:
-		t0, t1 = t1, t0
-	print(p0)
-	print(p1)
-	print(t0, t1)
-	if t0 > 1 or t1 < 0:
-		return None
-	if t0 <= 0 and t1 >= 1:
-		return p0, p1
-	if t0 <= 0:
-		return math.mix(p0, p1, t1), p1
-	if t1 >= 1:
-		return p0, math.mix(p0, p1, t0)
-	return math.mix(p0, p1, t0), math.mix(p0, p1, t1)
+	ts = [0, 1]
+	if (x0 > 0) != (x1 > 0) and abs(dx) > 0.001:
+		ts.append(-x0 / dx)
+	if (y0 > math.sqrt(3) * x0) != (y1 > math.sqrt(3) * x1):
+		num = math.sqrt(3) * x0 - y0
+		den = dy - math.sqrt(3) * dx
+		if abs(den) > 0.001:
+			ts.append(num / den)
+	ts.sort()
+	qs = [math.mix(p0, p1, t) for t in ts]
+	segs = []
+	for j in range(len(qs) - 1):
+		q0, q1 = qs[j], qs[j+1]
+		if insector0(math.mix(q0, q1, 0.5)):
+			segs.append((q0, q1))
+	return max(segs, key=lambda seg: math.distance(*seg)) if segs else None
 
 def sector0(Fspot):
 	color = pygame.Color("#444455")
@@ -93,20 +84,28 @@ if __name__ == "__main__":
 	import random
 	pview.set_mode((500, 500))
 	Fspot = (250, 300), 50
-	for _ in range(1):
-		x0 = random.uniform(-5, 5)
-		y0 = random.uniform(-5, 5)
-		x1 = random.uniform(-5, 5)
-		y1 = random.uniform(-5, 5)
-		ps = (x0, y0), (x1, y1)
-		drawlinesF(Fspot, ps, pygame.Color("#333333"))
-		ps = cull(*ps)
-		if ps is None:
-			continue
-		drawlinesF(Fspot, ps, pygame.Color("#aaaaaa"))
-	sector0(Fspot)
-	pygame.display.flip()
-	while not any(event.type == pygame.QUIT for event in pygame.event.get()):
-		pass
+	playing = True
+	while playing:
+		pview.fill((0, 0, 0))
+		for _ in range(1):
+			x0 = random.uniform(-5, 5)
+			y0 = random.uniform(-5, 5)
+			x1 = random.uniform(-5, 5)
+			y1 = random.uniform(-5, 5)
+			ps = (x0, y0), (x1, y1)
+			drawlinesF(Fspot, ps, pygame.Color("#333333"))
+			ps = cull(*ps)
+			if ps is None:
+				continue
+			drawlinesF(Fspot, ps, pygame.Color("#aaaaaa"))
+		sector0(Fspot)
+		pygame.display.flip()
+		while True:
+			etypes = set(event.type for event in pygame.event.get())
+			if pygame.KEYDOWN in etypes:
+				break
+			if pygame.QUIT in etypes:
+				playing = False
+				break
 
 

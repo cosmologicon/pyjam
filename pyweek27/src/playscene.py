@@ -44,9 +44,10 @@ def draw():
 	render.sectors(Fspot1)
 	
 	for x, y in self.points:
+		p = view.BconvertF(Fspot1, (x, y))
 		color = pygame.Color("#7777ff" if self.design.colorat((x, y)) else "#ff7777")
-		pygame.draw.circle(pview.screen, pygame.Color("black"), T(880 + 300 * x, 360 - 300 * y), T(8))
-		pygame.draw.circle(pview.screen, color, T(880 + 300 * x, 360 - 300 * y), T(6))
+		pygame.draw.circle(pview.screen, pygame.Color("black"), T(p), T(8))
+		pygame.draw.circle(pview.screen, color, T(p), T(6))
 	ptext.draw(str(self.pointcolor), bottomright = T(1260, 710), fontsize = T(30))
 
 	p = view.BconvertF(Fspot0, self.pshape.anchors[0])
