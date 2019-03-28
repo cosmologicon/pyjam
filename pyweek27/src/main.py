@@ -4,9 +4,8 @@ from . import settings, control, scene, view, pview, ptext, playscene, backgroun
 from .pview import T
 
 pview.SCREENSHOT_DIRECTORY = "screenshot"
-
 view.init()
-playscene.init()
+scene.push(playscene)
 
 playing = True
 clock = pygame.time.Clock()
@@ -26,12 +25,15 @@ while playing:
 	if pygame.K_F12 in controls.kdowns:
 		pview.screenshot()
 
+	current = scene.top()
+	if current is None:
+		break
 	dt0 = 1 / settings.ups
 	while taccum > 0.5 * dt0:
-		playscene.think(dt0, controls)
+		current.think(dt0, controls)
 		controls.clear()
 		taccum -= dt0
-	playscene.draw()
+	current.draw()
 
 	if settings.DEBUG:
 		text = "%.1fps %s" % (clock.get_fps(), pygame.mouse.get_pos())

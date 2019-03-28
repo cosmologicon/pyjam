@@ -12,6 +12,7 @@
 
 import pygame
 from . import settings, pview
+from .pview import I, T
 
 def init():
 	pygame.display.init()
@@ -29,6 +30,11 @@ def BconvertF(Fspot, pF):
 	(x0B, y0B), BrF = Fspot
 	xF, yF = pF
 	return x0B + BrF * xF, y0B - BrF * yF
-	
+
+def BrectoverFspot(Fspot):
+	(x0B, y0B), BrF = Fspot
+	rect = pygame.Rect(I(0, 0, 2 * BrF, 2 * BrF))
+	rect.center = I(x0B, y0B)
+	return rect
 
 

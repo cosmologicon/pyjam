@@ -1,6 +1,6 @@
 from __future__ import division
 import random, math, pygame
-from . import pview, thing, flake, background, ptext, render, shape, view
+from . import pview, thing, flake, background, ptext, render, shape, view, hud
 from .pview import T
 
 class self:
@@ -23,16 +23,16 @@ def init():
 #	self.pshape = shape.Shard((0, 0), "red", (0.06, 0.12))
 
 	self.design.shapes.append(shape.Shard((0, 0.6), "red", (0.06, 0.12)))
-	self.design.shapes.append(shape.Shard((0.1, 0.4), "orange", (0.1, 0.2)))
+	self.design.shapes.append(shape.Shard((0.1, 0.4), "#ffccaa", (0.1, 0.2)))
 	self.design.shapes.append(shape.Blade((0.1, 0.7), "#bbbbff", (0.02, 0.06)))
 	self.design.shapes.append(shape.Ring((0.1, 0.7), "#ffffbb", 0.04))
 	
 	self.panchor = None
 	self.held = None
 	
-	self.tools = [
-		((60, 60), 50, shape.Shard((0, 0), "purple", (0.06, 0.12))),
-		((60, 180), 50, shape.Blade((0, 0), "white", (0.02, 0.06))),
+	self.buttons = [
+		hud.Button(((60, 60), 50), "shard"),
+		hud.Button(((60, 180), 50), "blade"),
 	]
 
 def think(dt, controls):
@@ -68,16 +68,14 @@ def think(dt, controls):
 				self.design.undraw()
 			self.held = None
 
-	self.jtool = None
+	self.jbutton = None
 	if not self.held and not self.inFbox0:
-		for jtool, (pos, r, shape) in enumerate(self.tools):
-			if math.distance(controls.mpos, pos) < r:
-				self.jtool = jtool
+		for jbutton, button in enumerate(self.buttons):
+			if button.contains(controls.mpos):
+				self.jbutton = jbutton
 
-	if self.jtool is not None and controls.mdown:
-		_, _, tool = self.tools[self.jtool]
-		self.held = tool.copy()
-		self.jheld = 0
+	if self.jbutton is not None and controls.mdown:
+		print(self.buttons[self.jbutton].text)
 
 def draw():
 	if pview._fullscreen:
@@ -86,8 +84,8 @@ def draw():
 		pygame.mouse.set_visible(not self.inFbox0 or self.held is None)
 	background.draw()
 
-	for pos, r, tool in self.tools:
-		pygame.draw.circle(pview.screen, pygame.Color("gray"), T(pos), T(r))
+	for jbutton, button in enumerate(self.buttons):
+		button.draw(lit = (jbutton == self.jbutton))
 #	pygame.draw.rect(pview.screen, (0, 0, 0), T(Fbox0))
 	self.design.drawwedge(Fspot0)
 	self.design.draw(Fspot1)

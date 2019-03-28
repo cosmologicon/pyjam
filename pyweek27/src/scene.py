@@ -1,9 +1,16 @@
 from . import pview
 
-def think(dt, controls):
-	pass
+_stack = []
 
-def draw():
-	pview.fill((0, 0, 80))
+def push(scene, *args, **kw):
+	_stack.append(scene)
+	if hasattr(scene, "init"):
+		scene.init(*args, **kw)
+
+def top():
+	return _stack[-1] if _stack else None
+
+def pop():
+	return _stack.pop() if _stack else None
 
 
