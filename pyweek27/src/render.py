@@ -43,20 +43,22 @@ def sector0(Fspot):
 	color = pygame.Color("#444455")
 	for j in range(1, 7):
 		drawlinesF(Fspot, arc0(j / 6), color)
-	drawlinesF(Fspot, [(S15/2, C15/2), (S15, C15)], color)
-	color = pygame.Color("#666677")
+	drawlinesF(Fspot, [(S15/3, C15/3), (S15, C15)], color)
+	color = pygame.Color("#9999aa")
 	drawlinesF(Fspot, [(0, 1), (0, 0), (S30, C30)], color)
 
 def sectors(Fspot):
 	posB, BrF = Fspot
-	color = pygame.Color("#444455")
+	color = pygame.Color("#9999aa")
 	for j in range(1, 7):
 		pygame.draw.circle(pview.screen, color, T(posB), T(BrF * j / 6), T(1))
 	for a in (0, 60, 120):
 		C, S = math.CS(math.radians(a))
 		drawlinesF(Fspot, [(S, C), (-S, -C)], color)
-	for C, S in math.CSround(6, 1, math.radians(30)):
-		drawlinesF(Fspot, [(S, C), (S/2, C/2)], color)
+	for C, S in math.CSround(6, 1, 1/2):
+		drawlinesF(Fspot, [(S, C), (S/3, C/3)], color)
+	for C, S in math.CSround(12, 1, 1/2):
+		drawlinesF(Fspot, [(S, C), (2*S/3, 2*C/3)], color)
 
 def anchor(Fspot, anchor, color):
 	p = view.BconvertF(Fspot, anchor)

@@ -34,7 +34,7 @@ while playing:
 	playscene.draw()
 
 	if settings.DEBUG:
-		text = "%.1fps" % clock.get_fps()
+		text = "%.1fps %s" % (clock.get_fps(), pygame.mouse.get_pos())
 		ptext.draw(text, bottomleft = T(10, 710), fontsize = T(30))
 	pygame.display.flip()
 

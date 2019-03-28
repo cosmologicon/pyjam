@@ -1,5 +1,5 @@
-import pygame, math
-from . import render
+import pygame, math, inspect, json
+from . import render, enco
 
 C15, S15 = math.CS(math.radians(15))
 C30, S30 = math.CS(math.radians(30))
@@ -16,21 +16,82 @@ def scatter(ps):
 	sps = sps + [((-x0, y0), (-x1, y1)) for ((x0, y0), (x1, y1)) in sps]	
 	return sps
 
+def polygoncontains(poly, pos):
+	x, y = pos
+	ncross = 0
+	for j in range(len(poly)):
+		x0, y0 = poly[j]
+		x1, y1 = poly[(j + 1) % len(poly)]
+		if (y0 < y) != (y1 < y):
+			xa = math.fadebetween(y, y0, x0, y1, x1)
+			if xa < x:
+				ncross += 1
+	return ncross % 2 == 1				
 
-class Shard:
+
+class Shape(enco.Component):
+	def getspec(self):
+		args = inspect.getargspec(self.__init__).args
+		kw = { arg: getattr(self, arg) for arg in args if arg not in ["self"] }
+		kw["color"] = "#%02x%02x%02x%02x" % tuple(kw["color"])
+		return json.loads(json.dumps(kw))
+
+	def copy(self):
+		return self.__class__(**self.getspec())
+
+	def constrainanchor(self, j, pos):
+		self.anchors[j] = self.constrain(pos, j)
+		if len(self.anchors) == 0:
+			self.pos = self.anchors[0]
+
+	def drawoutline0(self, Fspot):
+		for p0, p1 in self.outlinesegs():
+			ps = render.cull(p0, p1)
+			if not ps:
+				continue
+			render.drawlinesF(Fspot, ps, self.color)
+	def drawoutline(self, Fspot):
+		for p0, p1 in self.outlinesegs():
+			ps = render.cull(p0, p1)
+			if not ps:
+				continue
+			for sps in scatter(ps):
+				render.drawlinesF(Fspot, sps, self.color)
+
+	def colorat(self, pos):
+		return self.color if self.contains(pos) else None
+
+
+# polygon(f = 1)
+class Polygonal(enco.Component):
+	def outlinesegs(self):
+		p = self.polygon()
+		n = len(p)
+		return [(p[j], p[(j+1)%n]) for j in range(n)]
+
+	def contains(self, pos):
+		return polygoncontains(self.polygon(), pos)
+
+	def sectordraw(self, simgs):
+#		for f, d in [(1, 0), (0.8, 0.5), (0.65, 1), (0.5, 1.5)]:
+#		for f, d in [(1, 1.5), (0.8, 1), (0.65, 0.5), (0.5, 0)]:
+		for f, d in [(1, 3), (0.8, 2), (0.65, 1), (0.5, 0)]:
+			render.sectorpoly(simgs, self.polygon(f), render.dim(self.color, d))
+
+@Shape()
+@Polygonal()
+class Shard(Shape):
 	def __init__(self, pos, color, size):
 		self.color = pygame.Color(color)
 		self.size = size
-		pos = self.constrain(pos, 0)
-		self.anchors = [pos]
+		self.pos = self.constrain(pos, 0)
+		self.anchors = [self.pos]
 
 	def constrain(self, pos, j):
 		if pos[1] < 0.0001:
 			pos = pos[0], 0.0001
 		if pos[0] < 0:
 			pos = 0, pos[1]
-#		if math.dot(pos, (S15, C15)) < 0:
-#			return 0, 0
 		if math.dot(pos, (C30, -S30)) > 0:
 			pos, _ = ptoline(pos, (S30, C30))
 		a = math.length(pos)
@@ -39,60 +100,97 @@ class Shard:
 			pos = math.norm(pos, 1 - h)
 		return pos
 
-	def constrainanchor(self, j, pos):
-		self.anchors[j] = self.constrain(pos, j)
-
-	def sectordraw(self, simgs):
+	def polygon(self, f = 1):
 		sx, sy = self.anchors[0]
 		sw, sh = self.size
-		color0 = self.color
-		color1 = render.dim(color0)
-		for f, color in [(1, color1), (0.6, color0)]:
-			S, C = math.norm((sx, sy), f)
-			ps0 = [
-				(sx + S * sh, sy + C * sh),
-				(sx + C * sw, sy - S * sw),
-				(sx - S * sh, sy - C * sh),
-				(sx - C * sw, sy + S * sw),
-			]
-			render.sectorpoly(simgs, ps0, color)
-
-	def colorat(self, pos):
-		sx, sy = self.anchors[0]
-		theta = math.atan2(sx, sy) if sx or sy else 0
-		dx, dy = math.R(theta, pos)
-		dy -= math.length((sx, sy))
-		sw, sh = self.size
-		if abs(dx / sw) + abs(dy / sh) < 1:
-			return self.color
-		return None
-
-	def outlinesegs(self):
-		sx, sy = self.anchors[0]
-		sw, sh = self.size
-		S, C = math.norm((sx, sy))
-		ps = [
+		S, C = math.norm((sx, sy), f)
+		return [
 			(sx + S * sh, sy + C * sh),
 			(sx + C * sw, sy - S * sw),
 			(sx - S * sh, sy - C * sh),
 			(sx - C * sw, sy + S * sw),
 		]
-		return [(ps[j], ps[(j+1)%4]) for j in range(4)]
 
-	def drawoutline0(self, Fspot):
-		for p0, p1 in self.outlinesegs():
-			ps = render.cull(p0, p1)
-			if not ps:
-				continue
-			render.drawlinesF(Fspot, ps, self.color)
+@Shape()
+@Polygonal()
+class Blade:
+	def __init__(self, pos, color, size):
+		self.color = pygame.Color(color)
+		self.size = size
+		self.pos = self.constrain(pos, 0)
+		self.anchors = [self.pos]
 
-	def drawoutline(self, Fspot):
-		for p0, p1 in self.outlinesegs():
-			ps = render.cull(p0, p1)
-			if not ps:
-				continue
-			for sps in scatter(ps):
-				render.drawlinesF(Fspot, sps, self.color)	
+	def constrain(self, pos, j):
+		if pos[1] < 0.0001:
+			pos = pos[0], 0.0001
+		if pos[0] < 0:
+			pos = 0, pos[1]
+		if math.dot(pos, (C30, -S30)) > 0:
+			pos, _ = ptoline(pos, (S30, C30))
+		a = math.length(pos)
+		w, h = self.size
+		if a > 1 - h:
+			pos = math.norm(pos, 1 - h)
+		return pos
+
+	def polygon(self, f = 1):
+		sx, sy = self.anchors[0]
+		sw, sh = self.size
+		S, C = math.norm((sx, sy), f)
+		return [
+			(sx + S * sh, sy + C * sh),
+			(sx + C * sw, sy - S * sw),
+			(C * sw, -S * sw),
+			(-C * sw, S * sw),
+			(sx - C * sw, sy + S * sw),
+		]
+
+@Shape()
+@Polygonal()
+class Bar:
+	def __init__(self, pos, color, width):
+		self.color = pygame.Color(color)
+		self.width = width
+		self.pos = self.constrain(pos, 0)
+		self.anchors = [self.pos]
+
+	def constrain(self, pos, j):
+		a = math.clamp(math.dot(pos, (S15, C15)), self.width, (1 - self.width / C15) * C15)
+		return a * S15, a * C15
+
+	def polygon(self, f = 1):
+		s = math.length(self.anchors[0])
+		w = self.width * f
+		return [
+			((s + w) * S15 - C15, (s + w) * C15 + S15),
+			((s + w) * S15 + C15, (s + w) * C15 - S15),
+			((s - w) * S15 + C15, (s - w) * C15 - S15),
+			((s - w) * S15 - C15, (s - w) * C15 + S15),
+		]
+
+@Shape()
+@Polygonal()
+class Ring:
+	def __init__(self, pos, color, width):
+		self.color = pygame.Color(color)
+		self.width = width
+		self.pos = self.constrain(pos, 0)
+		self.anchors = [self.pos]
+
+	def constrain(self, pos, j):
+		a = math.clamp(math.dot(pos, (S15, C15)), self.width, 1 - self.width)
+		return a * S15, a * C15
+
+	def polygon(self, f = 1):
+		s = math.length(self.anchors[0])
+		CSs = [math.CS(math.radians(theta)) for theta in range(-1, 35, 3)]
+		w = self.width * f
+		return [((s + w) * S, (s + w) * C) for C, S in CSs] + [((s - w) * S, (s - w) * C) for C, S in reversed(CSs)]
+
+	def contains(self, pos):
+		s = math.length(self.anchors[0])
+		d = math.length(pos)
+		return abs(s - d) < self.width
 
 def fromspec(spec):
 	if spec["type"] == "shard":
