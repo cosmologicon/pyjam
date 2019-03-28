@@ -10,7 +10,7 @@
 # and radius of the flake in B-coordinates.
 
 
-import pygame
+import pygame, math
 from . import settings, pview
 from .pview import I, T
 
@@ -36,5 +36,10 @@ def BrectoverFspot(Fspot):
 	rect = pygame.Rect(I(0, 0, 2 * BrF, 2 * BrF))
 	rect.center = I(x0B, y0B)
 	return rect
+
+def Fspotapproach(Fspot0, Fspot1, dlogx):
+	pos0, r0 = Fspot0
+	pos1, r1 = Fspot1
+	return math.softapproach(pos0, pos1, dlogx), math.softapproach(r0, r1, dlogx)
 
 

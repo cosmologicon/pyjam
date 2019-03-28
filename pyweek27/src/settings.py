@@ -1,6 +1,7 @@
 gamename = "6"
 
 savefilename = "save.json"
+yourname = "Cosmologicon"
 
 ups = 120
 

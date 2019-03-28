@@ -45,6 +45,7 @@ class Button:
 		rect = img.get_rect(center = T(center))
 		pview.screen.blit(img, rect)
 		if self.drawtext:
-			ptext.draw(self.text, center = T(center), fontsize = T(0.5 * size), owidth = 1)
+			ptext.draw(self.text, center = T(center), lineheight = 0.9,
+				fontname = "ChelaOne", fontsize = T(0.5 * size), width = T(2 * size), shade = 1, owidth = 0.4, shadow = (1, 1))
 	
 

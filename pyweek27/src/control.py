@@ -18,6 +18,7 @@ class Controls():
 					self.quit = True
 				else:
 					self.kdowns.add(event.key)
+					self.kdowns.add(event.unicode)
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				self.mdown = True
 			if event.type == pygame.MOUSEBUTTONUP and event.button == 1:

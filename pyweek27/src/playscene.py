@@ -1,6 +1,7 @@
 from __future__ import division
 import random, math, pygame, json, os.path
-from . import pview, thing, flake, background, ptext, render, shape, view, hud, settings, frostscene, scene
+from . import pview, thing, flake, background, ptext, render, shape, view, hud, settings
+from . import frostscene, uploadscene, scene
 from .pview import T
 
 class self:
@@ -33,6 +34,7 @@ def init():
 	self.buttons = [
 		hud.Button(((60, 60), 50), "shard", drawtext = False),
 		hud.Button(((60, 180), 50), "blade", drawtext = False),
+		hud.Button(((pview.w0 - 80, pview.h0 - 200), 50), "upload"),
 		hud.Button(((pview.w0 - 80, pview.h0 - 80), 50), "quit"),
 	]
 
@@ -84,6 +86,8 @@ def think(dt, controls):
 def onclick(button):
 	if button.text == "quit":
 		scene.push(frostscene)
+	if button.text == "upload":
+		scene.push(uploadscene, self.design, Fspot1)
 
 def draw():
 	if pview._fullscreen:
