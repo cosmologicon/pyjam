@@ -1,6 +1,6 @@
 from __future__ import division
 import random, math, pygame, json, os.path
-from . import pview, thing, flake, background, ptext, render, shape, view, hud, settings
+from . import pview, thing, flake, background, ptext, render, shape, view, hud, settings, client
 from . import frostscene, uploadscene, scene
 from .pview import T
 
@@ -82,6 +82,8 @@ def think(dt, controls):
 
 	if pygame.K_F5 in controls.kdowns:
 		save()
+	if pygame.K_F6 in controls.kdowns:
+		client.pullgallery()
 
 def onclick(button):
 	if button.text == "quit":

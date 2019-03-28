@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, ptext, background, settings, hud, scene, view, textscene
+from . import pview, ptext, background, settings, hud, scene, view, textscene, client
 from .pview import T
 
 class self:
@@ -71,6 +71,7 @@ def updatedesignname(name):
 
 def onclick(button):
 	if "YES" in button.text:
+		client.upload(settings.yourname, self.designname, self.design)
 		self.ending = True
 	if "NO" in button.text:
 		self.ending = True
