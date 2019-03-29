@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, numpy
-from . import pview, ptext, render, shape
+from . import pview, ptext, render, shape, view
 from .pview import I, T
 
 
@@ -156,7 +156,10 @@ class Design:
 			return self.imgscale
 		self.makeimg()
 		self.sscale = key
-		self.imgscale = pygame.transform.smoothscale(self.img, T(2 * r, 2 * r))
+		if T(2 * r) == self.img.get_width():
+			self.imgscale = self.img
+		else:
+			self.imgscale = pygame.transform.smoothscale(self.img, T(2 * r, 2 * r))
 		return self.imgscale
 
 	def getimg0scale(self, r):
@@ -169,6 +172,8 @@ class Design:
 		return self.img0scale
 
 	def draw(self, Fspot):
+		if not view.Fspotvisible(Fspot):
+			return
 		(x, y), r = Fspot
 		img = self.getimgscale(r)
 		pview.screen.blit(img, T(x - r, y - r))

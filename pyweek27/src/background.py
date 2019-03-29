@@ -4,25 +4,29 @@ from . import pview
 
 class self:
 	size = None
+	color = None
 
 def clear():
 	self.size = None
+	self.color = None
 
 def makesurf():
 	self.size = pview.size
 	self.w, self.h = self.size
 	self.img = pygame.Surface(self.size).convert_alpha()
-	self.img.fill((20, 20, 60))
+	self.img.fill(self.color)
 
-def update(dt):
+def update(dt, color = None):
+	if color is not None and color != self.color:
+		self.color = color
+		self.size = None
 	if self.size is None:
 		makesurf()
 	n = 100 * dt
 	n = int(n) + (random.random() < n % 1)
 	for j in range(n):
-		f = random.uniform(0.3, 0.36)
-		a = random.uniform(55, 65)
-		color = pview.I(f * a, f * a, a)
+		f = random.uniform(0.95, 1.05)
+		color = pview.I([f * a for a in self.color])
 		width = pview.T(random.uniform(2, 3))
 		if random.random() < 1 / 3:
 			y = random.random() * self.h

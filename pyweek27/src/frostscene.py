@@ -4,8 +4,9 @@ from . import pview, scene, background
 class self:
 	pass
 
-def init(up = False):
+def init(up = False, onswap = None):
 	self.up = up
+	self.onswap = onswap
 	self.a = 0
 	self.ending = False
 	self.done = False
@@ -29,6 +30,8 @@ def think(dt, controls):
 			self.ending = True
 			n = 2 if self.up else 3
 			dscene = scene.top(n)
+			if self.onswap is not None:
+				self.onswap()
 			if dscene is not None:
 				dscene.think(0, controls.clear())
 

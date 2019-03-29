@@ -42,4 +42,9 @@ def Fspotapproach(Fspot0, Fspot1, dlogx):
 	pos1, r1 = Fspot1
 	return math.softapproach(pos0, pos1, dlogx), math.softapproach(r0, r1, dlogx)
 
+def Fspotvisible(Fspot):
+	(x, y), r = Fspot
+	rect = pygame.Rect((x - r, y - r, 2 * r, 2 * r))
+	return rect.colliderect(pview.rect0)
+
 

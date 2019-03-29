@@ -52,7 +52,7 @@ def think(dt, controls):
 #		colors = ["#ffffff", "#ddddff", "#ddeeff"]
 #		self.design.addshard(self.ppos, (0.06, 0.12), random.choice(colors))
 #		self.design.addshape("blade", self.ppos, random.choice(colors), width = 0.01)
-	background.update(dt)
+	background.update(dt, (20, 20, 60))
 	self.pointcolor = self.design.colorat(view.FconvertB(Fspot1, controls.mpos))
 #	self.pshape.anchors[0] = self.pshape.constrain(self.ppos, 0)
 
