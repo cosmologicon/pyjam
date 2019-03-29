@@ -40,7 +40,9 @@ class Shape(enco.Component):
 		return json.loads(json.dumps(kw))
 
 	def copy(self):
-		return self.__class__(**self.getspec())
+		spec = self.getspec()
+		del spec["type"]
+		return self.__class__(**spec)
 
 	def constrainanchor(self, j, pos):
 		self.anchors[j] = self.constrain(pos, j)
@@ -66,6 +68,18 @@ class Shape(enco.Component):
 	def colorat(self, pos):
 		return self.color if self.contains(pos) else None
 
+	# Considered the same independent of position.
+	def same(self, other):
+		spec = self.getspec()
+		otherspec = other.getspec()
+		if set(spec) != set(otherspec):
+			return False
+		for k, v in spec.items():
+			if k in ["pos"]:
+				continue
+			if v != otherspec[k]:
+				return False
+		return True
 
 # polygon(f = 1)
 class Polygonal(enco.Component):

@@ -13,7 +13,7 @@ def buttonimg(color, size, lit = False):
 		img0 = buttonimg(color, 200, lit = lit)
 		img = pygame.transform.smoothscale(img0, (2 * s, 2 * s))
 	else:
-		color = pygame.Color(color)
+		color = ptext._resolvecolor(color, None)
 		if not lit:
 			color = render.dim(color, 4)
 		img = pygame.Surface((2 * s, 2 * s)).convert_alpha()
@@ -38,14 +38,22 @@ class Button:
 	def contains(self, pos):
 		return math.length(view.FconvertB(self.Fspot, pos)) < 1
 
-	def draw(self, lit = False):
+	def draw(self, lit = False, note = None):
 		color = "white"
 		center, size = self.Fspot
+		if note == "0":
+			color = render.dim(pygame.Color(color), 8)
+			lit = False
 		img = buttonimg(color, T(size), lit = lit)
 		rect = img.get_rect(center = T(center))
 		pview.screen.blit(img, rect)
 		if self.drawtext:
 			ptext.draw(self.text, center = T(center), lineheight = 0.9,
 				fontname = "ChelaOne", fontsize = T(0.5 * size), width = T(2 * size), shade = 1, owidth = 0.4, shadow = (1, 1))
+		if note is not None:
+			x, y = center
+			ptext.draw(note, center = T(x + 0.7 * size, y + 0.7 * size),
+				fontname = "ChelaOne", fontsize = T(size),
+				shade = 1, owidth = 0.4, shadow = (1, 1))
 	
 

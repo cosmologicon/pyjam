@@ -31,12 +31,18 @@ def init():
 	self.panchor = None
 	self.held = None
 	
+	self.store = [
+		[shape.Shard((0, 0), "red", (0.06, 0.12)), 4],
+		[shape.Shard((0, 0), "orange", (0.1, 0.2)), 2],
+	]
+
+
 	self.buttons = [
-		hud.Button(((60, 60), 50), "shard", drawtext = False),
-		hud.Button(((60, 180), 50), "blade", drawtext = False),
 		hud.Button(((pview.w0 - 80, pview.h0 - 200), 50), "upload"),
 		hud.Button(((pview.w0 - 80, pview.h0 - 80), 50), "quit"),
 	]
+	for j, _ in enumerate(self.store):
+		self.buttons.append(hud.Button(((60, 60 + 120 * j), 50), "store-%d" % j, drawtext = False))
 
 def think(dt, controls):
 	self.inFbox0 = Fbox0.collidepoint(controls.mpos)
@@ -69,6 +75,13 @@ def think(dt, controls):
 			if self.inFbox0:
 				self.design.shapes.append(self.held)
 				self.design.undraw()
+			else:
+				for jstore, store in enumerate(self.store):
+					if store[0].same(self.held):
+						store[1] += 1
+						break
+				else:
+					print("Error restoring shape.")
 			self.held = None
 
 	self.jbutton = None
@@ -90,6 +103,14 @@ def onclick(button):
 		scene.push(frostscene)
 	if button.text == "upload":
 		scene.push(uploadscene, self.design, Fspot1)
+	if button.text.startswith("store-"):
+		jstore = int(button.text[6:])
+		if self.store[jstore][1] <= 0:
+			pass  # Error
+		else:
+			self.store[jstore][1] -= 1
+			self.held = self.store[jstore][0].copy()
+			self.jheld = 0
 
 def draw():
 	if pview._fullscreen:
@@ -99,7 +120,11 @@ def draw():
 	background.draw()
 
 	for jbutton, button in enumerate(self.buttons):
-		button.draw(lit = (jbutton == self.jbutton))
+		note = None
+		if button.text.startswith("store-"):
+			jstore = int(button.text[6:])
+			note = "%d" % self.store[jstore][1]
+		button.draw(lit = (jbutton == self.jbutton), note = note)
 #	pygame.draw.rect(pview.screen, (0, 0, 0), T(Fbox0))
 	self.design.drawwedge(Fspot0)
 	self.design.draw(Fspot1)
