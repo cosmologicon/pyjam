@@ -80,11 +80,13 @@ def dim(color, amount=1):
 
 def sectorpoly(sectorimgs, ps0, color):
 	s = sectorimgs[0].get_height()
-	ps1 = [R1(p) for p in ps0]
-	ps2 = [R2(p) for p in ps0]
 	pygame.draw.polygon(sectorimgs[0], color, I([(x * s, (1 - y) * s) for x, y in ps0]))
-	pygame.draw.polygon(sectorimgs[1], color, I([(x * s, (1 - y) * s) for x, y in ps1]))
-	pygame.draw.polygon(sectorimgs[2], color, I([(x * s, (1 - y) * s) for x, y in ps2]))
+	if len(sectorimgs) > 1:
+		ps1 = [R1(p) for p in ps0]
+		pygame.draw.polygon(sectorimgs[1], color, I([(x * s, (1 - y) * s) for x, y in ps1]))
+	if len(sectorimgs) > 2:
+		ps2 = [R2(p) for p in ps0]
+		pygame.draw.polygon(sectorimgs[2], color, I([(x * s, (1 - y) * s) for x, y in ps2]))
 
 def tosector0(pos):
 	px, py = pos

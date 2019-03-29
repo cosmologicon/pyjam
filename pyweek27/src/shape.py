@@ -99,6 +99,16 @@ class Polygonal(enco.Component):
 		for f, d in [(1, 3), (0.8, 2), (0.65, 1), (0.5, 0)]:
 			render.sectorpoly(simgs, self.polygon(f), render.dim(self.color, d))
 
+	def cursorimg(self, s):
+		img = pygame.Surface((s, 2 * s)).convert_alpha()
+		img.fill((0, 0, 0, 0))
+		self.sectordraw([img])
+		oimg = pygame.Surface((2 * s, 2 * s)).convert_alpha()
+		oimg.fill((0, 0, 0, 0))
+		oimg.blit(pygame.transform.flip(img, True, False), (0, 0))
+		oimg.blit(img, (s, 0))
+		return oimg
+
 @Shape()
 @Polygonal()
 class Shard(Shape):

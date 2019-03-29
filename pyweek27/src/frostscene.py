@@ -14,26 +14,23 @@ def init(up = False, onswap = None):
 	self.dscene = scene.top(n)
 
 def think(dt, controls):
-	n = 2 if self.ending == self.up else 3
-	self.dscene = scene.top(n)
-
 	if self.ending:
-		self.a = math.clamp(self.a - dt * 2, 0, 1)
+		self.a = math.approach(self.a, 0, 2 * dt)
 		if self.a == 0 and not self.done:
 			self.done = True
 			scene.pop()
 			if not self.up:
 				scene.pop()
 	else:
-		self.a = math.clamp(self.a + dt * 4, 0, 1.2)
+		self.a = math.approach(self.a, 1.2, 4 * dt)
 		if self.a == 1.2:
 			self.ending = True
 			n = 2 if self.up else 3
-			dscene = scene.top(n)
+			self.dscene = scene.top(n)
 			if self.onswap is not None:
 				self.onswap()
-			if dscene is not None:
-				dscene.think(0, controls.clear())
+			if self.dscene is not None:
+				self.dscene.think(0, controls.clear())
 
 	background.update(dt)
 

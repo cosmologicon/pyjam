@@ -31,13 +31,13 @@ def init(stage):
 	
 	if stage == "free":
 		if "Shard" in progress.shapes:
-			self.store.append([shape.Shard((0, 0), "white", (0.06, 0.12)), None])
+			self.store.append([shape.Shard((0, 0.5), "white", (0.06, 0.12)), None])
 		if "Blade" in progress.shapes:
-			self.store.append([shape.Blade((0, 0), "white", (0.02, 0.06)), None])
+			self.store.append([shape.Blade((0, 0.5), "white", (0.02, 0.06)), None])
 	if stage in stagedata.store:
 		for k, v in stagedata.store[stage]:
 			if k == "Shard":
-				self.store.append([shape.Shard((0, 0), "white", (0.06, 0.12)), v])
+				self.store.append([shape.Shard((0, 0.5), "white", (0.06, 0.12)), v])
 				
 
 
@@ -58,14 +58,14 @@ def init(stage):
 			self.yespoints.append((S, C))
 	self.yescovers = [False for _ in self.yespoints]
 	self.nocovers = [False for _ in self.nopoints]
-	self.todo = bool(self.yescovers or self.ycovers)
+	self.todo = bool(self.yescovers or self.nocovers)
 	self.done = False
 	self.pushed = False
 	self.tdone = 0
 
 
-	for j, _ in enumerate(self.store):
-		self.buttons.append(hud.Button(((60, 60 + 120 * j), 50), "store-%d" % j, drawtext = False))
+	for j, (shp, count) in enumerate(self.store):
+		self.buttons.append(hud.Button(((60, 60 + 120 * j), 50), "store-%d" % j, drawtext = False, color = "#666666", shape = shp))
 
 def think(dt, controls):
 	
@@ -94,6 +94,7 @@ def think(dt, controls):
 	if self.panchor and controls.mdown:
 		i, self.jheld = self.panchor
 		self.held = self.design.shapes.pop(i)
+		self.cursorimg = self.store[getjstore(self.held)][0].cursorimg(T(100))
 		self.design.undraw()
 
 	if self.held:
@@ -103,13 +104,10 @@ def think(dt, controls):
 				self.design.shapes.append(self.held)
 				self.design.undraw()
 			else:
-				for jstore, store in enumerate(self.store):
-					if store[0].same(self.held):
-						if store[1] is not None:
-							store[1] += 1
-						break
-				else:
-					print("Error restoring shape.")
+				jstore = getjstore(self.held)
+				store = self.store[jstore]
+				if store[1] is not None:
+					store[1] += 1
 			self.held = None
 		checkcover()
 
@@ -142,6 +140,12 @@ def checkcover():
 			covered = covered or self.held.colorat(render.tosector0(pos))
 		self.yescovers.append(covered)
 
+def getjstore(shape):
+	for jstore, store in enumerate(self.store):
+		if store[0].same(shape):
+			return jstore
+	print("Error restoring shape.")
+
 
 def onclick(button):
 	if button.text == "Quit":
@@ -157,6 +161,7 @@ def onclick(button):
 			if n is not None:
 				self.store[jstore][1] -= 1
 			self.held = shape.copy()
+			self.cursorimg = self.held.cursorimg(T(100))
 			self.jheld = 0
 
 def draw():
@@ -196,6 +201,9 @@ def draw():
 		self.held.drawoutline0(Fspot0)
 		self.held.drawoutline(Fspot1)
 	else:
+		if self.held:
+			rect = self.cursorimg.get_rect(center = T(self.mpos))
+			pview.screen.blit(self.cursorimg, rect)
 		for i, j, anchor in self.design.anchors():
 			color = "white" if (i, j) == self.panchor else "orange"
 			render.anchor(Fspot0, anchor, color)
