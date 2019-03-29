@@ -2,8 +2,8 @@ from . import pview
 
 _stack = []
 
-def push(scene, *args, **kw):
-	_stack.append(scene)
+def push(scene, *args, depth=-999, **kw):
+	_stack.insert(-depth, scene)
 	if hasattr(scene, "init"):
 		scene.init(*args, **kw)
 

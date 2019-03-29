@@ -1,7 +1,7 @@
 from __future__ import division
 import random, math, pygame, json, os.path
 from . import pview, thing, flake, background, ptext, render, shape, view, hud, settings, client
-from . import frostscene, uploadscene, scene
+from . import frostscene, uploadscene, winscene, scene, progress, stagedata
 from .pview import T
 
 class self:
@@ -15,7 +15,8 @@ Fspot1 = (920, 360), 320
 # Region of mouse where the player can interact with the wedge.
 Fbox0 = pygame.Rect((220, 0, 460, 720))
 
-def init():
+def init(stage):
+	self.stage = stage
 	self.design = flake.Design.empty()
 	
 #	self.points = [(random.uniform(-1, 1), random.uniform(-1, 1)) for _ in range(20)]
@@ -23,30 +24,56 @@ def init():
 	
 #	self.pshape = shape.Shard((0, 0), "red", (0.06, 0.12))
 
-	self.design.shapes.append(shape.Shard((0, 0.6), "red", (0.06, 0.12)))
-	self.design.shapes.append(shape.Shard((0.1, 0.4), "#ffccaa", (0.1, 0.2)))
-	self.design.shapes.append(shape.Blade((0.1, 0.7), "#bbbbff", (0.02, 0.06)))
-	self.design.shapes.append(shape.Ring((0.1, 0.7), "#ffffbb", 0.04))
-	
 	self.panchor = None
 	self.held = None
 	
-	self.store = [
-		[shape.Shard((0, 0), "red", (0.06, 0.12)), 4],
-		[shape.Shard((0, 0), "orange", (0.1, 0.2)), 2],
-	]
+	self.store = []
+	
+	if stage == "free":
+		if "Shard" in progress.shapes:
+			self.store.append([shape.Shard((0, 0), "white", (0.06, 0.12)), None])
+		if "Blade" in progress.shapes:
+			self.store.append([shape.Blade((0, 0), "white", (0.02, 0.06)), None])
+	if stage in stagedata.store:
+		for k, v in stagedata.store[stage]:
+			if k == "Shard":
+				self.store.append([shape.Shard((0, 0), "white", (0.06, 0.12)), v])
+				
 
 
 	self.buttons = [
-		hud.Button(((pview.w0 - 80, pview.h0 - 200), 50), "upload"),
-		hud.Button(((pview.w0 - 80, pview.h0 - 80), 50), "quit"),
+		hud.Button(((1200, 640), 50), "Quit"),
 	]
+	if self.stage == "free":
+		self.buttons.append(hud.Button(((640, 640), 50), "Share"))
+
+	self.yespoints = []
+	self.nopoints = []
+	if stage in stagedata.points:
+		yes, no = stagedata.points[stage]
+		for a, r, n in yes:
+			if n % 2 == 1:
+				a = 1 - a
+			C, S = math.CS((n + a) / 12 * math.tau, r)
+			self.yespoints.append((S, C))
+	self.yescovers = [False for _ in self.yespoints]
+	self.nocovers = [False for _ in self.nopoints]
+	self.todo = bool(self.yescovers or self.ycovers)
+	self.done = False
+	self.pushed = False
+	self.tdone = 0
+
+
 	for j, _ in enumerate(self.store):
 		self.buttons.append(hud.Button(((60, 60 + 120 * j), 50), "store-%d" % j, drawtext = False))
 
 def think(dt, controls):
-	self.inFbox0 = Fbox0.collidepoint(controls.mpos)
+	
+#	self.inFbox0 = Fbox0.collidepoint(controls.mpos)
+	self.mpos = controls.mpos
 	self.ppos = view.FconvertB(Fspot0, controls.mpos)
+	x, y = self.ppos
+	self.inFbox0 = -0.06 < x < y / math.sqrt(3) + 0.06
 #	if controls.mdown:
 #		self.design.addcircle((x, y), 0.2, random.choice(["red", "orange", "yellow", "white", "green"]))
 #		colors = ["#ffffff", "#ddddff", "#ddeeff"]
@@ -78,11 +105,13 @@ def think(dt, controls):
 			else:
 				for jstore, store in enumerate(self.store):
 					if store[0].same(self.held):
-						store[1] += 1
+						if store[1] is not None:
+							store[1] += 1
 						break
 				else:
 					print("Error restoring shape.")
 			self.held = None
+		checkcover()
 
 	self.jbutton = None
 	if not self.held and not self.inFbox0:
@@ -95,21 +124,39 @@ def think(dt, controls):
 
 	if pygame.K_F5 in controls.kdowns:
 		save()
-	if pygame.K_F6 in controls.kdowns:
-		client.pullgallery()
+	
+	if not self.done and self.todo and not self.held:
+		self.done = all(self.yescovers) and not any(self.nocovers)
+	if self.done and not self.pushed:
+		self.tdone = math.approach(self.tdone, 1, dt)
+		if self.tdone == 1:
+			self.pushed = True
+			scene.pop()
+			scene.push(winscene, self.design, Fspot1, self.stage)
+
+def checkcover():
+	self.yescovers = []
+	for pos in self.yespoints:
+		covered = self.design.colorat(pos)
+		if self.held:
+			covered = covered or self.held.colorat(render.tosector0(pos))
+		self.yescovers.append(covered)
+
 
 def onclick(button):
-	if button.text == "quit":
+	if button.text == "Quit":
 		scene.push(frostscene)
-	if button.text == "upload":
+	if button.text == "Share":
 		scene.push(uploadscene, self.design, Fspot1)
 	if button.text.startswith("store-"):
 		jstore = int(button.text[6:])
-		if self.store[jstore][1] <= 0:
+		shape, n = self.store[jstore]
+		if n is not None and n <= 0:
 			pass  # Error
 		else:
-			self.store[jstore][1] -= 1
-			self.held = self.store[jstore][0].copy()
+			if n is not None:
+				self.store[jstore][1] -= 1
+			self.held = shape.copy()
 			self.jheld = 0
 
 def draw():
@@ -123,21 +170,24 @@ def draw():
 		note = None
 		if button.text.startswith("store-"):
 			jstore = int(button.text[6:])
-			note = "%d" % self.store[jstore][1]
+			note = self.store[jstore][1]
+			if note is not None:
+				note = "%d" % note
 		button.draw(lit = (jbutton == self.jbutton), note = note)
-#	pygame.draw.rect(pview.screen, (0, 0, 0), T(Fbox0))
 	self.design.drawwedge(Fspot0)
 	self.design.draw(Fspot1)
 	render.sector0(Fspot0)
 	if self.inFbox0:
 		render.sectors(Fspot1)
 	
-#	for x, y in self.points:
-#		p = view.BconvertF(Fspot1, (x, y))
-#		color = pygame.Color("#7777ff" if self.design.colorat((x, y)) else "#ff7777")
-#		pygame.draw.circle(pview.screen, pygame.Color("black"), T(p), T(8))
-#		pygame.draw.circle(pview.screen, color, T(p), T(6))
-	ptext.draw(str(self.pointcolor), bottomright = T(1260, 710), fontsize = T(30))
+	for (x, y), covered in zip(self.yespoints, self.yescovers):
+		p = view.BconvertF(Fspot1, (x, y))
+		color = pygame.Color("#aaaaff" if covered else "#444488")
+		ocolor = pygame.Color("white" if covered else "black")
+		pygame.draw.circle(pview.screen, ocolor, T(p), T(8))
+		pygame.draw.circle(pview.screen, color, T(p), T(6))
+	if settings.DEBUG:
+		ptext.draw(str(self.pointcolor), bottomright = T(1260, 710), fontsize = T(30))
 
 	if self.held and self.inFbox0:
 		for j, anchor in enumerate(self.held.anchors):
@@ -150,13 +200,19 @@ def draw():
 			color = "white" if (i, j) == self.panchor else "orange"
 			render.anchor(Fspot0, anchor, color)
 
+	if self.stage in stagedata.helptext:
+		text = stagedata.helptext[self.stage]
+		alpha = 0.3 if self.mpos[1] > 600 else 1
+		ptext.draw(text, midbottom = T(640, 700), fontsize = T(38), width = T(1000), owidth = 0.5,
+			fontname = "ChelaOne", color = "#ffffaa", shade = 1, shadow = (1, 1), alpha = alpha)
+
 #	p = view.BconvertF(Fspot0, self.pshape.anchors[0])
 #	pygame.draw.circle(pview.screen, pygame.Color("orange"), T(p), T(3))
 
 #	odesign = flake.Design.empty()
 #	odesign.addshard(self.ppos, (0.06, 0.12), "#ffffff")
 #	odesign.drawoverlay((880, 360), 300)
-	
+
 def save():
 	state = {
 		"design": self.design.getspec(),

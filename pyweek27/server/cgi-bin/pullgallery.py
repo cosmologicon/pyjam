@@ -15,7 +15,7 @@ files = set(os.path.basename(f) for f in glob.glob("gallery/*.json"))
 files = list(files - excludes)
 random.shuffle(files)
 files = files[:100]
-rdata = [(f.split("/")[1], open(f).read()) for f in files]
+rdata = [(f, open(os.path.join("gallery", f)).read()) for f in files]
 print(json.dumps(rdata))
 
 

@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame
-from . import settings, control, scene, view, pview, ptext, playscene, background, menuscene
+from . import settings, control, scene, view, pview, ptext, playscene, background, menuscene, client
 from .pview import T
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
@@ -12,6 +12,8 @@ if playscene.canload() and not settings.reset:
 	playscene.load()
 else:
 	scene.push(menuscene)
+
+client.pullgallery()
 
 playing = True
 clock = pygame.time.Clock()

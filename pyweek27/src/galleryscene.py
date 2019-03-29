@@ -110,7 +110,6 @@ def draw():
 		pview.fill((0, 0, 60, alpha))
 		self.designs[self.jload % len(self.designs)].draw(self.Fload)
 		spec = self.specs[self.jload % len(self.designs)]
-		spec["designname"] = "Flakey McFlakeFace"
 		if spec["designname"]:
 			ptext.draw(spec["designname"], midbottom = T(940, 300), width = T(380),
 				color = "#aabbff", shade = 1,

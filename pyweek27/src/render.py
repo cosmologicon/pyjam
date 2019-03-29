@@ -86,6 +86,15 @@ def sectorpoly(sectorimgs, ps0, color):
 	pygame.draw.polygon(sectorimgs[1], color, I([(x * s, (1 - y) * s) for x, y in ps1]))
 	pygame.draw.polygon(sectorimgs[2], color, I([(x * s, (1 - y) * s) for x, y in ps2]))
 
+def tosector0(pos):
+	px, py = pos
+	px = abs(px)
+	py = abs(py)
+	if py < 1 / math.sqrt(3) * px:
+		px, py = math.R(math.radians(60), (px, py))
+	elif py < math.sqrt(3) * px:
+		px, py = R1((px, py))
+	return px, py
 
 if __name__ == "__main__":
 	import random

@@ -35,7 +35,7 @@ def init(design, Fspot):
 def think(dt, controls):
 	background.update(dt)
 	if self.ending:
-		self.a = math.clamp(self.a - 4 * dt, 0, 1)
+		self.a = math.approach(self.a, 0, -4 * dt)
 		self.Fspot = view.Fspotapproach(self.Fspot, self.Fspot0, 20 * dt)
 		if not self.done and self.Fspot == self.Fspot0:
 			self.done = True
@@ -43,7 +43,7 @@ def think(dt, controls):
 	else:
 		self.Fspot = view.Fspotapproach(self.Fspot, Fspot1, 10 * dt)
 		if self.Fspot == Fspot1:
-			self.a = math.clamp(self.a + 4 * dt, 0, 1)
+			self.a = math.approach(self.a, 1, 4 * dt)
 	self.jbox = None
 	self.jbutton = None
 

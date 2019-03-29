@@ -23,6 +23,8 @@ def polygoncontains(poly, pos):
 		x0, y0 = poly[j]
 		x1, y1 = poly[(j + 1) % len(poly)]
 		if (y0 < y) != (y1 < y):
+			if y0 < y1:
+				(x0, y0), (x1, y1) = (x1, y1), (x0, y0)
 			xa = math.fadebetween(y, y0, x0, y1, x1)
 			if xa < x:
 				ncross += 1

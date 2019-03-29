@@ -96,15 +96,9 @@ class Design:
 		self.s0scale = None
 
 	def colorat(self, pos):
-		px, py = pos
-		px = abs(px)
-		py = abs(py)
-		if py < 1 / math.sqrt(3) * px:
-			px, py = math.R(math.radians(60), (px, py))
-		elif py < math.sqrt(3) * px:
-			px, py = render.R1((px, py))
+		pos = render.tosector0(pos)
 		for shape in reversed(self.shapes):
-			shapecolor = shape.colorat((px, py))
+			shapecolor = shape.colorat(pos)
 			if shapecolor is not None:
 				return shapecolor
 		return None

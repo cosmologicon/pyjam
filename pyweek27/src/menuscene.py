@@ -22,7 +22,12 @@ def init(page = "main"):
 			hud.Button(((x + 1.5 * s, y), s), "Free\nPlay"),
 			hud.Button(((x + 4.5 * s, y), s), "Bonus\nStages"),
 		]
-
+	if self.page == "story":
+		x, y = pview.center0
+		s = pview.s0 / 18
+		self.buttons += [
+			hud.Button(((x - 4.5 * s, y), s), "Stage 1"),
+		]
 
 def think(dt, controls):
 	background.update(dt, (200, 200, 200))
@@ -38,12 +43,18 @@ def think(dt, controls):
 def onclick(button):
 	if button.text == "Story":
 		scene.push(frostscene, up=True, onswap=lambda: init("story"))
+	if button.text == "Free\nPlay":
+		scene.push(playscene, "free")
+		scene.push(frostscene, up=True)
 	if button.text == "Bonus\nStages":
 		scene.push(frostscene, up=True, onswap=lambda: init("bonus"))
 	if button.text == "Gallery":
 		scene.push(galleryscene)
 		scene.push(frostscene, up=True)
-		
+	if button.text.startswith("Stage"):
+		stage = button.text.replace(" ", "").lower()
+		scene.push(playscene, stage)
+		scene.push(frostscene, up=True)
 
 def draw():
 	pygame.mouse.set_visible(True)
