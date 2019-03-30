@@ -4,29 +4,27 @@ from . import pview, scene, background
 class self:
 	pass
 
-def init(up = False, onswap = None):
-	self.up = up
+def init(depth0 = 2, depth1 = 2, onswap = None):
 	self.onswap = onswap
 	self.a = 0
 	self.ending = False
 	self.done = False
-	n = 3 if self.up else 2
-	self.dscene = scene.top(n)
+	self.depth0 = depth0
+	self.depth1 = depth1
+	self.dscene = scene.top(self.depth0)
 
 def think(dt, controls):
 	if self.ending:
 		self.a = math.approach(self.a, 0, 2 * dt)
 		if self.a == 0 and not self.done:
 			self.done = True
-			scene.pop()
-			if not self.up:
+			for _ in range(self.depth1 - 1):
 				scene.pop()
 	else:
 		self.a = math.approach(self.a, 1.2, 4 * dt)
 		if self.a == 1.2:
 			self.ending = True
-			n = 2 if self.up else 3
-			self.dscene = scene.top(n)
+			self.dscene = scene.top(self.depth1)
 			if self.onswap is not None:
 				self.onswap()
 			if self.dscene is not None:

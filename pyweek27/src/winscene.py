@@ -1,6 +1,6 @@
 import pygame, math
-from . import pview, ptext, background, settings, hud, view
-from . import scene, textscene, uploadscene, frostscene
+from . import pview, ptext, background, settings, hud, view, stagedata
+from . import scene, textscene, uploadscene, frostscene, storyscene
 from .pview import T
 
 class self:
@@ -17,9 +17,10 @@ def init(design, Fspot, stage):
 	
 	self.buttons = [
 		hud.Button(((640 - 360, 620), 80), "Share to\npublic\ngallery"),
-		hud.Button(((640 + 360, 620), 80), "Next\nstage"),
 		hud.Button(((1180, 620), 80), "Quit\nto menu"),
 	]
+	if self.stage in stagedata.nexts:
+		self.buttons.append(hud.Button(((640 + 360, 620), 80), "Next\nstage"))
 	self.done = False
 
 def think(dt, controls):
@@ -46,8 +47,10 @@ def onclick(button):
 	if "Next" in button.text:
 		from . import playscene
 		self.done = True
-		scene.push(playscene, "stage2", depth=1)
-		scene.push(frostscene)
+		nextstage = stagedata.nexts[self.stage]
+		scene.push(playscene, nextstage, depth=1)
+		scene.push(storyscene, nextstage, depth=1)
+		scene.push(frostscene, depth1=3)
 	
 	if "Share" in button.text:
 		scene.push(uploadscene, self.design, Fspot1)

@@ -1,7 +1,7 @@
 from __future__ import division
 import random, math, pygame
 from . import pview, thing, flake, background, ptext, render, shape, view, hud
-from . import frostscene, scene, playscene, galleryscene
+from . import frostscene, scene, playscene, galleryscene, storyscene
 from .pview import T
 
 class self:
@@ -42,19 +42,20 @@ def think(dt, controls):
 
 def onclick(button):
 	if button.text == "Story":
-		scene.push(frostscene, up=True, onswap=lambda: init("story"))
+		scene.push(frostscene, onswap=lambda: init("story"))
 	if button.text == "Free\nPlay":
 		scene.push(playscene, "free")
-		scene.push(frostscene, up=True)
+		scene.push(frostscene, depth0 = 3)
 	if button.text == "Bonus\nStages":
-		scene.push(frostscene, up=True, onswap=lambda: init("bonus"))
+		scene.push(frostscene, onswap=lambda: init("bonus"))
 	if button.text == "Gallery":
 		scene.push(galleryscene)
-		scene.push(frostscene, up=True)
+		scene.push(frostscene, depth0 = 3)
 	if button.text.startswith("Stage"):
 		stage = button.text.replace(" ", "").lower()
 		scene.push(playscene, stage)
-		scene.push(frostscene, up=True)
+		scene.push(storyscene, stage)
+		scene.push(frostscene, depth0 = 4)
 
 def draw():
 	pygame.mouse.set_visible(True)

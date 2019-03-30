@@ -17,6 +17,27 @@ def scatter(ps):
 	sps = sps + [((-x0, y0), (-x1, y1)) for ((x0, y0), (x1, y1)) in sps]	
 	return sps
 
+def bezier(ps):
+	(x0, y0), (x1, y1), (x2, y2), (x3, y3) = ps
+	ops = []
+	for jt in range(41):
+		t = jt / 40
+		s = 1 - t
+		x = s**3 * x0 + 3*t*s**2 * x1 + 3*t**2*s * x2 + t**3 * x3
+		y = s**3 * y0 + 3*t*s**2 * y1 + 3*t**2*s * y2 + t**3 * y3
+		ops.append((x, y))
+	return ops
+
+def thicken(ps, w):
+	def dof(j0, j1):
+		x0, y0 = ps[j0]
+		x1, y1 = ps[j1]
+		return math.norm((x1 - x0, y1 - y0), w)
+	dofs = [dof(0, 1)] + [dof(j, j + 2) for j in range(len(ps) - 2)] + [dof(-2, -1)]
+	psR = [(x - dy, y + dx) for (x, y), (dx, dy) in zip(ps, dofs)]
+	psL = [(x + dy, y - dx) for (x, y), (dx, dy) in reversed(list(zip(ps, dofs)))]
+	return psR + psL
+
 def polygoncontains(poly, pos):
 	x, y = pos
 	ncross = 0
@@ -243,6 +264,115 @@ class Ring:
 		s = math.length(self.anchors[0])
 		d = math.length(pos)
 		return abs(s - d) < self.width
+
+@Shape()
+@Polygonal()
+class Crown:
+	def __init__(self, pos, color, width):
+		self.color = pygame.Color(color)
+		self.width = width
+		self.pos = self.constrain(pos, 0)
+		self.anchors = [self.pos]
+
+	def setksize(self, ksize):
+		w = 0.02 * math.phi ** ((ksize - 2) / 2)
+		self.width = w
+
+	def constrain(self, pos, j):
+		if pos[1] < 0.0001:
+			pos = pos[0], 0.0001
+		if pos[0] < self.width:
+			pos = self.width, pos[1]
+		if math.dot(math.norm(pos), (C30, -S30)) > -self.width:
+			pos, _ = ptoline(pos, (S30, C30))
+			pos = pos[0] - self.width * C30, pos[1] + self.width * S30
+		a = math.length(pos)
+		if a > 1 - self.width:
+			pos = math.norm(pos, 1 - self.width)
+		return pos
+
+
+	def polygon(self, f = 1):
+		s = math.length(self.pos)
+		x, y = self.pos
+		x0 = self.width
+		y0 = 2 / math.tan(math.radians(30)) * self.width
+		beta = math.atan2(x - x0, y - y0)
+		gamma = 4 * beta - math.tau / 8
+		ds = beta / (math.tau / 12)
+		s0 = (0.6 + 0.2 * ds) * s
+		s1 = (0.8 - 0.2 * ds) * s
+		d = 0.3 * s
+		p0 = -0.01, s0
+		p1 = d, s0
+		C, S = math.CS(gamma + 3/8 * math.tau, d)
+		p2 = x + S, y + C
+		p3 = self.pos
+		ps = bezier([p0, p1, p2, p3])
+		p0 = self.pos
+		p1 = x + C, y - S
+		p2 = s1 * S30 - d * C30, s1 * C30 + d * S30
+		p3 = s1 * S30, s1 * C30
+		ps += bezier([p0, p1, p2, p3])[1:]
+		return thicken(ps, f * self.width)
+
+@Shape()
+@Polygonal()
+class Cusp:
+	def __init__(self, pos, color, width):
+		self.color = pygame.Color(color)
+		self.width = width
+		self.pos = self.constrain(pos, 0)
+		self.anchors = [self.pos]
+
+	def setksize(self, ksize):
+		w = 0.02 * math.phi ** (ksize - 2)
+		self.width = w
+
+	def constrain(self, pos, j):
+		if pos[1] < 0.0001:
+			pos = pos[0], 0.0001
+		if pos[0] < self.width:
+			pos = self.width, pos[1]
+		if math.dot(math.norm(pos), (C30, -S30)) > -self.width:
+			pos, _ = ptoline(pos, (S30, C30))
+			pos = pos[0] - self.width * C30, pos[1] + self.width * S30
+		a = math.length(pos)
+		if a > 1 - self.width:
+			pos = math.norm(pos, 1 - self.width)
+		return pos
+
+
+	def polygon(self, f = 1):
+		s = math.length(self.pos)
+		x, y = self.pos
+		x0 = self.width
+		y0 = 2 / math.tan(math.radians(30)) * self.width
+		beta = math.atan2(x - x0, y - y0)
+		gamma = 4 * beta - math.tau / 8
+		ds = beta / (math.tau / 12)  # 0 on left 1 on right
+		s0 = (1 - 0.2 * ds) * s
+		s1 = (0.8 + 0.2 * ds) * s
+		d = (0 + 0.15 * ds) * s
+		p0 = -0.01, s0
+		p1 = d, s0
+		C, S = math.CS(gamma + 3/8 * math.tau, d)
+		p2 = x + C, y - S
+		p3 = self.pos
+		ps = bezier([p0, p1, p2, p3])
+		d = (0.15 - 0.15 * ds) * s
+		p0 = self.pos
+		p1 = x + S, y + C
+		p2 = s1 * S30 - d * C30, s1 * C30 + d * S30
+		p3 = s1 * S30, s1 * C30
+		ps += bezier([p0, p1, p2, p3])[1:]
+		return thicken(ps, f * self.width)
+
+	def contains(self, pos):
+		s = math.length(self.anchors[0])
+		d = math.length(pos)
+		return abs(s - d) < self.width
+
 
 def fromspec(spec):
 	cls = globals()[spec["type"]]

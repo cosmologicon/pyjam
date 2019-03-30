@@ -34,6 +34,10 @@ def init(stage):
 			self.store.append([shape.Shard((0, 0.5), "white", (0.06, 0.12)), None])
 		if "Blade" in progress.shapes:
 			self.store.append([shape.Blade((0, 0.5), "white", (0.02, 0.06)), None])
+		if "Crown" in progress.shapes:
+			self.store.append([shape.Crown((0.2, 0.5), "white", 0.04), None])
+		if "Cusp" in progress.shapes:
+			self.store.append([shape.Cusp((0.2, 0.5), "white", 0.04), None])
 		for shp, n in self.store:
 			shp.setksize(2)
 	if stage in stagedata.store:
@@ -180,7 +184,7 @@ def getjstore(shape):
 
 def onclick(button):
 	if button.text == "Quit":
-		scene.push(frostscene)
+		scene.push(frostscene, depth1 = 3)
 	if button.text == "Share":
 		scene.push(uploadscene, self.design, Fspot1)
 	if button.text.startswith("store-"):

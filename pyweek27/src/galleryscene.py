@@ -84,7 +84,7 @@ def think(dt, controls):
 
 def onclick(button):
 	if button.text == "Back":
-		scene.push(frostscene, onswap=init)
+		scene.push(frostscene, depth1 = 3)
 
 def loaddesign(jspot):
 	self.jload = jspot
