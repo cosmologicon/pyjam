@@ -46,6 +46,8 @@ def init(stage):
 			self.store.append([shape.Crown((0.2, 0.5), "white", 0.04), None])
 		if "Cusp" in progress.shapes:
 			self.store.append([shape.Cusp((0.2, 0.5), "white", 0.04), None])
+		if "Star" in progress.shapes:
+			self.store.append([shape.Star((0, 0.5), "white", 0.12), None])
 		for shp, n in self.store:
 			shp.setksize(2)
 	if stage in stagedata.store:
@@ -64,6 +66,8 @@ def init(stage):
 				shp = shape.Claw((0, 0.5), color, (0.06, 0.12))
 			if k == "Cusp":
 				shp = shape.Cusp((0, 0.5), color, 0.04)
+			if k == "Star":
+				shp = shape.Star((0, 0.5), color, 0.12)
 			shp.setksize(ksize)
 			self.store.append([shp, v])
 	self.maxshapes = progress.maxshapes if stage == "free" else None
@@ -303,13 +307,19 @@ def onclick(button):
 			self.jheld = 0
 	if button.text.startswith("color-") or button.text == "???":
 		if "?" in button.text:
-			color = "#" + "".join(random.choice("abcdef") for _ in range(6))
+			color = "#" + "".join(random.choice("89abcdef") for _ in range(6))
 		else:
-			color = button.text[6:]
+			color = tuple(pygame.Color(button.text[6:]))
+			colors = [math.imix(color, (255, 255, 255, 255), a) for a in (0, 0.2, 0.4, 0.6, 0.8)]
+			colornow = tuple([button.shape.color for button in self.buttons if button.text == "store-0"][0])
+			if colornow in colors:
+				color = colors[(colors.index(colornow) + 1) % len(colors)]
+			else:
+				color = colors[0]
 		for button in self.buttons:
 			if button.text.startswith("store-"):
 				shape = button.shape.copy()
-				shape.color = tuple(pygame.Color(color))
+				shape.color = color
 				button.setshape(shape)
 	if button.text.startswith("size-"):
 		ksize = int(button.text[5:])
@@ -352,7 +362,7 @@ def draw():
 	for (x, y), covered in zip(self.yespoints, self.yescovers):
 		p = view.BconvertF(Fspot1, (x, y))
 		color = pygame.Color("#aaaaff") if covered else offcolor
-		ocolor = pygame.Color("white" if covered else "black")
+		ocolor = pygame.Color("black" if covered else "white")
 		pygame.draw.circle(pview.screen, ocolor, T(p), T(8))
 		pygame.draw.circle(pview.screen, color, T(p), T(6))
 	oncolor = pygame.Color(*math.imix((100, 50, 50), (255, 100, 100), a))
@@ -360,8 +370,12 @@ def draw():
 		p = view.BconvertF(Fspot1, (x, y))
 		color = oncolor if covered else pygame.Color("#884444")
 		ocolor = pygame.Color("white" if covered else "black")
-		pygame.draw.circle(pview.screen, ocolor, T(p), T(8))
-		pygame.draw.circle(pview.screen, color, T(p), T(6))
+		rect = T(pygame.Rect(0, 0, 16, 16))
+		rect.center = T(p)
+		pygame.draw.rect(pview.screen, ocolor, rect)
+		rect = T(pygame.Rect(0, 0, 12, 12))
+		rect.center = T(p)
+		pygame.draw.rect(pview.screen, color, rect)
 	if settings.DEBUG:
 		ptext.draw(str(self.pointcolor), bottomright = T(1260, 710), fontsize = T(30))
 
@@ -401,13 +415,6 @@ def draw():
 		alpha = 0.3 if self.mpos[1] > 600 else 1
 		ptext.draw(text, midbottom = T(640, 700), fontsize = T(38), width = T(1000), owidth = 0.5,
 			fontname = "ChelaOne", color = "#ffffaa", shade = 1, shadow = (1, 1), alpha = alpha)
-
-#	p = view.BconvertF(Fspot0, self.pshape.anchors[0])
-#	pygame.draw.circle(pview.screen, pygame.Color("orange"), T(p), T(3))
-
-#	odesign = flake.Design.empty()
-#	odesign.addshard(self.ppos, (0.06, 0.12), "#ffffff")
-#	odesign.drawoverlay((880, 360), 300)
 
 def save():
 	state = {

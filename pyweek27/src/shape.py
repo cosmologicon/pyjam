@@ -187,6 +187,36 @@ class Shard(Shape):
 
 @Shape()
 @Polygonal()
+class Star(Shape):
+	def __init__(self, pos, color, r):
+		self.color = pygame.Color(color)
+		self.r = r
+		self.pos = self.constrain(pos, 0)
+		self.anchors = [self.pos]
+
+	def setksize(self, ksize):
+		self.r = 0.1 * math.phi ** ((ksize - 2) / 2)
+
+	def constrain(self, pos, j):
+		if pos[1] < 0.0001:
+			pos = pos[0], 0.0001
+		if pos[0] < 0:
+			pos = 0, pos[1]
+		if math.dot(pos, (C30, -S30)) > 0:
+			pos, _ = ptoline(pos, (S30, C30))
+		a = math.length(pos)
+		if a > 1 - self.r:
+			pos = math.norm(pos, 1 - self.r)
+		return pos
+
+	def polygon(self, f = 1):
+		sx, sy = self.anchors[0]
+		dx, dy = math.norm((sx, sy))
+		rs = [f * self.r * (1/2 if j % 2 else 1) for j in range(10)]
+		return [(sx + r * dx * S + r * dy * C, sy - r * dx * C + r * dy * S) for r, (S, C) in zip(rs, math.CSround(10))]
+
+@Shape()
+@Polygonal()
 class Blade:
 	def __init__(self, pos, color, size):
 		self.color = pygame.Color(color)

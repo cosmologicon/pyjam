@@ -1,5 +1,5 @@
 import os, json
-from . import settings
+from . import settings, stagedata
 
 donestory = False
 donebonus = False
@@ -45,14 +45,17 @@ def beat(stagename):
 		stageshapes = max(stageshapes, 3)
 		if "Cusp" not in shapes:
 			shapes.append("Cusp")
+	if stagename == "shape3":
+		if "Star" not in shapes:
+			shapes.append("Star")
 	if stagename == "color1":
-		stageshapes = max(stagecolors, 2)
-		for color in ["#ffcccc", "#ccffcc", "#ccccff"]:
+		stagecolors = max(stagecolors, 2)
+		for color in ["#999999", "#ffaaaa", "#aaffaa", "#aaaaff"]:
 			if color not in colors:
 				colors.append(color)
 	if stagename == "color2":
-		stageshapes = max(stagecolors, 3)
-		for color in ["#ffddbb", "#feffaa", "#ccaaff"]:
+		stagecolors = max(stagecolors, 3)
+		for color in ["#ffbb99", "#feff77", "#aa77ff"]:
 			if color not in colors:
 				colors.append(color)
 	if stagename == "color3":
@@ -76,6 +79,7 @@ def beat(stagename):
 	colors.sort()
 	sizes.sort()
 
+	donebonus = all(s in beaten for s in ["color3", "shape3", "size3"])
 	points = len(beaten) + len([s for s in beaten if "size" in s])
 	maxshapes = max(maxshapes, points)
 	save()
@@ -99,6 +103,9 @@ def load():
 	state = json.load(open(settings.savefilename, "r"))
 	donestory, donebonus, shapes, colors, sizes, stage, stageshapes, stagecolors, stagesizes, maxshapes, beaten = state
 
+if settings.unlockall:
+	for stagename in stagedata.store:
+		beat(stagename)
 
 
 

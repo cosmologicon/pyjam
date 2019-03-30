@@ -118,6 +118,10 @@ def draw():
 	ptext.draw(self.subtitle, midtop = T(640, 120), owidth = 0.6,
 		color = "#ffffdd", shade = 1, fontsize = T(40), fontname = "ChelaOne", shadow = (1, 1)
 	)
+	if self.page == "bonus" and progress.donebonus:
+		ptext.draw("All stages complete. Thank you for playing.", midbottom = T(640, 700), owidth = 0.6,
+			color = "#ffffdd", shade = 1, fontsize = T(40), fontname = "ChelaOne", shadow = (1, 1)
+		)
 
 	for jbutton, button in enumerate(self.buttons):
 		button.draw(lit = (jbutton == self.jbutton))
