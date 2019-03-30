@@ -28,6 +28,7 @@ while playing:
 	if controls.quit:
 		playing = False
 	if pygame.K_F10 in controls.kdowns:
+		settings.fullscreen = not settings.fullscreen
 		pview.toggle_fullscreen()
 		background.clear()
 	if pygame.K_F11 in controls.kdowns:

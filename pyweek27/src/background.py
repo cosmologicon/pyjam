@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import pview
+from . import pview, settings
 
 class self:
 	size = None
@@ -25,6 +25,8 @@ def update(dt, color = None):
 		self.size = None
 	if self.size is None:
 		makesurf()
+	if settings.lowres:
+		return
 	n = 100 * dt
 	n = int(n) + (random.random() < n % 1)
 	for j in range(n):

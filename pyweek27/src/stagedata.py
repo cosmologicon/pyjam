@@ -4,6 +4,7 @@ helptext = {
 	"stage1": "Drag the shards from the icons on the left into the wedge.",
 	"stage2": "Position the shards so that the blue points on the right view are within the design.",
 	"stage3": "Red squares on the right view must not be within the design.",
+	"stage4": "Press TAB to toggle easy mode, or use the command-line flag --easy.",
 	
 	"color1": "Red squares are excluded from the design when on a red shape.",
 }

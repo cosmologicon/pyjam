@@ -96,22 +96,7 @@ def init(stage):
 				self.buttons.append(hud.Button(Fspot, "size-%s" % size, drawtext = False))
 			self.labels.append(("Size", (180 + 23/2, 460)))
 
-	self.yespoints = []
-	self.nopoints = []
-	if stage in stagedata.points:
-		yes, no = stagedata.points[stage]
-		for a, r, n in yes:
-			if n % 2 == 1:
-				a = 1 - a
-			C, S = math.CS((n + a) / 12 * math.tau, r)
-			self.yespoints.append((S, C))
-		for a, r, n in no:
-			if n % 2 == 1:
-				a = 1 - a
-			C, S = math.CS((n + a) / 12 * math.tau, r)
-			self.nopoints.append((S, C))
-	self.yescovers = [False for _ in self.yespoints]
-	self.nocovers = [False for _ in self.nopoints]
+	self.setpoints()
 	self.todo = True
 	self.done = False
 	self.pushed = False
@@ -123,6 +108,32 @@ def init(stage):
 		self.buttons.append(hud.Button(Fspot, "store-%d" % j, drawtext = False, color = "#999999", shape = shp))
 	
 	self.ydata, self.ndata = [], []
+
+def setpoints():
+	self.yespoints = []
+	self.nopoints = []
+	if stage in stagedata.points:
+		yes, no = stagedata.points[self.stage]
+		for a, r, n in yes:
+			if settings.collapsepoints:
+				n = 0
+			if n % 2 == 1:
+				a = 1 - a
+			C, S = math.CS((n + a) / 12 * math.tau, r)
+			self.yespoints.append((S, C))
+		for a, r, n in no:
+			if settings.collapsepoints:
+				n = 0
+			if n % 2 == 1:
+				a = 1 - a
+			C, S = math.CS((n + a) / 12 * math.tau, r)
+			self.nopoints.append((S, C))
+	self.checkcover()
+
+def toggleeasy():
+	settings.closepoints = not settings.closepoints
+	settings.collapsepoints = settings.closepoints
+	setpoints()
 
 def think(dt, controls):
 	
@@ -178,6 +189,8 @@ def think(dt, controls):
 	if self.jbutton is not None and controls.mdown:
 		onclick(self.buttons[self.jbutton])
 
+	if pygame.K_TAB:
+		toggleeasy()
 	if settings.DEBUG:
 		if pygame.K_F1 in controls.kdowns:
 			self.done = True
@@ -360,18 +373,19 @@ def draw():
 		ptext.draw(text, center = T(pos), fontsize = T(30),
 			color = "#ffffaa", fontname = "ChelaOne",
 			shade = 1, owidth = 0.4, shadow = (1, 1))
-	
+
+	Fspot = Fspot0 if settings.closepoints else Fspot1	
 	a = math.cycle(pygame.time.get_ticks() / 500)
 	offcolor = pygame.Color(*math.imix((50, 50, 100), (100, 100, 255), a))
 	for (x, y), covered in zip(self.yespoints, self.yescovers):
-		p = view.BconvertF(Fspot1, (x, y))
+		p = view.BconvertF(Fspot, (x, y))
 		color = pygame.Color("#aaaaff") if covered else offcolor
 		ocolor = pygame.Color("black" if covered else "white")
 		pygame.draw.circle(pview.screen, ocolor, T(p), T(8))
 		pygame.draw.circle(pview.screen, color, T(p), T(6))
 	oncolor = pygame.Color(*math.imix((100, 50, 50), (255, 100, 100), a))
 	for (x, y), covered in zip(self.nopoints, self.nocovers):
-		p = view.BconvertF(Fspot1, (x, y))
+		p = view.BconvertF(Fspot, (x, y))
 		color = oncolor if covered else pygame.Color("#884444")
 		ocolor = pygame.Color("white" if covered else "black")
 		rect = T(pygame.Rect(0, 0, 16, 16))
