@@ -1,7 +1,7 @@
 
 
 # Unlocked in free play mode
-shapes = ["Shard", "Blade", "Ring", "Branch", "Claw", "Cusp", "Crown"]
+shapes = ["Shard", "Blade", "Ring", "Bar", "Branch", "Claw", "Cusp", "Crown"]
 
 colors = [
 	"#ffffff",
@@ -18,4 +18,6 @@ colors = [
 
 
 sizes = [0, 1, 2, 3, 4]
+
+stage = 6
 

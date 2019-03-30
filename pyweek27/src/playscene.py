@@ -36,6 +36,8 @@ def init(stage):
 			self.store.append([shape.Blade((0, 0.5), "white", (0.02, 0.06)), None])
 		if "Ring" in progress.shapes:
 			self.store.append([shape.Ring((0, 0.5), "white", 0.03), None])
+		if "Bar" in progress.shapes:
+			self.store.append([shape.Bar((0, 0.5), "white", 0.03), None])
 		if "Branch" in progress.shapes:
 			self.store.append([shape.Branch((0.2, 0.6), "white", (0.03, 0.09)), None])
 		if "Claw" in progress.shapes:
@@ -50,6 +52,16 @@ def init(stage):
 		for k, color, ksize, v in stagedata.store[stage]:
 			if k == "Shard":
 				shp = shape.Shard((0, 0.5), color, (0.06, 0.12))
+			if k == "Blade":
+				shp = shape.Blade((0, 0.5), color, (0.06, 0.12))
+			if k == "Ring":
+				shp = shape.Ring((0, 0.5), color, 0.03)
+			if k == "Bar":
+				shp = shape.Bar((0, 0.5), color, 0.03)
+			if k == "Branch":
+				shp = shape.Branch((0.2, 0.6), color, (0.06, 0.12))
+			if k == "Claw":
+				shp = shape.Claw((0, 0.5), color, (0.06, 0.12))
 			shp.setksize(ksize)
 			self.store.append([shp, v])
 
@@ -86,6 +98,11 @@ def init(stage):
 				a = 1 - a
 			C, S = math.CS((n + a) / 12 * math.tau, r)
 			self.yespoints.append((S, C))
+		for a, r, n in no:
+			if n % 2 == 1:
+				a = 1 - a
+			C, S = math.CS((n + a) / 12 * math.tau, r)
+			self.nopoints.append((S, C))
 	self.yescovers = [False for _ in self.yespoints]
 	self.nocovers = [False for _ in self.nopoints]
 	self.todo = True
@@ -111,7 +128,8 @@ def think(dt, controls):
 #		self.design.addshard(self.ppos, (0.06, 0.12), random.choice(colors))
 #		self.design.addshape("blade", self.ppos, random.choice(colors), width = 0.01)
 	background.update(dt, (20, 20, 60))
-	self.pointcolor = self.design.colorat(view.FconvertB(Fspot1, controls.mpos))
+#	self.pointcolor = self.design.colorat(view.FconvertB(Fspot1, controls.mpos))
+	self.pointcolor = None
 #	self.pshape.anchors[0] = self.pshape.constrain(self.ppos, 0)
 
 	self.panchor = None
@@ -151,8 +169,11 @@ def think(dt, controls):
 	if self.jbutton is not None and controls.mdown:
 		onclick(self.buttons[self.jbutton])
 
-	if pygame.K_F5 in controls.kdowns:
-		save()
+	if settings.DEBUG:
+		if pygame.K_F5 in controls.kdowns:
+			save()
+		if pygame.K_F7 in controls.kdowns:
+			randompoints()
 	
 	if not self.done and self.todo and not self.held:
 		checkdone()
@@ -163,13 +184,42 @@ def think(dt, controls):
 			scene.pop()
 			scene.push(winscene, self.design, Fspot1, self.stage)
 
+def randompoints():
+	yout, nout = [], []
+	self.yespoints = []
+	self.nopoints = []
+	for _ in range(16):
+		a = random.uniform(0, 1)
+		r = random.uniform(0, 1)
+		n = 0
+		if n % 2 == 1:
+			a = 1 - a
+		C, S = math.CS((n + a) / 12 * math.tau, r)
+		pos = S, C
+		covered = self.design.colorat(pos)
+		if covered:
+			self.yespoints.append((S, C))
+			yout.append((a, r, n))
+		else:
+			self.nopoints.append((S, C))
+			nout.append((a, r, n))
+	print(yout)
+	print(nout)
+	checkcover()
+
 def checkcover():
 	self.yescovers = []
+	self.nocovers = []
 	for pos in self.yespoints:
 		covered = self.design.colorat(pos)
 		if self.held:
 			covered = covered or self.held.colorat(render.tosector0(pos))
 		self.yescovers.append(covered)
+	for pos in self.nopoints:
+		covered = self.design.colorat(pos)
+		if self.held:
+			covered = covered or self.held.colorat(render.tosector0(pos))
+		self.nocovers.append(covered)
 
 def checkdone():
 	if self.stage == "free":
@@ -255,6 +305,12 @@ def draw():
 	for (x, y), covered in zip(self.yespoints, self.yescovers):
 		p = view.BconvertF(Fspot1, (x, y))
 		color = pygame.Color("#aaaaff" if covered else "#444488")
+		ocolor = pygame.Color("white" if covered else "black")
+		pygame.draw.circle(pview.screen, ocolor, T(p), T(8))
+		pygame.draw.circle(pview.screen, color, T(p), T(6))
+	for (x, y), covered in zip(self.nopoints, self.nocovers):
+		p = view.BconvertF(Fspot1, (x, y))
+		color = pygame.Color("#ffaaaa" if covered else "#884444")
 		ocolor = pygame.Color("white" if covered else "black")
 		pygame.draw.circle(pview.screen, ocolor, T(p), T(8))
 		pygame.draw.circle(pview.screen, color, T(p), T(6))

@@ -42,7 +42,7 @@ def think(dt, controls):
 def onclick(button):
 	if "Quit" in button.text:
 		self.done = True
-		scene.push(frostscene)
+		scene.push(frostscene, depth1=3)
 		
 	if "Next" in button.text:
 		from . import playscene

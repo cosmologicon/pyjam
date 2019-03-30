@@ -45,12 +45,12 @@ def polygoncontains(poly, pos):
 		x0, y0 = poly[j]
 		x1, y1 = poly[(j + 1) % len(poly)]
 		if (y0 < y) != (y1 < y):
-			if y0 < y1:
-				(x0, y0), (x1, y1) = (x1, y1), (x0, y0)
-			xa = math.fadebetween(y, y0, x0, y1, x1)
-			if xa < x:
-				ncross += 1
-	return ncross % 2 == 1				
+			dx, dy = x1 - x0, y1 - y0
+			if dy < 0:
+				dx, dy = -dx, -dy
+			ax, ay = x - x0, y - y0
+			ncross += dx * ay > dy * ax
+	return ncross % 2 == 1			
 
 
 class Shape(enco.Component):
@@ -226,6 +226,10 @@ class Bar:
 		self.width = width
 		self.pos = self.constrain(pos, 0)
 		self.anchors = [self.pos]
+
+	def setksize(self, ksize):
+		w = 0.03 * math.phi ** (ksize - 2)
+		self.width = w
 
 	def constrain(self, pos, j):
 		a = math.clamp(math.dot(pos, (S15, C15)), self.width, (1 - self.width / C15) * C15)

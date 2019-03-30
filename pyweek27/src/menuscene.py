@@ -1,6 +1,6 @@
 from __future__ import division
 import random, math, pygame
-from . import pview, thing, flake, background, ptext, render, shape, view, hud
+from . import pview, thing, flake, background, ptext, render, shape, view, hud, progress
 from . import frostscene, scene, playscene, galleryscene, storyscene
 from .pview import T
 
@@ -24,10 +24,14 @@ def init(page = "main"):
 		]
 	if self.page == "story":
 		x, y = pview.center0
-		s = pview.s0 / 18
-		self.buttons += [
-			hud.Button(((x - 4.5 * s, y), s), "Stage 1"),
-		]
+		s = pview.s0 / 14
+		for j, (C, S) in enumerate(math.CSround(6, 2.4 * s), 1):
+			if j > progress.stage:
+				continue
+			pos = 640 + S, 400 - C
+			self.buttons += [
+				hud.Button((pos, s), "Stage %s" % j),
+			]
 
 def think(dt, controls):
 	background.update(dt, (200, 200, 200))
@@ -55,7 +59,7 @@ def onclick(button):
 		stage = button.text.replace(" ", "").lower()
 		scene.push(playscene, stage)
 		scene.push(storyscene, stage)
-		scene.push(frostscene, depth0 = 4)
+		scene.push(frostscene, depth0 = 4, onswap=lambda: init("main"))
 
 def draw():
 	pygame.mouse.set_visible(True)

@@ -97,8 +97,8 @@ class Button:
 				fontname = "ChelaOne", fontsize = T(factor * size), width = T(2.4 * size), shade = 1, owidth = 0.4, shadow = (1, 1))
 		if note is not None:
 			x, y = center
-			ptext.draw(note, center = T(x + 0.7 * size, y + 0.7 * size),
-				fontname = "ChelaOne", fontsize = T(size),
+			ptext.draw(note, center = T(x + 0.4 * size, y + 0.4 * size),
+				fontname = "ChelaOne", fontsize = T(1.2 * size),
 				shade = 1, owidth = 0.4, shadow = (1, 1))
 	
 
