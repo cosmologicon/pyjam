@@ -46,7 +46,7 @@ def onclick(button):
 	if "Next" in button.text:
 		from . import playscene
 		self.done = True
-		scene.push(playscene, "stage1", depth=1)
+		scene.push(playscene, "stage2", depth=1)
 		scene.push(frostscene)
 	
 	if "Share" in button.text:

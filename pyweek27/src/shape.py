@@ -46,6 +46,17 @@ class Shape(enco.Component):
 		del spec["type"]
 		return self.__class__(**spec)
 
+	def basicspec(self):
+		spec = self.getspec()
+		spec["pos"] = 0, 0.5
+		return spec
+
+	def tobasic(self):
+		spec = self.basicspec()
+		del spec["type"]
+		return self.__class__(**spec)
+		
+
 	def constrainanchor(self, j, pos):
 		self.anchors[j] = self.constrain(pos, j)
 		if len(self.anchors) == 1:

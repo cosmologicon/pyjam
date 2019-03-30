@@ -46,6 +46,9 @@ def init(stage):
 	]
 	if self.stage == "free":
 		self.buttons.append(hud.Button(((640, 640), 50), "Share"))
+		for jcolor, color in enumerate(progress.colors):
+			Fspot = (160, 60 * jcolor + 60), 25
+			self.buttons.append(hud.Button(Fspot, "color-%s" % color, drawtext = False, color = color))
 
 	self.yespoints = []
 	self.nopoints = []
@@ -58,7 +61,7 @@ def init(stage):
 			self.yespoints.append((S, C))
 	self.yescovers = [False for _ in self.yespoints]
 	self.nocovers = [False for _ in self.nopoints]
-	self.todo = bool(self.yescovers or self.nocovers)
+	self.todo = True
 	self.done = False
 	self.pushed = False
 	self.tdone = 0
@@ -94,7 +97,7 @@ def think(dt, controls):
 	if self.panchor and controls.mdown:
 		i, self.jheld = self.panchor
 		self.held = self.design.shapes.pop(i)
-		self.cursorimg = self.store[getjstore(self.held)][0].cursorimg(T(100))
+		self.cursorimg = self.held.tobasic().cursorimg(T(100))
 		self.design.undraw()
 
 	if self.held:
@@ -103,7 +106,7 @@ def think(dt, controls):
 			if self.inFbox0:
 				self.design.shapes.append(self.held)
 				self.design.undraw()
-			else:
+			elif self.stage != "free":
 				jstore = getjstore(self.held)
 				store = self.store[jstore]
 				if store[1] is not None:
@@ -124,7 +127,7 @@ def think(dt, controls):
 		save()
 	
 	if not self.done and self.todo and not self.held:
-		self.done = all(self.yescovers) and not any(self.nocovers)
+		checkdone()
 	if self.done and not self.pushed:
 		self.tdone = math.approach(self.tdone, 1, dt)
 		if self.tdone == 1:
@@ -140,11 +143,21 @@ def checkcover():
 			covered = covered or self.held.colorat(render.tosector0(pos))
 		self.yescovers.append(covered)
 
+def checkdone():
+	if self.stage == "stage1":
+		self.done = self.store[0][1] == 0
+	else:
+		self.done = all(self.yescovers) and not any(self.nocovers)
+
+
 def getjstore(shape):
+	if self.stage == "free":
+		return None
 	for jstore, store in enumerate(self.store):
 		if store[0].same(shape):
 			return jstore
 	print("Error restoring shape.")
+	return None
 
 
 def onclick(button):
@@ -155,6 +168,7 @@ def onclick(button):
 	if button.text.startswith("store-"):
 		jstore = int(button.text[6:])
 		shape, n = self.store[jstore]
+		shape = button.shape
 		if n is not None and n <= 0:
 			pass  # Error
 		else:
@@ -163,6 +177,13 @@ def onclick(button):
 			self.held = shape.copy()
 			self.cursorimg = self.held.cursorimg(T(100))
 			self.jheld = 0
+	if button.text.startswith("color-"):
+		color = button.text[6:]
+		for button in self.buttons:
+			if button.text.startswith("store-"):
+				shape = button.shape.copy()
+				shape.color = tuple(pygame.Color(color))
+				button.setshape(shape)
 
 def draw():
 	if pview._fullscreen:
