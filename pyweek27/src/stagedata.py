@@ -4,9 +4,13 @@ helptext = {
 	"stage1": "Drag the shards from the icons on the left into the wedge.",
 	"stage2": "Position the shards so that the blue points on the right view are within the design.",
 	"stage3": "Red squares on the right view must not be within the design.",
-	"stage4": "Press TAB to toggle easy mode, or use the command-line flag --easy.",
+	"stage4": "Press TAB during gameplay to toggle easy mode.",
+	"stage5": "F10 to cycle resolution. F11 to toggle fullscreen.",
+	"stage6": "Check README.md for help and more options.",
 	
-	"color1": "Red squares are excluded from the design when on a red shape.",
+	"color1": 'Use red shapes to "cancel out" other shapes. Points where a red shape is on top are excluded from the design.',
+	"shape1": "Don't forget you can toggle easy mode with TAB.",
+	"size1": "Don't forget you can toggle easy mode with TAB.",
 }
 
 

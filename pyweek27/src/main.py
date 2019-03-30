@@ -1,14 +1,16 @@
 from __future__ import division
 import pygame
-from . import settings, control, view, pview, ptext, background, client, progress
+from . import settings, control, view, pview, ptext, background, client, progress, sound
 from . import scene, playscene, menuscene, storyscene
 from .pview import T
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 pview.SCREENSHOT_DIRECTORY = "screenshot"
 view.init()
+pygame.mixer.init()
 if progress.canload() and not settings.reset:
 	progress.load()
+sound.playmusic("techlive")
 if progress.donestory:
 	scene.push(menuscene, "main")
 else:

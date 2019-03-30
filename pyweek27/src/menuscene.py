@@ -1,6 +1,6 @@
 from __future__ import division
 import random, math, pygame
-from . import pview, thing, flake, background, ptext, render, shape, view, hud, progress, settings
+from . import pview, thing, flake, background, ptext, render, shape, view, hud, progress, settings, sound
 from . import frostscene, scene, playscene, galleryscene, storyscene
 from .pview import T
 
@@ -18,7 +18,7 @@ def init(page = "main"):
 	self.subtitle = {
 		"main": "Universe Factory Games",
 		"story": "",
-		"bonus": "Complete to unlock abilities in Free Play mode",
+		"bonus": "Complete these stages to unlock abilities in Free Play mode",
 	}[self.page]
 	setbuttons()
 
@@ -35,7 +35,7 @@ def setbuttons():
 		x, y = pview.center0
 		s = pview.s0 / 12
 		self.buttons += [
-			hud.Button(((x - 4.5 * s, y), s), "Story"),
+			hud.Button(((x - 4.5 * s, y), s), "Story/\nTutorial"),
 		]
 		if progress.donestory:
 			self.buttons += [
@@ -92,19 +92,23 @@ def onclick(button):
 	if button.text == "Story":
 		scene.push(frostscene, onswap=lambda: init("story"))
 	if button.text == "Free\nPlay":
+		sound.play("launch")
 		scene.push(playscene, "free")
 		scene.push(frostscene, depth0 = 3)
 	if button.text == "Bonus\nStages":
 		scene.push(frostscene, onswap=lambda: init("bonus"))
 	if button.text == "Gallery":
+		sound.play("launch")
 		scene.push(galleryscene)
 		scene.push(frostscene, depth0 = 3)
 	if button.text.startswith("Stage"):
+		sound.play("launch")
 		stage = button.text.replace(" ", "").lower()
 		scene.push(playscene, stage)
 		scene.push(storyscene, stage)
 		scene.push(frostscene, depth0 = 4, onswap=lambda: init("main"))
 	if button.text.startswith("Color") or button.text.startswith("Shape") or button.text.startswith("Size"):
+		sound.play("launch")
 		stage = button.text.replace(" ", "").lower()
 		scene.push(playscene, stage)
 		scene.push(frostscene, depth0 = 3)

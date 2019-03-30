@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, ptext, background, view, scene
+from . import pview, ptext, background, view, scene, sound
 from .pview import T, I
 
 acceptedchars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_ "
@@ -35,6 +35,7 @@ def think(dt, controls):
 			self.text = self.text[:-1]
 		if pygame.K_TAB in controls.kdowns:
 			self.text = ""
+			sound.play("no")
 		for char in acceptedchars:
 			if char in controls.kdowns:
 				self.text += char
@@ -42,6 +43,7 @@ def think(dt, controls):
 
 		if pygame.K_RETURN in controls.kdowns:
 			self.ending = True
+			sound.play("place")
 
 def draw():
 	background.draw()

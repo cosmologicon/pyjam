@@ -1,6 +1,6 @@
 from __future__ import division
 import random, math, pygame, json, os.path
-from . import pview, flake, background, ptext, render, shape, view, hud, settings, client
+from . import pview, flake, background, ptext, render, shape, view, hud, settings, client, sound
 from . import frostscene, uploadscene, winscene, scene, progress, stagedata
 from .pview import T
 
@@ -96,7 +96,7 @@ def init(stage):
 				self.buttons.append(hud.Button(Fspot, "size-%s" % size, drawtext = False))
 			self.labels.append(("Size", (180 + 23/2, 460)))
 
-	self.setpoints()
+	setpoints()
 	self.todo = True
 	self.done = False
 	self.pushed = False
@@ -109,10 +109,15 @@ def init(stage):
 	
 	self.ydata, self.ndata = [], []
 
+	if "stage" in self.stage:
+		sound.playmusic("twisting")
+	else:
+		sound.playmusic("techlive")
+
 def setpoints():
 	self.yespoints = []
 	self.nopoints = []
-	if stage in stagedata.points:
+	if self.stage in stagedata.points:
 		yes, no = stagedata.points[self.stage]
 		for a, r, n in yes:
 			if settings.collapsepoints:
@@ -128,7 +133,7 @@ def setpoints():
 				a = 1 - a
 			C, S = math.CS((n + a) / 12 * math.tau, r)
 			self.nopoints.append((S, C))
-	self.checkcover()
+	checkcover()
 
 def toggleeasy():
 	settings.closepoints = not settings.closepoints
@@ -172,6 +177,7 @@ def think(dt, controls):
 			if self.inFbox0:
 				self.design.shapes.append(self.held)
 				self.design.undraw()
+				sound.play("bonk")
 			elif self.stage != "free":
 				jstore = getjstore(self.held)
 				store = self.store[jstore]
@@ -189,7 +195,7 @@ def think(dt, controls):
 	if self.jbutton is not None and controls.mdown:
 		onclick(self.buttons[self.jbutton])
 
-	if pygame.K_TAB:
+	if pygame.K_TAB in controls.kdowns:
 		toggleeasy()
 	if settings.DEBUG:
 		if pygame.K_F1 in controls.kdowns:
@@ -305,17 +311,19 @@ def getjstore(shape):
 def onclick(button):
 	if button.text == "Quit":
 		scene.push(frostscene, depth1 = 3)
+		sound.play("fail")
 	if button.text == "Share":
 		if self.design.shapes:
 			scene.push(uploadscene, self.design, Fspot1)
+		sound.play("bonk")
 	if button.text.startswith("store-"):
 		jstore = int(button.text[6:])
 		shape, n = self.store[jstore]
 		shape = button.shape
 		if n is not None and n <= 0:
-			pass  # Error
+			sound.play("no")
 		elif self.maxshapes is not None and len(self.design.shapes) >= self.maxshapes:
-			pass  # Error
+			sound.play("no")
 		else:
 			if n is not None:
 				self.store[jstore][1] -= 1
@@ -323,6 +331,7 @@ def onclick(button):
 			self.cursorimg = self.held.cursorimg(T(100))
 			self.jheld = 0
 	if button.text.startswith("color-") or button.text == "???":
+		sound.play("bonk")
 		if "?" in button.text:
 			color = "#" + "".join(random.choice("89abcdef") for _ in range(6))
 		else:
@@ -339,6 +348,7 @@ def onclick(button):
 				shape.color = color
 				button.setshape(shape)
 	if button.text.startswith("size-"):
+		sound.play("bonk")
 		ksize = int(button.text[5:])
 		for button in self.buttons:
 			if button.text.startswith("store-"):
@@ -409,6 +419,11 @@ def draw():
 		text = "Covered: %d/%d" % (a, n)
 		ptext.draw(text, topright = T(1280, 38), fontsize = T(38), owidth = 0.5,
 			fontname = "ChelaOne", color = "#ffcccc", shade = 0.5, shadow = (1, 1))
+	if (self.yespoints or self.nopoints) and settings.closepoints:
+		ptext.draw("EASY MODE: ON", topleft = T(10, 500), fontsize = T(30),
+			color = "#ffffaa", fontname = "ChelaOne",
+			shade = 1, owidth = 0.4, shadow = (1, 1))
+
 	if self.maxshapes is not None:
 		text = "Shapes used: %d/%d" % (len(self.design.shapes), self.maxshapes)
 		ptext.draw(text, topright = T(1280, 0), fontsize = T(38), owidth = 0.5,
