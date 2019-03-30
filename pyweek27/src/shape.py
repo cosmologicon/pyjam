@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame, math, inspect, json
 from . import render, enco
 
@@ -94,6 +95,7 @@ class Shape(enco.Component):
 				return False
 		return True
 
+
 # polygon(f = 1)
 class Polygonal(enco.Component):
 	def outlinesegs(self):
@@ -129,6 +131,10 @@ class Shard(Shape):
 		self.pos = self.constrain(pos, 0)
 		self.anchors = [self.pos]
 
+	def setksize(self, ksize):
+		w = 0.06 * math.phi ** ((ksize - 2) / 2)
+		self.size = w, 2 * w
+
 	def constrain(self, pos, j):
 		if pos[1] < 0.0001:
 			pos = pos[0], 0.0001
@@ -161,6 +167,10 @@ class Blade:
 		self.size = size
 		self.pos = self.constrain(pos, 0)
 		self.anchors = [self.pos]
+
+	def setksize(self, ksize):
+		w = 0.02 * math.phi ** (ksize - 2)
+		self.size = w, 3 * w
 
 	def constrain(self, pos, j):
 		if pos[1] < 0.0001:

@@ -34,21 +34,35 @@ def init(stage):
 			self.store.append([shape.Shard((0, 0.5), "white", (0.06, 0.12)), None])
 		if "Blade" in progress.shapes:
 			self.store.append([shape.Blade((0, 0.5), "white", (0.02, 0.06)), None])
+		for shp, n in self.store:
+			shp.setksize(2)
 	if stage in stagedata.store:
-		for k, v in stagedata.store[stage]:
+		for k, color, ksize, v in stagedata.store[stage]:
 			if k == "Shard":
-				self.store.append([shape.Shard((0, 0.5), "white", (0.06, 0.12)), v])
-				
+				shp = shape.Shard((0, 0.5), color, (0.06, 0.12))
+			shp.setksize(ksize)
+			self.store.append([shp, v])
 
 
 	self.buttons = [
 		hud.Button(((1200, 640), 50), "Quit"),
 	]
+
+	self.labels = []
 	if self.stage == "free":
 		self.buttons.append(hud.Button(((640, 640), 50), "Share"))
-		for jcolor, color in enumerate(progress.colors):
-			Fspot = (160, 60 * jcolor + 60), 25
-			self.buttons.append(hud.Button(Fspot, "color-%s" % color, drawtext = False, color = color))
+		if len(progress.colors) > 1:
+			for jcolor, color in enumerate(progress.colors):
+				Fspot = (180 + 23 * (jcolor % 2), 36 * jcolor + 60), 20
+				self.buttons.append(hud.Button(Fspot, "color-%s" % color, drawtext = False, color = color))
+			self.labels.append(("Color", (180 + 23/2, 20)))
+		if len(progress.sizes) > 1:
+			y = 500
+			for jsize, size in enumerate(progress.sizes):
+				Fspot = (180 + 23 * (jsize % 2), y), 10 + 5 * size
+				y += 25 + 10 * size
+				self.buttons.append(hud.Button(Fspot, "size-%s" % size, drawtext = False))
+			self.labels.append(("Size", (180 + 23/2, 460)))
 
 	self.yespoints = []
 	self.nopoints = []
@@ -68,7 +82,8 @@ def init(stage):
 
 
 	for j, (shp, count) in enumerate(self.store):
-		self.buttons.append(hud.Button(((60, 60 + 120 * j), 50), "store-%d" % j, drawtext = False, color = "#666666", shape = shp))
+		Fspot = (50 + 48 * (j % 2), 60 + 82 * j), 44
+		self.buttons.append(hud.Button(Fspot, "store-%d" % j, drawtext = False, color = "#666666", shape = shp))
 
 def think(dt, controls):
 	
@@ -144,6 +159,9 @@ def checkcover():
 		self.yescovers.append(covered)
 
 def checkdone():
+	if self.stage == "free":
+		return
+
 	if self.stage == "stage1":
 		self.done = self.store[0][1] == 0
 	else:
@@ -184,6 +202,13 @@ def onclick(button):
 				shape = button.shape.copy()
 				shape.color = tuple(pygame.Color(color))
 				button.setshape(shape)
+	if button.text.startswith("size-"):
+		ksize = int(button.text[5:])
+		for button in self.buttons:
+			if button.text.startswith("store-"):
+				shape = button.shape.copy()
+				shape.setksize(ksize)
+				button.setshape(shape)
 
 def draw():
 	if pview._fullscreen:
@@ -205,6 +230,11 @@ def draw():
 	render.sector0(Fspot0)
 	if self.inFbox0:
 		render.sectors(Fspot1)
+
+	for text, pos in self.labels:
+		ptext.draw(text, center = T(pos), fontsize = T(30),
+			color = "#ffffaa", fontname = "ChelaOne",
+			shade = 1, owidth = 0.4, shadow = (1, 1))
 	
 	for (x, y), covered in zip(self.yespoints, self.yescovers):
 		p = view.BconvertF(Fspot1, (x, y))
