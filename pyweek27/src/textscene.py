@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, ptext, background, view, scene, sound
+from . import pview, ptext, background, view, scene, sound, settings
 from .pview import T, I
 
 acceptedchars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_ "
@@ -26,6 +26,7 @@ def think(dt, controls):
 			scene.pop()
 			self.done = True
 			self.ondone(self.text)
+			settings.save()
 	else:
 		self.center = math.softapproach(self.center, self.box1.center, 16 * dt)
 	self.box.center = I(self.center)

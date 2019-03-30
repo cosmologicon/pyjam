@@ -1,9 +1,9 @@
-import sys
+import sys, json, os
 
 gamename = "Snowcrafter"
 
-savefilename = "save.json"
-yourname = "Cosmologicon"
+savefilename = "progress.json"
+yourname = ""
 
 offline = False
 
@@ -14,24 +14,39 @@ gallerydir = "gallery"
 
 ups = 120
 
+collapsepoints = False
+closepoints = False
+
 size0 = 1280, 720
 heights = 360, 480, 720, 1080
-fullscreen = "--fullscreen" in sys.argv
+fullscreen = False
 forceres = False
+lowres = False
 
-lowres = "--lowres" in sys.argv
+def save():
+	obj = yourname, closepoints, collapsepoints
+	json.dump(obj, open("settings.json", "w"))
+
+def load():
+	global yourname, closepoints, collapsepoints
+	if os.path.exists("settings.json"):
+		obj = json.load(open("settings.json", "r"))
+		yourname, closepoints, collapsepoints = obj
+load()
+
+
+if "--fullscreen" in sys.argv:
+	fullscreen = True
+
+if "--lowres" in sys.argv:
+	lowres = True
 if lowres:
 	forceres = True
-
 reset = "--reset" in sys.argv
 DEBUG = "--DEBUG" in sys.argv
 unlockall = "--unlockall" in sys.argv
-
-collapsepoints = False
-closepoints = False
 if "--easy" in sys.argv:
 	collapsepoints = True
 	closepoints = True
-
 
 
