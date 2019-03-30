@@ -7,6 +7,8 @@ if not os.path.exists(settings.gallerydir):
 	os.mkdir(settings.gallerydir)
 
 def upload(makername, designname, design):
+	if settings.offline:
+		return
 	data = {
 		"makername": makername,
 		"designname": designname,
@@ -15,9 +17,13 @@ def upload(makername, designname, design):
 	url = settings.serverurl + "cgi-bin/share.py"
 	data = urllib.parse.urlencode([("data", json.dumps(data))]).encode()
 	response = urllib.request.urlopen(url, data)
+	if settings.DEBUG:
+		print("RESPONSE", response.read())
 	return response.read()
 
 def pullgallery():
+	if settings.offline:
+		return
 	data = {
 		"excludes": list(os.listdir(settings.gallerydir)),
 	}

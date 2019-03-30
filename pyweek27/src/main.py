@@ -22,7 +22,7 @@ playing = True
 clock = pygame.time.Clock()
 taccum = 0
 while playing:
-	dt = 0.001 * clock.tick(settings.ups)
+	dt = min(0.001 * clock.tick(settings.ups), 1 / 10)
 	taccum += dt
 	controls = control.Controls()
 	if controls.quit:

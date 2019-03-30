@@ -1,9 +1,15 @@
+import sys
+
 gamename = "Snowcrafter"
 
 savefilename = "save.json"
 yourname = "Cosmologicon"
 
-serverurl = "http://0.0.0.0:8000/"
+offline = False
+
+serverurl = "http://universefactory.net/tools/pyweek27/"
+# To switch to a local server. See server/README.md to set up.
+#serverurl = "http://0.0.0.0:8000/"
 gallerydir = "gallery"
 
 ups = 120
@@ -13,11 +19,11 @@ heights = 360, 480, 720, 1080
 
 forceres = False
 
-reset = False
+reset = "--reset" in sys.argv
 
 
-DEBUG = True
-unlockall = True
+DEBUG = "--DEBUG" in sys.argv
+unlockall = "--unlockall" in sys.argv
 
 
 

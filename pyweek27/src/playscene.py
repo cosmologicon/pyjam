@@ -78,7 +78,8 @@ def init(stage):
 
 	self.labels = []
 	if self.stage == "free":
-		self.buttons.append(hud.Button(((640, 640), 50), "Share"))
+		if not settings.offline:
+			self.buttons.append(hud.Button(((640, 640), 50), "Share"))
 		if len(progress.colors) > 1:
 			for jcolor, color in enumerate(progress.colors):
 				Fspot = (180 + 23 * (jcolor % 2), 36 * jcolor + 60), 20
@@ -255,7 +256,9 @@ def isred(color):
 def iscovered(pos):
 	covered = self.design.colorat(pos)
 	if self.held:
-		covered = covered or self.held.colorat(render.tosector0(pos))
+		heldcolor = self.held.colorat(render.tosector0(pos))
+		if heldcolor:
+			covered = heldcolor
 	return not (covered is None or isred(covered))
 
 def checkcover():
@@ -290,7 +293,8 @@ def onclick(button):
 	if button.text == "Quit":
 		scene.push(frostscene, depth1 = 3)
 	if button.text == "Share":
-		scene.push(uploadscene, self.design, Fspot1)
+		if self.design.shapes:
+			scene.push(uploadscene, self.design, Fspot1)
 	if button.text.startswith("store-"):
 		jstore = int(button.text[6:])
 		shape, n = self.store[jstore]

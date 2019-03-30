@@ -60,7 +60,7 @@ def draw():
 		ptext.draw("Numbers and letters only. Enter to accept. Tab to clear.",
 			midtop = T(640, 420), width = T(420),
 			color = "#aabbff", shade = 1,
-			fontsize = T(32), fontname = "ChelaOne", shadow = (1, 1), alpha = self.a
+			fontsize = T(32), fontname = "ChelaOne", shadow = (1, 1)
 		)
 
 

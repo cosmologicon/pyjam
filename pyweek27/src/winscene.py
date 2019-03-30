@@ -16,9 +16,10 @@ def init(design, Fspot, stage):
 	self.a = 0
 	
 	self.buttons = [
-		hud.Button(((640 - 360, 620), 80), "Share to\npublic\ngallery"),
 		hud.Button(((1180, 620), 80), "Quit\nto menu"),
 	]
+	if not settings.offline:
+		self.buttons.append(hud.Button(((640 - 360, 620), 80), "Share to\npublic\ngallery"))
 	if self.stage in stagedata.nexts:
 		self.buttons.append(hud.Button(((640 + 360, 620), 80), "Next\nstage"))
 	self.done = False
@@ -54,7 +55,7 @@ def onclick(button):
 		scene.push(frostscene, depth1=3)
 	
 	if "Share" in button.text:
-		designname = self.stage
+		designname = self.stage.title()
 		scene.push(uploadscene, self.design, Fspot1, designname = designname)
 	
 def draw():
