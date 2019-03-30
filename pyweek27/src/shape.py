@@ -20,8 +20,8 @@ def scatter(ps):
 def bezier(ps):
 	(x0, y0), (x1, y1), (x2, y2), (x3, y3) = ps
 	ops = []
-	for jt in range(41):
-		t = jt / 40
+	for jt in range(21):
+		t = jt / 20
 		s = 1 - t
 		x = s**3 * x0 + 3*t*s**2 * x1 + 3*t**2*s * x2 + t**3 * x3
 		y = s**3 * y0 + 3*t*s**2 * y1 + 3*t**2*s * y2 + t**3 * y3
@@ -29,11 +29,16 @@ def bezier(ps):
 	return ops
 
 def thicken(ps, w):
-	def dof(j0, j1):
+	def dof(j0, j1, jc = None):
 		x0, y0 = ps[j0]
 		x1, y1 = ps[j1]
-		return math.norm((x1 - x0, y1 - y0), w)
-	dofs = [dof(0, 1)] + [dof(j, j + 2) for j in range(len(ps) - 2)] + [dof(-2, -1)]
+		f = 1
+		if jc is not None:
+			xc, yc = ps[jc]
+			a = math.clamp(math.dot(math.norm((xc - x0, yc - y0)), math.norm((x1 - xc, y1 - yc))), -0.999, 0.999)
+			f = 1 / math.cos(math.acos(a) / 2)
+		return math.norm((x1 - x0, y1 - y0), w * f)
+	dofs = [dof(0, 1)] + [dof(j, j + 2, j + 1) for j in range(len(ps) - 2)] + [dof(-2, -1)]
 	psR = [(x - dy, y + dx) for (x, y), (dx, dy) in zip(ps, dofs)]
 	psL = [(x + dy, y - dx) for (x, y), (dx, dy) in reversed(list(zip(ps, dofs)))]
 	return psR + psL
@@ -406,6 +411,8 @@ class Cusp:
 		self.width = width
 		self.pos = self.constrain(pos, 0)
 		self.anchors = [self.pos]
+		self.cpolygon = None
+		self.cpolygonkey = None
 
 	def setksize(self, ksize):
 		w = 0.02 * math.phi ** (ksize - 2)
@@ -426,6 +433,9 @@ class Cusp:
 
 
 	def polygon(self, f = 1):
+		key = self.pos, self.width, f
+		if key == self.cpolygonkey:
+			return self.cpolygon
 		s = math.length(self.pos)
 		x, y = self.pos
 		x0 = self.width
@@ -433,27 +443,27 @@ class Cusp:
 		beta = math.atan2(x - x0, y - y0)
 		gamma = 4 * beta - math.tau / 8
 		ds = beta / (math.tau / 12)  # 0 on left 1 on right
-		s0 = (1 - 0.2 * ds) * s
-		s1 = (0.8 + 0.2 * ds) * s
-		d = (0 + 0.15 * ds) * s
-		p0 = -0.01, s0
+
+		s0 = (1 - 0.4 * ds) * s
+		d = (0.2 * ds ** 2) * s
+		p0 = -0.02, s0
 		p1 = d, s0
 		C, S = math.CS(gamma + 3/8 * math.tau, d)
 		p2 = x + C, y - S
 		p3 = self.pos
 		ps = bezier([p0, p1, p2, p3])
-		d = (0.15 - 0.15 * ds) * s
-		p0 = self.pos
-		p1 = x + S, y + C
-		p2 = s1 * S30 - d * C30, s1 * C30 + d * S30
-		p3 = s1 * S30, s1 * C30
-		ps += bezier([p0, p1, p2, p3])[1:]
-		return thicken(ps, f * self.width)
 
-	def contains(self, pos):
-		s = math.length(self.anchors[0])
-		d = math.length(pos)
-		return abs(s - d) < self.width
+		s1 = (1 - 0.4 * (1 - ds)) * s
+		d = (0.2 * (1 - ds) ** 2) * s
+		p0 = s1 * S30 + 0.02 * C30, s1 * C30 - 0.02 * S30
+		p1 = s1 * S30 - d * C30, s1 * C30 + d * S30
+		C, S = math.CS(gamma + 3/8 * math.tau, d)
+		p2 = x + S, y + C
+		p3 = self.pos
+		ps += bezier([p0, p1, p2, p3])[::-1][1:]
+		self.cpolygonkey = key
+		self.cpolygon = thicken(ps, f * self.width)
+		return self.cpolygon
 
 
 def fromspec(spec):

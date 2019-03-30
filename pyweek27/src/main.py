@@ -1,17 +1,20 @@
 from __future__ import division
 import pygame
-from . import settings, control, scene, view, pview, ptext, playscene, background, menuscene, client
+from . import settings, control, view, pview, ptext, background, client, progress
+from . import scene, playscene, menuscene, storyscene
 from .pview import T
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 pview.SCREENSHOT_DIRECTORY = "screenshot"
 view.init()
-if playscene.canload() and not settings.reset:
-	scene.push(menuscene)
-	scene.push(playscene)
-	playscene.load()
+if progress.canload() and not settings.reset:
+	progress.load()
+if progress.donestory:
+	scene.push(menuscene, "main")
 else:
-	scene.push(menuscene)
+	scene.push(menuscene, "main")
+	scene.push(playscene, "stage%d" % progress.stage)
+	scene.push(storyscene, "stage%d" % progress.stage)
 
 client.pullgallery()
 

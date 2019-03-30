@@ -72,8 +72,8 @@ class Button:
 	def draw(self, lit = False, note = None):
 		color = self.color
 		center, size = self.Fspot
-		if note == "0":
-			color = render.dim(pygame.Color(color), 8)
+		if note == "0" or note == "":
+			color = render.dim(pygame.Color(color), 2)
 			lit = False
 		color = ptext._resolvecolor(color, None)
 		if not lit:
@@ -95,7 +95,7 @@ class Button:
 			factor = 1.8 * len(self.text) ** -0.4
 			ptext.draw(self.text, center = T(center), lineheight = 0.9,
 				fontname = "ChelaOne", fontsize = T(factor * size), width = T(2.4 * size), shade = 1, owidth = 0.4, shadow = (1, 1))
-		if note is not None:
+		if note:
 			x, y = center
 			ptext.draw(note, center = T(x + 0.4 * size, y + 0.4 * size),
 				fontname = "ChelaOne", fontsize = T(1.2 * size),

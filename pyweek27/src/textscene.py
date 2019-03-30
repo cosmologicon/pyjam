@@ -33,6 +33,8 @@ def think(dt, controls):
 	if not self.ending and self.center == self.box1.center:
 		if pygame.K_BACKSPACE in controls.kdowns:
 			self.text = self.text[:-1]
+		if pygame.K_TAB in controls.kdowns:
+			self.text = ""
 		for char in acceptedchars:
 			if char in controls.kdowns:
 				self.text += char
@@ -53,6 +55,13 @@ def draw():
 		ptext.draw("enter name", center = T(self.box.center), width = T(self.box.width),
 			fontsize = T(26), fontname = "ChelaOne",
 			color = "#ffffaa", shade = 1, shadow = (1, 1), alpha = 0.5)
+
+	if self.center == self.box1.center:
+		ptext.draw("Numbers and letters only. Enter to accept. Tab to clear.",
+			midtop = T(640, 420), width = T(420),
+			color = "#aabbff", shade = 1,
+			fontsize = T(32), fontname = "ChelaOne", shadow = (1, 1), alpha = self.a
+		)
 
 
 

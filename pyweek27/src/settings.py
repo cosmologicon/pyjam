@@ -1,4 +1,4 @@
-gamename = "6"
+gamename = "Snowcrafter"
 
 savefilename = "save.json"
 yourname = "Cosmologicon"
@@ -17,4 +17,7 @@ reset = False
 
 
 DEBUG = True
+unlockall = True
+
+
 

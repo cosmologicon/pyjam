@@ -49,11 +49,13 @@ def onclick(button):
 		self.done = True
 		nextstage = stagedata.nexts[self.stage]
 		scene.push(playscene, nextstage, depth=1)
-		scene.push(storyscene, nextstage, depth=1)
+		if nextstage in stagedata.story:
+			scene.push(storyscene, nextstage, depth=1)
 		scene.push(frostscene, depth1=3)
 	
 	if "Share" in button.text:
-		scene.push(uploadscene, self.design, Fspot1)
+		designname = self.stage
+		scene.push(uploadscene, self.design, Fspot1, designname = designname)
 	
 def draw():
 	background.draw()

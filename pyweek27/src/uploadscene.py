@@ -7,7 +7,7 @@ class self:
 
 Fspot1 = (640, 400), 200
 
-def init(design, Fspot):
+def init(design, Fspot, designname = ""):
 	self.design = design
 	self.Fspot0 = Fspot
 	self.Fspot = Fspot
@@ -21,7 +21,7 @@ def init(design, Fspot):
 		(rect0, "yourname"),
 		(rect1, "designname"),
 	]
-	self.designname = ""
+	self.designname = designname
 	self.jbox = None
 
 	self.buttons = [

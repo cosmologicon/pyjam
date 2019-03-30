@@ -62,9 +62,11 @@ def init(stage):
 				shp = shape.Branch((0.2, 0.6), color, (0.06, 0.12))
 			if k == "Claw":
 				shp = shape.Claw((0, 0.5), color, (0.06, 0.12))
+			if k == "Cusp":
+				shp = shape.Cusp((0, 0.5), color, 0.04)
 			shp.setksize(ksize)
 			self.store.append([shp, v])
-
+	self.maxshapes = progress.maxshapes if stage == "free" else None
 
 	self.buttons = [
 		hud.Button(((1200, 640), 50), "Quit"),
@@ -113,7 +115,9 @@ def init(stage):
 
 	for j, (shp, count) in enumerate(self.store):
 		Fspot = (50 + 48 * (j % 2), 60 + 82 * j), 44
-		self.buttons.append(hud.Button(Fspot, "store-%d" % j, drawtext = False, color = "#666666", shape = shp))
+		self.buttons.append(hud.Button(Fspot, "store-%d" % j, drawtext = False, color = "#999999", shape = shp))
+	
+	self.ydata, self.ndata = [], []
 
 def think(dt, controls):
 	
@@ -170,6 +174,10 @@ def think(dt, controls):
 		onclick(self.buttons[self.jbutton])
 
 	if settings.DEBUG:
+		if pygame.K_F1 in controls.kdowns:
+			self.done = True
+		if pygame.K_F2 in controls.kdowns:
+			addpoint(controls.mpos)
 		if pygame.K_F5 in controls.kdowns:
 			save()
 		if pygame.K_F7 in controls.kdowns:
@@ -180,9 +188,38 @@ def think(dt, controls):
 	if self.done and not self.pushed:
 		self.tdone = math.approach(self.tdone, 1, dt)
 		if self.tdone == 1:
+			progress.beat(self.stage)
 			self.pushed = True
 			scene.pop()
 			scene.push(winscene, self.design, Fspot1, self.stage)
+
+def addpoint(pos):
+	x, y = view.FconvertB(Fspot1, pos)
+	r = math.length((x, y))
+	na = 12 / math.tau * math.atan2(x, y)
+	n, a = divmod(na, 1)
+	n = int(n)
+	if n % 2 == 1:
+		a = 1 - a
+	a = round(a, 3)
+	r = round(r, 3)
+	data = a, r, n
+
+	if n % 2 == 1:
+		a = 1 - a
+	C, S = math.CS((n + a) / 12 * math.tau, r)
+	pF = S, C
+	covered = iscovered(pF)
+	if covered:
+		self.ydata += [data]
+		self.yespoints += [pF]
+	else:
+		self.ndata += [data]
+		self.nopoints += [pF]
+	print()
+	print([self.ydata, self.ndata])
+	checkcover()
+	
 
 def randompoints():
 	yout, nout = [], []
@@ -207,19 +244,23 @@ def randompoints():
 	print(nout)
 	checkcover()
 
+def isred(color):
+	r, g, b, a = ptext._resolvecolor(color, None)
+	return r > 1.01 * g and r > 1.01 * b
+
+def iscovered(pos):
+	covered = self.design.colorat(pos)
+	if self.held:
+		covered = covered or self.held.colorat(render.tosector0(pos))
+	return not (covered is None or isred(covered))
+
 def checkcover():
 	self.yescovers = []
 	self.nocovers = []
 	for pos in self.yespoints:
-		covered = self.design.colorat(pos)
-		if self.held:
-			covered = covered or self.held.colorat(render.tosector0(pos))
-		self.yescovers.append(covered)
+		self.yescovers.append(iscovered(pos))
 	for pos in self.nopoints:
-		covered = self.design.colorat(pos)
-		if self.held:
-			covered = covered or self.held.colorat(render.tosector0(pos))
-		self.nocovers.append(covered)
+		self.nocovers.append(iscovered(pos))
 
 def checkdone():
 	if self.stage == "free":
@@ -251,6 +292,8 @@ def onclick(button):
 		shape, n = self.store[jstore]
 		shape = button.shape
 		if n is not None and n <= 0:
+			pass  # Error
+		elif self.maxshapes is not None and len(self.design.shapes) >= self.maxshapes:
 			pass  # Error
 		else:
 			if n is not None:
@@ -290,6 +333,8 @@ def draw():
 			note = self.store[jstore][1]
 			if note is not None:
 				note = "%d" % note
+		if self.maxshapes is not None and len(self.design.shapes) >= self.maxshapes:
+			note = ""
 		button.draw(lit = (jbutton == self.jbutton), note = note)
 	self.design.drawwedge(Fspot0)
 	self.design.draw(Fspot1)
@@ -302,20 +347,40 @@ def draw():
 			color = "#ffffaa", fontname = "ChelaOne",
 			shade = 1, owidth = 0.4, shadow = (1, 1))
 	
+	a = math.cycle(pygame.time.get_ticks() / 500)
+	offcolor = pygame.Color(*math.imix((50, 50, 100), (100, 100, 255), a))
 	for (x, y), covered in zip(self.yespoints, self.yescovers):
 		p = view.BconvertF(Fspot1, (x, y))
-		color = pygame.Color("#aaaaff" if covered else "#444488")
+		color = pygame.Color("#aaaaff") if covered else offcolor
 		ocolor = pygame.Color("white" if covered else "black")
 		pygame.draw.circle(pview.screen, ocolor, T(p), T(8))
 		pygame.draw.circle(pview.screen, color, T(p), T(6))
+	oncolor = pygame.Color(*math.imix((100, 50, 50), (255, 100, 100), a))
 	for (x, y), covered in zip(self.nopoints, self.nocovers):
 		p = view.BconvertF(Fspot1, (x, y))
-		color = pygame.Color("#ffaaaa" if covered else "#884444")
+		color = oncolor if covered else pygame.Color("#884444")
 		ocolor = pygame.Color("white" if covered else "black")
 		pygame.draw.circle(pview.screen, ocolor, T(p), T(8))
 		pygame.draw.circle(pview.screen, color, T(p), T(6))
 	if settings.DEBUG:
 		ptext.draw(str(self.pointcolor), bottomright = T(1260, 710), fontsize = T(30))
+
+	if self.yespoints:
+		n = len(self.yescovers)
+		a = sum(self.yescovers)
+		text = "Remaining: %d/%d" % (n - a, n)
+		ptext.draw(text, topright = T(1280, 0), fontsize = T(38), owidth = 0.5,
+			fontname = "ChelaOne", color = "#ccccff", shade = 0.5, shadow = (1, 1))
+	if self.nopoints:
+		n = len(self.nocovers)
+		a = sum(self.nocovers)
+		text = "Covered: %d/%d" % (a, n)
+		ptext.draw(text, topright = T(1280, 38), fontsize = T(38), owidth = 0.5,
+			fontname = "ChelaOne", color = "#ffcccc", shade = 0.5, shadow = (1, 1))
+	if self.maxshapes is not None:
+		text = "Shapes used: %d/%d" % (len(self.design.shapes), self.maxshapes)
+		ptext.draw(text, topright = T(1280, 0), fontsize = T(38), owidth = 0.5,
+			fontname = "ChelaOne", color = "#ffffff", shade = 0.5, shadow = (1, 1))
 
 	if self.held and self.inFbox0:
 		for j, anchor in enumerate(self.held.anchors):
