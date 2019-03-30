@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, inspect, json
-from . import render, enco
+from . import render, enco, ptext
 
 C15, S15 = math.CS(math.radians(15))
 C30, S30 = math.CS(math.radians(30))
@@ -64,7 +64,7 @@ class Shape(enco.Component):
 		kw = { arg: getattr(self, arg) for arg in args if arg not in ["self"] }
 		for arg in kw:
 			if "color" in arg:
-				kw[arg] = "#%02x%02x%02x%02x" % tuple(kw[arg])
+				kw[arg] = "#%02x%02x%02x%02x" % tuple(ptext._resolvecolor(kw[arg], None))
 		kw["type"] = self.__class__.__name__
 		return json.loads(json.dumps(kw))
 

@@ -111,8 +111,10 @@ def init(stage):
 
 	if "stage" in self.stage:
 		sound.playmusic("twisting")
-	else:
+	elif self.stage == "free":
 		sound.playmusic("techlive")
+	else:
+		sound.playmusic("undaunted")
 
 def setpoints():
 	self.yespoints = []

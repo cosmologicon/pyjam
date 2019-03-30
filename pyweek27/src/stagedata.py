@@ -1,7 +1,7 @@
 import math
 
 helptext = {
-	"stage1": "Drag the shards from the icons on the left into the wedge.",
+	"stage1": "Drag the shards from the icon on the left into the wedge.",
 	"stage2": "Position the shards so that the blue points on the right view are within the design.",
 	"stage3": "Red squares on the right view must not be within the design.",
 	"stage4": "Press TAB during gameplay to toggle easy mode.",
@@ -9,6 +9,7 @@ helptext = {
 	"stage6": "Check README.md for help and more options.",
 	
 	"color1": 'Use red shapes to "cancel out" other shapes. Points where a red shape is on top are excluded from the design.',
+	"color3": "Tip: in Free Play mode, click on a color icon multiple times to cycle through shades of that color.",
 	"shape1": "Don't forget you can toggle easy mode with TAB.",
 	"size1": "Don't forget you can toggle easy mode with TAB.",
 }
@@ -155,7 +156,7 @@ nexts = {
 story = {
 	"stage1": "The Queen of Order ruled the seasons, the tides, and the motions of the stars. Regular patterns were always a sign of her handiwork.\nThe Queen of Chaos ruled the storms, the landscapes, and the creatures. Thanks to her influence, no two days were ever the same.",
 	"stage2": "The two Queens of Order and Chaos were bitter adversaries, for neither could see beauty in the workings of the other, and so they maintained an uneasy truce.",
-	"stage3": "No one knows why truce between the Queens fell apart one day, but they soon faced one another in battle.\nAt the mountain of ice at the Top of the World, they engaged in fierce combat, each fueled by her devotion to her own point of view.",
+	"stage3": "No one knows why the truce between the Queens fell apart one day, but they soon faced one another in battle.\nAt the mountain of ice at the Top of the World, they engaged in fierce combat, each fueled by her devotion to her own point of view.",
 	"stage4": "In their rage they destroyed the mountain of ice on which they fought. They might have gone on to destroy the entire world, but something happened.\nThe mountain was pulverized into an infinity of tiny, six-pointed shards of ice that filled the sky.",
 	"stage5": "As they gazed into the swirling white mist, each Queen saw herself and also her adversary. For each crystal displayed a perfectly ordered symmetry, yet each one was unique. And somehow they came to know that they could coexist after all.",
 	"stage6": "The Queens have ruled the world alongside one another ever since. You and I are charged with creating endless variations of snowflakes to remind the world of the beauty that order and chaos may make when they come together.",

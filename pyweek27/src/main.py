@@ -10,7 +10,7 @@ view.init()
 pygame.mixer.init()
 if progress.canload() and not settings.reset:
 	progress.load()
-sound.playmusic("techlive")
+sound.playmusic("undaunted")
 if progress.donestory:
 	scene.push(menuscene, "main")
 else:
@@ -30,11 +30,11 @@ while playing:
 	if controls.quit:
 		playing = False
 	if pygame.K_F10 in controls.kdowns:
-		settings.fullscreen = not settings.fullscreen
-		pview.toggle_fullscreen()
+		pview.cycle_height(settings.heights)
 		background.clear()
 	if pygame.K_F11 in controls.kdowns:
-		pview.cycle_height(settings.heights)
+		settings.fullscreen = not settings.fullscreen
+		pview.toggle_fullscreen()
 		background.clear()
 	if pygame.K_F12 in controls.kdowns:
 		pview.screenshot()

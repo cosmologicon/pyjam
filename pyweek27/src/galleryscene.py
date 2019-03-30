@@ -22,9 +22,9 @@ def rFspot(r, x0, y0, t0):
 	x = x0 - 20 * dt + 50 * math.sin(0.987 * dt + 3.456)
 	x *= r / 50
 	y *= r / 50
-	x %= 2 * pview.w0
+	x %= 1.5 * pview.w0
 	y %= 2 * pview.h0
-	return (x - pview.w0 / 2, y - pview.h0 / 2), r
+	return (x - pview.w0 / 4, y - pview.h0 / 2), r
 
 def load():
 	if os.path.exists(settings.gallerydir):
@@ -38,7 +38,16 @@ def load():
 	for filename in filenames:
 		spec = json.load(open(os.path.join(settings.gallerydir, filename), "r"))
 		self.specs.append(spec)
+	assert self.specs
+	while len(self.specs) < 100:
+		self.specs += [json.loads(json.dumps(spec)) for spec in self.specs]
 	self.designs = [flake.Design(spec["design"]) for spec in self.specs]
+#	self.designs = []
+#	for jspec in range(100):
+#		spec = json.loads(json.dumps(self.specs[jspec % len(self.specs)]))
+#		spec = self.specs[jspec % len(self.specs)]
+#		print(jspec, spec)
+#		self.designs.append(flake.Design(spec["design"]))
 	for design in self.designs:
 		design.s = T(80)
 	self.rFspotspecs = [
@@ -101,7 +110,9 @@ def draw():
 		if jspot == self.jload:
 			continue
 		Fspot = rFspot(*rFspotspec)
-		self.designs[jspot % len(self.designs)].draw(Fspot)
+		omega = 100 * (math.phi * jspot % 1 - 0.5)
+		theta = omega * pygame.time.get_ticks() * 0.001
+		self.designs[jspot % len(self.designs)].draw(Fspot, theta)
 	if self.jload is None:
 		for jbutton, button in enumerate(self.buttons):
 			button.draw(lit = (jbutton == self.jbutton))

@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, numpy
-from . import pview, ptext, render, shape, view
+from . import pview, ptext, render, shape, view, settings
 from .pview import I, T
 
 
@@ -165,12 +165,14 @@ class Design:
 		self.img0scale = pygame.transform.smoothscale(self.simgs[0], T(r, r))
 		return self.img0scale
 
-	def draw(self, Fspot):
+	def draw(self, Fspot, theta = 0):
 		if not view.Fspotvisible(Fspot):
 			return
 		(x, y), r = Fspot
 		img = self.getimgscale(r)
-		pview.screen.blit(img, T(x - r, y - r))
+		if theta != 0 and not settings.lowres:
+			img = pygame.transform.rotate(img, theta)
+		pview.screen.blit(img, img.get_rect(center = T(x, y)))
 
 	def drawoverlay(self, pos, r):
 		self.makeimg()

@@ -89,7 +89,7 @@ def onclick(button):
 		scene.pop()
 	if button.text == "Main\nMenu":
 		scene.push(frostscene, onswap=lambda: init("main"))
-	if button.text == "Story":
+	if button.text == "Story/\nTutorial":
 		scene.push(frostscene, onswap=lambda: init("story"))
 	if button.text == "Free\nPlay":
 		sound.play("launch")

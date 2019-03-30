@@ -22,6 +22,8 @@ heights = 360, 480, 720, 1080
 fullscreen = False
 forceres = False
 lowres = False
+nomusic = False
+nosfx = False
 
 def save():
 	obj = yourname, closepoints, collapsepoints
@@ -42,6 +44,11 @@ if "--lowres" in sys.argv:
 	lowres = True
 if lowres:
 	forceres = True
+if "--nomusic" in sys.argv or "--noaudio" in sys.argv:
+	nomusic = True
+if "--nosfx" in sys.argv or "--noaudio" in sys.argv:
+	nosfx = True
+	
 reset = "--reset" in sys.argv
 DEBUG = "--DEBUG" in sys.argv
 unlockall = "--unlockall" in sys.argv
