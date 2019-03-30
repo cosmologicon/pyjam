@@ -92,8 +92,9 @@ class Button:
 			pview.screen.blit(self.shapeimg, rect)
 
 		if self.drawtext:
+			factor = 1.8 * len(self.text) ** -0.4
 			ptext.draw(self.text, center = T(center), lineheight = 0.9,
-				fontname = "ChelaOne", fontsize = T(0.5 * size), width = T(2 * size), shade = 1, owidth = 0.4, shadow = (1, 1))
+				fontname = "ChelaOne", fontsize = T(factor * size), width = T(2.4 * size), shade = 1, owidth = 0.4, shadow = (1, 1))
 		if note is not None:
 			x, y = center
 			ptext.draw(note, center = T(x + 0.7 * size, y + 0.7 * size),

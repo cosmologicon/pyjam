@@ -250,6 +250,10 @@ class Ring:
 		self.pos = self.constrain(pos, 0)
 		self.anchors = [self.pos]
 
+	def setksize(self, ksize):
+		w = 0.03 * math.phi ** (ksize - 2)
+		self.width = w
+
 	def constrain(self, pos, j):
 		a = math.clamp(math.dot(pos, (S15, C15)), self.width, 1 - self.width)
 		return a * S15, a * C15
@@ -264,6 +268,80 @@ class Ring:
 		s = math.length(self.anchors[0])
 		d = math.length(pos)
 		return abs(s - d) < self.width
+
+@Shape()
+@Polygonal()
+class Branch:
+	def __init__(self, pos, color, size):
+		self.color = pygame.Color(color)
+		self.size = size
+		self.pos = self.constrain(pos, 0)
+		self.anchors = [self.pos]
+
+	def setksize(self, ksize):
+		w = 0.02 * math.phi ** (ksize - 2)
+		self.size = w, w * 3
+
+	def constrain(self, pos, j):
+		if pos[1] < 0.0001:
+			pos = pos[0], 0.0001
+		if pos[0] < 0:
+			pos = 0, pos[1]
+		if math.dot(pos, (C30, -S30)) > 0:
+			pos, _ = ptoline(pos, (S30, C30))
+		a = math.length(pos)
+		w, h = self.size
+		if a > 1 - h:
+			pos = math.norm(pos, 1 - h)
+		return pos
+
+	def polygon(self, f = 1):
+		theta = 30 if math.dot(self.pos, (C15, -S15)) < 0 else -60
+		theta = -60
+		R = math.R(math.radians(theta))
+		w, h = self.size
+		w *= f
+		h *= f
+		sx, sy = self.pos
+		ds = [R(p) for p in ((0, h), (w, 0), (w, -0.8), (-w, -0.8), (-w, 0))]
+		return [(sx + dx, sy + dy) for dx, dy in ds]
+
+@Shape()
+@Polygonal()
+class Claw(Shape):
+	def __init__(self, pos, color, size):
+		self.color = pygame.Color(color)
+		self.size = size
+		self.pos = self.constrain(pos, 0)
+		self.anchors = [self.pos]
+
+	def setksize(self, ksize):
+		w = 0.06 * math.phi ** ((ksize - 2) / 2)
+		self.size = w, 2 * w
+
+	def constrain(self, pos, j):
+		if pos[1] < 0.0001:
+			pos = pos[0], 0.0001
+		if pos[0] < 0:
+			pos = 0, pos[1]
+		if math.dot(pos, (C30, -S30)) > 0:
+			pos, _ = ptoline(pos, (S30, C30))
+		a = math.length(pos)
+		w, h = self.size
+		if a > 1 - h:
+			pos = math.norm(pos, 1 - h)
+		return pos
+
+	def polygon(self, f = 1):
+		sx, sy = self.anchors[0]
+		sw, sh = self.size
+		sw *= f
+		sh *= 0.5 + 0.5 * f
+		R = math.R(-math.atan2(sx, sy))
+		ps = (0, 0), (1, 1), (0, 0.7), (-1, 1), (0, 0), (-1, -1), (0, -0.7), (1, -1)
+		ds = [R((dx * sw, dy * sh)) for (dx, dy) in ps]
+		return [(sx + dx, sy + dy) for dx, dy in ds]
+
 
 @Shape()
 @Polygonal()

@@ -1,6 +1,6 @@
 from __future__ import division
 import random, math, pygame, json, os.path
-from . import pview, thing, flake, background, ptext, render, shape, view, hud, settings, client
+from . import pview, flake, background, ptext, render, shape, view, hud, settings, client
 from . import frostscene, uploadscene, winscene, scene, progress, stagedata
 from .pview import T
 
@@ -34,6 +34,12 @@ def init(stage):
 			self.store.append([shape.Shard((0, 0.5), "white", (0.06, 0.12)), None])
 		if "Blade" in progress.shapes:
 			self.store.append([shape.Blade((0, 0.5), "white", (0.02, 0.06)), None])
+		if "Ring" in progress.shapes:
+			self.store.append([shape.Ring((0, 0.5), "white", 0.03), None])
+		if "Branch" in progress.shapes:
+			self.store.append([shape.Branch((0.2, 0.6), "white", (0.03, 0.09)), None])
+		if "Claw" in progress.shapes:
+			self.store.append([shape.Claw((0, 0.5), "white", (0.06, 0.12)), None])
 		if "Crown" in progress.shapes:
 			self.store.append([shape.Crown((0.2, 0.5), "white", 0.04), None])
 		if "Cusp" in progress.shapes:
@@ -58,7 +64,10 @@ def init(stage):
 		if len(progress.colors) > 1:
 			for jcolor, color in enumerate(progress.colors):
 				Fspot = (180 + 23 * (jcolor % 2), 36 * jcolor + 60), 20
-				self.buttons.append(hud.Button(Fspot, "color-%s" % color, drawtext = False, color = color))
+				text = "???" if color == "?" else "color-%s" % color
+				drawtext = color == "?"
+				bcolor = color if color != "?" else "#cccccc"
+				self.buttons.append(hud.Button(Fspot, text, drawtext = drawtext, color = bcolor))
 			self.labels.append(("Color", (180 + 23/2, 20)))
 		if len(progress.sizes) > 1:
 			y = 500
@@ -199,8 +208,11 @@ def onclick(button):
 			self.held = shape.copy()
 			self.cursorimg = self.held.cursorimg(T(100))
 			self.jheld = 0
-	if button.text.startswith("color-"):
-		color = button.text[6:]
+	if button.text.startswith("color-") or button.text == "???":
+		if "?" in button.text:
+			color = "#" + "".join(random.choice("abcdef") for _ in range(6))
+		else:
+			color = button.text[6:]
 		for button in self.buttons:
 			if button.text.startswith("store-"):
 				shape = button.shape.copy()

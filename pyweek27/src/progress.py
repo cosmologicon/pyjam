@@ -1,15 +1,19 @@
 
 
 # Unlocked in free play mode
-shapes = ["Shard", "Blade", "Cusp", "Crown"]
+shapes = ["Shard", "Blade", "Ring", "Branch", "Claw", "Cusp", "Crown"]
 
 colors = [
 	"#ffffff",
 	"#aaaaaa",
 	"#777777",
 	"#ffcccc",
+	"#ffddbb",
+	"#ffffaa",
 	"#ccffcc",
 	"#ccccff",
+	"#ccaaff",
+	"?",
 ]
 
 
