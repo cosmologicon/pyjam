@@ -1,3 +1,4 @@
+from __future__ import division
 import math
 
 helptext = {
@@ -6,7 +7,7 @@ helptext = {
 	"stage3": "Red squares on the right view must not be within the design.",
 	"stage4": "Press TAB during gameplay to toggle easy mode.",
 	"stage5": "F10 to cycle resolution. F11 to toggle fullscreen.",
-	"stage6": "Check README.md for help and more options.",
+	"stage6": "Check README.txt for help and more options.",
 	
 	"color1": 'Use red shapes to "cancel out" other shapes. Points where a red shape is on top are excluded from the design.',
 	"color3": "Tip: in Free Play mode, click on a color icon multiple times to cycle through shades of that color.",

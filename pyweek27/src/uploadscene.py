@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame, math
 from . import pview, ptext, background, settings, hud, scene, view, textscene, client, sound
 from .pview import T

@@ -1,3 +1,4 @@
+from __future__ import division
 import os, pygame, random, json, math
 from . import settings, pview, ptext, flake, background, view, frostscene, hud, scene
 from .pview import T

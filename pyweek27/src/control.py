@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame
 from . import settings, pview
 from .pview import I

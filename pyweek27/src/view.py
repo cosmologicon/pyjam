@@ -9,7 +9,7 @@
 # Transforming between B and F coordinates requires a flakespot (Fspot), which specifies the center
 # and radius of the flake in B-coordinates.
 
-
+from __future__ import division
 import pygame, math
 from . import settings, pview
 from .pview import I, T

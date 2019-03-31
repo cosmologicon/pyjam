@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame, os
 from . import settings
 

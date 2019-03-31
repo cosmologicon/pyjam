@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame, math
 from . import pview, ptext, background, view, scene, sound, settings
 from .pview import T, I
@@ -8,6 +9,7 @@ class self:
 	pass
 
 def init(box0, text, ondone):
+	global ondone_
 	self.box0 = box0.copy()
 	self.box1 = box0.copy()
 	self.box1.center = pview.center0
@@ -16,7 +18,7 @@ def init(box0, text, ondone):
 	self.text = text
 	self.ending = False
 	self.done = False
-	self.ondone = ondone
+	ondone_ = ondone
 
 def think(dt, controls):
 	background.update(dt)
@@ -25,7 +27,7 @@ def think(dt, controls):
 		if self.center == self.box0.center and not self.done:
 			scene.pop()
 			self.done = True
-			self.ondone(self.text)
+			ondone_(self.text)
 			settings.save()
 	else:
 		self.center = math.softapproach(self.center, self.box1.center, 16 * dt)
@@ -50,7 +52,7 @@ def draw():
 	background.draw()
 	pview.fill((200, 200, 255, 64), T(self.box))
 	if self.text:
-		c = "|" if pygame.time.get_ticks() / 300 % 1 > 0.5 else "\u00A0"
+		c = "|" if pygame.time.get_ticks() / 300 % 1 > 0.5 else u"\u00A0"
 		ptext.draw(self.text + c, center = T(self.box.center), width = T(self.box.width),
 			fontsize = T(34), fontname = "ChelaOne",
 			color = "#ffffaa", shade = 1, shadow = (1, 1))

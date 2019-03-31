@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame, math
 from . import pview, ptext, scene, frostscene, stagedata
 from .pview import T

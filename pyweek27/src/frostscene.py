@@ -1,11 +1,15 @@
+from __future__ import division
 import pygame, math
 from . import pview, scene, background
 
 class self:
 	pass
 
+onswap_ = None
+
 def init(depth0 = 2, depth1 = 2, onswap = None):
-	self.onswap = onswap
+	global onswap_
+	onswap_ = onswap
 	self.a = 0
 	self.ending = False
 	self.done = False
@@ -25,8 +29,8 @@ def think(dt, controls):
 		if self.a == 1.2:
 			self.ending = True
 			self.dscene = scene.top(self.depth1)
-			if self.onswap is not None:
-				self.onswap()
+			if onswap_ is not None:
+				onswap_()
 			if self.dscene is not None:
 				self.dscene.think(0, controls.clear())
 

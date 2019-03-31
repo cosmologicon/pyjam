@@ -1,6 +1,14 @@
 from __future__ import print_function
 
-import urllib.request, urllib.parse, json, os.path
+# Python 2 and 3: easiest option
+# https://python-future.org/compatible_idioms.html
+from future.standard_library import install_aliases
+install_aliases()
+
+from urllib.parse import urlencode
+from urllib.request import urlopen
+
+import json, os.path
 from . import settings
 
 if not os.path.exists(settings.gallerydir):
@@ -15,8 +23,8 @@ def upload(makername, designname, design):
 		"design": design.getspec(),
 	}
 	url = settings.serverurl + "cgi-bin/share.py"
-	data = urllib.parse.urlencode([("data", json.dumps(data))]).encode()
-	response = urllib.request.urlopen(url, data)
+	data = urlencode([("data", json.dumps(data))]).encode()
+	response = urlopen(url, data)
 	if settings.DEBUG:
 		print("RESPONSE", response.read())
 	return response.read()
@@ -28,8 +36,8 @@ def pullgallery():
 		"excludes": list(os.listdir(settings.gallerydir)),
 	}
 	url = settings.serverurl + "cgi-bin/pullgallery.py"
-	data = urllib.parse.urlencode([("data", json.dumps(data))])
-	response = urllib.request.urlopen(url + "?" + data).read()
+	data = urlencode([("data", json.dumps(data))])
+	response = urlopen(url + "?" + data).read()
 	if settings.DEBUG:
 		print("RESPONSE", response[:200])
 	try:

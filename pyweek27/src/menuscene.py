@@ -84,13 +84,16 @@ def think(dt, controls):
 	if self.jbutton is not None and controls.mdown:
 		onclick(self.buttons[self.jbutton])
 
+def swapto(page):
+	return lambda: init(page)
+
 def onclick(button):
 	if button.text == "Quit":
 		scene.pop()
 	if button.text == "Main\nMenu":
 		scene.push(frostscene, onswap=lambda: init("main"))
 	if button.text == "Story/\nTutorial":
-		scene.push(frostscene, onswap=lambda: init("story"))
+		scene.push(frostscene, onswap=swapto("story"))
 	if button.text == "Free\nPlay":
 		sound.play("launch")
 		scene.push(playscene, "free")
