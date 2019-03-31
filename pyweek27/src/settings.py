@@ -59,7 +59,7 @@ if "--nomusic" in sys.argv or "--noaudio" in sys.argv:
 	nomusic = True
 if "--nosfx" in sys.argv or "--noaudio" in sys.argv:
 	nosfx = True
-	
+
 reset = "--reset" in sys.argv
 DEBUG = "--DEBUG" in sys.argv
 unlockall = "--unlockall" in sys.argv

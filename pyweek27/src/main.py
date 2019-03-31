@@ -56,4 +56,5 @@ while playing:
 		text = "%.1fps %s" % (clock.get_fps(), pygame.mouse.get_pos())
 		ptext.draw(text, bottomleft = T(10, 710), fontsize = T(30), owidth = 1.2)
 	pygame.display.flip()
+pygame.quit()
 

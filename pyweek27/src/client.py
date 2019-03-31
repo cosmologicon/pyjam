@@ -37,10 +37,11 @@ def pullgallery():
 	}
 	url = settings.serverurl + "cgi-bin/pullgallery.py"
 	data = urlencode([("data", json.dumps(data))])
-	response = urlopen(url + "?" + data).read()
-	if settings.DEBUG:
-		print("RESPONSE", response[:200])
+	response = ""
 	try:
+		response = urlopen(url + "?" + data).read()
+		if settings.DEBUG:
+			print("RESPONSE", response[:200])
 		rdata = json.loads(response)
 		for filename, contents in rdata:
 			filename = os.path.basename(filename)
@@ -49,9 +50,14 @@ def pullgallery():
 			contents = json.dumps(json.loads(contents))
 			open(os.path.join(settings.gallerydir, filename), "w").write(contents)
 	except Exception as e:
-		print("Error retrieving gallery from server.")
+		print()
+		print("Error retrieving gallery from server. Switching to offline mode.")
 		print(e)
-		print("Response: ")
-		print(response)
+		if response:
+			print("Response: ")
+			print(response[:2000])
+		print()
+		print("See README.txt for starting in offline mode if the problem persists.")
+		settings.offline = True
 
 
