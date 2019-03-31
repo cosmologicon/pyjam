@@ -135,11 +135,11 @@ class Design:
 				self.qpixels += spixels * mpixels
 				self.qalphas += salphas * malphas
 		t2 = pygame.time.get_ticks()
-		arr = numpy.concatenate([numpy.flip(self.qpixels, 0), self.qpixels], 0)
-		arr = numpy.concatenate([arr, numpy.flip(arr, 1)], 1)
+		arr = numpy.concatenate([numpy.flipud(self.qpixels), self.qpixels], 0)
+		arr = numpy.concatenate([arr, numpy.fliplr(arr)], 1)
 		pygame.surfarray.pixels3d(self.img)[:,:,:] = arr
-		arr = numpy.concatenate([numpy.flip(self.qalphas, 0), self.qalphas], 0)
-		arr = numpy.concatenate([arr, numpy.flip(arr, 1)], 1)
+		arr = numpy.concatenate([numpy.flipud(self.qalphas), self.qalphas], 0)
+		arr = numpy.concatenate([arr, numpy.fliplr(arr)], 1)
 		pygame.surfarray.pixels_alpha(self.img)[:,:] = arr
 		self.drawn = True
 #		print(pygame.time.get_ticks() - t0, pygame.time.get_ticks() - t1, pygame.time.get_ticks() - t2)
