@@ -39,7 +39,7 @@ def pullgallery():
 	data = urlencode([("data", json.dumps(data))])
 	response = ""
 	try:
-		response = urlopen(url + "?" + data).read()
+		response = urlopen(url + "?" + data).read().decode('utf-8')
 		if settings.DEBUG:
 			print("RESPONSE", response[:200])
 		rdata = json.loads(response)
