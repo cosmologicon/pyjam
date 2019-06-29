@@ -7,7 +7,7 @@ Code for my Python game jam entries (PyWeek).
 * PyWeek 22 (`zome`): Dr. Zome's Laboratory.
 * PyWeek 23 (`final-choice`): The Final Choice.
 * PyWeek 24 (`faraway`): Faraway Near.
-* PyWeek 25 (`pyweek25`)
+* PyWeek 25 (`otherworlder`): Otherworlder.
 * PyWeek 26 (`pyweek26`)
 
 ## Setup process
