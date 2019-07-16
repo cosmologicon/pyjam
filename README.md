@@ -2,6 +2,7 @@
 
 Code for my Python game jam entries (PyWeek).
 
+* PyWeek 19 (`forgotten-angel`): Forgotten Angel.
 * PyWeek 20 (`horizon`): Beyond the Horizon.
 * PyWeek 21 (`shattered`): Shattered World.
 * PyWeek 22 (`zome`): Dr. Zome's Laboratory.
