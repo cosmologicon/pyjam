@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, random, math, os.path
-import vista, settings
+from . import vista, settings
 
 cache = {}
 
@@ -112,11 +112,11 @@ def getimg(imgname, angle = 0, scale = 1.0, alpha = 1.0, bad = False):
 		elif not bad:
 			cache[key] = img0 = getimg(imgname, angle, scale).copy()
 			alphas = pygame.surfarray.pixels_alpha(img0)
-			alphas *= alpha
+			alphas[:,:] = (alphas[:,:] * alpha).astype(alphas.dtype)
 		else:
 			cache[key] = img0 = getimg(imgname, angle, scale, alpha).copy()
 			pixels = pygame.surfarray.pixels3d(img0)
-			pixels[:,:,1:3] *= 0.1
+			pixels[:,:,1:3] = (pixels[:,:,1:3] * 0.1).astype(pixels.dtype)
 	return cache[key]
 
 def draw(imgname, screenpos, angle = None, scale = 1.0, alpha = 1.0, bad = False):

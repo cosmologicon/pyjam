@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame
-import settings, scene, vista, gamescene, buildscene, menuscene
+from . import settings, scene, vista, gamescene, buildscene, menuscene
 
 pygame.init()
 vista.init()

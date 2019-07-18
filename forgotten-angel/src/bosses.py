@@ -1,6 +1,6 @@
 from __future__ import division
 import math, pygame, random
-import ships, state, vista, sound, effects
+from . import ships, state, vista, sound, effects
 
 
 class Boss(ships.Ship):

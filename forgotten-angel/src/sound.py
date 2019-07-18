@@ -1,5 +1,6 @@
+from __future__ import print_function
 import pygame, os.path
-import settings
+from . import settings
 
 music = None
 
@@ -9,7 +10,7 @@ def load(sname):
 	if sname not in sounds:
 		filename = "data/%s.ogg" % sname
 		if not os.path.exists(filename):
-			print "Missing sound:", sname
+			print("Missing sound:", sname)
 			sounds[sname] = None
 			return
 		sounds[sname] = pygame.mixer.Sound(filename)

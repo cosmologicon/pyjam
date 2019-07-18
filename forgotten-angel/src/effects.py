@@ -1,5 +1,5 @@
 import pygame, math, random
-import state, img, vista
+from . import state, img, vista
 
 class Explosion(object):
 	imgname = "boom"

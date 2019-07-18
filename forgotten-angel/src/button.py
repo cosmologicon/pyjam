@@ -1,5 +1,5 @@
 import pygame
-import vista, state, img
+from . import vista, state, img
 
 class Button(object):
 	def __init__(self, name, rect, fontsize = 22, fontname = "viga", bcolor = (0, 0, 255, 100), color = (255, 255, 255), text = None):

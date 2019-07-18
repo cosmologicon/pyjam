@@ -1,5 +1,5 @@
 import math, random, pygame
-import vista, img, settings, weapon, state, effects
+from . import vista, img, settings, weapon, state, effects
 
 class Ship(object):
 	vmax = 1
@@ -133,7 +133,7 @@ class You(Ship):
 
 	def takedamage(self, damage):
 		Ship.takedamage(self, damage)
-		import gamescene
+		from . import gamescene
 		gamescene.setshroud((255, 0, 0), 70)
 
 	def die(self):
@@ -155,7 +155,8 @@ class Mothership(Ship):
 			state.state.effects.append(effects.Explosion(self, v))
 		Ship.think(self, dt)
 
-	def within(self, (x, y)):
+	def within(self, p):
+		x, y = p
 		return (x - self.x) ** 2 + (y - self.y) ** 2 <= self.radius ** 2
 
 

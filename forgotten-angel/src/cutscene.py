@@ -1,6 +1,6 @@
 import pygame
-import vista, state, button, scene, gamescene, buildscene, dialog, img, settings, sound, quest
-from settings import F
+from . import vista, state, button, scene, gamescene, buildscene, dialog, img, settings, sound, quest
+from .settings import F
 
 
 buttons = []

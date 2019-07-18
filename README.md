@@ -2,7 +2,7 @@
 
 Code for my Python game jam entries (PyWeek).
 
-* PyWeek 19 (`forgotten-angel`): Forgotten Angel.
+* PyWeek 19 (`forgotten-angel`): The Forgotten Angel.
 * PyWeek 20 (`horizon`): Beyond the Horizon.
 * PyWeek 21 (`shattered`): Shattered World.
 * PyWeek 22 (`zome`): Dr. Zome's Laboratory.
@@ -34,6 +34,7 @@ Place modules in the `src` subdirectory. Within modules, use relative imports to
 modules:
 
 	from . import module1, module2
+	from .module1 import object1
 
 Modules may be executed as standalone scripts from the command line:
 

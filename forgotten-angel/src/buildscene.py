@@ -1,7 +1,12 @@
 from __future__ import division
 import pygame, random
-import vista, state, scene, settings, img, parts, dialog, button, sound, gamescene
-from settings import F
+from . import vista, state, scene, settings, img, parts, dialog, button, sound, gamescene
+from .settings import F
+
+try:
+  basestring
+except NameError:
+  basestring = str
 
 controls = []
 cps = []
@@ -52,7 +57,8 @@ def init():
 	state.save()
 
 # can be: a tuple on the board, a button name, or a module or conduit
-def pointat((mx, my)):
+def pointat(mp):
+	mx, my = mp
 	if brect.collidepoint((mx, my)):
 		return (mx - bx0) / bscale, (my - by0) / bscale
 	for button in buttons:

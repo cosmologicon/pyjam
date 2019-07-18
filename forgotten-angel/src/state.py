@@ -1,6 +1,10 @@
-import cPickle, pygame
-import settings, ships, things, quest, parts, starmap, sound, bosses, scene, buildscene, dialog
-from settings import F
+import pygame, random, math, os.path
+try:
+	import cPickle as pickle
+except ImportError:
+	import pickle
+from . import settings, ships, things, quest, parts, starmap, sound, bosses, scene, buildscene, dialog
+from .settings import F
 
 starmap.init()
 
@@ -119,7 +123,7 @@ class State(object):
 		return "engine" in self.hookup or "turbo" in self.hookup or "hyperdrive" in self.hookup
 
 	def think(self, dt):
-		import random, math, vista
+		from . import vista
 		self.bossmode = self.boss is not None and self.boss.distfromyou() < settings.fadedistance
 		if self.bossmode and not self.boss.corpse.alive:
 			self.startnextact()
@@ -241,7 +245,7 @@ class State(object):
 							self.bank += t.value
 
 	def drawviewport(self):
-		import vista, img
+		from . import vista, img
 		a = starmap.getoort((self.you.x, self.you.y))
 		vista.screen.fill((0, int(80 * a), int(60 * a)))
 		vista.drawstars()
@@ -259,7 +263,7 @@ class State(object):
 				img.drawtext(settings.inames[iname], F(20), (0, 255, 255), fontname = "teko", center = vista.worldtoscreen(pos))
 
 	def drawmainmap(self):
-		import vista, img
+		from . import vista, img
 		vista.drawmainoort()
 		scale = settings.grect.width / (2 * starmap.rx)
 		for t in self.things:
@@ -280,7 +284,7 @@ class State(object):
 
 
 	def drawnavmap(self):
-		import vista, img
+		from . import vista, img
 		vista.drawnavoort()
 		for t in self.things:
 			if not t.showsup:
@@ -359,14 +363,13 @@ class State(object):
 
 
 def save():
-	cPickle.dump(state, open("savegame.pkl", "wb"))
+	pickle.dump(state, open("savegame.pkl", "wb"), 2)
 
 def load():
 	global state
-	state = cPickle.load(open("savegame.pkl", "rb"))
+	state = pickle.load(open("savegame.pkl", "rb"))
 
 def canload():
-	import os.path
 	return os.path.exists("savegame.pkl")
 
 def reset():

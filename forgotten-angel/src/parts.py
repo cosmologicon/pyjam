@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame, random
-import settings, vista, img
-from settings import F
+from . import settings, vista, img
+from .settings import F
 
 def offset(edge, p0 = (0, 0)):
 	x0, y0 = p0
@@ -23,14 +23,16 @@ class Part(object):
 		self.color = random.randint(100, 200), random.randint(100, 200), random.randint(100, 200)
 		self.dull = tuple(c // 2 for c in self.color)
 
-	def shift(self, (dx, dy)):
+	def shift(self, dp):
+		dx, dy = dp
 		blocks = [(x + dx, y + dy) for x, y in self.blocks]
 		inputs = [(x0 + dx, y0 + dy, x1 + dx, y1 + dy) for x0, y0, x1, y1 in self.inputs]
 		outputs = [(x0 + dx, y0 + dy, x1 + dx, y1 + dy) for x0, y0, x1, y1 in self.outputs]
 		p = Part(self.name, blocks, inputs, outputs)
 		return p
 
-	def nearest(self, (x, y)):
+	def nearest(self, p):
+		x, y = p
 		xs, ys = zip(*self.blocks)
 		xmin, xmax = -min(xs), settings.shipw - max(xs) - 1
 		ymin, ymax = -min(ys), settings.shiph - max(ys) - 1
@@ -68,7 +70,8 @@ class Part(object):
 		py = int(y0 + blocksize * self.center[1])
 		pygame.draw.circle(vista.screen, (255, 0, 255), (px, py), int(1.3 * blocksize), F(2))
 
-	def contains(self, (x, y)):
+	def contains(self, p):
+		x, y = p
 		return (int(x), int(y)) in self.blocks
 
 class Conduit(Part):
@@ -89,7 +92,8 @@ class Conduit(Part):
 		y0 += (self.p0[1] + 0.5) * blocksize
 		img.draw(self.name, (x0, y0), scale = blocksize / 64, angle = -90 * self.rot, bad = bad)
 
-	def shift(self, (dx, dy)):
+	def shift(self, dp):
+		dx, dy = dp
 		dx0, dy0 = self.p0
 		return Conduit(self.oedges, self.rot, (dx + dx0, dy + dy0))
 

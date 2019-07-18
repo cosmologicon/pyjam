@@ -1,5 +1,6 @@
+from __future__ import print_function
 import random, math
-import dialog, state, gamescene, buildscene, scene, starmap, bosses, vista, settings, sound
+from . import dialog, state, gamescene, buildscene, scene, starmap, bosses, vista, settings, sound
 
 class Quest(object):
 	def think(self, dt):
@@ -125,7 +126,7 @@ class Act3Quest(Quest):
 	def __init__(self):
 		self.addquest(EndQuest())
 	def think(self, dt):
-		import things
+		from . import things
 		if sum(t.surveyed and isinstance(t, things.Sun) for t in state.state.things) > 2:
 			self.addquest(Baron3Quest())
 			self.complete()
@@ -151,7 +152,7 @@ class Baron3Quest(Quest):
 class EndQuest(Quest):
 	def think(self, dt):
 		if state.state.angel5.surveyed:
-			print "You beat the game. See the README for the cutscene that didn't make it in. Thanks for playing!"
+			print("You beat the game. See the README for the cutscene that didn't make it in. Thanks for playing!")
 			exit()
 
 

@@ -1,6 +1,6 @@
 from __future__ import division
 import math, random, pygame
-import vista, img, settings, weapon, state, effects
+from . import vista, img, settings, weapon, state, effects
 
 class Planet(object):
 	radius = 2

@@ -1,7 +1,7 @@
-from __future__ import division
+from __future__ import division, print_function
 import pygame
-import settings, img, vista, state
-from settings import F
+from . import settings, img, vista, state
+from .settings import F
 
 avatarscale = F(80) / 256
 textsize = F(24)
@@ -69,7 +69,7 @@ def play(dname):
 	if dname in lines:
 		state.state.playing.extend(lines[dname])
 	else:
-		print "playing %s" % dname
+		print("playing %s" % dname)
 
 def clear(dname):
 	pass

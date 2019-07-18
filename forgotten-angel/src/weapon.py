@@ -1,5 +1,5 @@
 import math
-import state, effects, sound
+from . import state, effects, sound
 
 class Weapon(object):
 	cooldown = 1

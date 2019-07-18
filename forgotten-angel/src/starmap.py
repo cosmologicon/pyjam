@@ -1,11 +1,16 @@
-import cPickle, pygame
+import pygame
+try:
+	import cPickle as pickle
+except ImportError:
+	import pickle
 
 def init():
 	global ps, oortdata, scale, rx, ry, oortmap
-	obj = cPickle.load(open("data/starmap.pkl", "rb"))
+	obj = pickle.load(open("data/starmap.pkl", "rb"))
 	ps, oortdata, scale, rx, ry = obj
 
-def getoort((x, y)):
+def getoort(p):
+	x, y = p
 	key = int(round((x + rx) * scale)), int(round((y + ry) * scale))
 	if key in oortdata:
 		return oortdata[key]
