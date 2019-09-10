@@ -1,6 +1,11 @@
 Testing for PyWeek
 ------------------
 
+requirement:
+
+pygame
+numpy
+
 This subdirectory is to test pygame functions so that collaborators can check that the game will run
 on their system before the competition starts.
 
