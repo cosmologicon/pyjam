@@ -1,2 +1,2 @@
-gamename = "PyWeek28 Practice Game"
+gamename = "Castles in the Sky"
 

@@ -1,4 +1,4 @@
-PyWeek 28 Practice Game
+Castles in the Sky: a PyWeek 28 Practice Game
 ==========
 
 Team: Universe Factory 28
