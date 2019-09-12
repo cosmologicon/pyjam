@@ -8,6 +8,7 @@ Team Members
 ------------
 
 * Christopher Night (Cosmologicon)
+* Mike Tamillow (Unicorn Markets)
 
 Requirements
 ------------
