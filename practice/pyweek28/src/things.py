@@ -1,6 +1,10 @@
-import pygame, math
+import pygame, math, random
 from . import view, pview, ptext, state
 from .pview import T
+
+def collide(obj0, obj1):
+	return math.distance(obj0.p, obj1.p) < obj0.r + obj1.r
+
 
 class Balloon:
 	def __init__(self, p):
@@ -22,6 +26,7 @@ class Balloon:
 	def draw(self):
 		p = view.worldtoscreen(self.p)
 		r = self.r * view.zoom
+		# TODO: make the balloon flash red for a little bit after taking damage
 		pygame.draw.circle(pview.screen, (255, 200, 100), p, T(r))
 		ptext.draw("balloon", center = p, fontsize = T(18), owidth = 1)
 
@@ -72,4 +77,46 @@ class Castle:
 		rect.center = p
 		pygame.draw.rect(pview.screen, (100, 100, 100), rect)
 		ptext.draw("castle", center = p, fontsize = T(18), owidth = 1)
+
+
+
+class Meteor:
+	def __init__(self, p, v):
+		self.p = p
+		self.v = v
+		self.r = 0.4
+		self.alive = True
+		# TODO: give each meteor a different color
+
+	def think(self, dt):
+		x, y = self.p
+		vx, vy = self.v
+		x += dt * vx
+		y += dt * vy
+		self.p = x, y
+		# TODO: play a sound effect on hurt or collect
+		if collide(self, state.balloon):
+			state.hurt()
+			self.alive = False
+		elif collide(self, state.castle):
+			state.collect()
+			self.alive = False
+		w, h = pview.width0 / view.zoom, pview.height0 / view.zoom
+		if y < view.y0 - 0.6 * h:
+			self.alive = False
+
+	def draw(self):
+		p = view.worldtoscreen(self.p)
+		r = self.r * view.zoom
+		pygame.draw.circle(pview.screen, (40, 80, 80), p, T(r))
+
+def randommeteor():
+	w, h = pview.width0 / view.zoom, pview.height0 / view.zoom
+	x = view.x0 + 0.7 * w * random.uniform(-1, 1)
+	y = view.y0 + 0.6 * h
+	vx = random.uniform(-1, 1)
+	vy = random.uniform(-5, -4)
+	return Meteor((x, y), (vx, vy))
+
+
 

@@ -14,6 +14,8 @@ zoom = 30  # Pixels per game unit in the default resolution. Actual zoom depends
 
 # TODO: dynamically zoom in or out depending on how powered up you are
 
+# TODO: the screen follows the balloon
+
 def worldtoscreen(pworld):
 	xworld, yworld = pworld
 	xoffset = (xworld - x0) * zoom

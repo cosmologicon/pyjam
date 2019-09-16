@@ -1,6 +1,8 @@
 import pygame
 from . import settings, pview, scene, playscene
 
+# TODO: add background music
+
 pview.set_mode(settings.size0)
 pygame.display.set_caption(settings.gamename)
 
@@ -23,7 +25,7 @@ while playing:
 			elif event.key == pygame.K_F10:
 				pview.toggle_fullscreen()
 			elif event.key == pygame.K_F11:
-				pview.cycle_heights(settings.heights)
+				pview.cycle_height(settings.heights)
 			elif event.key == pygame.K_F12:
 				pview.screenshot()
 			else:
