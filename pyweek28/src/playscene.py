@@ -7,12 +7,16 @@ class PlayScene(scene.Scene):
 		# Where the camera wants to be.
 		self.targetyG0 = 0
 		self.ftarget = 0
+		self.up = [pygame.K_UP, pygame.K_w]
+		self.down = [pygame.K_DOWN, pygame.K_s]
+		self.left = [pygame.K_LEFT, pygame.K_a] # TODO: left and right functions
+		self.right = [pygame.K_RIGHT, pygame.K_d]
+		self.stations = [station.Station(yG) for yG in state.stations]
 
 	def think(self, dt, kpressed, kdowns):
-		# TODO: support WASD
-		if pygame.K_UP in kdowns:
+		if any([up in kdowns for up in self.up]):
 			self.moveup()
-		elif pygame.K_DOWN in kdowns:
+		elif any([down in kdowns for down in self.down]):
 			self.movedown()
 
 		# Smooth transition between stations

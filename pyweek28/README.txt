@@ -11,6 +11,7 @@ Team Members
 
 * Christopher Night (Cosmologicon)
 * Xinming Zhang (xmzhang1)
+* Mike Tamillow (UnicornMarkets)
 
 Requirements
 ------------
