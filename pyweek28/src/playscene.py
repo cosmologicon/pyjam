@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math
-from . import scene, pview, view, ptext, draw, state, worldmap
+from . import scene, pview, view, ptext, draw, state, worldmap, things
 from .pview import T
 
 class PlayScene(scene.Scene):
@@ -8,6 +8,14 @@ class PlayScene(scene.Scene):
 		# Where the camera wants to be.
 		self.targetyG0 = view.yG0
 		self.ftarget = 0
+		
+		state.stations = [
+			things.Station("LowOrbiton", 400),
+			things.Station("Skyburg", 2000),
+			things.Station("Last Ditch", 3700),
+			things.Station("Stationary", 7200),
+			things.Station("Counterweight", 10000),
+		]
 
 		self.up = [pygame.K_UP, pygame.K_w]
 		self.down = [pygame.K_DOWN, pygame.K_s]
@@ -44,10 +52,10 @@ class PlayScene(scene.Scene):
 			self.fshowcompass = 3
 
 	def moveup(self):
-		aboves = [station for station in state.stations if station > self.targetyG0]
+		aboves = [station.yG for station in state.stations if station.yG > self.targetyG0]
 		self.targetyG0 = min(aboves) if aboves else state.top
 	def movedown(self):
-		belows = [station for station in state.stations if station < self.targetyG0]
+		belows = [station.yG for station in state.stations if station.yG < self.targetyG0]
 		self.targetyG0 = max(belows) if belows else 0
 	def movehoriz(self, dA):
 		self.targetA = (round(self.targetA * 8) + dA) % 8 / 8
@@ -55,13 +63,15 @@ class PlayScene(scene.Scene):
 	def draw(self):
 		draw.stars()
 		draw.atmosphere()
-		for stationyG in state.stations:
-			draw.station(stationyG, back = True)
+		for station in state.stations:
+			station.draw(back = True)
 		draw.cable()
-		for stationyG in state.stations:
-			draw.station(stationyG, back = False)
+		for station in state.stations:
+			station.draw(back = False)
 		worldmap.draw()
+		currentstation = "".join([station.name for station in state.stations if abs(station.yG - view.yG0) < 3])
 		text = "\n".join([
+			"Station: %s" % (currentstation,),
 			"Altitude: %d km" % (round(view.yG0),),
 		])
 		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1.5)

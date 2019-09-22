@@ -19,8 +19,8 @@ def draw():
 	pview.screen.fill((140, 100, 100), rect)
 
 	pygame.draw.line(pview.screen, (220, 220, 220), (xV, yVtop), (xV, yVbottom), T(3))
-	for stationyG in state.stations:
-		yV = pview.I(math.fadebetween(stationyG, 0, yVbottom, state.top, yVtop))
+	for station in state.stations:
+		yV = pview.I(math.fadebetween(station.yG, 0, yVbottom, state.top, yVtop))
 		rect = T(pygame.Rect(0, 0, 10, 6))
 		rect.center = xV, yV
 		pview.screen.fill((180, 255, 255), rect)
