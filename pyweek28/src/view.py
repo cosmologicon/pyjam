@@ -3,8 +3,20 @@
 # Game coordinates: position in the main view window in units of krelmars (km).
 #   xG = 0 at the center of the elevator, with positive xG to the right.
 #   yG = 0 at the surface, with positive yG going up.
+# A is the viewing angle, going from 0 to 1 and wrapping around.
+# A = 0 means facing North, i.e. the camera is South of the elevator.
+# A = 1/8 means facing Northeast, i.e. the camera is Southwest of the elevator.
+# This can be a little counterintuitive, but if you step left, that moves you clockwise around the
+# elevator, e.g. from South to Southwest.
+# Note that xG refers to the viewing plane from the player's perspective. This means that an
+# object's xG coordinate changes as you step around the elevator.
+# World coordinates: fixed 3-D position of an object in the game world in units of km. Similar to
+#   game coordinates but different when you take rotation into account. (xW, yW) = (0, 0) is the
+#   central axis of the elevator. zW = 0 at the bottom.
 
-import pygame
+
+from __future__ import division
+import pygame, math
 from . import settings, pview
 from .pview import T
 
@@ -12,6 +24,8 @@ from .pview import T
 xG0, yG0 = 0, 0
 # Current size of a game unit in baseline pixels (still need to apply T to get to view coordinates)
 zoom = 100
+# Current viewing angle
+A = 0
 
 
 def init():
@@ -26,4 +40,24 @@ def gametoview(pG):
 
 # TODO: implement viewtogame
 
+
+# Return ((xG, yG), dG), where dG is a depth coordinate, equal to 0 in the plane of the elevator,
+# and positive when closer to the camera than the elevator is.
+def worldtogame(pW):
+	xW, yW, zW = pW
+	xG, dGneg = math.R(A * math.tau, (xW, yW))
+	yG = zW
+	dG = -dGneg
+	return (xG, yG), dG
+
+# viewing angles A are wrapped between 0 and 1. This returns the difference A0 - A1 (mod 1) such
+# that the value is between -1/2 and +1/2.
+def dA(A0, A1):
+	return (A0 - A1 + 1/2) % 1 - 1/2
+
+# approach function that takes the shortest distance wrapping around between 0 and 1.
+# e.g. if you're at A0 = 7/8 and you want to approach A1 = 0, this will increase rather than decrease.
+def Aapproach(A0, A1, Astep):
+	return (A1 - math.softapproach(dA(A1, A0), 0, Astep, dymin = 0.001)) % 1
+	
 
