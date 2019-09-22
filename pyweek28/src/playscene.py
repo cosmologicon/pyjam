@@ -25,7 +25,11 @@ class PlayScene(scene.Scene):
 		# Smooth transition between stations
 		self.ftarget += dt
 		f = 100 * self.ftarget ** 3
-		view.yG0 = math.softapproach(view.yG0, self.targetyG0, f * dt, dymin = 0.01)
+		newyG0 = math.softapproach(view.yG0, self.targetyG0, f * dt, dymin = 0.01)
+		# TODO: This is supposed to give a sense of pulling back every time you take a step, but I'm
+		# not sure it comes across. Try it again once the graphics are more in place.
+		# view.zoom = 100 / (1 + 0.001 * abs(view.yG0 - newyG0) / dt)
+		view.yG0 = newyG0
 		if view.yG0 == self.targetyG0:
 			self.ftarget = 0
 
