@@ -5,6 +5,8 @@ from . import settings, scene, playscene, view
 # TODO: title screen
 scene.push(playscene.PlayScene())
 
+# TODO: sound module to play music and sound effects
+
 view.init()
 clock = pygame.time.Clock()
 playing = True
