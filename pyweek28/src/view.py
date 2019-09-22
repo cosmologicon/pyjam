@@ -24,4 +24,6 @@ def gametoview(pG):
 	yV = T(pview.centery0 - (yG - yG0) * zoom)
 	return xV, yV
 
+# TODO: implement viewtogame
+
 

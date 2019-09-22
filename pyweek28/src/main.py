@@ -1,6 +1,7 @@
 from __future__ import division
 import pygame
-from . import settings, scene, playscene, view
+from . import settings, scene, playscene, view, ptext, pview
+from .pview import T
 
 # TODO: title screen
 scene.push(playscene.PlayScene())
@@ -36,5 +37,10 @@ while playing:
 		playing = False
 	if settings.DEBUG:
 		pygame.display.set_caption("%s | %.1ffps" % (settings.gamename, clock.get_fps()))
+		text = "\n".join([
+			"Up/down: move between stations",
+			"Esc: quit",
+		])
+		ptext.draw(text, fontsize = T(24), topleft = T(0, 0), owidth = 1.5)
 	pygame.display.flip()
 

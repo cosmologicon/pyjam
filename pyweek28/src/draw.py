@@ -1,3 +1,5 @@
+# Draw world objects (i.e. in the middle panel)
+
 import pygame
 from . import pview, state, view
 from .pview import T
@@ -26,6 +28,7 @@ def station(yG):
 		xV0, yV0 = view.gametoview((-w, yG + h))
 		xV1, yV1 = view.gametoview((w, yG - h))
 		rect = pygame.Rect(xV0, yV0, xV1 - xV0, yV1 - yV0)
-		pview.screen.fill(color, rect)
+		if pview.rect.colliderect(rect):
+			pview.screen.fill(color, rect)
 		
 	

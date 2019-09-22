@@ -1,18 +1,26 @@
 import pygame, math
-from . import scene, pview, view, ptext, draw, state
+from . import scene, pview, view, ptext, draw, state, worldmap
 from .pview import T
 
 class PlayScene(scene.Scene):
 	def __init__(self):
 		# Where the camera wants to be.
 		self.targetyG0 = 0
+		self.ftarget = 0
+
 	def think(self, dt, kpressed, kdowns):
 		# TODO: support WASD
 		if pygame.K_UP in kdowns:
 			self.moveup()
 		elif pygame.K_DOWN in kdowns:
 			self.movedown()
-		view.yG0 = math.softapproach(view.yG0, self.targetyG0, 10 * dt, dymin = 0.01)
+
+		# Smooth transition between stations
+		self.ftarget += dt
+		f = 100 * self.ftarget ** 3
+		view.yG0 = math.softapproach(view.yG0, self.targetyG0, f * dt, dymin = 0.01)
+		if view.yG0 == self.targetyG0:
+			self.ftarget = 0
 
 	def moveup(self):
 		aboves = [station for station in state.stations if station > self.targetyG0]
@@ -29,6 +37,7 @@ class PlayScene(scene.Scene):
 		draw.cable()
 		for stationyG in state.stations:
 			draw.station(stationyG)
+		worldmap.draw()
 		text = "\n".join([
 			"Altitude: %d km" % (round(view.yG0),),
 		])
