@@ -10,6 +10,10 @@
 # elevator, e.g. from South to Southwest.
 # Note that xG refers to the viewing plane from the player's perspective. This means that an
 # object's xG coordinate changes as you step around the elevator.
+# World coordinates: fixed 3-D position of an object in the game world in units of km. Similar to
+#   game coordinates but different when you take rotation into account. (xW, yW) = (0, 0) is the
+#   central axis of the elevator. zW = 0 at the bottom.
+
 
 from __future__ import division
 import pygame, math
@@ -36,6 +40,15 @@ def gametoview(pG):
 
 # TODO: implement viewtogame
 
+
+# Return ((xG, yG), dG), where dG is a depth coordinate, equal to 0 in the plane of the elevator,
+# and positive when closer to the camera than the elevator is.
+def worldtogame(pW):
+	xW, yW, zW = pW
+	xG, dGneg = math.R(A * math.tau, (xW, yW))
+	yG = zW
+	dG = -dGneg
+	return (xG, yG), dG
 
 # viewing angles A are wrapped between 0 and 1. This returns the difference A0 - A1 (mod 1) such
 # that the value is between -1/2 and +1/2.

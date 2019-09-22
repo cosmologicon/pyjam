@@ -47,9 +47,11 @@ class PlayScene(scene.Scene):
 	def draw(self):
 		draw.stars()
 		draw.atmosphere()
+		for stationyG in state.stations:
+			draw.station(stationyG, back = True)
 		draw.cable()
 		for stationyG in state.stations:
-			draw.station(stationyG)
+			draw.station(stationyG, back = False)
 		worldmap.draw()
 		text = "\n".join([
 			"Altitude: %d km" % (round(view.yG0),),
