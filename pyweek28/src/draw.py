@@ -1,10 +1,35 @@
 # Draw world objects (i.e. in the middle panel)
 
-import pygame
+import pygame, math, random
 from . import pview, state, view
 from .pview import T
 
-# TODO: that fancy "woven" effect for the cable.
+# TODO(Christopher): Even though it's less realistic, I think it might look more dymanic if the
+# starfield had a feeling of depth, i.e. not all the stars parallax the same amount when you move.
+def randomstar():
+	y = random.uniform(0, 10000)
+	A = random.uniform(0, 1)
+	return y, A
+stardata = [randomstar() for _ in range(10000)]
+
+# TODO: restrict to the central viewing area.
+def stars():
+	pview.fill((0, 0, 0))
+	Nstar = 500  # TODO: change dynamically with resolution
+	for y, A in stardata[:Nstar]:
+		# TODO: dynamically change with camera zoom level
+		pos = T(pview.centerx + 4000 * view.dA(A, view.A), 300 * (y - view.yG0) % pview.h)
+		# TODO: different colors correlated with depth
+		color = 255, 255, 255
+		pview.screen.set_at(pos, color)
+
+def atmosphere():
+	# Atmosphere
+	alpha = pview.I(math.fadebetween(view.yG0, 10, 255, 100, 0))
+	if alpha: 
+		pview.fill((100, 130, 220, alpha))
+
+# TODO(Christopher): that fancy "woven" effect for the cable. (Christopher)
 
 # The central cable.
 def cable():
@@ -16,7 +41,7 @@ def cable():
 		rect = pygame.Rect(xV0, yV0, xV1 - xV0, yV1 - yV0)
 		pview.screen.fill((shade, shade, shade), rect)
 
-# TODO: procedurally generate station layouts so they look unique.
+# TODO(Christopher): procedurally generate station layouts so they look unique.
 def station(yG):
 	# TODO: abort early if the entire station is off screen.
 	rectdata = [
