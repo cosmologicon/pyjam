@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math
-from . import scene, pview, view, ptext, draw, state, worldmap, things
+from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest
 from .pview import T
 
 class PlayScene(scene.Scene):
@@ -16,6 +16,7 @@ class PlayScene(scene.Scene):
 			things.Station("Stationary", 7200),
 			things.Station("Counterweight", 10000),
 		]
+		state.stations[3].addquest("testquest")
 
 		self.up = [pygame.K_UP, pygame.K_w]
 		self.down = [pygame.K_DOWN, pygame.K_s]
@@ -33,6 +34,8 @@ class PlayScene(scene.Scene):
 			self.movehoriz(1)
 		elif any([right in kdowns for right in self.right]):
 			self.movehoriz(-1)
+		if pygame.K_q in kdowns:
+			self.claimquest()
 
 		# Smooth transition between stations
 		self.ftarget += dt
@@ -51,6 +54,9 @@ class PlayScene(scene.Scene):
 		if view.dA(view.A, self.targetA):
 			self.fshowcompass = 3
 
+		quest.think(dt)
+		dialog.think(dt)
+
 	def moveup(self):
 		aboves = [station.yG for station in state.stations if station.yG > self.targetyG0]
 		self.targetyG0 = min(aboves) if aboves else state.top
@@ -59,6 +65,14 @@ class PlayScene(scene.Scene):
 		self.targetyG0 = max(belows) if belows else 0
 	def movehoriz(self, dA):
 		self.targetA = (round(self.targetA * 8) + dA) % 8 / 8
+	def availablequest(self):
+		s = state.currentstation()
+		return s.quests[0] if s and s.quests else None
+	def claimquest(self):
+		q = self.availablequest()
+		if q is not None:
+			quest.start(q)
+			state.currentstation().quests.pop(0)
 
 	def draw(self):
 		draw.stars()
@@ -69,9 +83,8 @@ class PlayScene(scene.Scene):
 		for station in state.stations:
 			station.draw(back = False)
 		worldmap.draw()
-		currentstation = "".join([station.name for station in state.stations if abs(station.yG - view.yG0) < 3])
 		text = "\n".join([
-			"Station: %s" % (currentstation,),
+			"Station: %s" % (state.currentstationname(),),
 			"Altitude: %d km" % (round(view.yG0),),
 		])
 		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1.5)
@@ -87,3 +100,8 @@ class PlayScene(scene.Scene):
 			pos = x0 + dx, y0 - dy
 			ptext.draw(dname, center = T(pos), fontsize = T(60), owidth = 1.5,
 				angle = -A * 360 + 180, alpha = alpha)
+		if self.availablequest():
+			ptext.draw("Quest available at this station! Press Q to begin.",
+				center = pview.center, fontsize = T(80), width = T(720), color = "orange",
+				owidth = 1.5)
+		dialog.draw()

@@ -2,7 +2,7 @@
 # TODO: let you click on the panel to go between stations
 
 import pygame, math
-from . import pview, state, view
+from . import pview, state, view, ptext
 from .pview import T
 
 def draw():
@@ -24,6 +24,9 @@ def draw():
 		rect = T(pygame.Rect(0, 0, 10, 6))
 		rect.center = xV, yV
 		pview.screen.fill((180, 255, 255), rect)
+		if station.quests:
+			ptext.draw("(!)", center = (xV + T(30), yV), color = "yellow",
+				fontsize = T(28), owidth = 1.5)
 	pygame.draw.line(pview.screen, (220, 220, 220), (xV, yVtop), (xV, yVbottom), T(3))
 	
 

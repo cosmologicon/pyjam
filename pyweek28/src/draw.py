@@ -41,12 +41,12 @@ def getcabletexture():
 	w, h = 800, 400
 	cabletexture = pygame.Surface((w, h)).convert()
 	cabletexture.fill((80, 80, 80))
-	for _ in range(300):
+	for _ in range(100):
 		# Stripe slope
 		d = random.choice([1, 3, 5])
 		n = random.randint(1, d // 2 + 1)
 		flip = random.choice([False, True])
-		n, d = (1, 3) if flip else (2, 5)
+		n, d = (1, 3) if flip else (3, 5)
 		xstep = pview.I(1 / d * w)
 		dx = xstep * n
 		# Stripe width

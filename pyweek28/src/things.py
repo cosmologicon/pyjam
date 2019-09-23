@@ -2,7 +2,7 @@
 
 from __future__ import division
 import pygame, random, math
-from . import pview, view
+from . import pview, view, quest
 from .pview import T
 
 
@@ -28,6 +28,12 @@ class Station:
 		self.yG = yG
 		self.messages = []
 		self.drawdata = [randomstationpiece() for _ in range(20)]
+		self.quests = []
+	def addquest(self, questname):
+		self.quests.append(questname)
+	def startquest(self, questname):
+		self.quests.remove(questname)
+		quest.start(questname)
 	def think(self, dt):
 		pass
 	def draw(self, back):
