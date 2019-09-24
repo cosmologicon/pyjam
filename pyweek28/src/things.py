@@ -2,7 +2,7 @@
 
 from __future__ import division
 import pygame, random, math
-from . import pview, view, quest
+from . import pview, view, quest, state
 from .pview import T
 
 
@@ -49,4 +49,56 @@ class Station:
 			rect = pygame.Rect(xV0, yV0, xV1 - xV0, yV1 - yV0)
 			if pview.rect.colliderect(rect):
 				pview.screen.fill(color, rect)
-		
+
+
+class Car:
+	def __init__(self, yG, A):
+		self.yG = yG
+		self.A = A
+		self.n = 0  # number of passengers carried
+		self.capacity = 1
+		self.targetyG = self.yG
+		self.vyG = 0
+		self.r = 0.8
+		self.R = 1.3  # Distance from central axis
+		# When a car nears its destination it switches to approach mode, which is exponential braking.
+		self.braking = True
+	def arrived(self):
+		return self.targetyG == self.yG
+	def worldpos(self):
+		yW, xW = math.CS(self.A * math.tau, self.R)
+		zW = self.yG
+		return xW, yW, zW
+	def think(self, dt):
+		if not self.arrived():
+			b = 4  # braking factor. Set higher for shorter stops.
+			brakeyG = math.softapproach(self.yG, self.targetyG, b * dt, dymin = 0.01)
+			if not self.braking:
+				self.vyG += 200 * dt
+				goyG = math.approach(self.yG, self.targetyG, self.vyG * dt)
+				if abs(self.yG - brakeyG) < abs(self.yG - goyG):
+					self.braking = True
+				else:
+					self.yG = goyG
+			if self.braking:
+				self.vyG = abs(brakeyG - self.yG) / dt
+				self.yG = brakeyG
+		# TODO: remove. This is just for demo purposes to make it seem more dynamic.
+		if self.arrived():
+			self.settarget(random.choice(state.stations).yG)
+	def settarget(self, yG):
+		self.targetyG = yG
+		self.braking = False
+	def draw(self, back):
+		# TODO: abort early if the entire car is off screen.
+		(xG, yG), dG = view.worldtogame(self.worldpos())
+		if (back and dG > 0) or (not back and dG < 0):
+			return
+		h = 0.5
+		color = 200, 100, 100
+		xV0, yV0 = view.gametoview((xG - self.r, yG + h))
+		xV1, yV1 = view.gametoview((xG + self.r, yG - h))
+		rect = pygame.Rect(xV0, yV0, xV1 - xV0, yV1 - yV0)
+		if pview.rect.colliderect(rect):
+			pview.screen.fill(color, rect)
+

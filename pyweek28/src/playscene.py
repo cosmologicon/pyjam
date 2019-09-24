@@ -17,6 +17,10 @@ class PlayScene(scene.Scene):
 			things.Station("Counterweight", 10000),
 		]
 		state.stations[3].addquest("testquest")
+		
+		state.cars = [
+			things.Car(0, j/8) for j in range(8)
+		]
 
 		self.up = [pygame.K_UP, pygame.K_w]
 		self.down = [pygame.K_DOWN, pygame.K_s]
@@ -54,6 +58,8 @@ class PlayScene(scene.Scene):
 		if view.dA(view.A, self.targetA):
 			self.fshowcompass = 3
 
+		for obj in state.stations + state.cars:
+			obj.think(dt)
 		quest.think(dt)
 		dialog.think(dt)
 
@@ -77,9 +83,16 @@ class PlayScene(scene.Scene):
 	def draw(self):
 		draw.stars()
 		draw.atmosphere()
+
+		# TODO: better for drawing all the world objects is to have each one have a set of pieces
+		# which can then be sorted by depth.
 		for station in state.stations:
 			station.draw(back = True)
+		for car in state.cars:
+			car.draw(back = True)
 		draw.cable()
+		for car in state.cars:
+			car.draw(back = False)
 		for station in state.stations:
 			station.draw(back = False)
 		worldmap.draw()

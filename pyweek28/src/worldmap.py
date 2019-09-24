@@ -28,5 +28,11 @@ def draw():
 			ptext.draw("(!)", center = (xV + T(30), yV), color = "yellow",
 				fontsize = T(28), owidth = 1.5)
 	pygame.draw.line(pview.screen, (220, 220, 220), (xV, yVtop), (xV, yVbottom), T(3))
+	for car in state.cars:
+		yV = pview.I(math.fadebetween(car.yG, 0, yVbottom, state.top, yVtop))
+		rect = T(pygame.Rect(0, 0, 4, 4))
+		rect.center = xV, yV
+		pview.screen.fill((255, 100, 100), rect)
+		
 	
 
