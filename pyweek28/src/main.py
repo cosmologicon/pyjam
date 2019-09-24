@@ -39,7 +39,9 @@ while playing:
 		pygame.display.set_caption("%s | %.1ffps" % (settings.gamename, clock.get_fps()))
 		text = "\n".join([
 			"Up/down: move between stations",
+			"C: track car on current side of cable",
 			"Left/right: change viewing angle",
+			"Q: claim quest at station with (!) icon",
 			"Esc: quit",
 		])
 		ptext.draw(text, fontsize = T(24), topleft = T(0, 0), owidth = 1.5)

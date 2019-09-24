@@ -32,6 +32,11 @@ def atmosphere():
 
 
 
+# TODO: when the camera is moving quickly (say, more than 100 pixels per frame), instead of drawing
+# a textured cable, just do a solid color (with the shading). This will make it look more smeared
+# out.
+# Also the stars.
+
 # Drawing the central cable
 def buildcabletexture():
 	global cabletexture

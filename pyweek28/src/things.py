@@ -50,6 +50,8 @@ class Station:
 			if pview.rect.colliderect(rect):
 				pview.screen.fill(color, rect)
 
+# TODO: reconsider the convention of A being the side of the cable it's on, rather than the side of
+# the cable it's facing.
 
 class Car:
 	def __init__(self, yG, A):

@@ -20,7 +20,7 @@ import pygame, math
 from . import settings, pview
 from .pview import T
 
-# Current center of the screen in game coordinates
+# Current center of the screen in game coordinates. xG0 will probably always be 0.
 xG0, yG0 = 0, 0
 # Current size of a game unit in baseline pixels (still need to apply T to get to view coordinates)
 zoom = 100
@@ -28,9 +28,66 @@ zoom = 100
 A = 0
 
 
+# TODO: make the camera approach functions faster as the game progresses.
+
+# Camera mode can be one of the following:
+cmode = "y"
+
+# "y": In this mode, the camera will soft approach to targetyG and then remain stationary.
+targetyG = 0  # Where the camera wants to be
+ftargetyG = 0  # Approach factor, increases in time to allow for a slightly slower start.
+def updatecamera_y(dt):
+	global targetyG, ftargetyG, yG0
+	ftargetyG += dt
+	f = 100 * ftargetyG ** 3
+	newyG0 = math.softapproach(yG0, targetyG, f * dt, dymin = 0.01)
+	# TODO: This is supposed to give a sense of pulling back as the camera pans, but I'm not sure it
+	# comes across. Try it again once the graphics are more in place.
+	# zoom = 100 / (1 + 0.001 * abs(yG0 - newyG0) / dt)
+	yG0 = newyG0
+def seek_y(yG):
+	global cmode, targetyG, ftargetyG
+	cmode = "y"
+	targetyG = yG
+	ftargetyG = 0
+	
+# "car": In this mode, the camera will soft approach a car, matching its speed, and will track it
+# thereafter.
+targetcar = None
+ftargetcar = 0
+def updatecamera_car(dt):
+	global ftargetcar, yG0
+	ftargetcar = math.clamp(ftargetcar + 2 * dt, 0, 1)
+	f = math.ease(math.ease(ftargetcar))
+	yG0 = math.mix(targetcarstart, targetcar.yG, f)
+
+def seek_car(car):
+	global cmode, targetcar, ftargetcar, targetcarstart
+	cmode = "car"
+	targetcar = car
+	ftargetcar = 0
+	targetcarstart = yG0
+
+# For now, angles are tracked independently from camera y-position.
+targetA = 0
+def rotate(dA):
+	global targetA
+	targetA = (round(targetA * 8) + dA) % 8 / 8
+
+
 def init():
 	pview.set_mode(settings.resolution)
 	pygame.display.set_caption(settings.gamename)
+
+def think(dt):
+	global A
+	if cmode == "y":
+		updatecamera_y(dt)
+	if cmode == "car":
+		updatecamera_car(dt)
+
+	A = Aapproach(A, targetA, 10 * dt)
+	
 
 def gametoview(pG):
 	xG, yG = pG
