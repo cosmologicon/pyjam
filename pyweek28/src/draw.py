@@ -43,6 +43,82 @@ def atmosphere():
         pview.fill((100, 130, 220, alpha))
 
 
+
+# Okay, here we go....
+
+# The 3-D effect is achieved by constructing a numpy array to sample from a texture, which is a
+# separately constructed pygame.Surface object.
+# Every element in 3-D is an axially symmetric shape with a radius defined as a function with
+# respect to height. We use an axis-aligned orthographic projection to determine the texture
+# coordinates as a function of position within the image.
+# Honestly, I'll need a whiteboard and an hour to explain most of these variables.
+# See the notebook entry date 24 Sep 2019.
+def getelement(tname, w, h, r0, r1, n, A0, k):
+	texture = gettexture(tname)
+	w0, h0 = texture.get_size()
+	x = numpy.arange(w).reshape(w, 1)
+	y = numpy.arange(h).reshape(1, h)
+	b = 1 - (y + 1/2) / h
+	r = getr(b, r0, r1, n)
+	# TODO: optimize when r is a constant.
+	a = (2 * x + 1 - w) / (2 * r)  # Broadcasting
+	mask = abs(a) <= 1
+	G = numpy.arcsin(a) * mask
+	u = k * (G / math.tau - A0 / 8)
+	v = 1 - b
+	# Shading
+	g = a + 0.2 * (a ** 2 - 1)
+	f = 1 - abs(g ** 2)
+
+	U = (u * w0 + 1/2).astype(int) % w0 * mask
+	V = (v * h0 + 1/2).astype(int) % h0
+	surf = pygame.Surface((w, h)).convert_alpha()
+	arr0 = pygame.surfarray.pixels3d(texture)
+	arr = pygame.surfarray.pixels3d(surf)
+	arr[:, :, :] = (arr0[U, V, :] * f.reshape(w, h, 1)).astype(int)
+#	arr[:, :, :] = arr0[U, V, :].astype(int)
+	del arr
+	pygame.surfarray.pixels_alpha(surf)[:,:] = 255 * mask
+	return surf
+
+_tcache = {}
+def gettexture(tname):
+	if tname in _tcache: return _tcache[tname]
+	surf = pygame.Surface((100, 100)).convert()
+	if tname == "window":
+		surf.fill((100, 100, 100))
+		surf.fill((100, 150, 255), pygame.Rect(10, 10, 80, 80))
+	elif tname == "gray":
+		surf.fill((120, 120, 120))
+	else:
+		raise ValueError
+	_tcache[tname] = surf
+	return surf
+
+# r (radius of the element) with respect to b (vertical position).
+# n is the ratio of the slope: n = dr(1)/db / dr(0)/db
+# n = 1 is flat, n < 1 is concave, n > 1 is convex.
+def getr(b, r0, r1, n):
+	if n == 1: return r0 + (r1 - r0) * b
+	D = (n * r0 - r1) / (n - 1)
+	E = (r1 - r0) / (n - 1)
+	F = math.log(n)
+	return D + E * math.exp(F * b)
+
+def drawelement(tname, xG, y0G, y1G, r0, r1, n, A0, k):
+	x0, y0 = view.gametoview((xG, y0G))
+	x0, y1 = view.gametoview((xG, y1G))
+	r0 = view.zoom * r0
+	r1 = view.zoom * r1
+	w = int(math.ceil(2 * max(r0, r1)))
+	h = y0 - y1
+	surf = getelement(tname, w, h, r0, r1, n, A0, k)
+	rect = surf.get_rect(midbottom = (x0, y0))
+	if pview.rect.colliderect(rect):
+		pview.screen.blit(surf, rect)
+
+
+
 # TODO: when the camera is moving quickly (say, more than 100 pixels per frame), instead of drawing
 # a textured cable, just do a solid color (with the shading). This will make it look more smeared
 # out.

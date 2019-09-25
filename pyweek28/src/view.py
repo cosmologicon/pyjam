@@ -27,7 +27,7 @@ Anames = "N", "NE", "E", "SE", "S", "SW", "W", "NW"
 # Current height of the camera.
 zW0 = 0
 # Current size of a game unit in baseline pixels (still need to apply T to get to view coordinates)
-zoom = 100
+zoom = 60
 # Current angle of the camera. This is the *position* of the camera with respect to the elevator,
 # and is 180 degrees off from the *direction* of the camera. So A = 0 means the camera is positioned
 # on the North side of the elevator, looking South.

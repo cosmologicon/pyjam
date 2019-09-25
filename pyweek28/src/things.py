@@ -2,7 +2,7 @@
 
 from __future__ import division
 import pygame, random, math
-from . import pview, view, quest, state
+from . import pview, view, quest, state, draw
 from .pview import T
 
 
@@ -29,27 +29,29 @@ class Station:
 		self.messages = []
 		self.drawdata = [randomstationpiece() for _ in range(20)]
 		self.quests = []
+		self.t = 0
 	def addquest(self, questname):
 		self.quests.append(questname)
 	def startquest(self, questname):
 		self.quests.remove(questname)
 		quest.start(questname)
 	def think(self, dt):
-		pass
+		self.t += dt
 	def draw(self, back):
-		# TODO: abort early if the entire station is off screen.
-		data = [(view.worldtogame(pW), h, w, color) for pW, h, w, color in self.drawdata]
-		# Sort by depth
-		data.sort(key = lambda entry: entry[0][1])
-		yG0 = self.z
-		for ((xG, yG), dG), h, r, color in data:
-			if (back and dG > 0) or (not back and dG < 0):
-				continue
-			xV0, yV0 = view.gametoview((xG - r, yG0 + yG + h))
-			xV1, yV1 = view.gametoview((xG + r, yG0 + yG - h))
-			rect = pygame.Rect(xV0, yV0, xV1 - xV0, yV1 - yV0)
-			if pview.rect.colliderect(rect):
-				pview.screen.fill(color, rect)
+		if back:
+			return
+		dA = 0.1 * self.t
+		draw.drawelement("gray", 0, self.z - 1, self.z - 0.5, 2, 3, 1, view.A, 10)
+		draw.drawelement("window", 0, self.z - 0.5, self.z + 0.5, 3, 3, 1, view.A + dA, 10)
+		draw.drawelement("gray", 0, self.z + 0.5, self.z + 1, 3, 2, 1, view.A, 10)
+		return
+		(xG, y0G), _ = view.worldtogame((0, 0, self.z - 0.5))
+		(xG, y1G), _ = view.worldtogame((0, 0, self.z + 0.5))
+		r0 = 2
+		r1 = 3
+		A0 = view.A
+		draw.drawelement("window", xG, y0G, y1G, r0, r1, 1, A0, 10)
+#			def drawelement(tname, xG, y0G, y1G, r0, r1, n, A0, k):
 
 # TODO: reconsider the convention of A being the side of the cable it's on, rather than the side of
 # the cable it's facing.
