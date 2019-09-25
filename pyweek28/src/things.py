@@ -38,20 +38,15 @@ class Station:
 	def think(self, dt):
 		self.t += dt
 	def draw(self, back):
+		# TODO: abort early if the entire station is off screen.
 		if back:
 			return
 		dA = 0.1 * self.t
-		draw.drawelement("gray", 0, self.z - 1, self.z - 0.5, 2, 3, 1, view.A, 10)
-		draw.drawelement("window", 0, self.z - 0.5, self.z + 0.5, 3, 3, 1, view.A + dA, 10)
-		draw.drawelement("gray", 0, self.z + 0.5, self.z + 1, 3, 2, 1, view.A, 10)
-		return
-		(xG, y0G), _ = view.worldtogame((0, 0, self.z - 0.5))
-		(xG, y1G), _ = view.worldtogame((0, 0, self.z + 0.5))
-		r0 = 2
-		r1 = 3
-		A0 = view.A
-		draw.drawelement("window", xG, y0G, y1G, r0, r1, 1, A0, 10)
-#			def drawelement(tname, xG, y0G, y1G, r0, r1, n, A0, k):
+		draw.drawelement("gray", 0, self.z - 2, self.z - 0.7, 2, 4.2, 8, view.A, 10)
+		draw.drawelement("hatch", 0, self.z - 0.7, self.z - 0.5, 4.2, 4.2, 1, view.A - 0 * dA, 100)
+		draw.drawelement("window", 0, self.z - 0.5, self.z + 0.5, 4, 4, 1, view.A + dA, 10)
+		draw.drawelement("hatch", 0, self.z + 0.5, self.z + 0.7, 4.2, 4.2, 1, view.A - 0 * dA, 100)
+		draw.drawelement("gray", 0, self.z + 0.7, self.z + 1.4, 4.2, 2, 8, view.A, 10)
 
 # TODO: reconsider the convention of A being the side of the cable it's on, rather than the side of
 # the cable it's facing.

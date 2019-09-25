@@ -53,6 +53,7 @@ def atmosphere():
 # coordinates as a function of position within the image.
 # Honestly, I'll need a whiteboard and an hour to explain most of these variables.
 # See the notebook entry date 24 Sep 2019.
+# TODO: a whole lot of caching - this can be made more efficient overall
 def getelement(tname, w, h, r0, r1, n, A0, k):
 	texture = gettexture(tname)
 	w0, h0 = texture.get_size()
@@ -90,6 +91,9 @@ def gettexture(tname):
 		surf.fill((100, 150, 255), pygame.Rect(10, 10, 80, 80))
 	elif tname == "gray":
 		surf.fill((120, 120, 120))
+	elif tname == "hatch":
+		surf.fill((120, 120, 120))
+		surf.fill((80, 80, 80), pygame.Rect(20, 0, 60, 100))
 	else:
 		raise ValueError
 	_tcache[tname] = surf
@@ -103,7 +107,7 @@ def getr(b, r0, r1, n):
 	D = (n * r0 - r1) / (n - 1)
 	E = (r1 - r0) / (n - 1)
 	F = math.log(n)
-	return D + E * math.exp(F * b)
+	return D + E * numpy.exp(F * b)
 
 def drawelement(tname, xG, y0G, y1G, r0, r1, n, A0, k):
 	x0, y0 = view.gametoview((xG, y0G))
