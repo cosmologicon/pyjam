@@ -51,7 +51,7 @@ class TestQuest(Quest):
 			self.advance()
 		if self.step == 1:
 			s = state.currentstation()
-			if s and s.name == "Skyburg" and view.dA(view.A, 5/8) == 0:
+			if s and s.name == "Skyburg" and view.dA(view.A, 1) == 0:
 				dialog.run("Congratulations. You finished a quest. Want a reward? Tough, we haven't implemented it yet!")
 				self.advance()
 				self.done = True

@@ -44,7 +44,7 @@ class Station:
 		dA = 0.1 * self.t
 		draw.drawelement("gray", 0, self.z - 2, self.z - 0.7, 2, 4.2, 8, view.A, 10)
 		draw.drawelement("hatch", 0, self.z - 0.7, self.z - 0.5, 4.2, 4.2, 1, view.A - 0 * dA, 100)
-		draw.drawelement("window", 0, self.z - 0.5, self.z + 0.5, 4, 4, 1, view.A + dA, 10)
+		draw.drawelement("window", 0, self.z - 0.5, self.z + 0.5, 4, 4, 1, view.A + dA, 20)
 		draw.drawelement("hatch", 0, self.z + 0.5, self.z + 0.7, 4.2, 4.2, 1, view.A - 0 * dA, 100)
 		draw.drawelement("gray", 0, self.z + 0.7, self.z + 1.4, 4.2, 2, 8, view.A, 10)
 

@@ -112,6 +112,7 @@ def getr(b, r0, r1, n):
 def drawelement(tname, xG, y0G, y1G, r0, r1, n, A0, k):
 	x0, y0 = view.gametoview((xG, y0G))
 	x0, y1 = view.gametoview((xG, y1G))
+	if (y0 < 0 and y1 < 0) or (y0 > pview.h and y1 > pview.h): return
 	r0 = view.zoom * r0
 	r1 = view.zoom * r1
 	w = int(math.ceil(2 * max(r0, r1)))
@@ -130,30 +131,34 @@ def drawelement(tname, xG, y0G, y1G, r0, r1, n, A0, k):
 
 # Drawing the central cable
 def buildcabletexture():
-    global cabletexture
-    w, h = 800, 400
-    cabletexture = pygame.Surface((w, h)).convert()
-    cabletexture.fill((80, 80, 80))
-    for _ in range(100):
-        # Stripe slope
-        d = random.choice([1, 3, 5])
-        n = random.randint(1, d // 2 + 1)
-        flip = random.choice([False, True])
-        n, d = (1, 3) if flip else (3, 5)
-        xstep = pview.I(1 / d * w)
-        dx = xstep * n
-        # Stripe width
-        s = random.randint(5, 10)
-        color0 = random.randint(84, 90)
-        color = [color0 + random.randint(-1, 1) for _ in range(3)]
-        x0 = random.randint(0, w)
-        y0, y1 = (0, h) if flip else (h, 0)
-        while x0 + dx + s > 0:
-            x0 -= xstep
-        while x0 < w:
-            ps = (x0, y0), (x0 + dx, y1), (x0 + dx + s, y1), (x0 + s, y0)
-            pygame.draw.polygon(cabletexture, color, ps)
-            x0 += xstep
+	global cabletexture
+	w, h = 800, 400
+	cabletexture = pygame.Surface((w, h)).convert()
+	cabletexture.fill((80, 80, 80))
+	for _ in range(100):
+		# Stripe slope
+		d = random.choice([1, 3, 5])
+		n = random.randint(1, d // 2 + 1)
+		flip = random.choice([False, True])
+		n, d = (1, 3) if flip else (3, 5)
+		xstep = pview.I(1 / d * w)
+		dx = xstep * n
+		# Stripe width
+		s = random.randint(5, 10)
+		color0 = random.randint(84, 90)
+		color = [color0 + random.randint(-1, 1) for _ in range(3)]
+		x0 = random.randint(0, w)
+		y0, y1 = (0, h) if flip else (h, 0)
+		while x0 + dx + s > 0:
+			x0 -= xstep
+		while x0 < w:
+			ps = (x0, y0), (x0 + dx, y1), (x0 + dx + s, y1), (x0 + s, y0)
+			pygame.draw.polygon(cabletexture, color, ps)
+			x0 += xstep
+	for A in range(9):
+		x = int(round(A / 8 * w))
+		a = int(round(w / 60))
+		pygame.draw.line(cabletexture, (50, 50, 50), (x, 0), (x, h), a)
 
 
 cabletexture = None  # Will be built on the first call to getcablesurf
@@ -164,40 +169,41 @@ cabletexture = None  # Will be built on the first call to getcablesurf
 # the camera is stationary, this will be called with the same arguments frame after frame. A good
 # compromise is just to cache the most recent call.
 def getcablesurf(w, A):
-    if cabletexture is None: buildcabletexture()
-    w0, h0 = cabletexture.get_size()
-    h = pview.I(w * h0 / w0 * math.pi)
-    surf = pygame.Surface((w, h)).convert()
+	if cabletexture is None: buildcabletexture()
+	w0, h0 = cabletexture.get_size()
+	h = pview.I(w * h0 / w0 * math.pi)
+	surf = pygame.Surface((w, h)).convert()
 
-    # Range going from -1 to +1
-    a = (numpy.arange(w) + 0.5) * 2 / w - 1
-    # "Unwrapped" range of the angles covered by each column.
-    b = numpy.arcsin(a) / math.tau - A / 8
-    # Column within the image.
-    xs = (b * w0 + 0.5).astype(int) % w0
-    # Fade factor
-    fs = 1 - abs(a ** 3)
-    # Row within the image
-    ys = ((numpy.arange(h) + 0.5) / h * h0 + 0.5).astype(int)
+	# Range going from -1 to +1
+	a = (numpy.arange(w) + 0.5) * 2 / w - 1
+	# "Unwrapped" range of the angles covered by each column.
+	b = numpy.arcsin(a) / math.tau - A / 8
+	# Column within the image.
+	xs = (b * w0 + 0.5).astype(int) % w0
+	# Fade factor
+	fs = 1 - abs(a ** 3)
+	# Row within the image
+	ys = ((numpy.arange(h) + 0.5) / h * h0 + 0.5).astype(int)
 
-    arr0 = pygame.surfarray.pixels3d(cabletexture)
-    arr = pygame.surfarray.pixels3d(surf)
-    arr[:, :, :] = (arr0[xs.reshape(w, 1), ys.reshape(1, h), :] * fs.reshape(w, 1, 1)).astype(int)
-    return surf
+	arr0 = pygame.surfarray.pixels3d(cabletexture)
+	arr = pygame.surfarray.pixels3d(surf)
+	arr[:, :, :] = (arr0[xs.reshape(w, 1), ys.reshape(1, h), :] * fs.reshape(w, 1, 1)).astype(int)
+	return surf
 
 # Main entry point.
 def cable():
-    w = T(2 * state.radius * view.zoom)
-    surf = getcablesurf(w, view.A)
-    h = surf.get_height()
-    hfull = T(state.top * view.zoom)
-    # TODO: make this calculation more stable to small changes in view.zoom.
-    xV, yV = view.gametoview((0, 0))
-    # TODO: cut off at the top of the tower (or maybe just draw something over it so it looks like
-    # the end.
-    if yV - pview.h > h:
-        yV = (yV - pview.h) % h + pview.h
-    while yV > 0:
-        rect = surf.get_rect(midbottom=(xV, yV))
-        pview.screen.blit(surf, rect)
-        yV -= h
+	w = T(2 * state.radius * view.zoom)
+	surf = getcablesurf(w, view.A)
+	h = surf.get_height()
+	hfull = T(state.top * view.zoom)
+	# TODO: make this calculation more stable to small changes in view.zoom.
+	xV, yV = view.gametoview((0, 0))
+	# TODO: cut off at the top of the tower (or maybe just draw something over it so it looks like
+	# the end.
+	if yV - pview.h > h:
+		yV = (yV - pview.h) % h + pview.h
+	while yV > 0:
+		rect = surf.get_rect(midbottom=(xV, yV))
+		pview.screen.blit(surf, rect)
+		yV -= h
+
