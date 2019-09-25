@@ -37,9 +37,8 @@ class Station:
 		quest.start(questname)
 	def think(self, dt):
 		self.t += dt
-	def draw(self, back):
-		# TODO: abort early if the entire station is off screen.
-		if back:
+	def draw(self):
+		if not view.visible(self.z, 10):
 			return
 		dA = 0.1 * self.t
 		draw.drawelement("gray", 0, self.z - 2, self.z - 0.7, 2, 4.2, 8, view.A, 10)
@@ -90,7 +89,8 @@ class Car:
 		self.targetz = zW
 		self.braking = False
 	def draw(self, back):
-		# TODO: abort early if the entire car is off screen.
+		if not view.visible(self.z, 10):
+			return
 		(xG, yG), dG = view.worldtogame(self.worldpos())
 		if (back and dG > 0) or (not back and dG < 0):
 			return

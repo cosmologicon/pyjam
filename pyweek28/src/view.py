@@ -34,6 +34,10 @@ zoom = 60
 A = 0
 
 
+def visible(z, dz = 0):
+	return abs(z - zW0) < pview.centerx / zoom + dz
+
+
 # TODO: make the camera approach functions faster as the game progresses.
 
 # Camera mode can be one of the following:

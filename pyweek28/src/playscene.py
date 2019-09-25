@@ -79,15 +79,13 @@ class PlayScene(scene.Scene):
 
 		# TODO: better for drawing all the world objects is to have each one have a set of pieces
 		# which can then be sorted by depth.
-		for station in state.stations:
-			station.draw(back = True)
 		for car in state.cars:
 			car.draw(back = True)
 		draw.cable()
 		for car in state.cars:
 			car.draw(back = False)
 		for station in state.stations:
-			station.draw(back = False)
+			station.draw()
 		worldmap.draw()
 		text = "\n".join([
 			"Station: %s" % (state.currentstationname(),),

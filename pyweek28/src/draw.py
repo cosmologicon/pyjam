@@ -64,7 +64,7 @@ def getelement(tname, w, h, r0, r1, n, A0, k):
 	# TODO: optimize when r is a constant.
 	a = (2 * x + 1 - w) / (2 * r)  # Broadcasting
 	mask = abs(a) <= 1
-	G = numpy.arcsin(a) * mask
+	G = numpy.arcsin(a * mask)
 	u = k * (G / math.tau - A0 / 8)
 	v = 1 - b
 	# Shading
