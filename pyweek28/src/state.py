@@ -12,7 +12,7 @@ stations = []
 def currentstation():
 	from . import view
 	for station in stations:
-		if abs(station.yG - view.yG0) < 3:
+		if abs(station.z - view.zW0) < 3:
 			return station
 	return None
 

@@ -1,78 +1,86 @@
 # View coordinates: Pygame position in pixels
 #   (xV, yV) = (0, 0) is top left, (pview.w, pview.h) is bottom right.
-# Game coordinates: position in the main view window in units of krelmars (km).
-#   xG = 0 at the center of the elevator, with positive xG to the right.
-#   yG = 0 at the surface, with positive yG going up.
-# A is the viewing angle, going from 0 to 1 and wrapping around.
-# A = 0 means facing North, i.e. the camera is South of the elevator.
-# A = 1/8 means facing Northeast, i.e. the camera is Southwest of the elevator.
-# This can be a little counterintuitive, but if you step left, that moves you clockwise around the
-# elevator, e.g. from South to Southwest.
-# Note that xG refers to the viewing plane from the player's perspective. This means that an
-# object's xG coordinate changes as you step around the elevator.
-# World coordinates: fixed 3-D position of an object in the game world in units of km. Similar to
-#   game coordinates but different when you take rotation into account. (xW, yW) = (0, 0) is the
-#   central axis of the elevator. zW = 0 at the bottom.
+# World coordinates: fixed 3-D position of an object in the game world in units of krelmars (km).
+#   (xW, yW) = (0, 0) is the central axis of the elevator.
+#   The positive xW axis points East.
+#   The positive yW axis points North.
+#   zW = 0 at the bottom of the elevator.
+#   zW = state.top at the top of the elevator.
+#   Sometimes we drop the suffix: z = zW, since this is the only coordinate system with a z.
 
+# Game coordinates: position in the main view window in units of krelmars (km).
+#   This is an intermediate coordinate system, between world and view, used for graphical effects.
+#   It's silimar to game coordinates but it's 2-d with the rotation taken into account.
+#   xG = 0 at the center of the elevator, with positive xG to the right (from the camera's point of
+#      view).
+#   yG = 0 at the surface, with positive yG going up. i.e. yG = zW.
 
 from __future__ import division
 import pygame, math
 from . import settings, pview
 from .pview import T
 
-# Current center of the screen in game coordinates. xG0 will probably always be 0.
-xG0, yG0 = 0, 0
+# A is an angle around the central axis, in units of 1/8th of a rotation clockwise starting at North.
+# A is in the range [0, 8) and wraps around so all calculations on angles are done mod 8.
+Anames = "N", "NE", "E", "SE", "S", "SW", "W", "NW"
+
+# Current height of the camera.
+zW0 = 0
 # Current size of a game unit in baseline pixels (still need to apply T to get to view coordinates)
 zoom = 100
-# Current viewing angle
+# Current angle of the camera. This is the *position* of the camera with respect to the elevator,
+# and is 180 degrees off from the *direction* of the camera. So A = 0 means the camera is positioned
+# on the North side of the elevator, looking South.
 A = 0
 
 
 # TODO: make the camera approach functions faster as the game progresses.
 
 # Camera mode can be one of the following:
-cmode = "y"
+cmode = "z"
 
-# "y": In this mode, the camera will soft approach to targetyG and then remain stationary.
-targetyG = 0  # Where the camera wants to be
-ftargetyG = 0  # Approach factor, increases in time to allow for a slightly slower start.
-def updatecamera_y(dt):
-	global targetyG, ftargetyG, yG0
-	ftargetyG += dt
-	f = 100 * ftargetyG ** 3
-	newyG0 = math.softapproach(yG0, targetyG, f * dt, dymin = 0.01)
+# "z": In this mode, the camera will soft approach to targetz and then remain stationary.
+targetz = 0  # Where the camera wants to be
+ftargetz = 0  # Approach factor, increases in time to allow for a slightly slower start.
+def updatecamera_z(dt):
+	global targetz, ftargetz, zW0
+	ftargetz += dt
+	f = 100 * ftargetz ** 3
+	newz = math.softapproach(zW0, targetz, f * dt, dymin = 0.01)
 	# TODO: This is supposed to give a sense of pulling back as the camera pans, but I'm not sure it
 	# comes across. Try it again once the graphics are more in place.
-	# zoom = 100 / (1 + 0.001 * abs(yG0 - newyG0) / dt)
-	yG0 = newyG0
-def seek_y(yG):
-	global cmode, targetyG, ftargetyG
-	cmode = "y"
-	targetyG = yG
-	ftargetyG = 0
+	# zoom = 100 / (1 + 0.001 * abs(zw0 - newz) / dt)
+	zW0 = newz
+def seek_z(zW):
+	global cmode, targetz, ftargetz
+	cmode = "z"
+	targetz = zW
+	ftargetz = 0
 	
 # "car": In this mode, the camera will soft approach a car, matching its speed, and will track it
 # thereafter.
 targetcar = None
 ftargetcar = 0
 def updatecamera_car(dt):
-	global ftargetcar, yG0
-	ftargetcar = math.clamp(ftargetcar + 2 * dt, 0, 1)
+	global ftargetcar, zW0
+	ftargetcar = math.clamp(ftargetcar + 1.5 * dt, 0, 1)
 	f = math.ease(math.ease(ftargetcar))
-	yG0 = math.mix(targetcarstart, targetcar.yG, f)
+	zW0 = math.mix(targetcarstart, targetcar.z, f)
 
 def seek_car(car):
 	global cmode, targetcar, ftargetcar, targetcarstart
 	cmode = "car"
 	targetcar = car
 	ftargetcar = 0
-	targetcarstart = yG0
+	targetcarstart = zW0
 
-# For now, angles are tracked independently from camera y-position.
+# Target angle for the camera. Should always be an integer.
+# For now, angles are tracked independently from camera z-position.
 targetA = 0
+# Step left/right around the elevator by the given amount.
 def rotate(dA):
 	global targetA
-	targetA = (round(targetA * 8) + dA) % 8 / 8
+	targetA = (targetA + dA) % 8
 
 
 def init():
@@ -81,8 +89,8 @@ def init():
 
 def think(dt):
 	global A
-	if cmode == "y":
-		updatecamera_y(dt)
+	if cmode == "z":
+		updatecamera_z(dt)
 	if cmode == "car":
 		updatecamera_car(dt)
 
@@ -91,6 +99,7 @@ def think(dt):
 
 def gametoview(pG):
 	xG, yG = pG
+	xG0, yG0 = 0, zW0
 	xV = T(pview.centerx0 + (xG - xG0) * zoom)
 	yV = T(pview.centery0 - (yG - yG0) * zoom)
 	return xV, yV
@@ -102,19 +111,19 @@ def gametoview(pG):
 # and positive when closer to the camera than the elevator is.
 def worldtogame(pW):
 	xW, yW, zW = pW
-	xG, dGneg = math.R(A * math.tau, (xW, yW))
+	xGneg, dG = math.R(A/8 * math.tau, (xW, yW))
 	yG = zW
-	dG = -dGneg
+	xG = -xGneg
 	return (xG, yG), dG
 
-# viewing angles A are wrapped between 0 and 1. This returns the difference A0 - A1 (mod 1) such
-# that the value is between -1/2 and +1/2.
+# viewing angles A are wrapped between 0 and 8. This returns the difference A0 - A1 (mod 8) such
+# that the value is in the range [-4, 4).
 def dA(A0, A1):
-	return (A0 - A1 + 1/2) % 1 - 1/2
+	return (A0 - A1 + 4) % 8 - 4
 
 # approach function that takes the shortest distance wrapping around between 0 and 1.
-# e.g. if you're at A0 = 7/8 and you want to approach A1 = 0, this will increase rather than decrease.
+# e.g. if you're at A0 = 7 and you want to approach A1 = 0, this will increase rather than decrease.
 def Aapproach(A0, A1, Astep):
-	return (A1 - math.softapproach(dA(A1, A0), 0, Astep, dymin = 0.001)) % 1
+	return (A1 - math.softapproach(dA(A1, A0), 0, Astep, dymin = 0.001)) % 8
 	
 

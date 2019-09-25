@@ -23,9 +23,9 @@ def randomstationpiece():
 
 
 class Station:
-	def __init__(self, name, yG):
+	def __init__(self, name, z):
 		self.name = name
-		self.yG = yG
+		self.z = z
 		self.messages = []
 		self.drawdata = [randomstationpiece() for _ in range(20)]
 		self.quests = []
@@ -41,11 +41,12 @@ class Station:
 		data = [(view.worldtogame(pW), h, w, color) for pW, h, w, color in self.drawdata]
 		# Sort by depth
 		data.sort(key = lambda entry: entry[0][1])
+		yG0 = self.z
 		for ((xG, yG), dG), h, r, color in data:
 			if (back and dG > 0) or (not back and dG < 0):
 				continue
-			xV0, yV0 = view.gametoview((xG - r, self.yG + yG + h))
-			xV1, yV1 = view.gametoview((xG + r, self.yG + yG - h))
+			xV0, yV0 = view.gametoview((xG - r, yG0 + yG + h))
+			xV1, yV1 = view.gametoview((xG + r, yG0 + yG - h))
 			rect = pygame.Rect(xV0, yV0, xV1 - xV0, yV1 - yV0)
 			if pview.rect.colliderect(rect):
 				pview.screen.fill(color, rect)
@@ -54,42 +55,42 @@ class Station:
 # the cable it's facing.
 
 class Car:
-	def __init__(self, yG, A):
-		self.yG = yG
+	def __init__(self, z, A):
+		self.z = z
 		self.A = A
 		self.n = 0  # number of passengers carried
 		self.capacity = 1
-		self.targetyG = self.yG
-		self.vyG = 0
+		self.targetz = self.z
+		self.vz = 0
 		self.r = 0.8
 		self.R = 1.3  # Distance from central axis
 		# When a car nears its destination it switches to approach mode, which is exponential braking.
 		self.braking = True
 	def arrived(self):
-		return self.targetyG == self.yG
+		return self.targetz == self.z
 	def worldpos(self):
-		yW, xW = math.CS(self.A * math.tau, self.R)
-		zW = self.yG
-		return xW, yW, zW
+		yW, xW = math.CS(self.A/8 * math.tau, self.R)
+		return xW, yW, self.z
 	def think(self, dt):
 		if not self.arrived():
 			b = 4  # braking factor. Set higher for shorter stops.
-			brakeyG = math.softapproach(self.yG, self.targetyG, b * dt, dymin = 0.01)
+			brakez = math.softapproach(self.z, self.targetz, b * dt, dymin = 0.01)
 			if not self.braking:
-				self.vyG += 200 * dt
-				goyG = math.approach(self.yG, self.targetyG, self.vyG * dt)
-				if abs(self.yG - brakeyG) < abs(self.yG - goyG):
+				self.vz += 200 * dt
+				goz = math.approach(self.z, self.targetz, self.vz * dt)
+				if abs(self.z - brakez) < abs(self.z - goz):
 					self.braking = True
 				else:
-					self.yG = goyG
+					self.z = goz
 			if self.braking:
-				self.vyG = abs(brakeyG - self.yG) / dt
-				self.yG = brakeyG
+				self.vz = abs(brakez - self.z) / dt
+				self.z = brakez
+		# Move to another station once you arrive.
 		# TODO: remove. This is just for demo purposes to make it seem more dynamic.
 		if self.arrived():
-			self.settarget(random.choice(state.stations).yG)
-	def settarget(self, yG):
-		self.targetyG = yG
+			self.settarget(random.choice(state.stations).z)
+	def settarget(self, zW):
+		self.targetz = zW
 		self.braking = False
 	def draw(self, back):
 		# TODO: abort early if the entire car is off screen.

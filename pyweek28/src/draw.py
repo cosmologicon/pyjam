@@ -8,25 +8,25 @@ from .pview import T
 # TODO(Christopher): Even though it's less realistic, I think it might look more dymanic if the
 # starfield had a feeling of depth, i.e. not all the stars parallax the same amount when you move.
 def randomstar():
-	y = random.uniform(0, 10000)
-	A = random.uniform(0, 1)
-	return y, A
+	z = random.uniform(0, 10000)
+	A = random.uniform(0, 10000)
+	return z, A
 stardata = [randomstar() for _ in range(10000)]
 
 # TODO: restrict to the central viewing area.
 def stars():
 	pview.fill((0, 0, 0))
 	Nstar = 500  # TODO: change dynamically with resolution
-	for y, A in stardata[:Nstar]:
+	for z, A in stardata[:Nstar]:
 		# TODO: dynamically change with camera zoom level
-		pos = T(pview.centerx + 4000 * view.dA(A, view.A), 300 * (y - view.yG0) % pview.h)
+		pos = T(pview.centerx + 500 * view.dA(A, view.A), 300 * (z - view.zW0) % pview.h)
 		# TODO: different colors correlated with depth
 		color = 255, 255, 255
 		pview.screen.set_at(pos, color)
 
+# Blue sky when close to the ground
 def atmosphere():
-	# Atmosphere
-	alpha = pview.I(math.fadebetween(view.yG0, 10, 255, 100, 0))
+	alpha = pview.I(math.fadebetween(view.zW0, 10, 255, 100, 0))
 	if alpha: 
 		pview.fill((100, 130, 220, alpha))
 
@@ -78,7 +78,7 @@ def getcablesurf(w, A):
 	# Range going from -1 to +1
 	a = (numpy.arange(w) + 0.5) * 2 / w - 1
 	# "Unwrapped" range of the angles covered by each column.
-	b = numpy.arcsin(a) / math.tau - A
+	b = numpy.arcsin(a) / math.tau - A / 8
 	# Column within the image.
 	xs = (b * w0 + 0.5).astype(int) % w0
 	# Fade factor

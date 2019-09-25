@@ -15,14 +15,13 @@ class PlayScene(scene.Scene):
 		state.stations[3].addquest("testquest")
 		
 		state.cars = [
-			things.Car(random.uniform(0, state.top), j/8) for j in range(8)
+			things.Car(random.uniform(0, state.top), j) for j in range(8)
 		]
 
 		self.up = [pygame.K_UP, pygame.K_w]
 		self.down = [pygame.K_DOWN, pygame.K_s]
 		self.left = [pygame.K_LEFT, pygame.K_a]
 		self.right = [pygame.K_RIGHT, pygame.K_d]
-		self.targetA = view.A
 		self.fshowcompass = 0
 
 	def think(self, dt, kpressed, kdowns):
@@ -41,7 +40,7 @@ class PlayScene(scene.Scene):
 
 		if self.fshowcompass > 0:
 			self.fshowcompass = math.approach(self.fshowcompass, 0, 5 * dt)
-		if view.dA(view.A, self.targetA):
+		if view.dA(view.A, view.targetA):
 			self.fshowcompass = 3
 
 		for obj in state.stations + state.cars:
@@ -53,13 +52,13 @@ class PlayScene(scene.Scene):
 
 	# TODO: not sure these do the right thing if you hit them twice in a row quickly.
 	def moveup(self):
-		targetyG = view.targetyG if view.cmode == "y" else view.yG0
-		aboves = [station.yG for station in state.stations if station.yG > targetyG]
-		view.seek_y(min(aboves) if aboves else state.top)
+		targetz = view.targetz if view.cmode == "z" else view.zW0
+		aboves = [station.z for station in state.stations if station.z > targetz]
+		view.seek_z(min(aboves) if aboves else state.top)
 	def movedown(self):
-		targetyG = view.targetyG if view.cmode == "y" else view.yG0
-		belows = [station.yG for station in state.stations if station.yG < targetyG]
-		view.seek_y(max(belows) if belows else 0)
+		targetz = view.targetz if view.cmode == "z" else view.zW0
+		belows = [station.z for station in state.stations if station.z < targetz]
+		view.seek_z(max(belows) if belows else 0)
 	def availablequest(self):
 		s = state.currentstation()
 		return s.quests[0] if s and s.quests else None
@@ -69,7 +68,7 @@ class PlayScene(scene.Scene):
 			quest.start(q)
 			state.currentstation().quests.pop(0)
 	def seekcar(self):
-		carshere = [c for c in state.cars if (c.A + 0.5) % 1 == view.targetA]
+		carshere = [c for c in state.cars if view.dA(c.A, view.targetA) == 0]
 		if not carshere:
 			return
 		view.seek_car(carshere[0])
@@ -92,21 +91,22 @@ class PlayScene(scene.Scene):
 		worldmap.draw()
 		text = "\n".join([
 			"Station: %s" % (state.currentstationname(),),
-			"Altitude: %d km" % (round(view.yG0),),
+			"Altitude: %d km" % (round(view.zW0),),
 		])
 		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1.5)
 		# Draw the compass
 		alpha0 = math.clamp(self.fshowcompass, 0, 1)
 		x0, y0 = 900, -30  # compass rose center
-		for jA, dname in enumerate("N NE E SE S SW W NW".split()):
-			A = view.dA(jA / 8, view.A)
-			alpha = 1 if A == -0.5 else alpha0
+		for jA, dname in enumerate(view.Anames):
+			A = view.dA(jA, view.A)
+			alpha = 1 if A == 0 else alpha0
 			if alpha == 0:
 				continue
-			dy, dx = math.CS(A * math.tau, 100)
-			pos = x0 + dx, y0 - dy
+			# I'm like 90% sure this formula is wrong in at least one way but it works so whatever.
+			dy, dx = math.CS(-(A + 4) / 8 * math.tau, 100)
+			pos = x0 - dx, y0 - dy
 			ptext.draw(dname, center = T(pos), fontsize = T(60), owidth = 1.5,
-				angle = -A * 360 + 180, alpha = alpha)
+				angle = -A * 360 / 8, alpha = alpha)
 		if self.availablequest():
 			ptext.draw("Quest available at this station! Press Q to begin.",
 				center = pview.center, fontsize = T(80), width = T(720), color = "orange",
