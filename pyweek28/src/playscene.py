@@ -16,7 +16,7 @@ class PlayScene(scene.Scene):
 		state.stations[4].addquest("reallocate")
 		
 		state.cars = [
-			things.Car(random.uniform(0, state.top), j) for j in range(1)
+			things.Car(random.uniform(0, state.top), j) for j in range(8)
 		]
 
 		self.up = [pygame.K_UP, pygame.K_w]
@@ -25,7 +25,8 @@ class PlayScene(scene.Scene):
 		self.right = [pygame.K_RIGHT, pygame.K_d]
 		self.fshowcompass = 0
 
-	def think(self, dt, kpressed, kdowns):
+	def think(self, dt, kpressed, kdowns, mpos, mdown, mup):
+		self.mpos = mpos
 		if any([up in kdowns for up in self.up]):
 			self.moveup()
 		elif any([down in kdowns for down in self.down]):
@@ -42,6 +43,7 @@ class PlayScene(scene.Scene):
 			self.adjustassignment(-1)
 		if pygame.K_2 in kdowns:
 			self.adjustassignment(1)
+		self.handlemouse(mdown, mup)
 
 		if self.fshowcompass > 0:
 			self.fshowcompass = math.approach(self.fshowcompass, 0, 5 * dt)
@@ -81,13 +83,27 @@ class PlayScene(scene.Scene):
 		if not carshere:
 			return
 		view.seek_car(carshere[0])
+	def getpointedstation(self):
+		# TODO: a lot of repeated logic here with worldmap.draw.
+		for station in state.stations:
+			yV = pview.I(math.fadebetween(station.z, 0, T(660), state.top, T(60)))
+			rect = T(pygame.Rect(0, 0, 150, 20))
+			rect.center = T(1140), yV
+			if rect.collidepoint(self.mpos):
+				return station
+		return None
+	def handlemouse(self, mdown, mup):
+		if mdown:
+			station = self.getpointedstation()
+			if station is not None:
+				view.seek_z(station.z)
 
 	def draw(self):
 		draw.stars()
 		draw.atmosphere()
 
 		self.drawstate()
-		worldmap.draw()
+		worldmap.draw(self.getpointedstation())
 		self.drawstationinfo()
 		text = "\n".join([
 			"Station: %s" % (state.currentstationname(),),
@@ -111,7 +127,7 @@ class PlayScene(scene.Scene):
 			(xG, yG0), depth = view.worldtogame((xW, yW, zW0))
 			yG1 = yG0 + (zW1 - zW0)
 			r = (r0 + r1) / 2
-			sortkey = depth + 0.4 * r
+			sortkey = depth + 0.6 * r
 			args = texturename, xG, yG0, yG1, r0, r1, n, view.A + dA, k
 			return sortkey, draw.drawelement, args
 		coms = [drawargs(espec) for espec in especs]

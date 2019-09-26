@@ -15,8 +15,7 @@ class Scene():
 	def init(self):
 		pass
 	# Called every game update from main.py.
-	# TODO: also pass in mouse events + position.
-	def think(self, dt, kdowns, kpressed):
+	def think(self, dt, kpressed, kdowns, mpos, mdown, mup):
 		pass
 	# Called every screen update from main.py.
 	def draw(self):

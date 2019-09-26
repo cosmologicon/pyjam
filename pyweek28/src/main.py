@@ -16,6 +16,7 @@ while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	# Keys that were pressed this frame.
 	kdowns = []
+	mdown, mup = False, False
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			playing = False
@@ -24,14 +25,19 @@ while playing:
 				playing = False
 			else:
 				kdowns.append(event.key)
+		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+			mdown = True
+		if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+			mup = True
 	kpressed = pygame.key.get_pressed()
+	mpos = pygame.mouse.get_pos()
 	# TODO: get relevant mouse events and pass them to the current scene.
 	
 	currentscene = scene.current()
 	if currentscene:
 		# TODO: rewrite to use a constant framerate. Call "think" the appropriate number of times in
 		# each frame.
-		currentscene.think(dt, kpressed, kdowns)
+		currentscene.think(dt, kpressed, kdowns, mpos, mdown, mup)
 		currentscene.draw()
 	else:
 		playing = False

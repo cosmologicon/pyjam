@@ -32,7 +32,7 @@ def stars():
 		if _laststarz == view.zW0:
 			pview.screen.set_at((px, py), color)
 		else:
-			c = pview.I(color[0] / math.clamp(abs(dy[depth]) / 4, 1, 6))
+			c = pview.I(color[0] / math.clamp(abs(dy[depth]) / 4, 1, 10))
 			pygame.draw.line(pview.screen, (c, c, c), (px, py + dy[depth]), (px, py - dy[depth]))
 	_laststarz = view.zW0
 
@@ -170,11 +170,19 @@ def getcablesurf():
 	return surf
 
 # Main entry point.
+_lastcablez = None
 def cable():
+	global _lastcablez
+	if _lastcablez is None: _lastcablez = view.zW0
 	r = T(state.radius * view.zoom)
 	w = 2 * r
 	h = int(round(r * math.pi))
 	surf = getelement("cable", w, h, r, r, 1, view.A, 1)
+	dz = max(1, 0.3 * abs(_lastcablez - view.zW0))
+	if dz > 1:
+		h2 = max(1, int(round(h / dz)))
+		surf2 = pygame.transform.smoothscale(surf, (w, h2))
+		surf = pygame.transform.smoothscale(surf2, (w, h))
 	hfull = T(state.top * view.zoom)
 	# TODO: make this calculation more stable to small changes in view.zoom.
 	xV, yV = view.gametoview((0, 0))
@@ -186,4 +194,5 @@ def cable():
 		rect = surf.get_rect(midbottom=(xV, yV))
 		pview.screen.blit(surf, rect)
 		yV -= h
+	_lastcablez = view.zW0
 

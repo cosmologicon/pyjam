@@ -5,7 +5,7 @@ import pygame, math
 from . import pview, state, view, ptext
 from .pview import T
 
-def draw():
+def draw(pstation):
 	# TODO: bezeled edge for this rectangle, or some kind of fancy border.
 	rect = T(1000, 0, 280, 720)
 	pview.screen.fill((100, 80, 80), rect)
@@ -27,7 +27,10 @@ def draw():
 		yV = pview.I(math.fadebetween(station.z, 0, yVbottom, state.top, yVtop))
 		rect = T(pygame.Rect(0, 0, 140, 6))
 		rect.center = T(1140), yV
-		pview.screen.fill((180, 255, 255), rect)
+		color = (255, 255, 255) if station is pstation else (140, 255, 255)
+		pview.screen.fill(color, rect)
+		ptext.draw(station.name, bottomleft = rect.topleft, color = color, ocolor = (0, 40, 40),
+			fontsize = T(16), owidth = 1)
 		if station.quests:
 			ptext.draw("(!)", center = (T(1050), yV), color = "yellow",
 				fontsize = T(28), owidth = 1.5)
