@@ -56,28 +56,32 @@ def atmosphere():
 # TODO: a whole lot of caching - this can be made more efficient overall
 def getelement(tname, w, h, r0, r1, n, A0, k):
 	texture = gettexture(tname)
-	w0, h0 = texture.get_size()
+	w0, h0, _ = texture.shape
 	x = numpy.arange(w).reshape(w, 1)
 	y = numpy.arange(h).reshape(1, h)
 	b = 1 - (y + 1/2) / h
-	r = getr(b, r0, r1, n)
-	# TODO: optimize when r is a constant.
-	a = (2 * x + 1 - w) / (2 * r)  # Broadcasting
+	if r0 != r1:
+		r = getr(b, r0, r1, n)
+	else:
+		# If r0 == r1, then a lot of the 2-d arrays don't change vertically, and be treated as 1-d
+		# arrays until it's time to broadcast.
+		r = r0
+	a = (x + (1/2 - w/2)) / r
 	mask = abs(a) <= 1
 	G = numpy.arcsin(a * mask)
 	u = k * (G / math.tau - A0 / 8)
 	v = 1 - b
 	# Shading
-	g = a + 0.2 * (a ** 2 - 1)
+	g = a + 0.4 * (a ** 2 - 1)
 	f = 1 - abs(g ** 2)
-
 	U = (u * w0 + 1/2).astype(int) % w0 * mask
 	V = (v * h0 + 1/2).astype(int) % h0
+	fw, fh = f.shape
+	f = f.reshape(fw, fh, 1)
+
 	surf = pygame.Surface((w, h)).convert_alpha()
-	arr0 = pygame.surfarray.pixels3d(texture)
 	arr = pygame.surfarray.pixels3d(surf)
-	arr[:, :, :] = (arr0[U, V, :] * f.reshape(w, h, 1)).astype(int)
-#	arr[:, :, :] = arr0[U, V, :].astype(int)
+	arr[:, :, :] = (texture[U, V, :] * f).astype(int)
 	del arr
 	pygame.surfarray.pixels_alpha(surf)[:,:] = 255 * mask
 	return surf
@@ -96,8 +100,9 @@ def gettexture(tname):
 		surf.fill((80, 80, 80), pygame.Rect(20, 0, 60, 100))
 	else:
 		raise ValueError
-	_tcache[tname] = surf
-	return surf
+	texture = pygame.surfarray.pixels3d(surf)
+	_tcache[tname] = texture
+	return texture
 
 # r (radius of the element) with respect to b (vertical position).
 # n is the ratio of the slope: n = dr(1)/db / dr(0)/db

@@ -9,6 +9,7 @@ def draw():
 	# TODO: bezeled edge for this rectangle, or some kind of fancy border.
 	rect = T(1000, 0, 280, 720)
 	pview.screen.fill((100, 80, 80), rect)
+	# TODO: this is named wrong. View coordinates are before the T transformation is applied.
 	yVbottom = T(660)
 	yVtop = T(60)
 
