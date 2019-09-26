@@ -3,15 +3,19 @@ import pygame, math, random
 from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest, hud
 from .pview import T
 
+
 class PlayScene(scene.Scene):
 	def __init__(self):
 		state.stations = [
-			things.Station("LowOrbiton", 400),
-			things.Station("Skyburg", 2000),
-			things.Station("Last Ditch", 3700),
-			things.Station("Stationary", 7200),
-			things.Station("Counterweight", 10000, pop = 5),
+			things.Station("LowOrbiton", 400, 5),
+			things.Station("Skyburg", 2000, 5),
+			things.Station("Last Ditch", 3700, 5),
+			things.Station("Stationary", 7200, 5),
+			things.Station("Counterweight", 10000, 5),
 		]
+		for j in range(5):
+			p = things.Pop("Glarb-%d" % j, state.stations[4])
+		view.seek_z(state.stations[4].z)
 		#state.stations[3].addquest("testquest")
 		state.stations[4].addquest("reallocate")
 		
@@ -53,6 +57,8 @@ class PlayScene(scene.Scene):
 
 		for obj in state.stations + state.cars:
 			obj.think(dt)
+			for passenger in obj.held:
+				passenger.think(dt)
 
 		view.think(dt)
 		quest.think(dt)
@@ -84,23 +90,19 @@ class PlayScene(scene.Scene):
 		if not carshere:
 			return
 		view.seek_car(carshere[0])
-	def getpointedstation(self):
-		# TODO: a lot of repeated logic here with worldmap.draw.
-		for station in state.stations:
-			yV = pview.I(math.fadebetween(station.z, 0, T(660), state.top, T(60)))
-			rect = T(pygame.Rect(0, 0, 150, 20))
-			rect.center = T(1140), yV
-			if rect.collidepoint(self.mpos):
-				return station
-		return None
 	def handlemouse(self, mdown, mup):
 		if mdown:
 			button = self.hud.buttonat(self.mpos)
 			if button is not None:
 				self.clickbutton(button.text)
-			station = self.getpointedstation()
+			station = worldmap.stationat(self.mpos)
 			if station is not None:
 				view.seek_z(station.z)
+			station = state.currentstation()
+			if station is not None:
+				for rect, held in station.recthelds():
+					if rect.collidepoint(self.mpos):
+						scene.push(AssignScene(self, held))
 	def clickbutton(self, btext):
 		if btext == "Rotate Left":
 			view.rotate(-1)
@@ -109,11 +111,8 @@ class PlayScene(scene.Scene):
 
 
 	def draw(self):
-		draw.stars()
-		draw.atmosphere()
-
-		self.drawstate()
-		worldmap.draw(self.getpointedstation())
+		self.drawworld()
+		worldmap.draw(worldmap.stationat(self.mpos))
 		self.drawstationinfo()
 		text = "\n".join([
 			"Station: %s" % (state.currentstationname(),),
@@ -127,6 +126,11 @@ class PlayScene(scene.Scene):
 				center = pview.center, fontsize = T(80), width = T(720), color = "orange",
 				owidth = 1.5)
 		dialog.draw()
+
+	def drawworld(self):
+		draw.stars()
+		draw.atmosphere()
+		self.drawstate()
 
 	# Draw game objects, and the cable.
 	def drawstate(self):
@@ -158,13 +162,12 @@ class PlayScene(scene.Scene):
 		if info is not None:
 			ptext.draw(info, topleft = T(10, 70), fontsize = T(22), width = T(220), owidth = 1)
 		text = "\n".join([
-			"Current population: %d" % station.population,
-			"Shadow population: %d" % station.spopulation,
-			"Current assigment: %d" % station.assigned,
+			"Current population: %d" % len(station.held),
 			"Total capacity: %d" % station.capacity,
 		])
 		ptext.draw(text, topleft = T(10, 260), fontsize = T(22), owidth = 1)
-
+		for rect, held in station.recthelds():
+			held.drawcard(rect)
 
 
 	# TODO: move to some other module
@@ -191,4 +194,35 @@ stationinfo = {
 	"Stationary": "The level of stationary orbit. Zero gravity.",
 	"Counterweight": "Centrifugal force pulls you outward here. Ideal for launching deep-space vessels.",
 }
+
+
+class AssignScene(scene.Scene):
+	def __init__(self, parent, held):
+		self.parent = parent
+		self.held = held
+		self.t = 0
+
+	def think(self, dt, kpressed, kdowns, mpos, mdown, mup):
+		self.mpos = mpos
+		self.t += dt
+		if self.t > 0.4 and mdown:
+			station = worldmap.stationat(self.mpos)
+			if station and station.canaddpassenger():
+				self.held.settargetholder(station)
+			scene.pop()
+	
+	def draw(self):
+		self.parent.drawworld()
+		alpha = int(math.clamp(1000 * self.t, 0, 200))
+		pview.fill((0, 0, 0, alpha))
+		
+		worldmap.draw(worldmap.stationat(self.mpos))
+
+		rect = T(pygame.Rect((0, 0, 80, 80)))
+		rect.center = self.mpos
+		self.held.drawcard(rect)
+
+
+
+
 

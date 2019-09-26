@@ -4,6 +4,10 @@ def push(sc):
 	_stack.append(sc)
 	sc.init()
 
+def pop():
+	if _stack:
+		del _stack[-1]
+
 def current():
 	return _stack[-1] if _stack else None
 

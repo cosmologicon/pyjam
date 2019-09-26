@@ -49,6 +49,8 @@ while playing:
 			"Left/right: change viewing angle",
 			"1/2: adjust assignment at current station",
 			"Q: claim quest at station with (!) icon",
+			"Click on a station on right to go there",
+			"Click on a person on left to reassign to a different station",
 			"Esc: quit",
 		])
 		ptext.draw(text, fontsize = T(24), topleft = T(0, 500), owidth = 1)

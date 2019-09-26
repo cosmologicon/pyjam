@@ -5,6 +5,17 @@ import pygame, math
 from . import pview, state, view, ptext
 from .pview import T
 
+
+def stationat(mpos):
+	for station in state.stations:
+		yV = pview.I(math.fadebetween(station.z, 0, T(660), state.top, T(60)))
+		rect = T(pygame.Rect(0, 0, 150, 20))
+		rect.center = T(1140), yV
+		if rect.collidepoint(mpos):
+			return station
+	return None
+
+
 def draw(pstation):
 	# TODO: bezeled edge for this rectangle, or some kind of fancy border.
 	rect = T(1000, 0, 280, 720)
@@ -38,7 +49,7 @@ def draw(pstation):
 	for car in state.cars:
 		xV = T(1140 - 15 * view.dA(car.A, view.A))
 		yV = pview.I(math.fadebetween(car.z, 0, yVbottom, state.top, yVtop))
-		fcolor = (0, 0, 0) if car.n == 0 else (255, 255, 255)
+		fcolor = (0, 0, 0) if not car.held else (255, 255, 255)
 		pygame.draw.circle(pview.screen, (255, 100, 100), (xV, yV), T(6))
 		pygame.draw.circle(pview.screen, fcolor, (xV, yV), T(4))
 

@@ -5,16 +5,79 @@ import pygame, random, math
 from . import pview, view, quest, state, draw, ptext
 from .pview import T
 
-class Station:
-	def __init__(self, name, z, pop = 0, capacity = 5):
+# Base class for all kinds of passengers/inhabitants of a car or station.
+class Passenger:
+	def __init__(self, holder = None):
+		self.htargets = []
+		self.holder = None  # The car or station where this passenger is.
+		self.setholder(holder)
+	def setholder(self, holder):
+		if self.holder is not None:
+			self.holder.removepassenger(self)
+		self.holder = holder
+		if self.holder is not None:
+			self.holder.addpassenger(self)
+		while self.htargets and self.htargets[0] is self.holder:
+			self.htargets.pop(0)
+	def settargetholder(self, target):
+		for htarget in self.htargets:
+			if self in htarget.pending:
+				htarget.pending.remove(self)
+		self.htargets = [target]
+		target.pending.append(self)
+	def think(self, dt):
+		if self.htargets:
+			if isinstance(self.holder, Station) and isinstance(self.htargets[0], Station):
+				if 0.2 * random.random() < dt:
+					self.callcar()
+		if self.htargets and self.holder.z == self.htargets[0].z:
+			self.setholder(self.htargets[0])
+		if self.htargets and isinstance(self.holder, Car) and self.holder.targetz != self.htargets[0].z:
+			self.holder.settarget(self.htargets[0].z)
+	def callcar(self):
+		cars = [car for car in state.cars if car.canaddpassenger()]
+		if not cars:
+			return
+		car = min(cars, key = lambda car: abs(self.holder.z - car.z))
+		self.htargets.insert(0, car)
+		car.pending.append(self)
+
+# Member of the population, a person
+class Pop(Passenger):
+	def __init__(self, name, holder = None):
+		Passenger.__init__(self, holder)
 		self.name = name
+	def drawcard(self, rect):
+		pview.screen.fill((100, 200, 150), rect)
+		ptext.draw(self.name, center = rect.center, fontsize = T(22), owidth = 1)
+		if self.htargets:
+			ptext.draw(self.htargets[-1].name[0], topright = rect.topright, fontsize = T(42), owidth = 1)
+
+
+class Holder:
+	def __init__(self, capacity):
 		self.capacity = capacity
-		self.population = pop
-		# "Shadow population", the population of the station once all cars complete their current
-		# assingment.
-		self.spopulation = self.population
-		# Target population the player has set.
-		self.assigned = self.population
+		self.held = []
+		self.pending = []
+	def canaddpassenger(self, n = 1):
+		return len(self.held) + len(self.pending) <= self.capacity - n
+	def addpassenger(self, passenger):
+		self.held.append(passenger)
+		if passenger in self.pending:
+			self.pending.remove(passenger)
+	def removepassenger(self, passenger):
+		self.held.remove(passenger)
+	def recthelds(self):
+		for j, held in enumerate(self.held):
+			px, py = 50 + 80 * (j % 4), 330 + 80 * (j // 4)
+			rect = T(pygame.Rect(0, 0, 72, 72))
+			rect.center = T(px, py)
+			yield rect, held
+
+class Station(Holder):
+	def __init__(self, name, z, capacity):
+		Holder.__init__(self, capacity)
+		self.name = name
 		self.z = z
 		self.messages = []
 		self.quests = []
@@ -47,13 +110,11 @@ class Station:
 				])
 		return specs
 
-class Car:
+class Car(Holder):
 	def __init__(self, z, A):
+		Holder.__init__(self, capacity = 1)
 		self.z = z
 		self.A = A
-		self.n = 0  # number of passengers carried
-		self.shadown = 0
-		self.capacity = 1
 		self.targetz = self.z
 		self.vz = 0
 		self.r = 0.8
@@ -79,53 +140,8 @@ class Car:
 			if self.braking:
 				self.vz = abs(brakez - self.z) / dt
 				self.z = brakez
-		if self.arrived():
-			self.swappassengers()
-			self.findtarget()
-	def swappassengers(self):
-		# Check whether we're at a station that has or needs passengers.
-		# TODO: slight delay when accepting multiple passengers, like in Mini Metro.
-		station = state.stationat(self.z)
-		if not station:
-			return
-		dpop = station.population - station.assigned
-		if dpop > 0 and self.capacity > self.n:
-			dpop = min(dpop, self.capacity - self.n)
-			self.n += dpop
-			station.population -= dpop
-			if station.spopulation != station.population:
-				dspop = station.population - station.spopulation
-				self.shadown -= dspop
-				station.spopulation += dspop
-		elif dpop < 0 and self.n > 0:
-			dpop = min(-dpop, self.n)
-			self.n -= dpop
-			station.population += dpop
-			if station.spopulation != station.population:
-				dspop = station.population - station.spopulation
-				self.shadown -= dspop
-				station.spopulation += dspop
-	def findtarget(self):
-		# TODO: if there are multiple cars free in the same frame, assign the nearest one.
-		if self.n > 0:
-			# Find the nearest station that wants passengers.
-			stations = [station for station in state.stations if station.assigned > station.spopulation]
-			if stations:
-				station = min(stations, key = lambda s: abs(self.z - s.z))
-				self.settarget(station.z)
-				togive = min(self.n, station.assigned - station.spopulation)
-				station.spopulation += togive
-				self.shadown -= togive
-		elif self.n == 0:
-			# Find the nearest station with extra passengers.
-			stations = [station for station in state.stations if station.assigned < station.spopulation]
-			if stations:
-				station = min(stations, key = lambda s: abs(self.z - s.z))
-				self.settarget(station.z)
-				totake = min(self.capacity - self.n, station.spopulation - station.assigned)
-				station.spopulation -= totake
-				self.shadown += totake
-
+		if self.arrived and self.pending:
+			self.settarget(self.pending[0].holder.z)
 	def settarget(self, zW):
 		self.targetz = zW
 		self.braking = False
