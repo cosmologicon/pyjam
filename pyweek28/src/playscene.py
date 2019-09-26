@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest
+from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest, hud
 from .pview import T
 
 class PlayScene(scene.Scene):
@@ -18,6 +18,7 @@ class PlayScene(scene.Scene):
 		state.cars = [
 			things.Car(random.uniform(0, state.top), j) for j in range(8)
 		]
+		self.hud = hud.HUD()
 
 		self.up = [pygame.K_UP, pygame.K_w]
 		self.down = [pygame.K_DOWN, pygame.K_s]
@@ -94,9 +95,18 @@ class PlayScene(scene.Scene):
 		return None
 	def handlemouse(self, mdown, mup):
 		if mdown:
+			button = self.hud.buttonat(self.mpos)
+			if button is not None:
+				self.clickbutton(button.text)
 			station = self.getpointedstation()
 			if station is not None:
 				view.seek_z(station.z)
+	def clickbutton(self, btext):
+		if btext == "Rotate Left":
+			view.rotate(-1)
+		elif btext == "Rotate Right":
+			view.rotate(1)
+
 
 	def draw(self):
 		draw.stars()
@@ -111,6 +121,7 @@ class PlayScene(scene.Scene):
 		])
 		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1.5)
 		self.drawcompass()
+		self.hud.draw()
 		if self.availablequest():
 			ptext.draw("Quest available at this station! Press Q to begin.",
 				center = pview.center, fontsize = T(80), width = T(720), color = "orange",
