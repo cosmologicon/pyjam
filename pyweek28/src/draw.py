@@ -2,6 +2,7 @@
 
 from __future__ import division
 import pygame, math, random, numpy
+from functools import lru_cache  # TODO: backfill to support Python 2
 from . import pview, state, view
 from .pview import T
 
@@ -53,7 +54,7 @@ def atmosphere():
 # coordinates as a function of position within the image.
 # Honestly, I'll need a whiteboard and an hour to explain most of these variables.
 # See the notebook entry date 24 Sep 2019.
-# TODO: a whole lot of caching - this can be made more efficient overall
+@lru_cache(40)
 def getelement(tname, w, h, r0, r1, n, A0, k):
 	texture = gettexture(tname)
 	w0, h0, _ = texture.shape
@@ -86,9 +87,8 @@ def getelement(tname, w, h, r0, r1, n, A0, k):
 	pygame.surfarray.pixels_alpha(surf)[:,:] = 255 * mask
 	return surf
 
-_tcache = {}
+@lru_cache(None)
 def gettexture(tname):
-	if tname in _tcache: return _tcache[tname]
 	if tname == "cable":
 		surf = getcablesurf()
 	elif tname == "window":
@@ -106,9 +106,7 @@ def gettexture(tname):
 			surf.set_at((x, 0), (c, c, c))
 	else:
 		raise ValueError
-	texture = pygame.surfarray.pixels3d(surf)
-	_tcache[tname] = texture
-	return texture
+	return pygame.surfarray.pixels3d(surf)
 
 # r (radius of the element) with respect to b (vertical position).
 # n is the ratio of the slope: n = dr(1)/db / dr(0)/db
