@@ -128,6 +128,6 @@ def dA(A0, A1):
 # approach function that takes the shortest distance wrapping around between 0 and 1.
 # e.g. if you're at A0 = 7 and you want to approach A1 = 0, this will increase rather than decrease.
 def Aapproach(A0, A1, Astep):
-	return (A1 - math.softapproach(dA(A1, A0), 0, Astep, dymin = 0.001)) % 8
+	return (A1 - math.softapproach(dA(A1, A0), 0, Astep, dymin = 0.01)) % 8
 	
 
