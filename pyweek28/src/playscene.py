@@ -86,15 +86,7 @@ class PlayScene(scene.Scene):
 		draw.stars()
 		draw.atmosphere()
 
-		# TODO: better for drawing all the world objects is to have each one have a set of pieces
-		# which can then be sorted by depth.
-		for car in state.cars:
-			car.draw(back = True)
-		draw.cable()
-		for car in state.cars:
-			car.draw(back = False)
-		for station in state.stations:
-			station.draw()
+		self.drawstate()
 		worldmap.draw()
 		self.drawstationinfo()
 		text = "\n".join([
@@ -108,6 +100,25 @@ class PlayScene(scene.Scene):
 				center = pview.center, fontsize = T(80), width = T(720), color = "orange",
 				owidth = 1.5)
 		dialog.draw()
+
+	# Draw game objects, and the cable.
+	def drawstate(self):
+		objs = state.cars + state.stations
+		# espec fields are: texturename, xG, yG, zG0, zG1, 
+		especs = [espec for obj in objs for espec in obj.especs()]
+		def drawargs(espec):
+			texturename, xW, yW, zW0, zW1, r0, r1, n, dA, k = espec
+			(xG, yG0), depth = view.worldtogame((xW, yW, zW0))
+			yG1 = yG0 + (zW1 - zW0)
+			r = (r0 + r1) / 2
+			sortkey = depth + 0.4 * r
+			args = texturename, xG, yG0, yG1, r0, r1, n, view.A + dA, k
+			return sortkey, draw.drawelement, args
+		coms = [drawargs(espec) for espec in especs]
+		coms.append((1, draw.cable, []))
+		for _, func, args in sorted(coms, key = lambda com: com[0]):
+			func(*args)
+
 
 	# TODO: could go in a HUD module.
 	def drawstationinfo(self):

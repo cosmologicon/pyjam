@@ -26,15 +26,26 @@ class Station:
 		quest.start(questname)
 	def think(self, dt):
 		self.t += dt
-	def draw(self):
+	def especs(self):
 		if not view.visible(self.z, 10):
-			return
+			return []
 		dA = 0.1 * self.t
-		draw.drawelement("gray", 0, self.z - 2, self.z - 0.7, 2, 4.2, 8, view.A, 10)
-		draw.drawelement("hatch", 0, self.z - 0.7, self.z - 0.5, 4.2, 4.2, 1, view.A - 0 * dA, 100)
-		draw.drawelement("window", 0, self.z - 0.5, self.z + 0.5, 4, 4, 1, view.A + dA, 20)
-		draw.drawelement("hatch", 0, self.z + 0.5, self.z + 0.7, 4.2, 4.2, 1, view.A - 0 * dA, 100)
-		draw.drawelement("gray", 0, self.z + 0.7, self.z + 1.4, 4.2, 2, 8, view.A, 10)
+		specs = [
+			["gray", 0, 0, self.z - 2, self.z - 0.7, 2, 4.2, 8, 0, 10],
+			["hatch", 0, 0, self.z - 0.7, self.z - 0.5, 4.2, 4.2, 1, 0, 100],
+			["window", 0, 0, self.z - 0.5, self.z + 0.5, 4, 4, 1, dA, 20],
+			["hatch", 0, 0, self.z + 0.5, self.z + 0.7, 4.2, 4.2, 1, 0, 100],
+			["gray", 0, 0, self.z + 0.7, self.z + 1.4, 4.2, 2, 8, 0, 10],
+		]
+		if self.name == "Last Ditch":
+			for xW, yW in math.CSround(3, 3.5, 0.1234):
+				specs.extend([
+					["gray", xW, yW, self.z - 4.2, self.z - 2.2, 0.1, 0.1, 1, 0, 1],
+					["gray", xW, yW, self.z - 2.2, self.z - 0.8, 0.2, 0.2, 1, 0, 1],
+					["gray", xW, yW, self.z + 1, self.z + 2, 0.2, 0.2, 1, 0, 1],
+					["gray", xW, yW, self.z + 2, self.z + 4, 0.1, 0.1, 1, 0, 1],
+				])
+		return specs
 
 class Car:
 	def __init__(self, z, A):
@@ -118,9 +129,18 @@ class Car:
 	def settarget(self, zW):
 		self.targetz = zW
 		self.braking = False
-	def draw(self, back):
+	def especs(self):
 		if not view.visible(self.z, 10):
-			return
+			return []
+		xW, yW, zW = self.worldpos()
+		
+		dA = pygame.time.get_ticks() * 0.00001
+		specs = [
+			["gray", xW, yW, zW - 1, zW + 1, 0.6, 0.6, 1, 0, 1],
+			["window", xW, yW, zW - 0.7, zW + 0.7, 0.7, 0.7, 1, dA, 6],
+		]
+		return specs
+
 		(xG, yG), dG = view.worldtogame(self.worldpos())
 		if (back and dG > 0) or (not back and dG < 0):
 			return
