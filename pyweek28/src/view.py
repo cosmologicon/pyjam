@@ -47,13 +47,13 @@ cmode = "z"
 targetz = 0  # Where the camera wants to be
 ftargetz = 0  # Approach factor, increases in time to allow for a slightly slower start.
 def updatecamera_z(dt):
-	global targetz, ftargetz, zW0
+	global targetz, ftargetz, zW0, zoom
 	ftargetz += dt
 	f = 100 * ftargetz ** 3
 	newz = math.softapproach(zW0, targetz, f * dt, dymin = 0.01)
 	# TODO: This is supposed to give a sense of pulling back as the camera pans, but I'm not sure it
 	# comes across. Try it again once the graphics are more in place.
-	# zoom = 100 / (1 + 0.001 * abs(zw0 - newz) / dt)
+	# zoom = 60 / (1 + 0.001 * abs(zW0 - newz) / dt)
 	zW0 = newz
 def seek_z(zW):
 	global cmode, targetz, ftargetz

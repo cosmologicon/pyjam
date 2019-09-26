@@ -7,35 +7,34 @@ from . import pview, state, view
 from .pview import T
 
 
-# TODO(Christopher): Even though it's less realistic, I think it might look more dymanic if the
-# starfield had a feeling of depth, i.e. not all the stars parallax the same amount when you move.
-# my guess you fixed the A(angle?) for all the stars, so it should parallax the same amount?
-# just add speed to A, and make it move to one direction, but it is not moving smooth, well, because the truncation int error?
-
 def randomstar():
 	z = random.uniform(0, 10000)
 	A = random.uniform(0, 8)
-	num = random.randint(50, 255)
+	depth = random.randint(2, 10)
+	num = int(random.uniform(100, 255) * depth / 10)
 	color = (num, num, num)
-	return z, A, color
+	return z, A, depth, color
 stardata = [randomstar() for _ in range(10000)]
 
-def move_star(arg):
-    z,A,color = arg
-    speed = random.random()/1000
-    return z,A+speed,color
 
 # TODO: restrict to the central viewing area.
+_laststarz = None  # Last z-position so we can stretch the stars accordingly.
 def stars():
-    pview.fill((0, 0, 0))
-    global stardata
-    stardata = list(map(move_star,stardata))
-    Nstar = 500  # TODO: change dynamically with resolution
-    for z, A, color in stardata[:Nstar]:
-        # TODO: dynamically change with camera zoom level
-        pos = T(pview.centerx + 500 * view.dA(A, view.A), 300 * (z - view.zW0) % pview.h)
-        # TODO: different colors correlated with depth
-        pview.screen.set_at(pos, color)
+	global _laststarz
+	if _laststarz is None: _laststarz = view.zW0
+	dy = [int(round(0.3 * (view.zW0 - _laststarz) * depth * pview.f)) for depth in range(11)]
+	A0 = 0.000005 * pygame.time.get_ticks()
+	pview.fill((0, 0, 0))
+	Nstar = 2000  # TODO: change dynamically with resolution
+	for z, A, depth, color in stardata[:Nstar]:
+		# TODO: dynamically change with camera zoom level
+		px, py = T(pview.centerx + 500 * view.dA(A, view.A - A0 * depth), -6 * depth * (z - view.zW0) % pview.h)
+		if _laststarz == view.zW0:
+			pview.screen.set_at((px, py), color)
+		else:
+			c = pview.I(color[0] / math.clamp(abs(dy[depth]) / 4, 1, 6))
+			pygame.draw.line(pview.screen, (c, c, c), (px, py + dy[depth]), (px, py - dy[depth]))
+	_laststarz = view.zW0
 
 def atmosphere():
     # Atmosphere
