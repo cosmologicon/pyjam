@@ -56,4 +56,17 @@ class TestQuest(Quest):
 				self.advance()
 				self.done = True
 
+class ReallocateQuest(Quest):
+	name = "reallocate"
+	def think(self, dt):
+		Quest.think(self, dt)
+		if self.step == 0 and self.t > 0.3:
+			dialog.run("Quest: reassign one worker from Counterweight to each of the other four stations. All stations must have a worker at the same time to complete the quest.")
+			self.advance()
+		if self.step == 1:
+			if all(s.population > 0 for s in state.stations):
+				dialog.run("Congratulations. You finished a quest. Want a reward? Tough, we haven't implemented it yet!")
+				self.advance()
+				self.done = True
+
 

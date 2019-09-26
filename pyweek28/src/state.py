@@ -9,12 +9,16 @@ radius = 1
 
 stations = []
 
-def currentstation():
-	from . import view
+def stationat(z, dz = 0):
 	for station in stations:
-		if abs(station.z - view.zW0) < 3:
+		if abs(station.z - z) <= dz:
 			return station
 	return None
+
+
+def currentstation():
+	from . import view
+	return stationat(view.zW0, dz = 3)
 
 def currentstationname():
 	s = currentstation()

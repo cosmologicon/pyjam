@@ -2,32 +2,21 @@
 
 from __future__ import division
 import pygame, random, math
-from . import pview, view, quest, state, draw
+from . import pview, view, quest, state, draw, ptext
 from .pview import T
 
-
-# TODO(Christopher): there are much better looking options than this. Revisit this once we have an
-# idea for the art style.
-
-# For now, as a placeholder, stations are represented as a collection of cylinders, and we don't do
-# any fancy occlusion, we just draw them in order from the back to the front.
-def randomstationpiece():
-	xW = random.uniform(-1, 1)
-	yW = random.uniform(-1, 1)
-	xW, yW = math.norm((xW, yW), 1.2)
-	zW = random.uniform(-0.4, 0.4)
-	h = random.uniform(0.01, 1) ** 0.5  # Bias toward shorter cylinders
-	r = math.clamp(0.5 / h, 0.1, 2)
-	color = random.randint(100, 200), random.randint(100, 200), random.randint(100, 200)
-	return (xW, yW, zW), h, r, color
-
-
 class Station:
-	def __init__(self, name, z):
+	def __init__(self, name, z, pop = 0, capacity = 5):
 		self.name = name
+		self.capacity = capacity
+		self.population = pop
+		# "Shadow population", the population of the station once all cars complete their current
+		# assingment.
+		self.spopulation = self.population
+		# Target population the player has set.
+		self.assigned = self.population
 		self.z = z
 		self.messages = []
-		self.drawdata = [randomstationpiece() for _ in range(20)]
 		self.quests = []
 		self.t = 0
 	def addquest(self, questname):
@@ -47,14 +36,12 @@ class Station:
 		draw.drawelement("hatch", 0, self.z + 0.5, self.z + 0.7, 4.2, 4.2, 1, view.A - 0 * dA, 100)
 		draw.drawelement("gray", 0, self.z + 0.7, self.z + 1.4, 4.2, 2, 8, view.A, 10)
 
-# TODO: reconsider the convention of A being the side of the cable it's on, rather than the side of
-# the cable it's facing.
-
 class Car:
 	def __init__(self, z, A):
 		self.z = z
 		self.A = A
 		self.n = 0  # number of passengers carried
+		self.shadown = 0
 		self.capacity = 1
 		self.targetz = self.z
 		self.vz = 0
@@ -81,10 +68,53 @@ class Car:
 			if self.braking:
 				self.vz = abs(brakez - self.z) / dt
 				self.z = brakez
-		# Move to another station once you arrive.
-		# TODO: remove. This is just for demo purposes to make it seem more dynamic.
 		if self.arrived():
-			self.settarget(random.choice(state.stations).z)
+			self.swappassengers()
+			self.findtarget()
+	def swappassengers(self):
+		# Check whether we're at a station that has or needs passengers.
+		# TODO: slight delay when accepting multiple passengers, like in Mini Metro.
+		station = state.stationat(self.z)
+		if not station:
+			return
+		dpop = station.population - station.assigned
+		if dpop > 0 and self.capacity > self.n:
+			dpop = min(dpop, self.capacity - self.n)
+			self.n += dpop
+			station.population -= dpop
+			if station.spopulation != station.population:
+				dspop = station.population - station.spopulation
+				self.shadown -= dspop
+				station.spopulation += dspop
+		elif dpop < 0 and self.n > 0:
+			dpop = min(-dpop, self.n)
+			self.n -= dpop
+			station.population += dpop
+			if station.spopulation != station.population:
+				dspop = station.population - station.spopulation
+				self.shadown -= dspop
+				station.spopulation += dspop
+	def findtarget(self):
+		# TODO: if there are multiple cars free in the same frame, assign the nearest one.
+		if self.n > 0:
+			# Find the nearest station that wants passengers.
+			stations = [station for station in state.stations if station.assigned > station.spopulation]
+			if stations:
+				station = min(stations, key = lambda s: abs(self.z - s.z))
+				self.settarget(station.z)
+				togive = min(self.n, station.assigned - station.spopulation)
+				station.spopulation += togive
+				self.shadown -= togive
+		elif self.n == 0:
+			# Find the nearest station with extra passengers.
+			stations = [station for station in state.stations if station.assigned < station.spopulation]
+			if stations:
+				station = min(stations, key = lambda s: abs(self.z - s.z))
+				self.settarget(station.z)
+				totake = min(self.capacity - self.n, station.spopulation - station.assigned)
+				station.spopulation -= totake
+				self.shadown += totake
+
 	def settarget(self, zW):
 		self.targetz = zW
 		self.braking = False
@@ -101,4 +131,6 @@ class Car:
 		rect = pygame.Rect(xV0, yV0, xV1 - xV0, yV1 - yV0)
 		if pview.rect.colliderect(rect):
 			pview.screen.fill(color, rect)
+			ptext.draw("%d/%d" % (self.n, self.capacity), center = view.gametoview((xG, yG)),
+				fontsize = T(1 * view.zoom), owidth = 1, color = "orange")
 

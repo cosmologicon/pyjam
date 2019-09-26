@@ -158,7 +158,7 @@ def buildcabletexture():
 	for A in range(9):
 		x = int(round(A / 8 * w))
 		a = int(round(w / 60))
-		pygame.draw.line(cabletexture, (50, 50, 50), (x, 0), (x, h), a)
+		pygame.draw.line(cabletexture, (70, 70, 70), (x, 0), (x, h), a)
 
 
 cabletexture = None  # Will be built on the first call to getcablesurf
