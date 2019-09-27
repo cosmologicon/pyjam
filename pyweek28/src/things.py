@@ -46,14 +46,20 @@ class Passenger:
 		car.pending.append(self)
 
 @lru_cache(1000)
-def getpopcard(name, color, size):
-	if size != 400:
-		return pygame.transform.smoothscale(getpopcard(name, color, 400), (size, size))
-	surf = pygame.Surface((400, 400)).convert_alpha()
+def getpopcard(name, color, size, alpha = 255):
+	if alpha != 255:
+		surf = getpopcard(name, color, size).copy()
+		osurf = pygame.Surface(surf.get_size()).convert_alpha()
+		osurf.fill((255, 225, 255, alpha))
+		surf.blit(osurf, (0, 0), special_flags = pygame.BLEND_RGBA_MULT)
+		return surf
+	if size != 120:
+		return pygame.transform.smoothscale(getpopcard(name, color, 120), (size, size))
+	surf = pygame.Surface((120, 120)).convert_alpha()
 	surf.fill(color)
-	surf.fill(math.imix((0, 0, 0), color, 0.5), (20, 20, 360, 360))
-	ptext.draw(name[0].upper(), surf = surf, center = (200, 200), fontsize = 360, owidth = 2)
-	ptext.draw(name.title(), surf = surf, center = (200, 320), fontsize = 100, owidth = 1.5)
+	surf.fill(math.imix((0, 0, 0), color, 0.5), (6, 6, 108, 108))
+	ptext.draw(name[0].upper(), surf = surf, center = (60, 60), fontsize = 100, owidth = 1.5)
+	ptext.draw(name.title(), surf = surf, center = (60, 96), fontsize = 30, owidth = 1.5)
 	return surf
 
 # Member of the population, a person
@@ -65,11 +71,11 @@ class Pop(Passenger):
 		if self.name == "worker": return 200, 150, 100
 		if self.name == "tech": return 200, 200, 100
 		if self.name == "sci": return 100, 200, 100
-	def getcard(self, size, fade = 1):
+	def getcard(self, size, fade = 1, alpha = 255):
 		color = math.imix((0, 0, 0), self.color(), fade)
-		return getpopcard(self.name, color, size)
-	def drawcard(self, pos, size, fade = 1):
-		surf = self.getcard(size, fade)
+		return getpopcard(self.name, color, size, alpha)
+	def drawcard(self, pos, size, fade = 1, alpha = 255):
+		surf = self.getcard(size, fade, alpha)
 		rect = surf.get_rect(center = pos)
 		pview.screen.blit(surf, rect)
 		if self.htargets:

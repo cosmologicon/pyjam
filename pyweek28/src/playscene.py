@@ -241,7 +241,7 @@ class AssignScene(scene.Scene):
 	def think(self, dt, kpressed, kdowns, mpos, mdown, mup):
 		self.mpos = mpos
 		self.t += dt
-		if self.t > 0.4 and mdown:
+		if (self.t > 0.2 and mdown) or (self.t > 0.4 and mup):
 			station = worldmap.stationat(self.mpos)
 			if station and station.canaddpassenger():
 				self.held.settargetholder(station)
@@ -253,7 +253,7 @@ class AssignScene(scene.Scene):
 		pview.fill((0, 0, 0, alpha))
 		
 		worldmap.draw(worldmap.stationat(self.mpos), None)
-		self.held.drawcard(self.mpos, T(80))
+		self.held.drawcard(self.mpos, T(80), alpha = 100)
 
 
 
