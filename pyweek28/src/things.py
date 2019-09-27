@@ -11,6 +11,8 @@ class Passenger:
 		self.htargets = []
 		self.holder = None  # The car or station where this passenger is.
 		self.setholder(holder)
+	def color(self):
+		return 120, 255, 120
 	def setholder(self, holder):
 		if self.holder is not None:
 			self.holder.removepassenger(self)
@@ -48,7 +50,11 @@ class Pop(Passenger):
 		Passenger.__init__(self, holder)
 		self.name = name
 	def drawcard(self, rect):
-		pview.screen.fill((100, 200, 150), rect)
+		color = self.color()
+		pview.screen.fill(color, rect)
+		rect.inflate_ip(T(-4), T(-4))
+		color = math.imix(color, (0, 0, 0), 0.3)
+		pview.screen.fill(color, rect)
 		ptext.draw(self.name, center = rect.center, fontsize = T(22), owidth = 1)
 		if self.htargets:
 			ptext.draw(self.htargets[-1].name[0], topright = rect.topright, fontsize = T(42), owidth = 1)

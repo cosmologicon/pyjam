@@ -1,22 +1,33 @@
 # Draw the right-hand panel
-# TODO: let you click on the panel to go between stations
 
 import pygame, math
 from . import pview, state, view, ptext
 from .pview import T
 
+# In actual screen coordinates (not view coordinates)
+def pos(z, A):
+	px = T(1140 - 15 * view.dA(A, view.A))
+	py = pview.I(math.fadebetween(z, 0, T(660), state.top, T(60)))
+	return px, py
+
 
 def stationat(mpos):
 	for station in state.stations:
-		yV = pview.I(math.fadebetween(station.z, 0, T(660), state.top, T(60)))
 		rect = T(pygame.Rect(0, 0, 150, 20))
-		rect.center = T(1140), yV
+		rect.center = pos(station.z, view.A)
 		if rect.collidepoint(mpos):
 			return station
 	return None
 
+def carat(mpos):
+	for car in state.cars:
+		carpos = pos(car.z, car.A)
+		if math.distance(carpos, mpos) < T(12):
+			return car
+	return None
 
-def draw(pstation):
+
+def draw(pstation, pcar):
 	# TODO: bezeled edge for this rectangle, or some kind of fancy border.
 	rect = T(1000, 0, 280, 720)
 	pview.screen.fill((100, 80, 80), rect)
@@ -30,9 +41,8 @@ def draw(pstation):
 	pview.screen.fill((140, 100, 100), rect)
 
 	for A in range(8):
-		xV = T(1140 - 15 * view.dA(A, view.A))
 		color = (220, 220, 220) if abs(view.dA(A, view.A)) < 0.1 else (110, 110, 110)
-		pygame.draw.line(pview.screen, color, (xV, yVtop), (xV, yVbottom), T(3))
+		pygame.draw.line(pview.screen, color, T(pos(0, A)), T(pos(state.top, A)), T(3))
 
 	for station in state.stations:
 		yV = pview.I(math.fadebetween(station.z, 0, yVbottom, state.top, yVtop))
@@ -45,23 +55,27 @@ def draw(pstation):
 		if station.quests:
 			ptext.draw("(!)", center = (T(1050), yV), color = "yellow",
 				fontsize = T(28), owidth = 1.5)
+		rect = T(pygame.Rect(rect.left + 4, rect.bottom + 2, 8, 8))
+		for j in range(station.capacity):
+			if j < len(station.held):
+				color = station.held[j].color()
+			elif j < len(station.held) + len(station.pending):
+				color = math.imix(station.pending[j - len(station.held)].color(), (0, 0, 0), 0.5)
+			else:
+				color = 10, 10, 10
+			pview.screen.fill(color, rect)
+			color = math.imix(color, (0, 0, 0), 0.5)
+			pview.screen.fill(color, rect.inflate(T(-2), T(-2)))
+			rect.move_ip(T(9), 0)
+			
 
 	for car in state.cars:
 		xV = T(1140 - 15 * view.dA(car.A, view.A))
 		yV = pview.I(math.fadebetween(car.z, 0, yVbottom, state.top, yVtop))
 		fcolor = (0, 0, 0) if not car.held else (255, 255, 255)
+		if car is pcar:
+			pygame.draw.circle(pview.screen, (255, 255, 255), (xV, yV), T(8))
 		pygame.draw.circle(pview.screen, (255, 100, 100), (xV, yV), T(6))
 		pygame.draw.circle(pview.screen, fcolor, (xV, yV), T(4))
-
-	return
-
-
-	pygame.draw.line(pview.screen, (220, 220, 220), (xV, yVtop), (xV, yVbottom), T(3))
-	for car in state.cars:
-		yV = pview.I(math.fadebetween(car.z, 0, yVbottom, state.top, yVtop))
-		rect = T(pygame.Rect(0, 0, 4, 4))
-		rect.center = xV, yV
-		pview.screen.fill((255, 100, 100), rect)
-		
 	
 

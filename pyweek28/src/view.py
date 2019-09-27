@@ -85,6 +85,8 @@ targetA = 0
 def rotate(dA):
 	global targetA
 	targetA = (targetA + dA) % 8
+def rotateto(A):
+	rotate(dA(A, targetA))
 
 
 def init():

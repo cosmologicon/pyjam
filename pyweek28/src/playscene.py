@@ -13,8 +13,8 @@ class PlayScene(scene.Scene):
 			things.Station("Stationary", 7200, 5),
 			things.Station("Counterweight", 10000, 5),
 		]
-		for j in range(5):
-			p = things.Pop("Glarb-%d" % j, state.stations[4])
+		for name in ["worker", "worker", "worker", "tech", "sci"]:
+			p = things.Pop(name, state.stations[4])
 		view.seek_z(state.stations[4].z)
 		#state.stations[3].addquest("testquest")
 		state.stations[4].addquest("reallocate")
@@ -48,7 +48,8 @@ class PlayScene(scene.Scene):
 			self.adjustassignment(-1)
 		if pygame.K_2 in kdowns:
 			self.adjustassignment(1)
-		self.handlemouse(mdown, mup)
+		if mdown:
+			self.handlemousedown()
 
 		if self.fshowcompass > 0:
 			self.fshowcompass = math.approach(self.fshowcompass, 0, 5 * dt)
@@ -90,19 +91,23 @@ class PlayScene(scene.Scene):
 		if not carshere:
 			return
 		view.seek_car(carshere[0])
-	def handlemouse(self, mdown, mup):
-		if mdown:
-			button = self.hud.buttonat(self.mpos)
-			if button is not None:
-				self.clickbutton(button.text)
-			station = worldmap.stationat(self.mpos)
-			if station is not None:
-				view.seek_z(station.z)
-			station = state.currentstation()
-			if station is not None:
-				for rect, held in station.recthelds():
-					if rect.collidepoint(self.mpos):
-						scene.push(AssignScene(self, held))
+	def handlemousedown(self):
+		button = self.hud.buttonat(self.mpos)
+		if button is not None:
+			self.clickbutton(button.text)
+			return
+		car = worldmap.carat(self.mpos)
+		if car is not None:
+			view.seek_car(car)
+			view.rotateto(car.A)
+		station = worldmap.stationat(self.mpos)
+		if station is not None:
+			view.seek_z(station.z)
+		station = state.currentstation()
+		if station is not None:
+			for rect, held in station.recthelds():
+				if rect.collidepoint(self.mpos):
+					scene.push(AssignScene(self, held))
 	def clickbutton(self, btext):
 		if btext == "Rotate Left":
 			view.rotate(-1)
@@ -112,7 +117,7 @@ class PlayScene(scene.Scene):
 
 	def draw(self):
 		self.drawworld()
-		worldmap.draw(worldmap.stationat(self.mpos))
+		worldmap.draw(worldmap.stationat(self.mpos), worldmap.carat(self.mpos))
 		self.drawstationinfo()
 		text = "\n".join([
 			"Station: %s" % (state.currentstationname(),),
@@ -216,7 +221,7 @@ class AssignScene(scene.Scene):
 		alpha = int(math.clamp(1000 * self.t, 0, 200))
 		pview.fill((0, 0, 0, alpha))
 		
-		worldmap.draw(worldmap.stationat(self.mpos))
+		worldmap.draw(worldmap.stationat(self.mpos), None)
 
 		rect = T(pygame.Rect((0, 0, 80, 80)))
 		rect.center = self.mpos
