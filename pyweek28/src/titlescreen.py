@@ -14,14 +14,14 @@ class Title(scene.Scene):
 
 
     def think(self,dt, kpressed, kdowns, mpos, mdown, mup):
-        if kdowns:
+        if kdowns or mdown:
             scene.set(playscene.PlayScene())
 
     def draw(self):
 
         draw.atmosphere()
         ptext.draw('The Really Really Big Tower',center = pview.center,fontname = 'space Xrebron',fontsize = T(60))
-        ptext.draw('press any key to continue',T(800,500))
+        ptext.draw('Click to continue',T(800,500))
         global t
         t += 0.01
         r = 10 * (1 + t)

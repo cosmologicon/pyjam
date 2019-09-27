@@ -3,13 +3,14 @@ from . import pview, ptext
 from .pview import T
 
 class Button:
-	def __init__(self, text, pV, size = (80, 80)):
+	def __init__(self, text, pV, size = (80, 80), isvisible = None):
 		self.text = text
 		self.pV = pV
 		self.size = size
 		self.rect0 = pygame.Rect(0, 0, *size)
 		self.rect0.center = pV
 		self.color = 80, 80, 80
+		self.isvisible = isvisible or (lambda: True)
 	def getrect(self):
 		return T(self.rect0)
 	def draw(self):
@@ -27,11 +28,12 @@ class HUD:
 		]
 	def draw(self):
 		for button in self.buttons:
-			button.draw()
+			if button.isvisible():
+				button.draw()
 
 	def buttonat(self, pos):
 		for button in self.buttons:
-			if button.getrect().collidepoint(pos):
+			if button.isvisible() and button.getrect().collidepoint(pos):
 				return button
 		return None
 

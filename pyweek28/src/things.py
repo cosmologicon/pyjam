@@ -222,8 +222,8 @@ def stationespecs(name, t):
 		return ret
 	if name == "LowOrbiton":
 		ret = [
-			["window", 0, 0, -2, 0, 1, 2.5, 1/10, 0, 12],
-			["window", 0, 0, 0, 2, 2.5, 1, 10, 0, 12],
+			["window", 0, 0, -2.5, 0, 1.5, 3.2, 1/10, 0, 12],
+			["window", 0, 0, 0, 2.5, 3.2, 1.5, 10, 0, 12],
 		]
 		for (_, z), (x, y) in zip(math.CSround(3, 2, 0.7 * t), math.CSround(3, 3, 0.5 * t)):
 			ret += [

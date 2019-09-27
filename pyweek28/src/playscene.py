@@ -23,6 +23,7 @@ class PlayScene(scene.Scene):
 			things.Car(random.uniform(0, state.top), j) for j in range(8)
 		]
 		self.hud = hud.HUD()
+		self.hud.buttons.append(hud.Button("Claim Quest", (640, 600), size = (160, 160), isvisible = self.availablequest))
 
 		self.up = [pygame.K_UP, pygame.K_w]
 		self.down = [pygame.K_DOWN, pygame.K_s]
@@ -136,6 +137,9 @@ class PlayScene(scene.Scene):
 		elif btext == "Rotate Right":
 			sound.playsound("yes")
 			view.rotate(1)
+		elif btext == "Claim Quest":
+			sound.playsound("yes")
+			self.claimquest()
 
 	def draw(self):
 		self.drawworld()
@@ -149,10 +153,6 @@ class PlayScene(scene.Scene):
 		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1.5)
 		self.drawcompass()
 		self.hud.draw()
-		if self.availablequest():
-			ptext.draw("Quest available at this station! Press Q to begin.",
-				center = pview.center, fontsize = T(80), width = T(720), color = "orange",
-				owidth = 1.5)
 		dialog.draw()
 
 	def drawworld(self):
@@ -225,7 +225,7 @@ class PlayScene(scene.Scene):
 			# I'm like 90% sure this formula is wrong in at least one way but it works so whatever.
 			dy, dx = math.CS(-(A + 4) / 8 * math.tau, 100)
 			pos = x0 - dx, y0 - dy
-			ptext.draw(dname, center = T(pos), fontsize = T(60), owidth = 1.5,
+			ptext.draw(dname, center = T(pos), fontsize = T(60), owidth = 1.5 if A == 0 else 0,
 				angle = -A * 360 / 8, alpha = alpha)
 
 

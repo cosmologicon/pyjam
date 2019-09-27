@@ -4,14 +4,10 @@ from . import settings, scene, playscene, view, ptext, pview,titlescreen
 from .pview import T
 
 pview.SCREENSHOT_DIRECTORY = "screenshots"
-# TODO: title screen
 
 ptext.FONT_NAME_TEMPLATE = os.path.join("fonts", "%s.ttf")
 pygame.mixer.init()
 scene.push(titlescreen.Title())
-# scene.push(playscene.PlayScene())
-
-# TODO: sound module to play music and sound effects
 
 view.init()
 clock = pygame.time.Clock()
@@ -44,7 +40,6 @@ while playing:
 			mup = True
 	kpressed = pygame.key.get_pressed()
 	mpos = pygame.mouse.get_pos()
-	# TODO: get relevant mouse events and pass them to the current scene.
 	
 	currentscene = scene.current()
 	if currentscene:
