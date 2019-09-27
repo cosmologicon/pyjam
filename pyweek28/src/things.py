@@ -2,6 +2,7 @@
 
 from __future__ import division
 import pygame, random, math
+from functools import lru_cache
 from . import pview, view, quest, state, draw, ptext
 from .pview import T
 
@@ -37,27 +38,42 @@ class Passenger:
 		if self.htargets and isinstance(self.holder, Car) and self.holder.targetz != self.htargets[0].z:
 			self.holder.settarget(self.htargets[0].z)
 	def callcar(self):
-		cars = [car for car in state.cars if car.canaddpassenger()]
+		cars = [car for car in state.cars if car.cantransport(self.holder.z, self.htargets[0].z)]
 		if not cars:
 			return
 		car = min(cars, key = lambda car: abs(self.holder.z - car.z))
 		self.htargets.insert(0, car)
 		car.pending.append(self)
 
+@lru_cache(1000)
+def getpopcard(name, color, size):
+	if size != 400:
+		return pygame.transform.smoothscale(getpopcard(name, color, 400), (size, size))
+	surf = pygame.Surface((400, 400)).convert_alpha()
+	surf.fill(color)
+	surf.fill(math.imix((0, 0, 0), color, 0.5), (20, 20, 360, 360))
+	ptext.draw(name[0].upper(), surf = surf, center = (200, 200), fontsize = 360, owidth = 2)
+	ptext.draw(name.title(), surf = surf, center = (200, 320), fontsize = 100, owidth = 1.5)
+	return surf
+
 # Member of the population, a person
 class Pop(Passenger):
 	def __init__(self, name, holder = None):
 		Passenger.__init__(self, holder)
 		self.name = name
-	def drawcard(self, rect):
-		color = self.color()
-		pview.screen.fill(color, rect)
-		rect.inflate_ip(T(-4), T(-4))
-		color = math.imix(color, (0, 0, 0), 0.3)
-		pview.screen.fill(color, rect)
-		ptext.draw(self.name, center = rect.center, fontsize = T(22), owidth = 1)
+	def color(self):
+		if self.name == "worker": return 200, 150, 100
+		if self.name == "tech": return 200, 200, 100
+		if self.name == "sci": return 100, 200, 100
+	def getcard(self, size, fade = 1):
+		color = math.imix((0, 0, 0), self.color(), fade)
+		return getpopcard(self.name, color, size)
+	def drawcard(self, pos, size, fade = 1):
+		surf = self.getcard(size, fade)
+		rect = surf.get_rect(center = pos)
+		pview.screen.blit(surf, rect)
 		if self.htargets:
-			ptext.draw(self.htargets[-1].name[0], topright = rect.topright, fontsize = T(42), owidth = 1)
+			ptext.draw(self.htargets[-1].name[0], topright = rect.topright, fontsize = T(size/2), owidth = 1)
 
 
 class Holder:
@@ -88,6 +104,7 @@ class Station(Holder):
 		self.messages = []
 		self.quests = []
 		self.t = 0
+		self.blocked = [False for _ in range(8)]
 	def addquest(self, questname):
 		self.quests.append(questname)
 	def startquest(self, questname):
@@ -141,6 +158,9 @@ class Car(Holder):
 		if random.random() < 1/3:
 			self.broken = False
 		self.fjostle = 1
+	def cantransport(self, zfrom, zto):
+		if not self.canaddpassenger(): return False
+		return not any(state.stationat(z).blocked[self.A] for z in (zfrom, zto))
 	def think(self, dt):
 		self.fjostle = math.approach(self.fjostle, 0, 1.5 * dt)
 		self.brokefactor = math.approach(self.brokefactor, (4 if self.broken else 1), 3 * dt)
@@ -160,7 +180,7 @@ class Car(Holder):
 				self.z = brakez
 		if self.arrived and self.pending:
 			self.settarget(self.pending[0].holder.z)
-		if 10 * random.random() < dt:
+		if 100 * random.random() < dt:
 			self.broken = True
 	def settarget(self, zW):
 		self.targetz = zW

@@ -44,6 +44,8 @@ class PlayScene(scene.Scene):
 			self.claimquest()
 		if pygame.K_c in kdowns:
 			self.seekcar()
+		if pygame.K_b in kdowns:
+			self.toggleblock()
 		if pygame.K_1 in kdowns:
 			self.adjustassignment(-1)
 		if pygame.K_2 in kdowns:
@@ -91,6 +93,11 @@ class PlayScene(scene.Scene):
 		if not carshere:
 			return
 		view.seek_car(carshere[0])
+	def toggleblock(self):
+		station = state.currentstation()
+		if not station: return
+		if view.A in range(8):
+			station.blocked[view.A] = not station.blocked[view.A]
 	def canfix(self):
 		car = state.carat(view.zW0, view.A, dz = 3)
 		return car and car.broken
@@ -123,11 +130,11 @@ class PlayScene(scene.Scene):
 		elif btext == "Rotate Right":
 			view.rotate(1)
 
-
 	def draw(self):
 		self.drawworld()
 		worldmap.draw(worldmap.stationat(self.mpos), worldmap.carat(self.mpos))
 		self.drawstationinfo()
+		self.drawcarinfo()
 		text = "\n".join([
 			"Station: %s" % (state.currentstationname(),),
 			"Altitude: %d km" % (round(view.zW0),),
@@ -186,7 +193,17 @@ class PlayScene(scene.Scene):
 		])
 		ptext.draw(text, topleft = T(10, 260), fontsize = T(22), owidth = 1)
 		for rect, held in station.recthelds():
-			held.drawcard(rect)
+			held.drawcard(rect.center, rect.w)
+
+	def drawcarinfo(self):
+		if state.currentstation():
+			return
+		car = state.currentcar()
+		if car is None: return
+		ptext.draw("Carrying:", topleft = T(20, 120), fontsize = T(26), owidth = 1)
+		dest = state.stationat(car.targetz)
+		if dest:
+			ptext.draw("Destination: %s" % dest.name, topleft = T(20, 400), fontsize = T(26), owidth = 1)
 
 
 	# TODO: move to some other module
@@ -236,10 +253,7 @@ class AssignScene(scene.Scene):
 		pview.fill((0, 0, 0, alpha))
 		
 		worldmap.draw(worldmap.stationat(self.mpos), None)
-
-		rect = T(pygame.Rect((0, 0, 80, 80)))
-		rect.center = self.mpos
-		self.held.drawcard(rect)
+		self.held.drawcard(self.mpos, T(80))
 
 
 

@@ -29,3 +29,7 @@ def currentstationname():
 	s = currentstation()
 	return s.name if s is not None else ""
 
+def currentcar():
+	from . import view
+	return carat(view.zW0, view.A, dz = 3)
+

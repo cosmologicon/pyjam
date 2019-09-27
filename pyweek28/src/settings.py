@@ -11,7 +11,7 @@ maxfps = 120
 
 # TODO: change to False before uploading
 DEBUG = True
-
+showhelp = False
 
 # TODO: command-line flags to change settings
 

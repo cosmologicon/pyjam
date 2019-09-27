@@ -67,6 +67,9 @@ def draw(pstation, pcar):
 			color = math.imix(color, (0, 0, 0), 0.5)
 			pview.screen.fill(color, rect.inflate(T(-2), T(-2)))
 			rect.move_ip(T(9), 0)
+		for A, blocked in enumerate(station.blocked):
+			if blocked:
+				ptext.draw("X", center = pos(station.z, A), color = "red", ocolor = "white", fontsize = T(14), owidth = 1)
 			
 
 	for car in state.cars:

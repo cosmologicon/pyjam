@@ -23,6 +23,8 @@ while playing:
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_ESCAPE:
 				playing = False
+			elif event.key == pygame.K_F1:
+				settings.showhelp = not settings.showhelp
 			else:
 				kdowns.append(event.key)
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -43,16 +45,21 @@ while playing:
 		playing = False
 	if settings.DEBUG:
 		pygame.display.set_caption("%s | %.1ffps" % (settings.gamename, clock.get_fps()))
-		text = "\n".join([
-			"Up/down: move between stations",
-			"C: track car on current side of cable",
-			"Left/right: change viewing angle",
-			"1/2: adjust assignment at current station",
-			"Q: claim quest at station with (!) icon",
-			"Click on a station on right to go there",
-			"Click on a person on left to reassign to a different station",
-			"Esc: quit",
-		])
-		ptext.draw(text, fontsize = T(24), topleft = T(0, 500), owidth = 1)
+		text = "F1: toggle help"
+		if settings.showhelp:
+			text = "\n".join([
+				"F1: toggle help",
+				"Up/down: move between stations",
+				"C: track car on current side of cable",
+				"B: toggle block at current port",
+				"Left/right: change viewing angle",
+				"1/2: adjust assignment at current station",
+				"Q: claim quest at station with (!) icon",
+				"Click on a station or car on right to go there",
+				"Click on a broken car to fix it",
+				"Click on a person on left to reassign to a different station",
+				"Esc: quit",
+			])
+		ptext.draw(text, fontsize = T(24), bottomleft = T(0, 700), owidth = 1)
 	pygame.display.flip()
 
