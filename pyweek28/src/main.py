@@ -1,11 +1,15 @@
 from __future__ import division
-import pygame
-from . import settings, scene, playscene, view, ptext, pview
+import os,pygame
+from . import settings, scene, playscene, view, ptext, pview,titlescreen
 from .pview import T
 
 pview.SCREENSHOT_DIRECTORY = "screenshots"
 # TODO: title screen
-scene.push(playscene.PlayScene())
+
+ptext.FONT_NAME_TEMPLATE = os.path.join("fonts", "%s.ttf")
+pygame.mixer.init()
+scene.push(titlescreen.Title())
+# scene.push(playscene.PlayScene())
 
 # TODO: sound module to play music and sound effects
 

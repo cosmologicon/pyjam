@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest, hud
+from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest, hud,sound
 from .pview import T
 
 
@@ -29,6 +29,7 @@ class PlayScene(scene.Scene):
 		self.left = [pygame.K_LEFT, pygame.K_a]
 		self.right = [pygame.K_RIGHT, pygame.K_d]
 		self.fshowcompass = 0
+		sound.playmusic('prologue')
 
 	def think(self, dt, kpressed, kdowns, mpos, mdown, mup):
 		self.mpos = mpos

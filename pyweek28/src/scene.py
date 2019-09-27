@@ -8,6 +8,10 @@ def pop():
 	if _stack:
 		del _stack[-1]
 
+def set(sc):
+	_stack.clear()
+	push(sc)
+
 def current():
 	return _stack[-1] if _stack else None
 

@@ -1,3 +1,4 @@
+import sys
 gamename = "PyWeek 28: Tower"
 
 # Baseline resolution (also default resolution)
@@ -13,6 +14,10 @@ DEBUG = True
 showhelp = False
 
 # TODO: command-line flags to change settings
+
+audio = "--noaudio" not in sys.argv
+music = audio and "--nomusic" not in sys.argv
+sfx = audio and "--nosfx" not in sys.argv
 
 # TODO: retain settings that are changed in-game, e.g. resolution and sound volume, between startups.
 
