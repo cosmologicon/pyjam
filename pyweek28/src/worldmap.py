@@ -42,20 +42,20 @@ def draw(pstation, pcar):
 
 	for A in range(8):
 		color = (220, 220, 220) if abs(view.dA(A, view.A)) < 0.1 else (110, 110, 110)
-		pygame.draw.line(pview.screen, color, T(pos(0, A)), T(pos(state.top, A)), T(3))
+		pygame.draw.line(pview.screen, color, pos(0, A), pos(state.top, A), T(3))
 
 	for station in state.stations:
-		yV = pview.I(math.fadebetween(station.z, 0, yVbottom, state.top, yVtop))
+		_, py = pos(station.z, A)
 		rect = T(pygame.Rect(0, 0, 140, 6))
-		rect.center = T(1140), yV
+		rect.center = T(1140), py
 		color = (255, 255, 255) if station is pstation else (140, 255, 255)
 		pview.screen.fill(color, rect)
 		ptext.draw(station.name, bottomleft = rect.topleft, color = color, ocolor = (0, 40, 40),
 			fontsize = T(16), owidth = 1)
 		if station.quests:
-			ptext.draw("(!)", center = (T(1050), yV), color = "yellow",
+			ptext.draw("(!)", center = (T(1050), py), color = "yellow",
 				fontsize = T(28), owidth = 1.5)
-		rect = T(pygame.Rect(rect.left + 4, rect.bottom + 2, 8, 8))
+		rect = pygame.Rect(rect.left + T(4), rect.bottom + T(2), T(8), T(8))
 		for j in range(station.capacity):
 			if j < len(station.held):
 				color = station.held[j].color()

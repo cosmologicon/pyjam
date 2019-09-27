@@ -3,6 +3,7 @@ import pygame
 from . import settings, scene, playscene, view, ptext, pview
 from .pview import T
 
+pview.SCREENSHOT_DIRECTORY = "screenshots"
 # TODO: title screen
 scene.push(playscene.PlayScene())
 
@@ -25,6 +26,12 @@ while playing:
 				playing = False
 			elif event.key == pygame.K_F1:
 				settings.showhelp = not settings.showhelp
+			elif event.key == pygame.K_F10:
+				pview.cycle_height(settings.resolutions)
+			elif event.key == pygame.K_F11:
+				pview.toggle_fullscreen()
+			elif event.key == pygame.K_F12:
+				pview.screenshot()
 			else:
 				kdowns.append(event.key)
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -58,6 +65,9 @@ while playing:
 				"Click on a station or car on right to go there",
 				"Click on a broken car to fix it",
 				"Click on a person on left to reassign to a different station",
+				"F10: cycle resolution",
+				"F11: toggle fullscreen",
+				"F12: screenshot",
 				"Esc: quit",
 			])
 		ptext.draw(text, fontsize = T(24), bottomleft = T(0, 700), owidth = 1)

@@ -104,7 +104,7 @@ class PlayScene(scene.Scene):
 	def handlemousedown(self):
 		if self.canfix():
 			car = state.carat(view.zW0, view.A, dz = 3)
-			screenpos = T(view.worldtoview(car.worldpos()))
+			screenpos = view.worldtoview(car.worldpos())
 			d = T(20 + 1.2 * view.zoom)
 			if math.distance(screenpos, self.mpos) < d:
 				car.tryfix()

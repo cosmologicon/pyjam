@@ -25,10 +25,10 @@ def stars():
 	dy = [int(round(0.3 * (view.zW0 - _laststarz) * depth * pview.f)) for depth in range(11)]
 	A0 = 0.000005 * pygame.time.get_ticks()
 	pview.fill((0, 0, 0))
-	Nstar = 2000  # TODO: change dynamically with resolution
+	Nstar = int(round(1500 * pview.area / pview.area0))
 	for z, A, depth, color in stardata[:Nstar]:
 		# TODO: dynamically change with camera zoom level
-		px, py = T(pview.centerx + 500 * view.dA(A, view.A - A0 * depth), -6 * depth * (z - view.zW0) % pview.h)
+		px, py = T(pview.centerx0 + 500 * view.dA(A, view.A - A0 * depth), -6 * depth * (z - view.zW0) % pview.h0)
 		if _laststarz == view.zW0:
 			pview.screen.set_at((px, py), color)
 		else:
@@ -121,21 +121,14 @@ def drawelement(tname, xG, y0G, y1G, r0, r1, n, A0, k):
 	x0, y0 = view.gametoview((xG, y0G))
 	x0, y1 = view.gametoview((xG, y1G))
 	if (y0 < 0 and y1 < 0) or (y0 > pview.h and y1 > pview.h): return
-	r0 = view.zoom * r0
-	r1 = view.zoom * r1
+	r0 = T(view.zoom * r0)
+	r1 = T(view.zoom * r1)
 	w = int(math.ceil(2 * max(r0, r1)))
 	h = y0 - y1
 	surf = getelement(tname, w, h, r0, r1, n, A0, k)
 	rect = surf.get_rect(midbottom = (x0, y0))
 	if pview.rect.colliderect(rect):
 		pview.screen.blit(surf, rect)
-
-
-
-# TODO: when the camera is moving quickly (say, more than 100 pixels per frame), instead of drawing
-# a textured cable, just do a solid color (with the shading). This will make it look more smeared
-# out.
-# Also the stars.
 
 # Drawing the central cable
 def getcablesurf():
@@ -206,7 +199,7 @@ def sparks(pW):
 	x0, y0, z0 = pW
 	if not view.visible(z0, 5):
 		return
-	Nspark = 100
+	Nspark = int(round(100 * pview.f))
 	t = pygame.time.get_ticks() * 0.001
 	for (dx, dy, dz), speed in sparkdata[:Nspark]:
 		jcolor, dt = divmod(t * speed, 1)

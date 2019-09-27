@@ -2,9 +2,8 @@ gamename = "PyWeek 28: Tower"
 
 # Baseline resolution (also default resolution)
 resolution = 1280, 720
-
-# TODO: fullscreen options (use pview for this)
-
+resolutions = 360, 480, 720, 1080
+fullscreen = False
 
 minfps = 10
 maxfps = 120
