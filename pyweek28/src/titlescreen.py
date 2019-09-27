@@ -35,3 +35,4 @@ class Title(scene.Scene):
         if len(point_list) >= 2:
             for i in point_list:
                 pygame.draw.line(pview.screen,(255,255,255),i,i,2)
+

@@ -94,9 +94,29 @@ def gettexture(tname):
 		surf = pygame.Surface((10, 10)).convert()
 		surf.fill((100, 100, 100))
 		surf.fill((100, 150, 255), pygame.Rect(1, 1, 8, 8))
+	elif tname == "lowwindow":
+		surf = pygame.Surface((10, 10)).convert()
+		surf.fill((100, 100, 100))
+		surf.fill((100, 150, 255), pygame.Rect(1, 5, 8, 4))
+	elif tname.startswith("solid-"):
+		surf = pygame.Surface((1, 1)).convert()
+		surf.fill(pygame.Color(tname[6:]))
+	elif tname.startswith("stripe-"):
+		surf = pygame.Surface((1, 4)).convert()
+		surf.fill((100, 100, 100))
+		surf.set_at((0, 2), pygame.Color(tname[7:]))
+#		surf.set_at((0, 3), pygame.Color(tname[7:]))
+	elif tname == "roundtop":
+		surf = pygame.Surface((200, 100)).convert()
+		surf.fill((60, 60, 60))
+		pygame.draw.circle(surf, (40, 40, 80), (100, 100), 80)
+		pygame.draw.circle(surf, (80, 80, 80), (100, 100), 50)
 	elif tname == "gray":
 		surf = pygame.Surface((1, 1)).convert()
 		surf.fill((120, 120, 120))
+	elif tname == "rock":
+		surf = pygame.Surface((100, 100)).convert()
+		pygame.surfarray.pixels3d(surf)[:,:] = (numpy.random.random_sample((100, 100, 1)) * 10 + 60).astype(int)
 	elif tname == "hatch":
 		w = 20
 		surf = pygame.Surface((w, 1)).convert()

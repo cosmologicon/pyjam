@@ -121,23 +121,11 @@ class Station(Holder):
 	def especs(self):
 		if not view.visible(self.z, 10):
 			return []
-		dA = 0.1 * self.t
-		specs = [
-			["gray", 0, 0, self.z - 2, self.z - 0.7, 2, 4.2, 8, 0, 10],
-			["hatch", 0, 0, self.z - 0.7, self.z - 0.5, 4.2, 4.2, 1, 0, 100],
-			["window", 0, 0, self.z - 0.5, self.z + 0.5, 4, 4, 1, dA, 20],
-			["hatch", 0, 0, self.z + 0.5, self.z + 0.7, 4.2, 4.2, 1, 0, 100],
-			["gray", 0, 0, self.z + 0.7, self.z + 1.4, 4.2, 2, 8, 0, 10],
+		return [
+			(texturename, xW, yW, self.z + zW0, self.z + zW1, r0, r1, n, dA, k)
+			for texturename, xW, yW, zW0, zW1, r0, r1, n, dA, k in
+			stationespecs(self.name, self.t)
 		]
-		if self.name == "Last Ditch":
-			for xW, yW in math.CSround(3, 3.5, 0.1234):
-				specs.extend([
-					["gray", xW, yW, self.z - 4.2, self.z - 2.2, 0.1, 0.1, 1, 0, 1],
-					["gray", xW, yW, self.z - 2.2, self.z - 0.8, 0.2, 0.2, 1, 0, 1],
-					["gray", xW, yW, self.z + 1, self.z + 2, 0.2, 0.2, 1, 0, 1],
-					["gray", xW, yW, self.z + 2, self.z + 4, 0.1, 0.1, 1, 0, 1],
-				])
-		return specs
 
 class Car(Holder):
 	def __init__(self, z, A):
@@ -206,3 +194,63 @@ class Car(Holder):
 			["window", xW, yW, zW - 0.7, zW + 0.7, 0.7, 0.7, 1, dA, 6],
 		]
 		return specs
+
+# Espec: texturename, xW, yW, zW0, zW1, r0, r1, n, dA, k
+def stationespecs(name, t):
+	dA = 0.1 * t
+	if name == "Counterweight":
+		return [
+			["lowwindow", 0, 0, -1.5, 1, 2, 2.5, 0.2, dA, 10],
+			["lowwindow", 0, 0, 1, 4, 2.7, 3.2, 0.2, -0.6 * dA, 10],
+			["rock", 0, 0, 4, 7, 3.2, 10, 0.1, 0, 3],
+		]
+	if name == "Stationary":
+		ret = [
+			["stripe-blue", x, y, (j-1) * 1 - 0.3, (j-1) * 1 + 0.3, 4, 4, 1, 0, 1]
+			for j, (x, y) in enumerate(math.CSround(3, 2))
+		] + [
+			["solid-#666688", x, y, -5 + 2 * (j * math.phi % 1), 3 + 2 * (j * math.phi % 1), 0.2, 0.2, 1, 0, 1]
+			for j, (x, y) in enumerate(math.CSround(6, 3))
+		]
+		return ret
+	if name == "Skyburg":
+		ret = [
+			["roundtop", 0, 0, 0, 2, 5, 1, 7, 0, 12],
+			["hatch", 0, 0, -0.5, 0, 2.5, 5, 0.2, 0, 50],
+			["hatch", 0, 0, -2, -0.5, 2.1, 2.5, 1, 0, 30],
+		]
+		return ret
+	if name == "LowOrbiton":
+		ret = [
+			["window", 0, 0, -2, 0, 1, 2.5, 1/10, 0, 12],
+			["window", 0, 0, 0, 2, 2.5, 1, 10, 0, 12],
+		]
+		for (_, z), (x, y) in zip(math.CSround(3, 2, 0.7 * t), math.CSround(3, 3, 0.5 * t)):
+			ret += [
+				["gray", x, y, z, z + 0.5, 1, 0, 1/2, 0, 1],
+				["gray", x, y, z - 0.5, z, 0, 1, 2, 0, 1],
+			]
+		for (_, z), (x, y) in zip(math.CSround(5, 2.5, 0.35 * t), math.CSround(5, 4, -0.25 * t)):
+			ret += [
+				["gray", x, y, z, z + 0.5, 1, 0, 1/2, 0, 1],
+				["gray", x, y, z - 0.5, z, 0, 1, 2, 0, 1],
+			]
+		return ret
+		
+	specs = [
+		["gray", 0, 0, -2, -0.7, 2, 4.2, 8, 0, 10],
+		["hatch", 0, 0, -0.7, -0.5, 4.2, 4.2, 1, 0, 100],
+		["window", 0, 0, -0.5, 0.5, 4, 4, 1, dA, 20],
+		["hatch", 0, 0, 0.5, 0.7, 4.2, 4.2, 1, 0, 100],
+		["gray", 0, 0, 0.7, 1.4, 4.2, 2, 8, 0, 10],
+	]
+	if name == "Last Ditch":
+		for xW, yW in math.CSround(3, 3.5, 0.1234):
+			specs.extend([
+				["gray", xW, yW, -4.2, -2.2, 0.1, 0.1, 1, 0, 1],
+				["gray", xW, yW, -2.2, -0.8, 0.2, 0.2, 1, 0, 1],
+				["gray", xW, yW, 1, 2, 0.2, 0.2, 1, 0, 1],
+				["gray", xW, yW, 2, 4, 0.1, 0.1, 1, 0, 1],
+			])
+	return specs
+

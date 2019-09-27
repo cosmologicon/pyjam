@@ -2,7 +2,7 @@ import math,random
 import pygame, os.path
 from . import settings
 
-pygame.mixer.pre_init(frequency=22050, size=-16, channels=2, buffer=0)
+pygame.mixer.pre_init(frequency=22050, size=-16, channels=2, buffer=1000)
 
 musicplaying = None
 def playmusic(mname):

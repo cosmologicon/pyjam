@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest, hud,sound
+from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest, hud, sound
 from .pview import T
 
 
@@ -109,6 +109,7 @@ class PlayScene(scene.Scene):
 			d = T(20 + 1.2 * view.zoom)
 			if math.distance(screenpos, self.mpos) < d:
 				car.tryfix()
+				return
 		button = self.hud.buttonat(self.mpos)
 		if button is not None:
 			self.clickbutton(button.text)
@@ -117,18 +118,23 @@ class PlayScene(scene.Scene):
 		if car is not None:
 			view.seek_car(car)
 			view.rotateto(car.A)
+			return
 		station = worldmap.stationat(self.mpos)
 		if station is not None:
 			view.seek_z(station.z)
+			return
 		station = state.currentstation()
 		if station is not None:
 			for rect, held in station.recthelds():
 				if rect.collidepoint(self.mpos):
 					scene.push(AssignScene(self, held))
+					return
 	def clickbutton(self, btext):
 		if btext == "Rotate Left":
+			sound.playsound("yes")
 			view.rotate(-1)
 		elif btext == "Rotate Right":
+			sound.playsound("yes")
 			view.rotate(1)
 
 	def draw(self):
@@ -238,6 +244,7 @@ class AssignScene(scene.Scene):
 		self.parent = parent
 		self.held = held
 		self.t = 0
+		sound.playsound("rising")
 
 	def think(self, dt, kpressed, kdowns, mpos, mdown, mup):
 		self.mpos = mpos
@@ -247,11 +254,16 @@ class AssignScene(scene.Scene):
 			if station and station.canaddpassenger():
 				self.held.settargetholder(station)
 			scene.pop()
+			sound.playsound("dropping")
 	
 	def draw(self):
 		self.parent.drawworld()
-		alpha = int(math.clamp(1000 * self.t, 0, 200))
+		alpha = int(math.clamp(500 * self.t, 0, 200))
 		pview.fill((0, 0, 0, alpha))
+		alpha = int(math.clamp(500 * self.t - 200, 0, 255))
+		if alpha:
+			ptext.draw("Drag the character to a station on the right to reassign.",
+				center = pview.center, fontsize = T(50), shadow = (1, 1), width = T(500))
 		
 		worldmap.draw(worldmap.stationat(self.mpos), None)
 		self.held.drawcard(self.mpos, T(80), alpha = 100)
