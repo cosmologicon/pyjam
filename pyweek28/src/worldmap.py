@@ -77,5 +77,8 @@ def draw(pstation, pcar):
 			pygame.draw.circle(pview.screen, (255, 255, 255), (xV, yV), T(8))
 		pygame.draw.circle(pview.screen, (255, 100, 100), (xV, yV), T(6))
 		pygame.draw.circle(pview.screen, fcolor, (xV, yV), T(4))
+		if car.broken:
+			r = math.mix(8, 16, math.sqrt(0.005 * pygame.time.get_ticks() % 1))
+			pygame.draw.circle(pview.screen, (255, 100, 100), (xV, yV), T(r), T(2))
 	
 

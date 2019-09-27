@@ -122,6 +122,10 @@ def worldtogame(pW):
 	xG = -xGneg
 	return (xG, yG), dG
 
+def worldtoview(pW):
+	pG, dG = worldtogame(pW)
+	return gametoview(pG)
+
 # viewing angles A are wrapped between 0 and 8. This returns the difference A0 - A1 (mod 8) such
 # that the value is in the range [-4, 4).
 def dA(A0, A1):

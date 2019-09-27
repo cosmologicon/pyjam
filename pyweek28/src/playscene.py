@@ -91,7 +91,16 @@ class PlayScene(scene.Scene):
 		if not carshere:
 			return
 		view.seek_car(carshere[0])
+	def canfix(self):
+		car = state.carat(view.zW0, view.A, dz = 3)
+		return car and car.broken
 	def handlemousedown(self):
+		if self.canfix():
+			car = state.carat(view.zW0, view.A, dz = 3)
+			screenpos = T(view.worldtoview(car.worldpos()))
+			d = T(20 + 1.2 * view.zoom)
+			if math.distance(screenpos, self.mpos) < d:
+				car.tryfix()
 		button = self.hud.buttonat(self.mpos)
 		if button is not None:
 			self.clickbutton(button.text)
@@ -152,6 +161,11 @@ class PlayScene(scene.Scene):
 			return sortkey, draw.drawelement, args
 		coms = [drawargs(espec) for espec in especs]
 		coms.append((1, draw.cable, []))
+		for car in state.cars:
+			if car.broken:
+				pW = car.worldpos()
+				pG, depth = view.worldtogame(pW)
+				coms.append((depth + 0.6, draw.sparks, [pW]))
 		for _, func, args in sorted(coms, key = lambda com: com[0]):
 			func(*args)
 

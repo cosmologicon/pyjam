@@ -127,12 +127,24 @@ class Car(Holder):
 		self.R = 1.3  # Distance from central axis
 		# When a car nears its destination it switches to approach mode, which is exponential braking.
 		self.braking = True
+		self.broken = False
+		self.brokefactor = 1
+		self.fjostle = 0
 	def arrived(self):
 		return self.targetz == self.z
 	def worldpos(self):
 		yW, xW = math.CS(self.A/8 * math.tau, self.R)
 		return xW, yW, self.z
+	def tryfix(self):
+		if not self.broken:
+			return
+		if random.random() < 1/3:
+			self.broken = False
+		self.fjostle = 1
 	def think(self, dt):
+		self.fjostle = math.approach(self.fjostle, 0, 1.5 * dt)
+		self.brokefactor = math.approach(self.brokefactor, (4 if self.broken else 1), 3 * dt)
+		dt /= self.brokefactor
 		if not self.arrived():
 			b = 4  # braking factor. Set higher for shorter stops.
 			brakez = math.softapproach(self.z, self.targetz, b * dt, dymin = 0.01)
@@ -148,6 +160,8 @@ class Car(Holder):
 				self.z = brakez
 		if self.arrived and self.pending:
 			self.settarget(self.pending[0].holder.z)
+		if 10 * random.random() < dt:
+			self.broken = True
 	def settarget(self, zW):
 		self.targetz = zW
 		self.braking = False
@@ -155,24 +169,14 @@ class Car(Holder):
 		if not view.visible(self.z, 10):
 			return []
 		xW, yW, zW = self.worldpos()
-		
+		a = 0.1 * self.broken + 0.4 * self.fjostle
+		if a:
+			xW += random.uniform(-a, a)
+			yW += random.uniform(-a, a)
+			zW += random.uniform(-a, a)
 		dA = pygame.time.get_ticks() * 0.00001
 		specs = [
 			["gray", xW, yW, zW - 1, zW + 1, 0.6, 0.6, 1, 0, 1],
 			["window", xW, yW, zW - 0.7, zW + 0.7, 0.7, 0.7, 1, dA, 6],
 		]
 		return specs
-
-		(xG, yG), dG = view.worldtogame(self.worldpos())
-		if (back and dG > 0) or (not back and dG < 0):
-			return
-		h = 0.5
-		color = 200, 100, 100
-		xV0, yV0 = view.gametoview((xG - self.r, yG + h))
-		xV1, yV1 = view.gametoview((xG + self.r, yG - h))
-		rect = pygame.Rect(xV0, yV0, xV1 - xV0, yV1 - yV0)
-		if pview.rect.colliderect(rect):
-			pview.screen.fill(color, rect)
-			ptext.draw("%d/%d" % (self.n, self.capacity), center = view.gametoview((xG, yG)),
-				fontsize = T(1 * view.zoom), owidth = 1, color = "orange")
-

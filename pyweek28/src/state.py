@@ -15,6 +15,11 @@ def stationat(z, dz = 0):
 			return station
 	return None
 
+def carat(z, A, dz = 0):
+	for car in cars:
+		if abs(car.z - z) <= dz and A == car.A:
+			return car
+	return None
 
 def currentstation():
 	from . import view

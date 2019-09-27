@@ -196,3 +196,28 @@ def cable():
 		yV -= h
 	_lastcablez = view.zW0
 
+def sparkdatum():
+	pW = math.norm([random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1)])
+	speed = random.uniform(2, 4)
+	return pW, speed
+
+sparkdata = [sparkdatum() for _ in range(1000)]
+def sparks(pW):
+	x0, y0, z0 = pW
+	if not view.visible(z0, 5):
+		return
+	Nspark = 100
+	t = pygame.time.get_ticks() * 0.001
+	for (dx, dy, dz), speed in sparkdata[:Nspark]:
+		jcolor, dt = divmod(t * speed, 1)
+		color = [(255,255,255),(255,200,200),(255,225,200),(255,255,180),(200,200,255)][int(jcolor % 5)]
+		dt **= 2.5
+		dt += 0.3 * speed
+		p0 = x0 + dx * dt, y0 + dy * dt, z0 + dz * dt - 0.1 * dt ** 2
+		dt += 0.05 * speed
+		p1 = x0 + dx * dt, y0 + dy * dt, z0 + dz * dt - 0.1 * dt ** 2
+		pygame.draw.line(pview.screen, color, view.worldtoview(p0), view.worldtoview(p1))	
+		
+		
+	
+
