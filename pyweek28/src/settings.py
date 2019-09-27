@@ -17,7 +17,7 @@ showhelp = False
 
 audio = "--noaudio" not in sys.argv
 music = audio and "--nomusic" not in sys.argv
-sfx = audio and "--nosfx" not in sys.argv
+sound = audio and "--nosound" not in sys.argv
 
 # TODO: retain settings that are changed in-game, e.g. resolution and sound volume, between startups.
 

@@ -1,4 +1,4 @@
-
+import math,random
 import pygame, os.path
 from . import settings
 
@@ -16,10 +16,11 @@ def playmusic(mname):
 sounds = {}
 def getsound(sname):
 	if sname not in sounds:
-		sounds[sname] = pygame.mixer.Sound(os.path.join("sfx", sname + ".ogg"))
+		sounds[sname] = pygame.mixer.Sound(os.path.join("sound", sname + ".ogg"))
 	return sounds[sname]
 
+
 def playsound(sname):
-	if not settings.sfx:
-		return
+	if not settings.sound: return
 	getsound(sname).play()
+
