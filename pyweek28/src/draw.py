@@ -37,11 +37,14 @@ def stars():
 	_laststarz = view.zW0
 
 def atmosphere():
-    # Atmosphere
-    alpha = pview.I(math.fadebetween(view.zW0, 10, 255, 100, 0))
-    if alpha:
-        pview.fill((100, 130, 220, alpha))
-
+	# Atmosphere
+	alpha = pview.I(math.fadebetween(view.zW0, 10, 255, 100, 0))
+	if alpha:
+		pview.fill((0, 40, 80, alpha))
+def ground():
+	_, py = view.gametoview((0, 0))
+	if py <= pview.h:
+		pview.screen.fill((0, 10, 0), pygame.Rect(0, py, pview.w, pview.h))
 
 
 # Okay, here we go....

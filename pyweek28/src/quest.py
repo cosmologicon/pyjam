@@ -7,20 +7,7 @@ from . import dialog, state, view
 # List of currently active quests
 active = []
 
-# TODO: I'm sure this could be done better. But for the most part I prefer outside modules not
-# access the Quest instances directly.
-def getquestinstance(questname):
-	for obj in globals().values():
-		try:
-			if obj.name == questname:
-				return obj()
-		except:
-			pass
-
-def start(questname):
-	q = getquestinstance(questname)
-	q.done = False
-	q.step = 0
+def start(q):
 	q.start()
 	active.append(q)
 
@@ -31,7 +18,6 @@ def think(dt):
 
 
 class Quest:
-	name = "QUEST"
 	def start(self):
 		self.done = False
 		self.step = 0
@@ -43,7 +29,6 @@ class Quest:
 		self.t = 0
 
 class TestQuest(Quest):
-	name = "testquest"
 	def think(self, dt):
 		Quest.think(self, dt)
 		if self.step == 0 and self.t > 0.3:
@@ -57,7 +42,6 @@ class TestQuest(Quest):
 				self.done = True
 
 class ReallocateQuest(Quest):
-	name = "reallocate"
 	def think(self, dt):
 		Quest.think(self, dt)
 		if self.step == 0 and self.t > 0.3:
@@ -69,4 +53,26 @@ class ReallocateQuest(Quest):
 				self.advance()
 				self.done = True
 
+class MissionQuest(Quest):
+	def __init__(self, station, need, reward):
+		self.station = station
+		self.need = need
+		self.reward = reward
+		self.progress = 0
+		self.tdone = 0
+	def fulfilled(self):
+		pnames = [held.name for held in self.station.held]
+		return all(pnames.count(name) >= self.need.count(name) for name in set(self.need))
+	def think(self, dt):
+		if self.fulfilled():
+			self.tdone += dt
+		if self.step == 0 and self.tdone > 0.5:
+			self.advance()
+			self.done = True
+			self.finish()
+	def finish(self):
+		if self.reward is None:
+			dialog.run("Completed: some quest that does literally nothing.")
+		else:
+			raise ValueError("Unknown reward %s" % self.reward)
 
