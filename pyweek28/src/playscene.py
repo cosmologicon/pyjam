@@ -19,6 +19,7 @@ class PlayScene(scene.Scene):
 		view.seek_z(state.stations[0].z)
 		state.updatemissions()
 		quest.start(quest.TutorialQuest())
+		dialog.startconvo("test")
 
 		state.cars = [
 			things.Car(0, j) for j in [0, 3]
@@ -140,13 +141,13 @@ class PlayScene(scene.Scene):
 					return
 	def clickbutton(self, btext):
 		if btext == "Rotate Left":
-			sound.playsound("yes")
+			sound.playsound("click")
 			view.rotate(1)
 		elif btext == "Rotate Right":
-			sound.playsound("yes")
+			sound.playsound("click")
 			view.rotate(-1)
 		elif btext == "Claim Quest":
-			sound.playsound("yes")
+			sound.playsound("click")
 			self.claimquest()
 		elif btext == "Open/close Port":
 			self.toggleblock()
