@@ -1,5 +1,5 @@
-Game Title
-==========
+Nerdozog's Ascent
+=================
 
 Entry in PyWeek 28  <http://www.pyweek.org/28/>
 URL: https://www.pyweek.org/e/unifac28/
@@ -28,4 +28,4 @@ Running the Game
 
 Open a terminal / console and "cd" to the game directory and run:
 
-    python run_game.py
+    python3 run_game.py

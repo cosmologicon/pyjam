@@ -94,9 +94,11 @@ def gettexture(tname):
 	if tname == "cable":
 		surf = getcablesurf()
 	elif tname == "window":
-		surf = pygame.Surface((10, 10)).convert()
-		surf.fill((100, 100, 100))
+		surf = pygame.Surface((20, 10)).convert()
+		surf.fill((100, 100, 100), pygame.Rect(0, 0, 10, 10))
 		surf.fill((100, 150, 255), pygame.Rect(1, 1, 8, 8))
+		surf.fill((106, 106, 106), pygame.Rect(10, 0, 10, 10))
+		surf.fill((100, 150, 255), pygame.Rect(11, 1, 8, 8))
 	elif tname == "lowwindow":
 		surf = pygame.Surface((10, 10)).convert()
 		surf.fill((100, 100, 100))

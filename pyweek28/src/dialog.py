@@ -23,7 +23,6 @@ class Dialog:
 		self.tconvo = 0
 	def run(self, line):
 		# TODO: allow for different colors and fonts
-		# TODO: allow for sequences of dialog that are longer than one line
 		self.current = line
 		self.t = 0
 	def helptext(self, line):
@@ -38,17 +37,10 @@ class Dialog:
 				self.convolines.pop(0)
 		else:
 			self.tconvo = 0
-		self.t += dt
-		if self.current and self.t > tline(self.current):
+			self.t += dt
+		if self.current and self.t > tline(self.current) * 2:
 			self.current = None
 	def draw(self):
-		if self.current is not None:
-			alpha = math.dsmoothfade(self.t, 0, tline(self.current), 0.3)
-			ptext.draw(self.current, midtop = pview.midtop, width = T(720), fontsize = T(50),
-				color = "red", owidth = 1, alpha = alpha, fontname = "Teko-SemiBold")
-		if self.currenthelp:
-			ptext.draw(self.currenthelp, midtop = T(640, 200), width = T(720), fontsize = T(50),
-				color = "lightblue", owidth = 1, fontname = "Teko-SemiBold")
 		if self.convolines:
 			line = self.convolines[0]
 			alpha = math.dsmoothfade(self.tconvo, 0, tline(line), 0.3)
@@ -58,6 +50,14 @@ class Dialog:
 				color = (100, 100, 255), owidth = 2, alpha = alpha, fontname = "Teko-SemiBold", lineheight = 0.7)
 			surf = whoimg(who, T(300))
 			pview.screen.blit(surf, surf.get_rect(center = T(300, 660)))
+		else:
+			if self.current is not None:
+				alpha = math.dsmoothfade(self.t, 0, tline(self.current), 0.3)
+				ptext.draw(self.current, midtop = pview.midtop, width = T(720), fontsize = T(50),
+					color = "red", owidth = 1, alpha = alpha, fontname = "Teko-SemiBold")
+			if self.currenthelp:
+				ptext.draw(self.currenthelp, midtop = T(640, 200), width = T(720), fontsize = T(50),
+					color = "lightblue", owidth = 1, fontname = "Teko-SemiBold")
 			
 
 dialog = Dialog()

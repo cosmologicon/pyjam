@@ -8,7 +8,7 @@ class PlayScene(scene.Scene):
 	def __init__(self):
 		state.stations = [
 			things.Station("Ground Control", 0, 1000000),
-			things.Station("Skyburg", 2000, state.progress.capacity),
+			things.Station("Skyburg", 3000, state.progress.capacity),
 		]
 		for name in ["worker", "worker"]:
 			p = things.Pop(name, state.stations[0])
@@ -26,7 +26,7 @@ class PlayScene(scene.Scene):
 		self.hud.buttons.append(hud.Button("Rotate Right", (940, 360)))
 #		self.hud.buttons.append(hud.Button("Claim Quest", (640, 600), size = (160, 160), isvisible = self.availablequest))
 		self.hud.buttons.append(hud.Button("Open/close Port", (880, 600), size = (200, 140), isvisible = state.currentstation))
-		self.hud.buttons.append(hud.Button("Complete mission", (100, 600), size = (160, 80), isvisible = self.cancomplete))
+		self.hud.buttons.append(hud.Button("Complete mission", (400, 600), size = (200, 140), isvisible = self.cancomplete))
 
 		self.up = [pygame.K_UP, pygame.K_w]
 		self.down = [pygame.K_DOWN, pygame.K_s]
@@ -288,7 +288,7 @@ class AssignScene(scene.Scene):
 		self.parent = parent
 		self.held = held
 		self.t = 0
-		sound.playsound("rising")
+		sound.playsound("click")
 
 	def think(self, dt, kpressed, kdowns, mpos, mdown, mup):
 		self.mpos = mpos
@@ -297,10 +297,10 @@ class AssignScene(scene.Scene):
 			station = worldmap.stationat(self.mpos)
 			if station and station.canaddpassenger():
 				self.held.settargetholder(station)
-				sound.playsound("dropping")
+				sound.playsound("rising")
 			elif station:
 				dialog.run("Station %s is at capacity" % station.name)
-				sound.playsound("cancel")
+				sound.playsound("no")
 			scene.pop()
 
 	def draw(self):

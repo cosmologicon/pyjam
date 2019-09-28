@@ -247,7 +247,7 @@ class Car(Holder):
 			stations.append(state.stationat(self.targetz))
 		return stations
 	def think(self, dt):
-		if state.progress.missions >= 3 and 400 * random.random() < dt:
+		if state.progress.missions >= 3 and 15 * random.random() < dt and abs(self.targetz - self.z) > 500:
 #		if 20 * random.random() < dt:
 			self.broken = True
 		if self.broken:
@@ -318,8 +318,8 @@ def stationespecs(name, t):
 	if name == "Skyburg":
 		ret = [
 			["roundtop", 0, 0, 0, 2, 5, 1, 7, 0, 12],
-			["hatch", 0, 0, -1.2, 0, 2.5, 5, 0.2, 0, 50],
-			["hatch", 0, 0, -3, -1.2, 2.1, 2.5, 1, 0, 30],
+			["window", 0, 0, -1.2, 0, 2.5, 5, 0.2, 0, 18],
+			["stripe-blue", 0, 0, -3, -1.2, 3.5, 2.5, 0.2, 0, 1],
 		]
 		return ret
 	if name == "Lorbiton":

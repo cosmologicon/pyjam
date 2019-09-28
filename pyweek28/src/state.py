@@ -53,13 +53,13 @@ def completemission(reward):
 		stations.append(things.Station("Upzidazi", 10000, progress.capacity))
 		sinfo = "\n\nNew station built: Upzidazi"
 	if progress.missions == 6:
-		stations.append(things.Station("Lorbiton", 700, progress.capacity))
+		stations.append(things.Station("Lorbiton", 1200, progress.capacity))
 		sinfo = "\n\nNew station built: Lorbiton"
 	if progress.missions == 13:
 		stations.append(things.Station("Flotogorb", 7200, progress.capacity))
 		sinfo = "\n\nNew station built: Flotogorb"
 	if progress.missions == 17:
-		stations.append(things.Station("Ettiseek", 3700, progress.capacity))
+		stations.append(things.Station("Ettiseek", 4900, progress.capacity))
 		sinfo = "\n\nNew station built: Ettiseek"
 	if progress.missions == 20:
 		progress.done = True

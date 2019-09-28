@@ -14,7 +14,7 @@ def pos(z, A):
 
 def stationat(mpos):
 	for station in state.stations:
-		rect = T(pygame.Rect(0, 0, 150, 20))
+		rect = T(pygame.Rect(0, 0, 150, 50))
 		rect.center = pos(station.z, view.A)
 		if rect.collidepoint(mpos):
 			return station
@@ -39,9 +39,6 @@ def backdrop(w, h):
 
 def draw(pstation, pcar):
 	pview.screen.blit(backdrop(T(180), T(720)), T(1100, 0))
-	# TODO: this is named wrong. View coordinates are before the T transformation is applied.
-	yVbottom = T(660)
-	yVtop = T(60)
 
 	rect = T(pygame.Rect(0, 0, 20, 20))
 	rect.center = pos(view.zW0, view.A)
@@ -63,7 +60,7 @@ def draw(pstation, pcar):
 		pview.screen.fill(color, rect)
 		ptext.draw(station.name, bottomleft = rect.topleft, color = color, ocolor = (0, 40, 40),
 			fontsize = T(19), owidth = 1, fontname = "RobotoCondensed-Bold")
-		rect = pygame.Rect(rect.left + T(4), rect.bottom + T(2), T(8), T(8))
+		rect = pygame.Rect(rect.left + T(4), rect.bottom + T(2), T(12), T(12))
 		for j in range(station.showncapacity()):
 			if j < len(station.held):
 				color = station.held[j].color()
@@ -74,7 +71,7 @@ def draw(pstation, pcar):
 			pview.screen.fill(color, rect)
 			color = math.imix(color, (0, 0, 0), 0.5)
 			pview.screen.fill(color, rect.inflate(T(-2), T(-2)))
-			rect.move_ip(T(9), 0)
+			rect.move_ip(T(13), 0)
 		for A, blocked in enumerate(station.blocked):
 			if blocked:
 				ptext.draw("X", center = pos(station.z, A), color = "red", ocolor = "white", fontsize = T(14), owidth = 1)
