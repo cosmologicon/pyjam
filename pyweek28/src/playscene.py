@@ -230,19 +230,19 @@ class PlayScene(scene.Scene):
 				size = T(48)
 				pos = T(40 + 54 * j, 312)
 				things.Pop(name).drawcard(pos, size, fade = 1, alpha = 255)
-				
+
 
 	def drawcarinfo(self):
 		if state.currentstation():
 			return
 		car = state.currentcar()
 		if car is None: return
-		ptext.draw("Carrying:", topleft = T(20, 320), fontsize = T(22), owidth = 1, fontname = "RobotoCondensed-Bold")
+		ptext.draw("Carrying:", topleft = T(20, 440), fontsize = T(22), owidth = 1, fontname = "RobotoCondensed-Bold")
 		dest = state.stationat(car.targetz)
 		for rect, held in zip(cardrects(len(car.held)), car.held):
 			held.drawcard(rect.center, rect.w)
 		if dest:
-			ptext.draw("Destination: %s" % dest.name, topleft = T(20, 460), fontsize = T(22), owidth = 1, fontname = "RobotoCondensed-Bold")
+			ptext.draw("Destination: %s" % dest.name, topleft = T(20, 360), fontsize = T(22), owidth = 1, fontname = "RobotoCondensed-Bold")
 
 	# TODO: move to some other module
 	def drawcompass(self):
