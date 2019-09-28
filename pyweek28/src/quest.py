@@ -92,11 +92,14 @@ class TutorialQuest(Quest):
 
 class ChatQuest(Quest):
 	def think(self, dt):
-		for jstep, nmission in enumerate([3, 5, 7, 10, 13, 16, 18]):
+		if self.step == 0:
+			dialog.startconvo("intro")
+			self.advance()
+		for jstep, nmission in enumerate([3, 5, 7, 10, 13, 16, 18], 1):
 			if self.step == jstep and state.progress.missions >= nmission:
-				dialog.startconvo("chat%d" % (jstep + 1))
+				dialog.startconvo("chat%d" % jstep)
 				self.advance()
-		if self.step == 7 and state.progress.done:
+		if self.step == 8 and state.progress.done:
 			dialog.startconvo("end")
 			self.done = True
 
@@ -146,4 +149,6 @@ class MissionQuest(Quest):
 		dialog.run("Mission Complete\n" + text)
 		self.station.mission = None
 		state.updatemissions()
+		state.save()
+
 

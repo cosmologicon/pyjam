@@ -1,6 +1,8 @@
 # Handy module for keeping module-level globals encapsulating the game state.
 
-# TODO: autosave and load on startup.
+import pickle, os
+from . import settings
+
 
 # Height of the top of the elevator in km.
 top = 10000
@@ -8,6 +10,7 @@ top = 10000
 radius = 1
 
 stations = []
+cars = []
 
 def stationat(z, dz = 0):
 	for station in stations:
@@ -111,7 +114,7 @@ missionstacks = {
 		(("worker", "worker", "worker", "worker", "worker", "sci"), "car"),
 	],
 	"Lorbiton": [
-		(("tech"), "worker"),
+		(("tech",), "worker"),
 		(("worker", "worker", "sci"), "tech"),
 		(("sci", "sci", "tech"), "sci"),
 		(("worker", "worker", "worker", "tech"), "tech"),
@@ -142,5 +145,22 @@ def updatemissions():
 			if stack:
 				need, reward = stack.pop(0)
 				station.setmission(need, reward)
-		
+
+def save():
+	from . import quest
+	obj = stations, cars, progress.capacity, progress.cars, progress.carupgrades, progress.missions, progress.done, missionstacks, quest.active
+	pickle.dump(obj, open(settings.savename, "wb"))
+
+def reset():
+	if os.path.exists(settings.savename):
+		os.remove(settings.savename)
+
+def load():
+	from . import quest
+	global stations, cars, missionstacks
+	if os.path.exists(settings.savename):
+		obj = pickle.load(open(settings.savename, "rb"))
+		stations, cars, progress.capacity, progress.cars, progress.carupgrades, progress.missions, progress.done, missionstacks, quest.active = obj
+if settings.reset:
+	reset()
 

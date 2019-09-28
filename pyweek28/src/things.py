@@ -256,7 +256,7 @@ class Car(Holder):
 				self.broken = False
 		self.fjostle = math.approach(self.fjostle, 0, 1.5 * dt)
 		self.brokefactor = math.approach(self.brokefactor, (4 if self.broken else 1), 3 * dt)
-		dt *= 1 + 0.3 * state.progress.carupgrades
+		dt *= 1 + state.progress.carupgrades
 		dt /= self.brokefactor
 		if not self.arrived():
 			b = 4  # braking factor. Set higher for shorter stops.

@@ -9,8 +9,11 @@ fullscreen = False
 minfps = 10
 maxfps = 120
 
-# TODO: change to False before uploading
-DEBUG = True
+savename = "savegame.pkl"
+reset = "--reset" in sys.argv
+
+
+DEBUG = "--DEBUG" in sys.argv
 showhelp = False
 
 # TODO: command-line flags to change settings

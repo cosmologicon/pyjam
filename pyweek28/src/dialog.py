@@ -92,9 +92,9 @@ convos = {
 	],
 	"chat1": [
 		"Herzud: How runs my little space elevator today, Dorgaz?",
-		"Dorgaz: Dr. Herzud, there was no need to come down here yourself. Everything is perfectly going smoothly.",
-		"Nerdozog: Aaaahhhh! I stuck my head out the window and a space bug got in my eye!",
-		"Herzud: Hmmm.... I see.",
+		"Dorgaz: Dr. Herzud, there was no need to come down here yourself. Everything is going perfectly smoothly, I assure you.",
+		"Nerdozog: Aaaahhhh!!! I stuck my head out the window and a space bug got in my eye!!!",
+		"Herzud: Hmmm.... Perhaps I will be taking closer look at operation.",
 		"Dorgaz: Nerdozog, I swear to Glorg...",
 	],
 	"chat2": [
@@ -136,8 +136,8 @@ convos = {
 	],
 	"end": [
 		"Herzud: Looks like our ships are ready to set sail, and sail it will be.",
-		"Herzud: The scientists have told me that with just a little bit of solar current it turns out that we won’t need any source of fuel here at all.",
-		"Dorgaz: Yup, I hate to say it, but you are the hero of the day",
+		"Herzud: The scientists have told me that with just a little bit of solar current it turns out that we won't need any source of fuel here at all.",
+		"Dorgaz: Yup, I hate to say it, but you are the hero of the day.",
 		"Alitwon: I know it seems like lightyears away, but we are going to send a crew over to Alphazion 35 for a inter-galactic recruitment trip.",
 		"Herzud: Alphazion 35? Isn't that the home of the hu-mons? Those guys are so weird looking!",
 		"Alitwon: Agreed, but it actually looks like this could turn into a big business venture for us across the galaxy.",

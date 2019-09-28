@@ -17,7 +17,6 @@ class PlayScene(scene.Scene):
 		quest.start(quest.TutorialQuest())
 		quest.start(quest.FixQuest())
 		quest.start(quest.ChatQuest())
-		dialog.startconvo("intro")
 
 		state.cars = [
 			things.Car(0, j) for j in [0, 3]
@@ -35,6 +34,8 @@ class PlayScene(scene.Scene):
 		self.right = [pygame.K_RIGHT, pygame.K_d]
 		self.fshowcompass = 0
 		sound.playmusic('prologue')
+		
+		state.load()
 
 	def think(self, dt, kpressed, kdowns, mpos, mdown, mup):
 		self.mpos = mpos
@@ -163,7 +164,7 @@ class PlayScene(scene.Scene):
 			"Missions completed: %d" % (state.progress.missions,),
 			"Altitude: %d km" % (round(view.zW0),),
 		])
-		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1, fontname = "RobotoCondensed-Bold")
+		ptext.draw(text, fontsize = T(32), bottomleft = T(20, 700), owidth = 1, fontname = "RobotoCondensed-Bold")
 		self.drawcompass()
 		self.hud.draw()
 		dialog.draw()
