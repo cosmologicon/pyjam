@@ -196,6 +196,7 @@ class Car(Holder):
 	def tryfix(self):
 		if not self.broken:
 			return
+		sound.playsound("clang%d" % random.choice([0, 1, 2, 3]))
 		if random.random() < 1/3:
 			self.broken = False
 		self.fjostle = 1
@@ -208,7 +209,8 @@ class Car(Holder):
 			stations.append(state.stationat(self.targetz))
 		return stations
 	def think(self, dt):
-		if 100 * random.random() < dt:
+		if state.progress.missions >= 3 and 400 * random.random() < dt:
+#		if 20 * random.random() < dt:
 			self.broken = True
 		self.fjostle = math.approach(self.fjostle, 0, 1.5 * dt)
 		self.brokefactor = math.approach(self.brokefactor, (4 if self.broken else 1), 3 * dt)

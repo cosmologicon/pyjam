@@ -37,9 +37,22 @@ class progress:
 	capacity = 2
 	cars = 2
 	carupgrades = 0
+	missions = 0
+
+
 
 def completemission(reward):
 	from . import things, view
+	progress.missions += 1
+	if progress.missions == 2:
+		stations.append(things.Station("Counterweight", 10000, progress.capacity))
+	if progress.missions == 5:
+		stations.append(things.Station("LowOrbiton", 700, progress.capacity))
+	if progress.missions == 12:
+		stations.append(things.Station("Stationary", 7200, progress.capacity))
+	if progress.missions == 20:
+		stations.append(things.Station("Last Ditch", 3700, progress.capacity))
+		
 	if reward == "capacity":
 		progress.capacity += 1
 		for station in stations:
@@ -48,7 +61,7 @@ def completemission(reward):
 	if reward == "car":
 		if len(cars) >= 8:
 			progress.carupgrades += 1
-			return "Car speed upgraded."
+			return "Car speed upgraded"
 		A = (progress.cars * 3) % 8
 		progress.cars += 1
 		cars.append(things.Car(0, A))
@@ -61,14 +74,19 @@ portcapacity = [1, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7, 8]
 
 missionstacks = {
 	"Skyburg": [
-		(("worker",), "capacity"),
+		(("worker",), "worker"),
 		(("tech",), "capacity"),
-		(("worker", "tech"), "capacity"),
+		(("worker", "worker", "worker"), "capacity"),
 	],
 	"Counterweight": [
 		(("worker",), "car"),
 		(("tech",), "car"),
-		(("worker", "tech"), "car"),
+		(("sci", "tech"), "car"),
+	],
+	"LowOrbiton": [
+		(("worker",), "worker"),
+		(("tech",), "worker"),
+		(("sci", "tech"), "worker"),
 	],
 }
 

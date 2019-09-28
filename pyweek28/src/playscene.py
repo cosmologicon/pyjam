@@ -8,17 +8,14 @@ class PlayScene(scene.Scene):
 	def __init__(self):
 		state.stations = [
 			things.Station("Ground Control", 0, 1000000),
-#			things.Station("LowOrbiton", 700, 5),
 			things.Station("Skyburg", 2000, 2),
-#			things.Station("Last Ditch", 3700, 5),
-#			things.Station("Stationary", 7200, 2),
-			things.Station("Counterweight", 10000, 2),
 		]
 		for name in ["worker", "sci", "tech"]:
 			p = things.Pop(name, state.stations[0])
 		view.seek_z(state.stations[0].z)
 		state.updatemissions()
 		quest.start(quest.TutorialQuest())
+		quest.start(quest.FixQuest())
 		dialog.startconvo("test")
 
 		state.cars = [

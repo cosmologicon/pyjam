@@ -28,6 +28,30 @@ class Quest:
 		self.step += 1
 		self.t = 0
 
+class FixQuest(Quest):
+	def __init__(self):
+		Quest.__init__(self)
+		self.car = None
+	def think(self, dt):
+		Quest.think(self, dt)
+		if self.car is not None:
+			for car in state.cars:
+				if car is not self.car:
+					car.broken = False
+		if self.step == 0:
+			if any(car.broken for car in state.cars):
+				self.car = [car for car in state.cars if car.broken][0]
+				self.advance()
+		if self.step == 1:
+			if not self.car.broken:
+				dialog.helptext()
+				self.done = True
+			elif self.t > 0.3:
+				if self.car is state.currentcar():
+					dialog.helptext("It won't run at full speed like that. Give it a few good whacks.")
+				else:
+					dialog.helptext("Uh-oh! Looks like one of the cars is on the fritz. Click on the flashing car on the map.")
+
 class TutorialQuest(Quest):
 	def __init__(self):
 		Quest.__init__(self)
