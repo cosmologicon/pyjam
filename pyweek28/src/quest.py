@@ -58,7 +58,7 @@ class TutorialQuest(Quest):
 				dialog.helptext()
 				self.advance()
 			elif self.t > 0.3:
-				dialog.helptext("Now just wait for the car to bring the worker.")
+				dialog.helptext("Now just wait for the car to bring the worker.Click on the car to see the detail")
 		if self.step == 3:
 			if self.t > 0.3:
 				dialog.helptext("Moving workers to stations lets you complete tasks at that station, and keep more ports open. Click on the mission to complete it!")
