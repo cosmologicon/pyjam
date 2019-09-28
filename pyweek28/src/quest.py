@@ -66,7 +66,7 @@ class TutorialQuest(Quest):
 				if view.zW0 > 0:
 					dialog.helptext("Click on Ground Control station on the map to the right.")
 				else:
-					dialog.helptext("Click on a worker and drag them to Skyburg station to reassign.")
+					dialog.helptext("Click on a Workazoid and drag them to Skyburg station to reassign.")
 		if self.step == 1:
 			if not any(pop.wantscar() for station in state.stations for pop in station.held):
 				dialog.helptext()
@@ -76,16 +76,16 @@ class TutorialQuest(Quest):
 				if s and s.name == "Skyburg":
 					dialog.helptext("Open the port on the N side of the station.")
 				else:
-					dialog.helptext("The worker is assigned but doesn't have any way to reach the station. Click on Skyburg station on the map to the right.")
+					dialog.helptext("The Workazoid is assigned but doesn't have any way to reach the station. Click on Skyburg station on the map to the right.")
 		if self.step == 2:
 			if any(station.name == "Skyburg" and station.held for station in state.stations):
 				dialog.helptext()
 				self.advance()
 			elif self.t > 0.3:
-				dialog.helptext("Now just wait for the car to bring the worker.Click on the car to see the detail")
+				dialog.helptext("Now just wait for the car to bring the Workazoid. You can click on the car to follow it.")
 		if self.step == 3:
 			if self.t > 0.3:
-				dialog.helptext("Moving workers to stations lets you complete tasks at that station, and keep more ports open. Click on the mission to complete it!")
+				dialog.helptext("Moving crew members to stations lets you complete tasks at that station, and keep more ports open. Click on the Complete Mission button to claim the reward!")
 		if self.mission not in state.missionstacks["Skyburg"]:
 			self.done = True
 			dialog.helptext()

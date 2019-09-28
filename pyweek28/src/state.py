@@ -72,7 +72,7 @@ def completemission(reward):
 	for pname in ["worker", "sci", "tech"]:
 		if reward == pname:
 			things.Pop(pname, stationat(0))
-			return "New %s reporting for duty at Ground Control" % pname
+			return "New %s reporting for duty at Ground Control" % things.popnames[pname]
 
 portcapacity = [1, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7, 8]
 

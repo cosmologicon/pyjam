@@ -25,7 +25,7 @@ class PlayScene(scene.Scene):
 		self.hud.buttons.append(hud.Button("Rotate Left", (340, 360)))
 		self.hud.buttons.append(hud.Button("Rotate Right", (940, 360)))
 #		self.hud.buttons.append(hud.Button("Claim Quest", (640, 600), size = (160, 160), isvisible = self.availablequest))
-		self.hud.buttons.append(hud.Button("Open/close Port", (880, 600), size = (160, 160), isvisible = state.currentstation))
+		self.hud.buttons.append(hud.Button("Open/close Port", (880, 600), size = (200, 140), isvisible = state.currentstation))
 		self.hud.buttons.append(hud.Button("Complete mission", (100, 600), size = (160, 80), isvisible = self.cancomplete))
 
 		self.up = [pygame.K_UP, pygame.K_w]
@@ -162,7 +162,7 @@ class PlayScene(scene.Scene):
 			"Missions completed: %d" % (state.progress.missions,),
 			"Altitude: %d km" % (round(view.zW0),),
 		])
-		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1.5)
+		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1, fontname = "RobotoCondensed-Bold")
 		self.drawcompass()
 		self.hud.draw()
 		dialog.draw()
@@ -203,17 +203,17 @@ class PlayScene(scene.Scene):
 		station = state.currentstation()
 		if station is None:
 			return
-		ptext.draw("Welcome to", midtop = T(140, 6), fontsize = T(24), owidth = 1)
-		ptext.draw(station.name, midtop = T(140, 26), fontsize = T(42), owidth = 1)
+		ptext.draw("Welcome to", midtop = T(200, 6), fontsize = T(16), owidth = 1, fontname = "RobotoCondensed-Bold")
+		ptext.draw(station.name, midtop = T(200, 22), fontsize = T(38), owidth = 1, fontname = "RobotoCondensed-Bold")
 		info = stationinfo.get(station.name)
 		text = info or ""
-		ptext.draw(text, topleft = T(10, 70), fontsize = T(22), width = T(400), owidth = 1)
+		ptext.draw(text, topleft = T(10, 70), fontsize = T(18), width = T(400), owidth = 1, fontname = "RobotoCondensed-Bold")
 
 		text = "\n".join([
-			"Current population: %d / %s" % (len(station.held), (station.capacity if station.capacity < 100000 else "unlimited")),
+			"Current population: %d / %s" % (len(station.held), (station.capacity if station.capacity < 100000 else "\u221E")),
 			"Port capacity: %d / 8" % station.portcapacity(),
 		])
-		ptext.draw(text, bottomleft = T(20, 460), fontsize = T(22), width = T(400), owidth = 1)
+		ptext.draw(text, bottomleft = T(20, 460), fontsize = T(18), width = T(400), owidth = 1, fontname = "RobotoCondensed-Bold")
 		for j, rect in enumerate(cardrects(station.showncapacity())):
 			if j < len(station.held):
 				station.held[j].drawcard(rect.center, rect.w)
@@ -222,8 +222,9 @@ class PlayScene(scene.Scene):
 			else:
 				things.drawemptycard(rect.center, rect.w)
 		if station.mission:
-			ptext.draw("Crew needed for current mission:", topleft = T(10, 260), fontsize = T(22), owidth = 1)
-			ptext.draw("Mission reward: %s" % station.mission.reward, topleft = T(20, 350), fontsize = T(20), owidth = 1)
+			ptext.draw("Crew needed for current mission:", topleft = T(10, 260), fontsize = T(18), owidth = 1, fontname = "RobotoCondensed-Bold")
+			rewardname = things.popnames.get(station.mission.reward, station.mission.reward.title())
+			ptext.draw("Mission reward: %s" % rewardname, topleft = T(20, 350), fontsize = T(16), owidth = 1, fontname = "RobotoCondensed-Bold")
 			for j, name in enumerate(station.mission.need):
 				size = T(48)
 				pos = T(40 + 54 * j, 312)
@@ -235,12 +236,12 @@ class PlayScene(scene.Scene):
 			return
 		car = state.currentcar()
 		if car is None: return
-		ptext.draw("Carrying:", topleft = T(20, 320), fontsize = T(26), owidth = 1)
+		ptext.draw("Carrying:", topleft = T(20, 320), fontsize = T(22), owidth = 1, fontname = "RobotoCondensed-Bold")
 		dest = state.stationat(car.targetz)
 		for rect, held in zip(cardrects(len(car.held)), car.held):
 			held.drawcard(rect.center, rect.w)
 		if dest:
-			ptext.draw("Destination: %s" % dest.name, topleft = T(20, 460), fontsize = T(26), owidth = 1)
+			ptext.draw("Destination: %s" % dest.name, topleft = T(20, 460), fontsize = T(22), owidth = 1, fontname = "RobotoCondensed-Bold")
 
 	# TODO: move to some other module
 	def drawcompass(self):
@@ -276,7 +277,7 @@ stationinfo = {
 	"Skyburg": "The slightly reduced gravity at this level is ideal for training.",
 	"Last Ditch": "The main communications array.",
 	"Stationary": "The level of stationary orbit. Zero gravity.",
-	"Counterweight": "Centrifugal force pulls you outward here. Ideal for launching deep-space vessels.",
+	"Counterweight": "This station is built at the very top of the elevator, on the giant counterweight asteroid hanging from the tether, which is what keeps the tether standing up. Yes, it is in fact hanging: gravity is upside down out here! Non-inertial reference frames are confusing, okay?",
 }
 
 
@@ -294,8 +295,11 @@ class AssignScene(scene.Scene):
 			station = worldmap.stationat(self.mpos)
 			if station and station.canaddpassenger():
 				self.held.settargetholder(station)
+				sound.playsound("dropping")
+			elif station:
+				dialog.run("Station %s is at capacity" % station.name)
+				sound.playsound("cancel")
 			scene.pop()
-			sound.playsound("dropping")
 
 	def draw(self):
 		self.parent.drawworld()
@@ -303,8 +307,8 @@ class AssignScene(scene.Scene):
 		pview.fill((0, 0, 0, alpha))
 		alpha = int(math.clamp(500 * self.t - 200, 0, 255))
 		if alpha:
-			ptext.draw("Drag the character to a station on the right to reassign.",
-				center = pview.center, fontsize = T(50), shadow = (1, 1), width = T(500))
+			ptext.draw("Drag the %s to a station on the right to reassign." % (things.popnames[self.held.name]),
+				center = pview.center, fontsize = T(50), shadow = (1, 1), width = T(500), fontname = "Teko-SemiBold")
 
 		worldmap.draw(worldmap.stationat(self.mpos), None)
 		self.held.drawcard(self.mpos, T(80), alpha = 100)

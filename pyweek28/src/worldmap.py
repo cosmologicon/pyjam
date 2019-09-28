@@ -55,12 +55,14 @@ def draw(pstation, pcar):
 		rect = T(pygame.Rect(0, 0, 140, 6))
 		rect.center = pos(station.z, view.A)
 		color = (255, 255, 255) if station is pstation else (140, 255, 255)
+		if station.mission and station.mission.fulfilled():
+			ptext.draw("(!)", center = (T(1105), rect.centery), color = "yellow",
+				fontsize = T(28), owidth = 1.5, fontname = "RobotoCondensed-Bold")
+			if pygame.time.get_ticks() * 0.001 % 1 > 0.5:
+				color = 255, 200, 20
 		pview.screen.fill(color, rect)
 		ptext.draw(station.name, bottomleft = rect.topleft, color = color, ocolor = (0, 40, 40),
-			fontsize = T(19), owidth = 1)
-		if station.mission and station.mission.fulfilled():
-			ptext.draw("(!)", center = (T(1050), rect.centery), color = "yellow",
-				fontsize = T(28), owidth = 1.5)
+			fontsize = T(19), owidth = 1, fontname = "RobotoCondensed-Bold")
 		rect = pygame.Rect(rect.left + T(4), rect.bottom + T(2), T(8), T(8))
 		for j in range(station.showncapacity()):
 			if j < len(station.held):

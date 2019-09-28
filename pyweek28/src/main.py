@@ -5,6 +5,7 @@ from .pview import T
 
 pview.SCREENSHOT_DIRECTORY = "screenshots"
 
+ptext.DEFAULT_SHADE = 1
 ptext.FONT_NAME_TEMPLATE = os.path.join("fonts", "%s.ttf")
 pygame.mixer.init()
 scene.push(titlescreen.Title())

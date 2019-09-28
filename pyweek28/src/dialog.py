@@ -45,10 +45,10 @@ class Dialog:
 		if self.current is not None:
 			alpha = math.dsmoothfade(self.t, 0, tline(self.current), 0.3)
 			ptext.draw(self.current, midtop = pview.midtop, width = T(720), fontsize = T(50),
-				color = "red", owidth = 2, alpha = alpha)
+				color = "red", owidth = 1, alpha = alpha, fontname = "Teko-SemiBold")
 		if self.currenthelp:
 			ptext.draw(self.currenthelp, midtop = T(640, 200), width = T(720), fontsize = T(50),
-				color = "blue", owidth = 1)
+				color = "lightblue", owidth = 1, fontname = "Teko-SemiBold")
 		if self.convolines:
 			line = self.convolines[0]
 			alpha = math.dsmoothfade(self.tconvo, 0, tline(line), 0.3)

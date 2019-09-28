@@ -6,6 +6,13 @@ from functools import lru_cache
 from . import pview, view, quest, state, draw, ptext, sound
 from .pview import T
 
+popnames = {
+	"worker": "Workazoid",
+	"tech": "Technoton",
+	"sci": "Calculax",
+}
+
+
 # Base class for all kinds of passengers/inhabitants of a car or station.
 class Passenger:
 	def __init__(self, holder = None):
@@ -67,7 +74,7 @@ def getpopcard(name, color, size, alpha = 255):
 		img = pygame.image.load("img/%s.png" % fname).convert_alpha()
 		surf.blit(pygame.transform.smoothscale(img, (120, 120)), (0, 0))
 #		ptext.draw(name[0].upper(), surf = surf, center = (60, 60), fontsize = 100, owidth = 1.5)
-		ptext.draw(name.title(), surf = surf, center = (60, 96), fontsize = 30, owidth = 1.5)
+		ptext.draw(popnames[name], surf = surf, center = (60, 96), fontsize = 30, owidth = 1.5)
 	return surf
 
 # Member of the population, a person
@@ -86,6 +93,13 @@ class Pop(Passenger):
 		surf = self.getcard(size, fade, alpha)
 		rect = surf.get_rect(center = pos)
 		pview.screen.blit(surf, rect)
+		if self.wantscar():
+			t = int(0.002 * pygame.time.get_ticks())
+			for j in [0, 5, 20]:
+				x0 = math.phi * (t + j) % 1
+				y0 = (math.phi * (t + j) ** 2 + 0.6) % 1
+				ptext.draw("?", center = pview.I(pos[0] + size * (x0 - 0.5) / 2, pos[1] + size * (y0 - 0.5) / 2),
+					fontsize = T(size / 2), owidth = 1)
 		if self.htargets:
 			ptext.draw(self.htargets[-1].name[0], topright = rect.topright, fontsize = T(size/2), owidth = 1)
 

@@ -19,7 +19,8 @@ def buttonimg(text, w, h, fontsize):
 	elif text == "Rotate Right":
 		return pygame.transform.flip(buttonimg("Rotate Left", w, h, fontsize), True, False)
 	else:
-		ptext.draw(text, surf = surf, center = rect.center, fontsize = fontsize, owidth = 1, color = (100, 255, 255), width = rect.w)
+		ptext.draw(text, surf = surf, center = rect.center, fontsize = fontsize, owidth = 1,
+			color = (100, 255, 255), width = rect.w, fontname = "RobotoCondensed-Bold")
 	return surf
 
 
