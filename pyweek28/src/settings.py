@@ -9,6 +9,7 @@ fullscreen = "--fullscreen" in sys.argv
 for arg in sys.argv:
 	if arg.startswith("--res="):
 		resolution0 = int(arg[6:])
+forceres = "--forceres" in sys.argv
 
 
 minfps = 10

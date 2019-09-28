@@ -110,6 +110,9 @@ class PlayScene(scene.Scene):
 		s = state.currentstation()
 		return s and s.mission and s.mission.fulfilled()
 	def handlemousedown(self):
+		if dialog.dialog.convolines:
+			dialog.clickthrough()
+			return
 		if self.canfix():
 			car = state.carat(view.zW0, view.A, dz = 3)
 			screenpos = view.worldtoview(car.worldpos())
@@ -157,15 +160,17 @@ class PlayScene(scene.Scene):
 	def draw(self):
 		self.drawworld()
 		worldmap.draw(worldmap.stationat(self.mpos), worldmap.carat(self.mpos))
-		self.drawstationinfo()
+		if not dialog.dialog.convolines:
+			self.drawstationinfo()
 		self.drawcarinfo()
 		text = "\n".join([
 #			"Station: %s" % (state.currentstationname(),),
 			"Missions completed: %d/20" % (state.progress.missions,),
 			"Altitude: %d km" % (round(view.zW0),),
 		])
-		ptext.draw(text, fontsize = T(32), bottomleft = T(20, 700), owidth = 1, fontname = "RobotoCondensed-Bold")
-		self.drawcompass()
+		if not dialog.dialog.convolines:
+			ptext.draw(text, fontsize = T(32), bottomleft = T(20, 700), owidth = 1, fontname = "RobotoCondensed-Bold")
+			self.drawcompass()
 		self.hud.draw()
 		dialog.draw()
 

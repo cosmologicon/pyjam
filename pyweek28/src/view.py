@@ -90,7 +90,7 @@ def rotateto(A):
 
 
 def init():
-	pview.set_mode(settings.resolution, height = settings.resolution0)
+	pview.set_mode(settings.resolution, height = settings.resolution0, forceres = settings.forceres)
 	pygame.display.set_caption(settings.gamename)
 
 def think(dt):

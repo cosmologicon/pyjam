@@ -21,6 +21,7 @@ class Dialog:
 		self.t = 0
 		self.convolines = []
 		self.tconvo = 0
+		self.cclicked = False
 	def run(self, line):
 		# TODO: allow for different colors and fonts
 		self.current = line
@@ -28,6 +29,7 @@ class Dialog:
 	def helptext(self, line):
 		self.currenthelp = line
 	def startconvo(self, convoname):
+		self.cclicked = False
 		self.convolines.extend(convos[convoname])
 	def think(self, dt):
 		if self.convolines:
@@ -42,6 +44,7 @@ class Dialog:
 			self.current = None
 	def draw(self):
 		if self.convolines:
+			pview.fill((10, 10, 10, 120))
 			line = self.convolines[0]
 			alpha = math.dsmoothfade(self.tconvo, 0, tline(line), 0.3)
 			who = line[:line.index(":")]
@@ -73,6 +76,15 @@ def helptext(line = ""):
 	dialog.helptext(line)
 def startconvo(convoname):
 	dialog.startconvo(convoname)
+def clickthrough():
+	if not dialog.convolines:
+		return
+	if dialog.cclicked or dialog.tconvo > 0.3:
+		dialog.cclicked = True
+		dialog.convolines.pop(0)
+	
+		
+
 
 convos = {
 	"test": [
