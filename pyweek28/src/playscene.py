@@ -11,19 +11,24 @@ class PlayScene(scene.Scene):
 #			things.Station("LowOrbiton", 700, 5),
 			things.Station("Skyburg", 2000, 2),
 #			things.Station("Last Ditch", 3700, 5),
-			things.Station("Stationary", 7200, 2),
+#			things.Station("Stationary", 7200, 2),
 			things.Station("Counterweight", 10000, 2),
 		]
 		for name in ["worker", "sci", "tech"]:
 			p = things.Pop(name, state.stations[0])
 		view.seek_z(state.stations[0].z)
 		state.updatemissions()
+		quest.start(quest.TutorialQuest())
 
 		state.cars = [
 			things.Car(0, j) for j in [0, 3]
 		]
 		self.hud = hud.HUD()
+		self.hud.buttons.append(hud.Button("Rotate Left", (340, 360)))
+		self.hud.buttons.append(hud.Button("Rotate Right", (940, 360)))
 #		self.hud.buttons.append(hud.Button("Claim Quest", (640, 600), size = (160, 160), isvisible = self.availablequest))
+		self.hud.buttons.append(hud.Button("Open/close Port", (880, 600), size = (160, 160), isvisible = state.currentstation))
+		self.hud.buttons.append(hud.Button("Complete mission", (100, 600), size = (160, 40), isvisible = self.cancomplete))
 
 		self.up = [pygame.K_UP, pygame.K_w]
 		self.down = [pygame.K_DOWN, pygame.K_s]
@@ -103,6 +108,9 @@ class PlayScene(scene.Scene):
 	def canfix(self):
 		car = state.carat(view.zW0, view.A, dz = 3)
 		return car and car.broken
+	def cancomplete(self):
+		s = state.currentstation()
+		return s and s.mission and s.mission.fulfilled()
 	def handlemousedown(self):
 		if self.canfix():
 			car = state.carat(view.zW0, view.A, dz = 3)
@@ -140,6 +148,13 @@ class PlayScene(scene.Scene):
 		elif btext == "Claim Quest":
 			sound.playsound("yes")
 			self.claimquest()
+		elif btext == "Open/close Port":
+			self.toggleblock()
+		elif btext == "Complete mission":
+			s = state.currentstation()
+			if s and s.mission and s.mission.fulfilled():
+				sound.playsound("yes")
+				s.mission.finish()
 
 	def draw(self):
 		self.drawworld()

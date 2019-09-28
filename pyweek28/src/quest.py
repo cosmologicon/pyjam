@@ -28,6 +28,44 @@ class Quest:
 		self.step += 1
 		self.t = 0
 
+class TutorialQuest(Quest):
+	def __init__(self):
+		Quest.__init__(self)
+		self.mission = state.missionstacks["Skyburg"][0]
+	def think(self, dt):
+		Quest.think(self, dt)
+		if self.step == 0:
+			if any(target.name == "Skyburg" for station in state.stations for pop in station.held for target in pop.htargets):
+				dialog.helptext()
+				self.advance()
+			elif self.t > 0.3:
+				if view.zW0 > 0:
+					dialog.helptext("Click on Ground Control station on the map to the right.")
+				else:
+					dialog.helptext("Click on a worker and drag them to Skyburg station to reassign.")
+		if self.step == 1:
+			if not any(pop.wantscar() for station in state.stations for pop in station.held):
+				dialog.helptext()
+				self.advance()
+			elif self.t > 0.3:
+				s = state.currentstation()
+				if s and s.name == "Skyburg":
+					dialog.helptext("Open the port on the N side of the station.")
+				else:
+					dialog.helptext("The worker is assigned but doesn't have any way to reach the station. Click on Skyburg station on the map to the right.")
+		if self.step == 2:
+			if any(station.name == "Skyburg" and station.held for station in state.stations):
+				dialog.helptext()
+				self.advance()
+			elif self.t > 0.3:
+				dialog.helptext("Now just wait for the car to bring the worker.")
+		if self.step == 3:
+			if self.t > 0.3:
+				dialog.helptext("Moving workers to stations lets you complete tasks at that station, and keep more ports open. Click on the mission to complete it!")
+		if self.mission not in state.missionstacks["Skyburg"]:
+			self.done = True
+			dialog.helptext()
+
 class TestQuest(Quest):
 	def think(self, dt):
 		Quest.think(self, dt)
@@ -67,11 +105,9 @@ class MissionQuest(Quest):
 			self.tdone += dt
 		else:
 			self.tdone = 0
-		if self.step == 0 and self.tdone > 0.5:
-			self.advance()
-			self.done = True
-			self.finish()
 	def finish(self):
+		self.advance()
+		self.done = True
 		text = state.completemission(self.reward)
 		dialog.run("Mission Complete\n" + text)
 		self.station.mission = None

@@ -36,6 +36,7 @@ def currentcar():
 class progress:
 	capacity = 2
 	cars = 2
+	carupgrades = 0
 
 def completemission(reward):
 	from . import things, view
@@ -46,7 +47,8 @@ def completemission(reward):
 		return "Station capacity upgraded"
 	if reward == "car":
 		if len(cars) >= 8:
-			return "But you've already got a car on every track. I guess you just get the satisfaction of a job well done."
+			progress.carupgrades += 1
+			return "Car speed upgraded."
 		A = (progress.cars * 3) % 8
 		progress.cars += 1
 		cars.append(things.Car(0, A))

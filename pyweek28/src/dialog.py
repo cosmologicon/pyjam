@@ -10,12 +10,15 @@ def tline(line):
 class Dialog:
 	def __init__(self):
 		self.current = None
+		self.currenthelp = ""
 		self.t = 0
 	def run(self, line):
 		# TODO: allow for different colors and fonts
 		# TODO: allow for sequences of dialog that are longer than one line
 		self.current = line
 		self.t = 0
+	def helptext(self, line):
+		self.currenthelp = line
 	def think(self, dt):
 		self.t += dt
 		if self.current and self.t > tline(self.current):
@@ -25,6 +28,9 @@ class Dialog:
 			alpha = math.dsmoothfade(self.t, 0, tline(self.current), 0.3)
 			ptext.draw(self.current, midtop = pview.midtop, width = T(720), fontsize = T(50),
 				color = "red", owidth = 2, alpha = alpha)
+		if self.currenthelp:
+			ptext.draw(self.currenthelp, midtop = T(640, 200), width = T(720), fontsize = T(50),
+				color = "blue", owidth = 1)
 
 dialog = Dialog()
 
@@ -35,3 +41,5 @@ def think(dt):
 	dialog.think(dt)
 def draw():
 	dialog.draw()
+def helptext(line = ""):
+	dialog.helptext(line)

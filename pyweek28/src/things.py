@@ -28,11 +28,11 @@ class Passenger:
 				htarget.pending.remove(self)
 		self.htargets = [target]
 		target.pending.append(self)
+	def wantscar(self):
+		return self.htargets and isinstance(self.holder, Station) and isinstance(self.htargets[0], Station)
 	def think(self, dt):
-		if self.htargets:
-			if isinstance(self.holder, Station) and isinstance(self.htargets[0], Station):
-				if 0.2 * random.random() < dt:
-					self.callcar()
+		if self.wantscar() and 0.2 * random.random() < dt:
+			self.callcar()
 		if self.htargets and self.holder.z == self.htargets[0].z:
 			self.setholder(self.htargets[0])
 		if self.htargets and isinstance(self.holder, Car) and self.holder.targetz != self.htargets[0].z:
@@ -174,6 +174,7 @@ class Station(Holder):
 		]
 
 class Car(Holder):
+	name = None
 	def __init__(self, z, A):
 		Holder.__init__(self, capacity = 1)
 		self.z = z
@@ -207,8 +208,11 @@ class Car(Holder):
 			stations.append(state.stationat(self.targetz))
 		return stations
 	def think(self, dt):
+		if 100 * random.random() < dt:
+			self.broken = True
 		self.fjostle = math.approach(self.fjostle, 0, 1.5 * dt)
 		self.brokefactor = math.approach(self.brokefactor, (4 if self.broken else 1), 3 * dt)
+		dt *= 1 + 0.3 * state.progress.carupgrades
 		dt /= self.brokefactor
 		if not self.arrived():
 			b = 4  # braking factor. Set higher for shorter stops.
@@ -225,8 +229,6 @@ class Car(Holder):
 				self.z = brakez
 		if self.arrived and self.pending:
 			self.settarget(self.pending[0].holder.z)
-		if 100 * random.random() < dt:
-			self.broken = True
 	def settarget(self, zW):
 		self.targetz = zW
 		self.braking = False
