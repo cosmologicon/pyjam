@@ -58,7 +58,6 @@ class MissionQuest(Quest):
 		self.station = station
 		self.need = need
 		self.reward = reward
-		self.progress = 0
 		self.tdone = 0
 	def fulfilled(self):
 		pnames = [held.name for held in self.station.held]
@@ -66,13 +65,15 @@ class MissionQuest(Quest):
 	def think(self, dt):
 		if self.fulfilled():
 			self.tdone += dt
+		else:
+			self.tdone = 0
 		if self.step == 0 and self.tdone > 0.5:
 			self.advance()
 			self.done = True
 			self.finish()
 	def finish(self):
-		if self.reward is None:
-			dialog.run("Completed: some quest that does literally nothing.")
-		else:
-			raise ValueError("Unknown reward %s" % self.reward)
+		text = state.completemission(self.reward)
+		dialog.run("Mission Complete\n" + text)
+		self.station.mission = None
+		state.updatemissions()
 

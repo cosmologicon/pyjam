@@ -207,13 +207,14 @@ def stationespecs(name, t):
 	dA = 0.1 * t
 	if name == "Ground Control":
 		return [
-			["roundtop", 0, 0, 0, 5, 4, 2, 0.2, 0, 10],
+			["roundtop", 0, 0, -2, 3, 4, 2, 0.2, 0, 10],
+			["stripe-orange", 0, 0, 1, 1.3, 4, 4, 1, 0, 1],
 		]
 	if name == "Counterweight":
 		return [
-			["lowwindow", 0, 0, -1.5, 1, 2, 2.5, 0.2, dA, 10],
-			["lowwindow", 0, 0, 1, 4, 2.7, 3.2, 0.2, -0.6 * dA, 10],
-			["rock", 0, 0, 4, 7, 3.2, 10, 0.1, 0, 3],
+			["lowwindow", 0, 0, -1.5, 1, 3, 3.5, 0.2, dA, 10],
+			["lowwindow", 0, 0, 1, 4, 3.7, 4.2, 0.2, -0.6 * dA, 10],
+			["rock", 0, 0, 4, 7, 4.2, 10, 0.1, 0, 3],
 		]
 	if name == "Stationary":
 		ret = [
@@ -227,8 +228,8 @@ def stationespecs(name, t):
 	if name == "Skyburg":
 		ret = [
 			["roundtop", 0, 0, 0, 2, 5, 1, 7, 0, 12],
-			["hatch", 0, 0, -0.5, 0, 2.5, 5, 0.2, 0, 50],
-			["hatch", 0, 0, -2, -0.5, 2.1, 2.5, 1, 0, 30],
+			["hatch", 0, 0, -1.2, 0, 2.5, 5, 0.2, 0, 50],
+			["hatch", 0, 0, -3, -1.2, 2.1, 2.5, 1, 0, 30],
 		]
 		return ret
 	if name == "LowOrbiton":

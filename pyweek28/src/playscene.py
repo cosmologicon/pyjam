@@ -8,23 +8,19 @@ class PlayScene(scene.Scene):
 	def __init__(self):
 		state.stations = [
 			things.Station("Ground Control", 0, 1000000),
-			things.Station("LowOrbiton", 700, 5),
-			things.Station("Skyburg", 2000, 5),
-			things.Station("Last Ditch", 3700, 5),
-			things.Station("Stationary", 7200, 5),
-			things.Station("Counterweight", 10000, 5),
+#			things.Station("LowOrbiton", 700, 5),
+			things.Station("Skyburg", 2000, 2),
+#			things.Station("Last Ditch", 3700, 5),
+			things.Station("Stationary", 7200, 2),
+			things.Station("Counterweight", 10000, 2),
 		]
-		for name in ["worker", "worker", "worker", "tech", "sci"]:
-			p = things.Pop(name, state.stations[4])
-		view.seek_z(state.stations[4].z)
-		#state.stations[3].addquest("testquest")
-#		state.stations[4].addquest("reallocate")
-		state.stations[3].setmission(
-			["sci", "worker"], None
-		)
+		for name in ["worker", "sci", "tech"]:
+			p = things.Pop(name, state.stations[0])
+		view.seek_z(state.stations[0].z)
+		state.updatemissions()
 
 		state.cars = [
-			things.Car(random.uniform(0, state.top), j) for j in range(8)
+			things.Car(0, j) for j in [0, 3]
 		]
 		self.hud = hud.HUD()
 #		self.hud.buttons.append(hud.Button("Claim Quest", (640, 600), size = (160, 160), isvisible = self.availablequest))
@@ -130,17 +126,17 @@ class PlayScene(scene.Scene):
 			return
 		station = state.currentstation()
 		if station is not None:
-			for rect, held in station.recthelds():
+			for rect, held in zip(cardrects(len(station.held)), station.held):
 				if rect.collidepoint(self.mpos):
 					scene.push(AssignScene(self, held))
 					return
 	def clickbutton(self, btext):
 		if btext == "Rotate Left":
 			sound.playsound("yes")
-			view.rotate(-1)
+			view.rotate(1)
 		elif btext == "Rotate Right":
 			sound.playsound("yes")
-			view.rotate(1)
+			view.rotate(-1)
 		elif btext == "Claim Quest":
 			sound.playsound("yes")
 			self.claimquest()
@@ -154,7 +150,7 @@ class PlayScene(scene.Scene):
 			"Station: %s" % (state.currentstationname(),),
 			"Altitude: %d km" % (round(view.zW0),),
 		])
-		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1.5)
+#		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1.5)
 		self.drawcompass()
 		self.hud.draw()
 		dialog.draw()
@@ -197,15 +193,23 @@ class PlayScene(scene.Scene):
 		ptext.draw("Welcome to", midtop = T(140, 6), fontsize = T(24), owidth = 1)
 		ptext.draw(station.name, midtop = T(140, 26), fontsize = T(42), owidth = 1)
 		info = stationinfo.get(station.name)
-		if info is not None:
-			ptext.draw(info, topleft = T(10, 70), fontsize = T(22), width = T(220), owidth = 1)
+		text = info or ""
+		ptext.draw(text, topleft = T(10, 70), fontsize = T(22), width = T(400), owidth = 1)
+
 		text = "\n".join([
-			"Current population: %d" % len(station.held),
-			"Total capacity: %s" % (station.capacity if station.capacity < 100000 else "unlimited"),
+			"Current population: %d / %s" % (len(station.held), (station.capacity if station.capacity < 100000 else "unlimited")),
 		])
-		ptext.draw(text, topleft = T(10, 260), fontsize = T(22), owidth = 1)
-		for rect, held in station.recthelds():
-			held.drawcard(rect.center, rect.w)
+		ptext.draw(text, bottomleft = T(10, 360), fontsize = T(22), width = T(400), owidth = 1)
+		for j, rect in enumerate(cardrects(station.showncapacity())):
+			if j < len(station.held):
+				station.held[j].drawcard(rect.center, rect.w)
+			elif j < len(station.held) + len(station.pending):
+				station.pending[j - len(station.held)].drawcard(rect.center, rect.w, alpha = 80)
+			else:
+				color = 10, 10, 10
+				pview.screen.fill(color, rect)
+				color = math.imix(color, (0, 0, 0), 0.5)
+				pview.screen.fill(color, rect.inflate(T(-2), T(-2)))
 		if station.mission:
 			ptext.draw("Current mission: %s" % " ".join(station.mission.need), topleft = T(10, 600), fontsize = T(22), owidth = 1)
 
@@ -216,11 +220,10 @@ class PlayScene(scene.Scene):
 		if car is None: return
 		ptext.draw("Carrying:", topleft = T(20, 260), fontsize = T(26), owidth = 1)
 		dest = state.stationat(car.targetz)
-		for rect, held in car.recthelds():
+		for rect, held in zip(cardrects(len(car.held)), car.held):
 			held.drawcard(rect.center, rect.w)
 		if dest:
 			ptext.draw("Destination: %s" % dest.name, topleft = T(20, 400), fontsize = T(26), owidth = 1)
-
 
 	# TODO: move to some other module
 	def drawcompass(self):
@@ -236,6 +239,17 @@ class PlayScene(scene.Scene):
 			pos = x0 - dx, y0 - dy
 			ptext.draw(dname, center = T(pos), fontsize = T(60), owidth = 1.5 if A == 0 else 0,
 				angle = -A * 360 / 8, alpha = alpha)
+
+def cardrects(n):
+	for j in range(n):
+		jy, jx = divmod(j, 10)
+		size = T(72)
+		pos = T(40 + 80 * jx, 400 + 80 * jy)
+		rect = pygame.Rect(0, 0, size, size)
+		rect.center = pos
+		yield rect
+		
+	
 
 
 # TODO: some other module about game mechanics.

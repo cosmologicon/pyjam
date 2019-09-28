@@ -42,7 +42,7 @@ def atmosphere():
 	if alpha:
 		pview.fill((0, 40, 80, alpha))
 def ground():
-	_, py = view.gametoview((0, 0))
+	_, py = view.gametoview((0, -2))
 	if py <= pview.h:
 		pview.screen.fill((0, 10, 0), pygame.Rect(0, py, pview.w, pview.h))
 
