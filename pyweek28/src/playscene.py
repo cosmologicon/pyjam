@@ -18,7 +18,7 @@ class PlayScene(scene.Scene):
 		view.seek_z(state.stations[4].z)
 		#state.stations[3].addquest("testquest")
 		state.stations[4].addquest("reallocate")
-		
+
 		state.cars = [
 			things.Car(random.uniform(0, state.top), j) for j in range(8)
 		]
@@ -163,7 +163,7 @@ class PlayScene(scene.Scene):
 	# Draw game objects, and the cable.
 	def drawstate(self):
 		objs = state.cars + state.stations
-		# espec fields are: texturename, xG, yG, zG0, zG1, 
+		# espec fields are: texturename, xG, yG, zG0, zG1,
 		especs = [espec for obj in objs for espec in obj.especs()]
 		def drawargs(espec):
 			texturename, xW, yW, zW0, zW1, r0, r1, n, dA, k = espec
@@ -207,8 +207,10 @@ class PlayScene(scene.Scene):
 			return
 		car = state.currentcar()
 		if car is None: return
-		ptext.draw("Carrying:", topleft = T(20, 120), fontsize = T(26), owidth = 1)
+		ptext.draw("Carrying:", topleft = T(20, 260), fontsize = T(26), owidth = 1)
 		dest = state.stationat(car.targetz)
+		for rect, held in car.recthelds():
+			held.drawcard(rect.center, rect.w)
 		if dest:
 			ptext.draw("Destination: %s" % dest.name, topleft = T(20, 400), fontsize = T(26), owidth = 1)
 
@@ -255,7 +257,7 @@ class AssignScene(scene.Scene):
 				self.held.settargetholder(station)
 			scene.pop()
 			sound.playsound("dropping")
-	
+
 	def draw(self):
 		self.parent.drawworld()
 		alpha = int(math.clamp(500 * self.t, 0, 200))
@@ -264,11 +266,6 @@ class AssignScene(scene.Scene):
 		if alpha:
 			ptext.draw("Drag the character to a station on the right to reassign.",
 				center = pview.center, fontsize = T(50), shadow = (1, 1), width = T(500))
-		
+
 		worldmap.draw(worldmap.stationat(self.mpos), None)
 		self.held.drawcard(self.mpos, T(80), alpha = 100)
-
-
-
-
-
