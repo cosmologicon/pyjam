@@ -120,7 +120,7 @@ convos = {
 		"Herzud: Idea that statistically speaking, aliens must be existing?",
 		"Herzud: Why yes! In fact that's the very reason I have sunk my fortune into building the space elevator!",
 		"Nerdozog: Oh.... well then why isn't it called the Herzud Paradox?",
-		"Herzud: ....",
+		"Herzud: ....                  ",
 		"Alitwon: That's a sensitive subject, Nerdozog.",
 	],
 	"chat6": [

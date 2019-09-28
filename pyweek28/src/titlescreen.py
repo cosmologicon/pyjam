@@ -29,10 +29,11 @@ class Title(scene.Scene):
         else:
             x = r*math.sin(t*360)+900
             y = r*math.cos(t*360)+600
-        point_list.append(T([x,y]))
+        point_list.append([x,y])
         if len(point_list) >= 2:
             for i in point_list:
-                pygame.draw.line(pview.screen,(255,255,255),i,i,2)
+                pygame.draw.line(pview.screen,(255,255,255),T(i),T(i),2)
         ptext.draw(settings.gamename, center = pview.center,fontname = 'space Xrebron',fontsize = T(90), shadow=(1,1))
         ptext.draw('Click to continue',center = T(900,600), fontname = "RobotoCondensed-Bold", fontsize = T(30), owidth = 1)
+        ptext.draw('F10: change resolution\nF11: toggle fullscreen', bottomleft = T(40,680), fontname = "RobotoCondensed-Bold", fontsize = T(26), owidth = 1)
 

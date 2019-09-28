@@ -3,8 +3,13 @@ gamename = "Nerdozog's Ascent"
 
 # Baseline resolution (also default resolution)
 resolution = 1280, 720
-resolutions = 360, 480, 720, 1080
-fullscreen = False
+resolution0 = 720
+resolutions = 480, 588, 720, 880, 1080
+fullscreen = "--fullscreen" in sys.argv
+for arg in sys.argv:
+	if arg.startswith("--res="):
+		resolution0 = int(arg[6:])
+
 
 minfps = 10
 maxfps = 120

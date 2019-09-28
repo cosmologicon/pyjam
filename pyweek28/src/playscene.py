@@ -161,7 +161,7 @@ class PlayScene(scene.Scene):
 		self.drawcarinfo()
 		text = "\n".join([
 #			"Station: %s" % (state.currentstationname(),),
-			"Missions completed: %d" % (state.progress.missions,),
+			"Missions completed: %d/20" % (state.progress.missions,),
 			"Altitude: %d km" % (round(view.zW0),),
 		])
 		ptext.draw(text, fontsize = T(32), bottomleft = T(20, 700), owidth = 1, fontname = "RobotoCondensed-Bold")

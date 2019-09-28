@@ -87,11 +87,11 @@ class Pop(Passenger):
 		Passenger.__init__(self, holder)
 		self.name = name
 	def color(self):
-		if self.name == "worker": return 140, 200, 180
-		if self.name == "tech": return 200, 180, 180
-		if self.name == "sci": return 200, 200, 100
-		if self.name == "porter": return 100, 255, 100
-		if self.name == "fixer": return 255, 100, 100
+		if self.name == "worker": return 100, 100, 255
+		if self.name == "tech": return 255, 100, 100
+		if self.name == "sci": return 255, 255, 0
+		if self.name == "porter": return 200, 200, 200
+		if self.name == "fixer": return 100, 100, 100
 	def getcard(self, size, fade = 1, alpha = 255):
 		color = math.imix((0, 0, 0), self.color(), fade)
 		return getpopcard(self.name, color, size, alpha)
@@ -324,15 +324,15 @@ def stationespecs(name, t):
 		return ret
 	if name == "Lorbiton":
 		ret = [
-			["window", 0, 0, -2.5, 0, 1.5, 3.2, 1/10, 0, 12],
-			["window", 0, 0, 0, 2.5, 3.2, 1.5, 10, 0, 12],
+			["window", 0, 0, -2.4, 0, 1.5, 4.4, 1/10, 0, 12],
+			["window", 0, 0, 0, 2.4, 4.4, 1.5, 10, 0, 12],
 		]
-		for (_, z), (x, y) in zip(math.CSround(3, 2, 2 * t), math.CSround(3, 3, 1.5 * t)):
+		for (_, z), (x, y) in zip(math.CSround(3, 2, 2 * t), math.CSround(3, 4.5, 1.5 * t)):
 			ret += [
 				["gray", x, y, z, z + 0.5, 1, 0, 1/2, 0, 1],
 				["gray", x, y, z - 0.5, z, 0, 1, 2, 0, 1],
 			]
-		for (_, z), (x, y) in zip(math.CSround(5, 2.5, 1 * t), math.CSround(5, 4, -1.1 * t)):
+		for (_, z), (x, y) in zip(math.CSround(5, 2.5, 1 * t), math.CSround(5, 5, -1.1 * t)):
 			ret += [
 				["gray", x, y, z, z + 0.5, 1, 0, 1/2, 0, 1],
 				["gray", x, y, z - 0.5, z, 0, 1, 2, 0, 1],
