@@ -10,6 +10,8 @@ popnames = {
 	"worker": "Workazoid",
 	"tech": "Technoton",
 	"sci": "Calculax",
+	"porter": "Porton",
+	"fixer": "Repairzo",
 }
 
 
@@ -70,6 +72,8 @@ def getpopcard(name, color, size, alpha = 255):
 			"worker": "16",
 			"sci": "33",
 			"tech": "24",
+			"porter": "26",
+			"fixer": "7",
 		}[name]
 		img = pygame.image.load("img/%s.png" % fname).convert_alpha()
 		surf.blit(pygame.transform.smoothscale(img, (120, 120)), (0, 0))
@@ -83,9 +87,11 @@ class Pop(Passenger):
 		Passenger.__init__(self, holder)
 		self.name = name
 	def color(self):
-		if self.name == "worker": return 200, 150, 100
-		if self.name == "tech": return 200, 200, 100
-		if self.name == "sci": return 100, 200, 100
+		if self.name == "worker": return 140, 200, 180
+		if self.name == "tech": return 200, 180, 180
+		if self.name == "sci": return 200, 200, 100
+		if self.name == "porter": return 100, 255, 100
+		if self.name == "fixer": return 255, 100, 100
 	def getcard(self, size, fade = 1, alpha = 255):
 		color = math.imix((0, 0, 0), self.color(), fade)
 		return getpopcard(self.name, color, size, alpha)
@@ -169,6 +175,8 @@ class Station(Holder):
 	def portcapacity(self):
 		if self.name == "Ground Control":
 			return 8
+		if any(held.name == "porter" for held in self.held):
+			return 8
 		return state.portcapacity[min(len(self.held), len(state.portcapacity))]
 	def toblock(self):
 		for A in self.unblockseq:
@@ -191,6 +199,9 @@ class Station(Holder):
 		quest.start(self.mission)
 	def think(self, dt):
 		self.t += dt
+		capacity = self.portcapacity()
+		while sum(not b for b in self.blocked) > capacity and self.toblock() is not None:
+			self.blocked[self.toblock()] = True
 	def especs(self):
 		if not view.visible(self.z, 10):
 			return []
@@ -239,6 +250,10 @@ class Car(Holder):
 		if state.progress.missions >= 3 and 400 * random.random() < dt:
 #		if 20 * random.random() < dt:
 			self.broken = True
+		if self.broken:
+			s = state.stationat(self.z)
+			if s and any(p.name == "fixer" for p in s.held):
+				self.broken = False
 		self.fjostle = math.approach(self.fjostle, 0, 1.5 * dt)
 		self.brokefactor = math.approach(self.brokefactor, (4 if self.broken else 1), 3 * dt)
 		dt *= 1 + 0.3 * state.progress.carupgrades
@@ -285,13 +300,13 @@ def stationespecs(name, t):
 			["roundtop", 0, 0, -2, 3, 4, 2, 0.2, 0, 10],
 			["stripe-orange", 0, 0, 1, 1.3, 4, 4, 1, 0, 1],
 		]
-	if name == "Counterweight":
+	if name == "Upzidazi":
 		return [
 			["lowwindow", 0, 0, -1.5, 1, 3, 3.5, 0.2, dA, 10],
 			["lowwindow", 0, 0, 1, 4, 3.7, 4.2, 0.2, -0.6 * dA, 10],
 			["rock", 0, 0, 4, 7, 4.2, 10, 0.1, 0, 3],
 		]
-	if name == "Stationary":
+	if name == "Flotogorb":
 		ret = [
 			["stripe-blue", x, y, (j-1) * 1 - 0.3, (j-1) * 1 + 0.3, 4, 4, 1, 0, 1]
 			for j, (x, y) in enumerate(math.CSround(3, 2))
@@ -307,7 +322,7 @@ def stationespecs(name, t):
 			["hatch", 0, 0, -3, -1.2, 2.1, 2.5, 1, 0, 30],
 		]
 		return ret
-	if name == "LowOrbiton":
+	if name == "Lorbiton":
 		ret = [
 			["window", 0, 0, -2.5, 0, 1.5, 3.2, 1/10, 0, 12],
 			["window", 0, 0, 0, 2.5, 3.2, 1.5, 10, 0, 12],
@@ -331,7 +346,7 @@ def stationespecs(name, t):
 		["hatch", 0, 0, 0.5, 0.7, 4.2, 4.2, 1, 0, 100],
 		["gray", 0, 0, 0.7, 1.4, 4.2, 2, 8, 0, 10],
 	]
-	if name == "Last Ditch":
+	if name == "Ettiseek":
 		for xW, yW in math.CSround(3, 3.5, 0.1234):
 			specs.extend([
 				["gray", xW, yW, -4.2, -2.2, 0.1, 0.1, 1, 0, 1],

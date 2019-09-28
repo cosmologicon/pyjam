@@ -17,7 +17,7 @@
 
 from __future__ import division
 import pygame, math
-from . import settings, pview
+from . import settings, pview, state
 from .pview import T
 
 # A is an angle around the central axis, in units of 1/8th of a rotation clockwise starting at North.
@@ -38,8 +38,6 @@ def visible(z, dz = 0):
 	return abs(z - zW0) < pview.centerx / zoom + dz
 
 
-# TODO: make the camera approach functions faster as the game progresses.
-
 # Camera mode can be one of the following:
 cmode = "z"
 
@@ -48,8 +46,9 @@ targetz = 0  # Where the camera wants to be
 ftargetz = 0  # Approach factor, increases in time to allow for a slightly slower start.
 def updatecamera_z(dt):
 	global targetz, ftargetz, zW0, zoom
+	dt *= math.exp(state.progress.missions / 20)
 	ftargetz += dt
-	f = 100 * ftargetz ** 3
+	f = 50 * ftargetz ** 3
 	newz = math.softapproach(zW0, targetz, f * dt, dymin = 0.01)
 	# TODO: This is supposed to give a sense of pulling back as the camera pans, but I'm not sure it
 	# comes across. Try it again once the graphics are more in place.
@@ -67,7 +66,8 @@ targetcar = None
 ftargetcar = 0
 def updatecamera_car(dt):
 	global ftargetcar, zW0
-	ftargetcar = math.clamp(ftargetcar + 1.5 * dt, 0, 1)
+	dt *= math.exp(state.progress.missions / 20)
+	ftargetcar = math.clamp(ftargetcar + 0.8 * dt, 0, 1)
 	f = math.ease(math.ease(ftargetcar))
 	zW0 = math.mix(targetcarstart, targetcar.z, f)
 

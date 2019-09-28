@@ -17,6 +17,7 @@ class PlayScene(scene.Scene):
 		quest.start(quest.TutorialQuest())
 		quest.start(quest.FixQuest())
 		quest.start(quest.ChatQuest())
+		dialog.startconvo("intro")
 
 		state.cars = [
 			things.Car(0, j) for j in [0, 3]
@@ -273,11 +274,11 @@ def cardrects(n):
 # TODO: some other module about game mechanics.
 stationinfo = {
 	"Ground Control": "This complex, located on the surface of Xenophoton, is the base of operations for the space elevator. You can assign as many people here as you want, and open as many ports as you want. Be sure to check out the gift shop!",
-	"LowOrbiton": "Many spacecraft orbit at this level.",
-	"Skyburg": "The slightly reduced gravity at this level is ideal for training.",
-	"Last Ditch": "The main communications array.",
-	"Stationary": "The level of stationary orbit. Zero gravity.",
-	"Counterweight": "This station is built at the very top of the elevator, on the giant counterweight asteroid hanging from the tether, which is what keeps the tether standing up. Yes, it is in fact hanging: gravity is upside down out here! Non-inertial reference frames are confusing, okay?",
+	"Lorbiton": "Many spacecraft orbit at this level, in low orbit over Xenophoton. If you see one going past and you wave, don't feel bad if they don't wave back. People in low orbit are very busy.",
+	"Skyburg": "The slightly reduced gravity at this level is ideal for training. Just watch your head when you jump!",
+	"Ettiseek": "The main communications array. We'll finally figure out if anyone is out there and whether this whole thing was a colossal waste of time and money.",
+	"Flotogorb": "The level of stationary orbit. Zero gravity. Neat.",
+	"Upzidazi": "This station is built at the very top of the elevator, on the giant counterweight asteroid hanging from the tether, which is what keeps the tether standing up. Yes, it is in fact hanging: gravity is upside down out here! Non-inertial reference frames are confusing, okay?",
 }
 
 
@@ -309,6 +310,14 @@ class AssignScene(scene.Scene):
 		if alpha:
 			ptext.draw("Drag the %s to a station on the right to reassign." % (things.popnames[self.held.name]),
 				center = pview.center, fontsize = T(50), shadow = (1, 1), width = T(500), fontname = "Teko-SemiBold")
+		btext = ""
+		if self.held.name == "porter":
+			btext = "The %s opens additional ports at the station where it's assigned." % things.popnames["porter"]
+		if self.held.name == "fixer":
+			btext = "The %s automatically repairs any broken car that arrives at the station where it's assigned." % things.popnames["fixer"]
+		if btext:
+			ptext.draw(btext, center = T(640, 560), fontsize = T(50), shadow = (1, 1), color = "lightblue", width = T(500), fontname = "Teko-SemiBold")
+		
 
 		worldmap.draw(worldmap.stationat(self.mpos), None)
 		self.held.drawcard(self.mpos, T(80), alpha = 100)

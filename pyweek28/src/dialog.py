@@ -54,8 +54,8 @@ class Dialog:
 			alpha = math.dsmoothfade(self.tconvo, 0, tline(line), 0.3)
 			who = line[:line.index(":")]
 			line = line[line.index(":") + 2:]
-			ptext.draw(line, bottomleft = T(400, 700), width = T(640), fontsize = T(44),
-				color = (100, 100, 255), owidth = 1, alpha = alpha)
+			ptext.draw(line, bottomleft = T(400, 720), width = T(640), fontsize = T(44),
+				color = (100, 100, 255), owidth = 2, alpha = alpha, fontname = "Teko-SemiBold", lineheight = 0.7)
 			surf = whoimg(who, T(300))
 			pview.screen.blit(surf, surf.get_rect(center = T(300, 660)))
 			
@@ -83,21 +83,56 @@ convos = {
 		"Dorgaz: BUT YOU'RE ALL HEAD!",
 		"Alitwon: Let me help you before you hurt yourself.",
 	],
+	"intro": [
+		"Dorgaz: So, you're the sucker they sent me to get this thing operational, huh?",
+		"Nerdozog: Nerdozog, reporting for duty!",
+		"Dorgaz: Is this your first time working on a space elevator, Nerdz?",
+		"Nerdozog: Wh... uh... this is the first space elevator in the world!",
+		"Dorgaz: Ugh, I asked for someone with 10 moltons' experience in space elevators! You'll have to do!",
+	],
 	"chat1": [
-		"Herzud: How can we reach outer space?",
-		"Dorgaz: Well, we have to go up and out",
-		"Herzud: Seems difficult! Let’s get to it!",
+		"Herzud: How runs my little space elevator today, Dorgaz?",
+		"Dorgaz: Dr. Herzud, there was no need to come down here yourself. Everything is perfectly going smoothly.",
+		"Nerdozog: Aaaahhhh! I stuck my head out the window and a space bug got in my eye!",
+		"Herzud: Hmmm.... I see.",
+		"Dorgaz: Nerdozog, I swear to Glorg...",
 	],
 	"chat2": [
-		"Herzud: From the ground we will go up, up, up, and up!",
-		"Dorgaz: Yes, let’s get to the top of this, we should put up a counterweight to keeps us close to Xenophoton",
-		"Herzud: How high will get us out of this gravitational pull?",
-		"Dorgaz: 10,000 krelmars",
+		"Alitwon: You have to stand up for yourself, you know.",
+		"Nerdozog: You must not have met me. I'm Nerdozog.",
+		"Alitwon: Alitwon. And I've had my eye on you. You've got potential.",
+		"Alitwon: See this project through and I see big things for you in the future.",
+		"Nerdozog: I think you must have me confused with some other Nerdozog.",
 	],
 	"chat3": [
-		"Herzud: How can we reach outer space?",
-		"Dorgaz: Well, we have to go up and out",
-		"Herzud: Seems difficult! Let’s get to it!",
+		"Dorgaz: Hey Nerdz, I forgot my Slurmee in Skyburg. If you stop by there, pick it up for me, will ya?",
+		"Nerdozog: Your Slurmee? Oh... well... I guess it's not too far out of my way....",
+		"Dorgaz: It's an extra large zargleberry flavor. I spilled most of it on the window. You can't miss it.",
+		"Alitwon: Don't you think he has more important work to do?",
+	],
+	"chat4": [
+		"Herzud: Ha ha! From the ground we go up, up, up, and up!",
+		"Herzud: Ten thousand krelmars above Xenophoton! What fun!",
+		"Herzud: Oooh, I can see some of my houses from here.",
+	],
+	"chat5": [
+		"Nerdozog: Dr. Herzud, are you really the one who came up with the Fermi Paradox?",
+		"Herzud: Idea that statistically speaking, aliens must be existing?",
+		"Herzud: Why yes! In fact that's the very reason I have sunk my fortune into building the space elevator!",
+		"Nerdozog: Oh.... well then why isn't it called the Herzud Paradox?",
+		"Herzud: ....",
+		"Alitwon: That's a sensitive subject, Nerdozog.",
+	],
+	"chat6": [
+		"Alitwon: Keep those missions coming, Nerd-O!",
+		"Alitwon: And make it quick! There's increased gamma ray activity.",
+		"Herzud: According to calculation, if we fail to leave planet in next 16 millieons, we will be destined for oblivion!",
+		"Alitwon: We need your help Nerd-O, it looks like you're the only one who can save us now.",
+		"Nerdozog: No pressure, I guess...",
+	],
+	"chat7": [
+		"Alitwon: Just a few more missions and we can launch the first spaceships!",
+		"Nerdozog: Is this a bad time to mention I'm afraid of heights???",
 	],
 	"end": [
 		"Herzud: Looks like our ships are ready to set sail, and sail it will be.",
@@ -108,6 +143,8 @@ convos = {
 		"Alitwon: Agreed, but it actually looks like this could turn into a big business venture for us across the galaxy.",
 		"Alitwon: Nerdozog, can you lead the way on this one?",
 		"Nerdozog: Since you asked, certainly.",
+		"Nerdozog: Captain Nerdozog.... I like the sound of that!",
+		"Alitwon: The end! Thank you for playing!",
 	],
 }
 

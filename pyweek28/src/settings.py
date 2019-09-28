@@ -1,5 +1,5 @@
 import sys
-gamename = "PyWeek 28: Tower"
+gamename = "Nerdozog's Ascent"
 
 # Baseline resolution (also default resolution)
 resolution = 1280, 720

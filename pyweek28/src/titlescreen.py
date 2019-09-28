@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest,sound,playscene
+from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest,sound,playscene, settings
 from .pview import T
 
 t = 0
@@ -20,19 +20,19 @@ class Title(scene.Scene):
     def draw(self):
 
         draw.atmosphere()
-        ptext.draw('The Really Really Big Tower',center = pview.center,fontname = 'space Xrebron',fontsize = T(60))
-        ptext.draw('Click to continue',T(800,500))
         global t
         t += 0.01
         r = 10 * (1 + t)
         if r % 20 >= 10:
-            x = r*math.cos(t*360)+pview.center[0]+286
-            y = r*math.sin(t*360)+pview.center[1]+4
+            x = r*math.cos(t*360)+900
+            y = r*math.sin(t*360)+600
         else:
-            x = r*math.sin(t*360)+pview.center[0]+286
-            y = r*math.cos(t*360)+pview.center[1]+4
-        point_list.append([x,y])
+            x = r*math.sin(t*360)+900
+            y = r*math.cos(t*360)+600
+        point_list.append(T([x,y]))
         if len(point_list) >= 2:
             for i in point_list:
                 pygame.draw.line(pview.screen,(255,255,255),i,i,2)
+        ptext.draw(settings.gamename, center = pview.center,fontname = 'space Xrebron',fontsize = T(90), shadow=(1,1))
+        ptext.draw('Click to continue',center = T(900,600), fontname = "RobotoCondensed-Bold", fontsize = T(30), owidth = 1)
 
