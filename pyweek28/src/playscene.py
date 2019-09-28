@@ -26,7 +26,7 @@ class PlayScene(scene.Scene):
 		self.hud.buttons.append(hud.Button("Rotate Right", (940, 360)))
 #		self.hud.buttons.append(hud.Button("Claim Quest", (640, 600), size = (160, 160), isvisible = self.availablequest))
 		self.hud.buttons.append(hud.Button("Open/close Port", (880, 600), size = (160, 160), isvisible = state.currentstation))
-		self.hud.buttons.append(hud.Button("Complete mission", (100, 600), size = (160, 40), isvisible = self.cancomplete))
+		self.hud.buttons.append(hud.Button("Complete mission", (100, 600), size = (160, 80), isvisible = self.cancomplete))
 
 		self.up = [pygame.K_UP, pygame.K_w]
 		self.down = [pygame.K_DOWN, pygame.K_s]
@@ -213,19 +213,21 @@ class PlayScene(scene.Scene):
 			"Current population: %d / %s" % (len(station.held), (station.capacity if station.capacity < 100000 else "unlimited")),
 			"Port capacity: %d / 8" % station.portcapacity(),
 		])
-		ptext.draw(text, bottomleft = T(10, 360), fontsize = T(22), width = T(400), owidth = 1)
+		ptext.draw(text, bottomleft = T(20, 460), fontsize = T(22), width = T(400), owidth = 1)
 		for j, rect in enumerate(cardrects(station.showncapacity())):
 			if j < len(station.held):
 				station.held[j].drawcard(rect.center, rect.w)
 			elif j < len(station.held) + len(station.pending):
 				station.pending[j - len(station.held)].drawcard(rect.center, rect.w, alpha = 80)
 			else:
-				color = 10, 10, 10
-				pview.screen.fill(color, rect)
-				color = math.imix(color, (0, 0, 0), 0.5)
-				pview.screen.fill(color, rect.inflate(T(-2), T(-2)))
+				things.drawemptycard(rect.center, rect.w)
 		if station.mission:
-			ptext.draw("Current mission: %s" % " ".join(station.mission.need), topleft = T(10, 600), fontsize = T(22), owidth = 1)
+			ptext.draw("Crew needed for current mission:", topleft = T(10, 260), fontsize = T(22), owidth = 1)
+			for j, name in enumerate(station.mission.need):
+				size = T(48)
+				pos = T(40 + 54 * j, 312)
+				things.Pop(name).drawcard(pos, size, fade = 1, alpha = 255)
+				
 
 	def drawcarinfo(self):
 		if state.currentstation():
@@ -256,9 +258,9 @@ class PlayScene(scene.Scene):
 
 def cardrects(n):
 	for j in range(n):
-		jy, jx = divmod(j, 10)
-		size = T(72)
-		pos = T(40 + 80 * jx, 400 + 80 * jy)
+		jy, jx = divmod(j, 6)
+		size = T(64)
+		pos = T(60 + 72 * jx, 500 + 72 * jy)
 		rect = pygame.Rect(0, 0, size, size)
 		rect.center = pos
 		yield rect
@@ -268,10 +270,10 @@ def cardrects(n):
 
 # TODO: some other module about game mechanics.
 stationinfo = {
-	"Ground Control": "The surface of ALIENWORLD. Unlimited capacity. You can assign as many people here as you want.",
-	"LowOrbiton": "Many spacecraft orbit at this level. You can trade goods here (not implemented yet).",
-	"Skyburg": "The slightly reduced gravity at this level is ideal for training. You can assign workers new roles here (not implemented yet).",
-	"Last Ditch": "The main communications array. If you upgrade the antenna enough, you might just hear something new.... (not implemented yet)",
+	"Ground Control": "This complex, located on the surface of Xenophoton, is the base of operations for the space elevator. You can assign as many people here as you want, and open as many ports as you want. Be sure to check out the gift shop!",
+	"LowOrbiton": "Many spacecraft orbit at this level.",
+	"Skyburg": "The slightly reduced gravity at this level is ideal for training.",
+	"Last Ditch": "The main communications array.",
 	"Stationary": "The level of stationary orbit. Zero gravity.",
 	"Counterweight": "Centrifugal force pulls you outward here. Ideal for launching deep-space vessels.",
 }

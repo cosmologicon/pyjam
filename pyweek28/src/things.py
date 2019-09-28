@@ -58,8 +58,16 @@ def getpopcard(name, color, size, alpha = 255):
 	surf = pygame.Surface((120, 120)).convert_alpha()
 	surf.fill(color)
 	surf.fill(math.imix((0, 0, 0), color, 0.5), (6, 6, 108, 108))
-	ptext.draw(name[0].upper(), surf = surf, center = (60, 60), fontsize = 100, owidth = 1.5)
-	ptext.draw(name.title(), surf = surf, center = (60, 96), fontsize = 30, owidth = 1.5)
+	if name:
+		fname = {
+			"worker": "16",
+			"sci": "33",
+			"tech": "24",
+		}[name]
+		img = pygame.image.load("img/%s.png" % fname).convert_alpha()
+		surf.blit(pygame.transform.smoothscale(img, (120, 120)), (0, 0))
+#		ptext.draw(name[0].upper(), surf = surf, center = (60, 60), fontsize = 100, owidth = 1.5)
+		ptext.draw(name.title(), surf = surf, center = (60, 96), fontsize = 30, owidth = 1.5)
 	return surf
 
 # Member of the population, a person
@@ -80,6 +88,11 @@ class Pop(Passenger):
 		pview.screen.blit(surf, rect)
 		if self.htargets:
 			ptext.draw(self.htargets[-1].name[0], topright = rect.topright, fontsize = T(size/2), owidth = 1)
+
+def drawemptycard(pos, size):
+	surf = getpopcard("", (60, 60, 60), size, 50)
+	rect = surf.get_rect(center = pos)
+	pview.screen.blit(surf, rect)
 
 
 class Holder:
