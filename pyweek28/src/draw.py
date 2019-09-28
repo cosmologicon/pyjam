@@ -212,6 +212,37 @@ def cable():
 		yV -= h
 	_lastcablez = view.zW0
 
+@lru_cache(1000)
+def portimg(size, blocked, inuse, tick, flip):
+	if flip:
+		return pygame.transform.flip(portimg(size, blocked, inuse, tick, False), False, True)
+	img0 = pygame.Surface((1, 10)).convert()
+	if blocked:
+		img0.fill((30, 0, 0))
+	else:
+		color0 = (255, 255, 255) if inuse else (80, 80, 200)
+		for y in range(10):
+			color = math.imix(color0, (0, 0, 0), (y + tick) % 10 / 10)
+			img0.set_at((0, y), color)
+	return pygame.transform.scale(img0, size)
+
+def portlights(station):
+	if not view.visible(station.z, 10):
+		return
+	h = T(1.5 * view.zoom)
+	t = int(pygame.time.get_ticks() * 0.007) % 10
+	for A, (y, x) in enumerate(math.CSround(8)):
+		beta = view.dA(A, view.A) * math.tau / 8
+		f, dx = math.CS(beta)
+		w = T(0.3 * view.zoom * f)
+		if w < 0:
+			continue
+		img = portimg((w, h), station.blocked[A], station.portinuse(A), t, True)
+		pview.screen.blit(img, img.get_rect(center = view.worldtoview((x, y, station.z + 4))))
+		img = portimg((w, h), station.blocked[A], station.portinuse(A), t, False)
+		pview.screen.blit(img, img.get_rect(center = view.worldtoview((x, y, station.z - 4))))
+
+
 def sparkdatum():
 	pW = math.norm([random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1)])
 	speed = random.uniform(2, 4)

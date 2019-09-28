@@ -99,7 +99,7 @@ class PlayScene(scene.Scene):
 		station = state.currentstation()
 		if not station: return
 		if view.A in range(8):
-			station.blocked[view.A] = not station.blocked[view.A]
+			station.toggleblock(view.A)
 	def canfix(self):
 		car = state.carat(view.zW0, view.A, dz = 3)
 		return car and car.broken
@@ -176,6 +176,7 @@ class PlayScene(scene.Scene):
 			return sortkey, draw.drawelement, args
 		coms = [drawargs(espec) for espec in especs]
 		coms.append((1, draw.cable, []))
+		coms.extend([(1.001, draw.portlights, [station]) for station in state.stations])
 		for car in state.cars:
 			if car.broken:
 				pW = car.worldpos()
@@ -198,6 +199,7 @@ class PlayScene(scene.Scene):
 
 		text = "\n".join([
 			"Current population: %d / %s" % (len(station.held), (station.capacity if station.capacity < 100000 else "unlimited")),
+			"Port capacity: %d / 8" % station.portcapacity(),
 		])
 		ptext.draw(text, bottomleft = T(10, 360), fontsize = T(22), width = T(400), owidth = 1)
 		for j, rect in enumerate(cardrects(station.showncapacity())):

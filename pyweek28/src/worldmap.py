@@ -70,6 +70,10 @@ def draw(pstation, pcar):
 		for A, blocked in enumerate(station.blocked):
 			if blocked:
 				ptext.draw("X", center = pos(station.z, A), color = "red", ocolor = "white", fontsize = T(14), owidth = 1)
+		for car in state.cars:
+			if station in car.stationtargets():
+				ptext.draw("O", center = pos(station.z, car.A), color = "blue", ocolor = "white", fontsize = T(14), owidth = 1)
+				
 			
 
 	for car in state.cars:

@@ -3,7 +3,7 @@
 from __future__ import division
 import pygame, random, math
 from functools import lru_cache
-from . import pview, view, quest, state, draw, ptext
+from . import pview, view, quest, state, draw, ptext, sound
 from .pview import T
 
 # Base class for all kinds of passengers/inhabitants of a car or station.
@@ -111,7 +111,46 @@ class Station(Holder):
 		self.quests = []
 		self.mission = None
 		self.t = 0
-		self.blocked = [False for _ in range(8)]
+		self.blocked = [self.portcapacity() < 8 for _ in range(8)]
+		self.unblockseq = [A for A in range(8)]
+	def toggleblock(self, A):
+		if not self.blocked[A]:
+			self.blocked[A] = True
+			sound.playsound("yes")
+		else:
+			capacity = self.portcapacity()
+			nopen = sum(not b for b in self.blocked)
+			if nopen < capacity:
+				canunblock = True
+			elif nopen == capacity:
+				bA = self.toblock()
+				if bA is None:
+					canunblock = False
+				else:
+					self.blocked[bA] = True
+					canunblock = True
+			else:
+				canunblock = False
+			if canunblock:
+				self.blocked[A] = False
+				sound.playsound("yes")
+				if A in self.unblockseq:
+					self.unblockseq.remove(A)
+				self.unblockseq.append(A)
+			else:
+				sound.playsound("no")
+	def portcapacity(self):
+		if self.name == "Ground Control":
+			return 8
+		return state.portcapacity[min(len(self.held), len(state.portcapacity))]
+	def toblock(self):
+		for A in self.unblockseq:
+			if self.blocked[A] or self.portinuse(A):
+				continue
+			return A
+		return None
+	def portinuse(self, A):
+		return any(car.A == A and self in car.stationtargets() for car in state.cars)
 	def showncapacity(self):
 		# If unlimited capacity (i.e. over 100000), show just the current occupants
 		return self.capacity if self.capacity < 100000 else len(self.held) + len(self.pending)
@@ -162,6 +201,11 @@ class Car(Holder):
 	def cantransport(self, zfrom, zto):
 		if not self.canaddpassenger(): return False
 		return not any(state.stationat(z).blocked[self.A] for z in (zfrom, zto))
+	def stationtargets(self):
+		stations = [s for p in self.pending for s in p.htargets if isinstance(s, Station)]
+		if self.targetz:
+			stations.append(state.stationat(self.targetz))
+		return stations
 	def think(self, dt):
 		self.fjostle = math.approach(self.fjostle, 0, 1.5 * dt)
 		self.brokefactor = math.approach(self.brokefactor, (4 if self.broken else 1), 3 * dt)
