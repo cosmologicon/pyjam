@@ -1,13 +1,13 @@
 from __future__ import division
 import os,pygame
-from . import settings, scene, playscene, view, ptext, pview,titlescreen
+from . import settings, scene, playscene, view, ptext, pview,titlescreen, sound
 from .pview import T
 
 pview.SCREENSHOT_DIRECTORY = "screenshots"
 
 ptext.DEFAULT_SHADE = 1
 ptext.FONT_NAME_TEMPLATE = os.path.join("fonts", "%s.ttf")
-pygame.mixer.init()
+sound.init()
 scene.push(titlescreen.Title())
 
 view.init()

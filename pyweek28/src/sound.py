@@ -4,6 +4,17 @@ from . import settings
 
 pygame.mixer.pre_init(frequency=22050, size=-16, channels=2, buffer=1000)
 
+
+def init():
+	global rush
+	pygame.mixer.init()
+	rush = getsound("time_stop")
+	rush.set_volume(0)
+	rush.play(-1)
+
+def setrushvolume(volume):
+	rush.set_volume(volume)
+
 musicplaying = None
 def playmusic(mname):
 	global musicplaying

@@ -17,7 +17,7 @@
 
 from __future__ import division
 import pygame, math
-from . import settings, pview, state
+from . import settings, pview, state, sound
 from .pview import T
 
 # A is an angle around the central axis, in units of 1/8th of a rotation clockwise starting at North.
@@ -95,11 +95,13 @@ def init():
 
 def think(dt):
 	global A
+	oldz = zW0
 	if cmode == "z":
 		updatecamera_z(dt)
 	if cmode == "car":
 		updatecamera_car(dt)
-
+	v = abs(oldz - zW0) / max(dt, 0.001)
+	sound.setrushvolume(math.clamp(math.sqrt(v / 1000), 0, 1))
 	A = Aapproach(A, targetA, 10 * dt)
 	
 
