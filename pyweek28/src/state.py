@@ -38,6 +38,7 @@ class progress:
 	cars = 2
 	carupgrades = 0
 	missions = 0
+	done = False
 
 
 
@@ -52,6 +53,8 @@ def completemission(reward):
 		stations.append(things.Station("Stationary", 7200, progress.capacity))
 	if progress.missions == 20:
 		stations.append(things.Station("Last Ditch", 3700, progress.capacity))
+	if progress.missions == 30:
+		progress.done = True
 		
 	if reward == "capacity":
 		progress.capacity += 1

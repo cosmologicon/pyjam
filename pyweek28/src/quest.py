@@ -90,6 +90,21 @@ class TutorialQuest(Quest):
 			self.done = True
 			dialog.helptext()
 
+class ChatQuest(Quest):
+	def think(self, dt):
+		if self.step == 0 and state.progress.missions >= 3:
+			dialog.startconvo("chat1")
+			self.advance()
+		if self.step == 1 and state.progress.missions >= 8:
+			dialog.startconvo("chat2")
+			self.advance()
+		if self.step == 2 and state.progress.missions >= 13:
+			dialog.startconvo("chat3")
+			self.advance()
+		if self.step == 3 and state.progress.done:
+			dialog.startconvo("end")
+			self.done = True
+
 class TestQuest(Quest):
 	def think(self, dt):
 		Quest.think(self, dt)

@@ -1,6 +1,6 @@
 from __future__ import division
 import pygame, math, random
-from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest, hud, sound
+from . import scene, pview, view, ptext, draw, state, worldmap, things, dialog, quest, hud, sound, settings
 from .pview import T
 
 
@@ -16,7 +16,7 @@ class PlayScene(scene.Scene):
 		state.updatemissions()
 		quest.start(quest.TutorialQuest())
 		quest.start(quest.FixQuest())
-		dialog.startconvo("test")
+		quest.start(quest.ChatQuest())
 
 		state.cars = [
 			things.Car(0, j) for j in [0, 3]
@@ -51,10 +51,8 @@ class PlayScene(scene.Scene):
 			self.seekcar()
 		if pygame.K_b in kdowns:
 			self.toggleblock()
-		if pygame.K_1 in kdowns:
-			self.adjustassignment(-1)
-		if pygame.K_2 in kdowns:
-			self.adjustassignment(1)
+		if settings.DEBUG and pygame.K_F2 in kdowns:
+			state.completemission("worker")
 		if mdown:
 			self.handlemousedown()
 
@@ -160,10 +158,11 @@ class PlayScene(scene.Scene):
 		self.drawstationinfo()
 		self.drawcarinfo()
 		text = "\n".join([
-			"Station: %s" % (state.currentstationname(),),
+#			"Station: %s" % (state.currentstationname(),),
+			"Missions completed: %d" % (state.progress.missions,),
 			"Altitude: %d km" % (round(view.zW0),),
 		])
-#		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1.5)
+		ptext.draw(text, fontsize = T(32), bottomleft = T(200, 720), owidth = 1.5)
 		self.drawcompass()
 		self.hud.draw()
 		dialog.draw()

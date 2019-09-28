@@ -4,9 +4,8 @@ from . import pview, ptext
 from .pview import T
 
 # How long to show a line of dialog by default.
-# If we actually get audio recordings we'll use the length of the sound file instead.
 def tline(line):
-	return 0.3 + 0.08 * len(line)
+	return 0.3 + 0.05 * len(line)
 
 @lru_cache(1000)
 def whoimg(who, size):
@@ -77,11 +76,39 @@ def startconvo(convoname):
 
 convos = {
 	"test": [
-		"Dorgaz: This stupid thing cost 200 billion zoltons! If you can't get it to work, it's coming out of your paycheck!",
+		"Herzud: This stupid thing cost 200 billion zoltons!",
+		"Dorgaz: You hear that, Nerdozog? If you can't get it to work, it's coming out of your paycheck!",
 		"Nerdozog: Geez, bite my head off why don't you?!",
+		"Dorgaz: Believe me, I've considered it....",
+		"Dorgaz: BUT YOU'RE ALL HEAD!",
 		"Alitwon: Let me help you before you hurt yourself.",
 	],
-
+	"chat1": [
+		"Herzud: How can we reach outer space?",
+		"Dorgaz: Well, we have to go up and out",
+		"Herzud: Seems difficult! Let’s get to it!",
+	],
+	"chat2": [
+		"Herzud: From the ground we will go up, up, up, and up!",
+		"Dorgaz: Yes, let’s get to the top of this, we should put up a counterweight to keeps us close to Xenophoton",
+		"Herzud: How high will get us out of this gravitational pull?",
+		"Dorgaz: 10,000 krelmars",
+	],
+	"chat3": [
+		"Herzud: How can we reach outer space?",
+		"Dorgaz: Well, we have to go up and out",
+		"Herzud: Seems difficult! Let’s get to it!",
+	],
+	"end": [
+		"Herzud: Looks like our ships are ready to set sail, and sail it will be.",
+		"Herzud: The scientists have told me that with just a little bit of solar current it turns out that we won’t need any source of fuel here at all.",
+		"Dorgaz: Yup, I hate to say it, but you are the hero of the day",
+		"Alitwon: I know it seems like lightyears away, but we are going to send a crew over to Alphazion 35 for a inter-galactic recruitment trip.",
+		"Herzud: Alphazion 35? Isn't that the home of the hu-mons? Those guys are so weird looking!",
+		"Alitwon: Agreed, but it actually looks like this could turn into a big business venture for us across the galaxy.",
+		"Alitwon: Nerdozog, can you lead the way on this one?",
+		"Nerdozog: Since you asked, certainly.",
+	],
 }
 
 
