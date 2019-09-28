@@ -44,15 +44,20 @@ class progress:
 
 def completemission(reward):
 	from . import things, view
+	sinfo = ""
 	progress.missions += 1
 	if progress.missions == 2:
 		stations.append(things.Station("Upzidazi", 10000, progress.capacity))
+		sinfo = "\n\nNew station built: Upzidazi"
 	if progress.missions == 6:
 		stations.append(things.Station("Lorbiton", 700, progress.capacity))
+		sinfo = "\n\nNew station built: Lorbiton"
 	if progress.missions == 13:
 		stations.append(things.Station("Flotogorb", 7200, progress.capacity))
+		sinfo = "\n\nNew station built: Flotogorb"
 	if progress.missions == 17:
 		stations.append(things.Station("Ettiseek", 3700, progress.capacity))
+		sinfo = "\n\nNew station built: Ettiseek"
 	if progress.missions == 20:
 		progress.done = True
 		
@@ -60,23 +65,23 @@ def completemission(reward):
 		progress.capacity += 1
 		for station in stations:
 			station.capacity = max(progress.capacity, station.capacity)
-		return "Station capacity upgraded"
+		return "Station capacity upgraded" + sinfo
 	if reward == "car":
 		if len(cars) >= 8:
 			progress.carupgrades += 1
-			return "Car speed upgraded"
+			return "Car speed upgraded" + sinfo
 		A = (progress.cars * 3) % 8
 		progress.cars += 1
 		cars.append(things.Car(0, A))
-		return "New car added on %s track" % (view.Anames[A])
+		return "New car added on %s track" % (view.Anames[A]) + sinfo
 	for pname in things.popnames:
 		if reward == pname:
 			things.Pop(pname, stationat(0))
 			if pname == "porter":
-				return "New %s reporting for duty at Ground Control. This crew member allows extra ports to be open." % things.popnames[pname]
+				return "New %s reporting for duty at Ground Control. This crew member allows extra ports to be open." % things.popnames[pname] + sinfo
 			if pname == "fixer":
-				return "New %s reporting for duty at Ground Control. This crew member automatically fixes cars." % things.popnames[pname]
-			return "New %s reporting for duty at Ground Control" % things.popnames[pname]
+				return "New %s reporting for duty at Ground Control. This crew member automatically fixes cars." % things.popnames[pname] + sinfo
+			return "New %s reporting for duty at Ground Control" % things.popnames[pname] + sinfo
 
 portcapacity = [1, 2, 3, 4, 5, 6, 7, 8]
 
