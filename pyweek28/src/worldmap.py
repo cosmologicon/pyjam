@@ -56,7 +56,7 @@ def draw(pstation, pcar):
 			ptext.draw("(!)", center = (T(1050), py), color = "yellow",
 				fontsize = T(28), owidth = 1.5)
 		rect = pygame.Rect(rect.left + T(4), rect.bottom + T(2), T(8), T(8))
-		for j in range(station.capacity):
+		for j in range(station.showncapacity()):
 			if j < len(station.held):
 				color = station.held[j].color()
 			elif j < len(station.held) + len(station.pending):

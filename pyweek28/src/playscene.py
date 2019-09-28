@@ -7,7 +7,8 @@ from .pview import T
 class PlayScene(scene.Scene):
 	def __init__(self):
 		state.stations = [
-			things.Station("LowOrbiton", 400, 5),
+			things.Station("Ground Control", 0, 1000000),
+			things.Station("LowOrbiton", 700, 5),
 			things.Station("Skyburg", 2000, 5),
 			things.Station("Last Ditch", 3700, 5),
 			things.Station("Stationary", 7200, 5),
@@ -17,13 +18,16 @@ class PlayScene(scene.Scene):
 			p = things.Pop(name, state.stations[4])
 		view.seek_z(state.stations[4].z)
 		#state.stations[3].addquest("testquest")
-		state.stations[4].addquest("reallocate")
+#		state.stations[4].addquest("reallocate")
+		state.stations[3].setmission(
+			["sci", "worker"], None
+		)
 
 		state.cars = [
 			things.Car(random.uniform(0, state.top), j) for j in range(8)
 		]
 		self.hud = hud.HUD()
-		self.hud.buttons.append(hud.Button("Claim Quest", (640, 600), size = (160, 160), isvisible = self.availablequest))
+#		self.hud.buttons.append(hud.Button("Claim Quest", (640, 600), size = (160, 160), isvisible = self.availablequest))
 
 		self.up = [pygame.K_UP, pygame.K_w]
 		self.down = [pygame.K_DOWN, pygame.K_s]
@@ -159,6 +163,7 @@ class PlayScene(scene.Scene):
 		draw.stars()
 		draw.atmosphere()
 		self.drawstate()
+		draw.ground()
 
 	# Draw game objects, and the cable.
 	def drawstate(self):
@@ -196,11 +201,13 @@ class PlayScene(scene.Scene):
 			ptext.draw(info, topleft = T(10, 70), fontsize = T(22), width = T(220), owidth = 1)
 		text = "\n".join([
 			"Current population: %d" % len(station.held),
-			"Total capacity: %d" % station.capacity,
+			"Total capacity: %s" % (station.capacity if station.capacity < 100000 else "unlimited"),
 		])
 		ptext.draw(text, topleft = T(10, 260), fontsize = T(22), owidth = 1)
 		for rect, held in station.recthelds():
 			held.drawcard(rect.center, rect.w)
+		if station.mission:
+			ptext.draw("Current mission: %s" % " ".join(station.mission.need), topleft = T(10, 600), fontsize = T(22), owidth = 1)
 
 	def drawcarinfo(self):
 		if state.currentstation():
@@ -233,6 +240,7 @@ class PlayScene(scene.Scene):
 
 # TODO: some other module about game mechanics.
 stationinfo = {
+	"Ground Control": "The surface of ALIENWORLD. Unlimited capacity. You can assign as many people here as you want.",
 	"LowOrbiton": "Many spacecraft orbit at this level. You can trade goods here (not implemented yet).",
 	"Skyburg": "The slightly reduced gravity at this level is ideal for training. You can assign workers new roles here (not implemented yet).",
 	"Last Ditch": "The main communications array. If you upgrade the antenna enough, you might just hear something new.... (not implemented yet)",

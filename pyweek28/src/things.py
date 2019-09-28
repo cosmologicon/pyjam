@@ -109,13 +109,20 @@ class Station(Holder):
 		self.z = z
 		self.messages = []
 		self.quests = []
+		self.mission = None
 		self.t = 0
 		self.blocked = [False for _ in range(8)]
+	def showncapacity(self):
+		# If unlimited capacity (i.e. over 100000), show just the current occupants
+		return self.capacity if self.capacity < 100000 else len(self.held) + len(self.pending)
 	def addquest(self, questname):
 		self.quests.append(questname)
 	def startquest(self, questname):
 		self.quests.remove(questname)
 		quest.start(questname)
+	def setmission(self, need, reward):
+		self.mission = quest.MissionQuest(self, need, reward)
+		quest.start(self.mission)
 	def think(self, dt):
 		self.t += dt
 	def especs(self):
@@ -198,6 +205,10 @@ class Car(Holder):
 # Espec: texturename, xW, yW, zW0, zW1, r0, r1, n, dA, k
 def stationespecs(name, t):
 	dA = 0.1 * t
+	if name == "Ground Control":
+		return [
+			["roundtop", 0, 0, 0, 5, 4, 2, 0.2, 0, 10],
+		]
 	if name == "Counterweight":
 		return [
 			["lowwindow", 0, 0, -1.5, 1, 2, 2.5, 0.2, dA, 10],
@@ -225,12 +236,12 @@ def stationespecs(name, t):
 			["window", 0, 0, -2.5, 0, 1.5, 3.2, 1/10, 0, 12],
 			["window", 0, 0, 0, 2.5, 3.2, 1.5, 10, 0, 12],
 		]
-		for (_, z), (x, y) in zip(math.CSround(3, 2, 0.7 * t), math.CSround(3, 3, 0.5 * t)):
+		for (_, z), (x, y) in zip(math.CSround(3, 2, 2 * t), math.CSround(3, 3, 1.5 * t)):
 			ret += [
 				["gray", x, y, z, z + 0.5, 1, 0, 1/2, 0, 1],
 				["gray", x, y, z - 0.5, z, 0, 1, 2, 0, 1],
 			]
-		for (_, z), (x, y) in zip(math.CSround(5, 2.5, 0.35 * t), math.CSround(5, 4, -0.25 * t)):
+		for (_, z), (x, y) in zip(math.CSround(5, 2.5, 1 * t), math.CSround(5, 4, -1.1 * t)):
 			ret += [
 				["gray", x, y, z, z + 0.5, 1, 0, 1/2, 0, 1],
 				["gray", x, y, z - 0.5, z, 0, 1, 2, 0, 1],
