@@ -8,9 +8,9 @@ class PlayScene(scene.Scene):
 	def __init__(self):
 		state.stations = [
 			things.Station("Ground Control", 0, 1000000),
-			things.Station("Skyburg", 2000, 2),
+			things.Station("Skyburg", 2000, state.progress.capacity),
 		]
-		for name in ["worker", "sci", "tech"]:
+		for name in ["worker", "worker"]:
 			p = things.Pop(name, state.stations[0])
 		view.seek_z(state.stations[0].z)
 		state.updatemissions()
@@ -223,6 +223,7 @@ class PlayScene(scene.Scene):
 				things.drawemptycard(rect.center, rect.w)
 		if station.mission:
 			ptext.draw("Crew needed for current mission:", topleft = T(10, 260), fontsize = T(22), owidth = 1)
+			ptext.draw("Mission reward: %s" % station.mission.reward, topleft = T(20, 350), fontsize = T(20), owidth = 1)
 			for j, name in enumerate(station.mission.need):
 				size = T(48)
 				pos = T(40 + 54 * j, 312)

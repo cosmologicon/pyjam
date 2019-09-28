@@ -34,7 +34,7 @@ def currentcar():
 	return carat(view.zW0, view.A, dz = 3)
 
 class progress:
-	capacity = 2
+	capacity = 1
 	cars = 2
 	carupgrades = 0
 	missions = 0
@@ -59,7 +59,7 @@ def completemission(reward):
 	if reward == "capacity":
 		progress.capacity += 1
 		for station in stations:
-			station.capacity = progress.capacity
+			station.capacity = max(progress.capacity, station.capacity)
 		return "Station capacity upgraded"
 	if reward == "car":
 		if len(cars) >= 8:
@@ -69,27 +69,31 @@ def completemission(reward):
 		progress.cars += 1
 		cars.append(things.Car(0, A))
 		return "New car added on %s track" % (view.Anames[A])
-	if reward == "worker":
-		things.Pop("worker", stationat(0))
-		return "New worker reporting for duty at Ground Control"
+	for pname in ["worker", "sci", "tech"]:
+		if reward == pname:
+			things.Pop(pname, stationat(0))
+			return "New %s reporting for duty at Ground Control" % pname
 
 portcapacity = [1, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7, 8]
 
 missionstacks = {
 	"Skyburg": [
-		(("worker",), "worker"),
+		(("worker",), "tech"),
 		(("tech",), "capacity"),
-		(("worker", "worker", "worker"), "capacity"),
+		(("worker", "worker"), "sci"),
+		(("worker", "worker"), "capacity"),
+		(("worker", "tech", "sci"), "sci"),
+		(("tech", "sci", "sci"), "capacity"),
 	],
 	"Counterweight": [
-		(("worker",), "car"),
-		(("tech",), "car"),
-		(("sci", "tech"), "car"),
+		(("worker", "tech"), "car"),
+		(("worker", "tech", "sci"), "car"),
+		(("sci", "sci", "tech"), "car"),
 	],
 	"LowOrbiton": [
-		(("worker",), "worker"),
-		(("tech",), "worker"),
-		(("sci", "tech"), "worker"),
+		(("worker", "worker", "sci"), "worker"),
+		(("sci", "sci", "tech"), "sci"),
+		(("worker", "worker", "worker", "tech"), "worker"),
 	],
 }
 
