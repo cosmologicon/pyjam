@@ -19,6 +19,7 @@ class PlayScene(scene.Scene):
 		view.seek_z(state.stations[0].z)
 		state.updatemissions()
 		quest.start(quest.TutorialQuest())
+		dialog.startconvo("test")
 
 		state.cars = [
 			things.Car(0, j) for j in [0, 3]
@@ -140,13 +141,13 @@ class PlayScene(scene.Scene):
 					return
 	def clickbutton(self, btext):
 		if btext == "Rotate Left":
-			sound.playsound("yes")
+			sound.playsound("click")
 			view.rotate(1)
 		elif btext == "Rotate Right":
-			sound.playsound("yes")
+			sound.playsound("click")
 			view.rotate(-1)
 		elif btext == "Claim Quest":
-			sound.playsound("yes")
+			sound.playsound("click")
 			self.claimquest()
 		elif btext == "Open/close Port":
 			self.toggleblock()
@@ -235,12 +236,12 @@ class PlayScene(scene.Scene):
 			return
 		car = state.currentcar()
 		if car is None: return
-		ptext.draw("Carrying:", topleft = T(20, 260), fontsize = T(26), owidth = 1)
+		ptext.draw("Carrying:", topleft = T(20, 320), fontsize = T(26), owidth = 1)
 		dest = state.stationat(car.targetz)
 		for rect, held in zip(cardrects(len(car.held)), car.held):
 			held.drawcard(rect.center, rect.w)
 		if dest:
-			ptext.draw("Destination: %s" % dest.name, topleft = T(20, 400), fontsize = T(26), owidth = 1)
+			ptext.draw("Destination: %s" % dest.name, topleft = T(20, 460), fontsize = T(26), owidth = 1)
 
 	# TODO: move to some other module
 	def drawcompass(self):
@@ -265,8 +266,8 @@ def cardrects(n):
 		rect = pygame.Rect(0, 0, size, size)
 		rect.center = pos
 		yield rect
-		
-	
+
+
 
 
 # TODO: some other module about game mechanics.

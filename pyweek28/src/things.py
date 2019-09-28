@@ -116,7 +116,7 @@ class Station(Holder):
 	def toggleblock(self, A):
 		if not self.blocked[A]:
 			self.blocked[A] = True
-			sound.playsound("yes")
+			sound.playsound("machine_off")
 		else:
 			capacity = self.portcapacity()
 			nopen = sum(not b for b in self.blocked)
@@ -133,7 +133,7 @@ class Station(Holder):
 				canunblock = False
 			if canunblock:
 				self.blocked[A] = False
-				sound.playsound("yes")
+				sound.playsound("machine_on")
 				if A in self.unblockseq:
 					self.unblockseq.remove(A)
 				self.unblockseq.append(A)
