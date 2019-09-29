@@ -13,6 +13,7 @@ def init():
 	rush.play(-1)
 
 def setrushvolume(volume):
+	if not settings.sound: return
 	rush.set_volume(volume)
 
 musicplaying = None
