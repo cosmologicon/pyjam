@@ -9,7 +9,8 @@ def pop():
 		del _stack[-1]
 
 def set(sc):
-	_stack.clear()
+	while _stack:
+		pop()
 	push(sc)
 
 def current():
@@ -18,7 +19,9 @@ def current():
 # TODO: pop and swap operations
 # TODO: define and call suspend and resume
 
-class Scene():
+class Scene:
+	def __init__(self):
+		pass
 	# Called when a scene is pushed onto the stack.
 	def init(self):
 		pass

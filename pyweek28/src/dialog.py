@@ -1,6 +1,6 @@
 import math, pygame
-from functools import lru_cache
 from . import pview, ptext
+from .lru_cache import lru_cache
 from .pview import T
 
 # How long to show a line of dialog by default.

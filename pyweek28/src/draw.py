@@ -2,8 +2,8 @@
 
 from __future__ import division
 import pygame, math, random, numpy
-from functools import lru_cache  # TODO: backfill to support Python 2
 from . import pview, state, view
+from .lru_cache import lru_cache
 from .pview import T
 
 

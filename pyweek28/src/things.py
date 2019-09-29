@@ -2,8 +2,8 @@
 
 from __future__ import division
 import pygame, random, math
-from functools import lru_cache
 from . import pview, view, quest, state, draw, ptext, sound
+from .lru_cache import lru_cache
 from .pview import T
 
 popnames = {

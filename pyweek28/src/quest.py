@@ -18,6 +18,8 @@ def think(dt):
 
 
 class Quest:
+	def __init__(self):
+		pass
 	def start(self):
 		self.done = False
 		self.step = 0

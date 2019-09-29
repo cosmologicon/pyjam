@@ -9,7 +9,7 @@ point_list =[]
 
 class Title(scene.Scene):
     def __init__(self):
-        super(Title,self).__init__()
+        scene.Scene.__init__(self)
         sound.playmusic('carnivalrides')
 
 

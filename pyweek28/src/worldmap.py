@@ -1,8 +1,8 @@
 # Draw the right-hand panel
 
 import pygame, math
-from functools import lru_cache
 from . import pview, state, view, ptext
+from .lru_cache import lru_cache
 from .pview import T
 
 # In view coordinates

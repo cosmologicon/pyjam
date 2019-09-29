@@ -1,5 +1,5 @@
 import pygame, math
-from functools import lru_cache
+from .lru_cache import lru_cache
 from . import pview, ptext
 from .pview import T
 
