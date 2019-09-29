@@ -120,7 +120,8 @@ def gettexture(tname):
 		surf = pygame.Surface((1, 1)).convert()
 		surf.fill((120, 120, 120))
 	elif tname == "rock":
-		surf = pygame.Surface((100, 100)).convert()
+		surf = pygame.Surface((100, 100)).convert_alpha()
+		surf.fill((100, 100, 100, 255))
 		pygame.surfarray.pixels3d(surf)[:,:] = (numpy.random.random_sample((100, 100, 1)) * 10 + 60).astype(int)
 	elif tname == "hatch":
 		w = 20

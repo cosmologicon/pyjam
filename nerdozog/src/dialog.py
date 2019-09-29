@@ -1,4 +1,4 @@
-import math, pygame
+import math, pygame, os.path
 from . import pview, ptext
 from .lru_cache import lru_cache
 from .pview import T
@@ -11,8 +11,7 @@ def tline(line):
 def whoimg(who, size):
 	if size is not None:
 		return pygame.transform.smoothscale(whoimg(who, None), (size, size))
-	return pygame.image.load("img/%s.png" % who)
-	
+	return pygame.image.load(os.path.join("img", "%s.png" % who))	
 
 class Dialog:
 	def __init__(self):

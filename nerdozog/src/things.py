@@ -1,7 +1,7 @@
 # Game entities
 
 from __future__ import division
-import pygame, random, math
+import pygame, random, math, os.path
 from . import pview, view, quest, state, draw, ptext, sound
 from .lru_cache import lru_cache
 from .pview import T
@@ -75,7 +75,7 @@ def getpopcard(name, color, size, alpha = 255):
 			"porter": "26",
 			"fixer": "7",
 		}[name]
-		img = pygame.image.load("img/%s.png" % fname).convert_alpha()
+		img = pygame.image.load(os.path.join("img", "%s.png" % fname)).convert_alpha()
 		surf.blit(pygame.transform.smoothscale(img, (120, 120)), (0, 0))
 #		ptext.draw(name[0].upper(), surf = surf, center = (60, 60), fontsize = 100, owidth = 1.5)
 		ptext.draw(popnames[name], surf = surf, center = (60, 96), fontsize = 30, owidth = 1.5)
