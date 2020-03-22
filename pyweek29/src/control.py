@@ -18,7 +18,7 @@ def init():
 def think(dt):
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
-			playing = False
+			self.queue.append("quit")
 		if event.type == pygame.KEYDOWN:
 			for key, keycodes in settings.keys.items():
 				if event.key in keycodes:

@@ -1,24 +1,12 @@
 import pygame, statistics, math
-from . import pview, view, thing, state, settings, scene, control
+from . import pview, view, thing, state, settings, scene, control, level
 from .pview import T
 
 class self:
 	pass
 
 def init():
-	state.w = 4
-	state.h = 6
-	state.thang = 1
-	state.maxleaps = 1
-	state.ngoal = 0
-	state.you = thing.You()
-	state.leps = [
-		thing.Lep((1, 2), [(1, 1)]),
-		thing.Lep((2, 1), [(0, 1)]),
-		thing.Lep((3, 3), [(0, 1)]),
-		thing.GoalLep((1, 4)),
-	]
-	state.held = None
+	level.load()
 	self.winning = False
 	self.alpha = 1
 
@@ -48,17 +36,17 @@ def draw():
 		lep.draw()
 
 	# Right panel
-	pview.fill((80, 80, 100, 220), T(pygame.Rect(1280 - 240, 0, 240, 720)))
+	pview.fill((80, 80, 100, 220), T(view.rrect))
 	for p0, p1 in gridlines:
 		pygame.draw.line(pview.screen, (255, 0, 255), view.worldtomap(p0), view.worldtomap(p1), T(1))
 	state.you.drawmap()
 	for lep in state.leps:
 		lep.drawmap()
-	mcenter = T(1280 - 120, 70)
+	mcenter = T(view.rrect.centerx, 70)
 	pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50), T(2))
 	pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50 * state.you.jumpmeter()))
 	for j in range(state.maxleaps):
-		pos = T(1280 - 120 + 60 * ((state.maxleaps - 1) / 2 + j), 160)
+		pos = T(view.rrect.centerx + 60 * (-(state.maxleaps - 1) / 2 + j), 160)
 		if j < state.leaps:
 			pygame.draw.circle(pview.screen, (255, 200, 80), pos, T(24))
 		else:

@@ -28,12 +28,14 @@ class Lep:
 		self.charged = False
 		self.nabbed = True
 		state.held = self
+#		state.leps.remove(self)
 	def release(self, who):
 		self.x = who.x
 		self.y = who.y
 		self.charged = False
 		self.nabbed = False
 		state.held = None
+#		state.leps.append(self)
 	def draw0(self, topos, zoom):
 		dx, dy = 0.5, 0.5
 		pos = topos((self.x + dx, self.y + dy))
@@ -44,7 +46,7 @@ class Lep:
 		if self.charged:
 			pygame.draw.circle(pview.screen, self.color, pos, r)
 		else:
-			pygame.draw.circle(pview.screen, self.color, pos, r, T(4))
+			pygame.draw.circle(pview.screen, self.color, pos, r, min(T(4), r))
 		if not self.nabbed:
 			fs = (0, 0.5), (0.05, 0.35), (0, 0.4), (-0.05, 0.35)
 			for dx, dy in self.ds:

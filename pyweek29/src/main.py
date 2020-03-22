@@ -19,6 +19,12 @@ while playing:
 	for keys in control.get():
 		if "quit" in keys:
 			playing = False
+		elif "screenshot" in keys:
+			pview.screenshot()
+		elif "fullscreen" in keys:
+			pview.toggle_fullscreen()
+		elif "resolution" in keys:
+			pview.cycle_height(settings.heights)
 		elif current:
 			current.control(keys)
 	if current:
@@ -31,7 +37,9 @@ while playing:
 		text = "\n".join([
 			"%.1ffps" % clock.get_fps(),
 			"Leaps: %d/%d" % (state.leaps, state.maxleaps),
-			"thang: %.2f/%.2f" % (state.you.thang, state.thang),
+#			"thang: %.2f/%.2f" % (state.you.thang, state.thang),
+			"leps: %d" % len(state.leps),
+			"Held: %s" % (state.held and (state.held.x, state.held.y, state.held.nabbed),)
 		])
 		ptext.draw(text, bottomleft = pview.bottomleft, fontsize = T(24), owidth = 1)
 	pygame.display.flip()
