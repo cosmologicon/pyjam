@@ -5,16 +5,25 @@ from .pview import T
 def collide(obj0, obj1):
 	return (obj0.x, obj0.y) == (obj1.x, obj1.y)
 
+def pickany(objs):
+	objs = list(objs)
+	return objs[0] if objs else None
+
 class Lep:
-	def __init__(self, pos):
+	def __init__(self, pos, ds):
 		self.x, self.y = pos
 		self.charged = True
+		self.ds = ds
 		self.color = 255, 255, 255
 		self.nabbed = False
-	def expend(self):
-		self.charged = False
-		state.leaps = min(state.leaps + 1, state.maxleaps)
-		sound.play("recharge")
+	def canboost(self, d):
+		return self.charged and d in self.ds
+#	def expend(self):
+#		self.charged = False
+#		state.leaps = min(state.leaps + 1, state.maxleaps)
+#		sound.play("recharge")
+	def encounter(self):
+		pass
 	def nab(self):
 		self.charged = False
 		self.nabbed = True
@@ -37,6 +46,16 @@ class Lep:
 		else:
 			pygame.draw.circle(pview.screen, self.color, pos, r, T(4))
 
+class GoalLep(Lep):
+	def __init__(self, pos):
+		Lep.__init__(self, pos, [])
+		self.color = 255, 255, 0
+		self.encountered = False
+	def encounter(self):
+		self.encountered = True
+		state.ngoal += 1
+
+
 class You:
 	def __init__(self):
 		self.x, self.y = 0, 0
@@ -45,7 +64,6 @@ class You:
 		self.thang = 0
 		self.vy = 0
 	def control(self, kdowns):
-		print(kdowns)
 		if pygame.K_SPACE in kdowns:
 			print(self.state)
 			if self.state == "jumping":
@@ -55,7 +73,6 @@ class You:
 				if lepshere:
 					lepshere[0].nab()
 					sound.play("nab")
-				print(lepshere, state.held)
 		dx = int(pygame.K_RIGHT in kdowns) - int(pygame.K_LEFT in kdowns)
 		dy = int(pygame.K_UP in kdowns) - int(pygame.K_DOWN in kdowns)
 		if not dx and not dy:
@@ -65,9 +82,17 @@ class You:
 		if not 0 <= self.x + dx < state.w:
 			sound.play("no")
 			return
-		if self.state == "jumping" and state.leaps == 0:
+
+		dleap = 1
+		lepat = pickany(lep for lep in state.leps if collide(state.you, lep) and lep.canboost((dx, dy)))
+		if lepat:
+			dleap -= 1
+			lepat.charged = False
+
+		if self.state == "jumping" and state.leaps - dleap < 0:
 			sound.play("no")
 			return
+
 		self.x += dx
 		self.y += dy
 		if self.state == "grounded":
@@ -75,13 +100,13 @@ class You:
 			if dy > 0:
 				self.state = "jumping"
 				self.thang = 0
-				state.leaps -= 1
+				state.leaps -= dleap
 		elif self.state == "jumping":
-			state.leaps -= 1
+			state.leaps -= dleap
 			self.thang = 0
 		for lep in state.leps:
-			if lep.charged and (self.x, self.y) == (lep.x, lep.y):
-				lep.expend()
+			if collide(state.you, lep):
+				lep.encounter()
 	def think(self, dt):
 		if self.state == "jumping":
 			self.thang = math.approach(self.thang, state.thang, dt)

@@ -1,6 +1,5 @@
-import statistics
-import pygame
-from . import pview, view, thing, state, settings
+import pygame, statistics, math
+from . import pview, view, thing, state, settings, scene
 from .pview import T
 
 class self:
@@ -10,18 +9,31 @@ def init():
 	state.w = 10
 	state.h = 10
 	state.thang = 1
-	state.maxleaps = 3
+	state.maxleaps = 1
+	state.ngoal = 0
 	state.you = thing.You()
 	state.leps = [
-		thing.Lep((1, 2)),
-		thing.Lep((2, 1)),
+		thing.Lep((1, 2), [(0, 1)]),
+		thing.Lep((2, 1), [(0, 1)]),
+		thing.Lep((3, 3), [(0, 1)]),
+		thing.GoalLep((4, 4)),
 	]
 	state.held = None
 	self.tcombo = 0
 	self.ckeys = set()
 	self.tspan = 0
+	self.winning = False
+	self.alpha = 1
 
 def think(dt, kdowns):
+	self.winning = state.ngoal >= 1
+	if self.winning:
+		kdowns = set()
+		self.alpha = math.approach(self.alpha, 1, 5 * dt)
+		if self.alpha == 1:
+			scene.pop()
+	else:
+		self.alpha = math.approach(self.alpha, 0, 5 * dt)
 	if pygame.K_SPACE in kdowns:
 		state.you.control([pygame.K_SPACE])
 		if self.ckeys:
@@ -54,6 +66,8 @@ def draw():
 	state.you.draw()
 	for lep in state.leps:
 		lep.draw()
+	if self.alpha:
+		pview.fill((255, 255, 255, int(255 * self.alpha)))
 
 
 tspans = []

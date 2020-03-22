@@ -25,6 +25,8 @@ while playing:
 	if current:
 		current.think(dt, kdowns)
 		current.draw()
+	else:
+		playing = False
 
 	if settings.DEBUG:
 		text = "\n".join([
