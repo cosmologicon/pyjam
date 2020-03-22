@@ -11,8 +11,6 @@ def init():
 	pview.set_mode(size0 = settings.size0, height = settings.height0,
 		fullscreen = settings.fullscreen, forceres = settings.forceres)
 
-
-
 def think(dt):
 	global cx, cy
 	target = state.you.x, state.you.y
@@ -22,6 +20,18 @@ def worldtoscreen(pos):
 	x, y = pos
 	x = pview.centerx0 + zoom * (x - cx)
 	y = pview.centery0 - zoom * (y - cy)
+	return T(x, y)
+
+def mapzoom():
+	return 240 / (state.w + 3)
+
+def worldtomap(pos):
+	x, y = pos
+	x0 = 1280 - 240 / 2
+	y0 = 620
+	mzoom = mapzoom()
+	x = x0 + mzoom * (x - state.w / 2)
+	y = y0 - mzoom * y
 	return T(x, y)
 
 

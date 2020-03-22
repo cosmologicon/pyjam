@@ -34,17 +34,28 @@ class Lep:
 		self.charged = False
 		self.nabbed = False
 		state.held = None
-	def draw(self):
+	def draw0(self, topos, zoom):
 		dx, dy = 0.5, 0.5
-		pos = view.worldtoscreen((self.x + dx, self.y + dy))
+		pos = topos((self.x + dx, self.y + dy))
 		if self.nabbed:
 			dx, dy = 0.8, 0.8
-			pos = view.worldtoscreen((state.you.x + dx, state.you.y + dy))
-		r = T(0.1 * view.zoom)
+			pos = topos((state.you.x + dx, state.you.y + dy))
+		r = T(0.1 * zoom)
 		if self.charged:
 			pygame.draw.circle(pview.screen, self.color, pos, r)
 		else:
 			pygame.draw.circle(pview.screen, self.color, pos, r, T(4))
+		if not self.nabbed:
+			fs = (0, 0.5), (0.05, 0.35), (0, 0.4), (-0.05, 0.35)
+			for dx, dy in self.ds:
+				R = math.R(math.atan2(-dx, dy))
+				rfs = [R(f) for f in fs]
+				ps = [topos((self.x + 0.5 + rfx, self.y + 0.5 + rfy)) for rfx, rfy in rfs]
+				pygame.draw.polygon(pview.screen, self.color, ps)
+	def draw(self):
+		self.draw0(view.worldtoscreen, view.zoom)
+	def drawmap(self):
+		self.draw0(view.worldtomap, view.mapzoom())
 
 class GoalLep(Lep):
 	def __init__(self, pos):
@@ -63,6 +74,13 @@ class You:
 		state.leaps = state.maxleaps
 		self.thang = 0
 		self.vy = 0
+	def jumpmeter(self):
+		if self.state == "grounded":
+			return 1
+		if self.state == "falling":
+			return 0
+		if self.state == "jumping":
+			return 1 - self.thang / state.thang
 	def control(self, kdowns):
 		if pygame.K_SPACE in kdowns:
 			print(self.state)
@@ -125,6 +143,10 @@ class You:
 	def draw(self):
 		pos = view.worldtoscreen((self.x + 0.5, self.y + 0.5))
 		r = T(0.25 * view.zoom)
+		pygame.draw.circle(pview.screen, (200, 180, 40), pos, r, T(4))
+	def drawmap(self):
+		pos = view.worldtomap((self.x + 0.5, self.y + 0.5))
+		r = T(0.25 * view.mapzoom())
 		pygame.draw.circle(pview.screen, (200, 180, 40), pos, r, T(4))
 
 
