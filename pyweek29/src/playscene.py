@@ -1,5 +1,5 @@
 import pygame, statistics, math
-from . import pview, view, thing, state, settings, scene
+from . import pview, view, thing, state, settings, scene, control
 from .pview import T
 
 class self:
@@ -19,13 +19,13 @@ def init():
 		thing.GoalLep((1, 4)),
 	]
 	state.held = None
-	self.tcombo = 0
-	self.ckeys = set()
-	self.tspan = 0
 	self.winning = False
 	self.alpha = 1
 
-def think(dt, kdowns):
+def control(keys):
+	state.you.control(keys)
+
+def think(dt):
 	self.winning = state.ngoal >= 1
 	if self.winning:
 		kdowns = set()
@@ -34,22 +34,6 @@ def think(dt, kdowns):
 			scene.pop()
 	else:
 		self.alpha = math.approach(self.alpha, 0, 5 * dt)
-	if pygame.K_SPACE in kdowns:
-		state.you.control([pygame.K_SPACE])
-		if self.ckeys:
-			self.tcombo = settings.dtcombo
-	for key in [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]:
-		if key in kdowns:
-			self.ckeys.add(key)
-			self.tspan = self.tcombo
-	if self.ckeys:
-		self.tcombo += dt
-		if self.tcombo >= settings.dtcombo:
-			state.you.control(self.ckeys)
-			self.tcombo = 0
-			self.ckeys = set()
-			if self.tspan > 0:
-				learntspan(self.tspan)
 	state.you.think(dt)
 	view.think(dt)
 
@@ -83,14 +67,4 @@ def draw():
 	if self.alpha:
 		pview.fill((255, 255, 255, int(255 * self.alpha)))
 
-
-tspans = []
-def learntspan(t):
-	tspans.append(t)
-	if settings.DEBUG and len(tspans) % 10 == 0:
-		mu = statistics.mean(tspans)
-		sigma = statistics.stdev(tspans)
-		h = mu + 5 * sigma
-		print("learntspan", len(tspans), max(tspans), mu, sigma, h,
-			statistics.mean(tspan > h for tspan in tspans))
 

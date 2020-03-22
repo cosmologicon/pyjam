@@ -82,8 +82,7 @@ class You:
 		if self.state == "jumping":
 			return 1 - self.thang / state.thang
 	def control(self, kdowns):
-		if pygame.K_SPACE in kdowns:
-			print(self.state)
+		if "act" in kdowns:
 			if self.state == "jumping":
 				lepshere = [lep for lep in state.leps if collide(self, lep)]
 				if state.held:
@@ -91,8 +90,10 @@ class You:
 				if lepshere:
 					lepshere[0].nab()
 					sound.play("nab")
-		dx = int(pygame.K_RIGHT in kdowns) - int(pygame.K_LEFT in kdowns)
-		dy = int(pygame.K_UP in kdowns) - int(pygame.K_DOWN in kdowns)
+		if "combo" not in kdowns:
+			return
+		dx = int("right" in kdowns) - int("left" in kdowns)
+		dy = int("up" in kdowns) - int("down" in kdowns)
 		if not dx and not dy:
 			return
 		if self.state == "falling":

@@ -1,8 +1,9 @@
 import pygame
-from . import settings, view, pview, scene, playscene, ptext, state
+from . import settings, view, pview, scene, playscene, ptext, state, control
 from .pview import T
 
 view.init()
+control.init()
 pygame.display.set_caption(settings.gamename)
 
 scene.push(playscene)
@@ -11,19 +12,16 @@ clock = pygame.time.Clock()
 playing = True
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
-	kdowns = set()
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			playing = False
-		if event.type == pygame.KEYDOWN:
-			kdowns.add(event.key)
-
-	if pygame.K_ESCAPE in kdowns:
-		playing = False
+	control.think(dt)
 	
 	current = scene.top()
+	for keys in control.get():
+		if "quit" in keys:
+			playing = False
+		elif current:
+			current.control(keys)
 	if current:
-		current.think(dt, kdowns)
+		current.think(dt)
 		current.draw()
 	else:
 		playing = False
