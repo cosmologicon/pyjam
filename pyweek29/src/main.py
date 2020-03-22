@@ -1,5 +1,6 @@
 import pygame
-from . import settings, view, pview, scene, playscene
+from . import settings, view, pview, scene, playscene, ptext, state
+from .pview import T
 
 view.init()
 pygame.display.set_caption(settings.gamename)
@@ -26,7 +27,12 @@ while playing:
 		current.draw()
 
 	if settings.DEBUG:
-		pygame.display.set_caption("%s %.1ffps" % (settings.gamename, clock.get_fps()))
+		text = "\n".join([
+			"%.1ffps" % clock.get_fps(),
+			"Leaps: %d/%d" % (state.leaps, state.maxleaps),
+			"thang: %.2f/%.2f" % (state.you.thang, state.thang),
+		])
+		ptext.draw(text, bottomleft = pview.bottomleft, fontsize = T(24), owidth = 1)
 	pygame.display.flip()
 
 

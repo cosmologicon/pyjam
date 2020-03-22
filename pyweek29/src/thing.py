@@ -1,22 +1,73 @@
-import pygame
-from . import view, pview
+import pygame, math
+from . import view, pview, state, sound
 from .pview import T
 
+class Lep:
+	def __init__(self, pos):
+		self.x, self.y = pos
+		self.charged = True
+		self.color = 255, 255, 255
+	def expend(self):
+		self.charged = False
+		state.leaps = min(state.leaps + 1, state.maxleaps)
+		sound.play("recharge")
+	def draw(self):
+		pos = view.worldtoscreen((self.x + 0.5, self.y + 0.5))
+		r = T(0.1 * view.zoom)
+		if self.charged:
+			pygame.draw.circle(pview.screen, self.color, pos, r)
+		else:
+			pygame.draw.circle(pview.screen, self.color, pos, r, T(4))
 
 class You:
 	def __init__(self):
 		self.x, self.y = 0, 0
+		self.state = "grounded"
+		state.leaps = state.maxleaps
+		self.thang = 0
+		self.vy = 0
 	def control(self, kdowns):
-		if pygame.K_RIGHT in kdowns:
-			self.x += 1
-		if pygame.K_LEFT in kdowns:
-			self.x -= 1
-		if pygame.K_UP in kdowns:
-			self.y += 1
-		if pygame.K_DOWN in kdowns:
-			self.y -= 1
+		dx = int(pygame.K_RIGHT in kdowns) - int(pygame.K_LEFT in kdowns)
+		dy = int(pygame.K_UP in kdowns) - int(pygame.K_DOWN in kdowns)
+		if not dx and not dy:
+			return
+		if self.state == "falling":
+			return
+		if not 0 <= self.x + dx < state.w:
+			sound.play("no")
+			return
+		if self.state == "jumping" and state.leaps == 0:
+			sound.play("no")
+			return
+		self.x += dx
+		self.y += dy
+		if self.state == "grounded":
+			dy = max(dy, 0)
+			if dy > 0:
+				self.state = "jumping"
+				self.thang = 0
+				state.leaps -= 1
+		elif self.state == "jumping":
+			state.leaps -= 1
+			self.thang = 0
+		for lep in state.leps:
+			if lep.charged and (self.x, self.y) == (lep.x, lep.y):
+				lep.expend()
 	def think(self, dt):
-		pass
+		if self.state == "jumping":
+			self.thang = math.approach(self.thang, state.thang, dt)
+			if self.thang == state.thang:
+				self.state = "falling"
+				self.vy = 8
+		elif self.state == "falling":
+			self.vy += 40 * dt
+			self.y -= self.vy * dt
+			if self.y <= 0:
+				self.y = 0
+				self.state = "grounded"
+				state.leaps = state.maxleaps
+				for lep in state.leps:
+					lep.charged = True
 	def draw(self):
 		pos = view.worldtoscreen((self.x + 0.5, self.y + 0.5))
 		r = T(0.25 * view.zoom)

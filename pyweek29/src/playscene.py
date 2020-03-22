@@ -7,9 +7,15 @@ class self:
 	pass
 
 def init():
-	state.you = thing.You()
 	state.w = 10
 	state.h = 10
+	state.thang = 1
+	state.maxleaps = 3
+	state.you = thing.You()
+	state.leps = [
+		thing.Lep((1, 2)),
+		thing.Lep((2, 1)),
+	]
 	self.tcombo = 0
 	self.ckeys = set()
 	self.tspan = 0
@@ -41,6 +47,8 @@ def draw():
 		p1 = view.worldtoscreen((state.w, y))
 		pygame.draw.line(pview.screen, (255, 0, 255), p0, p1, T(1))
 	state.you.draw()
+	for lep in state.leps:
+		lep.draw()
 
 
 tspans = []
