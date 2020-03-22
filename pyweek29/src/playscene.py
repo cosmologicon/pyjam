@@ -34,6 +34,8 @@ def draw():
 	state.you.draw()
 	for lep in state.leps:
 		lep.draw()
+	if state.held:
+		state.held.draw()
 
 	# Right panel
 	pview.fill((80, 80, 100, 220), T(view.rrect))

@@ -34,7 +34,13 @@ def randomlevel():
 			ds = { random.choice(allds) }
 			while random.random() < 0.7:
 				ds.add(random.choice(allds))
-			lep = thing.Lep((x, y), ds)
+			r = random.random()
+			if r < 0.6:
+				lep = thing.FlowLep((x, y), ds)
+			elif r < 0.8:
+				lep = thing.BoostLep((x, y))
+			else:
+				lep = thing.SlingLep((x, y), ds)
 			state.leps.append(lep)
 
 
