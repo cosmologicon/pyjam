@@ -22,3 +22,5 @@ class You:
 		r = T(0.25 * view.zoom)
 		pygame.draw.circle(pview.screen, (200, 180, 40), pos, r, T(4))
 
+
+

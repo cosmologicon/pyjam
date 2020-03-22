@@ -11,3 +11,5 @@ forceres = False
 minfps, maxfps = 10, 120
 
 DEBUG = True
+
+dtcombo = 0.2
