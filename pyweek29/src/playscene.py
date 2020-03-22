@@ -16,11 +16,16 @@ def init():
 		thing.Lep((1, 2)),
 		thing.Lep((2, 1)),
 	]
+	state.held = None
 	self.tcombo = 0
 	self.ckeys = set()
 	self.tspan = 0
 
 def think(dt, kdowns):
+	if pygame.K_SPACE in kdowns:
+		state.you.control([pygame.K_SPACE])
+		if self.ckeys:
+			self.tcombo = settings.dtcombo
 	for key in [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]:
 		if key in kdowns:
 			self.ckeys.add(key)
