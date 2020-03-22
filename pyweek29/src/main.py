@@ -1,12 +1,13 @@
 import pygame
-from . import settings, view, pview, scene, playscene, ptext, state, control
+from . import settings, view, pview, scene, playscene, mapscene, ptext, state, control
 from .pview import T
 
 view.init()
 control.init()
 pygame.display.set_caption(settings.gamename)
 
-scene.push(playscene)
+playscene.init()
+scene.push(mapscene)
 
 clock = pygame.time.Clock()
 playing = True

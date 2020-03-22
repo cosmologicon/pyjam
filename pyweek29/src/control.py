@@ -30,7 +30,7 @@ def think(dt):
 	if self.ckeys:
 		self.tcombo += dt
 		if self.tcombo >= settings.dtcombo:
-			self.completecombo()
+			completecombo()
 
 combokeys = "up", "down", "left", "right"
 
