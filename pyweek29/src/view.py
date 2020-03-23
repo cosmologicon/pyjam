@@ -27,7 +27,7 @@ def think(dt):
 	else:
 		dx = rrect.left / zoom / 2
 		cx = math.clamp(cx, dx, state.w - dx)
-	cy = max(cy, ymin + pview.centery0 / zoom)
+	cy = max(cy, state.yfloor + ymin + pview.centery0 / zoom)
 
 def worldtoscreen(pos):
 	x, y = pos

@@ -7,15 +7,13 @@ class self:
 
 def init():
 	level.load()
-	self.winning = False
 	self.alpha = 1
 
 def control(keys):
 	state.you.control(keys)
 
 def think(dt):
-	self.winning = state.ngoal >= 1
-	if self.winning:
+	if state.winning():
 		kdowns = set()
 		self.alpha = math.approach(self.alpha, 1, 5 * dt)
 		if self.alpha == 1:
@@ -33,7 +31,8 @@ def draw():
 		pygame.draw.line(pview.screen, (255, 0, 255), view.worldtoscreen(p0), view.worldtoscreen(p1), T(1))
 	state.you.draw()
 	for lep in state.leps:
-		lep.draw()
+		if 0 <= lep.y < state.h:
+			lep.draw()
 	if state.held:
 		state.held.draw()
 
@@ -43,7 +42,8 @@ def draw():
 		pygame.draw.line(pview.screen, (255, 0, 255), view.worldtomap(p0), view.worldtomap(p1), T(1))
 	state.you.drawmap()
 	for lep in state.leps:
-		lep.drawmap()
+		if 0 <= lep.y < state.h:
+			lep.drawmap()
 	mcenter = T(view.rrect.centerx, 70)
 	pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50), T(2))
 	pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50 * state.you.jumpmeter()))

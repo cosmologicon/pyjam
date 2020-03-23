@@ -1,5 +1,5 @@
 import pygame, math
-from . import view, pview, state, sound
+from . import view, pview, state, sound, level
 from .pview import T
 
 def collide(obj0, obj1):
@@ -11,7 +11,6 @@ def pickany(objs):
 
 class Lep:
 	color = 255, 255, 255
-	movable = False
 	def __init__(self, pos):
 		self.x, self.y = pos
 		self.charged = True
@@ -70,7 +69,6 @@ class Lep:
 # When leaving the lep in a direction within ds, no movement is expended.
 class FlowLep(Lep):
 	color = 100, 100, 255
-	movable = True
 	def __init__(self, pos, ds):
 		Lep.__init__(self, pos)
 		self.ds = ds
@@ -110,15 +108,24 @@ class BoostLep(Lep):
 		dx, dy = d
 		return dx * self.n, dy * self.n
 
-# Reach the goal lep to complete the stage.
+# Refills the leaps
+class ChargeLep(Lep):
+	color = 200, 0, 255
+	def encounter(self):
+		sound.play("recharge")
+		state.recharge()
+
+# Reach the goal leps to complete the stage.
 class GoalLep(Lep):
 	color = 255, 255, 0
 	def __init__(self, pos):
 		Lep.__init__(self, pos)
 	def encounter(self):
-		if self.charged:
-			self.charged = False
-			state.ngoal += 1
+		if self in state.leps:
+			state.goals.append(self)
+			state.leps.remove(self)
+			level.checkpoint()
+			sound.play("goal")
 
 
 class You:
@@ -128,8 +135,9 @@ class You:
 		state.leaps = state.maxleaps
 		self.thang = 0
 		self.vy = 0
+		self.trebound = 0
 	def jumpmeter(self):
-		if self.state == "grounded":
+		if self.state in ("grounded", "rebounding"):
 			return 1
 		if self.state == "falling":
 			return 0
@@ -147,7 +155,7 @@ class You:
 					currentlep.nab()
 					sound.play("nab")
 	def combo(self, d):
-		if self.state == "falling":
+		if self.state in ("falling", "rebounding"):
 			return
 		currentlep = pickany(lep for lep in state.leps if collide(state.you, lep))
 		if currentlep:
@@ -193,19 +201,36 @@ class You:
 				self.combo((dx, dy))
 	def think(self, dt):
 		if self.state == "jumping":
-			self.thang = math.approach(self.thang, state.thang, dt)
-			if self.thang == state.thang:
+			self.thang += dt
+			thang = state.thang if state.leaps else state.thang0
+			if self.thang >= thang:
 				self.state = "falling"
 				self.vy = 8
 		elif self.state == "falling":
 			self.vy += 40 * dt
 			self.y -= self.vy * dt
-			if self.y <= 0:
-				self.y = 0
-				self.state = "grounded"
-				state.leaps = state.maxleaps
-				for lep in state.leps:
-					lep.charged = True
+			if state.yfloor > 0:
+				if self.y < state.yfloor - 2:
+					self.state = "rebounding"
+					self.trebound = 0
+					self.x = state.xfloor
+					self.y = state.yfloor - 2
+			else:
+				if self.y <= 0:
+					self.y = 0
+					self.state = "grounded"
+					state.recharge()
+					state.rechargeleps()
+		elif self.state == "rebounding":
+			self.trebound += dt
+			if self.trebound > 1:
+				self.x = state.xfloor
+				self.y = state.yfloor
+				sound.play("rebound")
+				state.recharge()
+				state.rechargeleps()
+				self.state = "jumping"
+				self.thang = 0
 	def draw(self):
 		pos = view.worldtoscreen((self.x + 0.5, self.y + 0.5))
 		r = T(0.25 * view.zoom)
