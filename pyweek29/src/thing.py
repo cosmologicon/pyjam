@@ -1,5 +1,5 @@
 import pygame, math
-from . import view, pview, state, sound, level
+from . import view, pview, state, sound, level, draw
 from .pview import T
 
 def collide(obj0, obj1):
@@ -20,6 +20,9 @@ class Lep:
 	# Whether you're able to move away from this lep.
 	def canmovefrom(self, d):
 		return True
+	def movefrom(self, d):
+#		self.charged = False
+		pass
 	# Whether this lep prevents you from expending a leap in the given direction as you move away
 	def canboost(self, d):
 		return False
@@ -98,6 +101,26 @@ class SlingLep(Lep):
 			for d in self.ds:
 				self.drawarrow(topos, d)
 
+# Rotates along with all other SpinLeps
+class SpinLep(Lep):
+	color = 40, 255, 40
+	def __init__(self, pos):
+		Lep.__init__(self, pos)
+	def ds(self):
+		ds0 = (0, 1), (1, 0), (0, -1), (-1, 0)
+		ds1 = (1, 1), (1, -1), (-1, 1), (-1, -1)
+		return ds0 if state.jspin % 2 == 0 else ds1
+	def canboost(self, d):
+		return self.charged and d in self.ds()
+	def movefrom(self, d):
+		Lep.movefrom(self, d)
+		state.jspin += 1
+	def draw0(self, topos, zoom):
+		Lep.draw0(self, topos, zoom)
+		if not self.nabbed:
+			for d in self.ds():
+				self.drawarrow(topos, d)
+
 # Doubles your movement
 class BoostLep(Lep):
 	color = 255, 128, 0
@@ -170,7 +193,7 @@ class You:
 		dleap = 1
 		if currentlep and currentlep.canboost(d):
 			dleap -= 1
-			currentlep.charged = False
+			currentlep.movefrom(d)
 		if state.leaps - dleap < 0:
 			sound.play("no")
 			return
@@ -199,10 +222,18 @@ class You:
 			dy = int("up" in keys) - int("down" in keys)
 			if dx or dy:
 				self.combo((dx, dy))
+	def canmove(self):
+		if state.leaps:
+			return True
+		currentlep = pickany(lep for lep in state.leps if collide(self, lep))
+		ds = [(x, y) for x in (-1, 0, 1) for y in (-1, 0, 1) if x or y]
+		if currentlep and any(currentlep.canboost(d) for d in ds):
+			return True
+		return False
 	def think(self, dt):
 		if self.state == "jumping":
 			self.thang += dt
-			thang = state.thang if state.leaps else state.thang0
+			thang = state.thang if self.canmove() else state.thang0
 			if self.thang >= thang:
 				self.state = "falling"
 				self.vy = 8
@@ -233,8 +264,10 @@ class You:
 				self.thang = 0
 	def draw(self):
 		pos = view.worldtoscreen((self.x + 0.5, self.y + 0.5))
-		r = T(0.25 * view.zoom)
-		pygame.draw.circle(pview.screen, (200, 180, 40), pos, r, T(4))
+#		r = T(0.25 * view.zoom)
+#		pygame.draw.circle(pview.screen, (200, 180, 40), pos, r, T(4))
+		spec = "falling" if self.state == "falling" else "standing"
+		draw.you(spec, pos, T(1.3 * view.zoom))
 	def drawmap(self):
 		pos = view.worldtomap((self.x + 0.5, self.y + 0.5))
 		r = T(0.25 * view.mapzoom())

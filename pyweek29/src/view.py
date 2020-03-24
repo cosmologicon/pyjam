@@ -5,7 +5,7 @@ from .pview import T
 
 # camera position
 cx, cy = 0, 0
-zoom = 120
+zoom = 100
 
 # Right panel width
 rw = 240
