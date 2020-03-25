@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, random
 from . import view, pview, state, sound, level, draw
 from .pview import T
 
@@ -159,6 +159,12 @@ class You:
 		self.thang = 0
 		self.vy = 0
 		self.trebound = 0
+		# Animations
+		self.facingright = True
+		self.jumpspec = 0
+		self.lastdx = 0
+		self.lastdy = 0
+		self.tmove = 10
 	def jumpmeter(self):
 		if self.state in ("grounded", "rebounding"):
 			return 1
@@ -190,6 +196,9 @@ class You:
 		if not 0 <= self.x + dx < state.w:
 			sound.play("no")
 			return
+		if not 0 <= self.y + dy:
+			sound.play("no")
+			return
 		dleap = 1
 		if currentlep and currentlep.canboost(d):
 			dleap -= 1
@@ -200,6 +209,12 @@ class You:
 
 		self.x += dx
 		self.y += dy
+		self.tmove = 0
+		self.jjumpspec = random.random()
+		self.lastdx = dx
+		self.lastdy = dy
+		if dx:
+			self.facingright = dx > 0
 		if self.state == "grounded":
 			dy = max(dy, 0)
 			if dy > 0:
@@ -231,6 +246,7 @@ class You:
 			return True
 		return False
 	def think(self, dt):
+		self.tmove += dt
 		if self.state == "jumping":
 			self.thang += dt
 			thang = state.thang if self.canmove() else state.thang0
@@ -262,12 +278,45 @@ class You:
 				state.rechargeleps()
 				self.state = "jumping"
 				self.thang = 0
+	def drawspec(self):
+		if self.state == "grounded":
+			return "standing", 0
+		if self.state == "falling":
+			angle = (1 if self.facingright else -1) * 8 * self.lastdy
+			return "falling", 0
+		if self.state == "jumping" and not self.canmove():
+			angle = (1 if self.facingright else -1) * 8 * self.lastdy
+			return "falling", angle
+		if self.state in ("jumping", "rebounding"):
+			angle = (1 if self.facingright else -1) * 15 * self.lastdy
+			if self.jjumpspec < 0.2:
+				return "leap0", angle
+			elif self.jjumpspec < 0.4:
+				return "leap1", angle
+			elif self.jjumpspec < 0.6:
+				return "leap2", angle
+			elif self.jjumpspec < 0.8:
+				return "leap3", angle
+			else:
+				return "leap4", angle
 	def draw(self):
-		pos = view.worldtoscreen((self.x + 0.5, self.y + 0.5))
-#		r = T(0.25 * view.zoom)
-#		pygame.draw.circle(pview.screen, (200, 180, 40), pos, r, T(4))
-		spec = "falling" if self.state == "falling" else "standing"
-		draw.you(spec, pos, T(1.3 * view.zoom))
+		spec, angle = self.drawspec()
+		scale = T(1.3 * view.zoom)
+		for j in (3, 2, 1, 0):
+			seed = self.tmove + 100 * j + self.x + 100 * self.y
+			alpha = math.clamp((1 - 0.2 * j) * (1 - self.tmove), 0, 1)
+			factor = 5 * math.exp(-0.5 * j)
+			f = math.clamp(factor * self.tmove ** 0.5, 0, 1)
+			px, py = math.mix((self.x - self.lastdx, self.y - self.lastdy), (self.x, self.y), f)
+			pos = view.worldtoscreen((px + 0.5, py + 0.5))
+			if j == 0:
+				draw.you(spec, pos, scale, angle, self.facingright)
+			else:
+				if alpha < 0:
+					continue
+				draw.you(spec, pos, scale, angle, self.facingright, seed, alpha)
+
+
 	def drawmap(self):
 		pos = view.worldtomap((self.x + 0.5, self.y + 0.5))
 		r = T(0.25 * view.mapzoom())

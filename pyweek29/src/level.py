@@ -13,8 +13,8 @@ def load():
 	state.jspin = 0
 	state.ychecks = []
 
-#	randomlevel()
-	levelspin()
+	randomlevel()
+#	levelspin()
 	state.ngoal = sum(isinstance(lep, thing.GoalLep) for lep in state.leps)
 	state.leaps = state.maxleaps
 
