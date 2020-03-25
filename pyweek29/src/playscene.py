@@ -8,29 +8,39 @@ class self:
 def init():
 	level.load()
 	self.alpha = 1
+	self.losing = False
+	self.lepdtf = 1
 
 def control(keys):
-	if not state.winning():
+	if "forfeit" in keys:
+		self.losing = True
+	if not state.winning() and not self.losing:
 		state.you.control(keys)
 
 def think(dt):
-	if state.winning():
+	if state.winning() or self.losing:
 		kdowns = set()
 		self.alpha = math.approach(self.alpha, 1, 4 * dt)
 		if self.alpha == 1:
 			scene.pop()
-			progress.beat(progress.at)
+			if state.winning():
+				progress.beat(progress.at)
 	else:
 		self.alpha = math.approach(self.alpha, 0, 4 * dt)
 	state.you.think(dt)
+	self.lepdtf = math.approach(self.lepdtf, (0.1 if state.you.state == "jumping" else 1), 10 * dt)
+	for lep in state.leps:
+		lep.think(dt * self.lepdtf)
 	view.think(dt)
 
 def draw():
 	pview.fill((40, 40, 120))
 	gridlines = [((x, 0), (x, state.h)) for x in range(0, state.w + 1)]
 	gridlines += [((0, y), (state.w, y)) for y in range(0, state.h + 1)]
-	for p0, p1 in gridlines:
-		pygame.draw.line(pview.screen, (255, 0, 255), view.worldtoscreen(p0), view.worldtoscreen(p1), T(1))
+	if state.you.state == "jumping":
+		for p0, p1 in gridlines:
+			pygame.draw.line(pview.screen, (50, 50, 140),
+				view.worldtoscreen(p0), view.worldtoscreen(p1), T(1))
 	state.you.draw()
 	for lep in state.leps:
 		if 0 <= lep.y < state.h:

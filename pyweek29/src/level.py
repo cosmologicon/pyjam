@@ -17,7 +17,6 @@ def load():
 #	levelspin()
 	state.ngoal = sum(isinstance(lep, thing.GoalLep) for lep in state.leps)
 	state.leaps = state.maxleaps
-	state.ngoal = 0
 
 def checkpoint():
 	if not state.ychecks:

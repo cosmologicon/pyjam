@@ -49,7 +49,7 @@ def think(dt):
 def screenpos(pos):
 	x, y = pos
 	return T(100 * x, 720 - 100 * y)
-	
+
 def draw():
 	pview.fill((60, 100, 60))
 	for s0, s1 in progress.joins:

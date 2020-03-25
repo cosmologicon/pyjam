@@ -17,6 +17,8 @@ class Lep:
 		self.charged = True
 		self.nabbed = False
 		self.tfly = 0
+		self.xfly, self.yfly = random.uniform(-1, 1), random.uniform(-1, 1)
+		self.vxfly, self.vyfly = random.uniform(-1, 1), random.uniform(-1, 1)
 	def cannab(self):
 		return False
 	# Whether you're able to move away from this lep.
@@ -46,8 +48,18 @@ class Lep:
 		self.nabbed = False
 		state.held = None
 		state.leps.append(self)
+	def think(self, dt):
+		self.tfly -= dt
+		if self.tfly <= 0:
+			self.tfly = random.uniform(0.1, 0.3)
+			self.vxfly = random.uniform(-1, 1) - math.clamp(self.xfly, -2, 2)
+			self.vyfly = random.uniform(-1, 1) - math.clamp(self.yfly, -2, 2)
+		self.xfly += 6 * dt * self.vxfly
+		self.yfly += 6 * dt * self.vyfly
 	def draw0(self, topos, zoom):
 		dx, dy = 0.5, 0.5
+		dx += 0.12 * self.xfly
+		dy += 0.12 * self.yfly
 		pos = topos((self.x + dx, self.y + dy))
 		if self.nabbed:
 			dx, dy = 0.8, 0.8
@@ -280,6 +292,8 @@ class You:
 				state.rechargeleps()
 				self.state = "jumping"
 				self.thang = 0
+				self.tmove = 0
+				self.lastdx, self.lastdy = 0, 2
 	def drawspec(self):
 		if self.state == "grounded":
 			return "standing", 0
