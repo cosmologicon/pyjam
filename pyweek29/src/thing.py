@@ -13,8 +13,10 @@ class Lep:
 	color = 255, 255, 255
 	def __init__(self, pos):
 		self.x, self.y = pos
+		self.flyseed = random.random() * 1000
 		self.charged = True
 		self.nabbed = False
+		self.tfly = 0
 	def cannab(self):
 		return False
 	# Whether you're able to move away from this lep.

@@ -16,5 +16,5 @@ def rechargeleps():
 
 
 def winning():
-	return len(goals) >= ngoal
+	return len(goals) >= ngoal and you.state == "grounded"
 

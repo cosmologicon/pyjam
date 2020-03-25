@@ -3,9 +3,20 @@ from functools import lru_cache
 from . import pview
 
 @lru_cache(None)
-def getimg(filename):
+def getimg0(filename):
 	return pygame.image.load("img/%s.png" % filename).convert_alpha()
 
+def xform(img, scale, angle, flip):
+	if flip:
+		img = pygame.transform.flip(img, True, False)
+	if angle:
+		img = pygame.transform.rotate(img, angle)
+	size = pview.I([a * scale / 2000 for a in img.get_size()])
+	return pygame.transform.smoothscale(img, size)
+
+@lru_cache(1000)
+def getimg(filename, scale, angle = 0, flip = False):
+	return xform(getimg0(filename), scale, angle, flip)
 
 specs = {
 	"standing": ["backarm", "stand", "torso", "armdown"],
@@ -22,18 +33,12 @@ def youimg0(spec):
 	img = pygame.Surface((2020, 2052)).convert_alpha()
 	img.fill((0, 0, 0, 0))
 	for filename in specs[spec]:
-		img.blit(getimg("you-%s" % filename), (0, 0))
+		img.blit(getimg0("you-%s" % filename), (0, 0))
 	return img
 
 @lru_cache(None)
 def youimg(spec, scale, angle, faceright):
-	img = youimg0(spec)
-	if not faceright:
-		img = pygame.transform.flip(img, True, False)
-	if angle:
-		img = pygame.transform.rotate(img, angle)
-	size = pview.I([a * scale / 2000 for a in img.get_size()])
-	return pygame.transform.smoothscale(img, size)
+	return xform(youimg0(spec), scale, angle, not faceright)
 
 def colorshift(img, seed):
 	img = img.copy()
@@ -59,4 +64,10 @@ def you(spec, screenpos, scale, angle, faceright, seed = None, alpha = None):
 	rect = img.get_rect(center = screenpos)
 	pview.screen.blit(img, rect)
 
+def drawimg(filename, screenpos, scale, angle = 0, flip = False):
+	angle = int(round(angle)) % 360
+	img = getimg(filename, scale, angle, flip)
+	rect = img.get_rect(center = screenpos)
+	pview.screen.blit(img, rect)
+	
 

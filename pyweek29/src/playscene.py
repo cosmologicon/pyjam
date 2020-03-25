@@ -1,5 +1,5 @@
 import pygame, statistics, math
-from . import pview, view, thing, state, settings, scene, control, level
+from . import pview, view, thing, state, settings, scene, control, level, progress
 from .pview import T
 
 class self:
@@ -10,16 +10,18 @@ def init():
 	self.alpha = 1
 
 def control(keys):
-	state.you.control(keys)
+	if not state.winning():
+		state.you.control(keys)
 
 def think(dt):
 	if state.winning():
 		kdowns = set()
-		self.alpha = math.approach(self.alpha, 1, 5 * dt)
+		self.alpha = math.approach(self.alpha, 1, 4 * dt)
 		if self.alpha == 1:
 			scene.pop()
+			progress.beat(progress.at)
 	else:
-		self.alpha = math.approach(self.alpha, 0, 5 * dt)
+		self.alpha = math.approach(self.alpha, 0, 4 * dt)
 	state.you.think(dt)
 	view.think(dt)
 
