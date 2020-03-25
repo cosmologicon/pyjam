@@ -22,3 +22,7 @@ def beat(level):
 		if level in pair:
 			unlocked |= set(pair)
 
+def unlockall():
+	global unlocked
+	unlocked = set(stages)
+

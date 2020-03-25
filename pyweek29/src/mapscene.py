@@ -1,5 +1,5 @@
 import pygame, math
-from . import scene, playscene, pview, ptext, progress, sound
+from . import scene, playscene, dialogscene, pview, ptext, progress, sound
 from . import draw as D
 from .pview import T
 
@@ -34,6 +34,7 @@ def gettarget(at, keys):
 def control(keys):
 	if "act" in keys:
 		scene.push(playscene)
+		scene.push(dialogscene, "backyard")
 		sound.play("select")
 	else:
 		target = gettarget(progress.at, keys)

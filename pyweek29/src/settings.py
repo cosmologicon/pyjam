@@ -24,6 +24,10 @@ keys = {
 	"screenshot": [pygame.K_F12],
 	"resolution": [pygame.K_F11],
 	"fullscreen": [pygame.K_F10],
+
+	# Cheat codes, only work in DEBUG mode
+	"unlockall": [pygame.K_F1],
+	"beatcurrent": [pygame.K_F2],
 }
 
 dtcombo = 0.2

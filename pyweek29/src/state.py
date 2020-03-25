@@ -18,3 +18,8 @@ def rechargeleps():
 def winning():
 	return len(goals) >= ngoal and you.state == "grounded"
 
+def beatcurrent():
+	global ngoal
+	ngoal = 0
+	you.state = "grounded"
+

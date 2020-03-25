@@ -1,7 +1,9 @@
 import pygame
-from . import settings, view, pview, scene, playscene, mapscene, ptext, state, control
+from . import settings, view, pview, ptext, state, control, progress
+from . import scene, playscene, mapscene, dialogscene
 from .pview import T
 
+ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 view.init()
 control.init()
 pygame.display.set_caption(settings.gamename)
@@ -27,6 +29,11 @@ while playing:
 			pview.cycle_height(settings.heights)
 		elif current:
 			current.control(keys)
+		if settings.DEBUG and "unlockall" in keys:
+			progress.unlockall()
+		if settings.DEBUG and "beatcurrent" in keys:
+			state.beatcurrent()
+
 	if current:
 		current.think(dt)
 		current.draw()

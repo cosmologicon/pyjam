@@ -1,8 +1,8 @@
 stack = []
 
-def push(s):
+def push(s, *args, **kwargs):
 	if hasattr(s, "init"):
-		s.init()
+		s.init(*args, **kwargs)
 	stack.append(s)
 
 def pop():
