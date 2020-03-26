@@ -21,7 +21,7 @@ def load():
 
 #	randomlevel()
 #	levelspin()
-	loadjson(leveldata["crowd"])
+	loadjson(leveldata["tower"])
 	state.ngoal = sum(isinstance(lep, thing.GoalLep) for lep in state.leps)
 	state.leaps = state.maxleaps
 

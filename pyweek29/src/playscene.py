@@ -10,6 +10,10 @@ def init():
 	self.alpha = 1
 	self.losing = False
 	self.lepdtf = 1
+	t0 = pygame.time.get_ticks()
+	state.you.loadimgs()
+	state.you.loadimgs()
+	
 
 def control(keys):
 	if "forfeit" in keys:
@@ -28,8 +32,10 @@ def think(dt):
 	else:
 		self.alpha = math.approach(self.alpha, 0, 4 * dt)
 	state.you.think(dt)
-	self.lepdtf = math.approach(self.lepdtf, (0.1 if state.you.state == "jumping" else 1), 10 * dt)
+	self.lepdtf = math.approach(self.lepdtf, (0.1 if state.you.state == "jumping" else 1), 4 * dt)
 	for lep in state.leps:
+		lep.think(dt * self.lepdtf)
+	for lep in state.goals:
 		lep.think(dt * self.lepdtf)
 	view.think(dt)
 
@@ -42,6 +48,8 @@ def draw():
 			pygame.draw.line(pview.screen, (50, 50, 140),
 				view.worldtoscreen(p0), view.worldtoscreen(p1), T(1))
 	state.you.draw()
+	for lep in state.goals:
+		lep.draw()
 	for lep in state.leps:
 		if 0 <= lep.y < state.h:
 			lep.draw()

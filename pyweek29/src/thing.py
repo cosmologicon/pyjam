@@ -52,6 +52,10 @@ class Lep:
 		state.held = None
 		state.leps.append(self)
 	def think(self, dt):
+		if self in state.goals:
+			speed = 5 * math.exp(-0.3 * state.goals.index(self))
+			seekpos = state.you.x, state.you.y + 0.2
+			self.x, self.y = math.softapproach((self.x, self.y), seekpos, speed * dt)
 		self.tflap += dt
 		self.tfly -= dt
 		if self.tfly <= 0:
@@ -326,40 +330,46 @@ class You:
 			return "standing", 0
 		if self.state == "falling":
 			angle = (1 if self.facingright else -1) * 8 * self.lastdy
-			return "falling", 0
+			return "falling", angle
 		if self.state == "jumping" and not self.canmove():
 			angle = (1 if self.facingright else -1) * 8 * self.lastdy
 			return "falling", angle
 		if self.state in ("jumping", "rebounding"):
-			angle = (1 if self.facingright else -1) * 15 * self.lastdy
-			if self.jjumpspec < 0.2:
-				return "leap0", angle
-			elif self.jjumpspec < 0.4:
-				return "leap1", angle
-			elif self.jjumpspec < 0.6:
-				return "leap2", angle
-			elif self.jjumpspec < 0.8:
-				return "leap3", angle
-			else:
-				return "leap4", angle
+			angle = (1 if self.facingright else -1) * 14 * self.lastdy * (2 - (self.lastdx != 0))
+			return "pose", angle
 	def draw(self):
 		spec, angle = self.drawspec()
 		scale = T(1.3 * view.zoom)
+		pose0 = 5 + 2 * self.x + 3 * self.y + (self.x + 2) * (self.y + 2) + 3 * self.facingright
+		pose0 %= 8
 		for j in (2, 1, 0):
-#			seed = self.tmove + 100 * j + self.x + 100 * self.y
-			seed = 100 * j + self.x + 100 * self.y
 			alpha = math.clamp((1 - 0.2 * j) * (1 - self.tmove), 0, 1)
-			factor = 5 * math.exp(-0.5 * j)
+			if j and alpha < 0:
+				continue
+			pose = (pose0 + 3 * j) % 8
+			seed = 100 * pose + 17
+			factor = [5, 2, 1][j]
 			f = math.clamp(factor * self.tmove, 0, 1)
 			px, py = math.mix((self.x - self.lastdx, self.y - self.lastdy), (self.x, self.y), f)
 			pos = view.worldtoscreen((px + 0.5, py + 0.5))
+			drawspec = spec if spec != "pose" and j == 0 else "pose-horiz-%d" % pose
 			if j == 0:
-				draw.you(spec, pos, scale, angle, self.facingright)
+				draw.you(drawspec, pos, scale, angle, self.facingright)
 			else:
-				if alpha <= 0:
-					continue
-				draw.you(spec, pos, scale, angle, self.facingright, seed, alpha)
-
+				draw.you(drawspec, pos, scale, angle, self.facingright, seed, alpha)
+	def loadimgs(self):
+		scale = T(1.3 * view.zoom)
+		for facingright in (False, True):
+			for angle in (-28, -14, 0, 14, 28):
+				for pose0 in range(8):
+					for j in (2, 1, 0):
+						pose = (pose0 + 3 * j) % 8
+						seed = 100 * pose + 17
+						drawspec = "pose-horiz-%d" % pose
+						if j == 0:
+							draw.you(drawspec, None, scale, angle, facingright)
+						else:
+							draw.you(drawspec, None, scale, angle, facingright, seed, 1)
 
 	def drawmap(self):
 		pos = view.worldtomap((self.x + 0.5, self.y + 0.5))

@@ -38,11 +38,20 @@ specs = {
 	"leap2": ["backarm", "leap", "torso", "elbowup"],
 	"leap3": ["backarm", "leap", "torso", "armup"],
 	"leap4": ["backarm", "leap", "torso", "armdown"],
+
+	"pose-horiz-0": ["backarm", "leap", "torso", "pointing"],
+	"pose-horiz-1": ["backarm", "leap", "torso", "elbowup"],
+	"pose-horiz-2": ["backarm", "leap", "torso", "armout"],
+	"pose-horiz-3": ["backarm", "leap", "torso", "armdown"],
+	"pose-horiz-4": ["backarm", "bound", "torso", "pointing"],
+	"pose-horiz-5": ["backarm", "bound", "torso", "elbowup"],
+	"pose-horiz-6": ["backarm", "bound", "torso", "armout"],
+	"pose-horiz-7": ["backarm", "bound", "torso", "armdown"],
 }
 
 @lru_cache(None)
 def youimg0(spec):
-	img = pygame.Surface((2020, 2052)).convert_alpha()
+	img = pygame.Surface((2020, 2152)).convert_alpha()
 	img.fill((0, 0, 0, 0))
 	for filename in specs[spec]:
 		img.blit(getimg0("you-%s" % filename), (0, 0))
@@ -57,7 +66,7 @@ def colorshift(img, seed):
 	arr[:,:,:] = shifted.astype(arr.dtype)
 	return img
 
-@lru_cache(200)
+@lru_cache(400)
 def youimg(spec, scale, angle, faceright, seed = None):
 	if seed is not None:
 		return colorshift(youimg(spec, scale, angle, faceright), seed)
@@ -77,8 +86,9 @@ def you(spec, screenpos, scale, angle, faceright, seed = None, alpha = None):
 	img = youimg(spec, scale, angle, faceright, seed)
 	if alpha is not None:
 		img = fade(img, alpha)
-	rect = img.get_rect(center = screenpos)
-	pview.screen.blit(img, rect)
+	if screenpos is not None:
+		rect = img.get_rect(center = screenpos)
+		pview.screen.blit(img, rect)
 
 def drawimg(filename, screenpos, scale, angle = 0, flip = False, vfactor = 1, colormask = None):
 	angle = int(round(angle)) % 360
@@ -120,7 +130,6 @@ def arrow(screenpos, scale, d, color0, f, alpha):
 	img = getarrowimg(scale, d, color0, f, alpha)
 	rect = img.get_rect(center = screenpos)
 	pview.screen.blit(img, rect)
-	
 
 
 
