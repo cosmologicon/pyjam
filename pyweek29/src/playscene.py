@@ -51,11 +51,12 @@ def draw():
 	# Right panel
 	pview.fill((80, 80, 100, 220), T(view.rrect))
 	for p0, p1 in gridlines:
-		pygame.draw.line(pview.screen, (255, 0, 255), view.worldtomap(p0), view.worldtomap(p1), T(1))
+		pygame.draw.line(pview.screen, (100, 60, 120), view.worldtomap(p0), view.worldtomap(p1), T(1))
 	state.you.drawmap()
 	for lep in state.leps:
-		if 0 <= lep.y < state.h:
-			lep.drawmap()
+		lep.drawmap()
+	for lep in state.leps:
+		lep.drawarrowmap()
 	mcenter = T(view.rrect.centerx, 70)
 	pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50), T(2))
 	pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50 * state.you.jumpmeter()))

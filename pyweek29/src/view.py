@@ -8,7 +8,7 @@ cx, cy = 0, 0
 zoom = 220
 
 # Right panel width
-rw = 240
+rw = 360
 rrect = pygame.Rect(1280 - rw, 0, rw, 720)
 
 # Minimum y-value that should ever be visible on screen

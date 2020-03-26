@@ -6,7 +6,7 @@ from . import pview
 def getimg0(filename):
 	return pygame.image.load("img/%s.png" % filename).convert_alpha()
 
-def xform(img, scale, angle, hflip, vfactor):
+def xform(img, scale, angle, hflip, vfactor, colormask):
 	if abs(vfactor) != 1:
 		w, h = img.get_size()
 		size = pview.I([w, h * abs(vfactor)])
@@ -17,11 +17,18 @@ def xform(img, scale, angle, hflip, vfactor):
 	if angle:
 		img = pygame.transform.rotate(img, angle)
 	size = pview.I([a * scale / 2000 for a in img.get_size()])
-	return pygame.transform.smoothscale(img, size)
+	img = pygame.transform.smoothscale(img, size)
+	if colormask is not None:
+		colorarr = numpy.array(colormask).reshape([1, 1, 3]) / 256.0
+		arr = pygame.surfarray.pixels3d(img)
+		arr[:,:,:] = (arr * colorarr).astype(arr.dtype)
+		del arr
+	return img
+
 
 @lru_cache(1000)
-def getimg(filename, scale, angle = 0, flip = False, vfactor = 1):
-	return xform(getimg0(filename), scale, angle, flip, vfactor)
+def getimg(filename, scale, angle = 0, flip = False, vfactor = 1, colormask = None):
+	return xform(getimg0(filename), scale, angle, flip, vfactor, colormask)
 
 specs = {
 	"standing": ["backarm", "stand", "torso", "armdown"],
@@ -54,7 +61,7 @@ def colorshift(img, seed):
 def youimg(spec, scale, angle, faceright, seed = None):
 	if seed is not None:
 		return colorshift(youimg(spec, scale, angle, faceright), seed)
-	return xform(youimg0(spec), scale, angle, not faceright, 1)
+	return xform(youimg0(spec), scale, angle, not faceright, 1, None)
 
 
 def fade(img, alpha):
@@ -73,12 +80,12 @@ def you(spec, screenpos, scale, angle, faceright, seed = None, alpha = None):
 	rect = img.get_rect(center = screenpos)
 	pview.screen.blit(img, rect)
 
-def drawimg(filename, screenpos, scale, angle = 0, flip = False, vfactor = 1):
+def drawimg(filename, screenpos, scale, angle = 0, flip = False, vfactor = 1, colormask = None):
 	angle = int(round(angle)) % 360
 	vfactor = round(vfactor, 1)
 	if vfactor == 0:
 		return
-	img = getimg(filename, scale, angle, flip, vfactor)
+	img = getimg(filename, scale, angle, flip, vfactor, colormask)
 	rect = img.get_rect(center = screenpos)
 	pview.screen.blit(img, rect)
 

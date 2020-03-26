@@ -20,6 +20,8 @@ class Lep:
 		self.xfly, self.yfly = random.uniform(-1, 1), random.uniform(-1, 1)
 		self.vxfly, self.vyfly = random.uniform(-1, 1), random.uniform(-1, 1)
 		self.tflap = random.uniform(0, 100)
+		self.aseen = False
+		self.ds = []  # Not used to restrict movement unless canmovefrom is overriden.
 	def cannab(self):
 		return False
 	# Whether you're able to move away from this lep.
@@ -33,7 +35,7 @@ class Lep:
 		return False
 	# Called when you first enter this lep's space
 	def encounter(self):
-		pass
+		self.aseen = True
 	# When you press a direction at this lep, what direction do you actually go?
 	def adjustcombo(self, d):
 		return d
@@ -67,13 +69,15 @@ class Lep:
 			dx, dy = 0.8, 0.8
 			pos = topos((state.you.x + dx, state.you.y + dy))
 		vfactor = 1 if self.vyfly < 0 else -1
-		vfactor = math.sin(self.tflap * 20)
+		vfactor = 1.6 * math.sin(self.tflap * 20)
 		flip = self.vxfly < 0
 		angle = (-1 if flip else 1) * (20 + 5 * self.vyfly)
-		scale = T(2 * view.zoom)
+		scale = T(1.4 * view.zoom)
 		draw.drawimg("lep-body", pos, scale, angle, flip)
-		draw.drawimg("lep-blue", pos, scale, angle, flip, vfactor)
+		draw.drawimg("lep-flap", pos, scale, angle, flip, vfactor, colormask = self.color)
 	def drawarrow(self, topos, d):
+		if not self.aseen:
+			return
 		dx, dy = math.norm(d)
 		pos = self.x + 0.5 + 0.35 * dx, self.y + 0.5 + 0.35 * dy
 		alpha = 1 if (self.x, self.y) == (state.you.x, state.you.y) else 0.1
@@ -86,8 +90,17 @@ class Lep:
 	def draw(self):
 		self.draw0(view.worldtoscreen, view.zoom)
 	def drawmap(self):
-		self.draw0(view.worldtomap, view.mapzoom())
-
+		pos = view.worldtomap((self.x + 0.5, self.y + 0.5))
+		scale = 3.0 * pview.f * view.mapzoom()
+		draw.drawimg("lep-icon", pos, scale, colormask = self.color)
+	def drawarrowmap(self):
+		if not self.aseen:
+			return
+		for d in self.ds:
+			dx, dy = math.norm(d)
+			pos = self.x + 0.5 + 0.2 * dx, self.y + 0.5 + 0.2 * dy
+			scale = 0.6 * pview.f * view.mapzoom()
+			draw.arrow(view.worldtomap(pos), scale, (dx, dy), (255, 255, 255), 1, 1)
 
 # Lep is movable.
 # May only leave the lep in the given direction.
@@ -350,8 +363,8 @@ class You:
 
 	def drawmap(self):
 		pos = view.worldtomap((self.x + 0.5, self.y + 0.5))
-		r = T(0.25 * view.mapzoom())
-		pygame.draw.circle(pview.screen, (200, 180, 40), pos, r, T(4))
+		scale = 3.0 * pview.f * view.mapzoom()
+		draw.drawimg("token", pos, scale, flip = not self.facingright)
 
 
 
