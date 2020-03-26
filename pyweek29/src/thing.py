@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, pview, state, sound, level, draw
+from . import view, pview, state, sound, level, draw, settings
 from .pview import T
 
 def collide(obj0, obj1):
@@ -19,6 +19,7 @@ class Lep:
 		self.tfly = 0
 		self.xfly, self.yfly = random.uniform(-1, 1), random.uniform(-1, 1)
 		self.vxfly, self.vyfly = random.uniform(-1, 1), random.uniform(-1, 1)
+		self.tflap = random.uniform(0, 100)
 	def cannab(self):
 		return False
 	# Whether you're able to move away from this lep.
@@ -49,6 +50,7 @@ class Lep:
 		state.held = None
 		state.leps.append(self)
 	def think(self, dt):
+		self.tflap += dt
 		self.tfly -= dt
 		if self.tfly <= 0:
 			self.tfly = random.uniform(0.1, 0.3)
@@ -64,18 +66,23 @@ class Lep:
 		if self.nabbed:
 			dx, dy = 0.8, 0.8
 			pos = topos((state.you.x + dx, state.you.y + dy))
-		r = T(0.1 * zoom)
-		if self.charged:
-			pygame.draw.circle(pview.screen, self.color, pos, r)
-		else:
-			pygame.draw.circle(pview.screen, self.color, pos, r, min(T(4), r))
+		vfactor = 1 if self.vyfly < 0 else -1
+		vfactor = math.sin(self.tflap * 20)
+		flip = self.vxfly < 0
+		angle = (-1 if flip else 1) * (20 + 5 * self.vyfly)
+		scale = T(2 * view.zoom)
+		draw.drawimg("lep-body", pos, scale, angle, flip)
+		draw.drawimg("lep-blue", pos, scale, angle, flip, vfactor)
 	def drawarrow(self, topos, d):
-		dx, dy = d
-		R = math.R(math.atan2(-dx, dy))
-		fs = (0, 0.5), (0.05, 0.35), (0, 0.4), (-0.05, 0.35)
-		rfs = [R(f) for f in fs]
-		ps = [topos((self.x + 0.5 + rfx, self.y + 0.5 + rfy)) for rfx, rfy in rfs]
-		pygame.draw.polygon(pview.screen, self.color, ps)
+		dx, dy = math.norm(d)
+		pos = self.x + 0.5 + 0.35 * dx, self.y + 0.5 + 0.35 * dy
+		alpha = 1 if (self.x, self.y) == (state.you.x, state.you.y) else 0.1
+		draw.arrow(view.worldtoscreen(pos), T(90), d, self.color, self.tflap, alpha)
+#		R = math.R(math.atan2(-dx, dy))
+#		fs = (0, 0.5), (0.05, 0.35), (0, 0.4), (-0.05, 0.35)
+#		rfs = [R(f) for f in fs]
+#		ps = [topos((self.x + 0.5 + rfx, self.y + 0.5 + rfy)) for rfx, rfy in rfs]
+#		pygame.draw.polygon(pview.screen, self.color, ps)
 	def draw(self):
 		self.draw0(view.worldtoscreen, view.zoom)
 	def drawmap(self):
@@ -83,12 +90,14 @@ class Lep:
 
 
 # Lep is movable.
-# When leaving the lep in a direction within ds, no movement is expended.
+# May only leave the lep in the given direction.
 class FlowLep(Lep):
 	color = 100, 100, 255
 	def __init__(self, pos, ds):
 		Lep.__init__(self, pos)
 		self.ds = ds
+	def canmovefrom(self, d):
+		return d in self.ds
 	def cannab(self):
 		return True
 	def canboost(self, d):
@@ -204,6 +213,8 @@ class You:
 		if currentlep:
 			if not currentlep.canmovefrom(d):
 				sound.play("no")
+				if not settings.forgive:
+					self.fall()
 				return
 			d = currentlep.adjustcombo(d)
 		dx, dy = d
@@ -251,6 +262,7 @@ class You:
 			dy = int("up" in keys) - int("down" in keys)
 			if dx or dy:
 				self.combo((dx, dy))
+	# Whether there are any legal moves you can make. If not, go ahead and fall.
 	def canmove(self):
 		if state.leaps:
 			return True
@@ -259,14 +271,16 @@ class You:
 		if currentlep and any(currentlep.canboost(d) for d in ds):
 			return True
 		return False
+	def fall(self):
+		self.state = "falling"
+		self.vy = 8
 	def think(self, dt):
 		self.tmove += dt
 		if self.state == "jumping":
 			self.thang += dt
 			thang = state.thang if self.canmove() else state.thang0
 			if self.thang >= thang:
-				self.state = "falling"
-				self.vy = 8
+				self.fall()
 		elif self.state == "falling":
 			self.vy += 40 * dt
 			self.y -= self.vy * dt
@@ -318,17 +332,18 @@ class You:
 	def draw(self):
 		spec, angle = self.drawspec()
 		scale = T(1.3 * view.zoom)
-		for j in (3, 2, 1, 0):
-			seed = self.tmove + 100 * j + self.x + 100 * self.y
+		for j in (2, 1, 0):
+#			seed = self.tmove + 100 * j + self.x + 100 * self.y
+			seed = 100 * j + self.x + 100 * self.y
 			alpha = math.clamp((1 - 0.2 * j) * (1 - self.tmove), 0, 1)
 			factor = 5 * math.exp(-0.5 * j)
-			f = math.clamp(factor * self.tmove ** 0.5, 0, 1)
+			f = math.clamp(factor * self.tmove, 0, 1)
 			px, py = math.mix((self.x - self.lastdx, self.y - self.lastdy), (self.x, self.y), f)
 			pos = view.worldtoscreen((px + 0.5, py + 0.5))
 			if j == 0:
 				draw.you(spec, pos, scale, angle, self.facingright)
 			else:
-				if alpha < 0:
+				if alpha <= 0:
 					continue
 				draw.you(spec, pos, scale, angle, self.facingright, seed, alpha)
 

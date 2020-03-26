@@ -10,7 +10,7 @@ pview.set_mode((1280, 720))
 x, y = 0, 0
 view.cx = w / 2
 view.cy = h / 2
-view.zoom = max(60, 720 / h)
+view.zoom = min(100, 720 / h)
 
 leps = []
 
@@ -50,6 +50,8 @@ def output():
 		"flow": [{"x": lep.x, "y": lep.y, "ds": lep.ds}
 			for lep in leps if isinstance(lep, thing.FlowLep)],
 	}
+	print(json.dumps(state))
+	print()
 		
 
 clock = pygame.time.Clock()

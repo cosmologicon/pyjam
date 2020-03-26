@@ -12,6 +12,7 @@ forceres = False
 minfps, maxfps = 10, 120
 
 DEBUG = True
+forgive = False  # Whether you fail if you enter an incorrect combo
 
 keys = {
 	"up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],

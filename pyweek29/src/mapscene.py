@@ -34,7 +34,7 @@ def gettarget(at, keys):
 def control(keys):
 	if "act" in keys:
 		scene.push(playscene)
-		scene.push(dialogscene, "backyard")
+#		scene.push(dialogscene, "backyard")
 		sound.play("select")
 	else:
 		target = gettarget(progress.at, keys)

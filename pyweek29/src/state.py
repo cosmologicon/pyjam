@@ -11,9 +11,10 @@ def recharge():
 	leaps = maxleaps
 
 def rechargeleps():
+	global jspin
+	jspin = 0
 	for lep in leps:
 		lep.charged = True
-
 
 def winning():
 	return len(goals) >= ngoal and you.state == "grounded"
