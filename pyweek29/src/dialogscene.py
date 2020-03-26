@@ -7,7 +7,7 @@ lines = {
 	"backyard": [
 		"Y Lepidoptery?",
 		"Y Don't mind if I do!",
-		"E Wait for me!",
+		"V Wait for me!",
 	],
 }
 
@@ -26,14 +26,19 @@ def init(track):
 	self.tline = 0
 	self.a = 0
 	self.switching = True
+	self.ready = False
+	drawwho("Y", -1, 1)
+	drawwho("E", 1, 1)
 
 def control(keys):
 	if "act" in keys and not self.switching:
 		self.switching = True
+		self.ready = False
 
 def think(dt):
-	self.t += dt
-	self.tline += dt
+	if self.ready:
+		self.t += dt
+		self.tline += dt
 	if self.switching:
 		self.a = math.approach(self.a, 1, 5 * dt)
 		if self.a == 1:
@@ -54,6 +59,7 @@ def layout(jline):
 		color = {
 			"Y": (0, 255, 255),
 			"E": (255, 200, 100),
+			"V": (255, 0, 255),
 		}[who]
 		dpos = -1 if who == "Y" else 1
 	return line, who, dpos, color
@@ -84,21 +90,25 @@ def drawwho(who, dpos, a):
 		x = 640 + dpos * (400 + 600 * a)
 		D.you("standing", T(x, 800), T(1600), 0, True)
 	elif who == "E":
-		x = 600 + dpos * (400 + 600 * a)
+		x = 640 + dpos * (360 + 600 * a)
 		D.drawimg("elmer", T(x, 400), T(1600))
-	
+	elif who == "V":
+		x = 640 + dpos * (360 + 600 * a)
+		D.drawimg("victoria", T(x, 400), T(1400))
 	
 
 def drawline(line, who, color, dpos, a):
 	fontname = {
 		"Y": "ChangaOne",
 		"E": "ChangaOne",
+		"V": "ChangaOne",
 	}[who]
 	ptext.draw(line, center = T(640 + (100 + 1200 * a) * dpos, 600), width = T(720), color = color,
 		shade = 1, shadow = (1, 1.3), owidth = 0.25,
 		fontsize = T(120), fontname = fontname)
 
 def draw():
+	self.ready = True
 	line, who, dpos, color = layout(self.jline)
 	if not self.switching:
 		drawback(color, dpos)
