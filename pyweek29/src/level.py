@@ -1,5 +1,10 @@
-import random
+import random, json
 from . import state, thing
+
+leveldata = {
+	"crowd": {"w": 6, "h": 5, "goal": [{"x": 2, "y": 4}, {"x": 5, "y": 3}, {"x": 1, "y": 2}], "flow": [{"x": 1, "y": 1, "ds": [[1, 1]]}, {"x": 0, "y": 4, "ds": [[1, -1]]}, {"x": 1, "y": 4, "ds": [[-1, 0], [1, 0], [0, -1]]}, {"x": 3, "y": 4, "ds": [[-1, -1], [1, -1]]}, {"x": 4, "y": 4, "ds": [[-1, 0], [1, -1]]}, {"x": 5, "y": 4, "ds": [[-1, 1]]}, {"x": 0, "y": 3, "ds": [[1, 1], [1, 0]]}, {"x": 1, "y": 3, "ds": [[-1, -1]]}, {"x": 2, "y": 3, "ds": [[-1, -1], [1, -1]]}, {"x": 3, "y": 3, "ds": [[1, 1]]}, {"x": 4, "y": 3, "ds": [[1, 1], [-1, 1]]}, {"x": 5, "y": 2, "ds": [[-1, 1]]}, {"x": 4, "y": 2, "ds": [[-1, 1], [1, 0]]}, {"x": 3, "y": 2, "ds": [[1, 0]]}, {"x": 2, "y": 2, "ds": [[-1, 1]]}, {"x": 0, "y": 2, "ds": [[0, 1], [0, -1]]}, {"x": 0, "y": 1, "ds": [[1, 0]]}, {"x": 2, "y": 1, "ds": [[1, 1]]}, {"x": 3, "y": 1, "ds": [[-1, 1], [1, 0]]}, {"x": 4, "y": 1, "ds": [[1, 1]]}, {"x": 5, "y": 1, "ds": [[0, 1], [-1, 0]]}]},
+
+}
 
 def load():
 	state.thang0 = 0.7
@@ -13,10 +18,21 @@ def load():
 	state.jspin = 0
 	state.ychecks = []
 
-	randomlevel()
+#	randomlevel()
 #	levelspin()
+	loadjson(leveldata["crowd"])
 	state.ngoal = sum(isinstance(lep, thing.GoalLep) for lep in state.leps)
 	state.leaps = state.maxleaps
+
+def loadjson(data):
+	state.leps = []
+	state.w = data["w"]
+	state.h = data["h"]
+	for spec in data["goal"]:
+		state.leps.append(thing.GoalLep((spec["x"], spec["y"])))
+	for spec in data["flow"]:
+		ds = [tuple(d) for d in spec["ds"]]
+		state.leps.append(thing.FlowLep((spec["x"], spec["y"]), ds))
 
 def checkpoint():
 	if not state.ychecks:
@@ -36,6 +52,17 @@ def level1():
 		thing.FlowLep((3, 3), [(0, 1)]),
 		thing.GoalLep((1, 4)),
 	]
+
+def levelcrowd():
+	state.w = 6
+	state.h = 4
+	state.leps = [
+		thing.FlowLep((0, 4), [(1, -1)]),
+		thing.FlowLep((2, 1), [(0, 1)]),
+		thing.FlowLep((3, 3), [(0, 1)]),
+		thing.GoalLep((1, 4)),
+	]
+
 
 def levelspin():
 	state.w = 4
