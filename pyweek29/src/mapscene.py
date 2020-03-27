@@ -57,14 +57,14 @@ def think(dt):
 		self.ending = False
 		scene.push(playscene)
 		scene.push(dialogscene, progress.at)
-	if self.y > 8:
-		self.y0 = 8
+	if self.y > 10:
+		self.y0 = 10
 	else:
 		self.y0 = 0
 
 def screenpos(pos):
 	x, y = pos
-	return T(100 * x, 720 - 100 * (y - self.y0))
+	return T(130 * x, 720 - 80 * (y - self.y0))
 
 def draw():
 	if self.y0 == 0:
@@ -74,12 +74,6 @@ def draw():
 		D.drawimg("borealis", pview.center, pview.size)
 		title = "Borealis Isle"
 	scolor = 0, 0, 0
-	ptext.draw(title, midtop = T(640, 20), fontsize = T(80),
-		fontname = "IMFell", color = (240, 200, 140), owidth = 0.5,
-		shadow = (0.5, 0.5), scolor = scolor, shade = 1)
-	ptext.draw(progress.at, midbottom = T(640, 700), fontsize = T(64),
-		fontname = "IMFell", color = math.imix((240, 200, 140), (255, 255, 255), 0.5),
-		owidth = 0.5, shadow = (0.5, 0.5), scolor = scolor, shade = 1)
 	for s0, s1 in progress.joins:
 		if s0 not in progress.unlocked or s1 not in progress.unlocked:
 			continue
@@ -101,5 +95,11 @@ def draw():
 	D.drawimg("token", screenpos((self.x, self.y)), pview.f * 400, angle)
 	if self.a:
 		pview.fill((255, 255, 255, int(round(255 * self.a))))
+	ptext.draw(title, midtop = T(640, 20), fontsize = T(80),
+		fontname = "IMFell", color = (240, 200, 140), owidth = 0.5,
+		shadow = (0.5, 0.5), scolor = scolor, shade = 1)
+	ptext.draw(progress.at, midbottom = T(640, 700), fontsize = T(64),
+		fontname = "IMFell", color = math.imix((240, 200, 140), (255, 255, 255), 0.5),
+		owidth = 0.5, shadow = (0.5, 0.5), scolor = scolor, shade = 1)
 
 

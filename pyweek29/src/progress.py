@@ -1,14 +1,46 @@
 stages = {
-	"tutorial1": (4, 3),
-	"tutorial2": (5, 2),
-	"tutorial3": (6, 3),
-	"tutorial4": (7, 2),
-	"nexus": (4, 5.5),
-	"finale": (4, 10.5),
+	"tutorial1": (3, 6),
+	"tutorial2": (4, 5),
+	"tutorial3": (5, 4),
+	"tutorial4": (6, 4),
+
+	"A0": (4, 3),
+	"A1": (3, 2),
+	"A2": (1.5, 2),
+	
+	"B0": (5, 2),
+	"B1": (6, 2),
+	
+	"C0": (7, 3),
+	"C1": (7, 1),
+	
+	"D0": (7, 5),
+	"D1": (7, 7),
+	"D2": (8, 6),
+
+	"nexus": (4, 7),
+	"finale0": (4, 13),
+	"finale1": (2, 13),
 }
 joins = [
-#	("nexus", "finale"),
 	("tutorial1", "nexus"),
+	("nexus", "finale0"),
+	("finale1", "finale0"),
+
+	("tutorial2", "A0"),
+	("A0", "A1"),
+	("A1", "A2"),
+
+	("tutorial3", "B0"),
+	("B0", "B1"),
+
+	("tutorial4", "C0"),
+	("C0", "C1"),
+	("A1", "A2"),
+
+	("tutorial4", "D0"),
+	("D0", "D1"),
+	("D1", "D2"),
 
 	("tutorial1", "tutorial2"),
 	("tutorial2", "tutorial3"),

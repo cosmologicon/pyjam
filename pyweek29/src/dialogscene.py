@@ -1,5 +1,5 @@
 import pygame, math, numpy
-from . import scene, pview, ptext
+from . import scene, pview, ptext, progress
 from . import draw as D
 from .pview import T
 

@@ -53,31 +53,38 @@ def getbackground(filename, wmin, hmin):
 
 
 specs = {
-	"standing": ["backarm", "stand", "torso", "armdown"],
-	"falling": ["backarm", "drop", "torso", "armup"],
-	"leap0": ["backarm", "leap", "torso", "armout"],
-	"leap1": ["backarm", "leap", "torso", "pointing"],
-	"leap2": ["backarm", "leap", "torso", "elbowup"],
-	"leap3": ["backarm", "leap", "torso", "armup"],
-	"leap4": ["backarm", "leap", "torso", "armdown"],
+	"standing": ("backarm", "stand", "torso", "armdown"),
+	"falling": ("backarm", "drop", "torso", "armup"),
+	"leap0": ("backarm", "leap", "torso", "armout"),
+	"leap1": ("backarm", "leap", "torso", "pointing"),
+	"leap2": ("backarm", "leap", "torso", "elbowup"),
+	"leap3": ("backarm", "leap", "torso", "armup"),
+	"leap4": ("backarm", "leap", "torso", "armdown"),
 
-	"pose-horiz-0": ["backarm", "leap", "torso", "pointing"],
-	"pose-horiz-1": ["backarm", "leap", "torso", "elbowup"],
-	"pose-horiz-2": ["backarm", "leap", "torso", "armout"],
-	"pose-horiz-3": ["backarm", "leap", "torso", "armdown"],
-	"pose-horiz-4": ["backarm", "bound", "torso", "pointing"],
-	"pose-horiz-5": ["backarm", "bound", "torso", "elbowup"],
-	"pose-horiz-6": ["backarm", "bound", "torso", "armout"],
-	"pose-horiz-7": ["backarm", "bound", "torso", "armdown"],
+	"pose-horiz-0": ("backarm", "leap", "torso", "pointing"),
+	"pose-horiz-1": ("backarm", "leap", "torso", "elbowup"),
+	"pose-horiz-2": ("backarm", "leap", "torso", "armout"),
+	"pose-horiz-3": ("backarm", "leap", "torso", "armdown"),
+	"pose-horiz-4": ("backarm", "bound", "torso", "pointing"),
+	"pose-horiz-5": ("backarm", "bound", "torso", "elbowup"),
+	"pose-horiz-6": ("backarm", "bound", "torso", "armout"),
+	"pose-horiz-7": ("backarm", "bound", "torso", "armdown"),
 }
 
 @lru_cache(None)
 def youimg0(spec):
-	img = pygame.Surface((2020, 2152)).convert_alpha()
-	img.fill((0, 0, 0, 0))
-	for filename in specs[spec]:
-		img.blit(getimg0("you-%s" % filename), (0, 0))
-	return img
+	topimg = getimg0("you-%s" % spec[-1])
+	if len(spec) == 1:
+		return topimg.copy()
+	else:
+		img = youimg0(spec[:-1]).copy()
+		img.blit(topimg, (0, 0))
+		return img
+
+#		img = pygame.Surface((2020, 2152)).convert_alpha()
+#		img.fill((0, 0, 0, 0))
+#		for filename in specs[spec]:
+#			img.blit(getimg0("you-%s" % filename), (0, 0))
 
 
 def colorshift(img, seed):
@@ -92,7 +99,7 @@ def colorshift(img, seed):
 def youimg(spec, scale, angle, faceright, seed = None):
 	if seed is not None:
 		return colorshift(youimg(spec, scale, angle, faceright), seed)
-	return xform(youimg0(spec), scale, angle, not faceright, 1, None)
+	return xform(youimg0(specs[spec]), scale, angle, not faceright, 1, None)
 
 
 def fade(img, alpha):
@@ -195,8 +202,9 @@ def loadimgs(scale):
 		getimg0("you-" + f)
 		yield
 	for spec in specs:
-		youimg0(spec)
-		yield
+		for j in range(len(specs[spec])):
+			youimg0(specs[spec][:j+1])
+			yield
 	for facingright in (True, False):
 		for angle in (0, -28, -14, 14, 28):
 			for pose0 in range(8):
@@ -233,8 +241,8 @@ def killtime(dt):
 			del tokill[z]
 			if settings.DEBUG:
 				print("done", z, youimg.cache_info())
-#	if pygame.time.get_ticks() - tend > 2:
-#		print("time:", pygame.time.get_ticks() - tend)
+	if pygame.time.get_ticks() - tend > 50:
+		print("time:", pygame.time.get_ticks() - tend)
 
 def finishkill():
 	if view.zoom in tokill:
