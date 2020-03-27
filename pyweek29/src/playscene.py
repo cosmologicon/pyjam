@@ -1,5 +1,6 @@
 import pygame, statistics, math
-from . import pview, view, thing, state, settings, scene, control, level, progress
+from . import pview, view, thing, state, settings, scene, control, level, progress, sound
+from . import draw as D
 from .pview import T
 
 class self:
@@ -11,8 +12,7 @@ def init():
 	self.losing = False
 	self.lepdtf = 1
 	t0 = pygame.time.get_ticks()
-	state.you.loadimgs()
-	state.you.loadimgs()
+	D.finishkill()
 	
 
 def control(keys):
@@ -40,7 +40,7 @@ def think(dt):
 	view.think(dt)
 
 def draw():
-	pview.fill((40, 40, 120))
+	D.background("lake.jpg")
 	gridlines = [((x, 0), (x, state.h)) for x in range(0, state.w + 1)]
 	gridlines += [((0, y), (state.w, y)) for y in range(0, state.h + 1)]
 	if state.you.state == "jumping":
@@ -50,8 +50,9 @@ def draw():
 	state.you.draw()
 	for lep in state.goals:
 		lep.draw()
+	(xmin, xmax), (ymin, ymax) = view.visiblerange()
 	for lep in state.leps:
-		if 0 <= lep.y < state.h:
+		if xmin <= lep.x <= xmax and ymin <= lep.y <= ymax:
 			lep.draw()
 	if state.held:
 		state.held.draw()
@@ -61,19 +62,20 @@ def draw():
 	for p0, p1 in gridlines:
 		pygame.draw.line(pview.screen, (100, 60, 120), view.worldtomap(p0), view.worldtomap(p1), T(1))
 	state.you.drawmap()
-	for lep in state.leps:
-		lep.drawmap()
-	for lep in state.leps:
-		lep.drawarrowmap()
+#	for lep in state.leps:
+#		lep.drawmap()
+#	for lep in state.leps:
+#		lep.drawarrowmap()
 	mcenter = T(view.rrect.centerx, 70)
-	pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50), T(2))
-	pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50 * state.you.jumpmeter()))
-	for j in range(state.maxleaps):
-		pos = T(view.rrect.centerx + 60 * (-(state.maxleaps - 1) / 2 + j), 160)
-		if j < state.leaps:
-			pygame.draw.circle(pview.screen, (255, 200, 80), pos, T(24))
-		else:
-			pygame.draw.circle(pview.screen, (255, 200, 80), pos, T(24), T(2))
+	if False:
+		pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50), T(2))
+		pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50 * state.you.jumpmeter()))
+		for j in range(state.maxleaps):
+			pos = T(view.rrect.centerx + 60 * (-(state.maxleaps - 1) / 2 + j), 160)
+			if j < state.leaps:
+				pygame.draw.circle(pview.screen, (255, 200, 80), pos, T(24))
+			else:
+				pygame.draw.circle(pview.screen, (255, 200, 80), pos, T(24), T(2))
 
 	if self.alpha:
 		pview.fill((255, 255, 255, int(255 * self.alpha)))

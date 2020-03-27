@@ -19,9 +19,9 @@ def load():
 	state.jspin = 0
 	state.ychecks = []
 
-#	randomlevel()
+	randomlevel()
 #	levelspin()
-	loadjson(leveldata["tower"])
+#	loadjson(leveldata["tower"])
 	state.ngoal = sum(isinstance(lep, thing.GoalLep) for lep in state.leps)
 	state.leaps = state.maxleaps
 

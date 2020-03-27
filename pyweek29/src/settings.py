@@ -4,6 +4,7 @@ gamename = "Butterfly Effect"
 
 # Resolution options
 size0 = 1280, 720
+height0 = 360
 height0 = 720
 heights = 360, 540, 720, 1080, 1440
 fullscreen = False

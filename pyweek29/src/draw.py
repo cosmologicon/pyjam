@@ -1,10 +1,19 @@
 import pygame, numpy, math
 from functools import lru_cache
-from . import pview
+from . import pview, view, settings
+from .pview import T
+
+def pickany(objs):
+	objs = list(objs)
+	return objs[0] if objs else None
 
 @lru_cache(None)
 def getimg0(filename):
 	return pygame.image.load("img/%s.png" % filename).convert_alpha()
+
+@lru_cache(None)
+def getbackground0(filename):
+	return pygame.image.load("background/%s" % filename).convert_alpha()
 
 def xform(img, scale, angle, hflip, vfactor, colormask):
 	if abs(vfactor) != 1:
@@ -29,6 +38,14 @@ def xform(img, scale, angle, hflip, vfactor, colormask):
 @lru_cache(1000)
 def getimg(filename, scale, angle = 0, flip = False, vfactor = 1, colormask = None):
 	return xform(getimg0(filename), scale, angle, flip, vfactor, colormask)
+
+@lru_cache(2)
+def getbackground(filename, wmin, hmin):
+	img = getbackground0(filename)
+	w0, h0 = img.get_size()
+	w, h = pview.I(max((wmin, wmin * h0 / w0), (hmin * w0 / h0, hmin)))
+	return pygame.transform.smoothscale(img, (w, h))
+
 
 specs = {
 	"standing": ["backarm", "stand", "torso", "armdown"],
@@ -66,7 +83,7 @@ def colorshift(img, seed):
 	arr[:,:,:] = shifted.astype(arr.dtype)
 	return img
 
-@lru_cache(400)
+@lru_cache(None)
 def youimg(spec, scale, angle, faceright, seed = None):
 	if seed is not None:
 		return colorshift(youimg(spec, scale, angle, faceright), seed)
@@ -130,6 +147,86 @@ def arrow(screenpos, scale, d, color0, f, alpha):
 	img = getarrowimg(scale, d, color0, f, alpha)
 	rect = img.get_rect(center = screenpos)
 	pview.screen.blit(img, rect)
+
+@lru_cache(10)
+def groundtexture0(colormask):
+	x0, y0 = 100, 100
+	img = pygame.Surface((x0, y0)).convert()
+	colorarr = numpy.array(colormask).reshape([1, 1, 3]) / 256.0
+	values = 1.0 - 0.15 * numpy.random.rand(x0, y0, 1) - 0.05 * numpy.random.rand(x0, y0, 3)
+	arr = pygame.surfarray.pixels3d(img)
+	arr[:,:,:] = (255 * values * colorarr).astype(arr.dtype)
+	return img
+
+@lru_cache(1)
+def groundtexture(w, h, offset, colormask):
+	w0, h0 = w + 8, h + 8
+	wi, hi = w0 // 8, h0 // 8
+	img0 = groundtexture0(colormask)
+	arr0 = pygame.surfarray.pixels3d(img0)
+	xs = (numpy.arange(wi).reshape([wi, 1]) - wi / 2 + offset) / 8
+	ys = numpy.arange(hi).reshape([1, hi]) / 2
+	W = 1 / (0.5 + ys / 20)
+	xs = (xs * W).astype(int) % 100
+	ys = (ys * W).astype(int) % 100
+	img = pygame.Surface((wi, hi)).convert()
+	arr = pygame.surfarray.pixels3d(img)
+	arr[:,:,:] = arr0[xs,ys,:]
+	return pygame.transform.smoothscale(img, (w0, h0))
+
+def background(filename):
+	pview.fill((40, 40, 40))
+	(x0, y0), (wmin, hmin) = T(view.backgroundspec())
+	img = getbackground(filename, wmin, hmin)
+	pview.screen.blit(img, img.get_rect(midbottom = (x0, y0)))
+	if y0 < pview.height:
+		offset = T(view.zoom * view.cx)
+		img = groundtexture(view.rrect.left, pview.height - y0, offset, (50, 80, 80))
+		pview.screen.blit(img, img.get_rect(midtop = (x0, y0)))
+
+def loadimgs(scale):
+	for facingright in (False, True):
+		for angle in (-28, -14, 0, 14, 28):
+			for pose0 in range(8):
+				for j in (2, 1, 0):
+					pose = (pose0 + 3 * j) % 8
+					seed = 100 * pose + 17
+					drawspec = "pose-horiz-%d" % pose
+					if j == 0:
+						you(drawspec, None, scale, angle, facingright)
+					else:
+						you(drawspec, None, scale, angle, facingright, seed, 1)
+					yield
+		you("standing", None, scale, 0, facingright)
+		you("falling", None, scale, 0, facingright)
+
+
+
+
+tokill = {}
+def killtimeinit():
+	global tokill
+	youimg.cache_clear()
+	tokill = { zoom: loadimgs(T(1.3 * zoom)) for zoom in view.allzooms }
+
+def killtime(dt):
+	z = view.zoom if view.zoom in tokill else pickany(tokill)
+	if z is None:
+		return
+	tend = pygame.time.get_ticks() + dt * 1000
+	while z in tokill and pygame.time.get_ticks() < tend:
+		try:
+			next(tokill[z])
+		except StopIteration:
+			del tokill[z]
+			if settings.DEBUG:
+				print("done", z, youimg.cache_info())
+
+def finishkill():
+	if view.zoom in tokill:
+		for _ in tokill[view.zoom]:
+			pass
+		del tokill[view.zoom]
 
 
 

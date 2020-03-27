@@ -36,6 +36,7 @@ def control(keys):
 		self.ready = False
 
 def think(dt):
+	D.killtime(0.05)
 	if self.ready:
 		self.t += dt
 		self.tline += dt

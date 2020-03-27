@@ -37,6 +37,7 @@ def control(keys):
 #		scene.push(dialogscene, "backyard")
 		sound.play("select")
 	else:
+		print(keys)
 		target = gettarget(progress.at, keys)
 		if target and target in progress.unlocked:
 			progress.at = target
@@ -45,7 +46,7 @@ def control(keys):
 			sound.play("no")
 
 def think(dt):
-	pass
+	D.killtime(0.05)
 
 def screenpos(pos):
 	x, y = pos
@@ -56,13 +57,19 @@ def draw():
 	for s0, s1 in progress.joins:
 		if s0 not in progress.unlocked or s1 not in progress.unlocked:
 			continue
-		pygame.draw.line(pview.screen, (200, 200, 200),
-			screenpos(progress.stages[s0]), screenpos(progress.stages[s1]), T(5))
+		p0 = screenpos(progress.stages[s0])
+		p1 = screenpos(progress.stages[s1])
+		pygame.draw.line(pview.screen, (0, 0, 0), p0, p1, T(10))
+		pygame.draw.line(pview.screen, (200, 200, 200), p0, p1, T(6))
 	for stagename, pos in progress.stages.items():
 		if stagename not in progress.unlocked:
 			continue
-		color = (50, 50, 50) if stagename in progress.beaten else (200, 0, 0)
-		pygame.draw.circle(pview.screen, color, screenpos(pos), T(25))
+		if stagename in progress.beaten:
+			color = 50, 50, 50
+		else:
+			a = int(round(math.sin(5 * pygame.time.get_ticks() * 0.001) * 10)) / 10
+			color = tuple(pview.I(180 + 60 * a, 40 + 20 * a, 40 + 20 * a))
+		D.drawimg("lep-icon", screenpos(pos), T(420), colormask = color)
 #	angle = 10 * math.sin(math.tau * 0.001 * pygame.time.get_ticks())
 	angle = 0
 	D.drawimg("token", screenpos(progress.stages[progress.at]), pview.f * 400, angle)

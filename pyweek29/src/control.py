@@ -35,8 +35,9 @@ def think(dt):
 combokeys = "up", "down", "left", "right"
 
 def completecombo():
-	self.queue.append(("combo",) + tuple(self.ckeys))
-	self.ckeys = set()
+	if self.ckeys:
+		self.queue.append(("combo",) + tuple(self.ckeys))
+		self.ckeys = set()
 	self.tcombo = 0
 
 def keydown(key):

@@ -84,13 +84,9 @@ class Lep:
 			return
 		dx, dy = math.norm(d)
 		pos = self.x + 0.5 + 0.35 * dx, self.y + 0.5 + 0.35 * dy
-		alpha = 1 if (self.x, self.y) == (state.you.x, state.you.y) else 0.1
-		draw.arrow(view.worldtoscreen(pos), T(90), d, self.color, self.tflap, alpha)
-#		R = math.R(math.atan2(-dx, dy))
-#		fs = (0, 0.5), (0.05, 0.35), (0, 0.4), (-0.05, 0.35)
-#		rfs = [R(f) for f in fs]
-#		ps = [topos((self.x + 0.5 + rfx, self.y + 0.5 + rfy)) for rfx, rfy in rfs]
-#		pygame.draw.polygon(pview.screen, self.color, ps)
+		alpha = 1 if (self.x, self.y) == (state.you.x, state.you.y) else 0.25
+		scale = 0.42 * pview.f * view.zoom
+		draw.arrow(view.worldtoscreen(pos), scale, d, self.color, self.tflap, alpha)
 	def draw(self):
 		self.draw0(view.worldtoscreen, view.zoom)
 	def drawmap(self):
@@ -146,19 +142,20 @@ class SpinLep(Lep):
 	color = 40, 255, 40
 	def __init__(self, pos):
 		Lep.__init__(self, pos)
-	def ds(self):
+	def think(self, dt):
+		Lep.think(self, dt)
 		ds0 = (0, 1), (1, 0), (0, -1), (-1, 0)
 		ds1 = (1, 1), (1, -1), (-1, 1), (-1, -1)
-		return ds0 if state.jspin % 2 == 0 else ds1
+		self.ds = ds0 if state.jspin % 2 == 0 else ds1
 	def canboost(self, d):
-		return self.charged and d in self.ds()
+		return self.charged and d in self.ds
 	def movefrom(self, d):
 		Lep.movefrom(self, d)
 		state.jspin += 1
 	def draw0(self, topos, zoom):
 		Lep.draw0(self, topos, zoom)
 		if not self.nabbed:
-			for d in self.ds():
+			for d in self.ds:
 				self.drawarrow(topos, d)
 
 # Doubles your movement
@@ -335,7 +332,8 @@ class You:
 			angle = (1 if self.facingright else -1) * 8 * self.lastdy
 			return "falling", angle
 		if self.state in ("jumping", "rebounding"):
-			angle = (1 if self.facingright else -1) * 14 * self.lastdy * (2 - (self.lastdx != 0))
+			angle = 14 * math.sign(self.lastdy) * (2 - (self.lastdx != 0))
+			angle *= (1 if self.facingright else -1)
 			return "pose", angle
 	def draw(self):
 		spec, angle = self.drawspec()
@@ -357,19 +355,6 @@ class You:
 				draw.you(drawspec, pos, scale, angle, self.facingright)
 			else:
 				draw.you(drawspec, pos, scale, angle, self.facingright, seed, alpha)
-	def loadimgs(self):
-		scale = T(1.3 * view.zoom)
-		for facingright in (False, True):
-			for angle in (-28, -14, 0, 14, 28):
-				for pose0 in range(8):
-					for j in (2, 1, 0):
-						pose = (pose0 + 3 * j) % 8
-						seed = 100 * pose + 17
-						drawspec = "pose-horiz-%d" % pose
-						if j == 0:
-							draw.you(drawspec, None, scale, angle, facingright)
-						else:
-							draw.you(drawspec, None, scale, angle, facingright, seed, 1)
 
 	def drawmap(self):
 		pos = view.worldtomap((self.x + 0.5, self.y + 0.5))
