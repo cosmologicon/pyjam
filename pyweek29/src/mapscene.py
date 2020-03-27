@@ -69,13 +69,17 @@ def screenpos(pos):
 def draw():
 	if self.y0 == 0:
 		D.drawimg("albion", pview.center, pview.size)
-		title = "The Albion Isles"
+		title = "Albion Isle"
 	else:
 		D.drawimg("borealis", pview.center, pview.size)
-		title = "Borealis Island"
-	ptext.draw(title, midtop = T(640, 20), fontsize = T(64),
+		title = "Borealis Isle"
+	scolor = 0, 0, 0
+	ptext.draw(title, midtop = T(640, 20), fontsize = T(80),
 		fontname = "IMFell", color = (240, 200, 140), owidth = 0.5,
-		shadow = (1, 1), scolor = (0, 0, 0, 60), shade = 1)
+		shadow = (0.5, 0.5), scolor = scolor, shade = 1)
+	ptext.draw(progress.at, midbottom = T(640, 700), fontsize = T(64),
+		fontname = "IMFell", color = math.imix((240, 200, 140), (255, 255, 255), 0.5),
+		owidth = 0.5, shadow = (0.5, 0.5), scolor = scolor, shade = 1)
 	for s0, s1 in progress.joins:
 		if s0 not in progress.unlocked or s1 not in progress.unlocked:
 			continue
@@ -95,7 +99,6 @@ def draw():
 #	angle = 10 * math.sin(math.tau * 0.001 * pygame.time.get_ticks())
 	angle = 0
 	D.drawimg("token", screenpos((self.x, self.y)), pview.f * 400, angle)
-	ptext.draw("At: %s" % progress.at, T(20, 20), fontsize = T(32), owidth = 1)
 	if self.a:
 		pview.fill((255, 255, 255, int(round(255 * self.a))))
 

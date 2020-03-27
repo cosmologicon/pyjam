@@ -7,7 +7,7 @@ stages = {
 	"finale": (4, 10.5),
 }
 joins = [
-	("nexus", "finale"),
+#	("nexus", "finale"),
 	("tutorial1", "nexus"),
 
 	("tutorial1", "tutorial2"),
