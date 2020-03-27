@@ -1,12 +1,24 @@
 import random, json
-from . import state, thing
+from . import state, thing, progress
 
 leveldata = {
 	"learnguide": {"w": 3, "h": 5, "goal": [{"x": 1, "y": 4}, {"x": 1, "y": 2}, {"x": 0, "y": 3}], "flow": [{"x": 2, "y": 3, "ds": [[0, 1]], "guidable": True}, {"x": 2, "y": 1, "ds": [[0, 1]], "guidable": True}, {"x": 0, "y": 2, "ds": [[1, 1]], "guidable": True}]},
 
 
 	"crowd": {"w": 6, "h": 5, "goal": [{"x": 2, "y": 4}, {"x": 5, "y": 3}, {"x": 1, "y": 2}], "flow": [{"x": 1, "y": 1, "ds": [[1, 1]]}, {"x": 0, "y": 4, "ds": [[1, -1]]}, {"x": 1, "y": 4, "ds": [[-1, 0], [1, 0], [0, -1]]}, {"x": 3, "y": 4, "ds": [[-1, -1], [1, -1]]}, {"x": 4, "y": 4, "ds": [[-1, 0], [1, -1]]}, {"x": 5, "y": 4, "ds": [[-1, 1]]}, {"x": 0, "y": 3, "ds": [[1, 1], [1, 0]]}, {"x": 1, "y": 3, "ds": [[-1, -1]]}, {"x": 2, "y": 3, "ds": [[-1, -1], [1, -1]]}, {"x": 3, "y": 3, "ds": [[1, 1]]}, {"x": 4, "y": 3, "ds": [[1, 1], [-1, 1]]}, {"x": 5, "y": 2, "ds": [[-1, 1]]}, {"x": 4, "y": 2, "ds": [[-1, 1], [1, 0]]}, {"x": 3, "y": 2, "ds": [[1, 0]]}, {"x": 2, "y": 2, "ds": [[-1, 1]]}, {"x": 0, "y": 2, "ds": [[0, 1], [0, -1]]}, {"x": 0, "y": 1, "ds": [[1, 0]]}, {"x": 2, "y": 1, "ds": [[1, 1]]}, {"x": 3, "y": 1, "ds": [[-1, 1], [1, 0]]}, {"x": 4, "y": 1, "ds": [[1, 1]]}, {"x": 5, "y": 1, "ds": [[0, 1], [-1, 0]]}]},
-	"tower": {"w": 3, "h": 14, "goal": [{"x": 0, "y": 5}, {"x": 2, "y": 7}, {"x": 1, "y": 13}], "flow": [{"x": 1, "y": 1, "ds": [[0, 1]]}, {"x": 1, "y": 2, "ds": [[0, 1]]}, {"x": 1, "y": 3, "ds": [[1, 1]]}, {"x": 2, "y": 4, "ds": [[0, 1]]}, {"x": 2, "y": 5, "ds": [[-1, 1]]}, {"x": 1, "y": 6, "ds": [[-1, -1], [-1, 1]]}, {"x": 0, "y": 7, "ds": [[1, 1]]}, {"x": 1, "y": 8, "ds": [[1, 0], [-1, 1]]}, {"x": 0, "y": 9, "ds": [[1, 1]]}, {"x": 1, "y": 10, "ds": [[-1, 1]]}, {"x": 0, "y": 11, "ds": [[1, 1]]}, {"x": 2, "y": 8, "ds": [[0, -1]]}, {"x": 1, "y": 12, "ds": [[1, -1]]}, {"x": 2, "y": 11, "ds": [[0, 1]]}, {"x": 2, "y": 12, "ds": [[-1, 1]]}]},
+
+
+	"test": {'w': 9, 'h': 3, 'goal': [{'x': 4, 'y': 1}, {'x': 4, 'y': 2}], 'flow': [{'x': 0, 'y': 1, 'ds': [(0, 1), (1, 1)], 'guidable': False}, {'x': 5, 'y': 1, 'ds': [(0, 1), (1, 1)], 'guidable': True}], 'spin': [{'x': 1, 'y': 1, 'guidable': False}, {'x': 6, 'y': 1, 'guidable': True}], 'boost': [{'x': 2, 'y': 1, 'ds': [(1, 0), (0, 1)], 'guidable': False}, {'x': 7, 'y': 1, 'ds': [(-1, 0), (0, 1)], 'guidable': True}], 'continue': [{'x': 3, 'y': 1, 'guidable': False}, {'x': 8, 'y': 1, 'guidable': True}]},
+
+
+	# Rook motion only
+	"tutorial1": {'w': 3, 'h': 4, 'goal': [{'x': 0, 'y': 2}, {'x': 0, 'y': 3}, {'x': 2, 'y': 2}], 'flow': [{'x': 0, 'y': 1, 'ds': [(0, 1)], 'guidable': False}, {'x': 1, 'y': 1, 'ds': [(0, 1)], 'guidable': False}, {'x': 1, 'y': 2, 'ds': [(1, 0), (0, 1)], 'guidable': False}, {'x': 1, 'y': 3, 'ds': [(-1, 0)], 'guidable': False}], 'spin': [], 'boost': [], 'continue': []},
+	# Pawn motion only
+	"tutorial2": {'w': 5, 'h': 5, 'goal': [{'x': 3, 'y': 4}, {'x': 2, 'y': 4}, {'x': 1, 'y': 4}], 'flow': [{'x': 1, 'y': 1, 'ds': [(1, 1), (-1, 1)], 'guidable': False}, {'x': 2, 'y': 1, 'ds': [(1, 1), (-1, 1)], 'guidable': False}, {'x': 3, 'y': 1, 'ds': [(1, 1), (-1, 1)], 'guidable': False}, {'x': 4, 'y': 2, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 2, 'ds': [(1, 1), (-1, 1)], 'guidable': False}, {'x': 2, 'y': 2, 'ds': [(1, 1), (-1, 1)], 'guidable': False}, {'x': 1, 'y': 2, 'ds': [(-1, 1), (1, 1)], 'guidable': False}, {'x': 0, 'y': 2, 'ds': [(1, 1)], 'guidable': False}, {'x': 0, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 3, 'ds': [(-1, 1), (1, 1)], 'guidable': False}, {'x': 2, 'y': 3, 'ds': [(-1, 1), (1, 1)], 'guidable': False}, {'x': 3, 'y': 3, 'ds': [(-1, 1), (1, 1)], 'guidable': False}, {'x': 4, 'y': 3, 'ds': [(-1, 1)], 'guidable': False}], 'spin': [], 'boost': [], 'continue': []},
+	# Tower
+	"tutorial3": {'w': 4, 'h': 14, 'goal': [{'x': 2, 'y': 13}, {'x': 3, 'y': 5}, {'x': 2, 'y': 10}], 'flow': [{'x': 1, 'y': 1, 'ds': [(0, 1)], 'guidable': False}, {'x': 1, 'y': 2, 'ds': [(-1, 1)], 'guidable': False}, {'x': 0, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 4, 'ds': [(1, 1)], 'guidable': False}, {'x': 2, 'y': 5, 'ds': [(0, 1)], 'guidable': False}, {'x': 2, 'y': 6, 'ds': [(1, 1)], 'guidable': False}, {'x': 3, 'y': 7, 'ds': [(-1, 1)], 'guidable': False}, {'x': 2, 'y': 8, 'ds': [(0, 1)], 'guidable': False}, {'x': 2, 'y': 9, 'ds': [(-1, 1)], 'guidable': False}, {'x': 1, 'y': 10, 'ds': [(-1, 1)], 'guidable': False}, {'x': 0, 'y': 11, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 12, 'ds': [(1, 1)], 'guidable': False}, {'x': 2, 'y': 1, 'ds': [(1, 1)], 'guidable': False}, {'x': 3, 'y': 2, 'ds': [(-1, 1)], 'guidable': False}, {'x': 2, 'y': 3, 'ds': [(0, 1)], 'guidable': False}, {'x': 2, 'y': 4, 'ds': [(-1, 1)], 'guidable': False}, {'x': 1, 'y': 5, 'ds': [(-1, 1)], 'guidable': False}, {'x': 0, 'y': 6, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 7, 'ds': [(-1, 1), (1, 0)], 'guidable': False}, {'x': 2, 'y': 7, 'ds': [(1, -1)], 'guidable': False}, {'x': 3, 'y': 6, 'ds': [(0, -1)], 'guidable': False}, {'x': 0, 'y': 8, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 9, 'ds': [(1, 1)], 'guidable': False}], 'spin': [], 'boost': [], 'continue': []},
+	# Guiding
+	"tutorial4": {'w': 3, 'h': 4, 'goal': [{'x': 2, 'y': 3}, {'x': 1, 'y': 3}, {'x': 0, 'y': 3}], 'flow': [{'x': 0, 'y': 1, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 1, 'ds': [(1, 1), (-1, 1)], 'guidable': False}, {'x': 2, 'y': 1, 'ds': [(-1, 1)], 'guidable': False}, {'x': 2, 'y': 2, 'ds': [(0, 1)], 'guidable': True}], 'spin': [], 'boost': [], 'continue': []},
 
 }
 
@@ -24,11 +36,11 @@ def load():
 
 #	randomlevel()
 #	levelspin()
-	loadjson(leveldata["learnguide"])
+	loaddata(leveldata[progress.at])
 	state.ngoal = sum(isinstance(lep, thing.GoalLep) for lep in state.leps)
 	state.leaps = state.maxleaps
 
-def loadjson(data):
+def loaddata(data):
 	state.leps = []
 	state.w = data["w"]
 	state.h = data["h"]
@@ -37,6 +49,19 @@ def loadjson(data):
 	for spec in data["flow"]:
 		ds = [tuple(d) for d in spec["ds"]]
 		lep = thing.FlowLep((spec["x"], spec["y"]), ds)
+		lep.guidable = spec["guidable"]
+		state.leps.append(lep)
+	for spec in data["spin"]:
+		lep = thing.SpinLep((spec["x"], spec["y"]))
+		lep.guidable = spec["guidable"]
+		state.leps.append(lep)
+	for spec in data["boost"]:
+		ds = [tuple(d) for d in spec["ds"]]
+		lep = thing.BoostLep((spec["x"], spec["y"]), ds)
+		lep.guidable = spec["guidable"]
+		state.leps.append(lep)
+	for spec in data["continue"]:
+		lep = thing.ContinueLep((spec["x"], spec["y"]))
 		lep.guidable = spec["guidable"]
 		state.leps.append(lep)
 

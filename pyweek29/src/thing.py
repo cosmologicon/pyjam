@@ -47,13 +47,13 @@ class Lep:
 		self.glow = None
 	# Whether you're able to move away from this lep.
 	def canmovefrom(self, d):
-		return True
+		return d in self.ds
 	def movefrom(self, d):
 #		self.charged = False
 		pass
 	# Whether this lep prevents you from expending a leap in the given direction as you move away
 	def canboost(self, d):
-		return False
+		return self.charged and d in self.ds
 	# Called when you first enter this lep's space
 	def encounter(self):
 		self.aseen = True
@@ -104,7 +104,7 @@ class Lep:
 		draw.drawimg("lep-flap", pos, scale, angle, flip, vfactor, colormask = self.color)
 		if self.glow:
 			self.glow.draw()
-	def drawarrow(self, topos, d):
+	def drawarrow(self, d):
 		if not self.aseen:
 			return
 		dx, dy = math.norm(d)
@@ -112,6 +112,10 @@ class Lep:
 		alpha = 1 if (self.x, self.y) == (state.you.x, state.you.y) else 0.25
 		scale = 0.42 * pview.f * view.zoom
 		draw.arrow(view.worldtoscreen(pos), scale, d, self.color, self.tflap, alpha)
+	def drawarrows(self):
+		if self is not state.guided:
+			for d in self.ds:
+				self.drawarrow(d)
 	def draw(self):
 		self.draw0(view.worldtoscreen, view.zoom)
 	def drawmap(self):
@@ -136,6 +140,7 @@ class Lep:
 			dpos = view.worldtoscreen((self.x + 0.5 + 0.4 * dx, self.y + 0.5 + 0.4 * dy))
 			pygame.draw.line(pview.screen, self.color, pos, dpos, T(4))
 
+
 # Lep is movable.
 # May only leave the lep in the given direction.
 class FlowLep(Lep):
@@ -143,31 +148,9 @@ class FlowLep(Lep):
 	def __init__(self, pos, ds):
 		Lep.__init__(self, pos)
 		self.ds = ds
-	def canmovefrom(self, d):
-		return d in self.ds
-	def canboost(self, d):
-		return self.charged and d in self.ds
 	def draw0(self, topos, zoom):
 		Lep.draw0(self, topos, zoom)
-		if self is not state.guided:
-			for d in self.ds:
-				self.drawarrow(topos, d)
-
-# Automatically moves you in a certain direction.
-class SlingLep(Lep):
-	color = 255, 50, 150
-	def __init__(self, pos, ds):
-		Lep.__init__(self, pos)
-		self.ds = ds
-	def canmovefrom(self, d):
-		return d in self.ds
-	def canboost(self, d):
-		return self.charged and d in self.ds
-	def draw0(self, topos, zoom):
-		Lep.draw0(self, topos, zoom)
-		if self is not state.guided:
-			for d in self.ds:
-				self.drawarrow(topos, d)
+		self.drawarrows()
 
 # Rotates along with all other SpinLeps
 class SpinLep(Lep):
@@ -179,16 +162,12 @@ class SpinLep(Lep):
 		ds0 = (0, 1), (1, 0), (0, -1), (-1, 0)
 		ds1 = (1, 1), (1, -1), (-1, 1), (-1, -1)
 		self.ds = ds0 if state.jspin % 2 == 0 else ds1
-	def canboost(self, d):
-		return self.charged and d in self.ds
 	def movefrom(self, d):
 		Lep.movefrom(self, d)
 		state.jspin += 1
 	def draw0(self, topos, zoom):
 		Lep.draw0(self, topos, zoom)
-		if self is not state.guided:
-			for d in self.ds:
-				self.drawarrow(topos, d)
+		self.drawarrows()
 
 # Doubles your movement
 class BoostLep(Lep):
@@ -200,10 +179,28 @@ class BoostLep(Lep):
 	def adjustcombo(self, d):
 		dx, dy = d
 		return dx * self.n, dy * self.n
+	def draw0(self, topos, zoom):
+		Lep.draw0(self, topos, zoom)
+		self.drawarrows()
+
+# Only lets you go straight through
+class ContinueLep(Lep):
+	color = 255, 0, 255
+	def think(self, dt):
+		Lep.think(self, dt)
+		if state.you.lastdx or state.you.lastdy:
+			self.ds = [(math.sign(state.you.lastdx), math.sign(state.you.lastdy))]
+	def draw0(self, topos, zoom):
+		Lep.draw0(self, topos, zoom)
+		self.drawarrows()
 
 # Refills the leaps
 class ChargeLep(Lep):
 	color = 200, 0, 255
+	def canmovefrom(self, d):
+		return True
+	def canboost(self, d):
+		return False
 	def encounter(self):
 		sound.play("recharge")
 		state.recharge()
@@ -214,6 +211,10 @@ class GoalLep(Lep):
 	def __init__(self, pos):
 		Lep.__init__(self, pos)
 		self.glow = GuideGlow(self)
+	def canmovefrom(self, d):
+		return True
+	def canboost(self, d):
+		return False
 	def encounter(self):
 		if self in state.leps:
 			state.goals.append(self)
@@ -264,6 +265,15 @@ class You:
 				if not settings.forgive:
 					self.fall()
 				return
+		dleap = 1
+		if currentlep and currentlep.canboost(d):
+			dleap -= 1
+		if state.leaps - dleap < 0:
+			sound.play("no")
+			if not settings.forgive:
+				self.fall()
+			return
+		if currentlep:
 			d = currentlep.adjustcombo(d)
 		dx, dy = d
 		if not 0 <= self.x + dx < state.w:
@@ -272,13 +282,9 @@ class You:
 		if not 0 <= self.y + dy:
 			sound.play("no")
 			return
-		dleap = 1
-		if currentlep and currentlep.canboost(d):
-			dleap -= 1
+		# Actually move
+		if currentlep:
 			currentlep.movefrom(d)
-		if state.leaps - dleap < 0:
-			sound.play("no")
-			return
 
 		self.x += dx
 		self.y += dy
@@ -312,9 +318,11 @@ class You:
 				self.combo((dx, dy))
 	# Whether there are any legal moves you can make. If not, go ahead and fall.
 	def canmove(self):
-		if state.leaps:
+		if state.leaps or state.guided:
 			return True
 		currentlep = pickany(lep for lep in state.leps if collide(self, lep))
+		if currentlep and currentlep.guidable:
+			return True
 		ds = [(x, y) for x in (-1, 0, 1) for y in (-1, 0, 1) if x or y]
 		if currentlep and any(currentlep.canboost(d) for d in ds):
 			return True

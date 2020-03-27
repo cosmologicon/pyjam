@@ -1,19 +1,23 @@
 stages = {
-	"backyard": (2, 3),
-	"stage 2": (3, 2),
-	"lair": (4, 2),
-	"boss": (4, 3),
+	"tutorial1": (4, 3),
+	"tutorial2": (5, 2),
+	"tutorial3": (6, 3),
+	"tutorial4": (7, 2),
+	"nexus": (4, 5.5),
+	"finale": (4, 10.5),
 }
 joins = [
-	("backyard", "stage 2"),
-	("stage 2", "lair"),
-	("stage 2", "boss"),
-	("lair", "boss"),
-	("backyard", "boss"),
+	("nexus", "finale"),
+	("tutorial1", "nexus"),
+
+	("tutorial1", "tutorial2"),
+	("tutorial2", "tutorial3"),
+	("tutorial3", "tutorial4"),
 ]
-at = "backyard"
-unlocked = set(["backyard"])
+at = "tutorial1"
+unlocked = set(["tutorial1"])
 beaten = set()
+dseen = set()
 
 def beat(level):
 	global unlocked

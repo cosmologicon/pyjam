@@ -12,7 +12,7 @@ def init():
 	self.losing = False
 	self.lepdtf = 1
 	t0 = pygame.time.get_ticks()
-#	D.finishkill()
+	self.killed = False
 	
 
 def control(keys):
@@ -22,6 +22,10 @@ def control(keys):
 		state.you.control(keys)
 
 def think(dt):
+	if not self.killed:
+		D.finishkill()
+		self.killed = True
+
 	if state.winning() or self.losing:
 		kdowns = set()
 		self.alpha = math.approach(self.alpha, 1, 4 * dt)

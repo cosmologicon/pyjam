@@ -1,9 +1,9 @@
 stack = []
 
 def push(s, *args, **kwargs):
+	stack.append(s)
 	if hasattr(s, "init"):
 		s.init(*args, **kwargs)
-	stack.append(s)
 
 def pop():
 	if stack:

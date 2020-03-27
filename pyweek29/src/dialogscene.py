@@ -4,7 +4,7 @@ from . import draw as D
 from .pview import T
 
 lines = {
-	"backyard": [
+	"tutorial1": [
 		"Y Lepidoptery?",
 		"Y Don't mind if I do!",
 		"V Wait for me!",
@@ -17,18 +17,23 @@ class self:
 
 
 def init(track):
-	if track not in lines:
-		scene.pop()
 	self.track = track
-	self.lines = list(lines[track])
 	self.jline = -1
 	self.t = 0
 	self.tline = 0
 	self.a = 0
 	self.switching = True
 	self.ready = False
-	drawwho("Y", -1, 1)
-	drawwho("E", 1, 1)
+
+	if track in lines and track not in progress.dseen:
+		self.lines = list(lines[track])
+		progress.dseen.add(track)
+		drawwho("Y", -1, 1)
+		drawwho("E", 1, 1)
+		drawwho("V", 1, 1)
+	if track not in lines:
+		scene.pop()
+		self.lines = []
 
 def control(keys):
 	if "act" in keys and not self.switching:
@@ -36,7 +41,10 @@ def control(keys):
 		self.ready = False
 
 def think(dt):
-	D.killtime(0.05)
+	t = pygame.time.get_ticks()
+	if not self.switching:
+		D.killtime(0.02)
+	print(pygame.time.get_ticks() - t)
 	if self.ready:
 		self.t += dt
 		self.tline += dt

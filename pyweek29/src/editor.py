@@ -28,6 +28,12 @@ def swapat(pos):
 	if lep0 is None:
 		leps.append(thing.FlowLep(pos, []))
 	elif isinstance(lep0, thing.FlowLep):
+		leps.append(thing.SpinLep(pos))
+	elif isinstance(lep0, thing.SpinLep):
+		leps.append(thing.BoostLep(pos, []))
+	elif isinstance(lep0, thing.BoostLep):
+		leps.append(thing.ContinueLep(pos))
+	elif isinstance(lep0, thing.ContinueLep):
 		leps.append(thing.GoalLep(pos))
 	else:
 		pass
@@ -47,6 +53,12 @@ def output():
 		"goal": [{"x": lep.x, "y": lep.y} for lep in leps if isinstance(lep, thing.GoalLep)],
 		"flow": [{"x": lep.x, "y": lep.y, "ds": lep.ds, "guidable": lep.guidable}
 			for lep in leps if isinstance(lep, thing.FlowLep)],
+		"spin": [{"x": lep.x, "y": lep.y, "guidable": lep.guidable}
+			for lep in leps if isinstance(lep, thing.SpinLep)],
+		"boost": [{"x": lep.x, "y": lep.y, "ds": lep.ds, "guidable": lep.guidable}
+			for lep in leps if isinstance(lep, thing.BoostLep)],
+		"continue": [{"x": lep.x, "y": lep.y, "guidable": lep.guidable}
+			for lep in leps if isinstance(lep, thing.ContinueLep)],
 	}
 #	print(json.dumps(state))
 	print(state)

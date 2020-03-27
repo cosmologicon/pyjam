@@ -25,7 +25,10 @@ def xform(img, scale, angle, hflip, vfactor, colormask):
 		img = pygame.transform.flip(img, hflip, vflip)
 	if angle:
 		img = pygame.transform.rotate(img, angle)
-	size = pview.I([a * scale / 2000 for a in img.get_size()])
+	if isinstance(scale, tuple):
+		size = scale
+	else:
+		size = pview.I([a * scale / 2000 for a in img.get_size()])
 	img = pygame.transform.smoothscale(img, size)
 	if colormask is not None:
 		colorarr = numpy.array(colormask).reshape([1, 1, 3]) / 256.0
@@ -45,6 +48,8 @@ def getbackground(filename, wmin, hmin):
 	w0, h0 = img.get_size()
 	w, h = pview.I(max((wmin, wmin * h0 / w0), (hmin * w0 / h0, hmin)))
 	return pygame.transform.smoothscale(img, (w, h))
+
+
 
 
 specs = {
@@ -186,10 +191,16 @@ def background(filename):
 		pview.screen.blit(img, img.get_rect(midtop = (x0, y0)))
 
 def loadimgs(scale):
-	for facingright in (False, True):
-		for angle in (-28, -14, 0, 14, 28):
+	for f in set(f for filenames in specs.values() for f in filenames):
+		getimg0("you-" + f)
+		yield
+	for spec in specs:
+		youimg0(spec)
+		yield
+	for facingright in (True, False):
+		for angle in (0, -28, -14, 14, 28):
 			for pose0 in range(8):
-				for j in (2, 1, 0):
+				for j in (0, 1, 2):
 					pose = (pose0 + 3 * j) % 8
 					seed = 100 * pose + 17
 					drawspec = "pose-horiz-%d" % pose
@@ -222,6 +233,8 @@ def killtime(dt):
 			del tokill[z]
 			if settings.DEBUG:
 				print("done", z, youimg.cache_info())
+#	if pygame.time.get_ticks() - tend > 2:
+#		print("time:", pygame.time.get_ticks() - tend)
 
 def finishkill():
 	if view.zoom in tokill:

@@ -11,7 +11,10 @@ class self:
 	pass
 
 def init():
-	pass
+	self.ending = False
+	self.a = 1
+	self.x, self.y = progress.stages[progress.at]
+	self.y0 = 0
 
 def getmove(p0, p1):
 	x0, y0 = p0
@@ -32,12 +35,12 @@ def gettarget(at, keys):
 	return None
 
 def control(keys):
+	if self.ending:
+		return
 	if "act" in keys:
-		scene.push(playscene)
-#		scene.push(dialogscene, "backyard")
+		self.ending = True
 		sound.play("select")
 	else:
-		print(keys)
 		target = gettarget(progress.at, keys)
 		if target and target in progress.unlocked:
 			progress.at = target
@@ -46,14 +49,33 @@ def control(keys):
 			sound.play("no")
 
 def think(dt):
-	D.killtime(0.05)
+	self.a = math.approach(self.a, (1 if self.ending else 0), 3 * dt)
+	self.x, self.y = math.softapproach((self.x, self.y), progress.stages[progress.at], 12 * dt, dymin = 0.01)
+	if self.a == 0:
+		D.killtime(0.02)
+	if self.ending and self.a == 1:
+		self.ending = False
+		scene.push(playscene)
+		scene.push(dialogscene, progress.at)
+	if self.y > 8:
+		self.y0 = 8
+	else:
+		self.y0 = 0
 
 def screenpos(pos):
 	x, y = pos
-	return T(100 * x, 720 - 100 * y)
+	return T(100 * x, 720 - 100 * (y - self.y0))
 
 def draw():
-	pview.fill((60, 100, 60))
+	if self.y0 == 0:
+		D.drawimg("albion", pview.center, pview.size)
+		title = "The Albion Isles"
+	else:
+		D.drawimg("borealis", pview.center, pview.size)
+		title = "Borealis Island"
+	ptext.draw(title, midtop = T(640, 20), fontsize = T(64),
+		fontname = "IMFell", color = (240, 200, 140), owidth = 0.5,
+		shadow = (1, 1), scolor = (0, 0, 0, 60), shade = 1)
 	for s0, s1 in progress.joins:
 		if s0 not in progress.unlocked or s1 not in progress.unlocked:
 			continue
@@ -72,8 +94,9 @@ def draw():
 		D.drawimg("lep-icon", screenpos(pos), T(420), colormask = color)
 #	angle = 10 * math.sin(math.tau * 0.001 * pygame.time.get_ticks())
 	angle = 0
-	D.drawimg("token", screenpos(progress.stages[progress.at]), pview.f * 400, angle)
+	D.drawimg("token", screenpos((self.x, self.y)), pview.f * 400, angle)
 	ptext.draw("At: %s" % progress.at, T(20, 20), fontsize = T(32), owidth = 1)
-
+	if self.a:
+		pview.fill((255, 255, 255, int(round(255 * self.a))))
 
 
