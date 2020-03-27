@@ -2,6 +2,9 @@ import random, json
 from . import state, thing
 
 leveldata = {
+	"learnguide": {"w": 3, "h": 5, "goal": [{"x": 1, "y": 4}, {"x": 1, "y": 2}, {"x": 0, "y": 3}], "flow": [{"x": 2, "y": 3, "ds": [[0, 1]], "guidable": True}, {"x": 2, "y": 1, "ds": [[0, 1]], "guidable": True}, {"x": 0, "y": 2, "ds": [[1, 1]], "guidable": True}]},
+
+
 	"crowd": {"w": 6, "h": 5, "goal": [{"x": 2, "y": 4}, {"x": 5, "y": 3}, {"x": 1, "y": 2}], "flow": [{"x": 1, "y": 1, "ds": [[1, 1]]}, {"x": 0, "y": 4, "ds": [[1, -1]]}, {"x": 1, "y": 4, "ds": [[-1, 0], [1, 0], [0, -1]]}, {"x": 3, "y": 4, "ds": [[-1, -1], [1, -1]]}, {"x": 4, "y": 4, "ds": [[-1, 0], [1, -1]]}, {"x": 5, "y": 4, "ds": [[-1, 1]]}, {"x": 0, "y": 3, "ds": [[1, 1], [1, 0]]}, {"x": 1, "y": 3, "ds": [[-1, -1]]}, {"x": 2, "y": 3, "ds": [[-1, -1], [1, -1]]}, {"x": 3, "y": 3, "ds": [[1, 1]]}, {"x": 4, "y": 3, "ds": [[1, 1], [-1, 1]]}, {"x": 5, "y": 2, "ds": [[-1, 1]]}, {"x": 4, "y": 2, "ds": [[-1, 1], [1, 0]]}, {"x": 3, "y": 2, "ds": [[1, 0]]}, {"x": 2, "y": 2, "ds": [[-1, 1]]}, {"x": 0, "y": 2, "ds": [[0, 1], [0, -1]]}, {"x": 0, "y": 1, "ds": [[1, 0]]}, {"x": 2, "y": 1, "ds": [[1, 1]]}, {"x": 3, "y": 1, "ds": [[-1, 1], [1, 0]]}, {"x": 4, "y": 1, "ds": [[1, 1]]}, {"x": 5, "y": 1, "ds": [[0, 1], [-1, 0]]}]},
 	"tower": {"w": 3, "h": 14, "goal": [{"x": 0, "y": 5}, {"x": 2, "y": 7}, {"x": 1, "y": 13}], "flow": [{"x": 1, "y": 1, "ds": [[0, 1]]}, {"x": 1, "y": 2, "ds": [[0, 1]]}, {"x": 1, "y": 3, "ds": [[1, 1]]}, {"x": 2, "y": 4, "ds": [[0, 1]]}, {"x": 2, "y": 5, "ds": [[-1, 1]]}, {"x": 1, "y": 6, "ds": [[-1, -1], [-1, 1]]}, {"x": 0, "y": 7, "ds": [[1, 1]]}, {"x": 1, "y": 8, "ds": [[1, 0], [-1, 1]]}, {"x": 0, "y": 9, "ds": [[1, 1]]}, {"x": 1, "y": 10, "ds": [[-1, 1]]}, {"x": 0, "y": 11, "ds": [[1, 1]]}, {"x": 2, "y": 8, "ds": [[0, -1]]}, {"x": 1, "y": 12, "ds": [[1, -1]]}, {"x": 2, "y": 11, "ds": [[0, 1]]}, {"x": 2, "y": 12, "ds": [[-1, 1]]}]},
 
@@ -13,15 +16,15 @@ def load():
 	state.maxleaps = 1
 	state.ngoal = 0
 	state.you = thing.You()
-	state.held = None
+	state.guided = None
 	state.goals = []
 	state.yfloor = 0
 	state.jspin = 0
 	state.ychecks = []
 
-	randomlevel()
+#	randomlevel()
 #	levelspin()
-#	loadjson(leveldata["tower"])
+	loadjson(leveldata["learnguide"])
 	state.ngoal = sum(isinstance(lep, thing.GoalLep) for lep in state.leps)
 	state.leaps = state.maxleaps
 
@@ -33,7 +36,9 @@ def loadjson(data):
 		state.leps.append(thing.GoalLep((spec["x"], spec["y"])))
 	for spec in data["flow"]:
 		ds = [tuple(d) for d in spec["ds"]]
-		state.leps.append(thing.FlowLep((spec["x"], spec["y"]), ds))
+		lep = thing.FlowLep((spec["x"], spec["y"]), ds)
+		lep.guidable = spec["guidable"]
+		state.leps.append(lep)
 
 def checkpoint():
 	if not state.ychecks:

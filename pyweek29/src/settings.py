@@ -31,6 +31,8 @@ keys = {
 	# Cheat codes, only work in DEBUG mode
 	"unlockall": [pygame.K_F1],
 	"beatcurrent": [pygame.K_F2],
+	# Editor
+	"toggleguide": [pygame.K_1],
 }
 
 dtcombo = 0.2

@@ -176,6 +176,7 @@ def groundtexture(w, h, offset, colormask):
 
 def background(filename):
 	pview.fill((40, 40, 40))
+	return
 	(x0, y0), (wmin, hmin) = T(view.backgroundspec())
 	img = getbackground(filename, wmin, hmin)
 	pview.screen.blit(img, img.get_rect(midbottom = (x0, y0)))

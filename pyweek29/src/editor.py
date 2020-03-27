@@ -34,25 +34,23 @@ def swapat(pos):
 
 def swapdirat(pos, d):
 	lep = lepat(pos)
-	print(pos, d, lep)
 	if lep:
 		if d in lep.ds:
 			lep.ds.remove(d)
 		else:
 			lep.ds.append(d)
-		print(lep.ds)
 
 def output():
 	state = {
 		"w": w,
 		"h": h,
 		"goal": [{"x": lep.x, "y": lep.y} for lep in leps if isinstance(lep, thing.GoalLep)],
-		"flow": [{"x": lep.x, "y": lep.y, "ds": lep.ds}
+		"flow": [{"x": lep.x, "y": lep.y, "ds": lep.ds, "guidable": lep.guidable}
 			for lep in leps if isinstance(lep, thing.FlowLep)],
 	}
-	print(json.dumps(state))
+#	print(json.dumps(state))
+	print(state)
 	print()
-		
 
 clock = pygame.time.Clock()
 playing = True
@@ -80,6 +78,10 @@ while playing:
 				y += dy
 		if "swap" in keys:
 			swapat((x, y))
+		if "toggleguide" in keys:
+			lep = lepat((x, y))
+			if lep is not None:
+				lep.guidable = not lep.guidable
 
 	pview.fill((40, 40, 40) if shift else (30, 30, 30))
 
@@ -93,7 +95,7 @@ while playing:
 		pygame.draw.line(pview.screen, (50, 50, 140),
 			view.worldtoscreen(p0), view.worldtoscreen(p1), 1)
 	for lep in leps:
-		lep.draw()
+		lep.draweditor()
 
 	text = "\n".join([
 		"%.1ffps" % clock.get_fps(),

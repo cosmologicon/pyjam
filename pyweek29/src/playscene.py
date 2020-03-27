@@ -12,7 +12,7 @@ def init():
 	self.losing = False
 	self.lepdtf = 1
 	t0 = pygame.time.get_ticks()
-	D.finishkill()
+#	D.finishkill()
 	
 
 def control(keys):
@@ -37,10 +37,12 @@ def think(dt):
 		lep.think(dt * self.lepdtf)
 	for lep in state.goals:
 		lep.think(dt * self.lepdtf)
+	if state.guided is not None:
+		state.guided.think(dt * self.lepdtf)
 	view.think(dt)
 
 def draw():
-	D.background("lake.jpg")
+	D.background("space.jpg")
 	gridlines = [((x, 0), (x, state.h)) for x in range(0, state.w + 1)]
 	gridlines += [((0, y), (state.w, y)) for y in range(0, state.h + 1)]
 	if state.you.state == "jumping":
@@ -50,23 +52,29 @@ def draw():
 	state.you.draw()
 	for lep in state.goals:
 		lep.draw()
+	if state.guided is not None:
+		state.guided.draw()
 	(xmin, xmax), (ymin, ymax) = view.visiblerange()
 	for lep in state.leps:
 		if xmin <= lep.x <= xmax and ymin <= lep.y <= ymax:
 			lep.draw()
-	if state.held:
-		state.held.draw()
+	if state.guided:
+		state.guided.draw()
 
 	# Right panel
 	pview.fill((80, 80, 100, 220), T(view.rrect))
 	for p0, p1 in gridlines:
 		pygame.draw.line(pview.screen, (100, 60, 120), view.worldtomap(p0), view.worldtomap(p1), T(1))
 	state.you.drawmap()
-#	for lep in state.leps:
-#		lep.drawmap()
-#	for lep in state.leps:
-#		lep.drawarrowmap()
+	for lep in state.leps:
+		lep.drawmap()
+	for lep in state.leps:
+		lep.drawarrowmap()
 	mcenter = T(view.rrect.centerx, 70)
+	if state.guided:
+		pos = T(view.rrect.centerx, 110)
+		scale = 600 * pview.f
+		D.drawimg("lep-icon", mcenter, scale, colormask = state.guided.color)
 	if False:
 		pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50), T(2))
 		pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50 * state.you.jumpmeter()))

@@ -9,21 +9,42 @@ def pickany(objs):
 	objs = list(objs)
 	return objs[0] if objs else None
 
+class GuideGlow:
+	def __init__(self, who):
+		self.who = who
+		self.lights = []
+		self.t = 0
+	def think(self, dt):
+		self.t += dt
+		if 0.1 * random.random() < dt:
+			t = self.t + 0.5
+			x0 = self.who.x + 0.5 + 0.12 * self.who.xfly
+			y0 = self.who.y + 0.5 + 0.12 * self.who.yfly
+			dx, dy = random.uniform(-0.2, 0.2), random.uniform(-0.2, 0.2)
+			color = math.imix(self.who.color, (255, 255, 255), random.uniform(0, 1))
+			self.lights.append((t, x0 + dx, y0 + dy, color))
+		self.lights = [light for light in self.lights if light[0] > self.t]
+	def draw(self):
+		for t, x, y, color in self.lights:
+			f = math.clamp((t - self.t) / 0.5, 0, 1)
+			if f > 0:
+				pos = view.worldtoscreen((x, y))
+				pygame.draw.circle(pview.screen, color, pos, T(f * 5))
+
 class Lep:
 	color = 255, 255, 255
 	def __init__(self, pos):
 		self.x, self.y = pos
 		self.flyseed = random.random() * 1000
 		self.charged = True
-		self.nabbed = False
+		self.guidable = False
 		self.tfly = 0
 		self.xfly, self.yfly = random.uniform(-1, 1), random.uniform(-1, 1)
 		self.vxfly, self.vyfly = random.uniform(-1, 1), random.uniform(-1, 1)
 		self.tflap = random.uniform(0, 100)
 		self.aseen = False
 		self.ds = []  # Not used to restrict movement unless canmovefrom is overriden.
-	def cannab(self):
-		return False
+		self.glow = None
 	# Whether you're able to move away from this lep.
 	def canmovefrom(self, d):
 		return True
@@ -39,23 +60,28 @@ class Lep:
 	# When you press a direction at this lep, what direction do you actually go?
 	def adjustcombo(self, d):
 		return d
-	def nab(self):
-		self.charged = False
-		self.nabbed = True
-		state.held = self
+	def guide(self):
+#		self.charged = False
+		state.guided = self
 		state.leps.remove(self)
 	def release(self, who):
 		self.x = who.x
 		self.y = who.y
-		self.charged = False
-		self.nabbed = False
-		state.held = None
+#		self.charged = False
+		state.guided = None
 		state.leps.append(self)
 	def think(self, dt):
+		if self.guidable and not self.glow:
+			self.glow = GuideGlow(self)
+		if self.glow:
+			self.glow.think(dt)
 		if self in state.goals:
-			speed = 5 * math.exp(-0.3 * state.goals.index(self))
+			speed = 5 * math.exp(-0.3 * (state.goals.index(self) + 1))
 			seekpos = state.you.x, state.you.y + 0.2
 			self.x, self.y = math.softapproach((self.x, self.y), seekpos, speed * dt)
+		elif self is state.guided:
+			seekpos = state.you.x, state.you.y + 0.2
+			self.x, self.y = math.softapproach((self.x, self.y), seekpos, 5 * dt)
 		self.tflap += dt
 		self.tfly -= dt
 		if self.tfly <= 0:
@@ -69,9 +95,6 @@ class Lep:
 		dx += 0.12 * self.xfly
 		dy += 0.12 * self.yfly
 		pos = topos((self.x + dx, self.y + dy))
-		if self.nabbed:
-			dx, dy = 0.8, 0.8
-			pos = topos((state.you.x + dx, state.you.y + dy))
 		vfactor = 1 if self.vyfly < 0 else -1
 		vfactor = 1.6 * math.sin(self.tflap * 20)
 		flip = self.vxfly < 0
@@ -79,6 +102,8 @@ class Lep:
 		scale = T(1.4 * view.zoom)
 		draw.drawimg("lep-body", pos, scale, angle, flip)
 		draw.drawimg("lep-flap", pos, scale, angle, flip, vfactor, colormask = self.color)
+		if self.glow:
+			self.glow.draw()
 	def drawarrow(self, topos, d):
 		if not self.aseen:
 			return
@@ -101,6 +126,15 @@ class Lep:
 			pos = self.x + 0.5 + 0.2 * dx, self.y + 0.5 + 0.2 * dy
 			scale = 0.6 * pview.f * view.mapzoom()
 			draw.arrow(view.worldtomap(pos), scale, (dx, dy), (255, 255, 255), 1, 1)
+	def draweditor(self):
+		pos = view.worldtoscreen((self.x + 0.5, self.y + 0.5))
+		pygame.draw.circle(pview.screen, self.color, pos, T(12))
+		if self.guidable:
+			pygame.draw.circle(pview.screen, self.color, pos, T(20), T(4))
+		for d in self.ds:
+			dx, dy = math.norm(d)
+			dpos = view.worldtoscreen((self.x + 0.5 + 0.4 * dx, self.y + 0.5 + 0.4 * dy))
+			pygame.draw.line(pview.screen, self.color, pos, dpos, T(4))
 
 # Lep is movable.
 # May only leave the lep in the given direction.
@@ -111,13 +145,11 @@ class FlowLep(Lep):
 		self.ds = ds
 	def canmovefrom(self, d):
 		return d in self.ds
-	def cannab(self):
-		return True
 	def canboost(self, d):
 		return self.charged and d in self.ds
 	def draw0(self, topos, zoom):
 		Lep.draw0(self, topos, zoom)
-		if not self.nabbed:
+		if self is not state.guided:
 			for d in self.ds:
 				self.drawarrow(topos, d)
 
@@ -133,7 +165,7 @@ class SlingLep(Lep):
 		return self.charged and d in self.ds
 	def draw0(self, topos, zoom):
 		Lep.draw0(self, topos, zoom)
-		if not self.nabbed:
+		if self is not state.guided:
 			for d in self.ds:
 				self.drawarrow(topos, d)
 
@@ -154,15 +186,16 @@ class SpinLep(Lep):
 		state.jspin += 1
 	def draw0(self, topos, zoom):
 		Lep.draw0(self, topos, zoom)
-		if not self.nabbed:
+		if self is not state.guided:
 			for d in self.ds:
 				self.drawarrow(topos, d)
 
 # Doubles your movement
 class BoostLep(Lep):
 	color = 255, 128, 0
-	def __init__(self, pos, n = 2):
+	def __init__(self, pos, ds, n = 2):
 		Lep.__init__(self, pos)
+		self.ds = ds
 		self.n = n
 	def adjustcombo(self, d):
 		dx, dy = d
@@ -180,6 +213,7 @@ class GoalLep(Lep):
 	color = 255, 255, 0
 	def __init__(self, pos):
 		Lep.__init__(self, pos)
+		self.glow = GuideGlow(self)
 	def encounter(self):
 		if self in state.leps:
 			state.goals.append(self)
@@ -212,14 +246,14 @@ class You:
 	def act(self):
 		currentlep = pickany(lep for lep in state.leps if collide(self, lep))
 		if self.state == "jumping":
-			if currentlep and not currentlep.cannab():
+			if currentlep and not currentlep.guidable:
 				sound.play("no")
 			else:
-				if state.held:
-					state.held.release(self)
+				if state.guided:
+					state.guided.release(self)
 				if currentlep:
-					currentlep.nab()
-					sound.play("nab")
+					currentlep.guide()
+					sound.play("guide")
 	def combo(self, d):
 		if self.state in ("falling", "rebounding"):
 			return

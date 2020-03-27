@@ -66,7 +66,8 @@ def backgroundspec():
 	x0, y0 = math.mix((x0, y0), (rrect.left / 2, pview.centery0), 1 - a)
 	cxmin = state.w / 2 if state.w * zoom < rrect.left else rrect.left / zoom / 2
 	wmin = 2 + rrect.left + 2 * a * (state.w / 2 - cxmin) * zoom
-	cymin = state.yfloor + ymin + pview.centery0 / zoom
+	yfloor = 0
+	cymin = 0 + ymin + pview.centery0 / zoom
 	cymax = state.h + 2 - pview.centery0 / zoom
 	ybottom = pview.centery0 + zoom * cymin
 	hmin = 2 + ybottom + (cymax - cymin) * zoom * a
