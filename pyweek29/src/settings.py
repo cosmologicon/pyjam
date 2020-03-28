@@ -12,6 +12,9 @@ forceres = False
 
 minfps, maxfps = 10, 120
 
+soundvolume = 0.6
+musicvolume = 0.6
+
 DEBUG = True
 forgive = False  # Whether you fail if you enter an incorrect combo
 

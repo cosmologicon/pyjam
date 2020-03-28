@@ -121,7 +121,7 @@ def drawback(color, dpos):
 def drawwho(who, dpos, a):
 	if who == "Y":
 		x = 640 + dpos * (400 + 600 * a)
-		D.you("standing", T(x, 800), T(1600), 0, True)
+		D.drawimg("you", T(x, 400), T(1400))
 	elif who == "E":
 		x = 640 + dpos * (360 + 600 * a)
 		D.drawimg("elmer", T(x, 400), T(1600))

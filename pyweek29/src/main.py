@@ -1,4 +1,5 @@
 import pygame
+pygame.mixer.pre_init(22050, -16, 1, 2)
 from . import settings, view, pview, ptext, state, control, progress, draw, sound
 from . import scene, playscene, mapscene, dialogscene
 from .pview import T
@@ -13,6 +14,7 @@ scene.push(mapscene)
 
 clock = pygame.time.Clock()
 playing = True
+sound.playmusic("rocket")
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	control.think(dt)
