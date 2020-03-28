@@ -1,6 +1,7 @@
-import pygame
+import pygame, sys
 
-gamename = "Butterfly Effect"
+gamename = "Miranda the Lepidopterist"
+savename = "savegame.pkl"
 
 # Resolution options
 size0 = 1280, 720
@@ -17,6 +18,7 @@ musicvolume = 0.6
 
 DEBUG = True
 forgive = False  # Whether you fail if you enter an incorrect combo
+reset = "--reset" in sys.argv
 
 keys = {
 	"up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],

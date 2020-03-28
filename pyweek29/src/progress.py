@@ -1,3 +1,6 @@
+import pickle, os.path, os
+from . import settings
+
 stages = {
 	"tutorial1": (3, 6),
 	"tutorial2": (4, 5),
@@ -11,8 +14,9 @@ stages = {
 #	"B0": (5, 2),
 #	"B1": (6, 2),
 	
-	"C0": (7, 3),
-	"C1": (7, 1),
+	"C0": (5, 2),
+	"C1": (7, 2),
+	"C2": (8, 3),
 	
 	"D0": (7, 5),
 	"D1": (7, 7),
@@ -34,9 +38,9 @@ joins = [
 #	("tutorial3", "B0"),
 #	("B0", "B1"),
 
-	("tutorial4", "C0"),
+	("tutorial3", "C0"),
 	("C0", "C1"),
-	("A1", "A2"),
+	("C1", "C2"),
 
 	("tutorial4", "D0"),
 	("D0", "D1"),
@@ -52,6 +56,8 @@ reqs = {
 	"D0": ["tutorial4"],
 	"nexus": ["tutorial4"],
 }
+
+# Progress state
 at = "tutorial1"
 unlocked = set(["tutorial1"])
 beaten = set()
@@ -65,8 +71,29 @@ def beat(level):
 			for tocheck in pair:
 				if all(req in beaten for req in reqs.get(tocheck, [])):
 					unlocked.add(tocheck)
+	save()
 
 def unlockall():
 	global unlocked
 	unlocked = set(stages)
+
+
+def save():
+	obj = at, unlocked, beaten, dseen
+	pickle.dump(obj, open(settings.savename, "wb"))
+	
+def load():
+	global at, unlocked, beaten, dseen
+	if os.path.exists(settings.savename):
+		obj = pickle.load(open(settings.savename, "rb"))
+		at, unlocked, beaten, dseen = obj
+
+def reset():
+	if os.path.exists(settings.savename):
+		os.remove(settings.savename)
+
+if settings.reset:
+	reset()
+else:
+	load()
 

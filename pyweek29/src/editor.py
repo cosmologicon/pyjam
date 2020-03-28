@@ -1,6 +1,6 @@
 from . import maff
 import sys, pygame, json
-from . import control, settings, ptext, pview, thing, view
+from . import control, settings, ptext, pview, thing, view, state
 
 
 control.init()
@@ -64,6 +64,7 @@ def output():
 	print(state)
 	print()
 
+state.panel = False
 clock = pygame.time.Clock()
 playing = True
 while playing:

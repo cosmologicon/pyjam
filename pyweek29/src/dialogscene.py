@@ -193,13 +193,13 @@ lines = {
 	"finale0-post": [
 		"B The colors... the motion... so hypnotic... I can't....",
 		"Y Now, Elmer!",
-		"rE Your Grace, I'm placing you under arrest, for crimes against lepidoptery!",
+		"rE Minister Buzzworthy, I'm placing you under arrest, for crimes against lepidoptery!",
 		"B Curse you all! You may have me, but look! They're still flying to their doom!",
 		"V He's right! Oh, we have to do something!",
 		"E You two go ahead. I'll take him away.",
 		"E Victoria, Miranda.... I'm sorry. And thank you for showing me the way of the butterfly.",
 		"V Come on, Miranda. We have a disaster to stop.",
-		"rE Was it worth it, your Grace?",
+		"rE Was it worth it, Minister?",
 		"B Your kind could never appreciate the way of the bumblebee.",
 		"rE Any last words?",
 		"B Long live the Queen.",
@@ -231,10 +231,10 @@ def init(track):
 	self.ready = False
 	
 	if track == "nexus":
-		n = sum(stage in progress.beaten for stage in ("A2", "C1", "D2"))
+		n = sum(stage in progress.beaten for stage in ("A2", "C2", "D2"))
 		track = "nexus%d" % n
-	if track in ("A2-post", "C1-post", "D2-post"):
-		n = sum(stage in progress.beaten for stage in ("A2", "C1", "D2"))
+	if track in ("A2-post", "C2-post", "D2-post"):
+		n = sum(stage in progress.beaten for stage in ("A2", "C2", "D2"))
 		track = "cpoint%d" % n
 
 	if track in lines and track not in progress.dseen:
