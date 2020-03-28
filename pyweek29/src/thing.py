@@ -16,7 +16,7 @@ class GuideGlow:
 		self.t = 0
 	def think(self, dt):
 		self.t += dt
-		if 0.1 * random.random() < dt:
+		if 0.06 * random.random() < dt:
 			t = self.t + 0.5
 			x0 = self.who.x + 0.5 + 0.12 * self.who.xfly
 			y0 = self.who.y + 0.5 + 0.12 * self.who.yfly
@@ -29,7 +29,7 @@ class GuideGlow:
 			f = math.clamp((t - self.t) / 0.5, 0, 1)
 			if f > 0:
 				pos = view.worldtoscreen((x, y))
-				pygame.draw.circle(pview.screen, color, pos, T(f * 5))
+				pygame.draw.circle(pview.screen, color, pos, T(f * 8))
 
 class Lep:
 	color = 255, 255, 255
@@ -101,7 +101,7 @@ class Lep:
 		angle = (-1 if flip else 1) * (20 + 5 * self.vyfly)
 		scale = T(1.4 * view.zoom)
 		draw.lep(pos, scale, angle, flip, vfactor, colormask = self.color)
-		if self.glow:
+		if self.glow and self in state.leps:
 			self.glow.draw()
 	def drawarrow(self, d, dist = 0.32):
 		if not self.aseen:
@@ -121,6 +121,8 @@ class Lep:
 		pos = view.worldtomap((self.x + 0.5, self.y + 0.5))
 		scale = 3.0 * pview.f * view.mapzoom()
 		owidth = 2 if self.glow else 0
+		if self.glow and pygame.time.get_ticks() * 0.001 % 0.5 < 0.1:
+			scale *= 1.1
 		draw.drawimg("lep-icon", pos, scale, colormask = self.color, owidth = owidth)
 	def drawarrowmap(self, d, dist = 0.32):
 		if not self.aseen:
@@ -143,18 +145,17 @@ class Lep:
 			dpos = view.worldtoscreen((self.x + 0.5 + 0.4 * dx, self.y + 0.5 + 0.4 * dy))
 			pygame.draw.line(pview.screen, self.color, pos, dpos, T(4))
 	def drawguided(self, mcenter):
-		pos = T(view.rrect.centerx, 110)
 		scale = 600 * pview.f
-		draw.drawimg("lep-icon", mcenter, scale, colormask = self.color)
+		draw.drawimg("lep-icon", mcenter, scale, colormask = self.color, owidth = 2)
 		self.drawguidedarrows(mcenter)
 	def drawguidedarrow(self, mcenter, d, dist = 0.32):
 		if not self.aseen:
 			return
 		dx, dy = math.norm(d)
 		x0, y0 = mcenter
-		pos = x0 + dist * dx, y0 + dist * dy
-		scale = 100 * pview.f
-		draw.arrow(view.worldtomap(pos), scale, (dx, dy), self.color, 1, 1, 1)
+		pos = x0 + T(50 * dx), y0 - T(50 * dy)
+		scale = 80 * pview.f
+		draw.arrow(pos, scale, (dx, dy), self.color, 1, self.tflap, 1)
 	def drawguidedarrows(self, mcenter):
 		for d in self.ds:
 			self.drawguidedarrow(mcenter, d)
@@ -288,6 +289,8 @@ class You:
 			else:
 				if state.guided:
 					state.guided.release(self)
+					if not currentlep:
+						sound.play("release")
 				if currentlep:
 					currentlep.guide()
 					sound.play("guide")

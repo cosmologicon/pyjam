@@ -38,8 +38,13 @@ leveldata = {
 	# Boost
 	"A0": {'w': 5, 'h': 8, 'goal': [{'x': 1, 'y': 7}, {'x': 2, 'y': 7}, {'x': 3, 'y': 7}], 'flow': [], 'spin': [], 'boost': [{'x': 1, 'y': 1, 'ds': [(1, 1)], 'guidable': False}, {'x': 2, 'y': 1, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 1, 'ds': [(1, 1)], 'guidable': False}, {'x': 4, 'y': 3, 'ds': [(-1, 1), (0, 1)], 'guidable': False}, {'x': 3, 'y': 3, 'ds': [(-1, 0), (0, 1)], 'guidable': False}, {'x': 2, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 3, 'ds': [(0, 1)], 'guidable': False}, {'x': 0, 'y': 3, 'ds': [(1, 0)], 'guidable': False}, {'x': 0, 'y': 5, 'ds': [(1, 1), (1, 0)], 'guidable': False}, {'x': 1, 'y': 5, 'ds': [(1, 1)], 'guidable': False}, {'x': 2, 'y': 5, 'ds': [(0, 1)], 'guidable': False}, {'x': 3, 'y': 5, 'ds': [(-1, 1)], 'guidable': False}, {'x': 4, 'y': 5, 'ds': [(-1, 0)], 'guidable': False}], 'continue': []},
 	"A1": {'w': 5, 'h': 8, 'goal': [{'x': 2, 'y': 4}, {'x': 2, 'y': 5}, {'x': 1, 'y': 3}], 'flow': [{'x': 3, 'y': 2, 'ds': [(0, 1)], 'guidable': False}, {'x': 1, 'y': 2, 'ds': [(1, 0)], 'guidable': False}, {'x': 2, 'y': 7, 'ds': [(-1, -1), (1, -1)], 'guidable': False}], 'spin': [], 'boost': [{'x': 2, 'y': 1, 'ds': [(0, 1)], 'guidable': False}, {'x': 2, 'y': 2, 'ds': [(-1, 1), (1, 1)], 'guidable': False}, {'x': 2, 'y': 3, 'ds': [(-1, 1), (1, 1)], 'guidable': False}, {'x': 2, 'y': 6, 'ds': [(0, -1)], 'guidable': False}, {'x': 3, 'y': 6, 'ds': [(-1, -1)], 'guidable': False}, {'x': 3, 'y': 5, 'ds': [(-1, 0), (0, -1)], 'guidable': False}, {'x': 3, 'y': 4, 'ds': [(0, 1), (-1, 0), (-1, -1)], 'guidable': False}, {'x': 4, 'y': 5, 'ds': [(-1, 1), (0, -1)], 'guidable': False}, {'x': 4, 'y': 4, 'ds': [(-1, 1), (-1, -1)], 'guidable': False}, {'x': 4, 'y': 3, 'ds': [(-1, 1), (-1, 0)], 'guidable': False}, {'x': 3, 'y': 3, 'ds': [(0, 1), (-1, -1)], 'guidable': False}, {'x': 1, 'y': 4, 'ds': [(0, 1), (1, 0), (1, -1)], 'guidable': False}, {'x': 1, 'y': 5, 'ds': [(1, 0), (0, -1)], 'guidable': False}, {'x': 1, 'y': 6, 'ds': [(1, -1)], 'guidable': False}, {'x': 0, 'y': 5, 'ds': [(1, 1), (0, -1)], 'guidable': False}, {'x': 0, 'y': 4, 'ds': [(1, 1), (1, -1)], 'guidable': False}, {'x': 0, 'y': 3, 'ds': [(1, 1), (1, 0)], 'guidable': False}], 'continue': []},
-	"A2": {'w': 5, 'h': 10, 'goal': [{'x': 3, 'y': 9}, {'x': 2, 'y': 9}, {'x': 1, 'y': 9}], 'flow': [{'x': 0, 'y': 1, 'ds': [(1, -1)], 'guidable': False}, {'x': 4, 'y': 1, 'ds': [(-1, -1)], 'guidable': False}, {'x': 4, 'y': 3, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 3, 'ds': [(-1, 1)], 'guidable': False}, {'x': 0, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 6, 'ds': [(1, 1)], 'guidable': False}, {'x': 2, 'y': 6, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 6, 'ds': [(1, 1)], 'guidable': False}], 'spin': [], 'boost': [{'x': 1, 'y': 1, 'ds': [(-1, 1)], 'guidable': True}, {'x': 2, 'y': 1, 'ds': [(0, 1)], 'guidable': True}, {'x': 3, 'y': 1, 'ds': [(1, 1)], 'guidable': True}], 'continue': []}
-,
+	"A2": {'w': 5, 'h': 10, 'goal': [{'x': 3, 'y': 9}, {'x': 2, 'y': 9}, {'x': 1, 'y': 9}], 'flow': [{'x': 0, 'y': 1, 'ds': [(1, -1)], 'guidable': False}, {'x': 4, 'y': 1, 'ds': [(-1, -1)], 'guidable': False}, {'x': 4, 'y': 3, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 3, 'ds': [(-1, 1)], 'guidable': False}, {'x': 0, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 6, 'ds': [(1, 1)], 'guidable': False}, {'x': 2, 'y': 6, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 6, 'ds': [(1, 1)], 'guidable': False}], 'spin': [], 'boost': [{'x': 1, 'y': 1, 'ds': [(-1, 1)], 'guidable': True}, {'x': 2, 'y': 1, 'ds': [(0, 1)], 'guidable': True}, {'x': 3, 'y': 1, 'ds': [(1, 1)], 'guidable': True}], 'continue': []},
+
+
+
+	# placeholder
+	"finale0": {'w': 5, 'h': 4, 'goal': [{'x': 2, 'y': 3}, {'x': 4, 'y': 2}, {'x': 0, 'y': 2}], 'flow': [], 'spin': [{'x': 1, 'y': 1, 'guidable': False}, {'x': 2, 'y': 1, 'guidable': False}, {'x': 3, 'y': 1, 'guidable': False}, {'x': 2, 'y': 2, 'guidable': False}], 'boost': [], 'continue': []},
+
 
 }
 
@@ -48,7 +53,7 @@ levelnames = {
 	"tutorial4": "The Ministry of Insects",
 	"nexus": "Nexus Point",
 	"finale0": "Crash site of the RSS Argus",
-	"finale1": "The Eldritch Vortex",
+	"finale1": "Equinox Monument",
 }
 def currentname():
 	return levelnames.get(progress.at, progress.at)

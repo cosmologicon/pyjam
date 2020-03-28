@@ -9,6 +9,9 @@ def getsound(filename):
 	path = "sound/{}.wav".format(filename)
 	if os.path.exists(path):
 		sound = pygame.mixer.Sound(path)
+		volume = settings.soundvolume
+		if filename == "no":
+			volume *= 0.2
 		sound.set_volume(settings.soundvolume)
 		return sound
 	else:
