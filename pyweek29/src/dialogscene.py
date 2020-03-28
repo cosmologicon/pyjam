@@ -1,5 +1,5 @@
 import pygame, math, numpy
-from . import scene, pview, ptext, progress, sound
+from . import scene, pview, ptext, progress, sound, settings
 from . import draw as D
 from .pview import T
 
@@ -284,7 +284,7 @@ def think(dt):
 			if self.jline < len(self.lines) and self.lines[self.jline] == "Xcrash":
 				sound.play("crash")
 	else:
-		self.tline += dt
+		self.tline += dt * settings.textspeed
 	if not self.switching and 0 <= self.jline < len(self.lines):
 		t = 1 + 0.08 * len(self.lines[self.jline])
 		if self.lines[self.jline] == "Xcrash":

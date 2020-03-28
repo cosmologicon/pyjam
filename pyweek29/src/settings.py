@@ -37,6 +37,13 @@ nobackground = "--nobackground" in sys.argv  # Wallpaper
 noglow = "--noglow" in sys.argv  # white outline around sprites
 noshadow = "--noshadow" in sys.argv  # color phased copies of you that lag behind
 
+textspeed = 1
+if "--fasttext" in sys.argv:
+	textspeed = 2.5
+for arg in sys.argv:
+	if arg.startswith("--textspeed="):
+		textspeed = float(arg[12:])
+
 DEBUG = "--DEBUG" in sys.argv
 forgive = False  # Whether you fail if you enter an incorrect combo
 reset = "--reset" in sys.argv
