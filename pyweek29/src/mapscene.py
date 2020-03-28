@@ -39,8 +39,11 @@ def control(keys):
 	if self.ending:
 		return
 	if "act" in keys:
-		self.ending = True
-		sound.play("select")
+		if progress.at in progress.beaten:
+			sound.play("no")
+		else:
+			self.ending = True
+			sound.play("select")
 	else:
 		target = gettarget(progress.at, keys)
 		if target and target in progress.unlocked:
@@ -89,7 +92,7 @@ def draw():
 			color = 50, 50, 50
 		else:
 			a = int(round(math.sin(5 * pygame.time.get_ticks() * 0.001) * 10)) / 10
-			color = tuple(pview.I(180 + 60 * a, 40 + 20 * a, 40 + 20 * a))
+			color = tuple(pview.I(180 + 60 * a, 180 + 60 * a, 40 + 20 * a))
 		D.drawimg("lep-icon", screenpos(pos), T(420), colormask = color)
 #	angle = 10 * math.sin(math.tau * 0.001 * pygame.time.get_ticks())
 	angle = 0

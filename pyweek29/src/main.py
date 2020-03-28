@@ -1,20 +1,23 @@
 import pygame
-pygame.mixer.pre_init(22050, -16, 1, 2)
-from . import settings, view, pview, ptext, state, control, progress, draw, sound
-from . import scene, playscene, mapscene, dialogscene
+from . import settings
+if not settings.noaudio:
+	pygame.mixer.pre_init(22050, -16, 1, 2)
+from . import view, pview, ptext, state, control, progress, draw, sound
+from . import scene, playscene, mapscene, dialogscene, titlescene
 from .pview import T
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
+pygame.init()
 view.init()
 control.init()
 draw.killtimeinit()
 pygame.display.set_caption(settings.gamename)
 
-scene.push(mapscene)
+scene.push(titlescene)
 
 clock = pygame.time.Clock()
 playing = True
-sound.playmusic("rocket")
+sound.playmusic("spotlight")
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	control.think(dt)
@@ -30,6 +33,7 @@ while playing:
 				sound.play("no")
 			else:
 				pview.toggle_fullscreen()
+				settings.fullscreen = not settings.fullscreen
 				draw.killtimeinit()
 		elif "resolution" in keys:
 			if current is playscene:
@@ -55,11 +59,9 @@ while playing:
 
 	if settings.DEBUG:
 		text = "\n".join([
+			"F1: unlock all stages",
+			"F2: beat current stage",
 			"%.1ffps" % clock.get_fps(),
-#			"Leaps: %d/%d" % (state.leaps, state.maxleaps),
-#			"thang: %.2f/%.2f" % (state.you.thang, state.thang),
-#			"leps: %d" % len(state.leps),
-#			"Held: %s" % (state.held and (state.held.x, state.held.y, state.held.nabbed),)
 		])
 		ptext.draw(text, bottomleft = pview.bottomleft, fontsize = T(24), owidth = 1)
 	pygame.display.flip()

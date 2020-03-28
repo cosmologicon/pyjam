@@ -1,7 +1,10 @@
-import pygame, numpy, math, scipy.ndimage
+import pygame, numpy, math
 from functools import lru_cache
-from . import pview, view, settings, state
+from . import pview, view, settings, state, progress
 from .pview import T
+
+if not settings.noglow:
+	import scipy.ndimage
 
 def pickany(objs):
 	objs = list(objs)
@@ -13,7 +16,7 @@ def getimg0(filename):
 
 @lru_cache(None)
 def getbackground0(filename):
-	return pygame.image.load("background/%s" % filename).convert_alpha()
+	return pygame.image.load("background/%s.jpg" % filename).convert_alpha()
 
 def xform(img, scale, angle, hflip, vfactor, colormask, owidth, ocolor):
 	if abs(vfactor) != 1:
@@ -111,7 +114,7 @@ def fade(img, alpha):
 	return img
 
 def outline(img, width = 2, color = (255, 255, 255)):
-	if not width:
+	if not width or settings.noglow:
 		return img
 	back = img.copy()
 	r, g, b = color
@@ -158,12 +161,11 @@ def getlepimg(scale, angle, flip, vfactor, colormask):
 	return outline(img)
 
 def lep(screenpos, scale, angle, flip, vfactor, colormask):
-	angle = int(round(angle)) % 360
+	angle = int(round(angle / 4) * 4) % 360
 	vfactor = round(vfactor, 1)
 	img = getlepimg(scale, angle, flip, vfactor, colormask)
 	rect = img.get_rect(center = screenpos)
 	pview.screen.blit(img, rect)
-	
 
 
 @lru_cache(None)
@@ -238,7 +240,39 @@ def curtain(w, h, color):
 	return img
 	
 
-def background(filename, gcolor):
+bgrounds = {
+	"tutorial1": "mountain",
+	"tutorial2": "lake",
+	"tutorial3": "mountain",
+	"tutorial4": "night",
+
+	"A0": "mountain",
+	"A1": "lake",
+	"A2": "night",
+	"C0": "mountain",
+	"C1": "lake",
+	"C2": "night",
+	"D0": "mountain",
+	"D1": "lake",
+	"D2": "night",
+
+	"nexus": "space",
+	"finale0": "night",
+	"finale1": "space",
+}
+gcolors = {
+	"mountain": (138, 112, 77),
+	"lake": (86, 86, 86),
+	"night": (4, 4, 4),
+	"space": (42, 119, 147),
+}
+def background():
+	filename = bgrounds[progress.at]
+	gcolor = gcolors[filename]
+	if settings.nobackground:
+		pview.fill(gcolor)
+		return
+
 #	pview.fill((200, 200, 200))
 #	return
 	(x0, y0), (wmin, hmin) = T(view.backgroundspec())
@@ -259,7 +293,9 @@ def panel():
 	img = getimg("paper", tuple(T(320, 720)))
 	pview.screen.blit(img, img.get_rect(bottomright = pview.bottomright))
 
-def loadimgs(scale):
+lepcolors = (100, 100, 255), (40, 255, 40), (255, 128, 0), (255, 0, 255), (255, 255, 0)
+lepangles = set(int(round(a / 4) * 4) % 360 for a in range(10, 31))
+def loadimgs(scale, scalelep):
 	for f in set(f for filenames in specs.values() for f in filenames):
 		getimg0("you-" + f)
 		yield
@@ -270,7 +306,7 @@ def loadimgs(scale):
 	for facingright in (True, False):
 		for angle in (0, -28, -14, 14, 28):
 			for pose0 in range(8):
-				for j in (0, 1, 2):
+				for j in ((0,) if settings.noshadow else (0, 1, 2)):
 					pose = (pose0 + 3 * j) % 8
 					seed = 100 * pose + 17
 					drawspec = "pose-horiz-%d" % pose
@@ -282,14 +318,19 @@ def loadimgs(scale):
 		you("standing", None, scale, 0, facingright)
 		you("falling", None, scale, 0, facingright)
 
-
+		for angle in lepangles:
+			for flip in (-1, 1):
+				for vfactor in range(-16, 17):
+					for color in lepcolors:
+						getlepimg(scalelep, flip * angle, flip, round(vfactor / 10, 1), color)
+						yield
 
 
 tokill = {}
 def killtimeinit():
 	global tokill
 	youimg.cache_clear()
-	tokill = { zoom: loadimgs(T(1.3 * zoom)) for zoom in view.allzooms }
+	tokill = { zoom: loadimgs(T(1.3 * zoom), T(1.4 * zoom)) for zoom in view.allzooms }
 
 def killtime(dt):
 	z = view.zoom if view.zoom in tokill else pickany(tokill)
@@ -302,7 +343,7 @@ def killtime(dt):
 		except StopIteration:
 			del tokill[z]
 			if settings.DEBUG:
-				print("done", z, youimg.cache_info())
+				print("done", z, youimg.cache_info(), getlepimg.cache_info())
 	if settings.DEBUG and pygame.time.get_ticks() - tend > 50:
 		print("time:", pygame.time.get_ticks() - tend)
 

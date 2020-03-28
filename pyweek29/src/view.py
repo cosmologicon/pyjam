@@ -54,7 +54,7 @@ def screen0toworld(pos):
 
 maptop = 220
 def mapzoom():
-	return min(rw / (state.w + 1), T(pview.h - maptop) / (state.h + 1))
+	return min(rw / (state.w + 1), (pview.h0 - maptop) / (state.h + 1))
 
 def worldtomap(pos):
 	x, y = pos
@@ -69,7 +69,7 @@ def worldtomap(pos):
 def backgroundspec():
 	a = 0.3
 	# Midpoint of the horizon
-	x0, y0 = vcenter(), pview.centery0 + zoom * cy
+	x0, y0 = vcenter(), pview.centery0 + zoom * (cy + 1)
 	x0, y0 = math.mix((x0, y0), (vcenter(), pview.centery0), 1 - a)
 	cxmin = state.w / 2 if state.w * zoom < rwall() else vcenter() / zoom
 	wmin = 2 + rwall() + 2 * a * (state.w / 2 - cxmin) * zoom

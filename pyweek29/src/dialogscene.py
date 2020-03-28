@@ -5,11 +5,8 @@ from .pview import T
 
 lines = {
 	"tutorial1": [
-		"Y Another pleasant Sunday afternoon, and not a soul in sight.",
-		"Y It's butterfly time, my peeps!",
-	],
-
-	"tutorial2": [
+		"Y Another pleasant afternoon.",
+		"Y On days like these, I can imagine I'm a butterfly floating on the wind.",
 		"V My good lady! How do you do?",
 		"Y Oh my, are you a fellow butterfly lover?",
 		"V In a manner of speaking. My name is Professor Dame Victoria Winger.",
@@ -19,7 +16,7 @@ lines = {
 		"Y Certainly! It'll be good to have some company!",
 	],
 	"tutorial3": [
-		"V Incredible! Just as I suspected!",
+		"V Incredible movement! Just as I suspected!",
 		"V Miranda, have you ever heard of the Butterfly Effect?",
 		"Y I'm afraid not. Should I have?",
 		"V It's a theory of lepidoptery that I've been studying for years,",
@@ -40,7 +37,7 @@ lines = {
 	],
 	"tutorial4-post": [
 		"B Astounding! Yes, it must be the Butterfly Effect after all!",
-		"B Of course you must begin the map immediately.",
+		"B Of course you must begin the tracking down the Lines immediately.",
 		"rV An expedition? Miranda, what do you think?",
 		"Y Sure, I could do a few more levels.",
 		"Y But how will we pay for an expedition?",
@@ -116,7 +113,7 @@ lines = {
 
 
 	"cpoint1": [
-		"V Excellent data! It looks like the line is leading to Nexus Point!",
+		"V Excellent data! It looks like the Line is leading to Nexus Point!",
 		"Y I can see some butterflies flying off in that direction!",
 	],
 	"cpoint2": [
@@ -125,7 +122,7 @@ lines = {
 	"cpoint3": [
 		"V Another Meadow Line mapped! This one leads to....",
 		"Y Let me guess. Nexus Point?",
-		"V Hey, that's my line!",
+		"V Hey, who's the mothematician here?!",
 	],
 
 	"nexus0": [
@@ -169,8 +166,8 @@ lines = {
 		"E We may have bigger trouble. There's a stormcloud right behind us, and it's gaining.",
 		"rV Did you say... a stormcloud?",
 		"Y ....",
-		"E ...",
-		"Y ... That's no cloud.",
+		"E ....",
+		"Y .... That's no cloud.",
 		"rV Bless my proboscis, it's every butterfly in Albion!",
 		"Y They're flying into the trap!",
 		"E STEAM POWER TO MAXIMUM!!!",
@@ -178,41 +175,56 @@ lines = {
 		"E The boiler's exploded! We're going down! Brace for impact!",
 		"Xcrash",
 		"Y Is everyone all right?",
+		"V Well I for one am never getting in an airship again!",
 		"B How nice of you all to drop in. Ah, and I see the first of the butterflies are arriving.",
-		"Y You! Why?",
+		"Y Minister! Why are you doing this?!",
 		"B It's quite simple, child.",
 		"B I. Hate. Butterflies!",
 		"Y Then why are you Minister of Insects?",
 		"B To put an end to the reign of the butterfly once and for all!",
-		"B Once they're gone, then all of Albion will recognize the true crown jewel of the insect kingdom:",
+		"B Once they're gone, then all of Albion will recognise the true crown jewel of the insect kingdom:",
 		"B Bumblebees!",
 		"Y Not if we have anything to say about it!",
 		"B Have at you!",
 	],
 
 	"finale0-post": [
-		"B The colors... the motion... so hypnotic... I can't....",
+		"B The colours... the motion... so hypnotic... I can't....",
 		"Y Now, Elmer!",
 		"rE Minister Buzzworthy, I'm placing you under arrest, for crimes against lepidoptery!",
-		"B Curse you all! You may have me, but look! They're still flying to their doom!",
+		"B Curse you all! You may have me, but look! The butterflies are still flapping off to their doom!",
 		"V He's right! Oh, we have to do something!",
 		"E You two go ahead. I'll take him away.",
 		"E Victoria, Miranda.... I'm sorry. And thank you for showing me the way of the butterfly.",
 		"V Come on, Miranda. We have a disaster to stop.",
 		"rE Was it worth it, Minister?",
-		"B Your kind could never appreciate the way of the bumblebee.",
+		"B The likes of you could never comprehend my devotion to bumblebees.",
 		"rE Any last words?",
 		"B Long live the Queen.",
 	],
 
 	"finale1": [
-		"Y I've visited here before. This place was an observatory, thousands of years ago.",
-		"V Yes. It was abandoned right around when the butterflies left.",
+		"Y I've been here before. This place was an observatory, abandoned three thousand years ago.",
+		"V Right when the butterflies left. What will happen when they return?",
 		"V All the Meadow Lines come together at this point.",
 		"V This is where the Butterfly Effect has led us.",
 	],
 	"finale1-post": [
-		"Y Thanks for playing!",
+		"Y Yes! I can see the Lines! They extend from this moment through time and space!",
+		"Y Not only can I see them, I can touch them, bend them.",
+		"Y I can send the butterflies back and save them....",
+		"Y I just need to....",
+		"Xcrash",
+		"Y W...what happened!",
+		"V Miranda, you did it! They're leaving! It's going to be all right!",
+		"Y Victoria, I saw it! The Butterfly Effect. It was incredible!",
+		"V I've got time to hear all about it. I'm afraid we're stranded here.",
+		"E Friends! The Argus repairs are complete. We're ready to board! Unless you'd rather walk, Victoria.",
+		"V I suppose I can give it one more chance.",
+		"V What do you say, Miranda, ready to follow the flock back home?",
+		"Y Good idea. I have a son back at home I should probably check on.",
+		"E I hope he hasn't gotten into too much trouble while you were away!",
+		"Y Mortimer? Ha! He's not exactly the adventurous type.",
 	],
 }
 
@@ -233,7 +245,7 @@ def init(track):
 	if track == "nexus":
 		n = sum(stage in progress.beaten for stage in ("A2", "C2", "D2"))
 		track = "nexus%d" % n
-	if track in ("A2-post", "C2-post", "D2-post"):
+	elif track in ("A2-post", "C2-post", "D2-post"):
 		n = sum(stage in progress.beaten for stage in ("A2", "C2", "D2"))
 		track = "cpoint%d" % n
 
@@ -243,7 +255,7 @@ def init(track):
 		for who in "YEVB":
 			for rev in [False, True]:
 				drawwho(who, -1, 1, rev)
-	if track not in lines:
+	else:
 		scene.pop()
 		self.lines = []
 
@@ -291,8 +303,10 @@ def layout(jline):
 	else:
 		who, _, line = self.lines[jline].partition(" ")
 		rev = who.startswith("r")
+		dpos = -1 if who == "Y" else 1
 		if who.startswith("X"):
 			who = None
+			dpos = 0
 		if rev:
 			who = who[1:]
 		color = {
@@ -302,7 +316,6 @@ def layout(jline):
 			"B": (240, 200, 160),
 			None: (128, 128, 128),
 		}[who]
-		dpos = -1 if who == "Y" else 1
 	if rev:
 		dpos = -dpos
 	return line, who, dpos, color, rev
@@ -345,14 +358,16 @@ def drawwho(who, dpos, a, rev):
 
 def drawline(line, who, color, dpos, a):
 	fontname = {
-		"Y": "ChangaOne",
+		"Y": "SpicyRice",
 		"E": "ChangaOne",
-		"V": "ChangaOne",
-		"B": "ChangaOne",
+		"V": "CarterOne",
+		"B": "Simonetta",
 	}[who]
+	lineheight = 0.8 if fontname == "CarterOne" else 1
 	ptext.draw(line, midbottom = T(640 + (100 + 1200 * a) * dpos, 660), width = T(960),
 		color = color, shade = 1, shadow = (1, 1.3), owidth = 0.25,
-		fontsize = T(60), fontname = fontname)
+		fontsize = T(60), fontname = fontname,
+		lineheight = lineheight)
 
 def draw():
 	self.ready = True
@@ -379,6 +394,6 @@ def draw():
 		if line1:
 			drawline(line1, who1, color1, dpos1, 1 - self.a)
 	ptext.draw("Space: next   Backspace: skip", fontname = "ChangaOne", color = (255, 220, 200),
-		fontsize = T(18), bottomright = T(1270, 710),  shade = 1, owidth = 0.5, shadow = (1, 1))
+		fontsize = T(22), bottomright = T(1270, 710),  shade = 1, owidth = 0.5, shadow = (1, 1))
 
 

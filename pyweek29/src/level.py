@@ -1,5 +1,5 @@
 import random, json, math
-from . import state, thing, progress, view
+from . import state, thing, progress, view, sound
 
 leveldata = {
 	"learnguide": {"w": 3, "h": 5, "goal": [{"x": 1, "y": 4}, {"x": 1, "y": 2}, {"x": 0, "y": 3}], "flow": [{"x": 2, "y": 3, "ds": [[0, 1]], "guidable": True}, {"x": 2, "y": 1, "ds": [[0, 1]], "guidable": True}, {"x": 0, "y": 2, "ds": [[1, 1]], "guidable": True}]},
@@ -42,16 +42,25 @@ leveldata = {
 	"A2": {'w': 5, 'h': 10, 'goal': [{'x': 3, 'y': 9}, {'x': 2, 'y': 9}, {'x': 1, 'y': 9}], 'flow': [{'x': 0, 'y': 1, 'ds': [(1, -1)], 'guidable': False}, {'x': 4, 'y': 1, 'ds': [(-1, -1)], 'guidable': False}, {'x': 4, 'y': 3, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 3, 'ds': [(-1, 1)], 'guidable': False}, {'x': 0, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 6, 'ds': [(1, 1)], 'guidable': False}, {'x': 2, 'y': 6, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 6, 'ds': [(1, 1)], 'guidable': False}], 'spin': [], 'boost': [{'x': 1, 'y': 1, 'ds': [(-1, 1)], 'guidable': True}, {'x': 2, 'y': 1, 'ds': [(0, 1)], 'guidable': True}, {'x': 3, 'y': 1, 'ds': [(1, 1)], 'guidable': True}], 'continue': []},
 
 
-
-	# placeholder
-	"finale0": {'w': 5, 'h': 4, 'goal': [{'x': 2, 'y': 3}, {'x': 4, 'y': 2}, {'x': 0, 'y': 2}], 'flow': [], 'spin': [{'x': 1, 'y': 1, 'guidable': False}, {'x': 2, 'y': 1, 'guidable': False}, {'x': 3, 'y': 1, 'guidable': False}, {'x': 2, 'y': 2, 'guidable': False}], 'boost': [], 'continue': []},
+	"finale0": {'w': 5, 'h': 9, 'goal': [{'x': 1, 'y': 8}, {'x': 2, 'y': 8}, {'x': 3, 'y': 8}], 'flow': [{'x': 1, 'y': 1, 'ds': [(0, 1)], 'guidable': False}, {'x': 3, 'y': 1, 'ds': [(1, 1)], 'guidable': False}, {'x': 4, 'y': 2, 'ds': [(0, 1)], 'guidable': False}, {'x': 2, 'y': 2, 'ds': [(-1, 0)], 'guidable': False}, {'x': 0, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 2, 'y': 3, 'ds': [(1, 1), (-1, 1)], 'guidable': False}, {'x': 4, 'y': 6, 'ds': [(-1, 1)], 'guidable': False}, {'x': 4, 'y': 5, 'ds': [(-1, 0)], 'guidable': False}, {'x': 3, 'y': 5, 'ds': [(-1, 1)], 'guidable': False}, {'x': 2, 'y': 5, 'ds': [(-1, 1), (-1, 0)], 'guidable': False}, {'x': 0, 'y': 5, 'ds': [(1, 0)], 'guidable': False}, {'x': 0, 'y': 6, 'ds': [(1, 1)], 'guidable': False}], 'spin': [{'x': 4, 'y': 4, 'guidable': True}], 'boost': [{'x': 2, 'y': 6, 'ds': [(-1, 1), (1, 1)], 'guidable': True}], 'continue': [{'x': 2, 'y': 1, 'guidable': True}]},
 
 
 }
 
 levelnames = {
 	"tutorial1": "Miranda's backyard",
+	"tutorial2": "Village of Tutoria",
+	"tutorial3": "Exposition Lane",
 	"tutorial4": "The Ministry of Insects",
+	"A0": "Congenial Glen",
+	"A1": "Stream of Conciousness",
+	"A2": "Airship Bay",
+	"C0": "Self-reflection Bay",
+	"C1": "Untitled Video Game Level",
+	"C2": "Eastern Basket",
+	"D0": "Left Foot Hills",
+	"D1": "Ninety-seven Acre Wood",
+	"D2": "The Cliffs of Note",
 	"nexus": "Nexus Point",
 	"finale0": "Crash site of the RSS Argus",
 	"finale1": "Equinox Monument",
@@ -86,6 +95,18 @@ def load():
 	view.zoom = 224 if state.w <= 3 else 144
 	if state.w == 7 and not state.panel:
 		view.zoom = 180
+
+	if progress.at in ["tutorial1", "tutorial2", "tutorial3"]:
+		sound.playmusic("spotlight")
+	if progress.at in ("A0", "A1", "A2", "D0", "D1", "D2"):
+		sound.playmusic("moves")
+	if progress.at in ("nexus", "C0", "C1", "C2"):
+		sound.playmusic("nowhere")
+	if progress.at in ["tutorial4", "finale0", "finale1"]:
+		sound.playmusic("rocket")
+		
+		
+
 
 def loaddata(data):
 	state.leps = []
@@ -232,8 +253,9 @@ def randomlevel():
 #			x = random.choice([x for x in xs if not state.lepat((x, y))])
 #			state.leps.append(thing.ChargeLep((x, y)))
 
-		x = random.choice([x for x in xs if not state.lepat((x, y))])
-		state.leps.append(thing.BoostLep((x, y), randomds(0.4)))
+		if y + 1 not in state.ychecks:
+			x = random.choice([x for x in xs if not state.lepat((x, y))])
+			state.leps.append(thing.BoostLep((x, y), randomds(0.4)))
 
 		x = random.choice([x for x in xs if not state.lepat((x, y))])
 		state.leps.append(thing.SpinLep((x, y)))

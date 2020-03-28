@@ -45,6 +45,8 @@ def think(dt):
 				scene.pop()
 				if state.winning():
 					progress.beat(progress.at)
+					if progress.at == "finale1":
+						scene.pop()
 					scene.push(dialogscene, "%s-post" % progress.at)
 				
 	else:
@@ -59,8 +61,10 @@ def think(dt):
 		state.guided.think(dt * self.lepdtf)
 	view.think(dt)
 
+
+
 def draw():
-	D.background("space.jpg", (160, 160, 160))
+	D.background()
 	gridlines = [((x, 1), (x, state.h)) for x in range(0, state.w + 1)]
 	gridlines += [((0, y), (state.w, y)) for y in range(1, state.h + 1)]
 	if False:
@@ -124,7 +128,7 @@ def draw():
 		"Space: guide/release",
 		"Backspace: exit level",
 	])
-	ptext.draw(controls, fontname = "ChangaOne", color = (255, 220, 200), fontsize = T(18),
+	ptext.draw(controls, fontname = "ChangaOne", color = (255, 220, 200), fontsize = T(22),
 		bottomright = T(1270, 710),  shade = 1, owidth = 0.5, shadow = (1, 1))
 
 	if 0 < self.tfly < 2:

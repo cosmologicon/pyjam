@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, pview, state, sound, level, draw, settings
+from . import view, pview, state, sound, level, draw, settings, ptext
 from .pview import T
 
 def collide(obj0, obj1):
@@ -76,12 +76,12 @@ class Lep:
 		if self.glow:
 			self.glow.think(dt)
 		if self in state.goals:
-			speed = 5 * math.exp(-0.3 * (state.goals.index(self) + 1))
+			speed = 10 * math.exp(-0.3 * (state.goals.index(self) + 1))
 			seekpos = state.you.x, state.you.y + 0.2
 			self.x, self.y = math.softapproach((self.x, self.y), seekpos, speed * dt)
 		elif self is state.guided:
 			seekpos = state.you.x, state.you.y + 0.2
-			self.x, self.y = math.softapproach((self.x, self.y), seekpos, 5 * dt)
+			self.x, self.y = math.softapproach((self.x, self.y), seekpos, 10 * dt)
 		self.tflap += dt
 		self.tfly -= dt
 		if self.tfly <= 0:
@@ -90,6 +90,12 @@ class Lep:
 			self.vyfly = random.uniform(-1, 1) - math.clamp(self.yfly, -2, 2)
 		self.xfly += 6 * dt * self.vxfly
 		self.yfly += 6 * dt * self.vyfly
+	def drawsymbol(self, pos, scale):
+		if not settings.colormode:
+			return
+		color = math.imix(self.color, (255, 255, 255), 0.5)
+		ptext.draw(self.symbol, center = pos, color = color, fontname = "Bevan",
+			fontsize = T(scale * 0.12), owidth = 1, shade = 1)
 	def draw0(self, topos, zoom):
 		dx, dy = 0.5, 0.5
 		dx += 0.12 * self.xfly
@@ -98,11 +104,13 @@ class Lep:
 		vfactor = 1 if self.vyfly < 0 else -1
 		vfactor = 1.6 * math.sin(self.tflap * 20)
 		flip = self.vxfly < 0
-		angle = (-1 if flip else 1) * (20 + 5 * self.vyfly)
+		angle = (-1 if flip else 1) * (20 + 5 * math.clamp(self.vyfly, -2, 2))
 		scale = T(1.4 * view.zoom)
 		draw.lep(pos, scale, angle, flip, vfactor, colormask = self.color)
-		if self.glow and self in state.leps:
-			self.glow.draw()
+		if self in state.leps:
+			if self.glow:
+				self.glow.draw()
+			self.drawsymbol(topos((self.x + 0.5, self.y + 0.5)), scale)
 	def drawarrow(self, d, dist = 0.32):
 		if not self.aseen:
 			return
@@ -124,6 +132,7 @@ class Lep:
 		if self.glow and pygame.time.get_ticks() * 0.001 % 0.5 < 0.1:
 			scale *= 1.1
 		draw.drawimg("lep-icon", pos, scale, colormask = self.color, owidth = owidth)
+		self.drawsymbol(pos, scale)
 	def drawarrowmap(self, d, dist = 0.32):
 		if not self.aseen:
 			return
@@ -146,16 +155,17 @@ class Lep:
 			pygame.draw.line(pview.screen, self.color, pos, dpos, T(4))
 	def drawguided(self, mcenter):
 		scale = 600 * pview.f
-		draw.drawimg("lep-icon", mcenter, scale, colormask = self.color, owidth = 2)
+		draw.drawimg("lep-icon", T(mcenter), scale, colormask = self.color, owidth = 2)
+		self.drawsymbol(T(mcenter), scale)
 		self.drawguidedarrows(mcenter)
 	def drawguidedarrow(self, mcenter, d, dist = 0.32):
 		if not self.aseen:
 			return
 		dx, dy = math.norm(d)
 		x0, y0 = mcenter
-		pos = x0 + T(50 * dx), y0 - T(50 * dy)
+		pos = T(x0 + 50 * dx, y0 - 50 * dy)
 		scale = 80 * pview.f
-		draw.arrow(pos, scale, (dx, dy), self.color, 1, self.tflap, 1)
+		draw.arrow(pos, scale, (dx, dy), self.color, self.tflap, 1)
 	def drawguidedarrows(self, mcenter):
 		for d in self.ds:
 			self.drawguidedarrow(mcenter, d)
@@ -165,6 +175,7 @@ class Lep:
 # May only leave the lep in the given direction.
 class FlowLep(Lep):
 	color = 100, 100, 255
+	symbol = "O"
 	def __init__(self, pos, ds):
 		Lep.__init__(self, pos)
 		self.ds = ds
@@ -175,6 +186,7 @@ class FlowLep(Lep):
 # Rotates along with all other SpinLeps
 class SpinLep(Lep):
 	color = 40, 255, 40
+	symbol = "X"
 	ds0 = (0, 1), (1, 0), (0, -1), (-1, 0)
 	ds1 = (1, 1), (1, -1), (-1, 1), (-1, -1)
 	def __init__(self, pos):
@@ -192,6 +204,7 @@ class SpinLep(Lep):
 # Doubles your movement
 class BoostLep(Lep):
 	color = 255, 128, 0
+	symbol = "2"
 	def __init__(self, pos, ds, n = 2):
 		Lep.__init__(self, pos)
 		self.ds = ds
@@ -222,6 +235,7 @@ class BoostLep(Lep):
 
 # Only lets you go straight through
 class ContinueLep(Lep):
+	symbol = "<>"
 	color = 255, 0, 255
 	def think(self, dt):
 		Lep.think(self, dt)
@@ -245,6 +259,7 @@ class ChargeLep(Lep):
 # Reach the goal leps to complete the stage.
 class GoalLep(Lep):
 	color = 255, 255, 0
+	symbol = "!!"
 	def __init__(self, pos):
 		Lep.__init__(self, pos)
 		self.glow = GuideGlow(self)
@@ -322,6 +337,7 @@ class You:
 			sound.play("no")
 			return
 		# Actually move
+		sound.play("jump")
 		if currentlep:
 			currentlep.movefrom(d)
 
@@ -351,10 +367,13 @@ class You:
 		if "act" in keys:
 			self.act()
 		if "combo" in keys:
-			dx = int("right" in keys) - int("left" in keys)
-			dy = int("up" in keys) - int("down" in keys)
-			if dx or dy:
-				self.combo((dx, dy))
+			if ("left" in keys and "right" in "keys") or ("up" in keys and "down" in keys):
+				self.fall()
+			else:
+				dx = int("right" in keys) - int("left" in keys)
+				dy = int("up" in keys) - int("down" in keys)
+				if dx or dy:
+					self.combo((dx, dy))
 	# Whether there are any legal moves you can make. If not, go ahead and fall.
 	def canmove(self):
 		if state.leaps or state.guided:
@@ -421,7 +440,7 @@ class You:
 		scale = T(1.3 * view.zoom)
 		pose0 = 5 + 2 * self.x + 3 * self.y + (self.x + 2) * (self.y + 2) + 3 * self.facingright
 		pose0 %= 8
-		for j in (2, 1, 0):
+		for j in ((0,) if settings.noshadow else (2, 1, 0)):
 			alpha = math.clamp((1 - 0.2 * j) * (1 - self.tmove), 0, 1)
 			if j and alpha < 0:
 				continue
