@@ -4,10 +4,27 @@ from . import draw as D
 from .pview import T
 
 lines = {
-	"tutorial1": [
-		"Y Lepidoptery?",
-		"Y Don't mind if I do!",
-		"V Wait for me!",
+	"tutorial2": [
+		"V My good lady! How do you do?",
+		"Y Oh my, are you a fellow butterfly lover?",
+		"V In a manner of speaking. My name is Professor Dame Victoria Winger.",
+		"V I am the Chair of the Department of Mothematics at Eldbridge University.",
+		"Y Goodness me! I'm Miranda Flutterbie. A pleasure to make your acquaintance!",
+		"V Would you permit me to observe for a few moments?",
+		"Y Certainly! It'll be good to have some company!",
+	],
+	"tutorial3": [
+		"V Incredible! Just as I suspected!",
+		"V Miranda, have you ever heard of the Butterfly Effect?",
+		"Y I'm afraid not. Should I have?",
+		"V It's a theory of lepidoptery that I've been studying for years,",
+		"V but sadly, nobody has ever found any proof it actually exists.",
+		"V Watching you play that last level, however, I'm convinced it's real!",
+	],
+	"tutorial3-post": [
+		"Y So just what is this 'Butterfly Effect', Victoria?",
+		"V I'll explain everything, but please come with me to the Ministry of Insects.",
+		"V They must be informed of this!",
 	],
 }
 
@@ -39,23 +56,30 @@ def control(keys):
 	if "act" in keys and not self.switching:
 		self.switching = True
 		self.ready = False
+	if "forfeit" in keys:
+		self.jline = len(self.lines)
 
 def think(dt):
-	t = pygame.time.get_ticks()
 	if not self.switching:
 		D.killtime(0.02)
-	print(pygame.time.get_ticks() - t)
 	if self.ready:
 		self.t += dt
-		self.tline += dt
 	if self.switching:
-		self.a = math.approach(self.a, 1, 5 * dt)
+		self.tline = 0
+		self.a = math.approach(self.a, 1, 3.5 * dt)
 		if self.a == 1:
 			self.switching = False
 			self.a = 0
 			self.jline += 1
 			if self.jline == len(self.lines):
 				scene.pop()
+	else:
+		self.tline += dt
+	if not self.switching and 0 <= self.jline < len(self.lines):
+		t = 1 + 0.08 * len(self.lines[self.jline])
+		if self.tline > t:
+			self.switching = True
+			self.ready = False
 
 def layout(jline):
 	if not 0 <= jline < len(self.lines):
@@ -112,9 +136,9 @@ def drawline(line, who, color, dpos, a):
 		"E": "ChangaOne",
 		"V": "ChangaOne",
 	}[who]
-	ptext.draw(line, center = T(640 + (100 + 1200 * a) * dpos, 600), width = T(720), color = color,
-		shade = 1, shadow = (1, 1.3), owidth = 0.25,
-		fontsize = T(120), fontname = fontname)
+	ptext.draw(line, center = T(640 + (100 + 1200 * a) * dpos, 600), width = T(960),
+		color = color, shade = 1, shadow = (1, 1.3), owidth = 0.25,
+		fontsize = T(60), fontname = fontname)
 
 def draw():
 	self.ready = True
@@ -140,6 +164,7 @@ def draw():
 			drawline(line, who, color, dpos, self.a)
 		if line1:
 			drawline(line1, who1, color1, dpos1, 1 - self.a)
-		
+	ptext.draw("Space: next   Backspace: skip", fontname = "ChangaOne", color = (255, 220, 200),
+		fontsize = T(18), bottomright = T(1270, 710),  shade = 1, owidth = 0.5, shadow = (1, 1))
 
 

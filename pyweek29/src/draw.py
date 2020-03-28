@@ -167,35 +167,22 @@ def lep(screenpos, scale, angle, flip, vfactor, colormask):
 
 @lru_cache(None)
 def getarrowimg0():
-	img = pygame.Surface((200, 200)).convert_alpha()
+	img = pygame.Surface((240, 240)).convert_alpha()
 	img.fill((0, 0, 0, 0))
-	ps = (100, 0), (160, 50), (100, 200), (40, 50)
+	ps = (120, 20), (180, 70), (120, 220), (60, 70)
 	pygame.draw.polygon(img, (0, 0, 0), ps)
-	ps = (100, 10), (150, 50), (100, 180), (50, 50)
+	ps = (120, 30), (170, 70), (120, 200), (70, 70)
 	pygame.draw.polygon(img, (255, 255, 255), ps)
 	return img
-	img0, img1 = [pygame.Surface((200, 200)).convert_alpha() for _ in (0, 1)]
-	img0.fill((0, 0, 0, 0))
-	img1.fill((0, 0, 0, 0))
-	ps = (100, 0), (160, 50), (100, 200), (40, 50)
-	pygame.draw.polygon(img0, (255, 255, 255), ps)
-	ps = (100, 10), (150, 50), (100, 180), (50, 50)
-	pygame.draw.polygon(img1, (0, 0, 0), ps)
-	ps = (100, 20), (140, 50), (100, 160), (60, 50)
-	pygame.draw.polygon(img1, (255, 255, 255), ps)
-	return img0, img1
 
 @lru_cache(1000)
-def getarrowimg(scale, d, color0, f, alpha):
+def getarrowimg(scale, d, color0, f, alpha, owidth):
 	color = math.imix(color0, (255, 255, 255), 0.5)
-	alpha = math.mix(alpha, 1, 0.6)
-#	img0, img1 = getarrowimg0()
-#	img0 = img0.copy()
-#	img1 = img1.copy()
-	img = getarrowimg0()
-	xs = numpy.arange(float(200)).reshape([200, 1, 1])
-	ys = numpy.arange(float(200)).reshape([1, 200, 1])
-	mask = ((-ys + 0.9 * abs(xs - 100)) * 0.006 - f) % 1 * 0.4 + 0.6
+	alpha = math.mix(alpha, 1, 0.5)
+	img = getarrowimg0().copy()
+	xs = numpy.arange(float(240)).reshape([240, 1, 1])
+	ys = numpy.arange(float(240)).reshape([1, 240, 1])
+	mask = ((-ys + 0.9 * abs(xs - 120)) * 0.006 - f) % 1 * 0.4 + 0.6
 	colorarr = numpy.array(color).reshape([1, 1, 3]) / 256.0
 #	arr = pygame.surfarray.pixels3d(img1)
 	arr = pygame.surfarray.pixels3d(img)
@@ -204,13 +191,13 @@ def getarrowimg(scale, d, color0, f, alpha):
 #	img0.blit(img1, (0, 0))
 	dx, dy = d
 	img = pygame.transform.rotate(img, math.degrees(math.atan2(-dx, dy)))
-	size = pview.I([a * scale / 200 for a in img.get_size()])
+	size = pview.I([a * scale / 240 for a in img.get_size()])
 	img = pygame.transform.smoothscale(img, size)
 	return fade(outline(img), alpha)
 
-def arrow(screenpos, scale, d, color0, f, alpha):
+def arrow(screenpos, scale, d, color0, f, alpha, owidth = 2):
 	f = int(f * 8) % 8 / 8
-	img = getarrowimg(scale, d, color0, f, alpha)
+	img = getarrowimg(scale, d, color0, f, alpha, owidth)
 	rect = img.get_rect(center = screenpos)
 	pview.screen.blit(img, rect)
 
@@ -266,6 +253,11 @@ def background(filename, gcolor):
 		img = groundtexture(view.rrect.left, pview.height - y0, offset, (50, 80, 80))
 		pview.screen.blit(img, img.get_rect(midtop = (x0, y0)))
 
+
+def panel():
+	img = getimg("paper", tuple(T(320, 720)))
+	pview.screen.blit(img, img.get_rect(bottomright = pview.bottomright))
+
 def loadimgs(scale):
 	for f in set(f for filenames in specs.values() for f in filenames):
 		getimg0("you-" + f)
@@ -319,5 +311,15 @@ def finishkill():
 			pass
 		del tokill[view.zoom]
 
+if __name__ == "__main__":
+	from . import maff
+	view.init()
+	clock = pygame.time.Clock()
+	while not any(event.type == pygame.KEYDOWN for event in pygame.event.get()):
+		pview.fill((0, 0, 0))
+		f = pygame.time.get_ticks() * 0.001 % 1
+		arrow((500, 500), 240, (0, 1), (255, 255, 255), f, 1)
+		pygame.display.flip()
+	
 
 

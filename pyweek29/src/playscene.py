@@ -1,5 +1,6 @@
 import pygame, statistics, math
-from . import pview, view, thing, state, settings, scene, control, level, progress, sound, ptext
+from . import pview, view, thing, state, settings, control, level, progress, sound, ptext
+from . import scene, dialogscene
 from . import draw as D
 from .pview import T
 
@@ -33,6 +34,8 @@ def think(dt):
 			scene.pop()
 			if state.winning():
 				progress.beat(progress.at)
+				scene.push(dialogscene, "%s-post" % progress.at)
+				
 	else:
 		self.alpha = math.approach(self.alpha, 0, 4 * dt)
 	state.you.think(dt)
@@ -48,11 +51,12 @@ def think(dt):
 def draw():
 	D.background("lake.jpg", (160, 160, 160))
 	gridlines = [((x, 0), (x, state.h)) for x in range(0, state.w + 1)]
-	gridlines += [((0, y), (state.w, y)) for y in range(0, state.h + 1)]
-	if state.you.state == "jumping":
-		for p0, p1 in gridlines:
-			pygame.draw.line(pview.screen, (50, 50, 140),
-				view.worldtoscreen(p0), view.worldtoscreen(p1), T(1))
+	gridlines += [((0, y), (state.w, y)) for y in range(1, state.h + 1)]
+	if False:
+		if state.you.state == "jumping":
+			for p0, p1 in gridlines:
+				pygame.draw.line(pview.screen, (50, 50, 140),
+					view.worldtoscreen(p0), view.worldtoscreen(p1), T(1))
 	state.you.draw()
 	for lep in state.goals:
 		lep.draw()
@@ -71,26 +75,29 @@ def draw():
 	if progress.at == "tutorial2":
 		tiptext = "Tap two directions at one to jump diagonal"
 	if progress.at == "tutorial4":
-		tiptext = "Glowing butterflies can be moved\nTap Space or Enter to guide and release"
+		tiptext = "Sparkling butterflies can be moved\nTap Space or Enter to guide and release"
 	
 	if tiptext:
 		ptext.draw(tiptext, fontname = "ChangaOne", color = (255, 220, 200), fontsize = T(44),
 			midbottom = T(view.rrect.left / 2, 680),  shade = 1, owidth = 0.5, shadow = (1, 1))
 
 	# Right panel
-	pview.fill((80, 80, 100, 220), T(view.rrect))
+#	pview.fill((80, 80, 100, 220), T(view.rrect))
+	D.panel()
 	for p0, p1 in gridlines:
 		pygame.draw.line(pview.screen, (100, 60, 120), view.worldtomap(p0), view.worldtomap(p1), T(1))
 	state.you.drawmap()
 	for lep in state.leps:
 		lep.drawmap()
 	for lep in state.leps:
-		lep.drawarrowmap()
-	mcenter = T(view.rrect.centerx, 70)
+		lep.drawarrowsmap()
+	mcenter0 = view.rrect.centerx, 120
+	mcenter = T(mcenter0)
+	D.drawimg("guiding", mcenter, 1000 * pview.f, owidth = 2)
 	if state.guided:
-		pos = T(view.rrect.centerx, 110)
-		scale = 600 * pview.f
-		D.drawimg("lep-icon", mcenter, scale, colormask = state.guided.color)
+		state.guided.drawguided(mcenter0)
+	ptext.draw("Guiding", center = (mcenter[0], 20), fontsize = T(30), fontname = "ChangaOne",
+		color = "white", owidth = 1.5, shade = 1)
 	if False:
 		pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50), T(2))
 		pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50 * state.you.jumpmeter()))
@@ -100,6 +107,13 @@ def draw():
 				pygame.draw.circle(pview.screen, (255, 200, 80), pos, T(24))
 			else:
 				pygame.draw.circle(pview.screen, (255, 200, 80), pos, T(24), T(2))
+
+	controls = "\n".join([
+		"Space: guide/release",
+		"Backspace: exit level",
+	])
+	ptext.draw(controls, fontname = "ChangaOne", color = (255, 220, 200), fontsize = T(18),
+		bottomright = T(1270, 710),  shade = 1, owidth = 0.5, shadow = (1, 1))
 
 	if self.alpha:
 		pview.fill((255, 255, 255, int(255 * self.alpha)))

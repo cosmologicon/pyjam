@@ -3,14 +3,14 @@ from . import pview, settings, state
 from .pview import T
 
 # All possible values of zoom, to be used for precaching images.
-allzooms = 120, 220
+allzooms = 144, 200
 
 # camera position
 cx, cy = 0, 0
-zoom = 220
+zoom = 144
 
 # Right panel width
-rw = 360
+rw = 320
 rrect = pygame.Rect(1280 - rw, 0, rw, 720)
 
 # Minimum y-value that should ever be visible on screen
@@ -46,13 +46,15 @@ def screen0toworld(pos):
 	y = cy - (py - pview.centery0) / zoom
 	return x, y
 
+
+maptop = 220
 def mapzoom():
-	return min(rw / (state.w + 2), pview.h0 / (state.h + 2))
+	return min(rw / (state.w + 1), T(pview.h - maptop) / (state.h + 1))
 
 def worldtomap(pos):
 	x, y = pos
 	x0 = 1280 - rw / 2
-	y0 = pview.centery0
+	y0 = pview.centery0 + maptop / 2
 	mzoom = mapzoom()
 	x = x0 + mzoom * (x - state.w / 2)
 	y = y0 - mzoom * (y - state.h / 2)

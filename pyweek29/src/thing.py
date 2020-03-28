@@ -103,11 +103,11 @@ class Lep:
 		draw.lep(pos, scale, angle, flip, vfactor, colormask = self.color)
 		if self.glow:
 			self.glow.draw()
-	def drawarrow(self, d):
+	def drawarrow(self, d, dist = 0.32):
 		if not self.aseen:
 			return
 		dx, dy = math.norm(d)
-		pos = self.x + 0.5 + 0.32 * dx, self.y + 0.5 + 0.32 * dy
+		pos = self.x + 0.5 + dist * dx, self.y + 0.5 + dist * dy
 		alpha = 1 if (self.x, self.y) == (state.you.x, state.you.y) else 0.25
 		scale = 0.38 * pview.f * view.zoom
 		draw.arrow(view.worldtoscreen(pos), scale, d, self.color, self.tflap, alpha)
@@ -120,15 +120,19 @@ class Lep:
 	def drawmap(self):
 		pos = view.worldtomap((self.x + 0.5, self.y + 0.5))
 		scale = 3.0 * pview.f * view.mapzoom()
-		draw.drawimg("lep-icon", pos, scale, colormask = self.color)
-	def drawarrowmap(self):
+		owidth = 2 if self.glow else 0
+		draw.drawimg("lep-icon", pos, scale, colormask = self.color, owidth = owidth)
+	def drawarrowmap(self, d, dist = 0.32):
 		if not self.aseen:
 			return
-		for d in self.ds:
-			dx, dy = math.norm(d)
-			pos = self.x + 0.5 + 0.2 * dx, self.y + 0.5 + 0.2 * dy
-			scale = 0.6 * pview.f * view.mapzoom()
-			draw.arrow(view.worldtomap(pos), scale, (dx, dy), (255, 255, 255), 1, 1)
+		dx, dy = math.norm(d)
+		pos = self.x + 0.5 + dist * dx, self.y + 0.5 + dist * dy
+		scale = 0.4 * pview.f * view.mapzoom()
+		draw.arrow(view.worldtomap(pos), scale, (dx, dy), self.color, 1, 1, 1)
+	def drawarrowsmap(self):
+		if self is not state.guided:
+			for d in self.ds:
+				self.drawarrowmap(d)
 	def draweditor(self):
 		pos = view.worldtoscreen((self.x + 0.5, self.y + 0.5))
 		pygame.draw.circle(pview.screen, self.color, pos, T(12))
@@ -138,6 +142,22 @@ class Lep:
 			dx, dy = math.norm(d)
 			dpos = view.worldtoscreen((self.x + 0.5 + 0.4 * dx, self.y + 0.5 + 0.4 * dy))
 			pygame.draw.line(pview.screen, self.color, pos, dpos, T(4))
+	def drawguided(self, mcenter):
+		pos = T(view.rrect.centerx, 110)
+		scale = 600 * pview.f
+		draw.drawimg("lep-icon", mcenter, scale, colormask = self.color)
+		self.drawguidedarrows(mcenter)
+	def drawguidedarrow(self, mcenter, d, dist = 0.32):
+		if not self.aseen:
+			return
+		dx, dy = math.norm(d)
+		x0, y0 = mcenter
+		pos = x0 + dist * dx, y0 + dist * dy
+		scale = 100 * pview.f
+		draw.arrow(view.worldtomap(pos), scale, (dx, dy), self.color, 1, 1, 1)
+	def drawguidedarrows(self, mcenter):
+		for d in self.ds:
+			self.drawguidedarrow(mcenter, d)
 
 
 # Lep is movable.
@@ -181,6 +201,23 @@ class BoostLep(Lep):
 	def draw0(self, topos, zoom):
 		Lep.draw0(self, topos, zoom)
 		self.drawarrows()
+	def drawarrows(self):
+		if self is not state.guided:
+			for d in self.ds:
+				self.drawarrow(d, 0.42)
+			for d in self.ds:
+				self.drawarrow(d, 0.3)
+	def drawarrowsmap(self):
+		if self is not state.guided:
+			for d in self.ds:
+				self.drawarrowmap(d, 0.42)
+			for d in self.ds:
+				self.drawarrowmap(d, 0.3)
+	def drawguidedarrows(self, mcenter):
+		for d in self.ds:
+			self.drawguidedarrow(mcenter, d, 0.42)
+		for d in self.ds:
+			self.drawguidedarrow(mcenter, d, 0.3)
 
 # Only lets you go straight through
 class ContinueLep(Lep):
