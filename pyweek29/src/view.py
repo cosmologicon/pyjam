@@ -3,7 +3,7 @@ from . import pview, settings, state
 from .pview import T
 
 # All possible values of zoom, to be used for precaching images.
-allzooms = 144, 224
+allzooms = 144, 180, 224
 
 # camera position
 cx, cy = 0, 0
@@ -20,29 +20,34 @@ def init():
 	pview.set_mode(size0 = settings.size0, height = settings.height0,
 		fullscreen = settings.fullscreen, forceres = settings.forceres)
 
+def rwall():
+	return rrect.left if state.panel else pview.w0
+def vcenter():
+	return rwall() / 2
+
 def think(dt):
 	global cx, cy
-	target = state.you.x + 0.5, state.you.y + 1
-	cx, cy = math.softapproach((cx, cy), target, 5 * dt, dymin = 1 / zoom)
-	
-	if state.w * zoom < rrect.left:
-		cx = state.w / 2
-	else:
-		dx = rrect.left / zoom / 2
-		cx = math.clamp(cx, dx, state.w - dx)
+	targetx, targety = state.you.x + 0.5, state.you.y + 1
 	cymin = state.yfloor + ymin + pview.centery0 / zoom
 	cymax = state.h + 2 - pview.centery0 / zoom
-	cy = math.clamp(cy, cymin, cymax)
+	targety = math.clamp(targety, cymin, cymax)
+	cx, cy = math.softapproach((cx, cy), (targetx, targety), 5 * dt, dymin = 1 / zoom)
+	
+	if state.w * zoom < rwall():
+		cx = state.w / 2
+	else:
+		dx = vcenter() / zoom
+		cx = math.clamp(cx, dx, state.w - dx)
 
 def worldtoscreen(pos):
 	x, y = pos
-	x = rrect.left / 2 + zoom * (x - cx)
+	x = vcenter() + zoom * (x - cx)
 	y = pview.centery0 - zoom * (y - cy)
 	return T(x, y)
 
 def screen0toworld(pos):
 	px, py = pos
-	x = (px - rrect.left / 2) / zoom + cx
+	x = (px - vcenter()) / zoom + cx
 	y = cy - (py - pview.centery0) / zoom
 	return x, y
 
@@ -64,20 +69,20 @@ def worldtomap(pos):
 def backgroundspec():
 	a = 0.3
 	# Midpoint of the horizon
-	x0, y0 = rrect.left / 2, pview.centery0 + zoom * cy
-	x0, y0 = math.mix((x0, y0), (rrect.left / 2, pview.centery0), 1 - a)
-	cxmin = state.w / 2 if state.w * zoom < rrect.left else rrect.left / zoom / 2
-	wmin = 2 + rrect.left + 2 * a * (state.w / 2 - cxmin) * zoom
-	yfloor = 0
-	cymin = 0 + ymin + pview.centery0 / zoom
-	cymax = state.h + 2 - pview.centery0 / zoom
+	x0, y0 = vcenter(), pview.centery0 + zoom * cy
+	x0, y0 = math.mix((x0, y0), (vcenter(), pview.centery0), 1 - a)
+	cxmin = state.w / 2 if state.w * zoom < rwall() else vcenter() / zoom
+	wmin = 2 + rwall() + 2 * a * (state.w / 2 - cxmin) * zoom
+	cymin = 0 + -1 + pview.centery0 / zoom
+	ceiling = state.ychecks[-1] + 1 if state.ychecks else state.h
+	cymax = ceiling + 2 - pview.centery0 / zoom
 	ybottom = pview.centery0 + zoom * cymin
 	hmin = 2 + ybottom + (cymax - cymin) * zoom * a
 	return (x0, y0), (wmin, hmin)
 
 def visiblerange():
 	xmin, ymin = screen0toworld((0, pview.height0))
-	xmax, ymax = screen0toworld((rrect.left, 0))
+	xmax, ymax = screen0toworld((rwall(), 0))
 	return (xmin - 1, xmax + 1), (ymin - 1, ymax + 1)
 
 

@@ -1,4 +1,4 @@
-import random, json
+import random, json, math
 from . import state, thing, progress, view
 
 leveldata = {
@@ -65,16 +65,21 @@ def load():
 	state.yfloor = 0
 	state.jspin = 0
 	state.ychecks = []
+	state.panel = progress.at != "finale1"
 
 #	randomlevel()
 #	levelspin()
 	if progress.at == "nexus":
 		loadnexus()
+	elif progress.at == "finale1":
+		randomlevel()
 	else:
 		loaddata(leveldata[progress.at])
 	state.ngoal = sum(isinstance(lep, thing.GoalLep) for lep in state.leps)
 	state.leaps = state.maxleaps
 	view.zoom = 224 if state.w <= 3 else 144
+	if state.w == 7 and not state.panel:
+		view.zoom = 180
 
 def loaddata(data):
 	state.leps = []
@@ -172,35 +177,88 @@ def fill(ys):
 	ys = list(ys)
 	
 
+def randompath(p0, p1, xmax):
+	x0, y0 = p0
+	x1, y1 = p1
+	dx = x1 - x0
+	dy = y1 - y0
+	assert abs(dx) <= abs(dy)
+	if not dx and not dy:
+		return []
+	if abs(dy) <= 1:
+		return [p1]
+	f = random.choice([math.Phi, 1 - math.Phi])
+	xmid = math.imix(x0, x1, f)
+	ymid = math.imix(y0, y1, f)
+	nsteps = min(abs(y0 - ymid) - abs(x0 - xmid), abs(y1 - ymid) - abs(x1 - xmid))
+	for _ in range(nsteps):
+		dx = random.choice((-1, -1, -1, 0, 1, 1, 1))
+		if 0 <= xmid + dx < xmax:
+			xmid += dx
+	return randompath(p0, (xmid, ymid), xmax) + randompath((xmid, ymid), p1, xmax)
+		
+def randomds(rfactor = 0.5, d0 = None):
+	ds = { random.choice(allds) }
+	while random.random() < rfactor:
+		ds.add(random.choice(allds))
+	if d0 is not None:
+		ds.add(d0)
+	return sorted(ds)
+
+
+
 def randomlevel():
-	state.ychecks = 15, 30, 50, 80, 119
+#	state.ychecks = 15, 30, 50, 80, 119
 #	state.ychecks = 3, 7, 11
-	state.w = 8
+	state.ychecks = 20, 50, 90
+	state.w = 7
 	state.h = state.ychecks[0] + 1
-	state.maxleaps = 3
+#	state.maxleaps = 1
 	state.leps = []
 	xs = list(range(state.w))
 	for y in state.ychecks:
-		x = random.choice([2, 3, 4, 5])
+		x = 3
 		state.leps.append(thing.GoalLep((x, y)))
-#	fill(range(1, state.ychecks[0]))
+
 	ys = [y for y in range(1, max(state.ychecks) + 1) if y not in state.ychecks]
 	for y in ys:
-		if y % 3 == 0:
-			x = random.choice([x for x in xs if not state.lepat((x, y))])
-			state.leps.append(thing.ChargeLep((x, y)))
+#		if y % 3 == 0:
+#			x = random.choice([x for x in xs if not state.lepat((x, y))])
+#			state.leps.append(thing.ChargeLep((x, y)))
+
 		x = random.choice([x for x in xs if not state.lepat((x, y))])
-		state.leps.append(thing.BoostLep((x, y)))
+		state.leps.append(thing.BoostLep((x, y), randomds(0.4)))
+
 		x = random.choice([x for x in xs if not state.lepat((x, y))])
 		state.leps.append(thing.SpinLep((x, y)))
+
+		x = random.choice([x for x in xs if not state.lepat((x, y))])
+		state.leps.append(thing.ContinueLep((x, y)))
 		
-		for x in random.choices(xs, k = 8):
+		for x in range(state.w):
 			if state.lepat((x, y)):
 				continue
-			ds = { random.choice(allds) }
-			while random.random() < 0.7:
-				ds.add(random.choice(allds))
-			lep = thing.SlingLep((x, y), ds)
+			if random.random() < 0.5:
+				continue
+			lep = thing.FlowLep((x, y), randomds(0.6))
 			state.leps.append(lep)
+
+	path = [(3, 1)]
+	for ycheck in state.ychecks:
+		path += randompath(path[-1], (3, ycheck), 7)
+	for j, (x0, y0) in enumerate(path):
+		if y0 in state.ychecks:
+			continue
+		x1, y1 = path[j + 1]
+		d = x1 - x0, y1 - y0
+		lep = state.lepat((x0, y0))
+		if lep:
+			if isinstance(lep, thing.FlowLep):
+				lep.ds = sorted(set(list(lep.ds) + [d]))
+			else:
+				state.leps.remove(lep)
+				state.leps.append(thing.FlowLep((x0, y0), randomds(0.4, d)))
+		else:
+			state.leps.append(thing.FlowLep((x0, y0), randomds(0.4, d)))
 
 

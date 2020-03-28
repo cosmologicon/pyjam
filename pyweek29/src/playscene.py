@@ -60,8 +60,8 @@ def think(dt):
 	view.think(dt)
 
 def draw():
-	D.background("lake.jpg", (160, 160, 160))
-	gridlines = [((x, 0), (x, state.h)) for x in range(0, state.w + 1)]
+	D.background("space.jpg", (160, 160, 160))
+	gridlines = [((x, 1), (x, state.h)) for x in range(0, state.w + 1)]
 	gridlines += [((0, y), (state.w, y)) for y in range(1, state.h + 1)]
 	if False:
 		if state.you.state == "jumping":
@@ -93,31 +93,32 @@ def draw():
 			midbottom = T(view.rrect.left / 2, 680),  shade = 1, owidth = 0.5, shadow = (1, 1))
 
 	# Right panel
-#	pview.fill((80, 80, 100, 220), T(view.rrect))
-	D.panel()
-	for p0, p1 in gridlines:
-		pygame.draw.line(pview.screen, (100, 60, 120), view.worldtomap(p0), view.worldtomap(p1), T(1))
-	state.you.drawmap()
-	for lep in state.leps:
-		lep.drawmap()
-	for lep in state.leps:
-		lep.drawarrowsmap()
-	mcenter0 = view.rrect.centerx, 120
-	mcenter = T(mcenter0)
-	D.drawimg("guiding", mcenter, 1000 * pview.f, owidth = 2)
-	if state.guided:
-		state.guided.drawguided(mcenter0)
-	ptext.draw("Guiding", center = (mcenter[0], 20), fontsize = T(30), fontname = "ChangaOne",
-		color = "white", owidth = 1.5, shade = 1)
-	if False:
-		pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50), T(2))
-		pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50 * state.you.jumpmeter()))
-		for j in range(state.maxleaps):
-			pos = T(view.rrect.centerx + 60 * (-(state.maxleaps - 1) / 2 + j), 160)
-			if j < state.leaps:
-				pygame.draw.circle(pview.screen, (255, 200, 80), pos, T(24))
-			else:
-				pygame.draw.circle(pview.screen, (255, 200, 80), pos, T(24), T(2))
+	if state.panel:
+	#	pview.fill((80, 80, 100, 220), T(view.rrect))
+		D.panel()
+		for p0, p1 in gridlines:
+			pygame.draw.line(pview.screen, (100, 60, 120), view.worldtomap(p0), view.worldtomap(p1), T(1))
+		state.you.drawmap()
+		for lep in state.leps:
+			lep.drawmap()
+		for lep in state.leps:
+			lep.drawarrowsmap()
+		mcenter0 = view.rrect.centerx, 120
+		mcenter = T(mcenter0)
+		D.drawimg("guiding", mcenter, 1000 * pview.f, owidth = 2)
+		if state.guided:
+			state.guided.drawguided(mcenter0)
+		ptext.draw("Guiding", center = (mcenter[0], 20), fontsize = T(30), fontname = "ChangaOne",
+			color = "white", owidth = 1.5, shade = 1)
+		if False:
+			pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50), T(2))
+			pygame.draw.circle(pview.screen, (255, 200, 80), mcenter, T(50 * state.you.jumpmeter()))
+			for j in range(state.maxleaps):
+				pos = T(view.rrect.centerx + 60 * (-(state.maxleaps - 1) / 2 + j), 160)
+				if j < state.leaps:
+					pygame.draw.circle(pview.screen, (255, 200, 80), pos, T(24))
+				else:
+					pygame.draw.circle(pview.screen, (255, 200, 80), pos, T(24), T(2))
 
 	controls = "\n".join([
 		"Space: guide/release",

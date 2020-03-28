@@ -1,6 +1,6 @@
 import pygame, numpy, math, scipy.ndimage
 from functools import lru_cache
-from . import pview, view, settings
+from . import pview, view, settings, state
 from .pview import T
 
 def pickany(objs):
@@ -197,7 +197,7 @@ def getarrowimg(scale, d, color0, f, alpha, owidth):
 	return fade(outline(img), alpha)
 
 def arrow(screenpos, scale, d, color0, f, alpha, owidth = 2):
-	f = int(f * 8) % 8 / 8
+	f = int(f * 16) % 16 / 16
 	img = getarrowimg(scale, d, color0, f, alpha, owidth)
 	rect = img.get_rect(center = screenpos)
 	pview.screen.blit(img, rect)
@@ -244,14 +244,14 @@ def background(filename, gcolor):
 	(x0, y0), (wmin, hmin) = T(view.backgroundspec())
 	img = getbackground(filename, wmin, hmin)
 	pview.screen.blit(img, img.get_rect(midbottom = (x0, y0)))
-	mtop = view.rrect.left // 2, y0 - T(40)
+	mtop = view.vcenter(), y0 - T(40)
 	if mtop[1] < pview.h:
-		cimg = curtain(view.rrect.left, T(400), gcolor)
+		cimg = curtain(view.rwall(), T(400), gcolor)
 		pview.screen.blit(cimg, cimg.get_rect(midtop = mtop))
 	return
 	if y0 < pview.height:
 		offset = T(view.zoom * view.cx)
-		img = groundtexture(view.rrect.left, pview.height - y0, offset, (50, 80, 80))
+		img = groundtexture(view.rwall(), pview.height - y0, offset, (50, 80, 80))
 		pview.screen.blit(img, img.get_rect(midtop = (x0, y0)))
 
 

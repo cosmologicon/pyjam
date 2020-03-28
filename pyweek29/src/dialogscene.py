@@ -27,9 +27,21 @@ lines = {
 		"V They must be informed of this!",
 	],
 	"tutorial4": [
-		"B Welcome to the Ministry of Insects.",
-		"rV Yeah hi.",
-		"Y I'm here too!",
+		"rV Minister Buzzworthy!",
+		"B Ah, Professor! What brings you to the Ministry of Insects?",
+		"rV I finally have proof of The Butterfly Effect!",
+		"B Heavens... after all this time.... Are you absolutely sure?",
+		"rV Just watch this! Miranda, show him what you can do!",
+	],
+	"tutorial4-post": [
+		"B Astounding! Yes, it must be the Butterfly Effect after all!",
+		"B Of course you must begin the map immediately.",
+		"rV An expedition? Miranda, what do you think?",
+		"Y Sure, I could do a few more levels.",
+		"Y But how will we pay for an expedition?",
+		"B The Ministry will provide everything you need! In fact I have just the man for your attaché.",
+		"E Leftenant Elmer Wrightscoptch of the Royal Airship Battalion, at your service.",
+		"Y Then it's settled!",
 	],
 }
 

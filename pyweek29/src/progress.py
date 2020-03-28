@@ -8,8 +8,8 @@ stages = {
 	"A1": (3, 2),
 	"A2": (1.5, 2),
 	
-	"B0": (5, 2),
-	"B1": (6, 2),
+#	"B0": (5, 2),
+#	"B1": (6, 2),
 	
 	"C0": (7, 3),
 	"C1": (7, 1),
@@ -31,8 +31,8 @@ joins = [
 	("A0", "A1"),
 	("A1", "A2"),
 
-	("tutorial3", "B0"),
-	("B0", "B1"),
+#	("tutorial3", "B0"),
+#	("B0", "B1"),
 
 	("tutorial4", "C0"),
 	("C0", "C1"),
@@ -46,6 +46,12 @@ joins = [
 	("tutorial2", "tutorial3"),
 	("tutorial3", "tutorial4"),
 ]
+reqs = {
+	"A0": ["tutorial4"],
+	"C0": ["tutorial4"],
+	"D0": ["tutorial4"],
+	"nexus": ["tutorial4"],
+}
 at = "tutorial1"
 unlocked = set(["tutorial1"])
 beaten = set()
@@ -55,8 +61,10 @@ def beat(level):
 	global unlocked
 	beaten.add(level)
 	for pair in joins:
-		if level in pair:
-			unlocked |= set(pair)
+		if set(pair) & beaten:
+			for tocheck in pair:
+				if all(req in beaten for req in reqs.get(tocheck, [])):
+					unlocked.add(tocheck)
 
 def unlockall():
 	global unlocked

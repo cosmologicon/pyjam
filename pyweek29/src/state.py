@@ -17,10 +17,11 @@ def rechargeleps():
 		lep.charged = True
 
 def winning():
-	return len(goals) >= ngoal and you.state == "grounded"
+	return len(goals) >= ngoal and (you.state == "grounded" or not panel)
 
 def beatcurrent():
 	global ngoal
 	ngoal = 0
-	you.state = "grounded"
+	if panel:
+		you.state = "grounded"
 
