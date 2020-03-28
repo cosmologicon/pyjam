@@ -1,5 +1,5 @@
 import random, json
-from . import state, thing, progress
+from . import state, thing, progress, view
 
 leveldata = {
 	"learnguide": {"w": 3, "h": 5, "goal": [{"x": 1, "y": 4}, {"x": 1, "y": 2}, {"x": 0, "y": 3}], "flow": [{"x": 2, "y": 3, "ds": [[0, 1]], "guidable": True}, {"x": 2, "y": 1, "ds": [[0, 1]], "guidable": True}, {"x": 0, "y": 2, "ds": [[1, 1]], "guidable": True}]},
@@ -43,6 +43,17 @@ leveldata = {
 
 }
 
+levelnames = {
+	"tutorial1": "Miranda's backyard",
+	"tutorial4": "The Ministry of Insects",
+	"nexus": "Nexus Point",
+	"finale0": "Crash site of the RSS Argus",
+	"finale1": "The Eldritch Vortex",
+}
+def currentname():
+	return levelnames.get(progress.at, progress.at)
+
+
 def load():
 	state.thang0 = 0.7
 	state.thang = 4
@@ -63,6 +74,7 @@ def load():
 		loaddata(leveldata[progress.at])
 	state.ngoal = sum(isinstance(lep, thing.GoalLep) for lep in state.leps)
 	state.leaps = state.maxleaps
+	view.zoom = 224 if state.w <= 3 else 144
 
 def loaddata(data):
 	state.leps = []

@@ -3,11 +3,11 @@ from . import pview, settings, state
 from .pview import T
 
 # All possible values of zoom, to be used for precaching images.
-allzooms = 144, 200
+allzooms = 144, 224
 
 # camera position
 cx, cy = 0, 0
-zoom = 144
+zoom = 224
 
 # Right panel width
 rw = 320

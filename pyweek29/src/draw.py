@@ -99,7 +99,7 @@ def colorshift(img, seed):
 def youimg(spec, scale, angle, faceright, seed = None, owidth = None, ocolor = (255, 255, 255)):
 	if seed is not None:
 		return colorshift(youimg(spec, scale, angle, faceright), seed)
-	return xform(youimg0(specs[spec]), scale, angle, not faceright, 1, None, owidth, ocolor)
+	return xform(youimg0(specs[spec]), 4 * scale, angle, not faceright, 1, None, owidth, ocolor)
 
 
 def fade(img, alpha):
@@ -125,7 +125,8 @@ def outline(img, width = 2, color = (255, 255, 255)):
 	return back
 	
 
-def you(spec, screenpos, scale, angle, faceright, seed = None, alpha = None, owidth = None, ocolor = (255, 255, 255)):
+def you(spec, screenpos, scale, angle, faceright, seed = None,
+	alpha = None, owidth = None, ocolor = (255, 255, 255)):
 	angle = int(round(angle)) % 360
 	img = youimg(spec, scale, angle, faceright, seed, owidth, ocolor)
 	if alpha is not None:

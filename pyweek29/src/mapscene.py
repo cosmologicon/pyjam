@@ -1,15 +1,8 @@
 import pygame, math
-from . import scene, playscene, dialogscene, pview, ptext, progress, sound
+from . import scene, playscene, dialogscene, pview, ptext, progress, sound, level
 from . import draw as D
 from .pview import T
 
-levelnames = {
-	"tutorial1": "Miranda's backyard",
-	"tutorial4": "The Ministry of Insects",
-	"nexus": "Nexus Point",
-	"finale0": "Crash site of the RSS Argus",
-	"finale1": "The Eldritch Vortex",
-}
 
 def pickany(objs):
 	objs = list(objs)
@@ -104,8 +97,7 @@ def draw():
 	ptext.draw(title, midtop = T(640, 20), fontsize = T(80),
 		fontname = "IMFell", color = (240, 200, 140), owidth = 0.5,
 		shadow = (0.5, 0.5), scolor = scolor, shade = 1)
-	subtitle = levelnames.get(progress.at, progress.at)
-	ptext.draw(subtitle, midbottom = T(640, 700), fontsize = T(64),
+	ptext.draw(level.currentname(), midbottom = T(640, 700), fontsize = T(64),
 		fontname = "IMFell", color = math.imix((240, 200, 140), (255, 255, 255), 0.5),
 		owidth = 0.5, shadow = (0.5, 0.5), scolor = scolor, shade = 1)
 	if self.a:

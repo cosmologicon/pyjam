@@ -26,6 +26,11 @@ lines = {
 		"V I'll explain everything, but please come with me to the Ministry of Insects.",
 		"V They must be informed of this!",
 	],
+	"tutorial4": [
+		"B Welcome to the Ministry of Insects.",
+		"rV Yeah hi.",
+		"Y I'm here too!",
+	],
 }
 
 
@@ -45,9 +50,9 @@ def init(track):
 	if track in lines and track not in progress.dseen:
 		self.lines = list(lines[track])
 		progress.dseen.add(track)
-		drawwho("Y", -1, 1)
-		drawwho("E", 1, 1)
-		drawwho("V", 1, 1)
+		for who in "YEVB":
+			for rev in [False, True]:
+				drawwho(who, -1, 1, rev)
 	if track not in lines:
 		scene.pop()
 		self.lines = []
@@ -87,15 +92,22 @@ def layout(jline):
 		line = None
 		who = None
 		dpos = 0
+		rev = False
 	else:
 		who, _, line = self.lines[jline].partition(" ")
+		rev = who.startswith("r")
+		if rev:
+			who = who[1:]
 		color = {
 			"Y": (0, 255, 255),
 			"E": (255, 200, 100),
 			"V": (255, 0, 255),
+			"B": (240, 200, 160),
 		}[who]
 		dpos = -1 if who == "Y" else 1
-	return line, who, dpos, color
+	if rev:
+		dpos = -dpos
+	return line, who, dpos, color, rev
 
 def drawback(color, dpos):
 	w, h = pview.size
@@ -118,16 +130,19 @@ def drawback(color, dpos):
 	del arr
 	pview.screen.blit(pygame.transform.smoothscale(img, pview.size), (0, 0))
 	
-def drawwho(who, dpos, a):
+def drawwho(who, dpos, a, rev):
 	if who == "Y":
 		x = 640 + dpos * (400 + 600 * a)
-		D.drawimg("you", T(x, 400), T(1400))
+		D.drawimg("you", T(x, 400), T(1400), flip = rev)
 	elif who == "E":
 		x = 640 + dpos * (360 + 600 * a)
-		D.drawimg("elmer", T(x, 400), T(1600))
+		D.drawimg("elmer", T(x, 400), T(1600), flip = rev)
 	elif who == "V":
 		x = 640 + dpos * (360 + 600 * a)
-		D.drawimg("victoria", T(x, 400), T(1400))
+		D.drawimg("victoria", T(x, 400), T(1400), flip = rev)
+	elif who == "B":
+		x = 640 + dpos * (360 + 600 * a)
+		D.drawimg("minister", T(x, 400), T(1400), flip = rev)
 	
 
 def drawline(line, who, color, dpos, a):
@@ -135,6 +150,7 @@ def drawline(line, who, color, dpos, a):
 		"Y": "ChangaOne",
 		"E": "ChangaOne",
 		"V": "ChangaOne",
+		"B": "ChangaOne",
 	}[who]
 	ptext.draw(line, center = T(640 + (100 + 1200 * a) * dpos, 600), width = T(960),
 		color = color, shade = 1, shadow = (1, 1.3), owidth = 0.25,
@@ -142,24 +158,24 @@ def drawline(line, who, color, dpos, a):
 
 def draw():
 	self.ready = True
-	line, who, dpos, color = layout(self.jline)
+	line, who, dpos, color, rev = layout(self.jline)
 	if not self.switching:
 		drawback(color, dpos)
 		if who:
-			drawwho(who, dpos, 0)
+			drawwho(who, dpos, 0, rev)
 		if line:
 			drawline(line, who, color, dpos, 0)
 	else:
-		line1, who1, dpos1, color1 = layout(self.jline + 1)
+		line1, who1, dpos1, color1, rev1 = layout(self.jline + 1)
 		acolor = math.imix(color, color1, self.a)
 		drawback(acolor, math.mix(dpos, dpos1, self.a))
 		if who and who1 and who == who1:
 			drawwho(who, dpos, 0)
 		else:
 			if who:
-				drawwho(who, dpos, self.a)
+				drawwho(who, dpos, self.a, rev)
 			if who1:
-				drawwho(who1, dpos1, 1 - self.a)
+				drawwho(who1, dpos1, 1 - self.a, rev1)
 		if line:
 			drawline(line, who, color, dpos, self.a)
 		if line1:

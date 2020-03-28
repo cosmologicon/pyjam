@@ -14,6 +14,8 @@ def init():
 	self.lepdtf = 1
 	t0 = pygame.time.get_ticks()
 	self.killed = False
+	self.tfly = 0
+	self.ending = False
 	
 
 def control(keys):
@@ -23,18 +25,27 @@ def control(keys):
 		state.you.control(keys)
 
 def think(dt):
+	self.tfly += dt
 	if not self.killed:
 		D.finishkill()
 		self.killed = True
 
-	if state.winning() or self.losing:
+	if state.winning() and not self.ending:
+		self.ending = True
+		self.tfly = 0
+	if self.losing and not self.ending:
+		self.ending = True
+		self.tfly = 10
+
+	if self.ending:
 		kdowns = set()
-		self.alpha = math.approach(self.alpha, 1, 4 * dt)
-		if self.alpha == 1:
-			scene.pop()
-			if state.winning():
-				progress.beat(progress.at)
-				scene.push(dialogscene, "%s-post" % progress.at)
+		if self.tfly >= 2:
+			self.alpha = math.approach(self.alpha, 1, 4 * dt)
+			if self.alpha == 1:
+				scene.pop()
+				if state.winning():
+					progress.beat(progress.at)
+					scene.push(dialogscene, "%s-post" % progress.at)
 				
 	else:
 		self.alpha = math.approach(self.alpha, 0, 4 * dt)
@@ -114,6 +125,25 @@ def draw():
 	])
 	ptext.draw(controls, fontname = "ChangaOne", color = (255, 220, 200), fontsize = T(18),
 		bottomright = T(1270, 710),  shade = 1, owidth = 0.5, shadow = (1, 1))
+
+	if 0 < self.tfly < 2:
+		dt = (self.tfly / 2 - 0.5) * 2
+		x = 500 - 2400 * dt + 2300 * math.clamp(dt, -0.6, 0.6)
+		ptext.draw(level.currentname(), fontname = "CarterOne",
+			color = (200, 200, 255), fontsize = T(100),
+			center = T(x, 300), shade = 1, owidth = 0.2, shadow = (1, 1))
+		if state.winning():
+			text = "Stage Complete"
+		elif self.losing:
+			text = "Stage Failed"
+		else:
+			text = ""
+		if text:
+			x = 700 + 2400 * dt - 2300 * math.clamp(dt, -0.6, 0.6)
+			ptext.draw(text, fontname = "CarterOne",
+				color = (200, 200, 255), fontsize = T(100),
+				center = T(x, 500), shade = 1, owidth = 0.2, shadow = (1, 1))
+
 
 	if self.alpha:
 		pview.fill((255, 255, 255, int(255 * self.alpha)))
