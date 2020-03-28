@@ -1,4 +1,4 @@
-import pygame, numpy, math
+import pygame, numpy, math, scipy.ndimage
 from functools import lru_cache
 from . import pview, view, settings
 from .pview import T
@@ -15,7 +15,7 @@ def getimg0(filename):
 def getbackground0(filename):
 	return pygame.image.load("background/%s" % filename).convert_alpha()
 
-def xform(img, scale, angle, hflip, vfactor, colormask):
+def xform(img, scale, angle, hflip, vfactor, colormask, owidth, ocolor):
 	if abs(vfactor) != 1:
 		w, h = img.get_size()
 		size = pview.I([w, h * abs(vfactor)])
@@ -35,12 +35,12 @@ def xform(img, scale, angle, hflip, vfactor, colormask):
 		arr = pygame.surfarray.pixels3d(img)
 		arr[:,:,:] = (arr * colorarr).astype(arr.dtype)
 		del arr
-	return img
+	return outline(img, owidth, ocolor)
 
 
 @lru_cache(1000)
-def getimg(filename, scale, angle = 0, flip = False, vfactor = 1, colormask = None):
-	return xform(getimg0(filename), scale, angle, flip, vfactor, colormask)
+def getimg(filename, scale, angle = 0, flip = False, vfactor = 1, colormask = None, owidth = 0, ocolor = (255, 255, 255)):
+	return xform(getimg0(filename), scale, angle, flip, vfactor, colormask, owidth, ocolor)
 
 @lru_cache(2)
 def getbackground(filename, wmin, hmin):
@@ -96,10 +96,10 @@ def colorshift(img, seed):
 	return img
 
 @lru_cache(None)
-def youimg(spec, scale, angle, faceright, seed = None):
+def youimg(spec, scale, angle, faceright, seed = None, owidth = None, ocolor = (255, 255, 255)):
 	if seed is not None:
 		return colorshift(youimg(spec, scale, angle, faceright), seed)
-	return xform(youimg0(specs[spec]), scale, angle, not faceright, 1, None)
+	return xform(youimg0(specs[spec]), scale, angle, not faceright, 1, None, owidth, ocolor)
 
 
 def fade(img, alpha):
@@ -110,23 +110,60 @@ def fade(img, alpha):
 	arr[:,:] = (arr * alpha).astype(arr.dtype)
 	return img
 
-def you(spec, screenpos, scale, angle, faceright, seed = None, alpha = None):
+def outline(img, width = 2, color = (255, 255, 255)):
+	if not width:
+		return img
+	back = img.copy()
+	r, g, b = color
+	back.fill((r, g, b, 0))
+	arr = pygame.surfarray.pixels_alpha(img)
+	blur = scipy.ndimage.filters.gaussian_filter(arr, width)
+	barr = pygame.surfarray.pixels_alpha(back)
+	barr[:,:] = numpy.minimum(blur, 255 // 3) * 3
+	del arr, barr
+	back.blit(img, (0, 0))
+	return back
+	
+
+def you(spec, screenpos, scale, angle, faceright, seed = None, alpha = None, owidth = None, ocolor = (255, 255, 255)):
 	angle = int(round(angle)) % 360
-	img = youimg(spec, scale, angle, faceright, seed)
+	img = youimg(spec, scale, angle, faceright, seed, owidth, ocolor)
 	if alpha is not None:
 		img = fade(img, alpha)
 	if screenpos is not None:
 		rect = img.get_rect(center = screenpos)
 		pview.screen.blit(img, rect)
 
-def drawimg(filename, screenpos, scale, angle = 0, flip = False, vfactor = 1, colormask = None):
+def drawimg(filename, screenpos, scale, angle = 0, flip = False, vfactor = 1, colormask = None, owidth = 0, ocolor = (255, 255, 255)):
 	angle = int(round(angle)) % 360
 	vfactor = round(vfactor, 1)
 	if vfactor == 0:
 		return
-	img = getimg(filename, scale, angle, flip, vfactor, colormask)
+	img = getimg(filename, scale, angle, flip, vfactor, colormask, owidth, ocolor)
 	rect = img.get_rect(center = screenpos)
 	pview.screen.blit(img, rect)
+
+@lru_cache(None)
+def getlepimg(scale, angle, flip, vfactor, colormask):
+	img0 = getimg("lep-body", scale, angle, flip)
+	if vfactor != 0:
+		img1 = getimg("lep-flap", scale, angle, flip, vfactor, colormask = colormask)
+		img = img1.copy()
+		img.fill((0, 0, 0, 0))
+		img.blit(img0, img0.get_rect(center = img.get_rect().center))
+		img.blit(img1, (0, 0))
+	else:
+		img = img0
+	return outline(img)
+
+def lep(screenpos, scale, angle, flip, vfactor, colormask):
+	angle = int(round(angle)) % 360
+	vfactor = round(vfactor, 1)
+	img = getlepimg(scale, angle, flip, vfactor, colormask)
+	rect = img.get_rect(center = screenpos)
+	pview.screen.blit(img, rect)
+	
+
 
 @lru_cache(None)
 def getarrowimg0():
@@ -137,22 +174,39 @@ def getarrowimg0():
 	ps = (100, 10), (150, 50), (100, 180), (50, 50)
 	pygame.draw.polygon(img, (255, 255, 255), ps)
 	return img
+	img0, img1 = [pygame.Surface((200, 200)).convert_alpha() for _ in (0, 1)]
+	img0.fill((0, 0, 0, 0))
+	img1.fill((0, 0, 0, 0))
+	ps = (100, 0), (160, 50), (100, 200), (40, 50)
+	pygame.draw.polygon(img0, (255, 255, 255), ps)
+	ps = (100, 10), (150, 50), (100, 180), (50, 50)
+	pygame.draw.polygon(img1, (0, 0, 0), ps)
+	ps = (100, 20), (140, 50), (100, 160), (60, 50)
+	pygame.draw.polygon(img1, (255, 255, 255), ps)
+	return img0, img1
 
 @lru_cache(1000)
 def getarrowimg(scale, d, color0, f, alpha):
-	img = getarrowimg0().copy()
+	color = math.imix(color0, (255, 255, 255), 0.5)
+	alpha = math.mix(alpha, 1, 0.6)
+#	img0, img1 = getarrowimg0()
+#	img0 = img0.copy()
+#	img1 = img1.copy()
+	img = getarrowimg0()
 	xs = numpy.arange(float(200)).reshape([200, 1, 1])
 	ys = numpy.arange(float(200)).reshape([1, 200, 1])
 	mask = ((-ys + 0.9 * abs(xs - 100)) * 0.006 - f) % 1 * 0.4 + 0.6
-	colorarr = numpy.array(color0).reshape([1, 1, 3]) / 256.0
+	colorarr = numpy.array(color).reshape([1, 1, 3]) / 256.0
+#	arr = pygame.surfarray.pixels3d(img1)
 	arr = pygame.surfarray.pixels3d(img)
 	arr[:,:,:] = (arr * mask * colorarr).astype(arr.dtype)
 	del arr
+#	img0.blit(img1, (0, 0))
 	dx, dy = d
 	img = pygame.transform.rotate(img, math.degrees(math.atan2(-dx, dy)))
 	size = pview.I([a * scale / 200 for a in img.get_size()])
 	img = pygame.transform.smoothscale(img, size)
-	return fade(img, alpha)
+	return fade(outline(img), alpha)
 
 def arrow(screenpos, scale, d, color0, f, alpha):
 	f = int(f * 8) % 8 / 8
@@ -186,12 +240,27 @@ def groundtexture(w, h, offset, colormask):
 	arr[:,:,:] = arr0[xs,ys,:]
 	return pygame.transform.smoothscale(img, (w0, h0))
 
-def background(filename):
-	pview.fill((40, 40, 40))
-	return
+@lru_cache(1)
+def curtain(w, h, color):
+	img = pygame.Surface((w, h)).convert_alpha()
+	img.fill(color)
+	factor = numpy.minimum(numpy.arange(h).reshape([1, h]) / h * 10.2, 1)
+	arr = pygame.surfarray.pixels_alpha(img)
+	arr[:,:] = (arr * factor).astype(arr.dtype)
+	return img
+	
+
+def background(filename, gcolor):
+#	pview.fill((200, 200, 200))
+#	return
 	(x0, y0), (wmin, hmin) = T(view.backgroundspec())
 	img = getbackground(filename, wmin, hmin)
 	pview.screen.blit(img, img.get_rect(midbottom = (x0, y0)))
+	mtop = view.rrect.left // 2, y0 - T(40)
+	if mtop[1] < pview.h:
+		cimg = curtain(view.rrect.left, T(400), gcolor)
+		pview.screen.blit(cimg, cimg.get_rect(midtop = mtop))
+	return
 	if y0 < pview.height:
 		offset = T(view.zoom * view.cx)
 		img = groundtexture(view.rrect.left, pview.height - y0, offset, (50, 80, 80))
@@ -241,7 +310,7 @@ def killtime(dt):
 			del tokill[z]
 			if settings.DEBUG:
 				print("done", z, youimg.cache_info())
-	if pygame.time.get_ticks() - tend > 50:
+	if settings.DEBUG and pygame.time.get_ticks() - tend > 50:
 		print("time:", pygame.time.get_ticks() - tend)
 
 def finishkill():

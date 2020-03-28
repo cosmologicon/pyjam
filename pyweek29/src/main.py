@@ -40,7 +40,10 @@ while playing:
 		if settings.DEBUG and "unlockall" in keys:
 			progress.unlockall()
 		if settings.DEBUG and "beatcurrent" in keys:
-			state.beatcurrent()
+			if current is playscene:
+				state.beatcurrent()
+			if current is mapscene:
+				progress.beat(progress.at)
 
 	if current:
 		current.think(dt)

@@ -7,7 +7,7 @@ allzooms = 120, 220
 
 # camera position
 cx, cy = 0, 0
-zoom = 120
+zoom = 220
 
 # Right panel width
 rw = 360

@@ -20,19 +20,25 @@ leveldata = {
 	# Guiding
 	"tutorial4": {'w': 3, 'h': 4, 'goal': [{'x': 2, 'y': 3}, {'x': 1, 'y': 3}, {'x': 0, 'y': 3}], 'flow': [{'x': 0, 'y': 1, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 1, 'ds': [(1, 1), (-1, 1)], 'guidable': False}, {'x': 2, 'y': 1, 'ds': [(-1, 1)], 'guidable': False}, {'x': 2, 'y': 2, 'ds': [(0, 1)], 'guidable': True}], 'spin': [], 'boost': [], 'continue': []},
 
-
+ 
 
 	# Continue
 	"D0": {'w': 5, 'h': 4, 'goal': [{'x': 0, 'y': 3}, {'x': 2, 'y': 2}, {'x': 4, 'y': 2}], 'flow': [{'x': 0, 'y': 1, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 1, 'ds': [(0, 1)], 'guidable': False}, {'x': 2, 'y': 1, 'ds': [(-1, 1), (1, 1)], 'guidable': False}, {'x': 2, 'y': 3, 'ds': [(-1, -1), (1, -1)], 'guidable': False}, {'x': 4, 'y': 1, 'ds': [(-1, 0)], 'guidable': False}], 'spin': [], 'boost': [], 'continue': [{'x': 3, 'y': 2, 'guidable': False}, {'x': 3, 'y': 1, 'guidable': False}, {'x': 1, 'y': 2, 'guidable': False}]},
 	"D1": {'w': 5, 'h': 7, 'goal': [{'x': 0, 'y': 3}, {'x': 1, 'y': 6}, {'x': 0, 'y': 5}], 'flow': [{'x': 2, 'y': 1, 'ds': [(0, 1)], 'guidable': False}, {'x': 1, 'y': 2, 'ds': [(1, 1), (1, -1)], 'guidable': False}, {'x': 3, 'y': 2, 'ds': [(-1, -1), (-1, 1)], 'guidable': False}, {'x': 2, 'y': 2, 'ds': [(0, 1), (-1, 1), (1, 1)], 'guidable': False}, {'x': 1, 'y': 3, 'ds': [(-1, 1), (1, 0), (0, -1)], 'guidable': False}, {'x': 0, 'y': 4, 'ds': [(1, 0)], 'guidable': False}, {'x': 1, 'y': 5, 'ds': [(-1, 1), (1, 0)], 'guidable': False}, {'x': 2, 'y': 6, 'ds': [(1, 0), (-1, -1)], 'guidable': False}, {'x': 3, 'y': 5, 'ds': [(-1, 0), (1, 0)], 'guidable': False}, {'x': 3, 'y': 6, 'ds': [(-1, -1), (0, -1)], 'guidable': False}, {'x': 4, 'y': 5, 'ds': [(-1, 0), (0, 1)], 'guidable': False}, {'x': 4, 'y': 4, 'ds': [(-1, 1), (0, 1), (0, -1)], 'guidable': False}, {'x': 4, 'y': 3, 'ds': [(-1, 1), (0, -1)], 'guidable': False}, {'x': 3, 'y': 3, 'ds': [(0, 1), (0, -1)], 'guidable': False}], 'spin': [], 'boost': [], 'continue': [{'x': 2, 'y': 3, 'guidable': False}, {'x': 1, 'y': 4, 'guidable': False}, {'x': 2, 'y': 4, 'guidable': False}, {'x': 3, 'y': 4, 'guidable': False}, {'x': 2, 'y': 5, 'guidable': False}]},
-	
+	# Continue guide
+	"D2": {'w': 5, 'h': 7, 'goal': [{'x': 1, 'y': 6}, {'x': 2, 'y': 6}, {'x': 3, 'y': 6}], 'flow': [{'x': 1, 'y': 1, 'ds': [(1, 1)], 'guidable': False}, {'x': 0, 'y': 2, 'ds': [(0, 1)], 'guidable': False}, {'x': 1, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 2, 'y': 3, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 2, 'ds': [(0, 1)], 'guidable': False}, {'x': 4, 'y': 2, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 4, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 5, 'ds': [(0, 1)], 'guidable': False}, {'x': 1, 'y': 5, 'ds': [(1, 1)], 'guidable': False}], 'spin': [], 'boost': [], 'continue': [{'x': 2, 'y': 2, 'guidable': True}, {'x': 4, 'y': 4, 'guidable': True}, {'x': 0, 'y': 3, 'guidable': True}]},
 
 
 	# Spin
 	"C0": {'w': 5, 'h': 4, 'goal': [{'x': 2, 'y': 3}, {'x': 4, 'y': 2}, {'x': 0, 'y': 2}], 'flow': [], 'spin': [{'x': 1, 'y': 1, 'guidable': False}, {'x': 2, 'y': 1, 'guidable': False}, {'x': 3, 'y': 1, 'guidable': False}, {'x': 2, 'y': 2, 'guidable': False}], 'boost': [], 'continue': []},
+	# Spin chimney
+	"C1": {'w': 5, 'h': 6, 'goal': [{'x': 2, 'y': 5}, {'x': 0, 'y': 4}, {'x': 4, 'y': 4}], 'flow': [{'x': 1, 'y': 4, 'ds': [(1, -1), (-1, -1)], 'guidable': False}, {'x': 1, 'y': 3, 'ds': [(-1, -1)], 'guidable': False}, {'x': 1, 'y': 2, 'ds': [(1, -1)], 'guidable': False}, {'x': 3, 'y': 4, 'ds': [(1, -1), (-1, -1)], 'guidable': False}, {'x': 3, 'y': 3, 'ds': [(-1, -1)], 'guidable': False}, {'x': 3, 'y': 2, 'ds': [(1, -1)], 'guidable': False}], 'spin': [{'x': 0, 'y': 1, 'guidable': True}, {'x': 1, 'y': 1, 'guidable': True}, {'x': 2, 'y': 1, 'guidable': True}, {'x': 3, 'y': 1, 'guidable': True}, {'x': 4, 'y': 1, 'guidable': True}], 'boost': [], 'continue': []},
+
 
 	# Boost
 	"A1": {'w': 5, 'h': 8, 'goal': [{'x': 2, 'y': 4}, {'x': 2, 'y': 5}, {'x': 1, 'y': 3}], 'flow': [{'x': 3, 'y': 2, 'ds': [(0, 1)], 'guidable': False}, {'x': 1, 'y': 2, 'ds': [(1, 0)], 'guidable': False}, {'x': 2, 'y': 7, 'ds': [(-1, -1), (1, -1)], 'guidable': False}], 'spin': [], 'boost': [{'x': 2, 'y': 1, 'ds': [(0, 1)], 'guidable': False}, {'x': 2, 'y': 2, 'ds': [(-1, 1), (1, 1)], 'guidable': False}, {'x': 2, 'y': 3, 'ds': [(-1, 1), (1, 1)], 'guidable': False}, {'x': 2, 'y': 6, 'ds': [(0, -1)], 'guidable': False}, {'x': 3, 'y': 6, 'ds': [(-1, -1)], 'guidable': False}, {'x': 3, 'y': 5, 'ds': [(-1, 0), (0, -1)], 'guidable': False}, {'x': 3, 'y': 4, 'ds': [(0, 1), (-1, 0), (-1, -1)], 'guidable': False}, {'x': 4, 'y': 5, 'ds': [(-1, 1), (0, -1)], 'guidable': False}, {'x': 4, 'y': 4, 'ds': [(-1, 1), (-1, -1)], 'guidable': False}, {'x': 4, 'y': 3, 'ds': [(-1, 1), (-1, 0)], 'guidable': False}, {'x': 3, 'y': 3, 'ds': [(0, 1), (-1, -1)], 'guidable': False}, {'x': 1, 'y': 4, 'ds': [(0, 1), (1, 0), (1, -1)], 'guidable': False}, {'x': 1, 'y': 5, 'ds': [(1, 0), (0, -1)], 'guidable': False}, {'x': 1, 'y': 6, 'ds': [(1, -1)], 'guidable': False}, {'x': 0, 'y': 5, 'ds': [(1, 1), (0, -1)], 'guidable': False}, {'x': 0, 'y': 4, 'ds': [(1, 1), (1, -1)], 'guidable': False}, {'x': 0, 'y': 3, 'ds': [(1, 1), (1, 0)], 'guidable': False}], 'continue': []},
+	"A2": {'w': 5, 'h': 10, 'goal': [{'x': 3, 'y': 9}, {'x': 2, 'y': 9}, {'x': 1, 'y': 9}], 'flow': [{'x': 0, 'y': 1, 'ds': [(1, -1)], 'guidable': False}, {'x': 4, 'y': 1, 'ds': [(-1, -1)], 'guidable': False}, {'x': 4, 'y': 3, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 3, 'ds': [(-1, 1)], 'guidable': False}, {'x': 0, 'y': 3, 'ds': [(1, 1)], 'guidable': False}, {'x': 1, 'y': 6, 'ds': [(1, 1)], 'guidable': False}, {'x': 2, 'y': 6, 'ds': [(-1, 1)], 'guidable': False}, {'x': 3, 'y': 6, 'ds': [(1, 1)], 'guidable': False}], 'spin': [], 'boost': [{'x': 1, 'y': 1, 'ds': [(-1, 1)], 'guidable': True}, {'x': 2, 'y': 1, 'ds': [(0, 1)], 'guidable': True}, {'x': 3, 'y': 1, 'ds': [(1, 1)], 'guidable': True}], 'continue': []}
+,
 
 }
 
@@ -50,7 +56,10 @@ def load():
 
 #	randomlevel()
 #	levelspin()
-	loaddata(leveldata[progress.at])
+	if progress.at == "nexus":
+		loadnexus()
+	else:
+		loaddata(leveldata[progress.at])
 	state.ngoal = sum(isinstance(lep, thing.GoalLep) for lep in state.leps)
 	state.leaps = state.maxleaps
 
@@ -78,6 +87,25 @@ def loaddata(data):
 		lep = thing.ContinueLep((spec["x"], spec["y"]))
 		lep.guidable = spec["guidable"]
 		state.leps.append(lep)
+
+def loadnexus():
+	state.w = 5
+	state.h = 14
+	state.leps = []
+	if "A2" in progress.beaten:  # Boost
+		ds = [(-1, 1), (1, 1)]
+		for p in [(1, 1), (3, 1)]:
+			state.leps.append(thing.BoostLep(p, ds))
+	if "C1" in progress.beaten:  # Spin
+		for p in [(0, 2), (2, 1), (2, 2), (4, 2)]:
+			state.leps.append(thing.SpinLep(p))
+	if "D2" in progress.beaten:  # Continue
+		for p in [(0, 1), (1, 2), (3, 2), (4, 1)]:
+			state.leps.append(thing.ContinueLep(p))
+	for lep in state.leps:
+		lep.guidable = True
+	for y in (5, 9, 13):
+		state.leps.append(thing.GoalLep((2, y)))
 
 def checkpoint():
 	if not state.ychecks:

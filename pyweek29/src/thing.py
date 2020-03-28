@@ -100,17 +100,16 @@ class Lep:
 		flip = self.vxfly < 0
 		angle = (-1 if flip else 1) * (20 + 5 * self.vyfly)
 		scale = T(1.4 * view.zoom)
-		draw.drawimg("lep-body", pos, scale, angle, flip)
-		draw.drawimg("lep-flap", pos, scale, angle, flip, vfactor, colormask = self.color)
+		draw.lep(pos, scale, angle, flip, vfactor, colormask = self.color)
 		if self.glow:
 			self.glow.draw()
 	def drawarrow(self, d):
 		if not self.aseen:
 			return
 		dx, dy = math.norm(d)
-		pos = self.x + 0.5 + 0.35 * dx, self.y + 0.5 + 0.35 * dy
+		pos = self.x + 0.5 + 0.32 * dx, self.y + 0.5 + 0.32 * dy
 		alpha = 1 if (self.x, self.y) == (state.you.x, state.you.y) else 0.25
-		scale = 0.42 * pview.f * view.zoom
+		scale = 0.38 * pview.f * view.zoom
 		draw.arrow(view.worldtoscreen(pos), scale, d, self.color, self.tflap, alpha)
 	def drawarrows(self):
 		if self is not state.guided:
@@ -155,13 +154,13 @@ class FlowLep(Lep):
 # Rotates along with all other SpinLeps
 class SpinLep(Lep):
 	color = 40, 255, 40
+	ds0 = (0, 1), (1, 0), (0, -1), (-1, 0)
+	ds1 = (1, 1), (1, -1), (-1, 1), (-1, -1)
 	def __init__(self, pos):
 		Lep.__init__(self, pos)
 	def think(self, dt):
 		Lep.think(self, dt)
-		ds0 = (0, 1), (1, 0), (0, -1), (-1, 0)
-		ds1 = (1, 1), (1, -1), (-1, 1), (-1, -1)
-		self.ds = ds0 if state.jspin % 2 == 0 else ds1
+		self.ds = self.ds0 if state.jspin % 2 == 0 else self.ds1
 	def movefrom(self, d):
 		Lep.movefrom(self, d)
 		state.jspin += 1
@@ -394,9 +393,9 @@ class You:
 			pos = view.worldtoscreen((px + 0.5, py + 0.5))
 			drawspec = spec if spec != "pose" and j == 0 else "pose-horiz-%d" % pose
 			if j == 0:
-				draw.you(drawspec, pos, scale, angle, self.facingright)
+				draw.you(drawspec, pos, scale, angle, self.facingright, owidth=2)
 			else:
-				draw.you(drawspec, pos, scale, angle, self.facingright, seed, alpha)
+				draw.you(drawspec, pos, scale, angle, self.facingright, seed, alpha, owidth=2)
 
 	def drawmap(self):
 		pos = view.worldtomap((self.x + 0.5, self.y + 0.5))
