@@ -367,7 +367,7 @@ class You:
 		if "act" in keys:
 			self.act()
 		if "combo" in keys:
-			if ("left" in keys and "right" in "keys") or ("up" in keys and "down" in keys):
+			if ("left" in keys and "right" in keys) or ("up" in keys and "down" in keys):
 				self.fall()
 			else:
 				dx = int("right" in keys) - int("left" in keys)

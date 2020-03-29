@@ -278,9 +278,9 @@ def background():
 	(x0, y0), (wmin, hmin) = T(view.backgroundspec())
 	img = getbackground(filename, wmin, hmin)
 	pview.screen.blit(img, img.get_rect(midbottom = (x0, y0)))
-	mtop = view.vcenter(), y0 - T(40)
+	mtop = T(view.vcenter()), y0 - T(40)
 	if mtop[1] < pview.h:
-		cimg = curtain(view.rwall(), T(400), gcolor)
+		cimg = curtain(T(view.rwall()), T(400), gcolor)
 		pview.screen.blit(cimg, cimg.get_rect(midtop = mtop))
 	return
 	if y0 < pview.height:

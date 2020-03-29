@@ -103,6 +103,11 @@ def draw():
 	ptext.draw(level.currentname(), midbottom = T(640, 700), fontsize = T(64),
 		fontname = "IMFell", color = math.imix((240, 200, 140), (255, 255, 255), 0.5),
 		owidth = 0.5, shadow = (0.5, 0.5), scolor = scolor, shade = 1)
+	if len(progress.unlocked) == 2:
+		ptext.draw("Tap two directions at once to move diagonal.",
+			fontname = "ChangaOne", color = (255, 220, 200), fontsize = T(44),
+			midbottom = T(640, 600),  shade = 1, owidth = 0.5, shadow = (1, 1))
+			
 	if self.a:
 		pview.fill((255, 255, 255, int(round(255 * self.a))))
 

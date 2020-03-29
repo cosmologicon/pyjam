@@ -88,7 +88,7 @@ def draw():
 	if progress.at == "tutorial1":
 		tiptext = "Tap Arrow keys or WASD to jump"
 	if progress.at == "tutorial2":
-		tiptext = "Tap two directions at one to jump diagonal"
+		tiptext = "Tap two directions at once to jump diagonal"
 	if progress.at == "tutorial4":
 		tiptext = "Sparkling butterflies can be moved\nTap Space or Enter to guide and release"
 	
