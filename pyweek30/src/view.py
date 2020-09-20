@@ -2,7 +2,7 @@ import pygame
 from OpenGL.GL import *
 from . import settings, pview
 
-pview.WINDOW_FLAGS |= pygame.OPENGL
+pview.WINDOW_FLAGS = pygame.DOUBLEBUF | pygame.OPENGL
 pview.FULLSCREEN_FLAGS |= pygame.OPENGL
 
 def init():

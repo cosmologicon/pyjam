@@ -90,12 +90,14 @@ def prep():
 	glUniform1i(_locations["texture"], 0)
 
 def unprep(state):
+	glDisable(GL_BLEND)
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 	shaders.glUseProgram(0)
 
 def draw(text, pos=None, **kwargs):
 	options = _DrawOptions(pos = pos, **kwargs)
 	if options.prep:
-		prep()
+		state = prep()
 	alpha = options.alpha
 	options.alpha = 1
 	angle = options.angle
@@ -121,6 +123,8 @@ def draw(text, pos=None, **kwargs):
 	glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 	glBindTexture(GL_TEXTURE_2D, texture)
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4)
+	if options.prep:
+		unprep(state)
 #	return tsurf, pos
 
 

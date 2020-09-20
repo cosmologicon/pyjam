@@ -11,5 +11,7 @@ def get():
 			for key, kcodes in settings.keys.items():
 				if event.key in kcodes:
 					kdowns.add(key)
-	return kdowns
+	pressed = pygame.key.get_pressed()
+	kpressed = { key: any(pressed[code] for code in codes) for key, codes in settings.keys.items() }
+	return kdowns, kpressed
 
