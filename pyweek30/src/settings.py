@@ -15,6 +15,8 @@ keys = {
 	"right": [pygame.K_RIGHT],
 	"left": [pygame.K_LEFT],
 	"down": [pygame.K_DOWN],
+	"swap": [pygame.K_TAB],
+	"act": [pygame.K_SPACE],
 }
 
 

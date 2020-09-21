@@ -22,16 +22,28 @@ while playing:
 	kdowns, kpressed = control.get()
 	if "quit" in kdowns:
 		playing = False
+	if "swap" in kdowns:
+		view.swapmode()
+	if "act" in kdowns:
+		world.act()
 
-
-	view.clear()
-	
 	dstep = kpressed["up"] - kpressed["down"]
 	drot = kpressed["left"] - kpressed["right"]
 	world.step(50 * dt * dstep)
 	world.rotate(2 * dt * drot)
+
+	world.think(dt)
+	view.think(dt)
+
+
+	view.clear()
+	view.look()
 	graphics.draw()
-	ptextgl.draw("%.1ffps" % clock.get_fps(), (10, 10))
+	text = "\n".join([
+		"%.1ffps" % clock.get_fps(),
+		"%.1f, %.1f, %.1f" % tuple(world.you),
+	])
+	ptextgl.draw(text, (10, 10))
 	pygame.display.flip()
 
 pygame.quit()

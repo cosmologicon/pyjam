@@ -29,6 +29,15 @@ def avg(*vs):
 	n = len(vs)
 	return sum(vxs) / n, sum(vys) / n, sum(vzs) / n
 
+def napproach(a, b, da):
+	C, S = math.CS(min(da, 0.249 * math.tau))
+	if math.dot(a, b) > C:
+		return b
+	c = math.norm(cross(math.norm(cross(a, b)), a))
+	return math.norm(plus(times(a, C), times(c, S)))
+
+
+
 def usphere(n = 4):
 	if n == 0:
 		for x in [xhat, neg(xhat)]:
@@ -49,13 +58,14 @@ def usphere(n = 4):
 you = 0, 0, R
 up = 0, 0, 1
 forward = 1, 0, 0
-right = 0, 1, 0
+left = 0, 1, 0
 
-def getlookat():
-	camera = plus(you, times(up, 2), times(forward, -20))
-	y = tuple(you)
-	u = tuple(forward)
-	return camera + y + u
+rmoon = 1, 0, 0
+targetrmoon = None
+
+ispot = forward, left, up
+
+
 
 def step(d):
 	if d == 0:
@@ -63,16 +73,29 @@ def step(d):
 	global you, up, forward
 	you = math.norm(plus(you, times(forward, R * math.tan(d / R))), R)
 	up = math.norm(you)
-	forward = math.norm(cross(up, right))
+	forward = math.norm(cross(left, up))
 
 def rotate(a):
 	if a == 0:
 		return
-	global forward, right
+	global forward, left
 	C, S = math.CS(a)
-	f0, r0 = forward, right
-	forward = math.norm(plus(times(f0, C), times(r0, -S)))
-	right = math.norm(plus(times(f0, S), times(r0, C)))
+	f0, l0 = forward, left
+	forward = math.norm(plus(times(f0, C), times(l0, S)))
+	left = math.norm(plus(times(f0, -S), times(l0, C)))
 
 
+def act():
+	global ispot
+	ispot = forward, left, up
+	return
+	global targetrmoon
+	targetrmoon = math.norm(you)
+
+def think(dt):
+	global rmoon, targetrmoon
+	if targetrmoon is not None:
+		rmoon = napproach(rmoon, targetrmoon, 0.6 * dt)
+		if rmoon == targetrmoon:
+			targetrmoon = None
 
