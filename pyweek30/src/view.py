@@ -1,7 +1,7 @@
 import pygame, math
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from . import settings, pview, world
+from . import settings, pview, world, state
 
 pview.WINDOW_FLAGS = pygame.DOUBLEBUF | pygame.OPENGL
 pview.FULLSCREEN_FLAGS |= pygame.OPENGL
@@ -22,7 +22,7 @@ class self:
 	mode = 1
 	tmode = None
 	tswap = 0
-	cdistance = 20
+	cdistance = 700
 
 def swapmode():
 	self.tmode = 3 if self.mode == 1 else 1
@@ -31,22 +31,25 @@ def swapmode():
 def think(dt):
 	if self.tmode is not None:
 		d = math.log(self.cdistance)
-		target = math.log(300 if self.tmode == 3 else 20)
+		target = math.log(2600 if self.tmode == 3 else 700)
 		d = math.softapproach(d, target, 6 * dt, dymin = 0.001)
 		self.cdistance = math.exp(d)
 		if d == target:
 			self.mode = self.tmode
 			self.tmode = None
 
+def moonalpha():
+	return math.fadebetween(math.log(self.cdistance), math.log(700), 0, math.log(1800), 1)
 
 
 def look():
 	glLoadIdentity()
-	gluPerspective(45, pview.aspect, 10, 20 * world.R)
+	gluPerspective(5, pview.aspect, 100, 200 * world.R)
 
-	camera = world.plus(world.you, world.times(world.up, self.cdistance), world.times(world.forward, -self.cdistance))
-	y = tuple(world.you)
-	u = tuple(world.forward)
+	dup, dforward = math.norm([3, -1], self.cdistance)
+	camera = world.linsum(state.you.pos, 1, state.you.up, dup, state.you.forward, dforward)
+	y = tuple(state.you.pos)
+	u = tuple(state.you.up)
 	l = camera + y + u
 
 	gluLookAt(*l)

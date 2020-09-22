@@ -1,11 +1,9 @@
 from OpenGL.GL import *
-from OpenGL.GL import shaders
 from OpenGL.GLU import *
-from OpenGL.GLUT import *
 from OpenGL.arrays import vbo
 import numpy, pygame, math
 
-from . import pview, world, view
+from . import pview, world, view, state
 
 
 def prand(seed):
@@ -83,7 +81,6 @@ class lists:
 def init():
 	sdata = list(world.usphere(4))
 #	glEnable(GL_NORMALIZE)
-	glFrontFace(GL_CCW)
 
 
 	lists.you = glGenLists(1)
@@ -130,9 +127,10 @@ def init():
 	lists.water = glGenLists(1)
 	glNewList(lists.water, GL_COMPILE)
 	glBegin(GL_TRIANGLES)
-	glColor3fv((0, 0.2, 0.4))
 	for face in sdata:
 		for vertex in face:
+			f = 0.5 + 0.3 * noiseat(vertex, [0.2, 0.07, 0.4])
+			glColor3fv(math.mix((0, 0.2, 0.4), (0, 0.4, 0.4), f))
 			glVertex3fv(world.times(vertex, world.R))
 	glEnd()
 	glEndList()
@@ -144,13 +142,36 @@ def init():
 	for face in sdata:
 		for vertex in face:
 			c = 0.3 + 0.05 * noiseat(vertex, [0.4, 0.3, 0.14], seed="moon")
-			glColor3f(c, c, c)
+			glColor4f(c, c, c, 1)
 			glVertex3fv(world.times(vertex, 0.5 * world.R))
 	glEnd()
 	glEndList()
 
+	lists.wake = glGenLists(1)
+	glNewList(lists.wake, GL_COMPILE)
+	glBegin(GL_TRIANGLES)
+	glColor3f(0.9, 0.9, 1)
+	ispec = [(0.014, 13, 0.1), (0.012, 21, 0.2), (0.01, 34, 0.3)]
+	for face in iring(0.9, 0, 1, 0, ispec, 100, 0):
+		for vertex in face:
+			glVertex3fv(vertex)
+	for face in iring(1, 0, 0.9, 0, ispec, 100, 0.5):
+		for vertex in face:
+			glVertex3fv(vertex)
+	glColor3f(0.2, 0.4, 0.7)
+	for face in iring(0, 0, 0.9, 0, ispec, 100, 0.5):
+		for vertex in face:
+			glVertex3fv(vertex)
+	glEnd()
+	glEndList()
+
+
 
 def draw():
+	glFrontFace(GL_CCW)
+	glEnable(GL_CULL_FACE)
+	glCullFace(GL_BACK)
+
 	glEnable(GL_DEPTH_TEST)
 	glLightfv(GL_LIGHT0, GL_AMBIENT, (1, 1, 1, 1))
 #	glLightfv(GL_LIGHT0, GL_DIFFUSE, (0, 1, 0, 1))
@@ -162,10 +183,10 @@ def draw():
 
 #	glCallList(lists.world)
 
-	glPushMatrix()
-	glTranslate(0, 0, world.R)
+#	glPushMatrix()
+#	glTranslate(0, 0, world.R)
 #	glCallList(lists.island)
-	glPopMatrix()
+#	glPopMatrix()
 
 	glPushMatrix()
 	glRotate(22.5, 1, 0, 0)
@@ -196,22 +217,48 @@ def draw():
 
 
 	glPushMatrix()
-	f = 1 + 0.001 * 0.5 * math.cycle(0.001 * pygame.time.get_ticks())
-	glScale(f, f, f)
-	glTranslate(*world.times(world.rmoon, 2))
+#	glTranslate(*world.times(world.rmoon, 2))
+#	f = 1 + 0.001 * 0.5 * math.cycle(0.001 * pygame.time.get_ticks())
+#	glScale(f, f, f)
+	f, l, u = world.wspot
+#	print(world.wspot)
+	glMultMatrixf([*f,0,  *l,0,  *u,0,  0,0,0,1])
 	glCallList(lists.water)
 	glPopMatrix()
 
 	glPushMatrix()
-	glTranslate(*world.you)
+	state.you.orient()
+	glTranslate(0, 0, world.R)
 	glCallList(lists.you)
+	glDisable(GL_CULL_FACE)
+	d = math.fadebetween(math.length(state.you.v), 0, 1, 100, 10)
+	glPushMatrix()
+	glTranslate(-4, 6, -3)
+	glRotate(135, 0, 0, 1)
+	glRotatef(105, 1, 0, 0)
+	glScale(d, d, d)
+	glRotate(-200 * 0.001 * pygame.time.get_ticks() % 360, 0, 0, 1)
+	glCallList(lists.wake)
+	glPopMatrix()
+	glPushMatrix()
+	glTranslate(-4, -6, -3)
+	glRotate(-135, 0, 0, 1)
+	glRotatef(75, 1, 0, 0)
+	glScale(d, d, d)
+	glRotate(-200 * 0.001 * pygame.time.get_ticks() % 360 + 65, 0, 0, 1)
+	glCallList(lists.wake)
+	glPopMatrix()
+	glEnable(GL_CULL_FACE)
 	glPopMatrix()
 	
 
+	glEnable(GL_BLEND)
+	glBlendColor(1, 0, 0, view.moonalpha())
+	glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA)
 	glPushMatrix()
 	glTranslate(*world.times(world.rmoon, 1.6 * world.R))
 	glCallList(lists.moon)
 	glPopMatrix()
-
+	glDisable(GL_BLEND)
 
 

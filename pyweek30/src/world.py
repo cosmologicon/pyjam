@@ -1,4 +1,4 @@
-import math
+import math, random
 
 
 R = 100
@@ -6,6 +6,8 @@ R = 100
 xhat = 1, 0, 0
 yhat = 0, 1, 0
 zhat = 0, 0, 1
+
+spot0 = xhat, yhat, zhat
 
 def neg(a):
 	ax, ay, az = a
@@ -24,17 +26,36 @@ def plus(*vs):
 	vxs, vys, vzs = zip(*vs)
 	return sum(vxs), sum(vys), sum(vzs)
 
+def linsum(*args):
+	x, y, z = 0, 0, 0
+	for j in range(0, len(args), 2):
+		ax, ay, az = args[j]
+		c = args[j+1]
+		x += ax * c
+		y += ay * c
+		z += az * c
+	return x, y, z
+
 def avg(*vs):
 	vxs, vys, vzs = zip(*vs)
 	n = len(vs)
 	return sum(vxs) / n, sum(vys) / n, sum(vzs) / n
+
+# Rotate b about unit axis a
+def rot(a, b, theta):
+	proj = times(a, math.dot(a, b))
+	perp = plus(b, neg(proj))
+	z = cross(a, perp)
+	C, S = math.CS(theta)
+	return math.norm(linsum(proj, 1, perp, C, z, S), math.length(b))
+
 
 def napproach(a, b, da):
 	C, S = math.CS(min(da, 0.249 * math.tau))
 	if math.dot(a, b) > C:
 		return b
 	c = math.norm(cross(math.norm(cross(a, b)), a))
-	return math.norm(plus(times(a, C), times(c, S)))
+	return math.norm(linsum(a, C, c, S))
 
 
 
@@ -55,6 +76,17 @@ def usphere(n = 4):
 		yield p2, q1, q0
 
 
+def spotrot(axis, spot, theta):
+	return [rot(axis, vec, theta) for vec in spot]
+
+def renorm(spot):
+	f, l, u = spot
+	u = math.norm(u)
+	l = math.norm(cross(u, f))
+	f = math.norm(cross(l, u))
+	return f, l, u
+
+
 you = 0, 0, R
 up = 0, 0, 1
 forward = 1, 0, 0
@@ -65,24 +97,8 @@ targetrmoon = None
 
 ispot = forward, left, up
 
-
-
-def step(d):
-	if d == 0:
-		return
-	global you, up, forward
-	you = math.norm(plus(you, times(forward, R * math.tan(d / R))), R)
-	up = math.norm(you)
-	forward = math.norm(cross(left, up))
-
-def rotate(a):
-	if a == 0:
-		return
-	global forward, left
-	C, S = math.CS(a)
-	f0, l0 = forward, left
-	forward = math.norm(plus(times(f0, C), times(l0, S)))
-	left = math.norm(plus(times(f0, -S), times(l0, C)))
+wspot = forward, left, up
+wrot = up
 
 
 def act():
@@ -92,10 +108,14 @@ def act():
 	global targetrmoon
 	targetrmoon = math.norm(you)
 
+
 def think(dt):
-	global rmoon, targetrmoon
+	global rmoon, targetrmoon, wspot, wrot
 	if targetrmoon is not None:
 		rmoon = napproach(rmoon, targetrmoon, 0.6 * dt)
 		if rmoon == targetrmoon:
 			targetrmoon = None
+	wrot = math.norm(plus(wrot, [1 * dt * random.uniform(-1, 1) for _ in range(3)]))
+	wspot = renorm(spotrot([0, 0, 1], wspot, 0.1 * dt))
+	
 

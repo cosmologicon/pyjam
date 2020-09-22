@@ -1,5 +1,5 @@
 import pygame
-from . import settings, view, ptextgl, control, graphics, pview, world
+from . import settings, view, ptextgl, control, graphics, pview, world, state, thing
 
 import pygame as pg
 from pygame.locals import *
@@ -14,6 +14,7 @@ pygame.init()
 view.init()
 control.init()
 graphics.init()
+state.you = thing.You()
 
 playing = True
 clock = pygame.time.Clock()
@@ -27,12 +28,10 @@ while playing:
 	if "act" in kdowns:
 		world.act()
 
-	dstep = kpressed["up"] - kpressed["down"]
-	drot = kpressed["left"] - kpressed["right"]
-	world.step(50 * dt * dstep)
-	world.rotate(2 * dt * drot)
+	state.you.control(dt, kpressed)
 
 	world.think(dt)
+	state.you.think(dt)
 	view.think(dt)
 
 
