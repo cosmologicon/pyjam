@@ -13,6 +13,10 @@ def neg(a):
 	ax, ay, az = a
 	return -ax, -ay, -az
 
+nxhat = neg(xhat)
+nyhat = neg(yhat)
+nzhat = neg(zhat)
+
 def times(a, c):
 	ax, ay, az = a
 	return c * ax, c * ay, c * az
@@ -49,6 +53,11 @@ def rot(a, b, theta):
 	C, S = math.CS(theta)
 	return math.norm(linsum(proj, 1, perp, C, z, S), math.length(b))
 
+# z projected onto the plane perpendicular to axis a
+def perp(z, a):
+	proj = times(a, math.dot(a, z))
+	return plus(z, neg(proj))
+
 
 def napproach(a, b, da):
 	C, S = math.CS(min(da, 0.249 * math.tau))
@@ -57,6 +66,9 @@ def napproach(a, b, da):
 	c = math.norm(cross(math.norm(cross(a, b)), a))
 	return math.norm(linsum(a, C, c, S))
 
+def normal(face):
+	a, b, c = face
+	return math.norm(cross(plus(b, neg(a)), plus(c, neg(b))))
 
 
 def usphere(n = 4):
@@ -87,35 +99,24 @@ def renorm(spot):
 	return f, l, u
 
 
-you = 0, 0, R
-up = 0, 0, 1
-forward = 1, 0, 0
-left = 0, 1, 0
-
-rmoon = 1, 0, 0
 targetrmoon = None
 
-ispot = forward, left, up
-
-wspot = forward, left, up
-wrot = up
+wspot = spot0
+wrot = zhat
 
 
 def act():
-	global ispot
-	ispot = forward, left, up
-	return
 	global targetrmoon
 	targetrmoon = math.norm(you)
 
 
 def think(dt):
-	global rmoon, targetrmoon, wspot, wrot
+	global targetrmoon, wspot, wrot
 	if targetrmoon is not None:
-		rmoon = napproach(rmoon, targetrmoon, 0.6 * dt)
-		if rmoon == targetrmoon:
+		state.rmoon = napproach(state.rmoon, targetrmoon, 0.6 * dt)
+		if state.rmoon == targetrmoon:
 			targetrmoon = None
 	wrot = math.norm(plus(wrot, [1 * dt * random.uniform(-1, 1) for _ in range(3)]))
 	wspot = renorm(spotrot([0, 0, 1], wspot, 0.1 * dt))
-	
+#	wspot = renorm(spotrot([0, 0, 1], wspot, 1 * dt))
 
