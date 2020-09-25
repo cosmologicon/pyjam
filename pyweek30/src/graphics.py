@@ -1,7 +1,7 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.arrays import vbo
-import numpy, pygame, math
+import numpy, pygame, math, random
 
 from . import pview, world, view, state
 
@@ -59,9 +59,6 @@ def capwrap(s, x, y, z):
 	
 
 def iring(r0, z0, r1, z1, ispec, ntheta, jtheta0):
-#	z0, r0 = math.CS(r0 / world.R, world.R + z0)
-#	z1, r1 = math.CS(r1 / world.R, world.R + z1)
-#	z0, z1 = z0 - world.R, z1 - world.R
 	CS0 = math.CSround(ntheta, r = r0, jtheta0 = jtheta0)
 	size0 = [isize(ispec, (jtheta0 + jtheta) / ntheta * math.tau) for jtheta in range(ntheta)]
 	CS1 = math.CSround(ntheta, r = r1, jtheta0 = jtheta0 - 0.5)
@@ -72,7 +69,6 @@ def iring(r0, z0, r1, z1, ispec, ntheta, jtheta0):
 		p0 = capwrap(s0, x0, y0, z0)
 		p1 = capwrap(s1, x1, y1, z1)
 		p2 = capwrap(s2, x2, y2, z1)
-#		print(r0, s0, x0, y0, z0, p0)
 		if r1 < r0:
 			yield p0, p2, p1
 		else:
@@ -83,8 +79,9 @@ def island(rs, zs, ispec, ntheta = 20):
 		jtheta0 = 0.5 if n % 2 else 0
 		if n < len(rs) - 1:
 			yield from iring(rs[n], zs[n], rs[n+1], zs[n+1], ispec, ntheta, jtheta0)
-		if n > 1:
+		if n > 0 and rs[n] > 0:
 			yield from iring(rs[n], zs[n], rs[n-1], zs[n-1], ispec, ntheta, jtheta0)
+
 
 
 # https://en.wikibooks.org/wiki/GLSL_Programming/Applying_Matrix_Transformations#Built-In_Matrix_Transformations
@@ -126,14 +123,55 @@ def init():
 	sdata = list(world.usphere(4))
 #	glEnable(GL_NORMALIZE)
 
+	lists.stars = glGenLists(1)
+	glNewList(lists.stars, GL_COMPILE)
+	glPointSize(1)
+	glBegin(GL_POINTS)
+	z0 = math.norm([1, 1, 1])
+	z1 = math.norm([-1, 2, -3])
+	for j in range(10):
+		glColor3fv(math.mix([1, 1, 1], [0.5, 0.5, 0.5], j/9))
+		for _ in range(3000):
+			glVertex3fv(world.randomunit())
+		for _ in range(1000):
+			a = world.randomunit()
+			a = world.plus(a, world.times(z0, -0.8 * math.dot(a, z0)))
+			a = world.plus(a, world.times(z0, -0.8 * math.dot(a, z0)))
+			glVertex3fv(math.norm(a))
+		for _ in range(2000):
+			a = world.randomunit()
+			a = world.plus(a, world.times(z1, -0.94 * math.dot(a, z1)))
+			glVertex3fv(math.norm(a))
+	glEnd()
+	glEndList()
+
 
 	lists.you = glGenLists(1)
 	glNewList(lists.you, GL_COMPILE)
 	glBegin(GL_TRIANGLES)
 #	glColor3fv((1, 0.7, 0.4))
-	for face in world.usphere(1):
-		for vertex in face:
-			glVertex3fv(world.times(vertex, 3))
+#	for face in world.usphere(1):
+#		for vertex in face:
+#			glVertex3fv(world.times(vertex, 3))
+	rs, zs = [], []
+	for jz in range(-2, 2+1):
+		z = 0.5 * jz
+		r = 0.5 * (z - 1) * (z + 1)
+		rs.append(10 * r)
+		zs.append(10 * z)
+	for d in [-2, -1, 0, 1]:
+		C0, S0 = math.CS(d * math.tau / 8)
+		C1, S1 = math.CS((d + 1) * math.tau / 8)
+		for j in range(len(rs)-1):
+			v0 = zs[j], -rs[j] * S0, -rs[j] * C0
+			v1 = zs[j], -rs[j] * S1, -rs[j] * C1
+			v2 = zs[j+1], -rs[j+1] * S0, -rs[j+1] * C0
+			v3 = zs[j+1], -rs[j+1] * S1, -rs[j+1] * C1
+			n = math.norm(world.cross(world.minus(v1, v2), world.minus(v0, v3)))
+			g = math.dot(n, math.norm([1, 1, 1]))
+			glColor3fv(world.linsum([0.7, 0.6, 0.5], 1, [0.1, 0.1, 0.1], g))
+			for vertex in (v0, v2, v1, v1, v2, v3):
+				glVertex3fv(vertex)
 	glEnd()
 	glEndList()
 
@@ -165,19 +203,82 @@ def init():
 	glEnd()
 	glEndList()
 
+	lists.trunk = glGenLists(1)
+	glNewList(lists.trunk, GL_COMPILE)
+	glBegin(GL_TRIANGLES)
+	CSs = [math.CS(jtheta / 8 * math.tau / 4) for jtheta in range(9)]
+	rs, zs = zip(*[(2 * s, 24 * c) for c, s in CSs])
+	for face in island(rs, zs, [], 7):
+		f = 0.8 + 0.2 * math.dot(world.normal(face), math.norm([1, 1, 1]))
+		glColor3fv(world.times((0.6, 0.4, 0.2), f))
+		for x, y, z in face:
+			x += 0.03 * z * (z - 20)
+			glVertex3f(x, y, z)
+	glEnd()
+	glEndList()
 
+	lists.leaf0 = glGenLists(1)
+	glNewList(lists.leaf0, GL_COMPILE)
+	glBegin(GL_TRIANGLES)
+	rs, zs = [], []
+	for jz in range(13):
+		z = -jz
+		r = 0.06 * z * (12 + z)
+		rs.append(r)
+		zs.append(z)
+	for d in [-2, -1, 0, 1]:
+		C0, S0 = math.CS(d * 0.6)
+		C1, S1 = math.CS((d + 1) * 0.6)
+		for j in range(12):
+			v0 = rs[j] * C0, rs[j] * S0, zs[j]
+			v1 = rs[j] * C1, rs[j] * S1, zs[j]
+			v2 = rs[j+1] * C0, rs[j+1] * S0, zs[j+1]
+			v3 = rs[j+1] * C1, rs[j+1] * S1, zs[j+1]
+			for vertex in (v0, v2, v1, v1, v2, v3):
+				glVertex3fv(vertex)
+	glEnd()
+	glEndList()
+
+
+	lists.leaf = glGenLists(1)
+	glNewList(lists.leaf, GL_COMPILE)
+	glCullFace(GL_FRONT)
+	glColor3f(0.0, 0.15, 0.0)
+	glCallList(lists.leaf0)
+	glCullFace(GL_BACK)
+	glColor3f(0.1, 0.4, 0.1)
+	glCallList(lists.leaf0)
+	glEndList()
+
+	lists.tree0 = glGenLists(1)
+	glNewList(lists.tree0, GL_COMPILE)
+	rendertree(0, force=True)
+	glEndList()
+
+	lists.tree1 = glGenLists(1)
+	glNewList(lists.tree1, GL_COMPILE)
+	rendertree(1, force=True)
+	glEndList()
 
 	lists.water = glGenLists(1)
 	glNewList(lists.water, GL_COMPILE)
 	glBegin(GL_TRIANGLES)
+	color0 = 0, 0.2, 0.4
+	color1 = 0, 0.4, 0.4
 	for face in sdata:
 		for vertex in face:
 			f = 0.5 + 0.3 * noiseat(vertex, [0.2, 0.07, 0.4])
-			color0 = 0, 0.2, 0.4
-			color1 = 0, 0.4, 0.4
-#			color1 = world.linsum([1, 1, 1], 0.5, vertex, 0.5)
-#			f = 1
 			glColor3fv(math.mix(color0, color1, f))
+			glVertex3fv(world.times(vertex, world.R))
+	glEnd()
+	glEndList()
+
+	lists.backwater = glGenLists(1)
+	glNewList(lists.backwater, GL_COMPILE)
+	glBegin(GL_TRIANGLES)
+	glColor3fv(math.mix(color0, color1, 0.5))
+	for face in sdata:
+		for vertex in reversed(face):
 			glVertex3fv(world.times(vertex, world.R))
 	glEnd()
 	glEndList()
@@ -193,6 +294,19 @@ def init():
 			glVertex3fv(world.times(vertex, 0.5 * world.R))
 	glEnd()
 	glEndList()
+
+
+
+	lists.seed = glGenLists(1)
+	glNewList(lists.seed, GL_COMPILE)
+	glBegin(GL_TRIANGLES)
+	glColor4f(1, 0.7, 0.2, 1)
+	for face in world.usphere(1):
+		for vertex in face:
+			glVertex3fv(world.times(vertex, 1))
+	glEnd()
+	glEndList()
+
 
 	lists.wake = glGenLists(1)
 	glNewList(lists.wake, GL_COMPILE)
@@ -212,14 +326,117 @@ def init():
 	glEnd()
 	glEndList()
 
+	lists.speck = glGenLists(1)
+	glNewList(lists.speck, GL_COMPILE)
+	glBegin(GL_TRIANGLES)
+	for face in world.usphere(0):
+		for vertex in face:
+			glVertex3fv(world.times(vertex, 0.1))
+	glEnd()
+	glEndList()
+
+	lists.splash = glGenLists(1)
+	glNewList(lists.splash, GL_COMPILE)
+	for _ in range(30):
+		glColor3fv(math.mix([0.3, 0.3, 0.5], [0.9, 0.9, 1.0], random.random()))
+		glPushMatrix()
+		glTranslate(*world.times(world.randomunit(), random.random() ** 0.3))
+		glBegin(GL_TRIANGLES)
+		for face in world.usphere(1):
+			for vertex in face:
+				glVertex3fv(world.times(vertex, 0.1))
+		glEnd()
+		glPopMatrix()
+	glEndList()
+
+	lists.discs = {}
+	colors = [
+		("white", 0.8, 0.8, 0.8),
+		("red", 1, 0.5, 0.5),
+		("blue", 0.6, 0.6, 1),
+		("yellow", 1, 1, 0.4),
+	]
+	for color, r, g, b in colors:
+		CSs = [(C, S, 0) for C, S in math.CSround(60)]
+		CSs = [(j, CSs[j], CSs[(j+1)%60]) for j in range(60)]
+		lists.discs[color] = [glGenLists(1) for _ in range(4)]
+
+		glNewList(lists.discs[color][0], GL_COMPILE)
+		glColor3f(r, g, b)
+		glBegin(GL_TRIANGLES)
+		for j, p0, p1 in CSs:
+			v0 = 0, 0, 0
+			v1 = world.times(p0, 5)
+			v2 = world.times(p1, 5)
+			for vertex in (v0, v1, v2):
+				glVertex3fv(vertex)
+		glEnd()
+		glEndList()
+
+		glNewList(lists.discs[color][1], GL_COMPILE)
+		glColor3f(r, g, b)
+		glBegin(GL_TRIANGLES)
+		for j, p0, p1 in CSs:
+			if j % 30 < 3:
+				continue
+			v0 = world.times(p1, 11)
+			v1 = world.times(p0, 11)
+			v2 = world.times(p1, 7)
+			v3 = world.times(p0, 7)
+			for vertex in (v0, v2, v1, v1, v2, v3):
+				glVertex3fv(vertex)
+		glEnd()
+		glEndList()
+
+		glNewList(lists.discs[color][2], GL_COMPILE)
+		glColor3f(r, g, b)
+		glBegin(GL_TRIANGLES)
+		for j, p0, p1 in CSs:
+			if j % 20 < 2:
+				continue
+			v0 = world.times(p1, 14)
+			v1 = world.times(p0, 14)
+			v2 = world.times(p1, 12)
+			v3 = world.times(p0, 12)
+			for vertex in (v0, v2, v1, v1, v2, v3):
+				glVertex3fv(vertex)
+		glEnd()
+		glEndList()
+
+		glNewList(lists.discs[color][3], GL_COMPILE)
+		glBegin(GL_TRIANGLES)
+		for face in island([13, 13.1, 13.2, 13.3], [140, 90, 40, 5], [], 20):
+			for vertex in face:
+				x, y, z = vertex
+				alpha = math.clamp((z - 5) * (130 - z) / 100 ** 2 * 0.8, 0, 1)
+				glColor4f(r, g, b, alpha)
+				glVertex3fv(vertex)
+		glEnd()
+		glEndList()
+
+	
+# Island height profile
+isrs = [0, 2, 5, 10, 15, 20, 24, 25, 26, 30]
+iszs = [6, 5.8, 5.5, 5, 3, 2, 1, 0, -2, -30]
+def isr(z):
+	if z > iszs[0]:
+		return 0
+	elif z < iszs[-1]:
+		return isrs[-1]
+	for j in range(len(isrs) - 1):
+		if z >= iszs[j+1]:
+			return math.fadebetween(z, iszs[j], isrs[j], iszs[j+1], isrs[j+1])
+	return isrs[-1]
+
 def renderisland(name, ispec, R):
 	lists.islands[name] = glGenLists(1)
 	glNewList(lists.islands[name], GL_COMPILE)
 	glBegin(GL_TRIANGLES)
 	# ispec = [(0.1, 4, 0.1), (0.07, 7, 0.8), (0.05, 8, 0.4)]
-	rs = [r * R / 20 for r in [0, 2, 4, 6, 9, 14, 18, 20, 22]]
-	zs = [z * 2 for z in [3, 2.9, 2.7, 2.6, 2.5, 2, 1, 0, -10]]
-	for face in island(rs, zs, ispec, 50):
+#	rs = [r * R / 20 for r in [0, 2, 4, 6, 9, 14, 18, 20, 22]]
+#	zs = [z * 2 for z in [3, 2.9, 2.7, 2.6, 2.5, 2, 1, 0, -10]]
+	rs = [r * R / 25 for r in isrs]
+	for face in island(rs, iszs, ispec, 50):
 		for vertex in face:
 			x, y, z = vertex
 			h = math.length([x, y, z + world.R]) - world.R
@@ -230,10 +447,48 @@ def renderisland(name, ispec, R):
 	glEnd()
 	glEndList()
 
+def rendertree(fbloom, force=False):
+	if fbloom == 0 and not force:
+		glCallList(lists.tree0)
+	elif fbloom == 1 and not force:
+		glCallList(lists.tree1)
+	else:
+		fbloom += 0.1
+		glPushMatrix()
+		glCallList(lists.trunk)
+		glTranslatef(3, 0, 24)
+		glRotate(32, 0, 1, 0)
+		color0 = 0.1, 0.4, 0.1
+		for j in range(20):
+			fcolor = 0.8 + 0.2 * (math.phi ** 2 * j) % 1
+			glPushMatrix()
+			glRotate(360 * ((math.phi * j + (1 - fbloom) * j * 0.07) % 1), 0, 0, 1)
+			glRotate(fbloom * math.mix(40, 140, j / 20), 0, 1, 0)
+			glCullFace(GL_FRONT)
+			glColor3fv(world.times(color0, fcolor * 0.5))
+			glCallList(lists.leaf0)
+			glCullFace(GL_BACK)
+			glColor3fv(world.times(color0, fcolor))
+			glCallList(lists.leaf0)
+			glPopMatrix()
+		glPopMatrix()
+
 
 
 def draw():
 	glPushMatrix()
+	view.perspectivestars()
+	view.look()
+	glScale(500, 500, 500)
+	glCallList(lists.stars)
+	glPopMatrix()
+
+	glClear(GL_DEPTH_BUFFER_BIT)
+
+	glPushMatrix()
+
+	view.perspective()
+	view.look()
 
 	glFrontFace(GL_CCW)
 	glEnable(GL_CULL_FACE)
@@ -250,11 +505,42 @@ def draw():
 
 #	glCallList(lists.world)
 
+	glPushMatrix()
+	fwave = 1 + 0.001 * (0.5 * math.cycle(0.3 * 0.001 * pygame.time.get_ticks()) - 0.5)
+	glScale(fwave, fwave, fwave)
+	glTranslate(*world.times(state.rmoon, state.tide))
+	f, l, u = world.wspot
+	glMultMatrixf([*f,0,  *l,0,  *u,0,  0,0,0,1])
+	glCallList(lists.backwater)
+	glPopMatrix()
+
+	# Draw objects that can be seen underwater
+	for effect in state.effects:
+		if hasattr(effect, "udraw"):
+			glPushMatrix()
+			effect.orient()
+			effect.udraw()
+			glPopMatrix()
+
+
+	glEnable(GL_BLEND)
+	glBlendColor(0, 0, 0, 0.8)
+	glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA)
+
+	glPushMatrix()
+	glScale(fwave, fwave, fwave)
+	glTranslate(*world.times(state.rmoon, state.tide))
+	f, l, u = world.wspot
+	glMultMatrixf([*f,0,  *l,0,  *u,0,  0,0,0,1])
+	glCallList(lists.water)
+	glPopMatrix()
+	glDisable(GL_BLEND)
+
 
 	for island in state.islands:
 		glPushMatrix()
 		island.orient()
-		glCallList(lists.islands[island.name])
+		island.draw()
 		glPopMatrix()
 
 #	glPushMatrix()
@@ -263,21 +549,11 @@ def draw():
 #	glPopMatrix()
 
 
-
-	glPushMatrix()
-	f = 1 + 0.001 * (0.5 * math.cycle(0.3 * 0.001 * pygame.time.get_ticks()) - 0.5)
-	glScale(f, f, f)
-	glTranslate(*world.times(state.rmoon, state.tide))
-	f, l, u = world.wspot
-#	print(world.wspot)
-	glMultMatrixf([*f,0,  *l,0,  *u,0,  0,0,0,1])
-	glCallList(lists.water)
-	glPopMatrix()
-
-	glPushMatrix()
-	state.moonrod.orient()
-	glCallList(lists.moonrod)
-	glPopMatrix()
+	if state.moonrod is not None:
+		glPushMatrix()
+		state.moonrod.orient()
+		glCallList(lists.moonrod)
+		glPopMatrix()
 
 
 	glPushMatrix()
@@ -306,14 +582,31 @@ def draw():
 	glEnable(GL_CULL_FACE)
 	glPopMatrix()
 	
+	for effect in state.effects:
+		glPushMatrix()
+		effect.orient()
+		effect.draw()
+		glPopMatrix()
+	
+
+	if view.moonalpha() > 0:
+		glEnable(GL_BLEND)
+		glBlendColor(1, 0, 0, view.moonalpha())
+		glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA)
+		glPushMatrix()
+		glTranslate(*world.times(state.rmoon, 1.8 * world.R))
+		glCallList(lists.moon)
+		glPopMatrix()
+		glDisable(GL_BLEND)
 
 	glEnable(GL_BLEND)
-	glBlendColor(1, 0, 0, view.moonalpha())
-	glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA)
-	glPushMatrix()
-	glTranslate(*world.times(state.rmoon, 1.6 * world.R))
-	glCallList(lists.moon)
-	glPopMatrix()
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+	for effect in state.effects:
+		if hasattr(effect, "adraw"):
+			glPushMatrix()
+			effect.orient()
+			effect.adraw()
+			glPopMatrix()
 	glDisable(GL_BLEND)
 
 	glPopMatrix()

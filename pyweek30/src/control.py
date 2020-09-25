@@ -15,3 +15,7 @@ def get():
 	kpressed = { key: any(pressed[code] for code in codes) for key, codes in settings.keys.items() }
 	return kdowns, kpressed
 
+def empty():
+	return set(), { key: False for key in settings.keys.keys() }
+
+

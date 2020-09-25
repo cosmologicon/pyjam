@@ -4,6 +4,7 @@ gamename = "Castaway"
 
 size0 = 1280, 720
 height = 720
+#height = 360
 fullscreen = False
 
 minfps, maxfps = 5, 120
@@ -17,6 +18,8 @@ keys = {
 	"down": [pygame.K_DOWN],
 	"swap": [pygame.K_TAB],
 	"act": [pygame.K_SPACE],
+	
+	"skip": [pygame.K_F1],
 }
 
 

@@ -11,7 +11,7 @@ from OpenGL.GL import *
 from OpenGL.GL import shaders
 from OpenGL.arrays import vbo
 import numpy
-from . import ptext
+from . import ptext, pview
 
 AUTO_PREP = True
 
@@ -86,13 +86,33 @@ def prep():
 	glUseProgram(_shader)
 	glEnableVertexAttribArray(_locations["p"])
 	glVertexAttribPointer(_locations["p"], 2, GL_FLOAT, GL_FALSE, 0, _pdata)
-	glUniform2f(_locations["viewsize"], 854, 480)
+	glUniform2f(_locations["viewsize"], *pview.size)
 	glUniform1i(_locations["texture"], 0)
 
 def unprep(state):
 	glDisable(GL_BLEND)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 	shaders.glUseProgram(0)
+
+_surf_cache = {}
+def gettexture(text, **kwargs):
+	options = ptext._GetsurfOptions(**kwargs)
+	key = text, options.key()
+	if key in _surf_cache:
+		return _surf_cache[key]
+	surf = ptext.getsurf(text, **kwargs)
+	w, h = surf.get_size()
+	texture = glGenTextures(1)
+	glPixelStorei(GL_UNPACK_ALIGNMENT,1)
+	glBindTexture(GL_TEXTURE_2D, texture)
+	data = pygame.image.tostring(surf, "RGBA", 1)
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data)
+	glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+	glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+	_surf_cache[key] = surf, texture
+	print(len(_surf_cache))
+	return surf, texture
+	
 
 def draw(text, pos=None, **kwargs):
 	options = _DrawOptions(pos = pos, **kwargs)
@@ -107,20 +127,15 @@ def draw(text, pos=None, **kwargs):
 
 	glUniform1f(_locations["alpha"], alpha)
 	glUniform1f(_locations["angle"], math.radians(angle))
-	tsurf = ptext.getsurf(text, **options.togetsurfoptions())
+
+	tsurf, texture = gettexture(text, **options.togetsurfoptions())
+
 	w, h = tsurf.get_size()
 	x, y = ptext._blitpos(options.angle, options.pos, options.anchor, (w, h), text)
-	y = 480 - y - h
+	y = pview.h - y - h
 	glUniform4f(_locations["rect"], x, y, w, h)
 	glEnable(GL_TEXTURE_2D)
 	glActiveTexture(GL_TEXTURE0)
-	texture = glGenTextures(1)
-	glPixelStorei(GL_UNPACK_ALIGNMENT,1)
-	glBindTexture(GL_TEXTURE_2D, texture)
-	data = pygame.image.tostring(tsurf, "RGBA", 1)
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data)
-	glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-	glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 	glBindTexture(GL_TEXTURE_2D, texture)
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4)
 	if options.prep:

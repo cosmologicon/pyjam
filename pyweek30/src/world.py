@@ -30,6 +30,9 @@ def plus(*vs):
 	vxs, vys, vzs = zip(*vs)
 	return sum(vxs), sum(vys), sum(vzs)
 
+def minus(v0, v1):
+	return plus(v0, neg(v1))
+
 def linsum(*args):
 	x, y, z = 0, 0, 0
 	for j in range(0, len(args), 2):
@@ -57,6 +60,19 @@ def rot(a, b, theta):
 def perp(z, a):
 	proj = times(a, math.dot(a, z))
 	return plus(z, neg(proj))
+
+def randomunit():
+	while True:
+		v = [random.uniform(-1, 1) for _ in range(3)]
+		if 0 < math.length(v) < 1:
+			break
+	return math.norm(v)
+
+def randomspot():
+	forward = randomunit()
+	left = math.norm(cross(forward, randomunit()))
+	up = cross(forward, left)
+	return forward, left, up
 
 
 def napproach(a, b, da):
@@ -99,16 +115,15 @@ def renorm(spot):
 	return f, l, u
 
 
+oct0 = renorm([[0, 0, 1], [0, 1, 0], [-1, -1, -1]])
+oct1 = renorm([[0, 0, 1], [0, 1, 0], [-1, 1, 1]])
+oct2 = renorm([[0, 0, 1], [0, 1, 0], [1, -1, 1]])
+oct3 = renorm([[0, 0, 1], [0, 1, 0], [1, 1, -1]])
+
 targetrmoon = None
 
 wspot = spot0
 wrot = zhat
-
-
-def act():
-	global targetrmoon
-	targetrmoon = math.norm(you)
-
 
 def think(dt):
 	global targetrmoon, wspot, wrot
