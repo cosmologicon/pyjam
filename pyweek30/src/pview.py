@@ -3,6 +3,8 @@
 
 from __future__ import division
 import pygame, math, os.path, datetime
+from OpenGL.GL import *
+
 
 WINDOW_FLAGS = 0
 FULLSCREEN_FLAGS = pygame.HWSURFACE | pygame.DOUBLEBUF
@@ -57,6 +59,7 @@ def _update():
 	flags = FULLSCREEN_FLAGS | pygame.FULLSCREEN if _fullscreen else WINDOW_FLAGS
 	pygame.display.set_mode((w, h), flags)
 	_setattrs()
+	glViewport(*rect)
 
 def _get_max_fullscreen_size(size0):
 	w0, h0 = size0

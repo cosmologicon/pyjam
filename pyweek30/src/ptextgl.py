@@ -110,7 +110,6 @@ def gettexture(text, **kwargs):
 	glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 	glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 	_surf_cache[key] = surf, texture
-	print(len(_surf_cache))
 	return surf, texture
 	
 

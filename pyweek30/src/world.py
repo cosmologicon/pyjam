@@ -107,6 +107,10 @@ def usphere(n = 4):
 def spotrot(axis, spot, theta):
 	return [rot(axis, vec, theta) for vec in spot]
 
+def negspot(spot):
+	f, l, u = [neg(vec) for vec in spot]
+	return l, f, u
+
 def renorm(spot):
 	f, l, u = spot
 	u = math.norm(u)

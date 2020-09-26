@@ -7,6 +7,8 @@ def init():
 def get():
 	kdowns = set()
 	for event in pygame.event.get():
+		if event.type == pygame.QUIT:
+			kdowns.add("quit")
 		if event.type == pygame.KEYDOWN:
 			for key, kcodes in settings.keys.items():
 				if event.key in kcodes:
