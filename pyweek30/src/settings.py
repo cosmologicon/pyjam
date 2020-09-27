@@ -1,4 +1,4 @@
-import pygame
+import pygame, sys
 
 gamename = "The Tide Summoner"
 
@@ -18,20 +18,31 @@ qsavefile = "savegame-auto.pkl"
 qsavetime = 5
 qsavefile = None
 
+for arg in sys.argv:
+	if arg.startswith("--res="):
+		height = int(arg[6:])
+if "--fullscreen" in sys.argv:
+	fullscreen = True
+if "--forceres" in sys.argv:
+	forceres = True
+if "--easymode" in sys.argv:
+	easymode = True
+
+
 keys = {
 	"quit": [pygame.K_ESCAPE, pygame.K_q],
-	"up": [pygame.K_UP],
-	"right": [pygame.K_RIGHT],
-	"left": [pygame.K_LEFT],
-	"down": [pygame.K_DOWN],
+	"up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],
+	"right": [pygame.K_RIGHT, pygame.K_d, pygame.K_e],
+	"left": [pygame.K_LEFT, pygame.K_a],
+	"down": [pygame.K_DOWN, pygame.K_s, pygame.K_o],
 	"swap": [pygame.K_TAB],
-	"act": [pygame.K_SPACE],
+	"act": [pygame.K_SPACE, pygame.K_RETURN],
 	"hint": [pygame.K_LCTRL, pygame.K_RCTRL],
 	
 	"skip": [pygame.K_F1],
 
-	"fullscreen": [pygame.K_F10],
-	"resolution": [pygame.K_F11],
+	"resolution": [pygame.K_F10],
+	"fullscreen": [pygame.K_F11],
 #	"step": [pygame.K_F2],
 }
 
