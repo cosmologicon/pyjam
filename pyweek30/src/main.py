@@ -18,7 +18,7 @@ quest.init()
 control.init()
 hud.init()
 
-if settings.qsavefile and os.path.exists(settings.qsavefile):
+if settings.qsavefile and not settings.reset and os.path.exists(settings.qsavefile):
 	state.load(settings.qsavefile)
 
 

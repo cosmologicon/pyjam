@@ -107,7 +107,7 @@ class PlantQuest:
 			if iname == "Zodiac" and not view.pendingcutscene():
 				if self.tstep > 1:
 					self.advance()
-					view.cutto(self.getseedscene)
+					view.cutto(getseedscene, args=(self,))
 					sound.play("find2")
 			else:
 				self.tstep = 0
@@ -117,7 +117,7 @@ class PlantQuest:
 					self.dropto = iname
 					self.firstdrop = False
 					self.advance()
-					view.cutto(self.dropseedscene)
+					view.cutto(dropseedscene, args=(self,))
 			else:
 				self.tstep = 0
 		if self.progress >= 2:
@@ -137,46 +137,47 @@ class PlantQuest:
 			island.grow()
 		quests.append(WaterQuest())
 
-
-	def getseedscene(self, tcut):
-		island = state.getisland("Zodiac")
-		if tcut > 2 and not self.firstseed:
-			self.seed = thing.Seed(island)
-			self.seed.autodrop = False
-			state.effects.append(self.seed)
-			self.firstseed = True
-		d0, d1 = island.up, state.you.up
-		up = math.norm(world.avg(d0, d1))
-		y = world.times(up, world.R + 5)
-		f = math.norm(world.minus(d1, d0))
-		z = math.norm(world.cross(f, y))
-#		y = world.plus(y, world.times(f, math.fadebetween(tcut, 0, -10, 4.5, 10)))
-		C, S = math.CS(math.fadebetween(tcut, 0, -0.1, 4.5, 0.1), 300)
-		camera = world.linsum(y, 1, up, 500, z, C, f, S)
-		done = tcut > 4
-		return camera, y, up, done
-
-	def dropseedscene(self, tcut):
-		island = state.getisland(self.dropto)
-		if tcut > 2 and not self.firstdrop:
-			self.seed.dropto(island)
-			self.firstdrop = True
-		d0, d1 = island.up, state.you.up
-		up = math.norm(world.avg(d0, d1))
-		y = world.times(up, world.R + 5)
-		f = math.norm(world.minus(d1, d0))
-		z = math.norm(world.cross(f, y))
-#		y = world.plus(y, world.times(f, math.fadebetween(tcut, 0, -10, 6, 10)))
-		C, S = math.CS(math.fadebetween(tcut, 0, -0.1, 6, 0.1), 300)
-		camera = world.linsum(y, 1, up, 500, z, C, f, S)
-		done = tcut > 6
-		return camera, y, up, done
-
 	def objective(self):
 		if not self.firstseed:
 			return "Return to Zodiac Island to retrieve a seed."
 		done = max(self.progress - 2, 0)
 		return "Bring seeds from Zodiac Island to the other 5 islands (%d/5 done)" % done
+
+def getseedscene(tcut, self):
+	island = state.getisland("Zodiac")
+	if tcut > 2 and not self.firstseed:
+		self.seed = thing.Seed(island)
+		self.seed.autodrop = False
+		state.effects.append(self.seed)
+		self.firstseed = True
+	d0, d1 = island.up, state.you.up
+	up = math.norm(world.avg(d0, d1))
+	y = world.times(up, world.R + 5)
+	f = math.norm(world.minus(d1, d0))
+	z = math.norm(world.cross(f, y))
+	C, S = math.CS(math.fadebetween(tcut, 0, -0.1, 4.5, 0.1), 300)
+	camera = world.linsum(y, 1, up, 500, z, C, f, S)
+	done = tcut > 4
+	return camera, y, up, done
+
+def dropseedscene(tcut, self):
+	island = state.getisland(self.dropto)
+	if tcut > 2 and not self.firstdrop:
+		self.seed.dropto(island)
+		self.firstdrop = True
+	d0, d1 = island.up, state.you.up
+	up = math.norm(world.avg(d0, d1))
+	y = world.times(up, world.R + 5)
+	f = math.norm(world.minus(d1, d0))
+	z = math.norm(world.cross(f, y))
+	C, S = math.CS(math.fadebetween(tcut, 0, -0.1, 6, 0.1), 300)
+	camera = world.linsum(y, 1, up, 500, z, C, f, S)
+	done = tcut > 6
+	return camera, y, up, done
+
+def playrumble(self):
+	sound.play("rumble")
+
 
 @Quest()
 class WaterQuest:
@@ -199,12 +200,9 @@ class WaterQuest:
 				island.bloomed = False
 				island.tbloom = 100
 
-	def playrumble(self):
-		sound.play("rumble")
-
 	def think(self, dt):
 		if self.progress == 0:
-			view.cutto(self.moonrodscene, 1, oncut = self.playrumble)
+			view.cutto(moonrodscene, 1, args=(self,), oncut = playrumble)
 			self.advance()
 			sound.play("portal")
 		else:
@@ -220,23 +218,6 @@ class WaterQuest:
 	def loadmoonrod(self):
 		state.moonrod = thing.Moonrod(spot = world.oct0)
 		state.moonrod.h = -30
-
-	def moonrodscene(self, tcut):
-		rod = state.moonrod
-		rod.h = math.fadebetween(tcut, 0, -30, 4, 5)
-		state.tide = math.fadebetween(tcut, 0, 0, 4, 5)
-		while tcut > self.trodsplash:
-			spot = rod.forward, rod.left, rod.up
-			state.effects.append(thing.Splash(spot, [0, 0, 0], fsplash = 2.5))
-			self.trodsplash += 0.05
-
-		y = world.times(rod.up, world.R + 10)
-		C, S = math.CS(0.1 * tcut, 300)
-		camera = world.linsum(y, 1, rod.up, 500, rod.forward, C, rod.left, S)
-		y = world.plus(y, graphics.shake(tcut, 2))
-		u = rod.up
-		done = tcut > 5
-		return camera, y, u, done
 
 	def controlinfo(self):
 		if self.progress < 4:
@@ -256,6 +237,23 @@ class WaterQuest:
 	def finish(self):
 		quests.append(DiscQuest())
 
+def moonrodscene(tcut, self):
+	rod = state.moonrod
+	rod.h = math.fadebetween(tcut, 0, -30, 4, 5)
+	state.tide = math.fadebetween(tcut, 0, 0, 4, 5)
+	while tcut > self.trodsplash:
+		spot = rod.forward, rod.left, rod.up
+		state.effects.append(thing.Splash(spot, [0, 0, 0], fsplash = 2.5))
+		self.trodsplash += 0.05
+
+	y = world.times(rod.up, world.R + 10)
+	C, S = math.CS(0.1 * tcut, 300)
+	camera = world.linsum(y, 1, rod.up, 500, rod.forward, C, rod.left, S)
+	y = world.plus(y, graphics.shake(tcut, 2))
+	u = rod.up
+	done = tcut > 5
+	return camera, y, u, done
+
 @Quest()
 class DiscQuest:
 	shownames = True
@@ -274,12 +272,12 @@ class DiscQuest:
 	def think(self, dt):
 		if self.progress == 0 and not view.pendingcutscene():
 			self.loaddisc()
-			view.cutto(self.discscene, 1)
+			view.cutto(discscene, 1, args=(self,))
 			self.advance()
 		if self.progress == 1 and self.tstep > 2 and not view.pendingcutscene():
 			if self.disc.touched():
 				self.loaddisc3()
-				view.cutto(self.disc3scene)
+				view.cutto(disc3scene, args=(self,))
 				self.advance()
 
 	def loaddisc(self):
@@ -301,24 +299,6 @@ class DiscQuest:
 				state.effects.append(disc)
 			sound.play("portal")
 
-	def discscene(self, tcut):
-		y = world.times(self.disc.up, world.R)
-		across, up = math.CS(math.fadebetween(tcut, 0, 0.2, 6, 1.4), 500)
-		C, S = math.CS(1 * tcut, across)
-		camera = world.linsum(y, 1, self.disc.up, up, self.disc.forward, C, self.disc.left, S)
-		u = self.disc.up
-		done = tcut > 6
-		return camera, y, u, done
-
-	def disc3scene(self, tcut):
-		f, l, u = world.oct0
-		y = world.times(u, -50)
-		u = world.neg(u)
-		C, S = math.CS(1 * tcut, 1600)
-		camera = world.linsum(y, 1, u, 300, f, C, l, S)
-		done = tcut > 8
-		return camera, y, u, done
-
 	def objective(self):
 		if not self.disc:
 			return
@@ -332,6 +312,26 @@ class DiscQuest:
 		quests.append(Act2Quest(self.disc3))
 		if self.disc is not None:
 			self.disc.fade()
+
+def discscene(tcut, self):
+	y = world.times(self.disc.up, world.R)
+	across, up = math.CS(math.fadebetween(tcut, 0, 0.2, 6, 1.4), 500)
+	C, S = math.CS(1 * tcut, across)
+	camera = world.linsum(y, 1, self.disc.up, up, self.disc.forward, C, self.disc.left, S)
+	u = self.disc.up
+	done = tcut > 6
+	return camera, y, u, done
+
+def disc3scene(tcut, self):
+	f, l, u = world.oct0
+	y = world.times(u, -50)
+	u = world.neg(u)
+	C, S = math.CS(1 * tcut, 1600)
+	camera = world.linsum(y, 1, u, 300, f, C, l, S)
+	done = tcut > 8
+	return camera, y, u, done
+
+
 
 @Quest()
 class Act2Quest:
@@ -397,6 +397,11 @@ class Act2Quest:
 		sound.play("win")
 		quests.append(Act3Quest())
 
+def introcallback(tcut, self):
+	return self.intro(tcut)
+def setupcallback(self):
+	return self.setup()
+
 class ColorQuest(enco.Component):
 
 	def setup(self):
@@ -411,7 +416,7 @@ class ColorQuest(enco.Component):
 
 	def think(self, dt):
 		if self.progress == 0 and self.tstep > 1:
-			view.cutto(self.intro, oncut=self.setup)
+			view.cutto(introcallback, oncut=setupcallback, args=(self,))
 			self.advance()
 		if self.progress == self.goal - 1 and self.exit is None:
 			self.exit = thing.Disc(self.getexitspot(), "white")
@@ -426,7 +431,7 @@ class ColorQuest(enco.Component):
 
 	def color0(self):
 		if self.progress > 0:
-			return graphics.disccolors[self.colorname]
+			return settings.colors[self.colorname]
 
 	def showexit(self, tcut):
 		y = world.times(self.exit.up, world.R)
@@ -632,6 +637,8 @@ class Qhack:
 		return None
 	def drawend(self):
 		pass
+	def titlealpha(self):
+		return 0
 
 
 
@@ -656,7 +663,7 @@ class Act3Quest(Qhack):
 		state.tide = 16
 		state.dmoon = 20
 		state.cfactor = 10
-		view.cutto(self.intro, 1)
+		view.cutto(introcallback, 1, args=(self,))
 
 	def randomseq(self, n):
 		seq = []
@@ -748,7 +755,7 @@ class Act3Quest(Qhack):
 		
 	def color0(self):
 		fspeed = [1, 0.8, 0.7, 0.6, 0.5][self.progress]
-		return graphics.disccolors[self.seq[int(self.t / fspeed) % len(self.seq)]]
+		return settings.colors[self.seq[int(self.t / fspeed) % len(self.seq)]]
 
 	def objective(self):
 		if len(self.seq) == 1:
@@ -757,19 +764,19 @@ class Act3Quest(Qhack):
 
 	def finish(self):
 		Qhack.finish(self)
-		view.cutto(self.outro, 2)
+		view.cutto(outro, 2)
 		sound.play("win")
 		quests.append(WaitQuest())
 
-	def outro(self, tcut):
-		f, l, u = world.oct0
-		y = 0, 0, 0
-		u = world.neg(u)
-		C, S = math.CS(1 * tcut, math.fadebetween(tcut, 0, 2000, 6, 2600))
-		camera = world.linsum(y, 1, f, C, l, S)
-		y = world.plus(y, graphics.shake(tcut, 15))
-		done = tcut > 6
-		return camera, y, u, done
+def outro(tcut):
+	f, l, u = world.oct0
+	y = 0, 0, 0
+	u = world.neg(u)
+	C, S = math.CS(1 * tcut, math.fadebetween(tcut, 0, 2000, 6, 2600))
+	camera = world.linsum(y, 1, f, C, l, S)
+	y = world.plus(y, graphics.shake(tcut, 15))
+	done = tcut > 6
+	return camera, y, u, done
 
 @Quest()
 class WaitQuest:
@@ -856,7 +863,6 @@ def init():
 	# Jump to Act 3
 	if False:
 		quests.append(Act3Quest())
-	
 
 def think(dt):
 	for quest in quests:

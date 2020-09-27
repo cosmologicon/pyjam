@@ -30,8 +30,8 @@ Controls
   * Esc: quit
   * F10: change resolution
   * F11: toggle fullscreen
-  * Hold Ctrl: hint
-  * F1: cheat
+  * Hold Ctrl: hint (show current objective)
+  * F1: cheat (skip current objective)
 
 Hints and cheats
 ----------------
@@ -44,9 +44,16 @@ Hold down the Ctrl key to view the current objective. Alternately, start the gam
 
 Press F1 to complete the current objective and skip ahead.
 
+Color swapping
+--------------
+
+Some puzzles require you to distinguish certain colors: red, yellow, blue, white, and black. If you
+wish to tweak the colors used, you edit the variable `colors` in `src/settings.py`.
+
 Command line flags
 ------------------
 
   * `--res=###`: set vertical resolution. e.g. `--res=480` is 480p
   * `--fullscreen`: start in fullscreen mode
   * `--easymode`: make hints always visible
+  * `--reset`: delete saved game and start over. By default the game is auto-saved every 5 seconds.

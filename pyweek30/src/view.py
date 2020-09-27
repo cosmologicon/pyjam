@@ -34,6 +34,7 @@ class s:
 	tcut = 0
 	fshutter = 0
 	cutscene = None
+	cutargs = ()
 	cutting = False
 	cutdelay = 0
 	oncut = None
@@ -72,7 +73,7 @@ def think(dt):
 	fshutter = 1 if self.cutting and self.cutdelay == 0 else 0
 	self.fshutter = math.approach(self.fshutter, fshutter, dt * math.exp(0.1 * self.numcuts))
 	if fshutter == 1 and self.fshutter > 0.5 and self.oncut:
-		self.oncut()
+		self.oncut(*self.cutargs)
 		self.oncut = None
 
 def moonalpha():
@@ -80,7 +81,7 @@ def moonalpha():
 	alpha0 = math.fadebetween(d, 0.4, 1, 0.9, 0.7)
 	alpha = alpha0 * self.jdistance
 	if self.fshutter > 0.5:
-		camera, y, u, done = self.cutscene(self.tcut)
+		camera, y, u, done = self.cutscene(self.tcut, *self.cutargs)
 		if math.distance(camera, y) < 1000:
 			return min(alpha, 1 - self.fshutter)
 		
@@ -94,7 +95,7 @@ def perspective():
 def perspectivestars():
 	glLoadIdentity()
 	if self.fshutter > 0.5:
-		camera, y, u, done = self.cutscene(self.tcut)
+		camera, y, u, done = self.cutscene(self.tcut, *self.cutargs)
 		d = math.length(camera)
 	else:
 		d = self.cdistance
@@ -105,7 +106,7 @@ def perspectivestars():
 def look():
 	from . import graphics
 	if self.fshutter > 0.5:
-		camera, y, u, done = self.cutscene(self.tcut)
+		camera, y, u, done = self.cutscene(self.tcut, *self.cutargs)
 		if done:
 			self.cutting = False
 	else:
@@ -116,10 +117,11 @@ def look():
 		u = tuple(state.you.up)
 	gluLookAt(*camera, *y, *u)
 
-def cutto(cutscene, delay = 0, oncut = None):
+def cutto(cutscene, delay = 0, oncut = None, args=()):
 	self.numcuts += 1
 	self.cutdelay = delay
 	self.cutscene = cutscene
+	self.cutargs = args
 	self.cutting = True
 	self.oncut = oncut
 	self.tcut = 0

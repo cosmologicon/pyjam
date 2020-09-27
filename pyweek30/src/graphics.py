@@ -2,7 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 import numpy, pygame, math, random
 
-from . import pview, world, view, state
+from . import pview, world, view, state, settings
 
 
 def prand(seed):
@@ -110,15 +110,6 @@ class sky:
 
 class lists:
 	islands = {}
-
-
-disccolors = {
-	"white": [0.8, 0.8, 0.8],
-	"black": [0, 0, 0],
-	"red": [1, 0.5, 0.5],
-	"blue": [0.6, 0.6, 1],
-	"yellow": [1, 1, 0.4],
-}
 
 
 def init():
@@ -369,7 +360,7 @@ def init():
 	glEndList()
 
 	lists.discs = {}
-	for color, (r, g, b) in disccolors.items():
+	for color, (r, g, b) in settings.colors.items():
 		CSs = [(C, S, 0) for C, S in math.CSround(60)]
 		CSs = [(j, CSs[j], CSs[(j+1)%60]) for j in range(60)]
 		lists.discs[color] = [glGenLists(1) for _ in range(4)]

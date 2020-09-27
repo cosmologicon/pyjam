@@ -16,7 +16,7 @@ easymode = False
 
 qsavefile = "savegame-auto.pkl"
 qsavetime = 5
-qsavefile = None
+reset = False
 
 for arg in sys.argv:
 	if arg.startswith("--res="):
@@ -27,6 +27,16 @@ if "--forceres" in sys.argv:
 	forceres = True
 if "--easymode" in sys.argv:
 	easymode = True
+if "--reset" in sys.argv:
+	reset = True
+
+colors = {
+	"white": [0.8, 0.8, 0.8],
+	"black": [0, 0, 0],
+	"red": [1, 0.5, 0.5],
+	"blue": [0.6, 0.6, 1],
+	"yellow": [1, 1, 0.4],
+}
 
 
 keys = {
