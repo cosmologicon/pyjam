@@ -16,9 +16,9 @@ from . import ptext, pview
 AUTO_PREP = True
 
 class _DrawOptions(ptext._DrawOptions):
-	_fields = tuple(field for field in ptext._DrawOptions._fields if field not in
-		("surf", "cache"),
-	) + (
+	_fields = tuple((field for field in ptext._DrawOptions._fields if field not in
+		("surf", "cache")
+	)) + (
 		"prep",
 	)
 	_defaults = { k: v for k, v in ptext._DrawOptions._defaults.items() if k not in
