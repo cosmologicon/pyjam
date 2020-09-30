@@ -11,6 +11,9 @@ Code for my Python game jam entries (PyWeek).
 * PyWeek 25 (`otherworlder`): Otherworlder.
 * PyWeek 26 (`odyssey`): Storm Drain Odyssey.
 * PyWeek 27 (`snowcrafter`): Snowcrafter.
+* PyWeek 28 (`nerdozog`): Nerdozog's Ascent.
+* PyWeek 29 (`pyweek29`): Miranda the Lepidopterist.
+* PyWeek 30 (`pyweek30`): The Tide Summoner.
 
 ## Setup process
 
@@ -55,6 +58,8 @@ Make sure DEBUG mode is off by default in the checkin.
 Make sure music and data is pointing to the correct place.
 
 Update the README and LICENSE files in the game directory to reflect the game name.
+
+Check that dependencies are listed in the README. In particular check for: pygame, pyopengl, numpy
 
 	tar czf gamename.tgz gamename/
 
