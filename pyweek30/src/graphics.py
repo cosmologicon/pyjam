@@ -1,6 +1,6 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
-import numpy, pygame, math, random
+import pygame, math, random
 
 from . import pview, world, view, state, settings
 
@@ -113,15 +113,6 @@ class lists:
 
 
 def init():
-	if False:
-		vshader = shaders.compileShader(sky_vshader, GL_VERTEX_SHADER)
-		fshader = shaders.compileShader(sky_fshader, GL_FRAGMENT_SHADER)
-		sky.shader = shaders.compileProgram(vshader, fshader)
-		sky.locations = {
-			"p": glGetAttribLocation(_shader, "p"),
-		}
-		sky.pdata = numpy.array([-1, -1, -1, -1, 1, -1, ], numpy.float32)
-
 
 	sdata = list(world.usphere(4))
 #	glEnable(GL_NORMALIZE)

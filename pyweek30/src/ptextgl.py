@@ -10,7 +10,6 @@ import pygame, math
 from OpenGL.GL import *
 from OpenGL.GL import shaders
 from OpenGL.arrays import vbo
-import numpy
 from . import ptext, pview
 
 AUTO_PREP = True
@@ -76,7 +75,7 @@ def init():
 		"alpha": glGetUniformLocation(_shader, "alpha"),
 		"texture": glGetUniformLocation(_shader, "texture"),
 	}
-	_pdata = numpy.array([0, 0, 1, 0, 1, 1, 0, 1], numpy.float32)
+	_pdata = [0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0]
 
 
 def prep():
