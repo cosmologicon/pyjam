@@ -10,6 +10,9 @@ forceres = False
 heights = 360, 540, 720, 1080, 1440
 size0 = w, h = width, height = 1280, 720
 
+savename = "savegame.pkl"
+tautosave = 15   # seconds
+
 DEBUG = True
 
 keys = {
@@ -18,4 +21,10 @@ keys = {
 	"fullscreen": [pygame.K_F11],
 	"resize": [pygame.K_F10],
 }
+
+colors = [
+	(100, 100, 255),
+	(220, 220, 220),
+	(200, 150, 50),
+]
 

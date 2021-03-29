@@ -1,4 +1,5 @@
-
+import pickle, os
+from . import settings
 
 bugs = []
 spawners = []
@@ -25,4 +26,16 @@ def spawnerat(pH):
 
 def empty(pH):
 	return treeat(pH) is None and ringat(pH) is None and spawnerat(pH) is None
+
+
+def save():
+	obj = bugs, spawners, trees, rings
+	pickle.dump(obj, open(settings.savename, "wb"))
+
+def load():
+	global bugs, spawners, trees, rings
+	if os.path.exists(settings.savename):
+		bugs, spawners, trees, rings = pickle.load(open(settings.savename, "rb"))
+load()
+
 

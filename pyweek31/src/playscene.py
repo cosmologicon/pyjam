@@ -1,34 +1,55 @@
 import random
 import pygame
 from . import pview
-from . import view, state, thing
+from . import settings, view, state, thing, hud
 
 class self:
 	pass
 
 def init():
-	state.bugs = []
-	state.rings = [thing.ChargeRing((0, 0))]
-	state.spawners = [
-		thing.BugSpawner((0, -8), (0, 1), thing.Ant, 3),
-		thing.BugSpawner((-8, 1), (1, 0), thing.Ant, 3),
-		thing.BugSpawner((-8, 7), (1, -1), thing.Ant, 3),
-	]
-	state.trees = []
-	while len(state.trees) < 36:
-		pH = random.randrange(-8, 9), random.randrange(-8, 9)
-		if state.empty(pH):
-			state.trees.append(thing.Maple(pH))
-	self.tbug = 1
+	if False:
+		state.bugs = []
+		state.rings = []
+		state.spawners = [
+			thing.BugSpawner((0, -8), (0, 1), thing.Ant, settings.colors[0], 2.2),
+		]
+		state.trees = []
+	if False:
+		while len(state.trees) < 36:
+			pH = random.randrange(-8, 9), random.randrange(-8, 9)
+			if state.empty(pH):
+				state.trees.append(thing.Maple(pH))
 	
 
 def control(mposV, events):
-	self.mposH = view.HconvertV(mposV)
-	if "click" in events:
-		pH = view.HnearesthexH(self.mposH)
-		if not state.treeat(pH):
-			state.trees.append(thing.Oak(pH))
-		
+	if hud.contains(mposV):
+		self.mposH = None
+		hud.control(mposV, events)
+	else:
+		self.mposH = view.HconvertV(mposV)
+		if "click" in events:
+			pH = view.HnearesthexH(self.mposH)
+			if state.empty(pH):
+				ttype = None
+				selected = hud.selected()
+				if selected == "oak":
+					ttype = thing.Oak
+				if selected == "maple":
+					ttype = thing.Maple
+				if ttype is not None:
+					state.trees.append(ttype(pH))
+				if selected is not None and selected.startswith("ring"):
+					color = settings.colors[int(selected[-1])]
+					state.rings.append(thing.ChargeRing(pH, color))
+		if "rclick" in events:
+			pH = view.HnearesthexH(self.mposH)
+			if state.treeat(pH) is not None:
+				state.trees.remove(state.treeat(pH))
+			if state.ringat(pH) is not None:
+				state.rings.remove(state.ringat(pH))
+			if state.spawnerat(pH) is not None:
+				state.spawners.remove(state.spawnerat(pH))
+			
 
 def think(dt):
 	for spawner in state.spawners:
@@ -40,14 +61,12 @@ def think(dt):
 		ring.think(dt)
 
 def draw():
-	for xH in range(-3, 4):
-		for yH in range(-3, 4):
-			pVs = [view.VconvertH(view.vecadd((xH, yH), dH)) for dH in view.cornerdHs]
-			for j in range(6):
-				pygame.draw.line(pview.screen, (100, 200, 100), pVs[j], pVs[(j+1)%6], 1)
-	pH = view.HnearesthexH(self.mposH)
-	pVs = [view.VconvertH(view.vecadd(pH, dH)) for dH in view.cornerdHs]
-	pygame.draw.polygon(pview.screen, (40, 80, 40), pVs)
+	for pG0, pG1 in view.gridedgeGs:
+		pygame.draw.line(pview.screen, (70, 140, 70), view.VconvertG(pG0), view.VconvertG(pG1), 1)
+	if self.mposH is not None:
+		pH = view.HnearesthexH(self.mposH)
+		pVs = [view.VconvertH(view.vecadd(pH, dH)) for dH in view.cornerdHs]
+		pygame.draw.polygon(pview.screen, (40, 80, 40), pVs)
 	for ring in state.rings:
 		ring.draw()
 	for spawner in state.spawners:
@@ -56,4 +75,5 @@ def draw():
 		tree.draw()
 	for bug in state.bugs:
 		bug.draw()
+	hud.draw()
 

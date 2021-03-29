@@ -79,34 +79,35 @@ class Charges(enco.Component):
 	def draw(self):
 		text = "%d/%d" % (int(self.charge), self.maxcharge)
 		ptext.draw(text, center = view.VconvertG(self.pG))
-		
+
 
 @Lives()
 @WorldBound()
 @Travels(1)
 class Ant:
-	color = 250, 150, 100
-	def __init__(self, pH, dH):
+	def __init__(self, pH, dH, color):
 		self.tile = pH
 		self.dH = dH
+		self.color = color
 		self.setnext()
 
 @WorldBound()
 class BugSpawner:
-	color = 200, 200, 200
 	rG = 0.5
-	def __init__(self, pH, dH, bugtype, tspawn):
+	def __init__(self, pH, dH, bugtype, color, tspawn):
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
 		self.dH = dH
 		self.bugtype = bugtype
+		self.color = color
 		self.tspawn = tspawn
 		self.t = 0
 	def think(self, dt):
 		self.t += dt
 		while self.t > self.tspawn:
 			self.t -= self.tspawn
-			bug = self.bugtype(self.pH, self.dH)
+			bug = self.bugtype(self.pH, self.dH, color = self.color)
+			bug.color = self.color
 			bug.advance()
 			state.bugs.append(bug)
 		
@@ -152,10 +153,11 @@ class HurtRing:
 @WorldBound()
 @Charges(10)
 class ChargeRing:
-	color = 250, 150, 100
+	color = 0, 0, 0
 	rG = 2.2
-	def __init__(self, pH):
+	def __init__(self, pH, color):
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
 		self.tiles = view.HsurroundH(self.pH, 1)
+		self.color = color
 

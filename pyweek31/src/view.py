@@ -78,6 +78,14 @@ def HsurroundH(pH, r = 1):
 	tiles = HsurroundH(pH, r-1)
 	return tiles | set(vecadd(tile, dirH) for tile in tiles for dirH in dirHs)
 
+gridedgeGs = [
+	(GconvertH(pH0), GconvertH(pH1)) for pH0, pH1 in set([
+		(vecadd(pH, HrotH((1, 1), j), 1/3), vecadd(pH, HrotH((1, 1), j + 1), 1/3))
+		for pH in HsurroundH((0, 0), 10)
+		for j in range(6)
+	])
+]
+
 
 def VscaleG(aG):
 	return T(cameraz * aG)
