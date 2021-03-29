@@ -6,12 +6,30 @@ from .pview import T
 
 A = math.sqrt(3) / 2  # unit hexagon apothem
 
-camerax, cameray, cameraz = 0, 0, 60
+pview.SCREENSHOT_DIRECTORY = "screenshots"
+
+zooms = [a ** 2 for a in (4, 5, 6, 7, 8, 9)]
+camerax, cameray, cameraz = 5, 0, 36
 def init():
 	pview.set_mode(size0 = settings.size0, height = settings.height, fullscreen = settings.fullscreen, forceres = settings.forceres)
+	pygame.display.set_caption(settings.gamename)
+
+def resize():
+	pview.cycle_height(settings.heights)
+
+def toggle_fullscreen():
+	pview.toggle_fullscreen()
 
 def clear():
 	pview.screen.fill((25, 50, 25))
+
+def zoom(dz, mposV):
+	global camerax, cameray, cameraz
+	(xG0, yG0) = GconvertV(mposV)
+	cameraz = zooms[math.clamp(zooms.index(cameraz) + dz, 0, len(zooms) - 1)]
+	(xG1, yG1) = GconvertV(mposV)
+	camerax -= xG1 - xG0
+	cameray -= yG1 - yG0
 
 def distance(p0, p1):
 	x0, y0 = p0
@@ -52,12 +70,20 @@ def HnearesthexH(pH):
 	ixH, iyH = math.floor(xH), math.floor(yH)
 	candidates = [(ixH, iyH), (ixH + 1, iyH), (ixH, iyH + 1), (ixH + 1, iyH + 1)]
 	return min(candidates, key = lambda ipH: distance(GconvertH(ipH), GconvertH(pH)))
+def HsurroundH(pH, r = 1):
+#	if pH != (0, 0):
+#		return set(vecadd(pH, tile) for tile in HsurroundH((0, 0), r))
+	if r == 0:
+		return set([pH])
+	tiles = HsurroundH(pH, r-1)
+	return tiles | set(vecadd(tile, dirH) for tile in tiles for dirH in dirHs)
+
 
 def VscaleG(aG):
 	return T(cameraz * aG)
 def VconvertG(pG):
 	xG, yG = pG
-	return T(pview.centerx0 + xG * cameraz, pview.centery0 - yG * cameraz)
+	return T(pview.centerx0 + (xG - camerax) * cameraz, pview.centery0 - (yG - cameray) * cameraz)
 def GconvertV(pV):
 	xV, yV = pV
 	return (
