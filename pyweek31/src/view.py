@@ -84,11 +84,11 @@ def HsurroundH(pH, r = 1):
 gridedgeGs = [
 	(GconvertH(pH0), GconvertH(pH1)) for pH0, pH1 in set([
 		(vecadd(pH, HrotH((1, 1), j), 1/3), vecadd(pH, HrotH((1, 1), j + 1), 1/3))
-		for pH in HsurroundH((0, 0), 10)
+		for pH in HsurroundH((0, 0), 12)
 		for j in range(6)
+		if math.hypot(*GconvertH(pH)) < 17.4
 	])
 ]
-
 
 def VscaleG(aG):
 	return T(cameraz * aG)

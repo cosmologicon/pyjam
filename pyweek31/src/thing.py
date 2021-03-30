@@ -1,6 +1,6 @@
 import math
 import pygame
-from . import enco, pview, ptext
+from . import enco, pview, ptext, settings
 from . import view, state
 
 class Lives(enco.Component):
@@ -22,12 +22,23 @@ class WorldBound(enco.Component):
 	def __init__(self):
 		self.pG = 0, 0
 		self.rG = 0.25
+	def getcolor(self):
+		if hasattr(self, "color"): return self.color
+		return settings.colors[self.jcolor]
 	def draw(self):
 		pV = view.VconvertG(self.pG)
 		rV = view.VscaleG(self.rG)
-		pygame.draw.circle(pview.screen, self.color, pV, rV)
+		pygame.draw.circle(pview.screen, self.getcolor(), pV, rV)
+	def think(self, dt):
+		if math.hypot(*self.pG) > 30:
+			self.alive = False
 	def label(self, text):
 		ptext.draw(text, center = view.VconvertG(self.pG), fontsize = view.VscaleG(1), owidth = 1)
+	def drawarrow(self, color, jdH):
+		dGs = [math.R(-jdH * math.tau / 6, p) for p in [(0, 1), (0.3, 0.8), (-0.3, 0.8)]]
+		pVs = [view.VconvertG(view.vecadd(self.pG, dG)) for dG in dGs]
+		pygame.draw.polygon(pview.screen, color, pVs)
+
 
 class Travels(enco.Component):
 	def __init__(self, speed):
@@ -58,10 +69,7 @@ class Travels(enco.Component):
 		if ring is not None:
 			ring.arrive(self)
 	def draw(self):
-		dG = view.GconvertH(self.dH)
-		p0V = view.VconvertG(self.pG)
-		p1V = view.VconvertG(view.vecadd(self.pG, dG, 0.3))
-		pygame.draw.line(pview.screen, self.color, p0V, p1V)
+		self.drawarrow(self.getcolor(), view.dirHs.index(self.dH))
 		
 class Charges(enco.Component):
 	def __init__(self, maxcharge):
@@ -70,7 +78,7 @@ class Charges(enco.Component):
 		self.dcharge = -1
 	def arrive(self, bug):
 		bug.alive = False
-		if bug.color == self.color:
+		if bug.jcolor == self.jcolor:
 			self.charge += 1
 		else:
 			self.charge -= 1
@@ -86,10 +94,10 @@ class Charges(enco.Component):
 @WorldBound()
 @Travels(1)
 class Ant:
-	def __init__(self, pH, dH, color):
+	def __init__(self, pH, dH, jcolor):
 		self.tile = pH
 		self.dH = dH
-		self.color = color
+		self.jcolor = jcolor
 		self.setnext()
 
 @WorldBound()
@@ -108,10 +116,31 @@ class BugSpawner:
 		while self.t > self.tspawn:
 			self.t -= self.tspawn
 			bug = self.bugtype(self.pH, self.dH, color = self.color)
-			bug.color = self.color
 			bug.advance()
 			state.bugs.append(bug)
 		
+@WorldBound()
+class MultiSpawner:
+	rG = 0.5
+	color = 200, 200, 200
+	def __init__(self, pH, tspawn, spec):
+		self.pH = pH
+		self.pG = view.GconvertH(self.pH)
+		self.spec = spec
+		self.bugtype = Ant
+		self.tspawn = tspawn
+		self.t = 0
+	def think(self, dt):
+		self.t += dt
+		while self.t > self.tspawn:
+			self.t -= self.tspawn
+			for jdH, jcolor in self.spec:
+				bug = self.bugtype(self.pH, view.dirHs[jdH%6], jcolor)
+				bug.advance()
+				state.bugs.append(bug)
+	def draw(self):
+		for dH, jcolor in self.spec:
+			self.drawarrow(settings.colors[jcolor], dH)
 
 
 @WorldBound()
@@ -121,6 +150,8 @@ class Maple:
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
 		self.angle = angle
+	def toggle(self):
+		self.angle = -self.angle
 	def direct(self, bug):
 		assert bug.tile == self.pH
 		dH = view.HrotH(bug.dH, self.angle)
@@ -137,6 +168,8 @@ class Oak:
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
 		self.angle = angle
+	def toggle(self):
+		self.angle = -self.angle
 	def direct(self, bug):
 		assert bug.tile == self.pH
 		dH = view.HrotH(bug.dH, self.angle)
@@ -145,26 +178,14 @@ class Oak:
 	def draw(self):
 		self.label("%d" % self.angle)
 
-
-@WorldBound()
-class HurtRing:
-	color = 255, 255, 0
-	rG = 2.2
-	def __init__(self, pH):
-		self.pH = pH
-		self.pG = view.GconvertH(self.pH)
-		self.tiles = view.HsurroundH(self.pH, 1)
-	def arrive(self, bug):
-		bug.alive = False
-
-
 @WorldBound()
 @Charges(10)
 class ChargeRing:
-	def __init__(self, pH, color, rH = 1):
+	def __init__(self, pH, jcolor, rH = 1):
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
+		self.rH = rH
 		self.tiles = view.HsurroundH(self.pH, rH)
-		self.color = color
+		self.jcolor = jcolor
 		self.rG = [1.0, 2.4, 4, 5.6][rH]
 

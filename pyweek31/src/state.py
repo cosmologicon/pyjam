@@ -1,4 +1,4 @@
-import pickle, os
+import pickle, os, random
 from . import settings
 
 bugs = []
@@ -44,6 +44,42 @@ def load():
 	global bugs, spawners, trees, rings
 	if os.path.exists(settings.savename):
 		bugs, spawners, trees, rings = pickle.load(open(settings.savename, "rb"))
-load()
+
+
+# DEBUG functions
+def shuffle():
+	colors = [settings.colors[j % 3] for j, _ in enumerate(rings)]
+	random.shuffle(colors)
+	for color, ring in zip(colors, rings):
+		ring.color = color
+	for spawner in spawners:
+		spawner.color = random.choice(settings.colors)
+
+def getspec():
+	return {
+		"rings": [{
+			"pH": ring.pH,
+			"rH": ring.rH,
+			"jcolor": ring.jcolor,
+		} for ring in rings],
+		"spawners": [{
+			"pH": spawner.pH,
+			"spec": spawner.spec,
+			"tspawn": spawner.tspawn,
+		} for spawner in spawners],
+		"trees": [],
+	}
+
+def setspec(spec):
+	from . import thing
+	del rings[:]
+	for ring in spec["rings"]:
+		rings.append(thing.ChargeRing(**ring))
+	del spawners[:]
+	for spawner in spec["spawners"]:
+		spawners.append(thing.MultiSpawner(**spawner))
+	del trees[:]
+
+
 
 

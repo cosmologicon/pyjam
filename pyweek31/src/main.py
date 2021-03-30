@@ -6,15 +6,16 @@ from .pview import T
 
 view.init()
 playscene.init()
+state.load()
 
 playing = True
 clock = pygame.time.Clock()
 dtaccum = 0
 tsave = 0
 while playing:
-	cstate = controls.get()
+	cstate = controls.ControlState()
 
-	if "quit" in cstate.events:
+	if "quit" in cstate.events or "quit" in cstate.kdowns:
 		playing = False
 	if "screenshot" in cstate.kdowns:
 		pview.screenshot()
@@ -26,6 +27,10 @@ while playing:
 		view.zoom(cstate.scroll, cstate.mposV)
 
 	playscene.control(cstate)
+	if settings.DEBUG and cstate.kpressed[pygame.K_F2]:
+		state.shuffle()
+	if settings.DEBUG and cstate.kpressed[pygame.K_F3]:
+		print(state.getspec())
 
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	tsave += dt

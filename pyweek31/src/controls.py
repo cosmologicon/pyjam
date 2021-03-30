@@ -23,6 +23,7 @@ class ControlState:
 		self.mposV = pygame.mouse.get_pos()
 		self.dragstart = None
 		self.dragdV = None
+		self.rdragdV = None
 		self.scroll = 0
 
 		self.events = set()
@@ -45,6 +46,8 @@ class ControlState:
 					self.events.add("rdown")
 					state.rt0 = self.t
 					state.rpV0 = self.mposV
+					state.rpV = self.mposV
+					state.rdragging = False
 				if event.button == 4:
 					self.scroll += 1
 				if event.button == 5:
@@ -55,15 +58,23 @@ class ControlState:
 					if not state.ldragging:
 						self.events.add("click")
 					state.lt0 = None
+				if event.button == 3:
+					self.events.add("rup")
+					if not state.rdragging:
+						self.events.add("rclick")
+					state.lt0 = None
 		if state.lt0 is not None:
 			if self.t - state.lt0 > 0.3 or math.distance(self.mposV, state.lpV0) > 10:
 				state.ldragging = True
 			if state.ldragging:
 				self.dragdV = view.vecadd(self.mposV, state.lpV, -1)
 				state.lpV = self.mposV
-
-def get():
-	return ControlState()
+		if state.rt0 is not None:
+			if self.t - state.rt0 > 0.3 or math.distance(self.mposV, state.rpV0) > 10:
+				state.rdragging = True
+			if state.rdragging:
+				self.rdragdV = view.vecadd(self.mposV, state.rpV, -1)
+				state.rpV = self.mposV
 
 
 

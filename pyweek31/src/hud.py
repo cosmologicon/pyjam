@@ -7,9 +7,7 @@ class self:
 	rect = pygame.Rect((0, 0, 180, 720))
 	buttons = {
 		"maple": ((45, 100), 40),
-		"rmaple": ((135, 100), 40),
 		"oak": ((45, 240), 40),
-		"roak": ((135, 240), 40),
 		"r0-1": ((30, 360), 30),
 		"r1-1": ((90, 360), 30),
 		"r2-1": ((150, 360), 30),
@@ -17,6 +15,9 @@ class self:
 		"s1-0": ((90, 420), 30),
 		"s2-0": ((150, 420), 30),
 		"rot": ((90, 480), 30),
+		"multi0": ((30, 560), 30),
+		"tri0": ((90, 560), 30),
+		"tri1": ((150, 560), 30),
 	}
 	selected = None
 
@@ -34,7 +35,7 @@ def control(cstate):
 		for bname, (bpos, br) in self.buttons.items():
 			if math.distance(cstate.mposV, T(bpos)) < T(br):
 				if bname == "rot":
-					if self.selected[:-1] in ("s0-", "s1-", "s2-"):
+					if self.selected[:-1] in ("s0-", "s1-", "s2-", "multi"):
 						j = (int(self.selected[-1]) + 1) % 6
 						self.selected = self.selected[:-1] + str(j)
 					if self.selected[:-1] in ("r0-", "r1-", "r2-"):
