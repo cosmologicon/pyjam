@@ -1,6 +1,6 @@
 import pygame
 from . import pview, ptext
-from . import settings, state, view, hud
+from . import settings, state, view, hud, controls
 from . import playscene
 from .pview import T
 
@@ -12,41 +12,24 @@ clock = pygame.time.Clock()
 dtaccum = 0
 tsave = 0
 while playing:
-	kpressed = pygame.key.get_pressed()
-	mposV = pygame.mouse.get_pos()
-	events = set()
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			events.add("quit")
-		if event.type == pygame.KEYDOWN:
-			for name, keycodes in settings.keys.items():
-				if event.key in keycodes:
-					events.add(name)
-		if event.type == pygame.MOUSEBUTTONDOWN:
-			if event.button == 1:
-				events.add("click")
-			if event.button == 3:
-				events.add("rclick")
-			if event.button == 4:
-				view.zoom(1, mposV)
-			elif event.button == 5:
-				view.zoom(-1, mposV)
-		if event.type == pygame.MOUSEWHEEL:
-			print(event)
-	if "quit" in events:
-		playing = False
-	if "screenshot" in events:
-		pview.screenshot()
-	if "resize" in events:
-		view.resize()
-	if "fullscreen" in events:
-		view.toggle_fullscreen()
+	cstate = controls.get()
 
-	playscene.control(mposV, events)
+	if "quit" in cstate.events:
+		playing = False
+	if "screenshot" in cstate.kdowns:
+		pview.screenshot()
+	if "resize" in cstate.kdowns:
+		view.resize()
+	if "fullscreen" in cstate.kdowns:
+		view.toggle_fullscreen()
+	if cstate.scroll:
+		view.zoom(cstate.scroll, cstate.mposV)
+
+	playscene.control(cstate)
 
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	tsave += dt
-	if settings.DEBUG and kpressed[pygame.K_F1]:
+	if settings.DEBUG and cstate.kpressed[pygame.K_F1]:
 		dt *= 5
 	dtaccum += dt
 
@@ -59,11 +42,12 @@ while playing:
 	playscene.draw()
 
 	if settings.DEBUG:
-		xG, yG = view.GconvertV(mposV)
+		xG, yG = view.GconvertV(cstate.mposV)
+		xH, yH = view.HnearesthexH(view.HconvertV(cstate.mposV))
 		text = "\n".join([
 			"selected: %s" % hud.selected(),
 			"%.1ffps" % clock.get_fps(),
-			"[ %.2f, %.2f ]" % (xG, yG),
+			"[ %.2f, %.2f ]  [ %d, %d ]" % (xG, yG, xH, yH),
 		])
 		ptext.draw(text, bottomleft = T(5, pview.h0 - 5))
 

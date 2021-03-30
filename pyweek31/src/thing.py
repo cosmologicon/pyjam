@@ -26,6 +26,8 @@ class WorldBound(enco.Component):
 		pV = view.VconvertG(self.pG)
 		rV = view.VscaleG(self.rG)
 		pygame.draw.circle(pview.screen, self.color, pV, rV)
+	def label(self, text):
+		ptext.draw(text, center = view.VconvertG(self.pG), fontsize = view.VscaleG(1), owidth = 1)
 
 class Travels(enco.Component):
 	def __init__(self, speed):
@@ -77,8 +79,7 @@ class Charges(enco.Component):
 		self.charge += dt * self.dcharge
 		self.charge = math.clamp(self.charge, 0, self.maxcharge)
 	def draw(self):
-		text = "%d/%d" % (int(self.charge), self.maxcharge)
-		ptext.draw(text, center = view.VconvertG(self.pG))
+		self.label("%d/%d" % (int(self.charge), self.maxcharge))
 
 
 @Lives()
@@ -115,28 +116,35 @@ class BugSpawner:
 
 @WorldBound()
 class Maple:
-	color = 0, 0, 0
-	def __init__(self, pH):
+	color = 200, 0, 200
+	def __init__(self, pH, angle):
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
+		self.angle = angle
 	def direct(self, bug):
 		assert bug.tile == self.pH
-		dH = view.HrotH(bug.dH)
+		dH = view.HrotH(bug.dH, self.angle)
 		tile = view.vecadd(self.pH, dH)
 		return tile, dH
+	def draw(self):
+		self.label("%d" % self.angle)
 
 @WorldBound()
 class Oak:
-	color = 0, 0, 50
+	color = 255, 128, 0
 	rG = 0.35
-	def __init__(self, pH):
+	def __init__(self, pH, angle):
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
+		self.angle = angle
 	def direct(self, bug):
 		assert bug.tile == self.pH
-		dH = view.HrotH(bug.dH)
+		dH = view.HrotH(bug.dH, self.angle)
 		tile = view.vecadd(self.pH, dH)
 		return tile, bug.dH
+	def draw(self):
+		self.label("%d" % self.angle)
+
 
 @WorldBound()
 class HurtRing:
@@ -153,11 +161,10 @@ class HurtRing:
 @WorldBound()
 @Charges(10)
 class ChargeRing:
-	color = 0, 0, 0
-	rG = 2.2
-	def __init__(self, pH, color):
+	def __init__(self, pH, color, rH = 1):
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
-		self.tiles = view.HsurroundH(self.pH, 1)
+		self.tiles = view.HsurroundH(self.pH, rH)
 		self.color = color
+		self.rG = [1.0, 2.4, 4, 5.6][rH]
 

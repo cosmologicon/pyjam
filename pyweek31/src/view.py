@@ -8,7 +8,7 @@ A = math.sqrt(3) / 2  # unit hexagon apothem
 
 pview.SCREENSHOT_DIRECTORY = "screenshots"
 
-zooms = [a ** 2 for a in (4, 5, 6, 7, 8, 9)]
+zooms = [a ** 2 for a in (2, 3, 4, 5, 6, 7, 8, 9)]
 camerax, cameray, cameraz = 5, 0, 36
 def init():
 	pview.set_mode(size0 = settings.size0, height = settings.height, fullscreen = settings.fullscreen, forceres = settings.forceres)
@@ -31,10 +31,13 @@ def zoom(dz, mposV):
 	camerax -= xG1 - xG0
 	cameray -= yG1 - yG0
 
-def distance(p0, p1):
-	x0, y0 = p0
-	x1, y1 = p1
-	return math.hypot(x0 - x1, y0 - y1)
+def pan(dpV):
+	global camerax, cameray
+	dxV, dyV = dpV
+	camerax -= GscaleV(dxV)
+	cameray += GscaleV(dyV)
+
+
 def vecadd(p0, p1, f = 1):
 	x0, y0 = p0
 	x1, y1 = p1
@@ -69,7 +72,7 @@ def HnearesthexH(pH):
 	xH, yH = pH
 	ixH, iyH = math.floor(xH), math.floor(yH)
 	candidates = [(ixH, iyH), (ixH + 1, iyH), (ixH, iyH + 1), (ixH + 1, iyH + 1)]
-	return min(candidates, key = lambda ipH: distance(GconvertH(ipH), GconvertH(pH)))
+	return min(candidates, key = lambda ipH: math.distance(GconvertH(ipH), GconvertH(pH)))
 def HsurroundH(pH, r = 1):
 #	if pH != (0, 0):
 #		return set(vecadd(pH, tile) for tile in HsurroundH((0, 0), r))
@@ -89,6 +92,8 @@ gridedgeGs = [
 
 def VscaleG(aG):
 	return T(cameraz * aG)
+def GscaleV(aV):
+	return aV / cameraz
 def VconvertG(pG):
 	xG, yG = pG
 	return T(pview.centerx0 + (xG - camerax) * cameraz, pview.centery0 - (yG - cameray) * cameraz)

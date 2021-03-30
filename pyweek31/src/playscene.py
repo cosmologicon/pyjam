@@ -10,9 +10,7 @@ def init():
 	if False:
 		state.bugs = []
 		state.rings = []
-		state.spawners = [
-			thing.BugSpawner((0, -8), (0, 1), thing.Ant, settings.colors[0], 2.2),
-		]
+		state.spawners = []
 		state.trees = []
 	if False:
 		while len(state.trees) < 36:
@@ -21,27 +19,35 @@ def init():
 				state.trees.append(thing.Maple(pH))
 	
 
-def control(mposV, events):
-	if hud.contains(mposV):
+def control(cstate):
+	if hud.contains(cstate.mposV):
 		self.mposH = None
-		hud.control(mposV, events)
+		hud.control(cstate)
 	else:
-		self.mposH = view.HconvertV(mposV)
-		if "click" in events:
+		self.mposH = view.HconvertV(cstate.mposV)
+		if "click" in cstate.events:
 			pH = view.HnearesthexH(self.mposH)
 			if state.empty(pH):
-				ttype = None
 				selected = hud.selected()
 				if selected == "oak":
-					ttype = thing.Oak
+					state.addtree(thing.Oak(pH, 1))
+				if selected == "roak":
+					state.addtree(thing.Oak(pH, -1))
 				if selected == "maple":
-					ttype = thing.Maple
-				if ttype is not None:
-					state.trees.append(ttype(pH))
-				if selected is not None and selected.startswith("ring"):
-					color = settings.colors[int(selected[-1])]
-					state.rings.append(thing.ChargeRing(pH, color))
-		if "rclick" in events:
+					state.addtree(thing.Maple(pH, 1))
+				if selected == "rmaple":
+					state.addtree(thing.Maple(pH, -1))
+				if selected is not None and len(selected) == 4 and selected[0] == "s" and selected[2] == "-":
+					color = settings.colors[int(selected[1])]
+					dirH = view.dirHs[int(selected[3])]
+					spawner = thing.BugSpawner(pH, dirH, thing.Ant, color, 2)
+					state.addspawner(spawner)
+				if selected is not None and len(selected) == 4 and selected[0] == "r" and selected[2] == "-":
+					color = settings.colors[int(selected[1])]
+					rH = int(selected[3])
+					ring = thing.ChargeRing(pH, color, rH)
+					state.addring(ring)
+		if "rclick" in cstate.events:
 			pH = view.HnearesthexH(self.mposH)
 			if state.treeat(pH) is not None:
 				state.trees.remove(state.treeat(pH))
@@ -49,7 +55,8 @@ def control(mposV, events):
 				state.rings.remove(state.ringat(pH))
 			if state.spawnerat(pH) is not None:
 				state.spawners.remove(state.spawnerat(pH))
-			
+	if cstate.dragdV is not None:
+		view.pan(cstate.dragdV)
 
 def think(dt):
 	for spawner in state.spawners:

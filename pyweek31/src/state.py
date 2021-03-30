@@ -6,6 +6,14 @@ spawners = []
 trees = []
 rings = []
 
+def addtree(tree):
+	trees.append(tree)
+def addspawner(spawner):
+	spawners.append(spawner)
+def addring(ring):
+	rings.append(ring)
+
+
 def treeat(pH):
 	for tree in trees:
 		if tree.pH == pH:
