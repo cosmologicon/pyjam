@@ -141,11 +141,14 @@ class MultiSpawner:
 	def draw(self):
 		for dH, jcolor in self.spec:
 			self.drawarrow(settings.colors[jcolor], dH)
+	def toggle(self):
+		self.spec = [((dH + 1) % 6, jcolor) for dH, jcolor in self.spec]
 
 
 @WorldBound()
 class Maple:
 	color = 200, 0, 200
+	rG = 0.2
 	def __init__(self, pH, angle):
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
@@ -163,7 +166,7 @@ class Maple:
 @WorldBound()
 class Oak:
 	color = 255, 128, 0
-	rG = 0.35
+	rG = 0.4
 	def __init__(self, pH, angle):
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
@@ -188,4 +191,6 @@ class ChargeRing:
 		self.tiles = view.HsurroundH(self.pH, rH)
 		self.jcolor = jcolor
 		self.rG = [1.0, 2.4, 4, 5.6][rH]
+	def toggle(self):
+		self.jcolor = (self.jcolor + 1) % 3
 

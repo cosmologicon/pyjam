@@ -1,21 +1,29 @@
+import os
 import pygame
 from . import pview, ptext
 from . import settings, state, view, hud, controls
-from . import playscene
+from . import scene, playscene, menuscene
 from .pview import T
 
 view.init()
-playscene.init()
+if settings.reset and os.path.exists(settings.savename):
+	os.remove(settings.savename)
 state.load()
+scene.push(menuscene)
 
 playing = True
 clock = pygame.time.Clock()
 dtaccum = 0
 tsave = 0
 while playing:
-	cstate = controls.ControlState()
+	currentscene = scene.current()
+	if currentscene is None:
+		break
 
-	if "quit" in cstate.events or "quit" in cstate.kdowns:
+	cstate = controls.ControlState()
+	currentscene.control(cstate)
+
+	if "quit" in cstate.events:
 		playing = False
 	if "screenshot" in cstate.kdowns:
 		pview.screenshot()
@@ -23,10 +31,7 @@ while playing:
 		view.resize()
 	if "fullscreen" in cstate.kdowns:
 		view.toggle_fullscreen()
-	if cstate.scroll:
-		view.zoom(cstate.scroll, cstate.mposV)
 
-	playscene.control(cstate)
 	if settings.DEBUG and cstate.kpressed[pygame.K_F2]:
 		state.shuffle()
 	if settings.DEBUG and cstate.kpressed[pygame.K_F3]:
@@ -40,11 +45,11 @@ while playing:
 
 	dt0 = 1 / settings.maxfps
 	while dtaccum >= dt0:
-		playscene.think(dt0)
+		currentscene.think(dt0)
 		dtaccum -= dt0
 
 	view.clear()
-	playscene.draw()
+	currentscene.draw()
 
 	if settings.DEBUG:
 		xG, yG = view.GconvertV(cstate.mposV)

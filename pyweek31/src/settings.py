@@ -1,3 +1,4 @@
+import sys
 import pygame
 
 gamename = "Copse"
@@ -12,6 +13,8 @@ size0 = w, h = width, height = 1280, 720
 
 savename = "savegame.pkl"
 tautosave = 5   # seconds
+
+reset = "--reset" in sys.argv
 
 DEBUG = True
 

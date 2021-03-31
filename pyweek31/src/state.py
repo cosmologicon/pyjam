@@ -1,6 +1,8 @@
-import pickle, os, random
+import os, pickle, random
 from . import settings
 
+
+currentlevel = "empty"
 bugs = []
 spawners = []
 trees = []
@@ -37,13 +39,13 @@ def empty(pH):
 
 
 def save():
-	obj = bugs, spawners, trees, rings
+	obj = currentlevel, bugs, spawners, trees, rings
 	pickle.dump(obj, open(settings.savename, "wb"))
 
 def load():
-	global bugs, spawners, trees, rings
+	global currentlevel, bugs, spawners, trees, rings
 	if os.path.exists(settings.savename):
-		bugs, spawners, trees, rings = pickle.load(open(settings.savename, "rb"))
+		currentlevel, bugs, spawners, trees, rings = pickle.load(open(settings.savename, "rb"))
 
 
 # DEBUG functions
@@ -79,6 +81,9 @@ def setspec(spec):
 	for spawner in spec["spawners"]:
 		spawners.append(thing.MultiSpawner(**spawner))
 	del trees[:]
+	for tree in spec["trees"]:
+		raise ValueError
+	del bugs[:]
 
 
 
