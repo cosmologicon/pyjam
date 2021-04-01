@@ -1,6 +1,6 @@
 import math
 import pygame
-from . import enco, pview, ptext, settings
+from . import enco, pview, ptext, settings, graphics
 from . import view, state
 
 tspawn0 = 3
@@ -9,14 +9,15 @@ tspawn0 = 3
 class Lives(enco.Component):
 	def __init__(self):
 		self.alive = True
+		self.t = 0
+	def think(self, dt):
+		self.t += dt
 
 class Lifetime(enco.Component):
 	def __init__(self, lifetime):
-		self.t = 0
 		self.f = 0
 		self.lifetime = lifetime
 	def think(self, dt):
-		self.t += dt
 		self.f = math.clamp(self.t / self.lifetime, 0, 1)
 		if self.f == 1:
 			self.alive = False
@@ -139,6 +140,7 @@ class Spawner:
 		self.spec = [((dH + 1) % 6, jcolor) for dH, jcolor in self.spec]
 
 
+@Lives()
 @WorldBound()
 class Tree:
 	def __init__(self, pH, angle):
@@ -167,6 +169,17 @@ class Oak(Tree):
 		dH = view.HrotH(bug.dH, self.angle)
 		tile = view.vecadd(self.pH, dH)
 		return tile, bug.dH
+	def draw(self):
+		if self.t < 0.5:
+			f = math.sqrt(self.t / 0.5)
+			s = int(f * 20)
+			angle = -100 * (1 - f)
+		else:
+			s, angle = 20, 0
+		if s < 1:
+			return
+		scale = 0.0001 * s * view.cameraz
+		graphics.drawimg(view.VconvertG(self.pG), "oak", scale = scale, angle = angle)
 
 @WorldBound()
 @Charges()

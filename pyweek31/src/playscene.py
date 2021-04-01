@@ -1,7 +1,7 @@
-import random
+import random, math
 import pygame
 from . import pview, ptext
-from . import settings, view, state, thing, hud, levels, scene, progress
+from . import settings, view, state, thing, hud, levels, scene, progress, graphics
 from .pview import T
 
 class self:
@@ -101,6 +101,8 @@ def think(dt):
 	elif dialog.current is not None:
 		if dialog.t > 2:
 			dialog.current = None
+	for tree in state.trees:
+		tree.think(dt)
 	for spawner in state.spawners:
 		spawner.think(dt)
 	for bug in state.bugs:
@@ -125,6 +127,7 @@ def win():
 	scene.pop()
 
 def draw():
+#	graphics.drawgrass()
 	for pH in state.grid0:
 		if state.canbuildat(pH):
 			for j in range(6):
@@ -145,6 +148,15 @@ def draw():
 		tree.draw()
 	for bug in state.bugs:
 		bug.draw()
+
+	for tree in state.trees:
+		xG, yG = view.GconvertH(tree.pH)
+		xG += 0.1 * math.sin(123.4 * xG + 234.5 * yG + 0.06 * 0.001 * pygame.time.get_ticks())
+		yG += 0.1 * math.sin(345.6 * xG + 456.7 * yG + 0.07 * 0.001 * pygame.time.get_ticks())
+		img = graphics.shade(100, 8)
+		pview.screen.blit(img, img.get_rect(center = view.VconvertG((xG, yG))))
+
+
 	if dialog.current:
 		text = dialog.current[:5+int(dialog.t * 100)]
 		ptext.draw(text, midleft = T(200, 680), fontsize = T(30), owidth = 1)
