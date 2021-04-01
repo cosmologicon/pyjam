@@ -26,11 +26,12 @@ def resettaken():
 		for pH in ring.tiles:
 			taken.add(pH)
 def addtree(tree):
-	from . import view
+	from . import view, graphics
 	trees.append(tree)
 	grid[tree.pH] = tree
 	for pH in view.HsurroundH(tree.pH, 1):
 		taken.add(pH)
+	graphics.addtree(tree)
 def addspawner(spawner):
 	spawners.append(spawner)
 	grid[spawner.pH] = spawner
@@ -41,9 +42,13 @@ def addring(ring):
 		grid[pH] = ring
 		taken.add(pH)
 def removetree(pH):
+	from . import graphics
 	trees.remove(treeat(pH))
 	del grid[pH]
 	resettaken()
+	graphics.shadesurfs.clear()
+	for tree in trees:
+		graphics.addtree(tree)
 def removespawner(pH):
 	spawners.remove(spawnerat(pH))
 	del grid[pH]
@@ -89,12 +94,10 @@ def load():
 
 # DEBUG functions
 def shuffle():
-	colors = [settings.colors[j % 3] for j, _ in enumerate(rings)]
-	random.shuffle(colors)
-	for color, ring in zip(colors, rings):
-		ring.color = color
-	for spawner in spawners:
-		spawner.color = random.choice(settings.colors)
+	jcolors = [ring.jcolor for ring in rings]
+	random.shuffle(jcolors)
+	for jcolor, ring in zip(jcolors, rings):
+		ring.jcolor = jcolor
 
 def getspec():
 	return {
@@ -112,7 +115,7 @@ def getspec():
 	}
 
 def setspec(spec):
-	from . import view, thing
+	from . import view, thing, graphics
 	grid0[:] = view.Hfill(R)
 	taken.clear()
 	grid.clear()
@@ -126,6 +129,7 @@ def setspec(spec):
 	for tree in spec["trees"]:
 		raise ValueError
 	del bugs[:]
+	graphics.shadesurfs.clear()
 
 
 

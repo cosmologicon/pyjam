@@ -48,8 +48,8 @@ def control(cstate):
 				selected = hud.selected()
 				if selected == "oak":
 					state.addtree(thing.Oak(pH, 1))
-				if selected == "maple":
-					state.addtree(thing.Maple(pH, 1))
+				if selected == "beech":
+					state.addtree(thing.Beech(pH, 1))
 				if selected == "elm":
 					state.addtree(thing.Oak(pH, 2))
 				if selected is not None and len(selected) == 4 and selected[0] == "s" and selected[2] == "-":
@@ -128,18 +128,21 @@ def win():
 
 def draw():
 #	graphics.drawgrass()
-	for pH in state.grid0:
-		if state.canbuildat(pH):
-			for j in range(6):
-				pV0 = view.VconvertH(view.vecadd(pH, view.HrotH((1, 1), j), 1/3))
-				pV1 = view.VconvertH(view.vecadd(pH, view.HrotH((1, 1), j + 1), 1/3))
-				pygame.draw.line(pview.screen, (70, 140, 70), pV0, pV1, 1)
+	if False:
+		for pH in state.grid0:
+			if state.canbuildat(pH):
+				for j in range(6):
+					pV0 = view.VconvertH(view.vecadd(pH, view.HrotH((1, 1), j), 1/3))
+					pV1 = view.VconvertH(view.vecadd(pH, view.HrotH((1, 1), j + 1), 1/3))
+					pygame.draw.line(pview.screen, (70, 140, 70), pV0, pV1, 1)
 	if self.mposH is not None:
 		pH = view.HnearesthexH(self.mposH)
 		if pH in state.grid0:
 			color = (80, 20, 20) if pH in state.taken else (60, 60, 60)
 			pVs = [view.VconvertH(view.vecadd(pH, dH)) for dH in view.cornerdHs]
 			pygame.draw.polygon(pview.screen, color, pVs)
+	for tree in state.trees:
+		tree.drawroots()
 	for ring in state.rings:
 		ring.draw()
 	for spawner in state.spawners:
@@ -149,13 +152,7 @@ def draw():
 	for bug in state.bugs:
 		bug.draw()
 
-	for tree in state.trees:
-		xG, yG = view.GconvertH(tree.pH)
-		xG += 0.1 * math.sin(123.4 * xG + 234.5 * yG + 0.06 * 0.001 * pygame.time.get_ticks())
-		yG += 0.1 * math.sin(345.6 * xG + 456.7 * yG + 0.07 * 0.001 * pygame.time.get_ticks())
-		img = graphics.shade(100, 8)
-		pview.screen.blit(img, img.get_rect(center = view.VconvertG((xG, yG))))
-
+	graphics.drawshades()
 
 	if dialog.current:
 		text = dialog.current[:5+int(dialog.t * 100)]
@@ -165,4 +162,9 @@ def draw():
 		ptext.draw("MAGIC: %d/%d" % (ncharge, len(state.rings)), bottomleft = T(20, 700), fontsize = T(60), owidth = 1)
 
 	hud.draw()
+
+
+	if settings.DEBUG:
+		graphics.reportcache()
+
 

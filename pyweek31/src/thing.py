@@ -32,7 +32,7 @@ class WorldBound(enco.Component):
 	def draw(self):
 		pV = view.VconvertG(self.pG)
 		rV = view.VscaleG(self.rG)
-		pygame.draw.circle(pview.screen, self.getcolor(), pV, rV)
+#		pygame.draw.circle(pview.screen, self.getcolor(), pV, rV)
 	def think(self, dt):
 		if math.hypot(*self.pG) > state.R + 1:
 			self.alive = False
@@ -72,8 +72,8 @@ class Travels(enco.Component):
 		ring = state.ringat(self.tile)
 		if ring is not None:
 			ring.arrive(self)
-	def draw(self):
-		self.drawarrow(self.getcolor(), view.dirHs.index(self.dH))
+#	def draw(self):
+#		self.drawarrow(self.getcolor(), view.dirHs.index(self.dH))
 		
 class Charges(enco.Component):
 	def __init__(self):
@@ -113,6 +113,9 @@ class Ant:
 		self.dH = dH
 		self.jcolor = jcolor
 		self.setnext()
+	def draw(self):
+		color = settings.colors[self.jcolor]
+		graphics.drawsprite(view.VconvertG(self.pG), view.VscaleG(0.6), color)
 
 @WorldBound()
 class Spawner:
@@ -134,8 +137,13 @@ class Spawner:
 				bug.advance()
 				state.bugs.append(bug)
 	def draw(self):
-		for dH, jcolor in self.spec:
-			self.drawarrow(settings.colors[jcolor], dH)
+		pV = view.VconvertG(self.pG)
+		scale = 1.2 + (0.2 * math.sin(self.t * 20 * math.tau) if self.t < 0.1 else 0)
+		scale = view.VscaleG(scale) / 400
+		angle = 1
+		graphics.drawimg(pV, "shroom-0", scale = scale, angle = angle, cmask = (120, 120, 120))
+#		for dH, jcolor in self.spec:
+#			self.drawarrow(settings.colors[jcolor], dH)
 	def toggle(self):
 		self.spec = [((dH + 1) % 6, jcolor) for dH, jcolor in self.spec]
 
@@ -149,26 +157,9 @@ class Tree:
 		self.angle = angle
 	def toggle(self):
 		self.angle = -self.angle
-	def draw(self):
-		self.label("%d" % self.angle)
-
-class Maple(Tree):
-	color = 200, 0, 200
-	rG = 0.2
-	def direct(self, bug):
-		assert bug.tile == self.pH
-		dH = view.HrotH(bug.dH, self.angle)
-		tile = view.vecadd(self.pH, dH)
-		return tile, dH
-
-class Oak(Tree):
-	color = 255, 128, 0
-	rG = 0.4
-	def direct(self, bug):
-		assert bug.tile == self.pH
-		dH = view.HrotH(bug.dH, self.angle)
-		tile = view.vecadd(self.pH, dH)
-		return tile, bug.dH
+	def drawroots(self):
+		f = math.mix(0, 1, self.t)
+		graphics.drawroots(view.VconvertG(self.pG), view.VscaleG(2.6), self.color, f)
 	def draw(self):
 		if self.t < 0.5:
 			f = math.sqrt(self.t / 0.5)
@@ -178,9 +169,31 @@ class Oak(Tree):
 			s, angle = 20, 0
 		if s < 1:
 			return
-		scale = 0.0001 * s * view.cameraz
-		graphics.drawimg(view.VconvertG(self.pG), "oak", scale = scale, angle = angle)
+		scale = 0.00025 * self.rG * s * view.cameraz
+		graphics.drawimg(view.VconvertG(self.pG), self.imgname, scale = scale, angle = angle)
+#		self.label("%d" % self.angle)
 
+class Beech(Tree):
+	color = 200, 180, 160
+	rG = 0.3
+	imgname = "beech"
+	def direct(self, bug):
+		assert bug.tile == self.pH
+		dH = view.HrotH(bug.dH, self.angle)
+		tile = view.vecadd(self.pH, dH)
+		return tile, dH
+
+class Oak(Tree):
+	color = 100, 60, 20
+	rG = 0.36
+	imgname = "oak"
+	def direct(self, bug):
+		assert bug.tile == self.pH
+		dH = view.HrotH(bug.dH, self.angle)
+		tile = view.vecadd(self.pH, dH)
+		return tile, bug.dH
+
+@Lives()
 @WorldBound()
 @Charges()
 class Ring:
@@ -193,4 +206,20 @@ class Ring:
 		self.rG = [1.0, 2.4, 4, 5.6][rH]
 	def toggle(self):
 		self.jcolor = (self.jcolor + 1) % 3
+	def draw(self):
+		xG0, yG0 = self.pG
+		fcharge = math.fadebetween(self.meter, 0, -1, 2.5, 1)
+		for j, (dxG, dyG) in enumerate(math.CSround(13, 0.86 * self.rG, 0.1 * xG0 + 0.2 * yG0)):
+			j += 1.23 + xG0 * yG0 + 0.7 * xG0 - 0.3 * yG0
+			xG = xG0 + dxG + math.mix(-0.2, 0.2, math.phi * j % 1)
+			yG = yG0 + dyG + math.mix(-0.2, 0.2, math.phi ** 2 * j % 1)
+			a = math.mix(0.6, 1, 0.71 * j % 1)
+			scale = view.VscaleG(a) / 400
+			angle = 360 * math.phi * j
+			f = math.clamp(fcharge + math.cycle(j * 2 / 13 + 0.5 * self.t), 0, 1)
+			f = 0
+			color = math.mix(settings.colors[self.jcolor], (255, 255, 255), 0.6 * f)
+			graphics.drawimg(view.VconvertG((xG, yG)), "shroom-0", scale = scale, angle = angle, cmask = color)
+
+
 
