@@ -1,15 +1,13 @@
 import math
 import pygame
-from . import ptext, pview, state, progress
+from . import ptext, pview, state, progress, levels
 from . import scene
 from .pview import T
 
 
 buttons = {
-	"empty": ((200, 200), 50),
-	"overage": ((300, 200), 50),
-	"triple": ((400, 200), 50),
-	"final": ((500, 200), 50),
+	levelname: ((200 + 100 * j, 200), 50)
+	for j, levelname in enumerate(levels.data)
 }
 
 def control(cstate):

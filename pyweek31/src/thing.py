@@ -3,6 +3,9 @@ import pygame
 from . import enco, pview, ptext, settings
 from . import view, state
 
+tspawn0 = 3
+
+
 class Lives(enco.Component):
 	def __init__(self):
 		self.alive = True
@@ -30,7 +33,7 @@ class WorldBound(enco.Component):
 		rV = view.VscaleG(self.rG)
 		pygame.draw.circle(pview.screen, self.getcolor(), pV, rV)
 	def think(self, dt):
-		if math.hypot(*self.pG) > 30:
+		if math.hypot(*self.pG) > state.R + 1:
 			self.alive = False
 	def label(self, text):
 		ptext.draw(text, center = view.VconvertG(self.pG), fontsize = view.VscaleG(1), owidth = 1)
@@ -72,22 +75,32 @@ class Travels(enco.Component):
 		self.drawarrow(self.getcolor(), view.dirHs.index(self.dH))
 		
 class Charges(enco.Component):
-	def __init__(self, maxcharge):
+	def __init__(self):
 		self.charge = 0
-		self.maxcharge = maxcharge
-		self.dcharge = -1
+		self.meter = 0
 	def arrive(self, bug):
 		bug.alive = False
 		if bug.jcolor == self.jcolor:
 			self.charge += 1
 		else:
-			self.charge -= 1
-		self.charge = math.clamp(self.charge, 0, self.maxcharge)
+			self.charge = 0
 	def think(self, dt):
-		self.charge += dt * self.dcharge
-		self.charge = math.clamp(self.charge, 0, self.maxcharge)
+		self.charge *= 0.5 ** dt
+		f = 1 - math.exp(-0.5 * dt / tspawn0)
+		self.meter = math.mix(self.meter, math.log(2) * tspawn0 * self.charge, f)
 	def draw(self):
-		self.label("%d/%d" % (int(self.charge), self.maxcharge))
+		self.label("%.2f, %.2f" % (self.charge, self.meter))
+	def charged(self):
+		return self.meter > 2.5
+	def overcharged(self):
+		return self.meter > 3.5
+	def getcolor(self):
+		color = settings.colors[self.jcolor]
+		if self.overcharged():
+			return math.imix(color, (255, 255, 255), 0.5)
+		if self.charged():
+			return color
+		return math.imix(color, (0, 0, 0), 0.5)
 
 
 @Lives()
@@ -101,26 +114,7 @@ class Ant:
 		self.setnext()
 
 @WorldBound()
-class BugSpawner:
-	rG = 0.5
-	def __init__(self, pH, dH, bugtype, color, tspawn):
-		self.pH = pH
-		self.pG = view.GconvertH(self.pH)
-		self.dH = dH
-		self.bugtype = bugtype
-		self.color = color
-		self.tspawn = tspawn
-		self.t = 0
-	def think(self, dt):
-		self.t += dt
-		while self.t > self.tspawn:
-			self.t -= self.tspawn
-			bug = self.bugtype(self.pH, self.dH, color = self.color)
-			bug.advance()
-			state.bugs.append(bug)
-		
-@WorldBound()
-class MultiSpawner:
+class Spawner:
 	rG = 0.5
 	color = 200, 200, 200
 	def __init__(self, pH, tspawn, spec):
@@ -128,7 +122,7 @@ class MultiSpawner:
 		self.pG = view.GconvertH(self.pH)
 		self.spec = spec
 		self.bugtype = Ant
-		self.tspawn = tspawn
+		self.tspawn = tspawn0
 		self.t = 0
 	def think(self, dt):
 		self.t += dt
@@ -146,44 +140,37 @@ class MultiSpawner:
 
 
 @WorldBound()
-class Maple:
-	color = 200, 0, 200
-	rG = 0.2
+class Tree:
 	def __init__(self, pH, angle):
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
 		self.angle = angle
 	def toggle(self):
 		self.angle = -self.angle
+	def draw(self):
+		self.label("%d" % self.angle)
+
+class Maple(Tree):
+	color = 200, 0, 200
+	rG = 0.2
 	def direct(self, bug):
 		assert bug.tile == self.pH
 		dH = view.HrotH(bug.dH, self.angle)
 		tile = view.vecadd(self.pH, dH)
 		return tile, dH
-	def draw(self):
-		self.label("%d" % self.angle)
 
-@WorldBound()
-class Oak:
+class Oak(Tree):
 	color = 255, 128, 0
 	rG = 0.4
-	def __init__(self, pH, angle):
-		self.pH = pH
-		self.pG = view.GconvertH(self.pH)
-		self.angle = angle
-	def toggle(self):
-		self.angle = -self.angle
 	def direct(self, bug):
 		assert bug.tile == self.pH
 		dH = view.HrotH(bug.dH, self.angle)
 		tile = view.vecadd(self.pH, dH)
 		return tile, bug.dH
-	def draw(self):
-		self.label("%d" % self.angle)
 
 @WorldBound()
-@Charges(10)
-class ChargeRing:
+@Charges()
+class Ring:
 	def __init__(self, pH, jcolor, rH = 1):
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)

@@ -1,7 +1,7 @@
 import math
 import pygame
 from . import pview
-from . import settings
+from . import settings, state
 from .pview import T
 
 A = math.sqrt(3) / 2  # unit hexagon apothem
@@ -36,6 +36,17 @@ def pan(dpV):
 	dxV, dyV = dpV
 	camerax -= GscaleV(dxV)
 	cameray += GscaleV(dyV)
+
+def snap(dt):
+	global camerax, cameray
+	r = state.R + 2
+	wG, hG = GscaleV(pview.w), GscaleV(pview.h)
+	x0 = abs(wG / 2 - r)
+	y0 = abs(hG / 2 - r)
+	if camerax > x0: camerax = math.softapproach(camerax, x0, 10 * dt)
+	if camerax < -x0: camerax = math.softapproach(camerax, -x0, 10 * dt)
+	if cameray > y0: cameray = math.softapproach(cameray, y0, 10 * dt)
+	if cameray < -y0: cameray = math.softapproach(cameray, -y0, 10 * dt)
 
 
 def vecadd(p0, p1, f = 1):
@@ -80,6 +91,9 @@ def HsurroundH(pH, r = 1):
 		return set([pH])
 	tiles = HsurroundH(pH, r-1)
 	return tiles | set(vecadd(tile, dirH) for tile in tiles for dirH in dirHs)
+def Hfill(R):
+	r = int(math.ceil(R / math.sqrt(3)))
+	return [pH for pH in HsurroundH((0, 0), r) if math.hypot(*GconvertH(pH)) < R]
 
 gridedgeGs = [
 	(GconvertH(pH0), GconvertH(pH1)) for pH0, pH1 in set([

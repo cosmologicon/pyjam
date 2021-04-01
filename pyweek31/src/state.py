@@ -7,32 +7,70 @@ bugs = []
 spawners = []
 trees = []
 rings = []
+grid0 = []
+taken = set()
+grid = {}
 
+def canbuildat(pH):
+	return pH in grid0 and pH not in taken
+
+def resettaken():
+	from . import view
+	taken.clear()
+	for tree in trees:
+		for pH in view.HsurroundH(tree.pH, 1):
+			taken.add(pH)
+	for spawner in spawners:
+		taken.add(spawner.pH)
+	for ring in rings:
+		for pH in ring.tiles:
+			taken.add(pH)
 def addtree(tree):
+	from . import view
 	trees.append(tree)
+	grid[tree.pH] = tree
+	for pH in view.HsurroundH(tree.pH, 1):
+		taken.add(pH)
 def addspawner(spawner):
 	spawners.append(spawner)
+	grid[spawner.pH] = spawner
+	taken.add(spawner.pH)
 def addring(ring):
 	rings.append(ring)
+	for pH in ring.tiles:
+		grid[pH] = ring
+		taken.add(pH)
+def removetree(pH):
+	trees.remove(treeat(pH))
+	del grid[pH]
+	resettaken()
+def removespawner(pH):
+	spawners.remove(spawnerat(pH))
+	del grid[pH]
+	resettaken()
+def removering(pH):
+	ring = ringat(pH)
+	for tile in ring.tiles:
+		del grid[tile]
+	rings.remove(ring)
+	resettaken()
 
+def objat(pH, objtype):
+	if pH in grid and isinstance(grid[pH], objtype):
+		return grid[pH]
+	return None
 
 def treeat(pH):
-	for tree in trees:
-		if tree.pH == pH:
-			return tree
-	return None
+	from . import thing
+	return objat(pH, thing.Tree)
 
 def ringat(pH):
-	for ring in rings:
-		if pH in ring.tiles:
-			return ring
-	return None
+	from . import thing
+	return objat(pH, thing.Ring)
 
 def spawnerat(pH):
-	for spawner in spawners:
-		if spawner.pH == pH:
-			return spawner
-	return None
+	from . import thing
+	return objat(pH, thing.Spawner)
 
 def empty(pH):
 	return treeat(pH) is None and ringat(pH) is None and spawnerat(pH) is None
@@ -74,13 +112,16 @@ def getspec():
 	}
 
 def setspec(spec):
-	from . import thing
+	from . import view, thing
+	grid0[:] = view.Hfill(R)
+	taken.clear()
+	grid.clear()
 	del rings[:]
 	for ring in spec["rings"]:
-		rings.append(thing.ChargeRing(**ring))
+		addring(thing.Ring(**ring))
 	del spawners[:]
 	for spawner in spec["spawners"]:
-		spawners.append(thing.MultiSpawner(**spawner))
+		addspawner(thing.Spawner(**spawner))
 	del trees[:]
 	for tree in spec["trees"]:
 		raise ValueError
