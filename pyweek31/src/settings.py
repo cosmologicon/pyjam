@@ -15,6 +15,7 @@ savename = "savegame.pkl"
 tautosave = 5   # seconds
 
 reset = "--reset" in sys.argv
+unlockall = "--unlockall" in sys.argv
 
 DEBUG = True
 

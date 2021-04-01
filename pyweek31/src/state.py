@@ -1,5 +1,5 @@
 import os, pickle, random
-from . import settings
+from . import settings, progress
 
 
 currentlevel = "empty"
@@ -39,13 +39,14 @@ def empty(pH):
 
 
 def save():
-	obj = currentlevel, bugs, spawners, trees, rings
+	obj = currentlevel, bugs, spawners, trees, rings, progress.getstate()
 	pickle.dump(obj, open(settings.savename, "wb"))
 
 def load():
 	global currentlevel, bugs, spawners, trees, rings
 	if os.path.exists(settings.savename):
-		currentlevel, bugs, spawners, trees, rings = pickle.load(open(settings.savename, "rb"))
+		currentlevel, bugs, spawners, trees, rings, pstate = pickle.load(open(settings.savename, "rb"))
+		progress.setstate(pstate)
 
 
 # DEBUG functions

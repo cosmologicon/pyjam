@@ -1,18 +1,21 @@
 import random
 import pygame
-from . import pview
+from . import pview, ptext
 from . import settings, view, state, thing, hud, levels, scene
+from .pview import T
 
 class self:
 	pass
 
+class dialog:
+	pass
+
 def init():
 	state.setspec(levels.data[state.currentlevel])
-	if False:
-		state.bugs = []
-		state.rings = []
-		state.spawners = []
-		state.trees = []
+	dialog.queue = levels.dialog.get(state.currentlevel, [])
+	dialog.current = None
+	dialog.t = 0
+	
 	if False:
 		while len(state.trees) < 36:
 			pH = random.randrange(-8, 9), random.randrange(-8, 9)
@@ -91,6 +94,13 @@ def control(cstate):
 		view.pan(cstate.dragdV)
 
 def think(dt):
+	dialog.t += dt
+	if dialog.current is None and dialog.queue:
+		dialog.current = dialog.queue.pop(0)
+		dialog.t = 0
+	elif dialog.current is not None:
+		if dialog.t > 2:
+			dialog.current = None
 	for spawner in state.spawners:
 		spawner.think(dt)
 	for bug in state.bugs:
@@ -114,5 +124,9 @@ def draw():
 		tree.draw()
 	for bug in state.bugs:
 		bug.draw()
+	if dialog.current:
+		text = dialog.current[:5+int(dialog.t * 100)]
+		ptext.draw(text, midleft = T(200, 680), fontsize = T(30), owidth = 1)
+
 	hud.draw()
 

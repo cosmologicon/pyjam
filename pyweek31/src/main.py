@@ -1,7 +1,7 @@
 import os
 import pygame
 from . import pview, ptext
-from . import settings, state, view, hud, controls
+from . import settings, state, view, hud, controls, progress
 from . import scene, playscene, menuscene
 from .pview import T
 
@@ -9,6 +9,8 @@ view.init()
 if settings.reset and os.path.exists(settings.savename):
 	os.remove(settings.savename)
 state.load()
+if settings.unlockall:
+	progress.unlockall()
 scene.push(menuscene)
 
 playing = True
