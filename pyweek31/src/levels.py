@@ -22,6 +22,7 @@ data["final"] = {'rings': [{'pH': (0, -2), 'rH': 1, 'jcolor': 0}, {'pH': (2, 0),
 R = {
 	"single": 6,
 	"overage": 9,
+	"triple": 10,
 	"final": 17.4,
 }
 

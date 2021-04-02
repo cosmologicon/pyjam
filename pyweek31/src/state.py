@@ -4,6 +4,7 @@ from . import settings, progress
 
 currentlevel = "empty"
 bugs = []
+ghosts = []
 spawners = []
 trees = []
 rings = []
@@ -82,13 +83,13 @@ def empty(pH):
 
 
 def save():
-	obj = currentlevel, bugs, spawners, trees, rings, progress.getstate()
+	obj = currentlevel, bugs, ghosts, spawners, trees, rings, progress.getstate()
 	pickle.dump(obj, open(settings.savename, "wb"))
 
 def load():
-	global currentlevel, bugs, spawners, trees, rings
+	global currentlevel, bugs, ghosts, spawners, trees, rings
 	if os.path.exists(settings.savename):
-		currentlevel, bugs, spawners, trees, rings, pstate = pickle.load(open(settings.savename, "rb"))
+		currentlevel, bugs, ghosts, spawners, trees, rings, pstate = pickle.load(open(settings.savename, "rb"))
 		progress.setstate(pstate)
 
 
@@ -129,6 +130,7 @@ def setspec(spec):
 	for tree in spec["trees"]:
 		raise ValueError
 	del bugs[:]
+	del ghosts[:]
 	graphics.shadesurfs.clear()
 
 

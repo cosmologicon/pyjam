@@ -17,7 +17,7 @@ tautosave = 5   # seconds
 reset = "--reset" in sys.argv
 unlockall = "--unlockall" in sys.argv
 
-DEBUG = True
+DEBUG = "--DEBUG" in sys.argv
 
 keys = {
 	"left": [pygame.K_LEFT, pygame.K_a],
@@ -30,9 +30,12 @@ keys = {
 	"resize": [pygame.K_F10],
 }
 
+
+# IBM color blind safe palette https://lospec.com/palette-list/ibm-color-blind-safe
 colors = [
-	(100, 100, 255),
-	(220, 220, 220),
-	(200, 150, 50),
+	(0x64, 0x8f, 0xff),
+	(0xdc, 0x26, 0x7f),
+	(0xff, 0xb0, 0x00),
 ]
+
 

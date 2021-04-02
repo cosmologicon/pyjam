@@ -1,21 +1,25 @@
-import math
+import math, functools
 import pygame
 from . import pview
 from . import settings, state
 from .pview import T
+cache = functools.lru_cache(None)
 
 A = math.sqrt(3) / 2  # unit hexagon apothem
 
 pview.SCREENSHOT_DIRECTORY = "screenshots"
 
-zooms = [a ** 2 for a in (2, 3, 4, 5, 6, 7, 8, 9)]
+zooms = [a ** 2 for a in (5, 6, 7, 8, 9)]
 camerax, cameray, cameraz = 5, 0, 36
 def init():
 	pview.set_mode(size0 = settings.size0, height = settings.height, fullscreen = settings.fullscreen, forceres = settings.forceres)
 	pygame.display.set_caption(settings.gamename)
 
 def resize():
+	from . import graphics
 	pview.cycle_height(settings.heights)
+	graphics.shadesurfs.clear()
+	graphics.groundimg.cache_clear()
 
 def toggle_fullscreen():
 	pview.toggle_fullscreen()
@@ -78,12 +82,15 @@ def GconvertH(pH):
 def HconvertG(pG):
 	xG, yG = pG
 	return 2/3 * xG, -1/3 * xG + yG / (2 * A)
+def GoutlineH(pH, f = 1):
+	return [GconvertH(vecadd(pH, dH, f)) for dH in cornerdHs]
 
 def HnearesthexH(pH):
 	xH, yH = pH
 	ixH, iyH = math.floor(xH), math.floor(yH)
 	candidates = [(ixH, iyH), (ixH + 1, iyH), (ixH, iyH + 1), (ixH + 1, iyH + 1)]
 	return min(candidates, key = lambda ipH: math.distance(GconvertH(ipH), GconvertH(pH)))
+@cache
 def HsurroundH(pH, r = 1):
 #	if pH != (0, 0):
 #		return set(vecadd(pH, tile) for tile in HsurroundH((0, 0), r))
@@ -91,6 +98,7 @@ def HsurroundH(pH, r = 1):
 		return set([pH])
 	tiles = HsurroundH(pH, r-1)
 	return tiles | set(vecadd(tile, dirH) for tile in tiles for dirH in dirHs)
+@cache
 def Hfill(R):
 	r = int(math.ceil(R / math.sqrt(3)))
 	return [pH for pH in HsurroundH((0, 0), r) if math.hypot(*GconvertH(pH)) < R]

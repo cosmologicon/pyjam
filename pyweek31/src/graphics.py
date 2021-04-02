@@ -1,6 +1,7 @@
 import functools, math, random, pygame
 from . import pview
 from . import view, settings
+from .pview import T
 cache = functools.lru_cache(None)
 
 @cache
@@ -20,6 +21,31 @@ def drawgrass():
 	for jdx in range(-math.ceil(xV0 / s), math.floor((pview.w - xV0) / s) + 1):
 		for jdy in range(-math.ceil(yV0 / s), math.floor((pview.h - yV0) / s) + 1):
 			pview.screen.blit(img, (xV0 + jdx * s, yV0 + jdy * s))
+
+
+@cache
+def groundimg(cameraz, R):
+	if cameraz != 36:
+		s = T(cameraz * (R + 2))
+		return pygame.transform.smoothscale(groundimg(36, R), (2 * s, 2 * s))
+	s = T(36 * (R + 2))
+	surf = pygame.Surface((2 * s, 2 * s)).convert_alpha()
+	surf.fill((50, 40, 20, 0))
+	for (xH, yH) in view.Hfill(R):
+		ps = T([(s + xG * 36, s - yG * 36) for xG, yG in view.GoutlineH((xH, yH), 1.4)])
+		color = 50, 40, 20
+		pygame.draw.polygon(surf, color, ps)
+	for (xH, yH) in view.Hfill(R):
+		ps = T([(s + xG * 36, s - yG * 36) for xG, yG in view.GoutlineH((xH, yH))])
+		color = 50 - (xH - yH) % 3 * 10, 50, 20
+		pygame.draw.polygon(surf, color, ps)
+	return surf
+
+def drawground():
+	from . import state
+	surf = groundimg(view.cameraz, state.R)
+	pview.screen.blit(surf, surf.get_rect(center = view.VconvertG((0, 0))))
+
 
 @cache
 def shade(R, r, seed = 0):
@@ -75,7 +101,7 @@ def rootsimg(scale, color, f):
 			dx0 = math.mix(-0.5, 0.5, jangle * 2345.67 % 1)
 			dx1 = math.mix(-0.5, 0.5, jangle * 3456.78 % 1)
 			ts = [1/20 * j for j in range(0, 21)]
-			ws = [r * 0.3 * (fangle - t) for t in ts]
+			ws = [r * (0.3 * (fangle - t) - 0.2 * (1 - fw)) for t in ts]
 			xs = [r * 3 * t * (1 - t) * ((1 - t) * dx0 + t * dx1) for t in ts]
 			ys = [r * t for t in ts]
 			p0s = [(x, y) for x, y, w in zip(xs, ys, ws) if w >= 0]
@@ -97,12 +123,12 @@ shadesurfs = {}
 def getshadesurfs(cameraz):
 	from . import state
 	if 36 not in shadesurfs:
-		s = int(math.ceil(36 * (state.R + 3)))
+		s = T(36 * (state.R + 3))
 		shadesurfs[36] = [pygame.Surface((2 * s, 2 * s)).convert_alpha() for _ in range(3)]
 		for surf in shadesurfs[36]:
 			surf.fill((0, 0, 0, 0))
 	if cameraz not in shadesurfs:
-		s = int(math.ceil(cameraz * (state.R + 3)))
+		s = T(cameraz * (state.R + 3))
 		shadesurfs[cameraz] = [pygame.transform.smoothscale(surf, (2 * s, 2 * s)) for surf in shadesurfs[36]]
 	return shadesurfs[cameraz]
 		
@@ -111,9 +137,9 @@ def addtree(tree):
 	imgs0 = getshadesurfs(36)
 	xV0, yV0 = imgs0[0].get_rect().center
 	dxG, dyG = tree.pG
-	pV = int(xV0 + dxG * 36), int(yV0 - dyG * 36)
+	pV = T(xV0 + dxG * 36, yV0 - dyG * 36)
 	for j, img0 in enumerate(imgs0):
-		surf = shade(3 * 36, 8, seed = (dxG, dyG, j))
+		surf = shade(T(3 * 36), T(8), seed = (dxG, dyG, j))
 		img0.blit(surf, surf.get_rect(center = pV), None, pygame.BLEND_RGBA_MAX)
 	shadesurfs.clear()
 	shadesurfs[36] = imgs0
@@ -153,7 +179,9 @@ def spriteimg(s, color, seed):
 	return img
 
 def drawsprite(pV, s, color):
-	seed = random.randrange(0, 40)
+	if len(color) > 3:
+		color = color[:3] + (int(color[3] / 17) * 17,)
+	seed = random.randrange(0, 10)
 	img = spriteimg(s, color, seed)
 	pview.screen.blit(img, img.get_rect(center = pV))
 

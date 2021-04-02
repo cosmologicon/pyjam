@@ -5,6 +5,8 @@ from . import settings, state, view, hud, controls, progress
 from . import scene, playscene, menuscene
 from .pview import T
 
+ptext.DEFAULT_FONT_NAME = "fonts/MiltonianTattoo.ttf"
+
 view.init()
 if settings.reset and os.path.exists(settings.savename):
 	os.remove(settings.savename)
