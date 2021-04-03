@@ -9,8 +9,8 @@ A = math.sqrt(3) / 2  # unit hexagon apothem
 
 pview.SCREENSHOT_DIRECTORY = "screenshots"
 
-zooms = [a ** 2 for a in (5, 6, 7, 8, 9)]
-camerax, cameray, cameraz = 5, 0, 36
+zooms = [a ** 2 for a in (4, 5, 6, 7, 8, 9)]
+camerax, cameray, cameraz = 0, 0, 36
 def init():
 	pview.set_mode(size0 = settings.size0, height = settings.height, fullscreen = settings.fullscreen, forceres = settings.forceres)
 	pygame.display.set_caption(settings.gamename)
@@ -26,6 +26,12 @@ def toggle_fullscreen():
 
 def clear():
 	pview.screen.fill((25, 50, 25))
+
+def reset():
+	global camerax, cameray, cameraz
+	camerax, cameray = 0, 0
+	zs = [z for z in zooms if 2 * state.R * z <= pview.h0]
+	cameraz = max(zs) if zs else min(zooms)
 
 def zoom(dz, mposV):
 	global camerax, cameray, cameraz

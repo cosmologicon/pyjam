@@ -69,16 +69,35 @@ def cfilter(img, cmask):
 	return fimg
 
 @cache
-def img0(name, scale = 1, angle = 0, cmask = None):
+def img0(name, scale = 1, angle = 0, cmask = None, xscale = 1):
 	if cmask is not None:
-		return cfilter(img0(name, scale, angle), cmask)
-	if scale != 1 or angle != 0:
-		return pygame.transform.rotozoom(img0(name, 1, 0), angle, scale)
+		return cfilter(img0(name, scale, angle, xscale = xscale), cmask)
+	if scale != 1 or xscale != 1:
+		img1 = img0(name, 1, angle)
+		h = pview.I(img1.get_rect().height * scale)
+		w = pview.I(img1.get_rect().width * scale * abs(xscale))
+		img = pygame.transform.smoothscale(img1, (w, h))
+		if xscale < 0:
+			img = pygame.transform.flip(img, True, False)
+		return img
+	if angle != 0:
+		return pygame.transform.rotate(img0(name, 1, 0), angle)
+	if name.startswith("flower-"):
+		return flowerimg0(name.split("-")[1])
 	return pygame.image.load("img/%s.png" % name).convert_alpha()
 
-def img(name, scale = 1, angle = 0, cmask = None):
+def flowerimg0(spec):
+	img = img0("flower").copy()
+	for j in range(0, len(spec), 2):
+		jdH = int(spec[j])
+		jcolor = int(spec[j+1])
+		img.blit(img0("petal-%d" % jdH, cmask = settings.colors[jcolor]), (0, 0))
+	return img
+
+
+def img(name, scale = 1, angle = 0, cmask = None, xscale = 1):
 	angle = int(angle / 10) * 10 % 360
-	surf = img0(name, scale, angle, cmask)
+	surf = img0(name, scale, angle, cmask, xscale)
 	return surf
 
 def drawimg(pos, *args, **kwargs):
@@ -178,10 +197,10 @@ def spriteimg(s, color, seed):
 	img.blit(himg, himg.get_rect(center = (s + random.randint(-1, 1), s + random.randint(-1, 1))), None, pygame.BLEND_RGBA_MAX)
 	return img
 
-def drawsprite(pV, s, color):
+def drawsprite(pV, s, color, shimmer = True):
 	if len(color) > 3:
 		color = color[:3] + (int(color[3] / 17) * 17,)
-	seed = random.randrange(0, 10)
+	seed = random.randrange(0, 10) if shimmer else 0
 	img = spriteimg(s, color, seed)
 	pview.screen.blit(img, img.get_rect(center = pV))
 

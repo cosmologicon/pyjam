@@ -16,8 +16,11 @@ def init():
 	dialog.queue = levels.dialog.get(state.currentlevel, [])
 	dialog.current = None
 	dialog.t = 0
+	self.t = 0
 	self.twin = 0
 	self.won = False
+	hud.reset()
+	view.reset()
 	
 
 def control(cstate):
@@ -42,8 +45,15 @@ def control(cstate):
 			hud.self.selected = None
 	else:
 		self.mposH = view.HconvertV(cstate.mposV)
+		pH = view.HnearesthexH(self.mposH)
+		if settings.DEBUG and "act" in cstate.kdowns:
+			print("act")
+			if state.spawnerat(pH):
+				print("rotate")
+				state.spawnerat(pH).rotate()
+			if state.ringat(pH):
+				state.ringat(pH).toggle()
 		if "click" in cstate.events:
-			pH = view.HnearesthexH(self.mposH)
 			if state.canbuildat(pH):
 				selected = hud.selected()
 				if selected == "oak":
@@ -77,8 +87,6 @@ def control(cstate):
 				state.treeat(pH).toggle()
 			elif state.spawnerat(pH):
 				state.spawnerat(pH).toggle()
-			elif state.ringat(pH):
-				state.ringat(pH).toggle()
 		if "rclick" in cstate.events:
 			pH = view.HnearesthexH(self.mposH)
 			if state.treeat(pH) is not None:
@@ -92,15 +100,18 @@ def control(cstate):
 		view.pan(cstate.dragdV)
 
 def think(dt):
+	self.t += dt
 	dialog.t += dt
 	if not self.dragging:
 		view.snap(dt)
-	if dialog.current is None and dialog.queue:
+	if dialog.current is None and dialog.queue and self.t > 2:
 		dialog.current = dialog.queue.pop(0)
 		dialog.t = 0
 	elif dialog.current is not None:
-		if dialog.t > 2:
+		if dialog.t > len(dialog.current) / 40 + 3:
 			dialog.current = None
+	
+	dt *= settings.speed
 	for tree in state.trees:
 		tree.think(dt)
 	for spawner in state.spawners:
@@ -113,7 +124,7 @@ def think(dt):
 	state.bugs = [bug for bug in state.bugs if bug.alive]
 	for ring in state.rings:
 		ring.think(dt)
-	winning = all(ring.charged() for ring in state.rings)
+	winning = all(ring.charged() for ring in state.rings) and state.currentlevel != "empty"
 	if winning:
 		self.twin += dt
 	if winning and self.twin > 5:
@@ -131,19 +142,20 @@ def win():
 
 def draw():
 	graphics.drawground()
-	if False:
-		for pH in state.grid0:
-			if state.canbuildat(pH):
-				for j in range(6):
-					pV0 = view.VconvertH(view.vecadd(pH, view.HrotH((1, 1), j), 1/3))
-					pV1 = view.VconvertH(view.vecadd(pH, view.HrotH((1, 1), j + 1), 1/3))
-					pygame.draw.line(pview.screen, (70, 140, 70), pV0, pV1, 1)
 	if self.mposH is not None and hud.selected():
 		pH = view.HnearesthexH(self.mposH)
 		if pH in state.grid0:
 			color = (80, 20, 20) if pH in state.taken else (60, 60, 60)
 			pVs = [view.VconvertH(view.vecadd(pH, dH)) for dH in view.cornerdHs]
 			pygame.draw.polygon(pview.screen, color, pVs)
+			if pH not in state.taken and hud.selected() in ["oak", "beech", "pine"]:
+				rG = {
+					"oak": thing.Oak.rG,
+					"beech": thing.Beech.rG,
+					"pine": thing.Pine.rG,
+				}[hud.selected()]
+				scale = 0.00025 * rG * 20 * view.cameraz
+				graphics.drawimg(view.VconvertH(pH), hud.selected(), scale = scale, cmask = (255, 255, 255, 100))
 	for tree in state.trees:
 		tree.drawroots()
 	for ring in state.rings:
@@ -160,12 +172,20 @@ def draw():
 	graphics.drawshades()
 
 	if dialog.current:
-		text = dialog.current[:5+int(dialog.t * 100)]
-		ptext.draw(text, midleft = T(200, 680), fontsize = T(30), owidth = 1)
+		s = round(1 + 0.05 * math.cycle(10 * dialog.t), 2) if dialog.t * 60 < len(dialog.current) else 1
+		graphics.drawimg(T(140, 600), "gnorman", scale = 0.4 * s * pview.f, xscale = 1 / s ** 2)
+		text = dialog.current[:5+int(dialog.t * 60)]
+		ptext.draw(text, midleft = T(280, 600), width = T(800),
+			fontsize = T(50), color = (100, 200, 100), shade = 1, owidth = 0.5)
 	else:
 		ncharge = sum(ring.charged() for ring in state.rings)
-		ptext.draw("MAGIC: %d/%d" % (ncharge, len(state.rings)), bottomleft = T(20, 700),
-			fontsize = T(60), owidth = 0.5, ocolor = (255, 128, 128), color = "red", shade = 1)
+		ptext.draw("MAGIC: %d/%d" % (ncharge, len(state.rings)), bottomleft = T(15, 720),
+			fontsize = T(60), owidth = 1, color = (50, 200, 50), shade = 1)
+		if state.currentlevel in levels.tutorial and not dialog.queue:
+			text = "\n".join(levels.tutorial[state.currentlevel])
+			ptext.draw(text, bottomleft = T(440, 710), fontname = "Londrina",
+				fontsize = T(24), owidth = 1, color = (100, 200, 100), shade = 1)
+			
 
 	hud.draw()
 

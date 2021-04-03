@@ -1,6 +1,6 @@
 import math, random
 import pygame
-from . import enco, pview, ptext, settings, graphics
+from . import enco, pview, ptext, settings, graphics, hud
 from . import view, state
 
 tspawn0 = 3
@@ -33,8 +33,9 @@ class WorldBound(enco.Component):
 		pV = view.VconvertG(self.pG)
 		rV = view.VscaleG(self.rG)
 #		pygame.draw.circle(pview.screen, self.getcolor(), pV, rV)
-	def label(self, text):
-		ptext.draw(text, center = view.VconvertG(self.pG), fontsize = view.VscaleG(1), owidth = 1)
+	def label(self, text, color = (255, 255, 255)):
+		ptext.draw(text, center = view.VconvertG(self.pG), fontsize = view.VscaleG(1),
+			owidth = 1, color = color, shade = 1)
 	def drawarrow(self, color, jdH):
 		dGs = [math.R(-jdH * math.tau / 6, p) for p in [(0, 1), (0.3, 0.8), (-0.3, 0.8)]]
 		pVs = [view.VconvertG(view.vecadd(self.pG, dG)) for dG in dGs]
@@ -113,6 +114,8 @@ class Trails(enco.Component):
 		color, alpha0 = self.getcolor(), 255
 		if len(color) > 3:
 			color, alpha0 = color[0:3], color[3]
+		if hud.tracer is not None and hud.tracer is not self.spawner:
+			color = math.imix(color, (0, 0, 0), 0.8)
 		graphics.drawsprite(view.VconvertG(self.pG), view.VscaleG(0.6), color + (alpha0,))
 		for t, p in self.trailers:
 			f = (self.t - t) * 2
@@ -136,8 +139,11 @@ class Charges(enco.Component):
 		f = 1 - math.exp(-0.5 * dt / tspawn0)
 		self.meter = math.mix(self.meter, math.log(2) * tspawn0 * self.charge, f)
 	def draw(self):
-		if settings.DEBUG:
-			self.label("%.2f, %.2f" % (self.charge, self.meter))
+		if hud.meter:
+			i = int(round(self.meter))
+			color0 = settings.colors[self.jcolor]
+			color1 = (0, 0, 0) if i < 3 else color0 if i == 3 else (255, 255, 255)
+			self.label("%d/3" % i, color = math.imix(color0, color1, 0.6))
 	def charged(self):
 		return self.meter > 2.5
 	def overcharged(self):
@@ -158,8 +164,9 @@ class Charges(enco.Component):
 @Arrives()
 @Trails()
 class Ant:
-	def __init__(self, pH, dH, jcolor):
-		self.tile = pH
+	def __init__(self, spawner, dH, jcolor):
+		self.spawner = spawner
+		self.tile = spawner.pH
 		self.dH = dH
 		self.jcolor = jcolor
 		self.setnext()
@@ -179,9 +186,10 @@ class Ant:
 @Trails()
 class OuterGhost:
 	def __init__(self, ant):
+		self.spawner = ant.spawner
 		self.jcolor = ant.jcolor
 		self.pG = ant.pG
-		self.vG = math.norm(view.GconvertH(ant.dH), ant.speed)
+		self.vG = math.norm(view.GconvertH(ant.dH), ant.speed * math.sqrt(3))
 		self.trailers = [(t - ant.t, p) for t, p in ant.trailers]
 		self.nexttrailer = ant.nexttrailer - ant.t
 	def getcolor(self):
@@ -196,10 +204,11 @@ class OuterGhost:
 @Trails()
 class RingGhost:
 	def __init__(self, ant, ring):
+		self.spawner = ant.spawner
 		self.jcolor = ant.jcolor
 		self.pG = ant.pG
 		self.ring = ring
-		self.speed = ant.speed
+		self.speed = ant.speed * math.sqrt(3)
 		self.vG0 = math.norm(view.GconvertH(ant.dH), ant.speed)
 		self.vG = self.vG0
 		self.trailers = [(t - ant.t, p) for t, p in ant.trailers]
@@ -226,27 +235,32 @@ class Spawner:
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
 		self.spec = spec
-		self.bugtype = Ant
 		self.tspawn = tspawn0
 		self.t = 0
+		self.imgname = "flower-" + "".join("%d%d" % (jdH%6, jcolor) for jdH, jcolor in self.spec)
 	def think(self, dt):
 		self.t += dt
 		while self.t > self.tspawn:
 			self.t -= self.tspawn
 			for jdH, jcolor in self.spec:
-				bug = self.bugtype(self.pH, view.dirHs[jdH%6], jcolor)
+				bug = Ant(self, view.dirHs[jdH%6], jcolor)
 				bug.advance()
 				state.bugs.append(bug)
 	def draw(self):
 		pV = view.VconvertG(self.pG)
 		scale = 1.2 + (0.2 * math.sin(self.t * 20 * math.tau) if self.t < 0.1 else 0)
 		scale = view.VscaleG(scale) / 400
-		angle = 1
-		graphics.drawimg(pV, "shroom-0", scale = scale, angle = angle, cmask = (120, 120, 120))
+		color = None
+		if hud.tracer is not None and hud.tracer is not self:
+			color = 40, 40, 40
+		graphics.drawimg(pV, self.imgname, scale = scale, cmask = color)
 #		for dH, jcolor in self.spec:
 #			self.drawarrow(settings.colors[jcolor], dH)
 	def toggle(self):
+		hud.tracer = None if hud.tracer is self else self
+	def rotate(self):
 		self.spec = [((dH + 1) % 6, jcolor) for dH, jcolor in self.spec]
+		self.imgname = "flower-" + "".join("%d%d" % (jdH%6, jcolor) for jdH, jcolor in self.spec)
 
 
 @Lives()
@@ -256,11 +270,15 @@ class Tree:
 		self.pH = pH
 		self.pG = view.GconvertH(self.pH)
 		self.angle = angle
+		self.xscale = 1
 	def toggle(self):
 		self.angle = -self.angle
 	def drawroots(self):
 		f = math.mix(0, 1, self.t)
 		graphics.drawroots(view.VconvertG(self.pG), view.VscaleG(2.2), self.color, f)
+	def think(self, dt):
+		xscale = 1 if self.angle > 0 else -1
+		self.xscale = math.approach(self.xscale, xscale, 6 * dt)
 	def draw(self):
 		if self.t < 0.5:
 			f = math.sqrt(self.t / 0.5)
@@ -272,15 +290,25 @@ class Tree:
 			return
 		scale = 0.00025 * self.rG * s * view.cameraz
 		graphics.drawimg(view.VconvertG(self.pG), self.imgname, scale = scale, angle = angle)
-		for dpG in math.CSround(3, 0.6, 2 * self.t * self.angle):
-			pG = view.vecadd(self.pG, dpG)
-			graphics.drawsprite(view.VconvertG(pG), view.VscaleG(0.3), (255, 255, 255, 100))
 #		self.label("%d" % self.angle)
+		if hud.arrows:
+			xscale = round(self.xscale, 1)
+			scale = 0.005 * view.cameraz
+			alpha = int(round(math.fadebetween(self.t, 1, 0, 1.5, 1), 1) * 255)
+			cmask = 255, 255, 255, alpha
+			graphics.drawimg(view.VconvertG(self.pG), "arrow-" + self.imgname, scale = scale, cmask = cmask, xscale = xscale)
+		else:
+			for dxG, dyG in math.CSround(self.nglow, 0.8, self.vglow * self.t):
+				pG = view.vecadd(self.pG, (dxG * self.xscale, dyG))
+				graphics.drawsprite(view.VconvertG(pG), view.VscaleG(0.5), (255, 255, 255, 140), shimmer = False)
+		
 
 class Oak(Tree):
 	color = 100, 60, 20
 	rG = 0.36
 	imgname = "oak"
+	nglow = 2
+	vglow = 1.5
 	def direct(self, bug):
 		bug.nexttile = view.vecadd(self.pH, view.HrotH(bug.dH, self.angle))
 		bug.nextdH = bug.dH
@@ -299,6 +327,8 @@ class Beech(Tree):
 	color = 200, 180, 160
 	rG = 0.3
 	imgname = "beech"
+	nglow = 3
+	vglow = 1
 	def direct(self, bug):
 		bug.nextdH = view.HrotH(bug.dH, self.angle)
 		bug.nexttile = view.vecadd(self.pH, bug.nextdH)
@@ -314,8 +344,10 @@ class Beech(Tree):
 
 class Pine(Tree):
 	color = 160, 130, 80
-	rG = 0.3
+	rG = 0.24
 	imgname = "pine"
+	nglow = 6
+	vglow = 0.5
 	def direct(self, bug):
 		bug.nextdH = view.HrotH(bug.dH, self.angle)
 		bug.nexttile = view.vecadd(self.pH, bug.nextdH)
@@ -362,7 +394,7 @@ class Ring:
 			yG = yG0 + dyG + math.mix(-0.2, 0.2, math.phi ** 2 * j % 1)
 			a = math.mix(0.6, 1, 0.71 * j % 1)
 			scale = view.VscaleG(a) / 400
-			angle = 360 * math.phi * j
+			angle = 360 * int(math.phi * j * 8) / 8
 			iname = "shroom-0" if angle % 1 < 0.5 else "shroom-1"
 			graphics.drawimg(view.VconvertG((xG, yG)), iname, scale = scale, angle = angle, cmask = color)
 

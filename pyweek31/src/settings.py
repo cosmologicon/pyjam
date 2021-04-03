@@ -1,7 +1,7 @@
 import sys
 import pygame
 
-gamename = "Copse"
+gamename = "Gnorman's Copse"
 
 minfps = 10
 maxfps = 120
@@ -14,12 +14,15 @@ size0 = w, h = width, height = 1280, 720
 savename = "savegame.pkl"
 tautosave = 5   # seconds
 
+speed = 1
+speeds = [0.5, 1, 2, 5, 10]
 reset = "--reset" in sys.argv
 unlockall = "--unlockall" in sys.argv
 
 DEBUG = "--DEBUG" in sys.argv
 
 keys = {
+	"act": [pygame.K_SPACE],
 	"left": [pygame.K_LEFT, pygame.K_a],
 	"right": [pygame.K_RIGHT, pygame.K_d, pygame.K_e],
 	"up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],

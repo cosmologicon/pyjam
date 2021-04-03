@@ -5,7 +5,8 @@ from . import settings, state, view, hud, controls, progress
 from . import scene, playscene, menuscene
 from .pview import T
 
-ptext.DEFAULT_FONT_NAME = "fonts/MiltonianTattoo.ttf"
+ptext.DEFAULT_FONT_NAME = "MiltonianTattoo"
+ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 
 view.init()
 if settings.reset and os.path.exists(settings.savename):
@@ -43,10 +44,7 @@ while playing:
 
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	tsave += dt
-	if settings.DEBUG and cstate.kpressed[pygame.K_F1]:
-		dt *= 5
 	dtaccum += dt
-
 	dt0 = 1 / settings.maxfps
 	while dtaccum >= dt0:
 		currentscene.think(dt0)
