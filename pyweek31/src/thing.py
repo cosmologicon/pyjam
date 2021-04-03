@@ -34,7 +34,8 @@ class WorldBound(enco.Component):
 		rV = view.VscaleG(self.rG)
 #		pygame.draw.circle(pview.screen, self.getcolor(), pV, rV)
 	def label(self, text, color = (255, 255, 255)):
-		ptext.draw(text, center = view.VconvertG(self.pG), fontsize = view.VscaleG(1),
+		ptext.draw(text, center = view.VconvertG(self.pG),
+			fontsize = view.VscaleG(1), fontname = "Londrina",
 			owidth = 1, color = color, shade = 1)
 	def drawarrow(self, color, jdH):
 		dGs = [math.R(-jdH * math.tau / 6, p) for p in [(0, 1), (0.3, 0.8), (-0.3, 0.8)]]
@@ -107,9 +108,10 @@ class Trails(enco.Component):
 	def think(self, dt):
 		if self.t >= self.nexttrailer:
 			self.nexttrailer = self.t + random.uniform(0.2, 0.3)
-			pG = view.vecadd(self.pG, (random.uniform(-1, 1), random.uniform(-1, 1)), 0.1)
-			self.trailers.append((self.t, pG))
-			self.trailers = [(t, p) for t, p in self.trailers if self.t - t < 1]
+			if settings.trails:
+				pG = view.vecadd(self.pG, (random.uniform(-1, 1), random.uniform(-1, 1)), 0.1)
+				self.trailers.append((self.t, pG))
+				self.trailers = [(t, p) for t, p in self.trailers if self.t - t < 1]
 	def draw(self):
 		color, alpha0 = self.getcolor(), 255
 		if len(color) > 3:
@@ -117,11 +119,12 @@ class Trails(enco.Component):
 		if hud.tracer is not None and hud.tracer is not self.spawner:
 			color = math.imix(color, (0, 0, 0), 0.8)
 		graphics.drawsprite(view.VconvertG(self.pG), view.VscaleG(0.6), color + (alpha0,))
-		for t, p in self.trailers:
-			f = (self.t - t) * 2
-			alpha = int(math.imix(10, 0, f) * alpha0 / 10)
-			if alpha > 0:
-				graphics.drawsprite(view.VconvertG(p), view.VscaleG(0.5), color + (alpha,))
+		if settings.trails:
+			for t, p in self.trailers:
+				f = (self.t - t) * 2
+				alpha = int(math.imix(10, 0, f) * alpha0 / 10)
+				if alpha > 0:
+					graphics.drawsprite(view.VconvertG(p), view.VscaleG(0.5), color + (alpha,))
 
 
 class Charges(enco.Component):
@@ -141,13 +144,18 @@ class Charges(enco.Component):
 		f = 1 - math.exp(-0.5 * dt / tspawn0)
 		self.meter = math.mix(self.meter, math.log(2) * tspawn0 * self.charge, f)
 		self.tsound += dt
-		lsound = self.overcharged() + self.charged()
-		if lsound != self.lsound:
-			self.lsound = lsound
+		if self.lsound == 0 and self.meter > 2.7:
 			if self.tsound >= 10:
-				sound.playsound("charge-%d" % lsound)
+				sound.playsound("charge-up")
+				self.tsound = 0
+			self.lsound = 1
+		if self.lsound == 1 and self.meter < 2.3:
+			if self.tsound >= 10:
+				sound.playsound("charge-down")
+				self.tsound = 0
+			self.lsound = 0
 	def draw(self):
-		if hud.meter:
+		if settings.showmeter:
 			i = int(round(self.meter))
 			color0 = settings.colors[self.jcolor]
 			color1 = (0, 0, 0) if i < 3 else color0 if i == 3 else (255, 255, 255)
@@ -283,7 +291,8 @@ class Tree:
 		self.angle = -self.angle
 	def drawroots(self):
 		f = math.mix(0, 1, self.t)
-		graphics.drawroots(view.VconvertG(self.pG), view.VscaleG(2.2), self.color, f)
+		color = math.imix(self.color, (0, 0, 0), 0.4)
+		graphics.drawroots(self.pH, view.VscaleG(2.2), color, f)
 	def think(self, dt):
 		xscale = 1 if self.angle > 0 else -1
 		self.xscale = math.approach(self.xscale, xscale, 6 * dt)
@@ -296,12 +305,12 @@ class Tree:
 			s, angle = 20, 0
 		if s < 1:
 			return
-		scale = 0.00025 * self.rG * s * view.cameraz
+		scale = view.VscaleG(s * self.rG) / 4000
 		graphics.drawimg(view.VconvertG(self.pG), self.imgname, scale = scale, angle = angle)
 #		self.label("%d" % self.angle)
-		if hud.arrows:
+		if settings.showarrows:
 			xscale = round(self.xscale, 1)
-			scale = 0.005 * view.cameraz
+			scale = view.VscaleG(1) / 200
 			alpha = int(round(math.fadebetween(self.t, 1, 0, 1.5, 1), 1) * 255)
 			cmask = 255, 255, 255, alpha
 			graphics.drawimg(view.VconvertG(self.pG), "arrow-" + self.imgname, scale = scale, cmask = cmask, xscale = xscale)

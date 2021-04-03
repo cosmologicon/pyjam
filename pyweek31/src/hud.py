@@ -17,19 +17,19 @@ class self:
 		"s2-0": ((150, 620), 30),
 		"multi": ((30, 700), 30),
 		"tri": ((90, 700), 30),
-		"music": ((1280 - 60, 210), 50),
-		"pause": ((1280 - 70, 70), 60),
-		"speed": ((1280 - 60, 320), 50),
-		"arrows": ((1280 - 60, 430), 50),
-		"meter": ((1280 - 60, 540), 50),
-		"help": ((1280 - 70, 720 - 70), 60),
+		"zoomin": ((1230, 170), 40),
+		"zoomout": ((1230, 260), 40),
+		"music": ((1220, 360), 50),
+		"speed": ((1220, 470), 50),
+		"help": ((1180, 620), 90),
+#		"pause": ((1280 - 70, 70), 60),
+#		"arrows": ((1280 - 60, 430), 50),
+#		"meter": ((1280 - 60, 540), 50),
 	}
 	selected = None
 	pointed = None
 
 tracer = None
-arrows = True
-meter = True
 
 def reset():
 	global tracer
@@ -40,7 +40,7 @@ def reset():
 def unlocked(bname):
 	if settings.DEBUG:
 		return True
-	if bname in ["pause", "help", "arrows", "meter", "speed", "music"]:
+	if bname in ["help", "speed", "music", "zoomin", "zoomout"]:
 		return True
 	if bname in ["oak", "pine", "beech"]:
 		if state.currentlevel in levels.buttons:
@@ -77,6 +77,14 @@ def control(cstate):
 			tracks = [None, 0, 1, 2, 3]
 			sound.playmusic(tracks[(tracks.index(settings.mtrack) + 1) % len(tracks)])
 			sound.playsound("click")
+		elif self.pointed == "zoomin":
+			z0 = view.cameraz
+			view.zoom(1)
+			sound.playsound("no" if z0 == view.cameraz else "click")
+		elif self.pointed == "zoomout":
+			z0 = view.cameraz
+			view.zoom(-1)
+			sound.playsound("no" if z0 == view.cameraz else "click")
 		elif self.selected == self.pointed:
 			self.selected = None
 			sound.playsound("unclick")
@@ -86,7 +94,7 @@ def control(cstate):
 
 def draw():
 #	pview.screen.fill((30, 30, 60), T(self.rect))
-	for bname, (bpos, br) in self.buttons.items():
+	for j, (bname, (bpos, br)) in enumerate(sorted(self.buttons.items())):
 		if not unlocked(bname):
 			continue
 		if bname == self.pointed:
@@ -95,21 +103,13 @@ def draw():
 			cmask = 160, 160, 160, 255
 		if bname in ["beech", "oak", "pine"]:
 			graphics.drawimg(tuple(T(bpos)), bname, scale = 0.0025 * T(br), cmask = cmask)
-		elif bname == "pause":
-			graphics.drawimg(tuple(T(bpos)), "shroom-0", scale = 0.005 * T(br), cmask = cmask)
-		elif bname == "help":
-			graphics.drawimg(tuple(T(bpos)), "shroom-0", scale = 0.005 * T(br), angle = 1, cmask = cmask)
-		elif bname == "arrows":
-			graphics.drawimg(tuple(T(bpos)), "shroom-1", scale = 0.005 * T(br), angle = 0, cmask = cmask)
-		elif bname == "meter":
-			graphics.drawimg(tuple(T(bpos)), "shroom-1", scale = 0.005 * T(br), angle = 1, cmask = cmask)
-		elif bname == "speed":
-			graphics.drawimg(tuple(T(bpos)), "shroom-1", scale = 0.005 * T(br), angle = 2, cmask = cmask)
-		elif bname == "music":
-			graphics.drawimg(tuple(T(bpos)), "shroom-1", scale = 0.005 * T(br), angle = 4, cmask = cmask)
+		elif bname in ["pause", "help"]:
+			graphics.drawimg(tuple(T(bpos)), "shroom-0", scale = 0.005 * T(br), angle = j * 360 * math.phi, cmask = cmask)
+		elif bname in ["arrows", "meter", "speed", "music", "zoomin", "zoomout"]:
+			graphics.drawimg(tuple(T(bpos)), "shroom-1", scale = 0.005 * T(br), angle = j * 360 * math.phi, cmask = cmask)
 		else:
 			pygame.draw.circle(pview.screen, (50, 50, 100), T(bpos), T(br))
-		f = 3.6 if bname == self.pointed else 2.7
+		f = 3 if bname == self.pointed else 2.7
 		if bname == "arrows":
 			text = "Arrows\n%s" % ("On" if arrows else "Off")
 		elif bname == "meter":
@@ -118,10 +118,17 @@ def draw():
 			text = ("%.1fx" if settings.speed != int(settings.speed) else "%dx") % settings.speed
 		elif bname == "music":
 			text = "Music\nOff" if settings.mtrack is None else "Track\n#%d" % (settings.mtrack + 1)
+		elif bname == "help":
+			text = "Help &\nSettings"
+		elif bname == "zoomin":
+			text = " + "
+		elif bname == "zoomout":
+			text = " - "
 		else:
 			text = bname.upper()
-		fontsize = T(f * br / max(max(len(line) for line in text.splitlines()), 5))
-		ptext.draw(text, center = T(bpos), fontsize = fontsize, color = (255, 255, 128),
+		fontsize = T(f * br / max(max(len(line) for line in text.splitlines()), 1))
+		color = (255, 255, 255) if bname == self.selected else (200, 200, 255)
+		ptext.draw(text, center = T(bpos), fontsize = fontsize, color = color,
 			owidth = 1, shade = 1)
 
 def selected():

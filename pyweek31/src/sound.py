@@ -19,12 +19,14 @@ def playsound(sname):
 	fname = os.path.join("sounds", "%s.ogg" % sname)
 	s = getsound(fname)
 	if s is not None:
-		s.set_volume(settings.soundvolume)
+		volume = (settings.soundvolume / 100) ** 1.5
+		s.set_volume(volume)
 		s.play()
 
 currentsong = None
+currentsname = None
 def playmusic(jsong):
-	global currentsong
+	global currentsong, currentsname
 	settings.mtrack = jsong
 	if currentsong is not None:
 		currentsong.fadeout(500)
@@ -32,13 +34,18 @@ def playmusic(jsong):
 		currentsong = None
 		return
 	sname = ["ferret", "myst", "builder", "thinking"][jsong]
+	currentsname = sname
 	fname = os.path.join("music", "%s.ogg" % sname)
 	s = getsound(fname)
-	if s is not None:
-		v = settings.musicvolume
-		if sname == "ferret": v *= 0.6
-		if sname == "builder": v *= 0.8
-		s.set_volume(v)
-		s.play(loops = -1, fade_ms = 500)
-		currentsong = s
+	s.play(loops = -1, fade_ms = 500)
+	currentsong = s
+	updatemusicvolume()
+
+def updatemusicvolume():
+	if currentsong is not None:
+		v = (settings.musicvolume / 100) ** 1.5
+		if currentsname == "ferret": v *= 0.5
+		if currentsname == "builder": v *= 0.7
+		currentsong.set_volume(v)
+	
 

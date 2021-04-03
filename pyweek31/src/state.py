@@ -1,8 +1,8 @@
 import os, pickle, random
-from . import settings, progress
+from . import settings, progress, levels
 
 
-currentlevel = "empty"
+currentlevel = None
 bugs = []
 ghosts = []
 spawners = []
@@ -83,14 +83,27 @@ def empty(pH):
 
 
 def save():
-	obj = currentlevel, bugs, ghosts, spawners, trees, rings, progress.getstate()
-	pickle.dump(obj, open(settings.savename, "wb"))
+	if currentlevel is None:
+		return
+	obj = currentlevel, bugs, ghosts, spawners, trees, rings, grid0, grid, taken, R, progress.getstate()
+	pickle.dump(obj, open(settings.qsavename, "wb"))
 
 def load():
-	global currentlevel, bugs, ghosts, spawners, trees, rings
-	if os.path.exists(settings.savename):
-		currentlevel, bugs, ghosts, spawners, trees, rings, pstate = pickle.load(open(settings.savename, "rb"))
+	global currentlevel, bugs, ghosts, spawners, trees, rings, grid0, grid, taken, R
+	if os.path.exists(settings.qsavename):
+		currentlevel, bugs, ghosts, spawners, trees, rings, grid0, grid, taken, R, pstate = pickle.load(open(settings.qsavename, "rb"))
 		progress.setstate(pstate)
+		from . import graphics
+		graphics.shadesurfs.clear()
+		for tree in trees:
+			graphics.addtree(tree)
+
+
+def reset():
+	global currentlevel
+	currentlevel = None
+	if os.path.exists(settings.qsavename):
+		os.remove(settings.qsavename)
 
 
 # DEBUG functions
@@ -115,8 +128,12 @@ def getspec():
 		"trees": [],
 	}
 
-def setspec(spec):
+def setspec(levelname):
+	global currentlevel, R
 	from . import view, thing, graphics
+	currentlevel = levelname
+	R = levels.R[levelname]
+	spec = levels.data[levelname]
 	grid0[:] = view.Hfill(R)
 	taken.clear()
 	grid.clear()

@@ -1,4 +1,4 @@
-import os
+import os.path
 import pygame
 from . import pview, ptext
 from . import settings, state, view, hud, controls, progress, sound
@@ -8,15 +8,22 @@ from .pview import T
 ptext.DEFAULT_FONT_NAME = "MiltonianTattoo"
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 
+pygame.init()
 view.init()
 pygame.mixer.init()
-if settings.reset and os.path.exists(settings.savename):
-	os.remove(settings.savename)
+if settings.reset:
+	progress.reset()
+	state.reset()
+progress.load()
 state.load()
 if settings.unlockall:
 	progress.unlockall()
+	progress.save()
 scene.push(menuscene)
-sound.playmusic(0)
+if os.path.exists(settings.qsavename):
+	scene.push(playscene)
+	playscene.init()
+sound.playmusic(settings.mtrack)
 
 playing = True
 clock = pygame.time.Clock()
@@ -30,7 +37,7 @@ while playing:
 	cstate = controls.ControlState()
 	currentscene.control(cstate)
 
-	if "quit" in cstate.events:
+	if "quit" in cstate.events or "quit" in cstate.kdowns:
 		playing = False
 	if "screenshot" in cstate.kdowns:
 		pview.screenshot()
@@ -45,7 +52,6 @@ while playing:
 		print(state.getspec())
 
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
-	tsave += dt
 	dtaccum += dt
 	dt0 = 1 / settings.maxfps
 	while dtaccum >= dt0:
@@ -66,8 +72,12 @@ while playing:
 		ptext.draw(text, bottomleft = T(5, pview.h0 - 5))
 
 	pygame.display.flip()
+
+	tsave += dt
 	if settings.tautosave is not None and tsave >= settings.tautosave:
 		tsave = 0
 		state.save()
 state.save()
+progress.save()
+settings.save()
 

@@ -9,8 +9,8 @@ A = math.sqrt(3) / 2  # unit hexagon apothem
 
 pview.SCREENSHOT_DIRECTORY = "screenshots"
 
-zooms = [a ** 2 for a in (4, 5, 6, 7, 8, 9)]
-camerax, cameray, cameraz = 0, 0, 36
+zooms = [20, 25, 30, 40, 50, 60]
+camerax, cameray, cameraz = 0, 0, 40
 def init():
 	pview.set_mode(size0 = settings.size0, height = settings.height, fullscreen = settings.fullscreen, forceres = settings.forceres)
 	pygame.display.set_caption(settings.gamename)
@@ -18,14 +18,12 @@ def init():
 def resize():
 	pview.cycle_height(settings.heights)
 	from . import graphics
-	graphics.shadesurfs.clear()
-	graphics.groundimg.cache_clear()
+	graphics.reset()
 
 def toggle_fullscreen():
 	pview.toggle_fullscreen()
 	from . import graphics
-	graphics.shadesurfs.clear()
-	graphics.groundimg.cache_clear()
+	graphics.reset()
 
 def clear():
 	pview.screen.fill((25, 50, 25))
@@ -36,8 +34,10 @@ def reset():
 	zs = [z for z in zooms if 2 * state.R * z <= pview.h0]
 	cameraz = max(zs) if zs else min(zooms)
 
-def zoom(dz, mposV):
+def zoom(dz, mposV = None):
 	global camerax, cameray, cameraz
+	if mposV is None:
+		mposV = pview.center
 	(xG0, yG0) = GconvertV(mposV)
 	cameraz = zooms[math.clamp(zooms.index(cameraz) + dz, 0, len(zooms) - 1)]
 	(xG1, yG1) = GconvertV(mposV)
@@ -124,7 +124,7 @@ gridedgeGs = [
 def VscaleG(aG):
 	return T(cameraz * aG)
 def GscaleV(aV):
-	return aV / cameraz
+	return aV / cameraz / pview.f
 def VconvertG(pG):
 	xG, yG = pG
 	return T(pview.centerx0 + (xG - camerax) * cameraz, pview.centery0 - (yG - cameray) * cameraz)

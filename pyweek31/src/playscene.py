@@ -12,23 +12,19 @@ class dialog:
 
 def init():
 	state.R = levels.R.get(state.currentlevel, 17.4)
-	state.setspec(levels.data[state.currentlevel])
-	dialog.queue = levels.dialog.get(state.currentlevel, [])
+	if state.currentlevel not in progress.seen:
+		dialog.queue = levels.dialog.get(state.currentlevel, [])
+	else:
+		dialog.queue = []
 	dialog.current = None
 	dialog.t = 0
 	self.t = 0
 	self.twin = 0
 	self.won = False
 	hud.reset()
-	view.reset()
-	
+	view.reset()	
 
 def control(cstate):
-	if "quit" in cstate.kdowns:
-		from . import pausescene
-		scene.push(pausescene)
-		return
-
 	if cstate.scroll:
 		view.zoom(cstate.scroll, cstate.mposV)
 
@@ -95,6 +91,7 @@ def control(cstate):
 			pH = view.HnearesthexH(self.mposH)
 			if state.treeat(pH) is not None:
 				state.removetree(pH)
+				sound.playsound("ungrow")
 			if settings.DEBUG and state.ringat(pH) is not None:
 				state.removering(pH)
 			if settings.DEBUG and state.spawnerat(pH) is not None:
@@ -108,12 +105,15 @@ def think(dt):
 	dialog.t += dt
 	if not self.dragging:
 		view.snap(dt)
-	if dialog.current is None and dialog.queue and self.t > 2:
+	if dialog.current is None and dialog.queue and self.t > 1:
 		dialog.current = dialog.queue.pop(0)
 		dialog.t = 0
 	elif dialog.current is not None:
 		if dialog.t > len(dialog.current) / 40 + 3:
 			dialog.current = None
+			if not dialog.queue:
+				progress.seen.add(state.currentlevel)
+				progress.save()
 	if dialog.current and dialog.t * 60 < len(dialog.current):
 		if 0.05 * random.random() < dt:
 			sound.playsound("yak%d" % random.choice([0, 1, 2, 3, 4]))
@@ -136,7 +136,7 @@ def think(dt):
 		self.twin += dt
 		if self.twin <= 4 < self.twin + dt:
 			sound.playsound("win")
-	if self.twin > 8:
+	if self.twin > 6:
 		win()
 
 
@@ -147,6 +147,8 @@ def win():
 	progress.beaten.add(state.currentlevel)
 	for level in levels.unlocks.get(state.currentlevel, []):
 		progress.unlocked.add(level)
+	state.reset()
+	progress.save()
 	scene.pop()
 
 def draw():
@@ -163,7 +165,7 @@ def draw():
 					"beech": thing.Beech.rG,
 					"pine": thing.Pine.rG,
 				}[hud.selected()]
-				scale = 0.00025 * rG * 20 * view.cameraz
+				scale = view.VscaleG(rG * 20) / 4000
 				graphics.drawimg(view.VconvertH(pH), hud.selected(), scale = scale, cmask = (255, 255, 255, 100))
 	for tree in state.trees:
 		tree.drawroots()
@@ -188,7 +190,7 @@ def draw():
 			fontsize = T(50), color = (100, 200, 100), shade = 1, owidth = 0.5)
 	else:
 		ncharge = sum(ring.charged() for ring in state.rings)
-		ptext.draw("MAGIC: %d/%d" % (ncharge, len(state.rings)), bottomleft = T(15, 720),
+		ptext.draw("Rings: %d/%d" % (ncharge, len(state.rings)), bottomleft = T(15, 720),
 			fontsize = T(60), owidth = 1, color = (50, 200, 50), shade = 1)
 		if state.currentlevel in levels.tutorial and not dialog.queue:
 			text = "\n".join(levels.tutorial[state.currentlevel])

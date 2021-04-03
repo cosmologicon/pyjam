@@ -1,5 +1,6 @@
 import pygame, math
 from . import settings, view
+from .pview import T
 
 class state:
 	# Starting time for the mouse down
@@ -64,13 +65,13 @@ class ControlState:
 						self.events.add("rclick")
 					state.lt0 = None
 		if state.lt0 is not None:
-			if self.t - state.lt0 > 0.3 or math.distance(self.mposV, state.lpV0) > 10:
+			if self.t - state.lt0 > settings.tdrag or math.distance(self.mposV, state.lpV0) > T(settings.ddrag):
 				state.ldragging = True
 			if state.ldragging:
 				self.dragdV = view.vecadd(self.mposV, state.lpV, -1)
 				state.lpV = self.mposV
 		if state.rt0 is not None:
-			if self.t - state.rt0 > 0.3 or math.distance(self.mposV, state.rpV0) > 10:
+			if self.t - state.rt0 > settings.tdrag or math.distance(self.mposV, state.rpV0) > T(settings.ddrag):
 				state.rdragging = True
 			if state.rdragging:
 				self.rdragdV = view.vecadd(self.mposV, state.rpV, -1)
