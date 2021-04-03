@@ -25,7 +25,7 @@ data["pine3"] = {'rings': [{'pH': (0, 3), 'rH': 1, 'jcolor': 1}, {'pH': (3, -3),
 
 data["oakpine"] = {'rings': [{'pH': (-3, 4), 'rH': 1, 'jcolor': 1}, {'pH': (0, 5), 'rH': 1, 'jcolor': 0}, {'pH': (3, 1), 'rH': 1, 'jcolor': 2}], 'spawners': [{'pH': (-1, -1), 'spec': [(0, 1), (2, 0), (4, 2)], 'tspawn': 3}, {'pH': (0, 0), 'spec': [(0, 0), (2, 2), (4, 1)], 'tspawn': 3}, {'pH': (1, -2), 'spec': [(0, 2), (2, 1), (4, 0)], 'tspawn': 3}], 'trees': []}
 
-
+data["beechpine"] = {'rings': [{'pH': (0, 0), 'rH': 1, 'jcolor': 0}, {'pH': (-3, 5), 'rH': 1, 'jcolor': 1}, {'pH': (3, 4), 'rH': 1, 'jcolor': 1}, {'pH': (-4, -2), 'rH': 1, 'jcolor': 2}, {'pH': (5, -6), 'rH': 1, 'jcolor': 2}], 'spawners': [{'pH': (4, 2), 'spec': [(2, 0)], 'tspawn': 3}, {'pH': (2, -6), 'spec': [(1, 0)], 'tspawn': 3}, {'pH': (-6, 7), 'spec': [(3, 0)], 'tspawn': 3}, {'pH': (-7, 2), 'spec': [(2, 1)], 'tspawn': 3}, {'pH': (7, -2), 'spec': [(3, 1)], 'tspawn': 3}, {'pH': (6, 1), 'spec': [(4, 1)], 'tspawn': 3}, {'pH': (-1, -5), 'spec': [(0, 1)], 'tspawn': 3}, {'pH': (-4, 8), 'spec': [(2, 1)], 'tspawn': 3}, {'pH': (0, -5), 'spec': [(1, 1)], 'tspawn': 3}, {'pH': (-5, 1), 'spec': [(0, 2)], 'tspawn': 3}, {'pH': (1, 6), 'spec': [(3, 2)], 'tspawn': 3}, {'pH': (0, 7), 'spec': [(4, 2)], 'tspawn': 3}, {'pH': (3, -7), 'spec': [(0, 2)], 'tspawn': 3}, {'pH': (-2, -2), 'spec': [(0, 2)], 'tspawn': 3}, {'pH': (6, -2), 'spec': [(5, 2)], 'tspawn': 3}], 'trees': []}
 
 data["final0"] = {'rings': [{'pH': (-4, 8), 'rH': 1, 'jcolor': 1}, {'pH': (4, 4), 'rH': 1, 'jcolor': 2}, {'pH': (-8, 4), 'rH': 1, 'jcolor': 0}, {'pH': (-4, -4), 'rH': 1, 'jcolor': 2}, {'pH': (4, -8), 'rH': 1, 'jcolor': 1}, {'pH': (8, -4), 'rH': 1, 'jcolor': 0}], 'spawners': [{'pH': (0, 5), 'spec': [(2, 1), (4, 2), (0, 0)], 'tspawn': 3}, {'pH': (5, -5), 'spec': [(-2, 1), (0, 0), (2, 2)], 'tspawn': 3}, {'pH': (-5, 0), 'spec': [(-2, 1), (0, 0), (2, 2)], 'tspawn': 3}, {'pH': (-3, 3), 'spec': [(1, 0), (3, 1), (5, 2)], 'tspawn': 3}, {'pH': (3, 0), 'spec': [(3, 0), (5, 2), (1, 1)], 'tspawn': 3}, {'pH': (0, -3), 'spec': [(1, 2), (3, 0), (5, 1)], 'tspawn': 3}], 'trees': []}
 
@@ -42,6 +42,7 @@ R = {
 	"triple": 10,
 	"pine3": 12.3,
 	"oakpine": 10.5,
+	"beechpine": 13,
 	"final0": 14,
 	"final1": 17.4,
 }
@@ -54,6 +55,7 @@ buttons = {
 	"triple": ["oak", "beech"],
 	"pine3": ["pine"],
 	"oakpine": ["oak", "pine"],
+	"beechpine": ["beech", "pine"],
 	"final0": ["oak", "beech", "pine"],
 	"final1": ["oak", "beech", "pine"],
 }
@@ -77,16 +79,35 @@ dialog = {
 		"It needs to be at least... three times bigger!",
 	],
 	"single": [
-		"You call this a copse? Let's get some oak trees in here!",
+		"Hail and well met, I'm Gnorman!",
+		"Let's make a copse! That's how we gnomes collect magic.",
+		"What, you've never heard of a copse? It's a thicket of trees. Look it up!",
 		"Use trees to direct the magical energy into the toadstool ring!",
 	],
 	"overage": [
-		"It takes 3 streams of magical energy to charge a toadstool ring.",
+		"It takes 3 streams of magical energy to activate a toadstool ring.",
 		"Any more than that is wasted.",
 	],
 	"beech2": [
 		"Beech trees also direct the flow of energy, but not the same way that oaks do.",
 		"Learn the difference!",
+	],
+	"double": [
+		"Different toadstool rings accept different kinds of energy.",
+		"Make sure that each stream is directed to the correct ring.",
+	],
+	"triple": [
+		"Ooh, two different kinds of trees to choose from. How will you decide?",
+	],
+	"pine3": [
+		"Gnicole wants pine trees for her copse.",
+		"Think you can work with that?",
+	],
+	"oakpine": [
+		"You're a gnatural!",
+	],
+	"beechpine": [
+		"Are you getting dizzy yet?",
 	],
 	"final0": [
 		"You've helped all the gnomes build their copses!",
@@ -98,6 +119,8 @@ dialog = {
 		"Goodbye!",
 		"Oh, you're still here?",
 		"Okay, here's an optional bonus stage. Make a copse for yourself!",
+		"There's more flowers here than you even need!",
+		"You don't need to use all the streams, as long as each ring has 3.",
 	],
 }
 
@@ -113,8 +136,23 @@ tutorial = {
 	"overage": [
 		"Redirect the energy so that 3 streams are going to each ring.",
 	],
-	"final1": [
-		"Thank you for playing!",
+	"beech2": [
+		"Remember to click on planted trees to swap orientation.",
+	],
+	"double": [
+		"Direct each energy stream to the ring with the corresponding color.",
+		"Unmatching color energy will disrupt the ring and make it unable to activate.",
+	],
+	"triple": [
+		"You can press Esc at any time to quit. Your progress is automatically saved.",
+		"To restart the level, click on Settings and then Return to Map.",
+		"Change music and game speed using the buttons on the right.",
+	],
+	"pine3": [
+		"If you're experiencing low framerate, disable Shade FX and Trail FX in the Settings menu.",
+	],
+	"oakpine": [
+		"Don't forget you can click on a flower to highlight its streams. Click again to disable.",
 	],
 }
 

@@ -194,8 +194,8 @@ def draw():
 			fontsize = T(60), owidth = 1, color = (50, 200, 50), shade = 1)
 		if state.currentlevel in levels.tutorial and not dialog.queue:
 			text = "\n".join(levels.tutorial[state.currentlevel])
-			ptext.draw(text, bottomleft = T(440, 710), fontname = "Londrina",
-				fontsize = T(24), owidth = 1, color = (100, 200, 100), shade = 1)
+			ptext.draw(text, bottomleft = T(360, 710), fontname = "Londrina",
+				fontsize = T(20), width = T(760), owidth = 1, color = (100, 200, 100), shade = 1)
 			
 
 	hud.draw()

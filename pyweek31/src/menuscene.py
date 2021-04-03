@@ -7,11 +7,20 @@ from .pview import T
 class self:
 	pointed = None
 
-buttons = {
-	levelname: ((200 + 100 * j, 400 + j % 2 * 200), 100)
-	for j, levelname in enumerate(levels.data)
-}
-buttons["quit"] = (1220, 660), 50
+buttons = [
+	("empty", (50, 50), 50),
+	("single", (520, 250), 100),
+	("overage", (180, 260), 100),
+	("beech2", (750, 270), 100),
+	("double", (380, 360), 120),
+	("triple", (880, 370), 120),
+	("pine3", (130, 420), 140),
+	("oakpine", (610, 430), 140),
+	("beechpine", (1100, 440), 140),
+	("final0", (360, 560), 160),
+	("final1", (820, 580), 180),
+	("quit", (1200, 640), 70),
+]
 
 btext = {
 	"single": "Gnicholas",
@@ -30,11 +39,13 @@ btext = {
 def unlocked(bname):
 	if bname in ["quit"]:
 		return True
+	if bname == "empty":
+		return settings.DEBUG
 	return bname in progress.unlocked
 
 def control(cstate):
 	self.pointed = None
-	for bname, (bpos, br) in buttons.items():
+	for bname, bpos, br in buttons:
 		if unlocked(bname) and math.distance(cstate.mposV, T(bpos)) < T(br):
 			self.pointed = bname
 			if "click" in cstate.events:
@@ -65,7 +76,7 @@ def draw():
 	ptext.draw("F10: resize\nF11: fullscreen",
 		bottomleft = T(10, 710), fontsize = T(30), color = (50, 150, 50), shade = 1, owidth = 1,
 		fontname = "Londrina")
-	for bname, (bpos, br) in buttons.items():
+	for bname, bpos, br in buttons:
 		if not unlocked(bname): continue
 		tcolor = 255, 255, 255
 		if bname == "quit":
@@ -83,5 +94,6 @@ def draw():
 		text = btext.get(bname, bname.upper())
 		ptext.draw(text, center = T(bpos), fontsize = fontsize, color = tcolor, owidth = 1, shade = 1)
 		if bname in progress.beaten:
-			ptext.draw("DONE", center = T(bpos[0], bpos[1] + 40), color = (200, 200, 255), fontsize = T(30), owidth = 1, shade = 1)
+			ptext.draw("DONE", center = T(bpos[0], bpos[1] + T(0.35 * br)), color = (200, 200, 255),
+				fontsize = T(0.3 * br), owidth = 1, shade = 1)
 

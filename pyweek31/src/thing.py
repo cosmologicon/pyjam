@@ -58,6 +58,7 @@ class Travels(enco.Component):
 		self.dH = 0, 0
 		self.speed = 1
 		self.ftravel = 0
+		self.pG = view.GconvertH(view.vecadd(self.tile, self.dH, -0.5))
 	def think(self, dt):
 		if self.guider is None:
 			self.ftravel += self.speed * dt
@@ -194,6 +195,9 @@ class Ant:
 			pG = view.vecadd(self.pG, (random.uniform(-1, 1), random.uniform(-1, 1)), 0.1)
 			self.trailers.append((self.t, pG))
 			self.trailers = [(t, p) for t, p in self.trailers if self.t - t < 1]
+		# Safeguard against infinite loops.
+		if self.t > 200:
+			self.alive = False
 
 @Lives()
 @Lifetime(1)

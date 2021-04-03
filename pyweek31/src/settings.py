@@ -26,7 +26,8 @@ def load():
 	if os.path.exists("settings.pkl"):
 		obj = pickle.load(open("settings.pkl", "rb"))
 		height, fullscreen, forceres, soundvolume, musicvolume, mtrack, showarrows, showmeter, nshade, trails, speed = obj
-load()
+if "--resetsettings" not in sys.argv:
+	load()
 
 size0 = 1280, 720  # Do not change.
 

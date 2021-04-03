@@ -40,11 +40,11 @@ def getbtext(bname):
 	if bname == "silence":
 		return "Silence"
 	if bname == "back":
-		return "Resume\nGame"
+		return "Back to\nGame"
 	if bname == "menu":
-		return "Menu\n(restart\nlevel)"
+		return "Return\nto Map"
 	if bname == "quit":
-		return "Quit\n(save\nprogress)"
+		return "Quit\nGame"
 
 def unlocked(bname):
 	if bname in ["quit"]:

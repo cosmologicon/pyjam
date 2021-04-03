@@ -17,11 +17,15 @@ def init():
 
 def resize():
 	pview.cycle_height(settings.heights)
+	settings.height = pview.height
+	settings.save()
 	from . import graphics
 	graphics.reset()
 
 def toggle_fullscreen():
-	pview.toggle_fullscreen()
+	settings.fullscreen = not settings.fullscreen
+	pview.set_mode(fullscreen = settings.fullscreen)
+	settings.save()
 	from . import graphics
 	graphics.reset()
 
