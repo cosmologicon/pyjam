@@ -1,7 +1,7 @@
 import os
 import pygame
 from . import pview, ptext
-from . import settings, state, view, hud, controls, progress
+from . import settings, state, view, hud, controls, progress, sound
 from . import scene, playscene, menuscene
 from .pview import T
 
@@ -9,12 +9,14 @@ ptext.DEFAULT_FONT_NAME = "MiltonianTattoo"
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 
 view.init()
+pygame.mixer.init()
 if settings.reset and os.path.exists(settings.savename):
 	os.remove(settings.savename)
 state.load()
 if settings.unlockall:
 	progress.unlockall()
 scene.push(menuscene)
+sound.playmusic(0)
 
 playing = True
 clock = pygame.time.Clock()

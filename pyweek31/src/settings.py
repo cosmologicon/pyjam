@@ -14,6 +14,10 @@ size0 = w, h = width, height = 1280, 720
 savename = "savegame.pkl"
 tautosave = 5   # seconds
 
+soundvolume = 0.8
+musicvolume = 0.8
+mtrack = 0
+
 speed = 1
 speeds = [0.5, 1, 2, 5, 10]
 reset = "--reset" in sys.argv

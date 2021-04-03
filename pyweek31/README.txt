@@ -1,4 +1,4 @@
-Game Title
+Gnorman's Copse
 ==========
 
 Entry in PyWeek 31  <http://www.pyweek.org/31/>

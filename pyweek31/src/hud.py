@@ -1,6 +1,6 @@
 import pygame, math
 from . import pview, ptext
-from . import view, graphics, settings, state, levels
+from . import view, graphics, settings, state, levels, sound
 from .pview import T
 
 class self:
@@ -65,15 +65,24 @@ def control(cstate):
 	if "click" in cstate.events:
 		if self.pointed == "arrows":
 			arrows = not arrows
+			sound.playsound("click")
 		elif self.pointed == "meter":
 			meter = not meter
+			sound.playsound("click")
 		elif self.pointed == "speed":
 			speeds = [s for s in settings.speeds if s > settings.speed]
 			settings.speed = min(speeds or settings.speeds)
+			sound.playsound("click")
+		elif self.pointed == "music":
+			tracks = [None, 0, 1, 2, 3]
+			sound.playmusic(tracks[(tracks.index(settings.mtrack) + 1) % len(tracks)])
+			sound.playsound("click")
 		elif self.selected == self.pointed:
 			self.selected = None
+			sound.playsound("unclick")
 		else:
 			self.selected = self.pointed
+			sound.playsound("click")
 
 def draw():
 #	pview.screen.fill((30, 30, 60), T(self.rect))
@@ -108,7 +117,7 @@ def draw():
 		elif bname == "speed":
 			text = ("%.1fx" if settings.speed != int(settings.speed) else "%dx") % settings.speed
 		elif bname == "music":
-			text = "Song 1"
+			text = "Music\nOff" if settings.mtrack is None else "Track\n#%d" % (settings.mtrack + 1)
 		else:
 			text = bname.upper()
 		fontsize = T(f * br / max(max(len(line) for line in text.splitlines()), 5))

@@ -1,6 +1,6 @@
 import math, random
 import pygame
-from . import enco, pview, ptext, settings, graphics, hud
+from . import enco, pview, ptext, settings, graphics, hud, sound
 from . import view, state
 
 tspawn0 = 3
@@ -128,6 +128,8 @@ class Charges(enco.Component):
 	def __init__(self):
 		self.charge = 0
 		self.meter = 0
+		self.tsound = 10
+		self.lsound = 0
 	def arrive(self, bug):
 		bug.alive = False
 		if bug.jcolor == self.jcolor:
@@ -138,6 +140,12 @@ class Charges(enco.Component):
 		self.charge *= 0.5 ** dt
 		f = 1 - math.exp(-0.5 * dt / tspawn0)
 		self.meter = math.mix(self.meter, math.log(2) * tspawn0 * self.charge, f)
+		self.tsound += dt
+		lsound = self.overcharged() + self.charged()
+		if lsound != self.lsound:
+			self.lsound = lsound
+			if self.tsound >= 10:
+				sound.playsound("charge-%d" % lsound)
 	def draw(self):
 		if hud.meter:
 			i = int(round(self.meter))

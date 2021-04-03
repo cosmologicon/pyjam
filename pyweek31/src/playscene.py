@@ -1,7 +1,7 @@
 import random, math
 import pygame
 from . import pview, ptext
-from . import settings, view, state, thing, hud, levels, scene, progress, graphics
+from . import settings, view, state, thing, hud, levels, scene, progress, graphics, sound
 from .pview import T
 
 class self:
@@ -47,9 +47,7 @@ def control(cstate):
 		self.mposH = view.HconvertV(cstate.mposV)
 		pH = view.HnearesthexH(self.mposH)
 		if settings.DEBUG and "act" in cstate.kdowns:
-			print("act")
 			if state.spawnerat(pH):
-				print("rotate")
 				state.spawnerat(pH).rotate()
 			if state.ringat(pH):
 				state.ringat(pH).toggle()
@@ -58,10 +56,13 @@ def control(cstate):
 				selected = hud.selected()
 				if selected == "oak":
 					state.addtree(thing.Oak(pH, 1))
+					sound.playsound("grow0")
 				if selected == "beech":
 					state.addtree(thing.Beech(pH, 1))
+					sound.playsound("grow1")
 				if selected == "pine":
 					state.addtree(thing.Pine(pH, 2))
+					sound.playsound("grow2")
 				if selected is not None and len(selected) == 4 and selected[0] == "s" and selected[2] == "-":
 					jcolor = int(selected[1])
 					jdH = int(selected[3])
@@ -82,11 +83,14 @@ def control(cstate):
 					random.shuffle(jcolors)
 					spec = list(zip([-2, 0, 2], jcolors))
 					state.addspawner(thing.Spawner(pH, 2, spec))
-					
 			elif state.treeat(pH):
 				state.treeat(pH).toggle()
+				sound.playsound("swap")
 			elif state.spawnerat(pH):
 				state.spawnerat(pH).toggle()
+				sound.playsound("chime")
+			else:
+				sound.playsound("no")
 		if "rclick" in cstate.events:
 			pH = view.HnearesthexH(self.mposH)
 			if state.treeat(pH) is not None:
@@ -110,6 +114,9 @@ def think(dt):
 	elif dialog.current is not None:
 		if dialog.t > len(dialog.current) / 40 + 3:
 			dialog.current = None
+	if dialog.current and dialog.t * 60 < len(dialog.current):
+		if 0.05 * random.random() < dt:
+			sound.playsound("yak%d" % random.choice([0, 1, 2, 3, 4]))
 	
 	dt *= settings.speed
 	for tree in state.trees:
@@ -125,9 +132,11 @@ def think(dt):
 	for ring in state.rings:
 		ring.think(dt)
 	winning = all(ring.charged() for ring in state.rings) and state.currentlevel != "empty"
-	if winning:
+	if winning or self.twin > 4:
 		self.twin += dt
-	if winning and self.twin > 5:
+		if self.twin <= 4 < self.twin + dt:
+			sound.playsound("win")
+	if self.twin > 8:
 		win()
 
 

@@ -16,13 +16,16 @@ def init():
 	pygame.display.set_caption(settings.gamename)
 
 def resize():
-	from . import graphics
 	pview.cycle_height(settings.heights)
+	from . import graphics
 	graphics.shadesurfs.clear()
 	graphics.groundimg.cache_clear()
 
 def toggle_fullscreen():
 	pview.toggle_fullscreen()
+	from . import graphics
+	graphics.shadesurfs.clear()
+	graphics.groundimg.cache_clear()
 
 def clear():
 	pview.screen.fill((25, 50, 25))
