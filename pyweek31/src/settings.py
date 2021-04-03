@@ -43,6 +43,7 @@ speeds = [0.5, 1, 2, 5, 10]
 tdrag = 0.3
 ddrag = 15
 
+# Most of these are not actually used in the game, just during debugging and level editing.
 keys = {
 	"act": [pygame.K_SPACE],
 	"left": [pygame.K_LEFT, pygame.K_a],
