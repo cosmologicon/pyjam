@@ -117,10 +117,9 @@ def rootsimg(scale, color, f, seed):
 	for (fw, color) in [(1, (255, 255, 255)), (0.8, (220, 220, 220)), (0.4, (200, 200, 200))]:
 		for jangle in range(16):
 			fangle = math.clamp(2 * f - jangle/20, 0, 1)
-			fseed = jangle * (17.123 + 0.123 * seed)
-			r = math.mix(0.7, 1, fseed * 1234.56 % 1) * s
-			dx0 = math.mix(-0.5, 0.5, fseed * 2345.67 % 1)
-			dx1 = math.mix(-0.5, 0.5, fseed * 3456.78 % 1)
+			r = math.fuzzrange(0.7, 1, seed, jangle, 0) * s
+			dx0 = math.fuzzrange(-0.5, 0.5, seed, jangle, 1)
+			dx1 = math.fuzzrange(-0.5, 0.5, seed, jangle, 2)
 			ts = [1/20 * j for j in range(0, 21)]
 			ws = [r * (0.3 * (fangle - t) - 0 * (1 - fw)) for t in ts]
 			xs = [r * 3 * t * (1 - t) * ((1 - t) * dx0 + t * dx1) for t in ts]
@@ -171,11 +170,11 @@ def addtree(tree):
 def drawshades():
 	if not settings.nshade:
 		return
-	t = 0.001 * pygame.time.get_ticks() + 12345
+	t = 0.001 * pygame.time.get_ticks()
 	for j, img in enumerate(getshadesurfs(view.cameraz)):
 		if j < settings.nshade:
-			xG = 0.3 * math.sin(math.mix(0.5, 0.7, j * math.phi % 1) * t + 1.234 * j)
-			yG = 0.3 * math.sin(math.mix(0.6, 0.8, j * 0.234 % 1) * t + 2.345 * j)
+			xG = 0.3 * math.sin(math.fuzzrange(0.5, 0.7, j, 1) * t + math.tau * math.fuzz(j, 3))
+			yG = 0.3 * math.sin(math.fuzzrange(0.6, 0.8, j, 2) * t + math.tau * math.fuzz(j, 4))
 			pview.screen.blit(img, img.get_rect(center = view.VconvertG((xG, yG))))
 
 @cache
@@ -196,11 +195,6 @@ def spriteimg(s, color, seed):
 		return pygame.transform.smoothscale(spriteimg(60, None, seed), (2 * s, 2 * s))
 	img = pygame.Surface((2 * s, 2 * s)).convert_alpha()
 	img.fill((255, 255, 255, 0))
-	for _ in range(0):
-		x, y = random.randrange(-s, s), random.randrange(-s, s)
-		if math.hypot(x, y) >= s: continue
-		color = 255, 255, 255, random.randrange(10, 20)
-		pygame.draw.line(img, color, (s + x, s + y), (s - x, s - y), 1)
 	himg = hill(random.choice([40, 42, 44, 46, 48]))
 	img.blit(himg, himg.get_rect(center = (s + random.randint(-1, 1), s + random.randint(-1, 1))), None, pygame.BLEND_RGBA_MAX)
 	return img
