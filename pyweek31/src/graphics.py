@@ -1,4 +1,4 @@
-import functools, math, random, pygame
+import functools, math, random, pygame, os.path
 from . import pview
 from . import view, settings
 from .pview import T
@@ -85,7 +85,7 @@ def img0(name, scale = 1, angle = 0, cmask = None, xscale = 1):
 		return pygame.transform.rotate(img0(name, 1, 0), angle)
 	if name.startswith("flower-"):
 		return flowerimg0(name.split("-")[1])
-	return pygame.image.load("img/%s.png" % name).convert_alpha()
+	return pygame.image.load(os.path.join("img", "%s.png" % name)).convert_alpha()
 
 def flowerimg0(spec):
 	img = img0("flower").copy()

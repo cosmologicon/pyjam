@@ -6,7 +6,7 @@ from . import scene, playscene, menuscene
 from .pview import T
 
 ptext.DEFAULT_FONT_NAME = "MiltonianTattoo"
-ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
+ptext.FONT_NAME_TEMPLATE = os.path.join("fonts", "%s.ttf")
 
 pygame.init()
 view.init()

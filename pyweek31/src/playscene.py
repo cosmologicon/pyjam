@@ -110,8 +110,11 @@ def think(dt):
 		dialog.t = 0
 	elif dialog.current is not None:
 		if dialog.t > len(dialog.current) / 40 + 3:
-			dialog.current = None
-			if not dialog.queue:
+			if dialog.queue:
+				dialog.current = dialog.queue.pop(0)
+				dialog.t = 0
+			else:
+				dialog.current = None
 				progress.seen.add(state.currentlevel)
 				progress.save()
 	if dialog.current and dialog.t * 60 < len(dialog.current):
