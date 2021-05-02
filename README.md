@@ -12,7 +12,7 @@ Code for my Python game jam entries (PyWeek).
 * PyWeek 26 (`odyssey`): Storm Drain Odyssey.
 * PyWeek 27 (`snowcrafter`): Snowcrafter.
 * PyWeek 28 (`nerdozog`): Nerdozog's Ascent.
-* PyWeek 29 (`pyweek29`): Miranda the Lepidopterist.
+* PyWeek 29 (`miranda`): Miranda the Lepidopterist.
 * PyWeek 30 (`pyweek30`): The Tide Summoner.
 
 ## Setup process
