@@ -1,7 +1,9 @@
-import pygame
+import pygame, math
 from . import pview, settings
+from .pview import T
 
 
+x0, y0 = 0, 0
 scale = 40
 
 def init():
@@ -21,5 +23,9 @@ def togglefullscreen():
 	
 def clear():
 	pview.fill((10, 20, 30))
+
+def screenpos(worldpos):
+	x, y = worldpos
+	return T(pview.centerx + scale * (x - x0), pview.centery - scale * (y - y0))
 
 
