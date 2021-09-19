@@ -20,6 +20,8 @@ while playing:
 			view.resize()
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
 			view.toggle_fullscreen()
+		if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
+			pview.toggle_fullscreen()
 	kpressed = pygame.key.get_pressed()
 
 	
