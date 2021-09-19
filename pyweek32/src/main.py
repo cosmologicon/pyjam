@@ -1,8 +1,9 @@
 import pygame
-from . import settings, view
+from . import settings, view, playscene
 
 settings.load()
 view.init()
+playscene.init()
 
 playing = True
 clock = pygame.time.Clock()
@@ -19,14 +20,17 @@ while playing:
 			view.resize()
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
 			view.toggle_fullscreen()
+	kpressed = pygame.key.get_pressed()
+
 	
 	dtaccum += dt
 	dt0 = 1 / settings.maxfps
 	while dtaccum > dt0:
 		dtaccum -= dt0
-		# think(dt0)
+		playscene.think(dt0, kpressed)
 
 	view.clear()
+	playscene.draw()
 	pygame.display.flip()
 
 

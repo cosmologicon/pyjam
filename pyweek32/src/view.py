@@ -1,6 +1,9 @@
 import pygame
 from . import pview, settings
 
+
+scale = 40
+
 def init():
 	pygame.display.init()
 	pygame.display.set_caption(settings.gamename)
