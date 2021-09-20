@@ -1,5 +1,5 @@
 import pygame
-from . import settings, view, playscene, ptext
+from . import settings, view, ptext, state, playscene, gameoverscene
 from .pview import T
 
 settings.load()
@@ -31,9 +31,13 @@ while playing:
 	while dtaccum > dt0:
 		dtaccum -= dt0
 		playscene.think(dt0, kpressed)
+	if state.gameover():
+		gameoverscene.think(dt, kpressed)
 
 	view.clear()
 	playscene.draw()
+	if state.gameover():
+		gameoverscene.draw()
 	if settings.DEBUG:
 		text = "%.1ffps" % clock.get_fps()
 		ptext.draw(text, bottomleft = T(4, 716), fontsize = T(16))

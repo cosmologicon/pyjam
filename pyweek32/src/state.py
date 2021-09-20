@@ -1,25 +1,41 @@
 import random, math, pygame
-from . import pview, view, geometry
+from . import pview, view, geometry, settings
 from .pview import T
 
-class Star:
-	color = 128, 128, 128
-	r = 0.3
+
+class Obj:
 	def __init__(self, pos):
 		self.pos = pos
-		self.alive = True
 		self.t = 0
+		self.alive = True
+
+	def think(self, dt):
+		self.t += dt
+
+	def getcolor(self):
+		return self.color
 
 	def draw(self):
-		color = self.color
-		if you.ischompin(self.pos):
-			color = math.imix(self.color, (255, 255, 255), 0.6)
+		color = self.getcolor()
 		pos = view.screenpos(self.pos)
 		size = T(view.scale * self.r)
 		pygame.draw.circle(pview.screen, color, pos, size)
 
-	def think(self, dt):
-		self.t += dt
+	def collide(self):
+		pass
+
+	def collect(self):
+		pass
+
+class Star(Obj):
+	color = 128, 128, 128
+	r = 0.3
+
+	def getcolor(self):
+		if you.ischompin(self.pos):
+			return math.imix(self.color, (255, 255, 255), 0.6)
+		else:
+			return self.color
 
 	def collide(self):
 		if not self.alive: return
@@ -45,6 +61,34 @@ class DieStar(Star):
 		you.length = 0
 		you.alive = False
 
+class Mine(Obj):
+	color = 60, 60, 60
+	r = 0.6
+
+	def collide(self):
+		if not self.alive: return
+		you.length = max(you.length - 5, 10)
+		self.alive = False
+
+class Wall:
+	color = 140, 20, 20
+	r = 0.05
+	def __init__(self, pos0, pos1):
+		self.pos0 = pos0
+		self.pos1 = pos1
+
+	def draw(self):
+		pos0 = view.screenpos(self.pos0)
+		pos1 = view.screenpos(self.pos1)
+		pygame.draw.line(pview.screen, self.color, pos0, pos1, T(2 * view.scale * self.r))
+
+	def collides(self, you):
+		return geometry.dtoline(you.pos, self.pos0, self.pos1) < you.r + self.r
+
+	def collide(self):
+		you.length = 0
+		you.alive = False
+	
 
 
 class You:
@@ -60,6 +104,7 @@ class You:
 		self.speed = 5
 		self.fspeed = 1
 		self.length = 10
+		self.alive = True
 
 	def canchomp(self):
 		for j, (d0, p0) in enumerate(self.ps):
@@ -122,13 +167,13 @@ class You:
 			x1, y1 = self.pos
 			self.theta = math.atan2(x1 - x0, y1 - y0)
 		else:
-			if False:
-				omega = { -1: 0.3, 0: 0.6, 1: 1.2 }[dky] * self.speed
-				self.theta += omega * dt * dkx % math.tau
-			else:
+			if settings.directcontrol:
 				if dkx or dky:
 					target = math.atan2(dkx, dky)
 					self.theta = math.angleapproach(self.theta, target, 0.9 * self.speed * dt)
+			else:
+				omega = { -1: 0.3, 0: 0.6, 1: 1.2 }[dky] * self.speed
+				self.theta += omega * dt * dkx % math.tau
 			dy, dx = math.CS(self.theta, step)
 			self.pos = x0 + dx, y0 + dy
 
@@ -173,17 +218,30 @@ class You:
 
 
 objs = []
+walls = []
 def init():
 	global R, you
 	R = 20
 	you = You()
 	del objs[:]
 	d = R - 2
+	taken = set()
+	def randompos():
+		x, y = p = random.randint(-d, d), random.randint(-d, d)
+		if p not in taken and 4 < math.hypot(x, y) < d:
+			taken.add(p)
+			return p
+		return randompos()
 	for _ in range(int(d ** 2 * 0.1)):
-		pos = random.uniform(-d, d), random.uniform(-d, d)
-		objs.append(GrowStar(pos))
-		pos = random.uniform(-d, d), random.uniform(-d, d)
-		objs.append(DieStar(pos))
+		objs.append(GrowStar(randompos()))
+		objs.append(Mine(randompos()))
+
+	del walls[:]
+	ps = math.CSround(12, r = R, jtheta0 = 0.5)
+	for j, p0 in enumerate(ps):
+		p1 = ps[(j + 1) % len(ps)]
+		walls.append(Wall(p0, p1))
+
 
 
 def think(dt):
@@ -191,7 +249,12 @@ def think(dt):
 		obj.think(dt)
 		if geometry.collides(obj, you):
 			obj.collide()
+	for wall in walls:
+		if wall.collides(you):
+			wall.collide()
 	objs[:] = [obj for obj in objs if obj.alive]
 
+def gameover():
+	return not you.alive
 
 
