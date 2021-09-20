@@ -104,6 +104,10 @@ def softapproach(x, target, dlogx, dxmax = float("inf"), dymin = 0.1):
 	if (1 - f) * d < dymin:
 		return target
 	return mix(x, target, f)
+def logapproach(x, target, dx):
+	return math.exp(approach(math.log(x), math.log(target), dx))
+def softlogapproach(x, target, dlogx, dxmax = float("inf"), dymin = 0.1):
+	return math.exp(softapproach(math.log(x), math.log(target), dlogx, dxmax, dymin))
 def angleapproach(theta, target, dtheta):
 	# The closest value to target that's equal to theta mod tau.
 	theta = (theta - target + tau / 2) % tau + target - tau / 2

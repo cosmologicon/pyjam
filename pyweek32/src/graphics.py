@@ -16,8 +16,8 @@ def drawstars():
 			color = math.imix((0, 0, 0), color0, a)
 			stars.append((x, y, z, color))
 	for x, y, z, color in stars:
-		px = T((x - z * view.x0) * view.scale) % pview.w
-		py = T(-(y - z * view.y0) * view.scale) % pview.h
+		px = T((x - z * view.x0) * 40) % pview.w
+		py = T(-(y - z * view.y0) * 40) % pview.h
 		pview.screen.set_at((px, py), color)
 	
 

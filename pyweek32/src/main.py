@@ -1,5 +1,6 @@
 import pygame
-from . import settings, view, playscene
+from . import settings, view, playscene, ptext
+from .pview import T
 
 settings.load()
 view.init()
@@ -33,6 +34,9 @@ while playing:
 
 	view.clear()
 	playscene.draw()
+	if settings.DEBUG:
+		text = "%.1ffps" % clock.get_fps()
+		ptext.draw(text, bottomleft = T(4, 716), fontsize = T(16))
 	pygame.display.flip()
 
 

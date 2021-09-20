@@ -35,3 +35,6 @@ def polycontains(poly, p):
 	return contains
 
 
+def collides(obj0, obj1):
+	return math.distance(obj0.pos, obj1.pos) < obj0.r + obj1.r
+
