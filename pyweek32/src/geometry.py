@@ -26,18 +26,18 @@ def traversepoly(poly):
 	for j in range(len(poly)):
 		yield poly[j], poly[(j + 1) % len(poly)]
 
-def polycontains(poly, p):
-	poly = clearpoly(poly)
+def polywind(poly, p):
 	if len(poly) < 3:
-		return False
-	contains = False
+		return 0
+	wind = 0
 	x, y = p
 	for (x0, y0), (x1, y1) in traversepoly(poly):
-		if y0 <= y < y1 or y0 >= y > y1:
-			xc = math.fadebetween(y, y0, x0, y1, x1)
-			if xc > x:
-				contains = not contains
-	return contains
+		yf = (y0 <= y < y1) - (y0 >= y > y1)
+		if yf != 0:
+			xf = math.sign(math.fadebetween(y, y0, x0, y1, x1) - x)
+			wind += yf * xf
+	assert wind % 2 == 0
+	return wind // 2
 
 
 def collides(obj0, obj1):

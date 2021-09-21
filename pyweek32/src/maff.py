@@ -14,6 +14,8 @@ tau = math.tau if hasattr(math, "tau") else 2 * math.pi
 phi = (1 + math.sqrt(5)) / 2
 Phi = phi - 1
 
+phyllo = tau * (2 - phi)
+
 # GLSL functions
 def sign(x):
 	return 1. if x > 0 else -1. if x < 0 else 0.
@@ -114,10 +116,10 @@ def angleapproach(theta, target, dtheta):
 	return approach(theta, target, dtheta)
 
 # Polar coordinates
-def CS(theta, r = 1):
-	return r * math.cos(theta), r * math.sin(theta)
-def CSround(ntheta, r = 1, jtheta0 = 0):
-	return [CS((jtheta + jtheta0) / ntheta * tau, r) for jtheta in range(ntheta)]
+def CS(theta, r = 1, center = (0, 0)):
+	return center[0] + r * math.cos(theta), center[1] + r * math.sin(theta)
+def CSround(ntheta, r = 1, jtheta0 = 0, center = (0, 0)):
+	return [CS((jtheta + jtheta0) / ntheta * tau, r, center) for jtheta in range(ntheta)]
 
 # Rotation transform
 def R(theta, v = None):

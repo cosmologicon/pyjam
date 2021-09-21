@@ -25,7 +25,6 @@ while playing:
 			pview.toggle_fullscreen()
 	kpressed = pygame.key.get_pressed()
 
-	
 	dtaccum += dt
 	dt0 = 1 / settings.maxfps
 	while dtaccum > dt0:

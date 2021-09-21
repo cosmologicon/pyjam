@@ -1,4 +1,5 @@
-import random, math
+import random, math, pygame
+from functools import lru_cache
 from . import pview, view
 from .pview import T
 
@@ -19,5 +20,36 @@ def drawstars():
 		px = T((x - z * view.x0) * 40) % pview.w
 		py = T(-(y - z * view.y0) * 40) % pview.h
 		pview.screen.set_at((px, py), color)
+
+def mask(img, color):
+	cimg = img.copy()
+	cimg.fill(color)
+	cimg.blit(img, (0, 0), None, pygame.BLEND_RGBA_MULT)
+	return cimg
+
+def drawat(img, pos):
+	pview.screen.blit(img, img.get_rect(center = pos))
+
+@lru_cache(1000)
+def hillimg(color, r, alpha):
+	c0 = (color) + (int(round(alpha * 255)),)
+	if c0 != (255, 255, 255, 255):
+		return mask(hillimg((255, 255, 255), r, 1), c0)
+	r0 = 32
+	if r != r0:
+		return pygame.transform.smoothscale(hillimg(color, r0, alpha), (2 * r, 2 * r))
+	img = pygame.Surface((2 * r0, 2 * r0)).convert_alpha()
+	for x in range(2 * r0):
+		for y in range(2 * r0):
+			a = int(math.smoothfadebetween(math.hypot(x - r0 + 0.5, y - r0 + 0.5), 0, 255, r0, 0))
+			img.set_at((x, y), (255, 255, 255, a))
+	return img
+
+
+def drawhill(pos, color, r, alpha = 1):
+	r = int(round(r))
+	alpha = int(alpha * 15) / 15
+	drawat(hillimg(color, r, alpha), pos)
+	
 	
 
