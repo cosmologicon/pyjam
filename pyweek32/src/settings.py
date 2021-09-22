@@ -1,4 +1,4 @@
-import pickle, os
+import pickle, os, sys
 
 # Command line editable.
 
@@ -28,6 +28,6 @@ gamename = "Neverending"
 savename = "savegame.pkl"
 heights = 480, 540, 720, 1080
 DEBUG = True
-reset = False
+reset = "--reset" in sys.argv
 minfps, maxfps = 10, 120
 

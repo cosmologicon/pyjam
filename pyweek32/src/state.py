@@ -52,7 +52,7 @@ class Star(Obj):
 				pygame.draw.circle(pview.screen, (255, 255, 255), view.screenpos(pos), size)
 		if self.numreq != 0:
 			ptext.draw(str(self.numreq), center = view.screenpos(self.pos),
-				fontsize = T(view.scale * self.r), owidth = 1)
+				fontsize = T(view.scale * self.r), shadow = (1, 1))
 
 	def collide(self):
 		if not self.alive: return
@@ -114,6 +114,9 @@ class Wall:
 	def __init__(self, pos0, pos1):
 		self.pos0 = pos0
 		self.pos1 = pos1
+		
+		n = int(math.ceil(math.distance(self.pos0, self.pos1) / 0.5))
+		self.blockps = [(math.mix(self.pos0, self.pos1, j / n), 1) for j in range(n + 1)]
 
 	def draw(self):
 		pos0 = view.screenpos(self.pos0)
@@ -126,7 +129,22 @@ class Wall:
 	def collide(self):
 		you.length = 0
 		you.alive = False
-	
+
+
+# Choose a point within the arena that's not too close to any of the given points.	
+def randompos(R, ps, r0, dmin = 1):
+	j = 0
+	while True:
+		d = R - dmin
+		x, y = p = random.uniform(-d, d), random.uniform(-d, d)
+		if math.hypot(x, y) > d:
+			continue
+		j += 1
+		if any(math.hypot(x - px, y - py) < r0 + pr + dmin for (px, py), pr in ps):
+			dmin *= math.exp(-0.01)
+			continue
+		print("randompos", j)
+		return x, y
 
 objs = []
 walls = []
@@ -134,47 +152,69 @@ active = []
 wound = []
 keys = []
 def init():
-	global R, you, stage
+	global R, you, stage, numgrow
+	del objs[:], active[:], wound[:], keys[:], walls[:]
+
 	stage = progress.endless + 1
-	R = 16
+	if stage == 1:
+		R = 12
+		objs.append(Star((0, 0), r = 4))
+		numgrow = 1
+		headstart = 0
+	elif stage == 2:
+		R = 14
+		objs.append(Star((7, 0), r = 1.4, numreq = 2))
+		objs.append(Star((-7, 0), r = 1.4, numreq = 2))
+		numgrow = 2
+		headstart = 1
+	elif stage == 3:
+		R = 15
+		objs.append(Star((8, 0), r = 1.4, numreq = 2))
+		objs.append(Star((-8, 0), r = 1.4, numreq = 2))
+		walls.append(Wall((0, -6), (0, 6)))
+		numgrow = 3
+		headstart = 2
+	elif stage == 4:
+		R = 16
+		for pos in math.CSround(4, 10, jtheta0 = 0.5):
+			objs.append(Star(pos, r = 2, numreq = 2))
+		objs.append(Star((0, 0), r = 4, numreq = -1))
+		numgrow = 3
+		headstart = 3
+	elif stage == 5:
+		R = 16
+		for pos in math.CSround(3, 10, jtheta0 = 3/4):
+			objs.append(Star(pos, r = 2, numreq = 3))
+		objs.append(Star((0, 0), r = 4, numreq = -1))
+		numgrow = 3
+		headstart = 6
+	elif stage == 6:
+		R = 17
+		for j, pos in enumerate(math.CSround(4, 8, jtheta0 = 1/2)):
+			objs.append(Star(pos, r = 2, numreq = 4, windreq = (1 if j % 2 == 0 else -1)))
+		walls.append(Wall((0, -10), (0, 10)))
+		walls.append(Wall((-10, 0), (10, 0)))
+		numgrow = 3
+		headstart = 10
+	else:
+		exit()
+
+	keys.extend([star for star in objs if star.numreq >= 0])
+
 	from . import snek
-	you = snek.You((0, -14))
+	you = snek.You((0, -R + 2))
 	you.length = 10
-	you.speed = 3
-	del objs[:], active[:], wound[:], keys[:]
-	d = R - 2
-	taken = set()
-	def randompos():
-		x, y = p = random.randint(-d, d), random.randint(-d, d)
-		if p not in taken and 4 < math.hypot(x, y) < d:
-			taken.add(p)
-			return p
-		return randompos()
+	you.dlength = 5
+	you.speed = 5
+	you.dspeed = 0.1
+	you.length += headstart * you.dlength
+	you.speed += headstart * you.dspeed
 
-	objs.append(Star((0, 0), r = 4))
-	keys.append(objs[0])
-	for pos in math.CSround(6, 9, jtheta0 = 0):
-		objs.append(GrowStar(pos))
-
-#	for k in range(60):
-#		a = R * math.sqrt(math.mix(0.2 ** 2, 0.9 ** 2, k / 60))
-#		pos = math.CS(k * math.phyllo, r = a)
-#		windreq = random.choice([None, None, None, None, -1, 1])
-#		numreq = random.choice([-1, 0, 0, 0, 0, 2, 2, 3, 4])
-#		objs.append(Star(pos, r = 0.6, windreq = windreq, numreq = numreq))
-
-
-#	for pos in math.CSround(3, 13):
-#		objs.append(Star(pos, windreq = 1, numreq = 2, r = 1.2))
-#	for pos in math.CSround(3, 9, jtheta0 = 0.5):
-#		objs.append(Star(pos, windreq = -1, numreq = 1, r = 0.8))
-
-
-	del walls[:]
 	ps = math.CSround(12, r = R, jtheta0 = 0.5)
 	for j, p0 in enumerate(ps):
 		p1 = ps[(j + 1) % len(ps)]
 		walls.append(Wall(p0, p1))
+
 
 def setactive(poly):
 	del wound[:], active[:]
@@ -195,8 +235,21 @@ def activate():
 		obj.activate()
 	del active[:], wound[:]
 
+def blockps():
+	ps = [(obj.pos, obj.r) for obj in objs]
+	ps.extend(you.blockps())
+	for wall in walls:
+		ps.extend(wall.blockps)
+	return ps
+
 
 def think(dt):
+	while sum(isinstance(obj, GrowStar) for obj in objs) < numgrow:
+		r = 0.3
+		pos = randompos(R * math.cos(math.tau / 24), blockps(), r, dmin = 2)
+		objs.append(GrowStar(pos, r))
+
+
 	for obj in objs:
 		obj.think(dt)
 		if not you.chompin and geometry.collides(obj, you):
@@ -211,4 +264,8 @@ def gameover():
 
 def winning():
 	return not any(key.alive for key in keys)
+
+def cheatwin():
+	for obj in keys:
+		obj.alive = False
 

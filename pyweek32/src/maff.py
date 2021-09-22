@@ -48,6 +48,9 @@ def distance(v0, v1):
 	return math.sqrt(sum((a0 - a1) ** 2 for a0, a1 in zip(v0, v1)))
 def dot(v0, v1):
 	return sum(a * b for a, b in zip(v0, v1))
+def anglemix(x, y, a):
+	y = (y - x + tau / 2) % tau + x - tau / 2
+	return mix(x, y, a)
 
 # Normalize with optional length
 def normalize(v, r = 1):
@@ -83,6 +86,10 @@ def fadebetween(x, x0, y0, x1, y1):
 def smoothfadebetween(x, x0, y0, x1, y1):
 	a = smoothfade(x, x0, x1 - x0)
 	return mix(y0, y1, a)
+def anglefadebetween(x, x0, y0, x1, y1):
+	a = fade(x, x0, x1 - x0)
+	return anglemix(y0, y1, a)
+
 # Cycle between 0 and 1
 def cycle(a):
 	return 0.5 - 0.5 * math.cos(math.tau * a)

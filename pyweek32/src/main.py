@@ -1,5 +1,5 @@
 import pygame
-from . import settings, view, ptext, state, playscene, gameoverscene
+from . import settings, view, ptext, state, playscene, gameoverscene, pview
 from .pview import T
 
 settings.load()
@@ -17,12 +17,14 @@ while playing:
 			playing = False
 		if settings.DEBUG and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 			playing = False
+		if settings.DEBUG and event.type == pygame.KEYDOWN and event.key == pygame.K_1:
+			state.cheatwin()
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_F10:
 			view.resize()
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
 			view.toggle_fullscreen()
-		if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
-			pview.toggle_fullscreen()
+		if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
+			pview.screenshot()
 	kpressed = pygame.key.get_pressed()
 
 	dtaccum += dt

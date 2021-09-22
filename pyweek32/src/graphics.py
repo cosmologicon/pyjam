@@ -1,4 +1,4 @@
-import random, math, pygame
+import random, math, pygame, os.path
 from functools import lru_cache
 from . import pview, view
 from .pview import T
@@ -50,6 +50,23 @@ def drawhill(pos, color, r, alpha = 1):
 	r = int(round(r))
 	alpha = int(alpha * 15) / 15
 	drawat(hillimg(color, r, alpha), pos)
-	
-	
+
+
+@lru_cache(10000)
+def getimg0(imgname, angle = 0, scale = None):
+	print(imgname, angle, scale, getimg0.cache_info().currsize)
+	if scale is not None or angle != 0:
+		return pygame.transform.rotozoom(getimg0(imgname), angle, scale)
+	return pygame.image.load(os.path.join("img", "%s.png" % imgname)).convert_alpha()
+def getimg(imgname, angle = 0, scale = None):
+	if scale is not None:
+		scale = math.exp(round(math.log(scale) / 0.05) * 0.05)
+	angle = int(round(angle / 3) * 3) % 360
+	return getimg0(imgname, angle, scale)
+
+
+def drawimg(pos, imgname, r, angle):
+	scale = view.scale * r * 0.012
+	angle = 90 - math.degrees(angle)
+	drawat(getimg(imgname, angle, scale), view.screenpos(pos))
 

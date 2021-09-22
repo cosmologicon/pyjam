@@ -16,7 +16,7 @@ def resize(reverse = False):
 	settings.height = pview.height
 	settings.save()
 
-def togglefullscreen():
+def toggle_fullscreen():
 	settings.fullscreen = not settings.fullscreen
 	settings.save()
 	pview.set_mode(fullscreen = settings.fullscreen)

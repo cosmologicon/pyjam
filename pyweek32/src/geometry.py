@@ -5,11 +5,13 @@ def vecsub(v0, v1):
 	x1, y1 = v1
 	return x0 - x1, y0 - y1
 
-def interp(x, xys):
-	j = bisect.bisect(xys, (x,))
-	if j == 0: return xys[0][1]
-	if j >= len(xys): return xys[-1][1]
-	return math.fadebetween(x, *xys[j-1], *xys[j])
+def interp(x, xyzs):
+	j = bisect.bisect(xyzs, (x,))
+	if j == 0: return xyzs[0][1], xyzs[0][2]
+	if j >= len(xyzs): return xyzs[-1][1], xyzs[-1][2]
+	x0, y0, z0 = xyzs[j-1]
+	x1, y1, z1 = xyzs[j]
+	return math.fadebetween(x, x0, y0, x1, y1), math.anglefadebetween(x, x0, z0, x1, z1)
 
 
 def clearpoly(poly):
