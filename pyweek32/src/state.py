@@ -1,5 +1,5 @@
 import random, math, pygame
-from . import pview, view, geometry, settings, ptext, snek, graphics, progress
+from . import pview, view, geometry, settings, ptext, snek, graphics, progress, leveldata
 from .pview import T
 
 
@@ -26,6 +26,9 @@ class Obj:
 
 	def collect(self):
 		pass
+
+	def visible(self):
+		return view.pointvisible(self.pos, d = self.r + 1)
 
 class Star(Obj):
 	color = 128, 128, 128
@@ -96,7 +99,6 @@ class WindStar(Star):
 class DieStar(Star):
 	color = 200, 100, 100
 	def act(self):
-		you.length = 0
 		you.alive = False
 
 class Mine(Obj):
@@ -117,43 +119,109 @@ class Wall:
 		
 		n = int(math.ceil(math.distance(self.pos0, self.pos1) / 0.5))
 		self.blockps = [(math.mix(self.pos0, self.pos1, j / n), 1) for j in range(n + 1)]
+		self.makefenceps()
+		self.lock = None
+
+	def active(self):
+		return self.lock is None or self.lock.active
+
+	def makefenceps(self):
+#		pos0 = view.screenpos(self.pos0)
+#		pos1 = view.screenpos(self.pos1)
+#		pygame.draw.line(pview.screen, self.color, pos0, pos1, T(2 * view.scale * self.r))
+		self.fenceps = []
+		for _ in range(50):
+			ps = [self.pos0, self.pos1]
+			d = 0.4
+			a = 0.5
+			amax = math.distance(self.pos0, self.pos1)
+			while a < amax:
+				ps, ps1 = ps[:1], ps[1:]
+				for p1 in ps1:
+					center = math.mix(ps[-1], p1, 0.5)
+					ps.append(math.CS(random.uniform(0, math.tau), d, center = center))
+					ps.append(p1)
+				d *= 0.7
+				a *= 1.9
+			self.fenceps.append(ps)
+
+	def visible(self):
+		return view.linevisible(self.pos0, self.pos1, d = 2)
 
 	def draw(self):
-		pos0 = view.screenpos(self.pos0)
-		pos1 = view.screenpos(self.pos1)
-		pygame.draw.line(pview.screen, self.color, pos0, pos1, T(2 * view.scale * self.r))
+#		alpha = int(math.fadebetween(view.scale, 5, 50, 100, 255))
+		ps = [view.screenpos(p) for p in random.choice(self.fenceps)]
+		pygame.draw.aalines(pview.screen, (200, 200, 255), False, ps, 1)
+			
 
 	def collides(self, you):
+		if not self.active():
+			return False
 		return geometry.dtoline(you.pos, self.pos0, self.pos1) < you.r + self.r
 
 	def collide(self):
-		you.length = 0
 		you.alive = False
 
 
+class Lock(Obj):
+	r = 1
+	def __init__(self, pos, stage):
+		Obj.__init__(self, pos)
+		self.stage = stage
+		self.active = True
+		for wall in walls:
+			if self.pos in (wall.pos0, wall.pos1):
+				wall.lock = self
+
+	def draw(self):
+		if not self.active:
+			return
+		graphics.drawimg(self.pos, "fencepost", r = self.r, angle = 0)
+
+def inregion(p):
+	return geometry.polywind(region, p) != 0
+
+def regionbounds():
+	xs, ys = zip(*region)
+	return min(xs), min(ys), max(xs), max(ys)
+
+def vtarget(d = 2):
+	x0, y0, x1, y1 = regionbounds()
+	sx = 1280 / (x1 - x0 + 2 * d)
+	sy = 720 / (y1 - y0 + 2 * d)
+	return ((x0 + x1) / 2, (y0 + y1) / 2), min(sx, sy)
+
+# Random point within the region
+def randompos():
+	x0, y0, x1, y1 = regionbounds()
+	while True:
+		p = random.uniform(x0, x1), random.uniform(y0, y1)
+		if inregion(p):
+			return p
+
 # Choose a point within the arena that's not too close to any of the given points.	
-def randompos(R, ps, r0, dmin = 1):
+def randomspawn(ps, r0, dmin = 1):
 	j = 0
 	while True:
-		d = R - dmin
-		x, y = p = random.uniform(-d, d), random.uniform(-d, d)
-		if math.hypot(x, y) > d:
-			continue
+		x, y = randompos()
 		j += 1
 		if any(math.hypot(x - px, y - py) < r0 + pr + dmin for (px, py), pr in ps):
 			dmin *= math.exp(-0.01)
 			continue
-		print("randompos", j)
+		print("randomspawn", j)
 		return x, y
 
-objs = []
+region = []
 walls = []
+
+objs = []
 active = []
 wound = []
 keys = []
-def init():
-	global R, you, stage, numgrow
-	del objs[:], active[:], wound[:], keys[:], walls[:]
+locks = []
+def endless_init():
+	global you, stage, numgrow
+	del region[:], walls[:], objs[:], active[:], wound[:], keys[:]
 
 	stage = progress.endless + 1
 	if stage == 1:
@@ -211,9 +279,60 @@ def init():
 	you.speed += headstart * you.dspeed
 
 	ps = math.CSround(12, r = R, jtheta0 = 0.5)
-	for j, p0 in enumerate(ps):
-		p1 = ps[(j + 1) % len(ps)]
+	a = 7/9 * (R + 2)
+	region[:] = [(x + a * math.sign(x), y) for x, y in ps]
+	for j, p0 in enumerate(region):
+		p1 = region[(j + 1) % len(region)]
 		walls.append(Wall(p0, p1))
+
+def adventure_init():
+	global you, stage, numgrow
+	del region[:], walls[:], objs[:], active[:], wound[:], keys[:], locks[:]
+
+	for p0, p1 in leveldata.walls:
+		walls.append(Wall(p0, p1))
+
+	stage = progress.adventure + 1
+	data = leveldata.data[stage - 1]
+
+	region[:] = data["region"]
+
+	for spec in data["keys"]:
+		key = Star(**spec)
+		objs.append(key)
+		keys.append(key)
+	for spec in data["stars"]:
+		star = Star(**spec)
+		objs.append(star)
+
+	for lockp, jregion in leveldata.lockps:
+		lock = Lock(lockp, jregion + 1)
+		locks.append(lock)
+		objs.append(lock)
+
+	numgrow = 0
+	you = snek.You(data["youpos"])
+	you.theta = data["youtheta"]
+	headstart = data["headstart"]
+	you.length = 20 + 5 * headstart
+	you.dlength = 5
+	you.speed = 10 + 0.1 * headstart
+	you.dspeed = 0.1
+
+def adventure_advance():
+	global stage
+	print("advancing")
+	progress.beatadventure(stage)
+	stage += 1
+	data = leveldata.data[stage - 1]
+	region[:] = data["region"]
+	for spec in data["keys"]:
+		key = Star(**spec)
+		objs.append(key)
+		keys.append(key)
+	for spec in data["stars"]:
+		star = Star(**spec)
+		objs.append(star)
 
 
 def setactive(poly):
@@ -246,9 +365,8 @@ def blockps():
 def think(dt):
 	while sum(isinstance(obj, GrowStar) for obj in objs) < numgrow:
 		r = 0.3
-		pos = randompos(R * math.cos(math.tau / 24), blockps(), r, dmin = 2)
+		pos = randomspawn(blockps(), r, dmin = 2)
 		objs.append(GrowStar(pos, r))
-
 
 	for obj in objs:
 		obj.think(dt)
@@ -259,10 +377,39 @@ def think(dt):
 			wall.collide()
 	objs[:] = [obj for obj in objs if obj.alive]
 
+	# Adventure mode
+	if not any(key.alive for key in keys):
+		for lock in locks:
+			if lock.stage == stage:
+				lock.active = False
+	if not inregion(you.pos):
+		adventure_advance()
+	for lock in locks:
+		if lock.stage < stage and not lock.active:
+			if all(inregion(p) for d, p, theta in you.ps):
+				lock.active = True
+
+
+
+def drawwalls():
+	postps = set()
+	for wall in walls:
+		if not wall.active() or not wall.visible():
+			continue
+		wall.draw()
+		postps.add(wall.pos0)
+		postps.add(wall.pos1)
+	for pos in sorted(postps):
+		graphics.drawimg(pos, "fencepost", r = 0.5, angle = 0)
+	
+
+
 def gameover():
 	return not you.alive
 
 def winning():
+	return False
+
 	return not any(key.alive for key in keys)
 
 def cheatwin():

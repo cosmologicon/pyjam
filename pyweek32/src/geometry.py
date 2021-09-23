@@ -39,7 +39,7 @@ def polywind(poly, p):
 			xf = math.sign(math.fadebetween(y, y0, x0, y1, x1) - x)
 			wind += yf * xf
 	assert wind % 2 == 0
-	return wind // 2
+	return int(wind // 2)
 
 
 def collides(obj0, obj1):

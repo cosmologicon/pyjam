@@ -12,28 +12,34 @@ dtaccum = 0
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	
+	kdowns = set()
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			playing = False
-		if settings.DEBUG and event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-			playing = False
-		if settings.DEBUG and event.type == pygame.KEYDOWN and event.key == pygame.K_1:
-			state.cheatwin()
-		if event.type == pygame.KEYDOWN and event.key == pygame.K_F10:
-			view.resize()
-		if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
-			view.toggle_fullscreen()
-		if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
-			pview.screenshot()
+		if event.type == pygame.KEYDOWN:
+			kdowns.add(event.key)
 	kpressed = pygame.key.get_pressed()
+
+
+	if settings.DEBUG and pygame.K_ESCAPE in kdowns:
+		playing = False
+	if settings.DEBUG and pygame.K_1 in kdowns:
+		state.cheatwin()
+	if pygame.K_F10 in kdowns:
+		view.resize()
+	if pygame.K_F11 in kdowns:
+		view.toggle_fullscreen()
+	if pygame.K_F12 in kdowns:
+		pview.screenshot()
+
 
 	dtaccum += dt
 	dt0 = 1 / settings.maxfps
 	while dtaccum > dt0:
 		dtaccum -= dt0
-		playscene.think(dt0, kpressed)
+		playscene.think(dt0, kpressed, kdowns)
 	if state.gameover():
-		gameoverscene.think(dt, kpressed)
+		gameoverscene.think(dt, kpressed, kdowns)
 
 	view.clear()
 	playscene.draw()

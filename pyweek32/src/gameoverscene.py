@@ -9,9 +9,9 @@ class self:
 def init():
 	self.t = 0
 
-def think(dt, kpressed):
+def think(dt, kpressed, kdowns):
 	self.t += dt
-	if self.t > 1 and kpressed[pygame.K_SPACE]:
+	if self.t > 1 and pygame.K_SPACE in kdowns:
 		playscene.init()
 
 def draw():

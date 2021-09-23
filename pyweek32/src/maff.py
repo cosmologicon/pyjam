@@ -81,12 +81,18 @@ def dsmoothfade(x, x0, x1, dx):
 	return ease(dfade(x, x0, x1, dx))
 # Fade between function
 def fadebetween(x, x0, y0, x1, y1):
+	if x1 < x0:
+		x0, y0, x1, y1 = x1, y1, x0, y0
 	a = fade(x, x0, x1 - x0)
 	return mix(y0, y1, a)
 def smoothfadebetween(x, x0, y0, x1, y1):
+	if x1 < x0:
+		x0, y0, x1, y1 = x1, y1, x0, y0
 	a = smoothfade(x, x0, x1 - x0)
 	return mix(y0, y1, a)
 def anglefadebetween(x, x0, y0, x1, y1):
+	if x1 < x0:
+		x0, y0, x1, y1 = x1, y1, x0, y0
 	a = fade(x, x0, x1 - x0)
 	return anglemix(y0, y1, a)
 

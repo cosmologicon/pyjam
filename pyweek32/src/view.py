@@ -26,6 +26,20 @@ def clear():
 
 def screenpos(worldpos):
 	x, y = worldpos
-	return T(pview.centerx + scale * (x - x0), pview.centery - scale * (y - y0))
+	return T(pview.centerx0 + scale * (x - x0), pview.centery0 - scale * (y - y0))
+
+def vrect(d = 1):
+	w0, h0 = settings.size0
+	rect = pygame.Rect(0, 0, w0 / scale + 2 * d, h0 / scale + 2 * d)
+	rect.center = x0, y0
+	return rect
+
+def pointvisible(p, d = 1):
+	return vrect(d = d).collidepoint(p)
+
+def linevisible(p0, p1, d = 1):
+	(x0, y0), (x1, y1) = p0, p1
+	rect = pygame.Rect(min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
+	return vrect(d = d).colliderect(rect)
 
 

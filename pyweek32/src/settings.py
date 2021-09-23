@@ -4,6 +4,9 @@ import pickle, os, sys
 
 height = 720  # Current resolution
 fullscreen = False
+directcontrol = False
+fixedcamera = True
+autochomp = False
 
 
 
@@ -21,7 +24,6 @@ def reset():
 	save()
 
 size0 = 1280, 720  # Do not change
-directcontrol = False
 
 # EDIT HERE IF DESIRED
 gamename = "Neverending"

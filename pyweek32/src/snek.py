@@ -122,7 +122,7 @@ class You:
 
 		if not self.chompin:
 			if self.canchomp():
-				if self.tchomp == 0:
+				if settings.autochomp and self.tchomp == 0:
 					self.chomp()
 			else:
 				if self.tchomp < 0:
@@ -144,7 +144,7 @@ class You:
 			k += 1
 			a += size
 		for pos, angle in reversed(segments):
-			graphics.drawimg(pos, "segment", self.r, angle)
-		graphics.drawimg(self.pos, "head", self.r, self.theta)
+			graphics.drawimg(pos, "segment", self.r, angle - math.tau / 4)
+		graphics.drawimg(self.pos, "head", self.r, self.theta - math.tau / 4)
 
 

@@ -54,7 +54,7 @@ def drawhill(pos, color, r, alpha = 1):
 
 @lru_cache(10000)
 def getimg0(imgname, angle = 0, scale = None):
-	print(imgname, angle, scale, getimg0.cache_info().currsize)
+#	print(imgname, angle, scale, getimg0.cache_info().currsize)
 	if scale is not None or angle != 0:
 		return pygame.transform.rotozoom(getimg0(imgname), angle, scale)
 	return pygame.image.load(os.path.join("img", "%s.png" % imgname)).convert_alpha()
@@ -66,7 +66,7 @@ def getimg(imgname, angle = 0, scale = None):
 
 
 def drawimg(pos, imgname, r, angle):
-	scale = view.scale * r * 0.012
-	angle = 90 - math.degrees(angle)
+	scale = pview.f * view.scale * r * 0.012
+	angle = -math.degrees(angle)
 	drawat(getimg(imgname, angle, scale), view.screenpos(pos))
 
