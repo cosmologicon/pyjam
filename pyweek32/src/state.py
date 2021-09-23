@@ -21,6 +21,9 @@ class Obj:
 		size = T(view.scale * self.r)
 		pygame.draw.circle(pview.screen, color, pos, size)
 
+	def collides(self, obj):
+		return geometry.collides(self, obj)
+
 	def collide(self):
 		pass
 
@@ -90,17 +93,6 @@ class GrowStar(Star):
 			graphics.drawhill(view.screenpos(pos), color, size, alpha)
 
 
-class WindStar(Star):
-	color = 100, 100, 200
-	def act(self):
-		you.length += 1.5
-
-
-class DieStar(Star):
-	color = 200, 100, 100
-	def act(self):
-		you.alive = False
-
 class Mine(Obj):
 	color = 60, 60, 60
 	r = 0.6
@@ -150,14 +142,16 @@ class Wall:
 
 	def draw(self):
 #		alpha = int(math.fadebetween(view.scale, 5, 50, 100, 255))
-		ps = [view.screenpos(p) for p in random.choice(self.fenceps)]
+		if view.scale > 5:
+			ps = random.choice(self.fenceps)
+		else:
+			ps = [self.pos0, self.pos1]
+		ps = [view.screenpos(p) for p in ps]
 		pygame.draw.aalines(pview.screen, (200, 200, 255), False, ps, 1)
 			
 
 	def collides(self, you):
-		if not self.active():
-			return False
-		return geometry.dtoline(you.pos, self.pos0, self.pos1) < you.r + self.r
+		return self.active() and geometry.dtoline(you.pos, self.pos0, self.pos1) < you.r + self.r
 
 	def collide(self):
 		you.alive = False
@@ -178,6 +172,10 @@ class Lock(Obj):
 			return
 		graphics.drawimg(self.pos, "fencepost", r = self.r, angle = 0)
 
+	def collides(self, you):
+		return self.active and Obj.collides(self, you)
+
+
 def inregion(p):
 	return geometry.polywind(region, p) != 0
 
@@ -186,6 +184,8 @@ def regionbounds():
 	return min(xs), min(ys), max(xs), max(ys)
 
 def vtarget(d = 2):
+	if winning():
+		return (0, 20), 2.4
 	x0, y0, x1, y1 = regionbounds()
 	sx = 1280 / (x1 - x0 + 2 * d)
 	sy = 720 / (y1 - y0 + 2 * d)
@@ -304,6 +304,10 @@ def adventure_init():
 	for spec in data["stars"]:
 		star = Star(**spec)
 		objs.append(star)
+	for pos in data["energy"]:
+		star = GrowStar(pos)
+		objs.append(star)
+		keys.append(star)
 
 	for lockp, jregion in leveldata.lockps:
 		lock = Lock(lockp, jregion + 1)
@@ -316,14 +320,15 @@ def adventure_init():
 	headstart = data["headstart"]
 	you.length = 20 + 5 * headstart
 	you.dlength = 5
-	you.speed = 10 + 0.1 * headstart
-	you.dspeed = 0.1
+	you.speed = 4 + 0.05 * headstart
+	you.dspeed = 0.05
 
 def adventure_advance():
 	global stage
-	print("advancing")
 	progress.beatadventure(stage)
 	stage += 1
+	if stage > leveldata.maxstage:
+		return
 	data = leveldata.data[stage - 1]
 	region[:] = data["region"]
 	for spec in data["keys"]:
@@ -333,6 +338,10 @@ def adventure_advance():
 	for spec in data["stars"]:
 		star = Star(**spec)
 		objs.append(star)
+	for pos in data["energy"]:
+		star = GrowStar(pos)
+		objs.append(star)
+		keys.append(star)
 
 
 def setactive(poly):
@@ -370,7 +379,7 @@ def think(dt):
 
 	for obj in objs:
 		obj.think(dt)
-		if not you.chompin and geometry.collides(obj, you):
+		if not you.chompin and obj.collides(you):
 			you.alive = False
 	for wall in walls:
 		if wall.collides(you):
@@ -390,7 +399,6 @@ def think(dt):
 				lock.active = True
 
 
-
 def drawwalls():
 	postps = set()
 	for wall in walls:
@@ -408,7 +416,7 @@ def gameover():
 	return not you.alive
 
 def winning():
-	return False
+	return stage > leveldata.maxstage
 
 	return not any(key.alive for key in keys)
 

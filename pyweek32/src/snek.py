@@ -3,7 +3,7 @@ from . import state, view, geometry, pview, settings, graphics
 from .pview import T
 
 class You:
-	r = 0.3
+	r = 0.01
 	def __init__(self, pos):
 		self.t = 0
 		self.d = 0
@@ -144,7 +144,7 @@ class You:
 			k += 1
 			a += size
 		for pos, angle in reversed(segments):
-			graphics.drawimg(pos, "segment", self.r, angle - math.tau / 4)
-		graphics.drawimg(self.pos, "head", self.r, self.theta - math.tau / 4)
+			graphics.drawimg(pos, "segment", 0.3, angle - math.tau / 4)
+		graphics.drawimg(self.pos, "head", 0.3, self.theta - math.tau / 4)
 
 

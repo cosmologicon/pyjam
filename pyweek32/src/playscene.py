@@ -42,7 +42,11 @@ def think(dt, kpressed, kdowns):
 	dkx = (1 if kpressed[pygame.K_RIGHT] else 0) - (1 if kpressed[pygame.K_LEFT] else 0)
 	dky = (1 if kpressed[pygame.K_UP] else 0) - (1 if kpressed[pygame.K_DOWN] else 0)
 
-	if self.started and not state.winning() and not state.gameover():
+#	if self.started and not state.winning() and not state.gameover():
+#		state.you.think(dt, dkx, dky)
+	if self.started and not state.gameover():
+		if state.winning():
+			dkx, dky = 0, 0
 		state.you.think(dt, dkx, dky)
 	state.think(dt)
 
@@ -52,7 +56,7 @@ def think(dt, kpressed, kdowns):
 
 	if state.winning():
 		self.twin += dt
-	if self.twin > 2:
+	if self.twin > 8:
 		progress.beatendless(state.stage)
 		init()
 		

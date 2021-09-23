@@ -28,6 +28,8 @@ def traversepoly(poly):
 	for j in range(len(poly)):
 		yield poly[j], poly[(j + 1) % len(poly)]
 
+# Simple algorithm to get winding number about a point p. Works with convex polygons. Will fail if
+# p is along any polygon side, or it shares an x or y coordinate with any point. 
 def polywind(poly, p):
 	if len(poly) < 3:
 		return 0

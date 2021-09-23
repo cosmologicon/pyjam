@@ -4,8 +4,8 @@ import pickle, os, sys
 
 height = 720  # Current resolution
 fullscreen = False
-directcontrol = False
-fixedcamera = True
+directcontrol = True
+fixedcamera = False
 autochomp = False
 
 
