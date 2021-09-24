@@ -88,7 +88,7 @@ def draw():
 	for effect in state.effects:
 		effect.draw()
 
-	if state.current == "endless":
+	if scene.current == "endless":
 		a = math.smoothfadebetween(self.t, 1.5, 1, 2, 0)
 		if a > 0:
 			ptext.draw("Endless Stage %s" % state.stage, midbottom = T(640, 700), fontsize = T(60),

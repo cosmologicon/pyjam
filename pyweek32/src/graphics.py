@@ -68,7 +68,13 @@ def getimg0(imgname, angle = 0, scale = None, alpha = 1):
 		cmask = (255, 255, 255, math.imix(0, 255, alpha))
 		return mask(getimg0(imgname, angle, scale), cmask)
 	if scale is not None or angle != 0:
-		return pygame.transform.rotozoom(getimg0(imgname), angle, scale)
+		img0 = getimg0(imgname)
+		if angle == 0:
+			w, h = img0.get_size()
+			w = int(round(w * scale))
+			h = int(round(h * scale))
+			return pygame.transform.smoothscale(img0, (w, h))
+		return pygame.transform.rotozoom(img0, angle, scale)
 	return pygame.image.load(os.path.join("img", "%s.png" % imgname)).convert_alpha()
 def getimg(imgname, angle = 0, scale = None, alpha = 1):
 	if scale is not None:
@@ -86,6 +92,8 @@ def ifactor(imgname):
 		return 0.032
 	if "segment" in imgname:
 		return 0.036
+	if "frames" in imgname:
+		return 0.01
 	return 0.012
 
 def drawimgscreen(pos, imgname, r, angle, alpha = 1):

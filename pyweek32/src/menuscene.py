@@ -1,5 +1,5 @@
 import pygame, math
-from . import scene, playscene, view, pview, ptext, settings, graphics, snek, geometry
+from . import scene, playscene, view, pview, ptext, settings, graphics, snek, geometry, sound
 from .pview import T
 
 
@@ -33,6 +33,7 @@ def init():
 	self.you.menu = True
 	for _ in range(120):
 		self.you.think(1 / 120, 0, 0)
+	sound.playmusic("brittle")
 		
 
 def think(dt, kpressed, kdowns):

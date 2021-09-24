@@ -42,6 +42,9 @@ class Star(Obj):
 		self.r = r
 		self.windreq = windreq
 		self.numreq = numreq
+		self.imgname = "key"
+		self.tanim = math.fuzzrange(0, 100, 0, *self.pos)
+		self.vanim = math.fuzzrange(1, 1.2, 1, *self.pos)
 
 	def getcolor(self):
 		if self in active:
@@ -49,16 +52,27 @@ class Star(Obj):
 		else:
 			return self.color
 
+	def currentimg(self):
+		j = int(self.tanim * 60) % 60
+		return "frames/%s-%d" % (self.imgname, j)
+
+	def think(self, dt):
+		Obj.think(self, dt)
+		self.tanim += dt * self.vanim
+
 	def draw(self):
-		Obj.draw(self)
-		if self.windreq is not None:
-			size = T(view.scale * 0.1 * self.r)
-			jtheta0 = 2 * self.windreq * self.t % 1
-			for pos in math.CSround(3, self.r, jtheta0 = jtheta0, center = self.pos):
-				pygame.draw.circle(pview.screen, (255, 255, 255), view.screenpos(pos), size)
-		if self.numreq != 0:
-			ptext.draw(str(self.numreq), center = view.screenpos(self.pos),
-				fontsize = T(view.scale * self.r), shadow = (1, 1))
+		if self.imgname is None:
+			Obj.draw(self)
+			if self.windreq is not None:
+				size = T(view.scale * 0.1 * self.r)
+				jtheta0 = 2 * self.windreq * self.t % 1
+				for pos in math.CSround(3, self.r, jtheta0 = jtheta0, center = self.pos):
+					pygame.draw.circle(pview.screen, (255, 255, 255), view.screenpos(pos), size)
+			if self.numreq != 0:
+				ptext.draw(str(self.numreq), center = view.screenpos(self.pos),
+					fontsize = T(view.scale * self.r), shadow = (1, 1))
+		else:
+			graphics.drawimg(self.pos, self.currentimg(), self.r, 0)
 
 	def collide(self):
 		if not self.alive: return
