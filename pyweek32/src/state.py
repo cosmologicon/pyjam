@@ -76,6 +76,7 @@ class Star(Obj):
 class GrowStar(Star):
 	color = 100, 100, 200
 	num = 0
+	r = 0.6
 	def __init__(self, pos, r = 0.3):
 		Star.__init__(self, pos, r, windreq = None, numreq = 0)
 
@@ -219,9 +220,10 @@ active = []
 wound = []
 keys = []
 locks = []
+effects = []
 def endless_init():
 	global you, stage, numgrow
-	del region[:], walls[:], objs[:], active[:], wound[:], keys[:]
+	del region[:], walls[:], objs[:], active[:], wound[:], keys[:], effects[:]
 
 	stage = progress.endless + 1
 	if stage == 1:
@@ -287,7 +289,7 @@ def endless_init():
 
 def adventure_init():
 	global you, stage, numgrow
-	del region[:], walls[:], objs[:], active[:], wound[:], keys[:], locks[:]
+	del region[:], walls[:], objs[:], active[:], wound[:], keys[:], locks[:], effects[:]
 
 	for p0, p1 in leveldata.walls:
 		walls.append(Wall(p0, p1))
@@ -320,8 +322,8 @@ def adventure_init():
 	headstart = data["headstart"]
 	you.length = 20 + 5 * headstart
 	you.dlength = 5
-	you.speed = 4 + 0.05 * headstart
-	you.dspeed = 0.05
+	you.speed = 4 + 0.1 * headstart
+	you.dspeed = 0.1
 
 def adventure_advance():
 	global stage
@@ -384,7 +386,11 @@ def think(dt):
 	for wall in walls:
 		if wall.collides(you):
 			wall.collide()
+	for effect in effects:
+		effect.think(dt)
 	objs[:] = [obj for obj in objs if obj.alive]
+	effects[:] = [effect for effect in effects if effect.alive]
+	
 
 	# Adventure mode
 	if not any(key.alive for key in keys):
@@ -408,7 +414,7 @@ def drawwalls():
 		postps.add(wall.pos0)
 		postps.add(wall.pos1)
 	for pos in sorted(postps):
-		graphics.drawimg(pos, "fencepost", r = 0.5, angle = 0)
+		graphics.drawimg(pos, "fencepost", r = 0.35, angle = 0)
 	
 
 
@@ -423,4 +429,7 @@ def winning():
 def cheatwin():
 	for obj in keys:
 		obj.alive = False
+def cheatgrow():
+	you.lengthen()
+
 

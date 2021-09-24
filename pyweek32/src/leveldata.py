@@ -44,7 +44,7 @@ for jregion, region in enumerate(regions):
 			continue
 		numreq = 2 if "2" in objtype else 3 if "3" in objtype else 4 if "4" in objtype else -1 if "X" in objtype else 0
 		windreq = -1 if "R" in objtype else 1 if "L" in objtype else None
-		r = 2.5 if "big" in objtype else 0.5
+		r = 2.5 if "big" in objtype else 1.2
 		objspec = {
 			"pos": objpos,
 			"numreq": numreq,

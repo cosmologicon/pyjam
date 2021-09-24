@@ -1,9 +1,16 @@
 import pygame
-from . import settings, view, ptext, state, playscene, gameoverscene, pview
+from . import settings, view, ptext, state, pview
+from . import scene, playscene, gameoverscene, menuscene
 from .pview import T
 
+ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
+ptext.DEFAULT_FONT_NAME = "berkshire"
 settings.load()
 view.init()
+
+scene.current = "menu"
+menuscene.init()
+
 playscene.init()
 
 playing = True
@@ -25,28 +32,42 @@ while playing:
 		playing = False
 	if settings.DEBUG and pygame.K_1 in kdowns:
 		state.cheatwin()
+	if settings.DEBUG and pygame.K_2 in kdowns:
+		state.cheatgrow()
 	if pygame.K_F10 in kdowns:
 		view.resize()
 	if pygame.K_F11 in kdowns:
 		view.toggle_fullscreen()
 	if pygame.K_F12 in kdowns:
 		pview.screenshot()
+	current = scene.current
 
 
 	dtaccum += dt
 	dt0 = 1 / settings.maxfps
 	while dtaccum > dt0:
 		dtaccum -= dt0
-		playscene.think(dt0, kpressed, kdowns)
-	if state.gameover():
+		if current in ["adventure", "endless"]:
+			playscene.think(dt0, kpressed, kdowns)
+	if current == "gameover":
 		gameoverscene.think(dt, kpressed, kdowns)
+	if current == "menu":
+		menuscene.think(dt, kpressed, kdowns)
 
 	view.clear()
-	playscene.draw()
-	if state.gameover():
+
+	if current == "menu":
+		menuscene.draw()
+	if current in ["adventure", "endless"]:
+		playscene.draw()
+	if current == "gameover":
 		gameoverscene.draw()
 	if settings.DEBUG:
-		text = "%.1ffps" % clock.get_fps()
+		text = "\n".join([
+			"%.1ffps" % clock.get_fps(),
+			"1: beat current",
+			"2: grow",
+		])
 		ptext.draw(text, bottomleft = T(4, 716), fontsize = T(16))
 	pygame.display.flip()
 

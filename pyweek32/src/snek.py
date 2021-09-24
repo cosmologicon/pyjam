@@ -19,8 +19,12 @@ class You:
 		self.dlength = 5
 		self.alive = True
 		self.wound = []
+		self.aaah = 0
+		self.aaahtarget = 0
+		self.menu = False
 
 	def lengthen(self):
+		state.effects.append(ShedSkin(self))
 		self.length += self.dlength
 		self.speed += self.dspeed
 
@@ -71,6 +75,7 @@ class You:
 			self.wound = []
 
 	def think(self, dt, dkx, dky):
+		self.t += dt
 		d0, (x0, y0), theta = self.ps[-1]
 
 		if self.chompin:
@@ -79,18 +84,21 @@ class You:
 			self.fspeed = math.approach(self.fspeed, 1, 4 * dt)
 		self.fspeed = 1
 
+		self.aaahtarget = 1 if self.canchomp() and self.tchomp == 0 else 0
+		if self.chompin:
+			self.aaahtarget = 0.5
+		self.aaah = math.approach(self.aaah, self.aaahtarget, 2 * dt)
+
 		step = dt * self.speed * self.fspeed
 		self.d += step
 
 				
 		if self.chompin:
 			self.tchomp += dt
-			self.pos, self.theta = geometry.interp(self.d - self.length, self.ps)
-#			p0 = self.ps[0][1]
-#			dy, dx = math.CS(self.theta, step)
-#			self.pos = math.mix((x0 + dx, y0 + dy), p0, math.clamp(self.tchomp * 0.5, 0, 1))
-#			x1, y1 = self.pos
-#			self.theta = math.atan2(x1 - x0, y1 - y0)
+			self.pos, _ = geometry.interp(self.d - self.length, self.ps)
+			x0, y0 = self.pos
+			(x1, y1), _ = geometry.interp(self.d - self.length + 1, self.ps)
+			self.theta = math.atan2(x1 - x0, y1 - y0)
 		else:
 			if settings.directcontrol:
 				if dkx or dky:
@@ -131,20 +139,58 @@ class You:
 
 	def draw(self):
 		segments = []
-		a, k = 0, 0
+		a, k, size = -0.25, 0, 0.25
 		while a < self.length:
 #			size = 0.5 if k == 0 else max(0.3 * 0.98 ** k, 0.2)
-			size = 0.5 if k == 0 else 0.3
 			a += size
 			pos, theta = geometry.interp(self.d - a, self.ps)
-#			color = [(120, 255, 120), (255, 255, 0)][k % 2]
-#			color = math.imix(color, (120, 255, 120), k / 120)
-#			pygame.draw.circle(pview.screen, color, pos, T(view.scale * size))
-			segments.append((pos, theta))
+			size = max(size * 0.997, 0.15)
+			segments.append((pos, theta, size))
 			k += 1
 			a += size
-		for pos, angle in reversed(segments):
-			graphics.drawimg(pos, "segment", 0.3, angle - math.tau / 4)
-		graphics.drawimg(self.pos, "head", 0.3, self.theta - math.tau / 4)
+		imgname = "segment-menu" if self.menu else "segment"
+		for pos, angle, size in reversed(segments):
+			graphics.drawimg(pos, imgname, size, angle - math.tau / 4)
+		theta = self.theta - math.tau / 4
+		pos = math.CS(-self.theta, 0.3, center = self.pos)
+		A = math.fadebetween(self.aaah, 1, 0, 0, 0.2)
+		if self.chompin:
+			A = 0
+		theta += math.mix(-A, A, math.cycle(0.5 * self.t) ** 2)
+		graphics.drawimg(pos, "head-bottom", 0.3, theta + 0.3 * self.aaah)
+		graphics.drawimg(pos, "head-top", 0.3, theta - 0.9 * self.aaah)
+
+
+class ShedSkin:
+	def __init__(self, you):
+		self.you = you
+		self.t = 0
+		self.a = 0
+		self.amax = you.length
+		self.L = 20
+
+	def think(self, dt):
+		self.t += dt
+		self.a += 20 * dt
+		self.alive = self.a - self.L < self.you.length
+		
+	def draw(self):
+		segments = []
+		a, k, size = 0, 0, 0.5
+		while a < self.you.length:
+			a += size
+			size *= 0.99
+			if self.a - self.L < a < self.a:
+				f = math.fadebetween(a, self.a, 0, self.a - self.L, 1)
+				pos, theta = geometry.interp(self.you.d - a, self.you.ps)
+				segments.append((pos, theta, size, f))
+			k += 1
+			a += size
+		for pos, angle, size, f in reversed(segments):
+			s = math.mix(1, 2.5, f ** 0.5) * size
+			alpha = math.mix(0.4, 0, f)
+			graphics.drawimg(pos, "segment", s, angle - math.tau / 4, alpha)
+		
+
 
 

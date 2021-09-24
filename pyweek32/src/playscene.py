@@ -70,6 +70,8 @@ def draw():
 	for obj in state.objs:
 		if obj.visible():
 			obj.draw()		
+	for effect in state.effects:
+		effect.draw()
 
 	a = math.smoothfadebetween(self.t, 1.5, 1, 2, 0)
 	if a > 0:

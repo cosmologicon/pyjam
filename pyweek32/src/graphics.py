@@ -52,21 +52,47 @@ def drawhill(pos, color, r, alpha = 1):
 	drawat(hillimg(color, r, alpha), pos)
 
 
+def aunit(imgname):
+	if "head" in imgname:
+		return 1
+	if imgname == "segment-menu":
+		return 1
+	if imgname == "segment":
+		return 5
+	return 10
+
 @lru_cache(10000)
-def getimg0(imgname, angle = 0, scale = None):
+def getimg0(imgname, angle = 0, scale = None, alpha = 1):
 #	print(imgname, angle, scale, getimg0.cache_info().currsize)
+	if alpha != 1:
+		cmask = (255, 255, 255, math.imix(0, 255, alpha))
+		return mask(getimg0(imgname, angle, scale), cmask)
 	if scale is not None or angle != 0:
 		return pygame.transform.rotozoom(getimg0(imgname), angle, scale)
 	return pygame.image.load(os.path.join("img", "%s.png" % imgname)).convert_alpha()
-def getimg(imgname, angle = 0, scale = None):
+def getimg(imgname, angle = 0, scale = None, alpha = 1):
 	if scale is not None:
 		scale = math.exp(round(math.log(scale) / 0.05) * 0.05)
-	angle = int(round(angle / 3) * 3) % 360
-	return getimg0(imgname, angle, scale)
+	a = aunit(imgname)
+	if imgname == "segment-menu":
+		imgname = "segment"
+	angle = int(round(angle / a) * a) % 360
+	alpha = round(alpha * 15) / 15
+	return getimg0(imgname, angle, scale, alpha)
 
 
-def drawimg(pos, imgname, r, angle):
-	scale = pview.f * view.scale * r * 0.012
+def ifactor(imgname):
+	if "head" in imgname:
+		return 0.032
+	if "segment" in imgname:
+		return 0.036
+	return 0.012
+
+def drawimgscreen(pos, imgname, r, angle, alpha = 1):
+	scale = r * ifactor(imgname)
 	angle = -math.degrees(angle)
-	drawat(getimg(imgname, angle, scale), view.screenpos(pos))
+	drawat(getimg(imgname, angle, scale, alpha), pos)
+
+def drawimg(pos, imgname, r, angle, alpha = 1):
+	drawimgscreen(view.screenpos(pos), imgname, pview.f * view.scale * r, angle, alpha)
 
