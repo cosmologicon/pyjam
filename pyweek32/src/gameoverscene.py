@@ -11,7 +11,7 @@ def init():
 
 def think(dt, kpressed, kdowns):
 	self.t += dt
-	if self.t > 1 and pygame.K_SPACE in kdowns:
+	if self.t > 1 and "act" in kdowns:
 		playscene.init()
 
 def draw():

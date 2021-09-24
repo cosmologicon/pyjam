@@ -95,10 +95,7 @@ class You:
 				
 		if self.chompin:
 			self.tchomp += dt
-			self.pos, _ = geometry.interp(self.d - self.length, self.ps)
-			x0, y0 = self.pos
-			(x1, y1), _ = geometry.interp(self.d - self.length + 1, self.ps)
-			self.theta = math.atan2(x1 - x0, y1 - y0)
+			self.pos, self.theta = geometry.interp(self.d - self.length, self.ps)
 		else:
 			if settings.directcontrol:
 				if dkx or dky:
@@ -151,12 +148,17 @@ class You:
 		imgname = "segment-menu" if self.menu else "segment"
 		for pos, angle, size in reversed(segments):
 			graphics.drawimg(pos, imgname, size, angle - math.tau / 4)
-		theta = self.theta - math.tau / 4
+		theta = self.theta
+		if self.chompin:
+			(x0, y0), _ = geometry.interp(self.d - self.length, self.ps)
+			(x1, y1), _ = geometry.interp(self.d - self.length + 1, self.ps)
+			theta = math.atan2(x1 - x0, y1 - y0)
 		pos = math.CS(-self.theta, 0.3, center = self.pos)
 		A = math.fadebetween(self.aaah, 1, 0, 0, 0.2)
 		if self.chompin:
 			A = 0
 		theta += math.mix(-A, A, math.cycle(0.5 * self.t) ** 2)
+		theta -= math.tau / 4
 		graphics.drawimg(pos, "head-bottom", 0.3, theta + 0.3 * self.aaah)
 		graphics.drawimg(pos, "head-top", 0.3, theta - 0.9 * self.aaah)
 

@@ -5,7 +5,7 @@ from .pview import T
 
 stars = []
 def drawstars():
-	Nstars = math.ceil(0.003 * pview.area)
+	Nstars = math.ceil(0.001 * pview.area)
 	if len(stars) != Nstars:
 		del stars[:]
 		for jstar in range(Nstars):

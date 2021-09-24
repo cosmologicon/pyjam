@@ -373,11 +373,7 @@ def blockps():
 	return ps
 
 
-def think(dt):
-	while sum(isinstance(obj, GrowStar) for obj in objs) < numgrow:
-		r = 0.3
-		pos = randomspawn(blockps(), r, dmin = 2)
-		objs.append(GrowStar(pos, r))
+def adventure_think(dt):
 
 	for obj in objs:
 		obj.think(dt)
@@ -404,6 +400,24 @@ def think(dt):
 			if all(inregion(p) for d, p, theta in you.ps):
 				lock.active = True
 
+def endless_think(dt):
+	while sum(isinstance(obj, GrowStar) for obj in objs) < numgrow:
+		r = 0.3
+		pos = randomspawn(blockps(), r, dmin = 2)
+		objs.append(GrowStar(pos, r))
+
+	for obj in objs:
+		obj.think(dt)
+		if not you.chompin and obj.collides(you):
+			you.alive = False
+	for wall in walls:
+		if wall.collides(you):
+			wall.collide()
+	for effect in effects:
+		effect.think(dt)
+	objs[:] = [obj for obj in objs if obj.alive]
+	effects[:] = [effect for effect in effects if effect.alive]
+
 
 def drawwalls():
 	postps = set()
@@ -421,9 +435,10 @@ def drawwalls():
 def gameover():
 	return not you.alive
 
-def winning():
+def adventure_winning():
 	return stage > leveldata.maxstage
 
+def endless_winning():
 	return not any(key.alive for key in keys)
 
 def cheatwin():

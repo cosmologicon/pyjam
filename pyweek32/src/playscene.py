@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, pview, graphics, geometry, state, ptext, progress, settings
+from . import view, pview, graphics, geometry, state, ptext, progress, settings, scene, profiler
 from .pview import T
 
 class self:
@@ -10,15 +10,25 @@ def init():
 	self.t = 0
 	self.twin = 0
 	self.started = False
-	state.adventure_init()
+	if scene.current == "adventure":
+		state.adventure_init()
+	elif scene.current == "endless":
+		state.endless_init()
 	(view.x0, view.y0), view.scale = getvtarget()
 	from . import gameoverscene
 	gameoverscene.init()
 
+def winning():
+	if scene.current == "adventure":
+		return state.adventure_winning()
+	elif scene.current == "endless":
+		return state.endless_winning()
+	
+
 def getvtarget():
 	if settings.fixedcamera:
 		return state.vtarget()
-	if state.winning():
+	if winning():
 		return state.vtarget()
 	elif state.gameover():
 		return state.you.pos, 200
@@ -31,7 +41,7 @@ def getvtarget():
 def think(dt, kpressed, kdowns):
 	self.t += dt
 
-	if pygame.K_SPACE in kdowns:
+	if "act" in kdowns:
 		if not self.started:
 			self.started = True
 		elif not state.you.chompin and state.you.canchomp() and state.you.tchomp == 0:
@@ -39,22 +49,23 @@ def think(dt, kpressed, kdowns):
 		elif state.you.chompin:
 			state.you.unchomp()
 	
-	dkx = (1 if kpressed[pygame.K_RIGHT] else 0) - (1 if kpressed[pygame.K_LEFT] else 0)
-	dky = (1 if kpressed[pygame.K_UP] else 0) - (1 if kpressed[pygame.K_DOWN] else 0)
+	dkx = (1 if kpressed["right"] else 0) - (1 if kpressed["left"] else 0)
+	dky = (1 if kpressed["up"] else 0) - (1 if kpressed["down"] else 0)
 
-#	if self.started and not state.winning() and not state.gameover():
-#		state.you.think(dt, dkx, dky)
 	if self.started and not state.gameover():
-		if state.winning():
+		if winning():
 			dkx, dky = 0, 0
 		state.you.think(dt, dkx, dky)
-	state.think(dt)
+	if scene.current == "adventure":
+		state.adventure_think(dt)
+	elif scene.current == "endless":
+		state.endless_think(dt)
 
 	vtarget, starget = getvtarget()
 	view.x0, view.y0 = math.softapproach((view.x0, view.y0), vtarget, 4 * dt, dymin=0.001)
 	view.scale = math.softlogapproach(view.scale, starget, 1 * dt, dymin=0.001)
 
-	if state.winning():
+	if winning():
 		self.twin += dt
 	if self.twin > 8:
 		progress.beatendless(state.stage)
@@ -62,21 +73,26 @@ def think(dt, kpressed, kdowns):
 		
 
 def draw():
-#	if self.chompin:
-#		pview.fill((40, 0, 0))
+	profiler.start("stardraw")
 	graphics.drawstars()
+	profiler.stop("stardraw")
+	profiler.start("youdraw")
 	state.you.draw()
+	profiler.stop("youdraw")
+	profiler.start("walldraw")
 	state.drawwalls()
+	profiler.stop("walldraw")
 	for obj in state.objs:
 		if obj.visible():
 			obj.draw()		
 	for effect in state.effects:
 		effect.draw()
 
-	a = math.smoothfadebetween(self.t, 1.5, 1, 2, 0)
-	if a > 0:
-		ptext.draw("Endless Stage %s" % state.stage, midbottom = T(640, 700), fontsize = T(60),
-			owidth = 1, alpha = a)
+	if state.current == "endless":
+		a = math.smoothfadebetween(self.t, 1.5, 1, 2, 0)
+		if a > 0:
+			ptext.draw("Endless Stage %s" % state.stage, midbottom = T(640, 700), fontsize = T(60),
+				owidth = 1, alpha = a)
 
 
 
