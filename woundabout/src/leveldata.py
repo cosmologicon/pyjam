@@ -1,7 +1,14 @@
-import pickle, math
+import pickle, math, json
 from . import geometry
 
-points, allwalls, regions, locks, objs, checkpoints = pickle.load(open("gamemap.pkl", "rb"))
+# points, allwalls, regions, locks, objs, checkpoints = pickle.load(open("gamemap.pkl", "rb"))
+points, allwalls, regions, locks, objs, checkpoints = json.load(open("gamemap.json", "r"))
+points = [(x, y) for x, y in points]
+allwalls = [((x0, y0), (x1, y1)) for (x0, y0), (x1, y1) in allwalls]
+regions = [[(x, y) for x, y in ps] for ps in regions]
+locks = [(x, y) for x, y in locks]
+objs = {(x, y): otype for (x, y), otype in objs}
+checkpoints = {(x, y): n for (x, y), n in checkpoints}
 
 def fuzzpos(pos):
 	x, y = pos

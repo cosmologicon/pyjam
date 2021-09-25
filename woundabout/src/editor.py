@@ -1,4 +1,4 @@
-import pygame, math, pickle, os.path
+import pygame, math, pickle, os.path, json
 from . import ptext, geometry, pview, maff
 from .pview import T
 
@@ -15,6 +15,8 @@ savename = "gamemap.pkl"
 def save():
 	obj = points, walls, regions, locks, objs, checkpoints
 	pickle.dump(obj, open(savename, "wb"))
+	obj = points, walls, regions, locks, [(k, v) for k, v in objs.items()], [(k, v) for k, v in checkpoints.items()]
+	json.dump(obj, open("gamemap.json", "w"))
 def load():
 	global points, walls, regions, locks, objs, checkpoints
 	if os.path.exists(savename):
