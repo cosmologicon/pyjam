@@ -22,6 +22,7 @@ class You:
 		self.aaah = 0
 		self.aaahtarget = 0
 		self.menu = False
+		self.fixmovement = True
 
 	def lengthen(self):
 		state.effects.append(ShedSkin(self))
@@ -68,6 +69,16 @@ class You:
 		ymin, ymax = min(ys), max(ys)
 		self.vtarget = (xmax + xmin) / 2, (ymax + ymin) / 2
 		self.starget = min(1280 / (4 + xmax - xmin), 720 / (4 + ymax - ymin))
+#		print(self.d, self.pos, self.theta)
+#		print(self.ps[-1])
+#		newpos, newtheta = geometry.interp(self.d - self.length, self.ps)
+#		dsnap = math.distance(self.ps[-1][1], newpos)
+#		self.d += dsnap
+#		print(newpos, newtheta)
+#		print(dsnap)
+#		self.ps = [(d - dsnap * math.exp(-(self.d - d)), p, theta) for d, p, theta in self.ps]
+#		self.ps.append((self.d, newpos, newtheta))
+#		self.pos, self.theta = newpos, newtheta
 
 	def unchomp(self):
 		if self.chompin and self.tchomp > 0.5:
@@ -98,7 +109,11 @@ class You:
 				
 		if self.chompin:
 			self.tchomp += dt
-			self.pos, self.theta = geometry.interp(self.d - self.length, self.ps)
+			newpos, self.theta = geometry.interp(self.d - self.length, self.ps)
+			if self.fixmovement:
+				self.pos = math.approach(self.pos, newpos, step)
+			else:
+				self.pos = newpos
 		else:
 			if settings.directcontrol:
 				if dkx or dky:

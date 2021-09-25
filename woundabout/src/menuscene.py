@@ -31,6 +31,7 @@ def init():
 	self.you.chomp(quiet = True)
 	self.you.tchomp = 100
 	self.you.menu = True
+	self.you.fixmovement = False
 	for _ in range(120):
 		self.you.think(1 / 120, 0, 0)
 	sound.playmusic("brittle")
@@ -92,6 +93,15 @@ def draw():
 			graphics.drawimgscreen(T(160, y + 15), imgtop, pview.f * 10, angle)
 	ptext.draw("by Christopher Night\nmusic by Kevin MacLeod",
 		midtop = T(960, 540), fontsize = T(40), owidth = 0.5, shade = 1)
+
+	btext = None
+	if self.jopt == 0:
+		btext = "Adventure complete. Thank you for playing!" if progress.adventuredone else "Adventure progress %d%%" % (4 * progress.adventure)
+	if self.jopt == 1:
+		btext = "Endless stages completed: %d" % progress.endless
+	if btext:
+		ptext.draw(btext, midbottom = T(640, 700), fontsize = T(34), owidth = 0.5, shade = 1)
+
 	alpha = math.imix(0, 255, math.fadebetween(self.tdone, 0, 0, 0.5, 1))
 	if alpha > 0:
 		pview.fill((20, 60, 120, alpha))

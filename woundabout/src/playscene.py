@@ -111,7 +111,7 @@ def draw():
 		effect.draw()
 	if scene.current == "adventure":
 		drawadventurehud()
-	else:
+	elif scene.current == "endless":
 		drawendlesshud()
 
 
@@ -121,14 +121,14 @@ def drawadventurehud():
 		2: ("F1: toggle control scheme\n[%s]\nAbsolute is like traditional Snake. Relative is a little more precise once you get the hang of it." %
 				("absolute" if settings.directcontrol else "relative"), "bottomright"),
 		3: ("F2: toggle camera\n[%s]" % ("fixed" if settings.fixedcamera else "follow"), "topleft"),
-		4: ("Space/Enter: bite your own tail. Encircle (go around) the object and bite your tail to unlock the next area.", "bottomright"),
+		4: ("Space/Enter: bite your own tail. Encircle (go around) the object and bite your tail to unlock the next area.", "topright"),
 		5: ("This key is rotating. You must encircle it going clockwise to unlock it.", "topleft"),
 		6: ("This one must be encircled counterclockwise.", "bottomright"),
 		7: ("F3: toggle auto-bite\n[%s]" % ("on" if settings.autochomp else "off"), "midright"),
 		8: ("Energy increases your length. Encircle to collect it.", "bottomleft"),
 		12: ("Encircle both keys at the same time. A number on a key tells you how many keys must be encircled at the same time as it.", "bottomright"),
 		13: ("You must encircle them both at the same time in different directions. This calls for a Figure 8.", "topleft"),
-		15: ("Disruptors prevent you from collecting energy or unlocking keys. Don't encircle them.", "topleft"),
+		15: ("Disruptors can't be activated, and they prevent you from activating energy and keys. Encircle the energy without including any of the disruptors.", "topleft"),
 		16: ("It's fine to encircle walls if they don't contain a disruptor.", "topleft"),
 		21: ("Remember, you need to encircle all three keys but not the disruptor.", "bottomright"),
 		22: ("Remember, it's fine to encircle walls", "midleft"),

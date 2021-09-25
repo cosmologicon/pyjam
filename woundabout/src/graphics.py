@@ -64,7 +64,7 @@ def cloudimg(color, jcloud, jframe, scale0 = None):
 		return pygame.transform.smoothscale(img0, (w, h))
 	if jframe > 0 or color != (255, 255, 255):
 		scale = math.mix(1, 0.2, (jframe / jframemax))
-		angle = math.fuzzrange(-100, 100, 123, jcloud) * jframe / jframemax
+		angle = math.fuzzrange(-200, 200, 123, jcloud) * jframe / jframemax
 		alpha = math.imix(0, 255, jframe / jframemax)
 		img0 = pygame.transform.rotozoom(cloudimg((255, 255, 255), jcloud, 0), angle, scale)
 		return mask(img0, color + (alpha,))
@@ -81,7 +81,7 @@ def cloudimg(color, jcloud, jframe, scale0 = None):
 
 
 def drawcloud(pos, r, t, f = 1, color = (200, 200, 200)):
-	scale = pview.f * r * 190 / cloudr0
+	scale = view.scale * pview.f * r * 5 / cloudr0
 	scale = math.exp(round(math.log(scale), 1))
 	for k in range(int(f * 5)):
 		a = 3 * t + 1234.567 * k

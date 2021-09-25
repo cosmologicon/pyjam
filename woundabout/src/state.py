@@ -71,19 +71,8 @@ class Star(Obj):
 	def draw(self):
 		if not self.visible:
 			return
-		if self.imgname is None:
-			Obj.draw(self)
-			if self.windreq is not None:
-				size = T(view.scale * 0.1 * self.r)
-				jtheta0 = 2 * self.windreq * self.t % 1
-				for pos in math.CSround(3, self.r, jtheta0 = jtheta0, center = self.pos):
-					pygame.draw.circle(pview.screen, (255, 255, 255), view.screenpos(pos), size)
-			if self.numreq != 0:
-				ptext.draw(str(self.numreq), center = view.screenpos(self.pos),
-					fontsize = T(view.scale * self.r), shadow = (1, 1))
-		else:
-			alpha = math.smoothfadebetween(self.t, 0, 0, 1, 1)
-			graphics.drawimg(self.pos, self.currentimg(), self.r, 0, alpha)
+		alpha = math.smoothfadebetween(self.t, 0, 0, 1, 1)
+		graphics.drawimg(self.pos, self.currentimg(), self.r, 0, alpha)
 		if self.t < 1:
 			f = math.fadebetween(self.t, 0, 1, 1, 0)
 			graphics.drawcloud(self.pos, self.r, self.tcloud, f)
@@ -111,13 +100,7 @@ class GrowStar(Star):
 		if not self.visible:
 			return
 		color = self.getcolor()
-		graphics.drawhill(view.screenpos(self.pos), color, T(view.scale * self.r * 2), 1)
-		for k in range(3):
-			j, a = divmod(3 * self.t + 1000 * math.fuzz(k, *self.pos), 1)
-			pos = math.CS(j * math.phyllo, r = self.r * math.sqrt(a) * 1.3, center = self.pos)
-			size = T(view.scale * self.r * 1)
-			alpha = math.smoothfadebetween(a, 0, 1, 1, 0)
-			graphics.drawhill(view.screenpos(pos), color, size, alpha)
+		graphics.drawcloud(self.pos, self.r, -0.3 * self.tcloud, f = 1.6, color = color)
 
 
 class ShedStar:
@@ -199,14 +182,31 @@ class Lock(Obj):
 		Obj.__init__(self, pos)
 		self.stage = stage
 		self.active = True
+		self.tactive = 100
+		self.toshed = True
 		for wall in walls:
 			if self.pos in (wall.pos0, wall.pos1):
 				wall.lock = self
 
+	def think(self, dt):
+		Obj.think(self, dt)
+		if not self.active:
+			self.tactive = 0
+			if self.toshed:
+				self.toshed = False
+				effects.append(ShedStar(self.pos, "fencepost", self.r))
+		else:
+			self.tactive += dt
+			self.toshed = True
+
 	def draw(self):
 		if not self.active:
 			return
-		graphics.drawimg(self.pos, "fencepost", r = self.r, angle = 0)
+		alpha = math.smoothfadebetween(self.t, 0, 0, 1, 1)
+		graphics.drawimg(self.pos, "fencepost", self.r, 0, alpha)
+		if self.tactive < 1:
+			f = math.fadebetween(self.tactive, 0, 1, 1, 0)
+			graphics.drawcloud(self.pos, self.r, self.t, f)
 
 	def collides(self, you):
 		return self.active and Obj.collides(self, you)
@@ -365,10 +365,11 @@ def adventure_init():
 def adventure_advance():
 	global stage
 	if stage > leveldata.maxstage:
+		if not progress.adventuredone:
+			progress.completeadventure()
 		return
 	progress.beatadventure(stage)
 	stage += 1
-	print("STAGE", stage)
 	if stage > leveldata.maxstage:
 		return
 	data = leveldata.data[stage - 1]
@@ -446,7 +447,7 @@ def adventure_think(dt):
 
 def endless_think(dt):
 	while sum(isinstance(obj, GrowStar) for obj in objs) < numgrow:
-		r = 0.3
+		r = 0.6
 		pos = randomspawn(blockps(), r, dmin = 2)
 		objs.append(GrowStar(pos, r))
 

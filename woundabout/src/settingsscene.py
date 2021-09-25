@@ -73,7 +73,7 @@ def draw():
 		"Key: unlock",
 		"Directional key: must encircle in the correct direction to unlock.",
 		"Numbered key: must unlock at least this many at the same time.",
-		"Disruptor: do not encircle. Prevents activating other objects.",
+		"Disruptor: cannot be activated. Prevents activating other objects.",
 	])
 	ptext.draw(text, topleft = T(700, 150), width = T(500), fontsize = T(34), shadow = (1, 1),
 		shade = 1, pspace = 0.7)
