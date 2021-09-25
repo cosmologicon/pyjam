@@ -3,8 +3,8 @@ from functools import lru_cache
 from . import maff, pview, ptext
 
 
-R0 = 100
-Z = 4
+R0 = 60
+Z = 2
 R = R0 * Z
 size = w, h = 2 * R, 2 * R
 
@@ -116,15 +116,12 @@ settings = [
 	("keyX", (200, 60, 60), "X", 0, 0.2, -0.1),
 	("keyL", (220, 130, 220), "", -1, 0.5, 0),
 	("keyR", (170, 140, 50), "", 1, 0.4, 0),
+	("key2L", (220, 130, 220), "2", -1, 0.1, 0),
+	("key2R", (170, 140, 50), "2", 1, 0.2, 0),
 	("key3L", (220, 130, 220), "3", -1, 0.05, 0),
 	("key3R", (170, 140, 50), "3", 1, 0.25, 0),
 	("key4L", (220, 130, 220), "4", -1, 0.3, 0),
 	("key4R", (170, 140, 50), "4", 1, -0.1, 0),
-]
-
-settings = [
-	("key2L", (220, 130, 220), "2", -1, 0.1, 0),
-	("key2R", (170, 140, 50), "2", 1, 0.2, 0),
 ]
 
 for fname, color0, char, winding, beta, gamma in settings:
@@ -133,7 +130,7 @@ for fname, color0, char, winding, beta, gamma in settings:
 		if winding:
 			gamma = math.tau * j / 60 * winding
 		img = makeimg(color0, char, kappa, beta, gamma = gamma)
-		pygame.image.save(img, "img/frames/%s-%d.png" % (fname, j))
+		pygame.image.save(img, "img/frames-120/%s-%d.png" % (fname, j))
 
 def hasquit():
 	for event in pygame.event.get():

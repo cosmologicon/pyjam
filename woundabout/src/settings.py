@@ -23,7 +23,7 @@ def load():
 size0 = 1280, 720  # Do not change
 
 # EDIT HERE IF DESIRED
-gamename = "Neverending"
+gamename = "Woundabout"
 savename = "savegame.pkl"
 heights = 480, 540, 720, 1080
 volumes = 0, 20, 40, 60, 80, 100

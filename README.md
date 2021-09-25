@@ -15,6 +15,7 @@ Code for my Python game jam entries (PyWeek).
 * PyWeek 29 (`miranda`): Miranda the Lepidopterist.
 * PyWeek 30 (`tide-summoner`): The Tide Summoner.
 * PyWeek 31 (`gnorman`): Gnorman's Copse.
+* PyWeek 32 (`woundabout`): Woundabout.
 
 ## Setup process
 
