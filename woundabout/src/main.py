@@ -1,6 +1,6 @@
 import pygame
 from . import settings, view, ptext, state, pview, profiler, sound
-from . import scene, playscene, gameoverscene, menuscene, settingsscene
+from . import scene, playscene, gameoverscene, menuscene, settingsscene, hud
 from .pview import T
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
@@ -33,20 +33,25 @@ while playing:
 	if "controls" in kdowns:
 		settings.directcontrol = not settings.directcontrol
 		settings.save()
+		hud.show("Controls: %s" % ("absolute" if settings.directcontrol else "relative"))
 		sound.playsound("blip0")
 	if "camera" in kdowns:
 		settings.fixedcamera = not settings.fixedcamera
 		settings.save()
+		hud.show("Camera: %s" % ("fixed" if settings.fixedcamera else "follow"))
 		sound.playsound("blip0")
 	if "chomp" in kdowns:
 		settings.autochomp = not settings.autochomp
 		settings.save()
+		hud.show("Auto-bite: %s" % ("on" if settings.autochomp else "off"))
 		sound.playsound("blip0")
 	if "sfx" in kdowns:
 		sound.cycle_sfxvolume()
+		hud.show("SFX volume: %d%%" % (settings.sfxvolume))
 		sound.playsound("blip0")
 	if "music" in kdowns:
 		sound.cycle_musicvolume()
+		hud.show("Music volume: %d%%" % (settings.musicvolume))
 		sound.playsound("blip0")
 	if "resize" in kdowns:
 		view.resize()
@@ -84,6 +89,7 @@ while playing:
 		menuscene.think(dt, kpressed, kdowns)
 	if "settings" in current:
 		settingsscene.think(dt, kpressed, kdowns)
+	hud.think(dt)
 	profiler.stop("think")
 
 	view.clear()
@@ -97,6 +103,7 @@ while playing:
 		gameoverscene.draw()
 	if "settings" in current:
 		settingsscene.draw()
+	hud.draw()
 	profiler.stop("draw")
 	if settings.DEBUG:
 		text = "\n".join([

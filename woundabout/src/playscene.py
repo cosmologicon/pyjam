@@ -16,9 +16,16 @@ def init():
 		sound.playmusic("brittle")
 	elif scene.current == "endless":
 		state.endless_init()
-		sound.playmusic("destiny")
+		if 0 <= (state.stage - 1) % 10 < 4:
+			sound.playmusic("destiny")
+		if 4 <= (state.stage - 1) % 10 < 7:
+			sound.playmusic("brittle")
+		if 7 <= (state.stage - 1) % 10 < 10:
+			sound.playmusic("nonstop")
 	from . import gameoverscene
 	gameoverscene.init()
+	self.currenthud = None
+	self.fhud = 0
 
 def winning():
 	if scene.current == "adventure":
@@ -73,8 +80,10 @@ def think(dt, kpressed, kdowns):
 			state.you.think(dt, dkx, dky)
 	if scene.current == "adventure":
 		state.adventure_think(dt)
+		hudthink(dt)
 	elif scene.current == "endless":
 		state.endless_think(dt)
+
 
 	vtarget, starget = getvtarget()
 	if self.snap:
@@ -115,34 +124,47 @@ def draw():
 	elif scene.current == "endless":
 		drawendlesshud()
 
+def hudthink(dt):
+	if self.currenthud == state.stage:
+		self.fhud = math.approach(self.fhud, 1, 1 * dt)
+	else:
+		self.fhud = math.approach(self.fhud, 0, 2 * dt)
+	if self.fhud == 0:
+		self.currenthud = None
+	if self.currenthud is None:
+		self.currenthud = state.stage
+		
 
 def drawadventurehud():
 	infos = {
-		1: ("Space/Enter: begin\nArrows/WASD: move\nEsc: help/settings/quit", "bottomleft"),
-		2: ("F1: toggle control scheme\n[%s]\nAbsolute is like traditional Snake. Relative is a little more precise once you get the hang of it." %
+		1: ("Space or Enter: begin\nArrows or WASD: move\nEsc: pause/help/settings/quit", "bottomleft"),
+		2: ("Press F1 to toggle control scheme\n[%s]\nAbsolute is like traditional Snake. Relative is a little more precise once you get the hang of it." %
 				("absolute" if settings.directcontrol else "relative"), "bottomright"),
-		3: ("F2: toggle camera\n[%s]" % ("fixed" if settings.fixedcamera else "follow"), "topleft"),
-		4: ("Space/Enter: bite your own tail. Encircle (go around) the object and bite your tail to unlock the next area.", "topright"),
+		3: ("Press F2 to toggle camera mode\n[%s]" % ("fixed" if settings.fixedcamera else "follow"), "topleft"),
+		4: ("Press Space or Enter to bite your tail. Your mouth will open when you're close enough. Encircle (go around) the object and bite your tail. Then press Space/Enter again to release and activate it.", "topright"),
 		5: ("This key is rotating. You must encircle it going clockwise to unlock it.", "topleft"),
-		6: ("This one must be encircled counterclockwise.", "bottomright"),
-		7: ("F3: toggle auto-bite\n[%s]" % ("on" if settings.autochomp else "off"), "midright"),
+		6: ("This one must be encircled counterclockwise.\n\nTip: make tighter circles if you're not close enough to your tail.", "bottomright"),
+		7: ("Press F3 to toggle auto-bite\n[%s]\n\nTip: for rotating keys, match the scale colors on the inside of your circle." % ("on" if settings.autochomp else "off"), "bottomright"),
 		8: ("Energy increases your length. Encircle to collect it.", "bottomleft"),
 		9: ("You can quit at any time. Your progress is automatically saved.", "topright"),
+		10: ("If you missed any info, press Esc to bring up the help screen.", "bottomright"),
 		11: ("Tip: in relative control mode, hold up or down to turn wider or tighter.", "topleft"),
 		12: ("Encircle both keys at the same time. A number on a key tells you how many total keys must be encircled at the same time.", "bottomright"),
 		13: ("You must encircle them both at the same time in different directions. This calls for a Figure 8.", "topleft"),
+		14: ("Remember you can change the controls and camera. Press Esc for help.", "bottomright"),
 		15: ("Disruptors can't be activated, and they prevent you from activating energy and keys. Encircle the energy without including any of the disruptors.", "topleft"),
 		16: ("It's fine to encircle walls if they don't contain a disruptor.", "topleft"),
-		21: ("Remember, you need to encircle all three keys but not the disruptor.", "bottomright"),
+		18: ("Remember, you need to encircle both keys but not the disruptor.", "topleft"),
+		20: ("Time for another Figure 8.", "topright"),
 		22: ("Remember, it's fine to encircle walls", "midleft"),
 		25: ("Thank you for playing.", "midbottom"),
 	}
 	rect = pygame.Rect(T(240, 160, pview.w0 - 480, pview.h0 - 320))
-	if state.stage in infos:
-		text, edge = infos[state.stage]
+	if self.currenthud in infos:
+		text, edge = infos[self.currenthud]
 		pos = getattr(rect, edge)
 		ptext.draw(text, center = pos, fontsize = T(32), width = T(400),
-			owidth = 0.5, color = (128, 240, 255), shade = 1)
+			owidth = 0.5, color = (128, 240, 255), shade = 1, shadow = (1, 1))
 
 	a = int(math.smoothfadebetween(self.twin, 7.5, 0, 8, 255))
 	if a > 0:

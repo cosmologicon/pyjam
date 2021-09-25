@@ -171,7 +171,12 @@ class You:
 			k += 1
 			a += size
 		pos, theta = geometry.interp(self.d - self.length, self.ps)
-		segments.append(("tail", pos, theta, size))
+		imgtail = "tail"
+		if self.length > 120:
+			imgtail = "tail-1"
+		if self.length > 200:
+			imgtail = "tail-2"
+		segments.append((imgtail, pos, theta, size))
 		for imgname, pos, angle, size in reversed(segments):
 			graphics.drawimg(pos, imgname, size, angle - math.tau / 4)
 		theta = self.theta
@@ -195,9 +200,12 @@ class You:
 		graphics.drawimg(pos, "head-bottom", 0.3, theta + 0.2 * self.aaah)
 		graphics.drawimg(pos, imgtop, 0.3, theta - 1.1 * self.aaah)
 		if self.length > 60:
-			self.drawwing(2, min(0.8 * self.length, 40), 0)
+			color = (120, 200, 255)
+			if self.length > 160:
+				color = math.mix((240, 240, 255), (0, 0, 0), 0.1 * math.cycle(0.2 * self.t))
+			self.drawwing(2, min(0.8 * self.length, 40), 0, color)
 
-	def drawwing(self, a0, amax, phi0):
+	def drawwing(self, a0, amax, phi0, color):
 		a = a0
 		ps = []
 		while a < amax and a < self.d - 1:
@@ -215,7 +223,7 @@ class You:
 		if len(ps) < 4:
 			return
 		ps = [view.screenpos(p) for p in ps]
-		pygame.draw.polygon(pview.screen, (120, 200, 255), ps)
+		pygame.draw.polygon(pview.screen, color, ps)
 
 
 class ShedSkin:

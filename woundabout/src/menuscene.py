@@ -99,6 +99,8 @@ def draw():
 		btext = "Adventure complete. Thank you for playing!" if progress.adventuredone else "Adventure progress %d%%" % (4 * progress.adventure)
 	if self.jopt == 1:
 		btext = "Endless stages completed: %d" % progress.endless
+	if not progress.adventuredone and progress.adventure == 0 and progress.endless == 0:
+		btext = "Controls: Arrows or WASD, Space or Enter"
 	if btext:
 		ptext.draw(btext, midbottom = T(640, 700), fontsize = T(34), owidth = 0.5, shade = 1)
 

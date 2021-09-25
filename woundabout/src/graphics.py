@@ -83,7 +83,8 @@ def cloudimg(color, jcloud, jframe, scale0 = None):
 def drawcloud(pos, r, t, f = 1, color = (200, 200, 200)):
 	scale = view.scale * pview.f * r * 5 / cloudr0
 	scale = math.exp(round(math.log(scale), 1))
-	for k in range(int(f * 5)):
+	numcloud = int(f * 5) if f >= 1 else int(math.fadebetween(f, 0, 3, 0.8, 5))
+	for k in range(numcloud):
 		a = 3 * t + 1234.567 * k
 		jcloud, fframe = divmod(a, 1)
 		jcloud %= 10
@@ -144,7 +145,7 @@ def ifactor(imgname):
 		return 0.032
 	if "segment" in imgname:
 		return 0.036
-	if imgname == "tail":
+	if "tail" in imgname:
 		return 0.036
 	if "frames" in imgname:
 		return 0.0086 * 200 / 120

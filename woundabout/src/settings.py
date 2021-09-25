@@ -28,7 +28,7 @@ savename = "savegame.pkl"
 heights = 480, 540, 720, 1080
 volumes = 0, 20, 40, 60, 80, 100
 volumegamma = 1.6
-DEBUG = True
+DEBUG = False
 reset = "--reset" in sys.argv
 minfps, maxfps = 10, 120
 

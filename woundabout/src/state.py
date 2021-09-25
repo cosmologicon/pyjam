@@ -51,6 +51,8 @@ class Star(Obj):
 		self.vanim = math.fuzzrange(0.4, 1, 1, *self.pos)
 		if windreq:
 			self.vanim = math.fuzzrange(0.3, 0.5, 1, *self.pos)
+		else:
+			self.vanim *= random.choice([-1, 1])
 		self.tcloud = math.fuzzrange(0, 100, 2, *self.pos)
 		self.fappear = 0
 		self.appeared = False
@@ -270,7 +272,8 @@ def randomspawn(ps, r0, dmin = 1):
 		if any(math.hypot(x - px, y - py) < r0 + pr + dmin for (px, py), pr in ps):
 			dmin *= math.exp(-0.01)
 			continue
-		print("randomspawn", j)
+		if settings.DEBUG and j > 10:
+			print("randomspawn", j)
 		return x, y
 
 region = []
@@ -287,7 +290,7 @@ def endless_init():
 	del region[:], walls[:], objs[:], active[:], wound[:], keys[:], effects[:]
 
 	stage = progress.endless + 1
-	act = stage // 20
+	act = (stage + 1) // 20
 	stage -= act * 20
 	headstart = 0 if stage <= 2 else 2 if stage <= 5 else 4 if stage <= 7 else 8 if stage <= 12 else 12 if stage <= 16 else 20
 	numgrow = 1 if stage <= 2 else 2 if stage <= 5 else 3 if stage <= 15 else 4
@@ -309,17 +312,6 @@ def endless_init():
 		objs.append(Star((12, 0), r = 2.6, numreq = 2, windreq = 1))
 		objs.append(Star((-12, 0), r = 2.6, numreq = 2, windreq = -1))
 	if stage == 5:
-		R = 12
-		for x, y in math.CSround(3, 8, jtheta0 = 3/4):
-			objs.append(Star((1.4 * x, y), r = 2, numreq = 3))
-	if stage == 6:
-		R = 14
-		objs.append(Star((0, 0), r = 2.6, numreq = -1))
-		objs.append(Star((11, -7), r = 1.4, numreq = -1))
-		objs.append(Star((-11, 7), r = 1.4, numreq = -1))
-		objs.append(Star((11, 7), r = 1.4, numreq = 2))
-		objs.append(Star((-11, -7), r = 1.4, numreq = 2))
-	if stage == 7:
 		R = 14
 		objs.append(Star((7, 0), r = 1.4, numreq = 2))
 		objs.append(Star((-7, 0), r = 1.4, numreq = 2))
@@ -331,26 +323,18 @@ def endless_init():
 			((0, -6), (0, 6)),
 		]:
 			walls.append(Wall(p0, p1))
-	if stage == 8:
-		R = 16
-		objs.append(Star((15, 9), r = 2.6, numreq = 4, windreq = 1))
-		objs.append(Star((5, 3), r = 2.6, numreq = 4, windreq = -1))
-		objs.append(Star((-5, -3), r = 2.6, numreq = 4, windreq = 1))
-		objs.append(Star((-15, -9), r = 2.6, numreq = 4, windreq = -1))
-	if stage == 9:
-		R = 16
+	if stage == 6:
+		R = 14
 		objs.append(Star((0, 0), r = 2.6, numreq = -1))
-		objs.append(Star((12, -8), r = 2.6, numreq = 4))
-		objs.append(Star((-12, 8), r = 2.6, numreq = 4))
-		objs.append(Star((12, 8), r = 2.6, numreq = 4))
-		objs.append(Star((-12, -8), r = 2.6, numreq = 4))
-	if stage == 10:
-		R = 18
-		for j, pos in enumerate(math.CSround(4, 8, jtheta0 = 1/2)):
-			objs.append(Star(pos, r = 2, numreq = 4, windreq = (1 if j % 2 == 0 else -1)))
-		walls.append(Wall((0, -10), (0, 10)))
-		walls.append(Wall((-10, 0), (10, 0)))
-	if stage == 11:
+		objs.append(Star((11, -7), r = 1.4, numreq = -1))
+		objs.append(Star((-11, 7), r = 1.4, numreq = -1))
+		objs.append(Star((11, 7), r = 1.4, numreq = 2))
+		objs.append(Star((-11, -7), r = 1.4, numreq = 2))
+	if stage == 7:
+		R = 12
+		for x, y in math.CSround(3, 8, jtheta0 = 3/4):
+			objs.append(Star((1.4 * x, y), r = 2, numreq = 3))
+	if stage == 8:
 		R = 18
 		objs.append(Star((12, 0), r = 1, numreq = 2))
 		objs.append(Star((-12, 0), r = 1, numreq = 2))
@@ -358,18 +342,37 @@ def endless_init():
 		ps.extend([(-x, -y) for x, y in reversed(ps)])
 		for j in range(len(ps) - 1):
 			walls.append(Wall(ps[j], ps[j+1]))
-	if stage == 12:
-		R = 13
-		objs.append(Star((0, 0), r = 2, numreq = -1))
-		for x, y in math.CSround(3, 6, jtheta0 = 1/4):
-			objs.append(Star((x, y), r = 2, numreq = 3))
-			walls.append(Wall((0, 0), (-1.4 * x, -1.4 * y)))
-	if stage == 13:
+	if stage == 9:
+		R = 16
+		objs.append(Star((15, 9), r = 2.6, numreq = 4, windreq = 1))
+		objs.append(Star((5, 3), r = 2.6, numreq = 4, windreq = -1))
+		objs.append(Star((-5, -3), r = 2.6, numreq = 4, windreq = 1))
+		objs.append(Star((-15, -9), r = 2.6, numreq = 4, windreq = -1))
+	if stage == 10:
 		R = 14
 		objs.append(Star((0, 0), r = 3, numreq = -1))
 		objs.append(Star((12, 8), r = 2, numreq = 2))
 		objs.append(Star((-12, -8), r = 2, numreq = 2))
 		walls.append(Wall((-10, 7), (10, -7)))
+	if stage == 11:
+		R = 13
+		objs.append(Star((0, 0), r = 2, numreq = -1))
+		for x, y in math.CSround(3, 6, jtheta0 = 1/4):
+			objs.append(Star((x, y), r = 2, numreq = 3))
+			walls.append(Wall((0, 0), (-1.4 * x, -1.4 * y)))
+	if stage == 12:
+		R = 16
+		objs.append(Star((0, 0), r = 2.6, numreq = -1))
+		objs.append(Star((12, -8), r = 2.6, numreq = 4))
+		objs.append(Star((-12, 8), r = 2.6, numreq = 4))
+		objs.append(Star((12, 8), r = 2.6, numreq = 4))
+		objs.append(Star((-12, -8), r = 2.6, numreq = 4))
+	if stage == 13:
+		R = 18
+		for j, pos in enumerate(math.CSround(4, 8, jtheta0 = 1/2)):
+			objs.append(Star(pos, r = 2, numreq = 4, windreq = (1 if j % 2 == 0 else -1)))
+		walls.append(Wall((0, -10), (0, 10)))
+		walls.append(Wall((-10, 0), (10, 0)))
 	if stage == 14:
 		R = 16
 		objs.append(Star((0, 0), r = 3, numreq = 3))
@@ -378,12 +381,6 @@ def endless_init():
 		walls.append(Wall((-10, 10), (-10, -10)))
 		walls.append(Wall((10, 10), (10, -10)))
 	if stage == 15:
-		R = 14
-		objs.append(Star((14, -7), r = 1.4, numreq = 2))
-		objs.append(Star((-14, 7), r = 1.4, numreq = 2))
-		walls.append(Wall((3, -13), (13, 7)))
-		walls.append(Wall((-3, 13), (-13, -7)))
-	if stage == 16:
 		R = 18
 		objs.append(Star((12, 0), r = 1, numreq = 2, windreq = 1))
 		objs.append(Star((-12, 0), r = 1, numreq = 2, windreq = -1))
@@ -391,6 +388,12 @@ def endless_init():
 		ps.extend([(-x, -y) for x, y in reversed(ps)])
 		for j in range(len(ps) - 1):
 			walls.append(Wall(ps[j], ps[j+1]))
+	if stage == 16:
+		R = 14
+		objs.append(Star((14, -7), r = 1.4, numreq = 2))
+		objs.append(Star((-14, 7), r = 1.4, numreq = 2))
+		walls.append(Wall((3, -13), (13, 7)))
+		walls.append(Wall((-3, 13), (-13, -7)))
 	if stage == 17:
 		R = 12
 		for x, y in math.CSround(3, 8, jtheta0 = 3/4):
@@ -509,6 +512,7 @@ def adventure_advance():
 
 
 def setactive(poly):
+	global actfail
 	del wound[:], active[:]
 	for obj in objs:
 		wind = geometry.polywind(poly, obj.pos)
@@ -523,6 +527,8 @@ def setactive(poly):
 
 
 def activate():
+	if wound and not active:
+		sound.playsound("no")
 	for obj in active:
 		obj.activate()
 	del active[:], wound[:]

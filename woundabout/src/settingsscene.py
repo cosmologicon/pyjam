@@ -51,8 +51,8 @@ def draw():
 	for obj in self.objs:
 		obj.draw()
 	optnames = "\n".join([
-		"Arrows/WASD: move",
-		"Space/Enter: bite/release",
+		"Arrows or WASD: move",
+		"Space or Enter: bite/release",
 		"F1: controls [%s]" % ("absolute" if settings.directcontrol else "relative"),
 		"F2: camera [%s]" % ("fixed" if settings.fixedcamera else "follow"),
 		"F3: auto-bite [%s]" % ("on" if settings.autochomp else "off"),
