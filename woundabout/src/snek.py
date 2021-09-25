@@ -23,9 +23,12 @@ class You:
 		self.aaahtarget = 0
 		self.menu = False
 		self.fixmovement = True
+		self.lastshed = 0
 
 	def lengthen(self):
-		state.effects.append(ShedSkin(self))
+		if self.t - self.lastshed > 2:
+			state.effects.append(ShedSkin(self))
+			self.lastshed = self.t
 		self.length += self.dlength
 		self.speed += self.dspeed
 
@@ -100,7 +103,7 @@ class You:
 
 		self.aaahtarget = 1 if self.canchomp() and self.tchomp == 0 else 0
 		if self.chompin:
-			self.aaahtarget = 0.5
+			self.aaahtarget = 0.4
 		self.aaah = math.approach(self.aaah, self.aaahtarget, 2 * dt)
 
 		step = dt * self.speed * self.fspeed
@@ -153,6 +156,9 @@ class You:
 	
 
 	def draw(self):
+#		if self.tchomp == 0 and self.canchomp():
+#			pos, _ = geometry.interp(self.d - self.length, self.ps)
+#			graphics.drawimg(pos, "flare", 3, 0)
 		segments = []
 		a, k, size = -0.25, 0, 0.25
 		imgname = "segment-menu" if self.menu else "segment"
@@ -160,7 +166,7 @@ class You:
 #			size = 0.5 if k == 0 else max(0.3 * 0.98 ** k, 0.2)
 			a += size
 			pos, theta = geometry.interp(self.d - a, self.ps)
-			size = max(size * 0.998, 0.15)
+			size = max(size * 0.999, 0.2)
 			segments.append((imgname, pos, theta, size))
 			k += 1
 			a += size
@@ -186,10 +192,10 @@ class You:
 			imgtop = "head-top-2"
 		if self.length > 75:
 			imgtop = "head-top-3"
-		graphics.drawimg(pos, "head-bottom", 0.3, theta + 0.3 * self.aaah)
-		graphics.drawimg(pos, imgtop, 0.3, theta - 0.9 * self.aaah)
+		graphics.drawimg(pos, "head-bottom", 0.3, theta + 0.2 * self.aaah)
+		graphics.drawimg(pos, imgtop, 0.3, theta - 1.1 * self.aaah)
 		if self.length > 60:
-			self.drawwing(2, 0.8 * self.length, 0)
+			self.drawwing(2, min(0.8 * self.length, 40), 0)
 
 	def drawwing(self, a0, amax, phi0):
 		a = a0
@@ -199,7 +205,7 @@ class You:
 			pos, theta = geometry.interp(self.d - a, self.ps)
 			angle = math.tau / 2 - theta
 			A = 0.3 * math.exp(-10 * f)
-			A += f ** 0.5 * 1.4 * math.sin((self.d - a) * 1 + math.tau * phi0)
+			A += f ** 0.5 * math.mix(0.5, 1, math.cycle(f * 3/2)) * 2 * math.sin((self.d - a) * 1 + math.tau * phi0)
 			dA = 0.03 * (1 - f)
 			p0 = math.CS(angle, A - dA, center = pos)
 			p1 = math.CS(angle, A + dA, center = pos)

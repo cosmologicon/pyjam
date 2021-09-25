@@ -14,11 +14,12 @@ def think(dt, kpressed, kdowns):
 	if self.t > 0.5 and "act" in kdowns:
 		sound.playsound("blip1")
 		if scene.current == "gameover_endless":
-			scene.current = "endless"
-			playscene.init()
+			scene.setcurrent("endless")
 		if scene.current == "gameover_adventure":
-			scene.current = "adventure"
-			playscene.init()
+			scene.setcurrent("adventure")
+	if self.t > 0.5 and "quit" in kdowns:
+		sound.playsound("blip1")
+		scene.setcurrent("menu")
 
 def draw():
 	alpha = int(math.fadebetween(self.t, 0, 0, 1, 0.75) * 255)

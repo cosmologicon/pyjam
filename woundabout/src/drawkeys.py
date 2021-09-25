@@ -4,7 +4,7 @@ from . import maff, pview, ptext
 
 
 R0 = 60
-Z = 2
+Z = 3
 R = R0 * Z
 size = w, h = 2 * R, 2 * R
 
@@ -130,7 +130,7 @@ for fname, color0, char, winding, beta, gamma in settings:
 		if winding:
 			gamma = math.tau * j / 60 * winding
 		img = makeimg(color0, char, kappa, beta, gamma = gamma)
-		pygame.image.save(img, "img/frames-120/%s-%d.png" % (fname, j))
+		pygame.image.save(img, "img/frames/%s-%d.png" % (fname, j))
 
 def hasquit():
 	for event in pygame.event.get():

@@ -88,7 +88,7 @@ def draw():
 		y = 400 + 90 * j
 		ptext.draw(optname, midleft = T(250, y), fontsize = T(80), owidth = 0.5, shade = 1)
 		if j == self.jopt:
-			imgtop = "head-top-0" if progress.endless < 10 else "head-top-3"
+			imgtop = "head-top-0" if not progress.adventuredone else "head-top-3"
 			graphics.drawimgscreen(T(160, y + 15), "head-bottom", pview.f * 10, angle)
 			graphics.drawimgscreen(T(160, y + 15), imgtop, pview.f * 10, angle)
 	ptext.draw("by Christopher Night\nmusic by Kevin MacLeod",

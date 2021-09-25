@@ -50,8 +50,10 @@ class Star(Obj):
 		self.tanim = math.fuzzrange(0, 100, 0, *self.pos)
 		self.vanim = math.fuzzrange(0.4, 1, 1, *self.pos)
 		if windreq:
-			self.vanim *= 0.4
+			self.vanim = math.fuzzrange(0.3, 0.5, 1, *self.pos)
 		self.tcloud = math.fuzzrange(0, 100, 2, *self.pos)
+		self.fappear = 0
+		self.appeared = False
 
 	def getcolor(self):
 		if self in active:
@@ -65,17 +67,22 @@ class Star(Obj):
 
 	def think(self, dt):
 		Obj.think(self, dt)
+		if not self.appeared:
+			fappear = 0 if geometry.collides(self, you) else 1
+			self.fappear = math.approach(self.fappear, fappear, 1 * dt)
+			if self.fappear == 1:
+				self.appeared = True
 		self.tanim += dt * self.vanim
 		self.tcloud += dt
 
 	def draw(self):
 		if not self.visible:
 			return
-		alpha = math.smoothfadebetween(self.t, 0, 0, 1, 1)
+#		graphics.drawflare(self.pos, self.r, self.tanim, color = self.color)
+		alpha = math.smoothfadebetween(self.fappear, 0, 0, 1, 1)
 		graphics.drawimg(self.pos, self.currentimg(), self.r, 0, alpha)
-		if self.t < 1:
-			f = math.fadebetween(self.t, 0, 1, 1, 0)
-			graphics.drawcloud(self.pos, self.r, self.tcloud, f)
+		if self.fappear < 1:
+			graphics.drawcloud(self.pos, self.r, self.tcloud, self.fappear)
 
 	def activate(self):
 		if not self.alive: return
@@ -116,7 +123,7 @@ class ShedStar:
 		
 	def draw(self):
 		f = math.fadebetween(self.t, 0, 0, 0.5, 1) ** 0.5
-		r = self.r * math.mix(1, 2, f)
+		r = self.r * math.mix(1.3, 3, f)
 		alpha = math.mix(0.5, 0, f)
 		graphics.drawimg(self.pos, self.imgname, r, 0, alpha)
 
@@ -144,7 +151,7 @@ class Wall:
 		for _ in range(50):
 			ps = [self.pos0, self.pos1]
 			d = 0.4
-			a = 0.5
+			a = 1
 			amax = math.distance(self.pos0, self.pos1)
 			while a < amax:
 				ps, ps1 = ps[:1], ps[1:]
@@ -187,6 +194,18 @@ class Lock(Obj):
 		for wall in walls:
 			if self.pos in (wall.pos0, wall.pos1):
 				wall.lock = self
+		self.makezotps()
+		self.fappear = 1
+
+	def makezotps(self):
+		self.zotps = []
+		for _ in range(50):
+			ps = math.CSround(16, self.r * 1.3, center = self.pos)
+			ps = [(
+				x + self.r * 0.3 * random.uniform(-1, 1),
+				y + self.r * 0.3 * random.uniform(-1, 1),
+			) for x, y in ps]
+			self.zotps.append(ps)
 
 	def think(self, dt):
 		Obj.think(self, dt)
@@ -198,15 +217,19 @@ class Lock(Obj):
 		else:
 			self.tactive += dt
 			self.toshed = True
+		self.fappear = math.fadebetween(self.tactive, 0, 0, 1, 1)
 
 	def draw(self):
 		if not self.active:
 			return
-		alpha = math.smoothfadebetween(self.t, 0, 0, 1, 1)
+		alpha = math.smoothfadebetween(self.fappear, 0, 0, 1, 1)
 		graphics.drawimg(self.pos, "fencepost", self.r, 0, alpha)
-		if self.tactive < 1:
-			f = math.fadebetween(self.tactive, 0, 1, 1, 0)
-			graphics.drawcloud(self.pos, self.r, self.t, f)
+		if self.fappear < 1:
+			graphics.drawcloud(self.pos, self.r, self.t, self.fappear)
+		else:
+			ps = random.choice(self.zotps)
+			ps = [view.screenpos(p) for p in ps]
+			pygame.draw.aalines(pview.screen, (200, 200, 255), True, ps, 1)
 
 	def collides(self, you):
 		return self.active and Obj.collides(self, you)
@@ -260,51 +283,146 @@ keys = []
 locks = []
 effects = []
 def endless_init():
-	global you, stage, numgrow
+	global you, stage, numgrow, nextbomb
 	del region[:], walls[:], objs[:], active[:], wound[:], keys[:], effects[:]
 
 	stage = progress.endless + 1
+	act = stage // 20
+	stage -= act * 20
+	headstart = 0 if stage <= 2 else 2 if stage <= 5 else 4 if stage <= 7 else 8 if stage <= 12 else 12 if stage <= 16 else 20
+	numgrow = 1 if stage <= 2 else 2 if stage <= 5 else 3 if stage <= 15 else 4
+	
 	if stage == 1:
 		R = 12
 		objs.append(Star((0, 0), r = 4))
-		numgrow = 1
-		headstart = 0
-	elif stage == 2:
+	if stage == 2:
+		R = 10
+		objs.append(Star((7, 0), r = 1.4, numreq = 2))
+		objs.append(Star((-7, 0), r = 1.4, numreq = 2))
+	if stage == 3:
+		R = 12
+		objs.append(Star((8, 0), r = 1.4, numreq = 2))
+		objs.append(Star((-8, 0), r = 1.4, numreq = 2))
+		walls.append(Wall((0, -4), (0, 4)))
+	if stage == 4:
+		R = 14
+		objs.append(Star((12, 0), r = 2.6, numreq = 2, windreq = 1))
+		objs.append(Star((-12, 0), r = 2.6, numreq = 2, windreq = -1))
+	if stage == 5:
+		R = 12
+		for x, y in math.CSround(3, 8, jtheta0 = 3/4):
+			objs.append(Star((1.4 * x, y), r = 2, numreq = 3))
+	if stage == 6:
+		R = 14
+		objs.append(Star((0, 0), r = 2.6, numreq = -1))
+		objs.append(Star((11, -7), r = 1.4, numreq = -1))
+		objs.append(Star((-11, 7), r = 1.4, numreq = -1))
+		objs.append(Star((11, 7), r = 1.4, numreq = 2))
+		objs.append(Star((-11, -7), r = 1.4, numreq = 2))
+	if stage == 7:
 		R = 14
 		objs.append(Star((7, 0), r = 1.4, numreq = 2))
 		objs.append(Star((-7, 0), r = 1.4, numreq = 2))
-		numgrow = 2
-		headstart = 1
-	elif stage == 3:
-		R = 15
-		objs.append(Star((8, 0), r = 1.4, numreq = 2))
-		objs.append(Star((-8, 0), r = 1.4, numreq = 2))
-		walls.append(Wall((0, -6), (0, 6)))
-		numgrow = 3
-		headstart = 2
-	elif stage == 4:
+		for p0, p1 in [
+			((-10, 6), (0, 6)),
+			((10, 6), (0, 6)),
+			((-10, -6), (0, -6)),
+			((10, -6), (0, -6)),
+			((0, -6), (0, 6)),
+		]:
+			walls.append(Wall(p0, p1))
+	if stage == 8:
 		R = 16
-		for pos in math.CSround(4, 10, jtheta0 = 0.5):
-			objs.append(Star(pos, r = 2, numreq = 2))
-		objs.append(Star((0, 0), r = 4, numreq = -1))
-		numgrow = 3
-		headstart = 3
-	elif stage == 5:
+		objs.append(Star((15, 9), r = 2.6, numreq = 4, windreq = 1))
+		objs.append(Star((5, 3), r = 2.6, numreq = 4, windreq = -1))
+		objs.append(Star((-5, -3), r = 2.6, numreq = 4, windreq = 1))
+		objs.append(Star((-15, -9), r = 2.6, numreq = 4, windreq = -1))
+	if stage == 9:
 		R = 16
-		for pos in math.CSround(3, 10, jtheta0 = 3/4):
-			objs.append(Star(pos, r = 2, numreq = 3))
-		objs.append(Star((0, 0), r = 4, numreq = -1))
-		numgrow = 3
-		headstart = 6
-	elif stage == 6:
-		R = 17
+		objs.append(Star((0, 0), r = 2.6, numreq = -1))
+		objs.append(Star((12, -8), r = 2.6, numreq = 4))
+		objs.append(Star((-12, 8), r = 2.6, numreq = 4))
+		objs.append(Star((12, 8), r = 2.6, numreq = 4))
+		objs.append(Star((-12, -8), r = 2.6, numreq = 4))
+	if stage == 10:
+		R = 18
 		for j, pos in enumerate(math.CSround(4, 8, jtheta0 = 1/2)):
 			objs.append(Star(pos, r = 2, numreq = 4, windreq = (1 if j % 2 == 0 else -1)))
 		walls.append(Wall((0, -10), (0, 10)))
 		walls.append(Wall((-10, 0), (10, 0)))
-		numgrow = 3
-		headstart = 10
-	else:
+	if stage == 11:
+		R = 18
+		objs.append(Star((12, 0), r = 1, numreq = 2))
+		objs.append(Star((-12, 0), r = 1, numreq = 2))
+		ps = [(-15, 7), (-22, 0), (-12, -7)]
+		ps.extend([(-x, -y) for x, y in reversed(ps)])
+		for j in range(len(ps) - 1):
+			walls.append(Wall(ps[j], ps[j+1]))
+	if stage == 12:
+		R = 13
+		objs.append(Star((0, 0), r = 2, numreq = -1))
+		for x, y in math.CSround(3, 6, jtheta0 = 1/4):
+			objs.append(Star((x, y), r = 2, numreq = 3))
+			walls.append(Wall((0, 0), (-1.4 * x, -1.4 * y)))
+	if stage == 13:
+		R = 14
+		objs.append(Star((0, 0), r = 3, numreq = -1))
+		objs.append(Star((12, 8), r = 2, numreq = 2))
+		objs.append(Star((-12, -8), r = 2, numreq = 2))
+		walls.append(Wall((-10, 7), (10, -7)))
+	if stage == 14:
+		R = 16
+		objs.append(Star((0, 0), r = 3, numreq = 3))
+		objs.append(Star((18, 0), r = 2, numreq = 3, windreq = 1))
+		objs.append(Star((-18, 0), r = 2, numreq = 3, windreq = -1))
+		walls.append(Wall((-10, 10), (-10, -10)))
+		walls.append(Wall((10, 10), (10, -10)))
+	if stage == 15:
+		R = 14
+		objs.append(Star((14, -7), r = 1.4, numreq = 2))
+		objs.append(Star((-14, 7), r = 1.4, numreq = 2))
+		walls.append(Wall((3, -13), (13, 7)))
+		walls.append(Wall((-3, 13), (-13, -7)))
+	if stage == 16:
+		R = 18
+		objs.append(Star((12, 0), r = 1, numreq = 2, windreq = 1))
+		objs.append(Star((-12, 0), r = 1, numreq = 2, windreq = -1))
+		ps = [(-15, 7), (-22, 0), (-12, -7)]
+		ps.extend([(-x, -y) for x, y in reversed(ps)])
+		for j in range(len(ps) - 1):
+			walls.append(Wall(ps[j], ps[j+1]))
+	if stage == 17:
+		R = 12
+		for x, y in math.CSround(3, 8, jtheta0 = 3/4):
+			objs.append(Star((1.4 * x, y - 2), r = 2, numreq = 3))
+		objs.append(Star((5, 0), r = 3, numreq = -1))
+		objs.append(Star((-5, 0), r = 3, numreq = -1))
+	if stage == 18:
+		R = 14
+		objs.append(Star((11, -8), r = 2, numreq = 4))
+		objs.append(Star((-11, 8), r = 2, numreq = 4))
+		objs.append(Star((11, 8), r = 2, numreq = 4))
+		objs.append(Star((-11, -8), r = 2, numreq = 4))
+		walls.append(Wall((-25, 0), (-7, 0)))
+		walls.append(Wall((25, 0), (7, 0)))
+	if stage == 19:
+		R = 16
+		objs.append(Star((0, 0), r = 3, numreq = 3))
+		objs.append(Star((18, 0), r = 2, numreq = 3, windreq = 1))
+		objs.append(Star((-18, 0), r = 2, numreq = 3, windreq = -1))
+		objs.append(Star((-10, 0), r = 1.4, numreq = -1))
+		objs.append(Star((10, 0), r = 1.4, numreq = -1))
+		walls.append(Wall((-10, 10), (-10, -10)))
+		walls.append(Wall((10, 10), (10, -10)))
+	if stage == 20:
+		R = 18
+		for j, pos in enumerate(math.CSround(4, 8, jtheta0 = 1/2)):
+			objs.append(Star(pos, r = 2, numreq = 4, windreq = (1 if j % 2 == 0 else -1)))
+		walls.append(Wall((0, -10), (0, 10)))
+		walls.append(Wall((-10, 0), (10, 0)))
+		objs.append(Star((0, 0), r = 1.4, numreq = -1))
+
+	if stage >= 21:
 		exit()
 
 	keys.extend([star for star in objs if star.numreq >= 0])
@@ -313,10 +431,13 @@ def endless_init():
 	you = snek.You((0, -R + 2), 0)
 	you.length = 10
 	you.dlength = 5
-	you.speed = 5
-	you.dspeed = 0.1
+	you.speed = 5 + 2.5 * act
+	you.dspeed = 0.1 + 0.05 * act
 	you.length += headstart * you.dlength
 	you.speed += headstart * you.dspeed
+	nextbomb = 20
+
+	stage += act * 20
 
 	ps = math.CSround(12, r = R, jtheta0 = 0.5)
 	a = 7/9 * (R + 2)
@@ -446,6 +567,7 @@ def adventure_think(dt):
 				lock.active = True
 
 def endless_think(dt):
+	global nextbomb
 	while sum(isinstance(obj, GrowStar) for obj in objs) < numgrow:
 		r = 0.6
 		pos = randomspawn(blockps(), r, dmin = 2)
@@ -453,8 +575,11 @@ def endless_think(dt):
 
 	for obj in objs:
 		obj.think(dt)
-		if not you.chompin and obj.collides(you):
+		if not you.chompin and obj.fappear == 1 and obj.collides(you):
 			you.alive = False
+		if isinstance(obj, GrowStar) and not obj.alive and you.length > nextbomb:
+			objs.append(Star(obj.pos, r = 1, numreq = -1))
+			nextbomb += 15
 	for wall in walls:
 		if wall.collides(you):
 			wall.collide()

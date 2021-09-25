@@ -64,7 +64,7 @@ def cloudimg(color, jcloud, jframe, scale0 = None):
 		return pygame.transform.smoothscale(img0, (w, h))
 	if jframe > 0 or color != (255, 255, 255):
 		scale = math.mix(1, 0.2, (jframe / jframemax))
-		angle = math.fuzzrange(-200, 200, 123, jcloud) * jframe / jframemax
+		angle = int(math.fuzzrange(-360, 360, 123, jcloud) * jframe / jframemax)
 		alpha = math.imix(0, 255, jframe / jframemax)
 		img0 = pygame.transform.rotozoom(cloudimg((255, 255, 255), jcloud, 0), angle, scale)
 		return mask(img0, color + (alpha,))
@@ -90,6 +90,18 @@ def drawcloud(pos, r, t, f = 1, color = (200, 200, 200)):
 		jframe = int(fframe * jframemax)
 		img = cloudimg(color, jcloud, jframe, scale)
 		drawat(img, view.screenpos(pos))
+
+def drawflare(pos, r, t, f = 1, color = (200, 200, 200)):
+	theta = 0
+	a = math.mix(0.2, 1, math.cycle(t * 4))
+	ps = [
+		math.CS(theta-math.tau/4, a * 0.1 * r, center = pos),
+		math.CS(theta, a * 2.5 * r, center = pos),
+		math.CS(theta+math.tau/4, a * 0.1 * r, center = pos),
+	]
+	ps = [view.screenpos(p) for p in ps]
+	color = color + (20,)
+	pygame.draw.polygon(pview.screen, color, ps)
 
 
 def aunit(imgname):
@@ -135,7 +147,7 @@ def ifactor(imgname):
 	if imgname == "tail":
 		return 0.036
 	if "frames" in imgname:
-		return 0.0086
+		return 0.0086 * 200 / 120
 	return 0.012
 
 def drawimgscreen(pos, imgname, r, angle, alpha = 1):

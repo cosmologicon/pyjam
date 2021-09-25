@@ -88,6 +88,7 @@ def think(dt, kpressed, kdowns):
 		self.twin += dt
 	if scene.current == "endless" and self.twin > 1:
 		progress.beatendless(state.stage)
+		sound.playsound("unlock")
 		init()
 	if scene.current == "adventure" and self.twin > 8:
 		progress.resetadventure()
@@ -126,7 +127,9 @@ def drawadventurehud():
 		6: ("This one must be encircled counterclockwise.", "bottomright"),
 		7: ("F3: toggle auto-bite\n[%s]" % ("on" if settings.autochomp else "off"), "midright"),
 		8: ("Energy increases your length. Encircle to collect it.", "bottomleft"),
-		12: ("Encircle both keys at the same time. A number on a key tells you how many keys must be encircled at the same time as it.", "bottomright"),
+		9: ("You can quit at any time. Your progress is automatically saved.", "topright"),
+		11: ("Tip: in relative control mode, hold up or down to turn wider or tighter.", "topleft"),
+		12: ("Encircle both keys at the same time. A number on a key tells you how many total keys must be encircled at the same time.", "bottomright"),
 		13: ("You must encircle them both at the same time in different directions. This calls for a Figure 8.", "topleft"),
 		15: ("Disruptors can't be activated, and they prevent you from activating energy and keys. Encircle the energy without including any of the disruptors.", "topleft"),
 		16: ("It's fine to encircle walls if they don't contain a disruptor.", "topleft"),
