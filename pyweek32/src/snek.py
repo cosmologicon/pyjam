@@ -1,14 +1,14 @@
 import pygame, math
-from . import state, view, geometry, pview, settings, graphics
+from . import state, view, geometry, pview, settings, graphics, sound
 from .pview import T
 
 class You:
 	r = 0.01
-	def __init__(self, pos):
+	def __init__(self, pos, theta = 0):
 		self.t = 0
 		self.d = 0
 		self.pos = pos
-		self.theta = 0  # 0 = north, tau/4 = east
+		self.theta = theta
 		self.ps = [(self.d, self.pos, self.theta)]
 		self.chompin = False
 		self.tchomp = 0
@@ -56,7 +56,9 @@ class You:
 				return True
 		
 	
-	def chomp(self):
+	def chomp(self, quiet = False):
+		if not quiet:
+			sound.playsound("chomp")
 		self.chompin = True
 		self.dchomp = self.d
 		self.chomppoly = [p for d, p, theta in self.ps]
@@ -68,7 +70,8 @@ class You:
 		self.starget = min(1280 / (4 + xmax - xmin), 720 / (4 + ymax - ymin))
 
 	def unchomp(self):
-		if self.chompin and self.tchomp > 1:
+		if self.chompin and self.tchomp > 0.5:
+			sound.playsound("unchomp")
 			state.activate()
 			self.chompin = False
 			self.tchomp = -1
@@ -132,12 +135,12 @@ class You:
 			else:
 				if self.tchomp < 0:
 					self.tchomp = min(self.tchomp + dt, 0)
-
+	
 
 	def draw(self):
 		segments = []
 		a, k, size = -0.25, 0, 0.25
-		while a < self.length:
+		while a < self.length - 0.1 and a < self.d - 0.1:
 #			size = 0.5 if k == 0 else max(0.3 * 0.98 ** k, 0.2)
 			a += size
 			pos, theta = geometry.interp(self.d - a, self.ps)
@@ -161,6 +164,32 @@ class You:
 		theta -= math.tau / 4
 		graphics.drawimg(pos, "head-bottom", 0.3, theta + 0.3 * self.aaah)
 		graphics.drawimg(pos, "head-top", 0.3, theta - 0.9 * self.aaah)
+		if self.length > 22:
+			self.drawwing(2, 20, 0)
+		if self.length > 42:
+			self.drawwing(12, 40, 1/3)
+		if self.length > 72:
+			self.drawwing(22, 70, 2/3)
+
+	def drawwing(self, a0, amax, phi0):
+		a = a0
+		ps = []
+		while a < amax and a < self.d - 1:
+			f = math.fadebetween(a, 2, 0, amax, 1)
+			pos, theta = geometry.interp(self.d - a, self.ps)
+			angle = math.tau / 2 - theta
+			A = 0.3 * math.exp(-10 * f)
+			A += f ** 0.5 * 1.4 * math.sin((self.d - a) * 1 + math.tau * phi0)
+			dA = 0.03 * (1 - f)
+			p0 = math.CS(angle, A - dA, center = pos)
+			p1 = math.CS(angle, A + dA, center = pos)
+			ps.append(p0)
+			ps.insert(0, p1)
+			a += 0.2
+		if len(ps) < 4:
+			return
+		ps = [view.screenpos(p) for p in ps]
+		pygame.draw.polygon(pview.screen, (120, 200, 255), ps)
 
 
 class ShedSkin:
@@ -170,10 +199,12 @@ class ShedSkin:
 		self.a = 0
 		self.amax = you.length
 		self.L = 20
+		self.v = 20
 
 	def think(self, dt):
 		self.t += dt
-		self.a += 20 * dt
+		self.a += self.v * dt
+		self.v += 50 * dt
 		self.alive = self.a - self.L < self.you.length
 		
 	def draw(self):
@@ -181,7 +212,7 @@ class ShedSkin:
 		a, k, size = 0, 0, 0.5
 		while a < self.you.length:
 			a += size
-			size *= 0.99
+			size = max(size * 0.997, 0.15)
 			if self.a - self.L < a < self.a:
 				f = math.fadebetween(a, self.a, 0, self.a - self.L, 1)
 				pos, theta = geometry.interp(self.you.d - a, self.you.ps)

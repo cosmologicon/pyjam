@@ -26,8 +26,6 @@ while playing:
 	kdowns, kpressed = settings.remapkeys(kdowns, kpressed)
 
 
-	if settings.DEBUG and "quit" in kdowns:
-		playing = False
 	if settings.DEBUG and "cheatwin" in kdowns:
 		state.cheatwin()
 	if settings.DEBUG and "cheatgrow" in kdowns:
@@ -35,23 +33,31 @@ while playing:
 	if "controls" in kdowns:
 		settings.directcontrol = not settings.directcontrol
 		settings.save()
+		sound.playsound("blip0")
 	if "camera" in kdowns:
 		settings.fixedcamera = not settings.fixedcamera
 		settings.save()
+		sound.playsound("blip0")
 	if "chomp" in kdowns:
 		settings.autochomp = not settings.autochomp
 		settings.save()
+		sound.playsound("blip0")
 	if "sfx" in kdowns:
 		sound.cycle_sfxvolume()
+		sound.playsound("blip0")
 	if "music" in kdowns:
 		sound.cycle_musicvolume()
+		sound.playsound("blip0")
 	if "resize" in kdowns:
 		view.resize()
 	if "fullscreen" in kdowns:
 		view.toggle_fullscreen()
 	if "screenshot" in kdowns:
 		pview.screenshot()
+		sound.playsound("blip1")
 	current = scene.current
+	if current is None:
+		break
 
 	if scene.toinit:
 		scene.toinit = False
@@ -68,9 +74,9 @@ while playing:
 	dt0 = 1 / settings.maxfps
 	while dtaccum > dt0:
 		dtaccum -= dt0
-		if current in ["adventure", "endless"]:
+		if current in ["adventure", "endless", "gameover_adventure", "gameover_endless"]:
 			playscene.think(dt0, kpressed, kdowns)
-	if current == "gameover":
+	if current in ["gameover_adventure", "gamover_endless"]:
 		gameoverscene.think(dt, kpressed, kdowns)
 	if current == "menu":
 		menuscene.think(dt, kpressed, kdowns)
@@ -83,9 +89,9 @@ while playing:
 	profiler.start("draw")
 	if current == "menu":
 		menuscene.draw()
-	if current in ["adventure", "endless"]:
+	if current in ["adventure", "endless", "gameover_adventure", "gameover_endless"]:
 		playscene.draw()
-	if current == "gameover":
+	if current in ["gameover_adventure", "gamover_endless"]:
 		gameoverscene.draw()
 	if "settings" in current:
 		settingsscene.draw()

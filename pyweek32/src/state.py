@@ -1,5 +1,5 @@
 import random, math, pygame
-from . import pview, view, geometry, settings, ptext, snek, graphics, progress, leveldata
+from . import pview, view, geometry, settings, ptext, snek, graphics, progress, leveldata, sound
 from .pview import T
 
 
@@ -43,8 +43,15 @@ class Star(Obj):
 		self.windreq = windreq
 		self.numreq = numreq
 		self.imgname = "key"
+		if numreq:
+			self.imgname += "X" if numreq == -1 else str(numreq)
+		if windreq:
+			self.imgname += "L" if windreq > 0 else "R"
 		self.tanim = math.fuzzrange(0, 100, 0, *self.pos)
-		self.vanim = math.fuzzrange(1, 1.2, 1, *self.pos)
+		self.vanim = math.fuzzrange(0.4, 1, 1, *self.pos)
+		if windreq:
+			self.vanim *= 0.4
+		self.tcloud = math.fuzzrange(0, 100, 2, *self.pos)
 
 	def getcolor(self):
 		if self in active:
@@ -59,8 +66,11 @@ class Star(Obj):
 	def think(self, dt):
 		Obj.think(self, dt)
 		self.tanim += dt * self.vanim
+		self.tcloud += dt
 
 	def draw(self):
+		if not self.visible:
+			return
 		if self.imgname is None:
 			Obj.draw(self)
 			if self.windreq is not None:
@@ -72,16 +82,16 @@ class Star(Obj):
 				ptext.draw(str(self.numreq), center = view.screenpos(self.pos),
 					fontsize = T(view.scale * self.r), shadow = (1, 1))
 		else:
-			graphics.drawimg(self.pos, self.currentimg(), self.r, 0)
-
-	def collide(self):
-		if not self.alive: return
-		you.length = max(you.length - 5, 10)
-		self.alive = False
+			alpha = math.smoothfadebetween(self.t, 0, 0, 1, 1)
+			graphics.drawimg(self.pos, self.currentimg(), self.r, 0, alpha)
+		if self.t < 1:
+			f = math.fadebetween(self.t, 0, 1, 1, 0)
+			graphics.drawcloud(self.pos, self.r, self.tcloud, f)
 
 	def activate(self):
 		if not self.alive: return
 		self.alive = False
+		effects.append(ShedStar(self.pos, self.currentimg(), self.r))
 		self.act()
 	
 	def act(self):
@@ -91,13 +101,15 @@ class GrowStar(Star):
 	color = 100, 100, 200
 	num = 0
 	r = 0.6
-	def __init__(self, pos, r = 0.3):
+	def __init__(self, pos, r = 0.6):
 		Star.__init__(self, pos, r, windreq = None, numreq = 0)
 
 	def act(self):
 		you.lengthen()
 
 	def draw(self):
+		if not self.visible:
+			return
 		color = self.getcolor()
 		graphics.drawhill(view.screenpos(self.pos), color, T(view.scale * self.r * 2), 1)
 		for k in range(3):
@@ -108,14 +120,23 @@ class GrowStar(Star):
 			graphics.drawhill(view.screenpos(pos), color, size, alpha)
 
 
-class Mine(Obj):
-	color = 60, 60, 60
-	r = 0.6
+class ShedStar:
+	def __init__(self, pos, imgname, r):
+		self.pos = pos
+		self.imgname = imgname
+		self.r = r
+		self.t = 0
 
-	def collide(self):
-		if not self.alive: return
-		you.length = max(you.length - 5, 10)
-		self.alive = False
+	def think(self, dt):
+		self.t += dt
+		self.alive = self.t < 0.5
+		
+	def draw(self):
+		f = math.fadebetween(self.t, 0, 0, 0.5, 1) ** 0.5
+		r = self.r * math.mix(1, 2, f)
+		alpha = math.mix(0.5, 0, f)
+		graphics.drawimg(self.pos, self.imgname, r, 0, alpha)
+
 
 class Wall:
 	color = 140, 20, 20
@@ -198,9 +219,12 @@ def regionbounds():
 	xs, ys = zip(*region)
 	return min(xs), min(ys), max(xs), max(ys)
 
-def vtarget(d = 2):
-	if winning():
+def adventure_vtarget(d = 2):
+	if adventure_winning():
 		return (0, 20), 2.4
+	return endless_vtarget(d)
+
+def endless_vtarget(d = 2):
 	x0, y0, x1, y1 = regionbounds()
 	sx = 1280 / (x1 - x0 + 2 * d)
 	sy = 720 / (y1 - y0 + 2 * d)
@@ -286,7 +310,7 @@ def endless_init():
 	keys.extend([star for star in objs if star.numreq >= 0])
 
 	from . import snek
-	you = snek.You((0, -R + 2))
+	you = snek.You((0, -R + 2), 0)
 	you.length = 10
 	you.dlength = 5
 	you.speed = 5
@@ -331,8 +355,7 @@ def adventure_init():
 		objs.append(lock)
 
 	numgrow = 0
-	you = snek.You(data["youpos"])
-	you.theta = data["youtheta"]
+	you = snek.You(data["youpos"], data["youtheta"])
 	headstart = data["headstart"]
 	you.length = 20 + 5 * headstart
 	you.dlength = 5
@@ -341,8 +364,11 @@ def adventure_init():
 
 def adventure_advance():
 	global stage
+	if stage > leveldata.maxstage:
+		return
 	progress.beatadventure(stage)
 	stage += 1
+	print("STAGE", stage)
 	if stage > leveldata.maxstage:
 		return
 	data = leveldata.data[stage - 1]
@@ -402,11 +428,14 @@ def adventure_think(dt):
 	effects[:] = [effect for effect in effects if effect.alive]
 	
 
-	# Adventure mode
 	if not any(key.alive for key in keys):
+		played = False
 		for lock in locks:
-			if lock.stage == stage:
+			if lock.stage == stage and lock.active:
 				lock.active = False
+				if not played:
+					sound.playsound("unlock")
+					played = True
 	if not inregion(you.pos):
 		adventure_advance()
 	for lock in locks:
@@ -457,7 +486,7 @@ def endless_winning():
 
 def cheatwin():
 	for obj in keys:
-		obj.alive = False
+		obj.activate()
 def cheatgrow():
 	you.lengthen()
 

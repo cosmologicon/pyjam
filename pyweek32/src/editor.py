@@ -26,7 +26,7 @@ load()
 pview.set_mode((1280, 720))
 
 vx0, vy0, scale = 0, 0, 3
-objtypes = ["-", "+", "key", "X", "bigL", "bigR", "2", "3", "L", "R", "2L", "2R", "4", "4L", "4R"]
+objtypes = ["-", "+", "key", "X", "bigL", "bigR", "2", "3", "L", "R", "2L", "2R", "4", "4L", "4R", "big2L", "big2R"]
 
 def gamepos(screenpos):
 	px, py = screenpos

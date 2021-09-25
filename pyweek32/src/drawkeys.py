@@ -4,11 +4,11 @@ from . import maff, pview, ptext
 
 
 R0 = 100
-Z = 2
+Z = 4
 R = R0 * Z
 size = w, h = 2 * R, 2 * R
 
-tsize = 100
+tsize = R
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 ptext.DEFAULT_FONT_NAME = "righteous"
@@ -58,7 +58,8 @@ def makeimg(color0, c, kappa, beta, gamma):
 	Rgamma = math.R(gamma)
 	for j, (pixel, (x, y, z)) in enumerate(coords):
 		transparent = z is None
-			x, y = math.norm(x, y)
+		if transparent:
+			x, y = math.norm((x, y))
 			z = 0
 		dlight = math.fadebetween(math.dot((x, y, z), math.norm((0, 1, 1))), -0.2, 0.4, 1, 1)
 		scolor0 = math.imix(color0, (0, 0, 0), 0.3)
@@ -76,7 +77,7 @@ def makeimg(color0, c, kappa, beta, gamma):
 			ty = (phi * 1.1 + 0.5)
 			color = math.imix(color0, (255, 255, 255), 0.3)
 			if c:
-				color = math.imix(color, (0, 0, 0), samplechar(c, tx, ty))
+				color = math.imix(color, (0, 0, 0), 0.8 * samplechar(c, tx, ty))
 			if not 0.04 < tx < 0.96:
 				color = scolor1
 			
@@ -96,9 +97,10 @@ def makeimg(color0, c, kappa, beta, gamma):
 		if 0.5 < abs(phi) < 1.4 and not 0.05 < sx < 0.95:
 			color = scolor0
 
+		color = math.imix((0, 0, 0), color, dlight)
 		if transparent:
 			color = color + (0,)
-		img.set_at(pixel, math.imix((0, 0, 0), color, dlight))
+		img.set_at(pixel, color)
 		if j % 1000 == 0:
 			display(img)
 		
@@ -107,18 +109,29 @@ def makeimg(color0, c, kappa, beta, gamma):
 
 # fname, color0, char, winding, beta, gamma
 settings = [
-	("key", (30, 150, 180), "", False, 0.3, 0.15),
-	("key2", (30, 150, 180), "2", False, 0.1, -0.15),
-	("key3", (30, 150, 180), "3", False, 0.4, 0.05),
-	("key4", (30, 150, 180), "4", False, -0.2, -0.05),
+	("key", (30, 150, 180), "", 0, 0.3, 0.15),
+	("key2", (30, 150, 180), "2", 0, 0.1, -0.15),
+	("key3", (30, 150, 180), "3", 0, 0.4, 0.05),
+	("key4", (30, 150, 180), "4", 0, -0.2, -0.05),
+	("keyX", (200, 60, 60), "X", 0, 0.2, -0.1),
+	("keyL", (220, 130, 220), "", -1, 0.5, 0),
+	("keyR", (170, 140, 50), "", 1, 0.4, 0),
+	("key3L", (220, 130, 220), "3", -1, 0.05, 0),
+	("key3R", (170, 140, 50), "3", 1, 0.25, 0),
+	("key4L", (220, 130, 220), "4", -1, 0.3, 0),
+	("key4R", (170, 140, 50), "4", 1, -0.1, 0),
 ]
 
+settings = [
+	("key2L", (220, 130, 220), "2", -1, 0.1, 0),
+	("key2R", (170, 140, 50), "2", 1, 0.2, 0),
+]
 
 for fname, color0, char, winding, beta, gamma in settings:
 	for j in range(60):
 		kappa = j / 60 + 0.4
 		if winding:
-			gamma = math.tau * j / 60
+			gamma = math.tau * j / 60 * winding
 		img = makeimg(color0, char, kappa, beta, gamma = gamma)
 		pygame.image.save(img, "img/frames/%s-%d.png" % (fname, j))
 

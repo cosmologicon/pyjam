@@ -37,3 +37,8 @@ def beatadventure(stage):
 		adventure = stage
 	save()
 
+def resetadventure():
+	global adventure
+	adventure = 0
+	save()
+

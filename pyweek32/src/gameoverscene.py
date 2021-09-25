@@ -1,5 +1,5 @@
 import pygame, math
-from . import playscene, view, pview, ptext
+from . import playscene, view, pview, ptext, scene, sound
 from .pview import T
 
 
@@ -11,8 +11,14 @@ def init():
 
 def think(dt, kpressed, kdowns):
 	self.t += dt
-	if self.t > 1 and "act" in kdowns:
-		playscene.init()
+	if self.t > 0.5 and "act" in kdowns:
+		sound.playsound("blip1")
+		if scene.current == "gameover_endless":
+			scene.current = "endless"
+			playscene.init()
+		if scene.current == "gameover_adventure":
+			scene.current = "adventure"
+			playscene.init()
 
 def draw():
 	alpha = int(math.fadebetween(self.t, 0, 0, 1, 0.75) * 255)

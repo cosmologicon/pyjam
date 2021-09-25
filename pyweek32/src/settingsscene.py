@@ -1,5 +1,5 @@
 import pygame, math
-from . import scene, playscene, view, pview, ptext, settings, graphics, snek, geometry, state
+from . import scene, playscene, view, pview, ptext, settings, graphics, snek, geometry, state, menuscene
 from .pview import T
 
 
@@ -25,15 +25,24 @@ def think(dt, kpressed, kdowns):
 		obj.think(dt)	
 	if self.done:
 		self.tdone += dt
-		if self.tdone > 0.1:
+		if self.tdone > 0.2:
 			finish()
 	else:
 		if "act" in kdowns:
 			self.done = True
+	if "quit" in kdowns:
+		scene.setcurrent("menu")
 
 def finish():
 	if scene.current == "settings_menu":
+		menuscene.reset()
 		scene.setcurrent("menu", False)
+	if scene.current == "settings_endless":
+		playscene.reset()
+		scene.setcurrent("endless", False)
+	if scene.current == "settings_adventure":
+		playscene.reset()
+		scene.setcurrent("adventure", False)
 	
 
 def draw():
@@ -43,7 +52,7 @@ def draw():
 		obj.draw()
 	optnames = "\n".join([
 		"Arrows/WASD: move",
-		"Space/Enter:bite/release",
+		"Space/Enter: bite/release",
 		"F1: controls [%s]" % ("absolute" if settings.directcontrol else "relative"),
 		"F2: camera [%s]" % ("fixed" if settings.fixedcamera else "follow"),
 		"F3: auto-bite [%s]" % ("on" if settings.autochomp else "off"),

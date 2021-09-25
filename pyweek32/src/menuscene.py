@@ -28,18 +28,24 @@ def init():
 	self.you.pos = ps[-1]
 	self.you.theta = thetas[-1]
 	self.you.speed = 1
-	self.you.chomp()
+	self.you.chomp(quiet = True)
 	self.you.tchomp = 100
 	self.you.menu = True
 	for _ in range(120):
 		self.you.think(1 / 120, 0, 0)
 	sound.playmusic("brittle")
-		
+
+def reset():
+	self.t = 0
+	self.done = False
+	self.tdone = 0
 
 def think(dt, kpressed, kdowns):
 	self.t += dt
 	self.you.think(dt, 0, 0)
 	
+	if "quit" in kdowns:
+		scene.current = None
 	if self.done:
 		self.tdone += dt
 		if self.tdone > 0.5:
@@ -47,11 +53,14 @@ def think(dt, kpressed, kdowns):
 	else:
 		if "up" in kdowns:
 			self.jopt -= 1
+			sound.playsound("blip0")
 		if "down" in kdowns:
 			self.jopt += 1
+			sound.playsound("blip0")
 		self.jopt = math.clamp(self.jopt, 0, 2)
 		if "act" in kdowns:
 			self.done = True
+			sound.playsound("blip1")
 
 def finish():
 	if self.jopt == 0:
