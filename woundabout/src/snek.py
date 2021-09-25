@@ -170,13 +170,18 @@ class You:
 			segments.append((imgname, pos, theta, size))
 			k += 1
 			a += size
-		pos, theta = geometry.interp(self.d - self.length, self.ps)
-		imgtail = "tail"
-		if self.length > 120:
-			imgtail = "tail-1"
-		if self.length > 200:
-			imgtail = "tail-2"
-		segments.append((imgtail, pos, theta, size))
+		a += size
+		if a < self.d:
+			a = self.length
+			pos, theta = geometry.interp(self.d - a, self.ps)
+			imgtail = "tail"
+			if self.length > 90:
+				imgtail = "tail-1"
+			if self.length > 150:
+				imgtail = "tail-2"
+			if not self.chompin:
+				theta += math.mix(-0.2, 0.2, math.cycle(0.55 * self.t) ** 2)
+			segments.append((imgtail, pos, theta, size))
 		for imgname, pos, angle, size in reversed(segments):
 			graphics.drawimg(pos, imgname, size, angle - math.tau / 4)
 		theta = self.theta
@@ -201,8 +206,17 @@ class You:
 		graphics.drawimg(pos, imgtop, 0.3, theta - 1.1 * self.aaah)
 		if self.length > 60:
 			color = (120, 200, 255)
-			if self.length > 160:
-				color = math.mix((240, 240, 255), (0, 0, 0), 0.1 * math.cycle(0.2 * self.t))
+			if self.length > 180:
+				colors = [(255, 150, 150), (255, 255, 50), (100, 100, 255)]
+				a = 0.6 * self.t % 3
+				if a < 1:
+					color = math.imix(colors[0], colors[1], a)
+				elif a < 2:
+					color = math.imix(colors[1], colors[2], a - 1)
+				else:
+					color = math.imix(colors[2], colors[0], a - 2)
+			elif self.length > 120:
+				color = (255, 255, 255)
 			self.drawwing(2, min(0.8 * self.length, 40), 0, color)
 
 	def drawwing(self, a0, amax, phi0, color):

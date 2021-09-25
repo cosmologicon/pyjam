@@ -26,7 +26,7 @@ def draw():
 	pview.fill((0, 0, 10, alpha))
 	alpha = math.fadebetween(self.t, 0.2, 0, 1, 1)
 	if alpha > 0:
-		ptext.draw("Game over", center = T(640, 300), fontsize = T(120),
+		ptext.draw("Game Over", center = T(640, 300), fontsize = T(120),
 			owidth = 0.5, shadow = (1, 1), shade = 1, alpha = alpha)
 		ptext.draw("Space/Enter: continue", center = T(640, 540), fontsize = T(60),
 			owidth = 0.5, shadow = (1, 1), shade = 1, alpha = alpha)

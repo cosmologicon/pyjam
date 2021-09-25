@@ -55,19 +55,19 @@ def drawhill(pos, color, r, alpha = 1):
 jframemax = 20
 cloudr0 = 120
 @lru_cache(1000)
-def cloudimg(color, jcloud, jframe, scale0 = None):
+def cloudimg(color, jcloud, jframe, scale0 = None, alpha = 1):
 	if scale0 != None:
-		img0 = cloudimg(color, jcloud, jframe, None)
+		img0 = cloudimg(color, jcloud, jframe, None, alpha)
 		w, h = img0.get_size()
 		w = int(round(w * scale0))
 		h = int(round(h * scale0))
 		return pygame.transform.smoothscale(img0, (w, h))
-	if jframe > 0 or color != (255, 255, 255):
+	if jframe > 0 or color != (255, 255, 255) or alpha != 1:
 		scale = math.mix(1, 0.2, (jframe / jframemax))
 		angle = int(math.fuzzrange(-360, 360, 123, jcloud) * jframe / jframemax)
-		alpha = math.imix(0, 255, jframe / jframemax)
-		img0 = pygame.transform.rotozoom(cloudimg((255, 255, 255), jcloud, 0), angle, scale)
-		return mask(img0, color + (alpha,))
+		a = math.imix(0, 255, alpha * jframe / jframemax)
+		img0 = pygame.transform.rotozoom(cloudimg((255, 255, 255), jcloud, 0, alpha = 1), angle, scale)
+		return mask(img0, color + (a,))
 	img = pygame.Surface((cloudr0, cloudr0)).convert_alpha()
 	img.fill((255, 255, 255, 0))
 	for jhill in range(60):
@@ -76,7 +76,7 @@ def cloudimg(color, jcloud, jframe, scale0 = None):
 		y = int(math.fuzzrange(0, cloudr0 - 2 * d, jhill, jcloud, 2))
 		if math.distance((x + d, y + d), (cloudr0 / 2, cloudr0 / 2)) > cloudr0 / 2 - d:
 			continue
-		img.blit(hillimg(color, d, 0.2), (x, y))
+		img.blit(hillimg((255, 255, 255), d, 0.2), (x, y))
 	return img
 
 
@@ -84,12 +84,13 @@ def drawcloud(pos, r, t, f = 1, color = (200, 200, 200)):
 	scale = view.scale * pview.f * r * 5 / cloudr0
 	scale = math.exp(round(math.log(scale), 1))
 	numcloud = int(f * 5) if f >= 1 else int(math.fadebetween(f, 0, 3, 0.8, 5))
+	alpha = round(math.fadebetween(f, 0, 0, 1, 1), 1)
 	for k in range(numcloud):
 		a = 3 * t + 1234.567 * k
 		jcloud, fframe = divmod(a, 1)
 		jcloud %= 10
 		jframe = int(fframe * jframemax)
-		img = cloudimg(color, jcloud, jframe, scale)
+		img = cloudimg(color, jcloud, jframe, scale, alpha)
 		drawat(img, view.screenpos(pos))
 
 def drawflare(pos, r, t, f = 1, color = (200, 200, 200)):
@@ -107,6 +108,8 @@ def drawflare(pos, r, t, f = 1, color = (200, 200, 200)):
 
 def aunit(imgname):
 	if "head" in imgname:
+		return 1
+	if "tail" in imgname:
 		return 1
 	if imgname == "segment-menu":
 		return 1

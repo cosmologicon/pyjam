@@ -19,6 +19,7 @@ def load():
 	if not os.path.exists("settings.pkl"): return
 	obj = pickle.load(open("settings.pkl", "rb"))
 	height, fullscreen, directcontrol, fixedcamera, autochomp, sfxvolume, musicvolume = obj
+load()
 
 size0 = 1280, 720  # Do not change
 
@@ -29,7 +30,7 @@ heights = 480, 540, 720, 1080
 volumes = 0, 20, 40, 60, 80, 100
 volumegamma = 1.6
 DEBUG = False
-reset = "--reset" in sys.argv
+reset = False
 minfps, maxfps = 10, 120
 
 
@@ -59,4 +60,23 @@ def remapkeys(kdowns0, kpressed0):
 			kdowns.add(keyname)
 		kpressed[keyname] = any(kpressed0[value] for value in values)
 	return kdowns, kpressed
+
+# Command-line overrides
+for arg in sys.argv:
+	if not arg.startswith("--"):
+		continue
+	arg = arg[2:]
+	if arg == "reset": reset = True
+	if arg == "DEBUG": DEBUG = True
+	if arg == "fullscreen": fullscreen = True
+	if arg.startswith("res="): height = int(arg[4:])
+	if arg == "nosfx": sfxvolume = 0
+	if arg == "nomusic": musicvolume = 0
+	if arg == "nosound":
+		sfxvolume = 0
+		musicvolume = 0
+save()
+	
+
+
 

@@ -5,7 +5,6 @@ from .pview import T
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 ptext.DEFAULT_FONT_NAME = "berkshire"
-settings.load()
 view.init()
 
 scene.setcurrent("menu")

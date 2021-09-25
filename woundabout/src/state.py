@@ -37,7 +37,7 @@ class Star(Obj):
 	color = 128, 128, 128
 	num = 1
 
-	def __init__(self, pos, r = 0.3, windreq = None, numreq = 0):
+	def __init__(self, pos, r = 0.3, windreq = None, numreq = 0, display = False):
 		Obj.__init__(self, pos)
 		self.r = r
 		self.windreq = windreq
@@ -56,6 +56,7 @@ class Star(Obj):
 		self.tcloud = math.fuzzrange(0, 100, 2, *self.pos)
 		self.fappear = 0
 		self.appeared = False
+		self.display = display
 
 	def getcolor(self):
 		if self in active:
@@ -70,7 +71,7 @@ class Star(Obj):
 	def think(self, dt):
 		Obj.think(self, dt)
 		if not self.appeared:
-			fappear = 0 if geometry.collides(self, you) else 1
+			fappear = 0 if (not self.display and geometry.collides(self, you)) else 1
 			self.fappear = math.approach(self.fappear, fappear, 1 * dt)
 			if self.fappear == 1:
 				self.appeared = True
@@ -81,10 +82,11 @@ class Star(Obj):
 		if not self.visible:
 			return
 #		graphics.drawflare(self.pos, self.r, self.tanim, color = self.color)
-		alpha = math.smoothfadebetween(self.fappear, 0, 0, 1, 1)
-		graphics.drawimg(self.pos, self.currentimg(), self.r, 0, alpha)
+		alpha = math.smoothfadebetween(self.fappear, 0.6, 0, 1, 1)
+		if alpha > 0:
+			graphics.drawimg(self.pos, self.currentimg(), self.r, 0, alpha)
 		if self.fappear < 1:
-			graphics.drawcloud(self.pos, self.r, self.tcloud, self.fappear)
+			graphics.drawcloud(self.pos, 0.9 * self.r, self.tcloud, 1 - self.fappear)
 
 	def activate(self):
 		if not self.alive: return
@@ -99,8 +101,8 @@ class GrowStar(Star):
 	color = 100, 100, 200
 	num = 0
 	r = 0.6
-	def __init__(self, pos, r = 0.6):
-		Star.__init__(self, pos, r, windreq = None, numreq = 0)
+	def __init__(self, pos, r = 0.6, display = False):
+		Star.__init__(self, pos, r, windreq = None, numreq = 0, display = display)
 
 	def act(self):
 		you.lengthen()
@@ -290,7 +292,7 @@ def endless_init():
 	del region[:], walls[:], objs[:], active[:], wound[:], keys[:], effects[:]
 
 	stage = progress.endless + 1
-	act = (stage + 1) // 20
+	act = (stage - 1) // 20
 	stage -= act * 20
 	headstart = 0 if stage <= 2 else 2 if stage <= 5 else 4 if stage <= 7 else 8 if stage <= 12 else 12 if stage <= 16 else 20
 	numgrow = 1 if stage <= 2 else 2 if stage <= 5 else 3 if stage <= 15 else 4
@@ -429,7 +431,6 @@ def endless_init():
 		exit()
 
 	keys.extend([star for star in objs if star.numreq >= 0])
-
 	from . import snek
 	you = snek.You((0, -R + 2), 0)
 	you.length = 10

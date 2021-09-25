@@ -11,11 +11,11 @@ def init():
 	self.done = False
 	self.tdone = 0
 	self.objs = [
-		state.GrowStar((0, 4.4)),
-		state.Star((0, 2.7), r = 0.5),
-		state.Star((0, 0.6), r = 0.5, windreq = -1),
-		state.Star((0, -1.8), r = 0.5, numreq = 3),
-		state.Star((0, -4.3), r = 0.5, numreq = -1),
+		state.GrowStar((0, 4.4), display = True),
+		state.Star((0, 2.7), r = 0.5, display = True),
+		state.Star((0, 0.6), r = 0.5, windreq = -1, display = True),
+		state.Star((0, -1.8), r = 0.5, numreq = 3, display = True),
+		state.Star((0, -4.3), r = 0.5, numreq = -1, display = True),
 	]
 		
 
