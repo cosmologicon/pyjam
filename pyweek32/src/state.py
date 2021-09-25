@@ -1,5 +1,5 @@
 import random, math, pygame
-from . import pview, view, geometry, settings, ptext, snek, graphics, progress, leveldata, sound
+from . import pview, view, geometry, settings, ptext, snek, graphics, progress, leveldata, sound, scene, profiler
 from .pview import T
 
 
@@ -414,7 +414,6 @@ def blockps():
 
 
 def adventure_think(dt):
-
 	for obj in objs:
 		obj.think(dt)
 		if not you.chompin and obj.collides(you):
@@ -426,7 +425,7 @@ def adventure_think(dt):
 		effect.think(dt)
 	objs[:] = [obj for obj in objs if obj.alive]
 	effects[:] = [effect for effect in effects if effect.alive]
-	
+
 
 	if not any(key.alive for key in keys):
 		played = False
@@ -439,8 +438,10 @@ def adventure_think(dt):
 	if not inregion(you.pos):
 		adventure_advance()
 	for lock in locks:
-		if lock.stage < stage and not lock.active:
-			if all(inregion(p) for d, p, theta in you.ps):
+		if lock.stage < stage <= leveldata.maxstage and not lock.active:
+			ps = [p for d, p, theta in you.ps]
+			random.shuffle(ps)
+			if all(inregion(p) for p in ps):
 				lock.active = True
 
 def endless_think(dt):
@@ -485,8 +486,13 @@ def endless_winning():
 	return not any(key.alive for key in keys)
 
 def cheatwin():
-	for obj in keys:
-		obj.activate()
+	if scene.current == "adventure":
+		progress.beatadventure(stage)
+		from . import playscene
+		playscene.init()
+	else:
+		for obj in keys:
+			obj.activate()
 def cheatgrow():
 	you.lengthen()
 

@@ -1,5 +1,5 @@
 import pygame, math
-from . import scene, playscene, view, pview, ptext, settings, graphics, snek, geometry, sound
+from . import scene, playscene, view, pview, ptext, settings, graphics, snek, geometry, sound, progress
 from .pview import T
 
 
@@ -78,19 +78,20 @@ def draw():
 	pview.fill((0, 20, 50, 200))
 	ptext.draw(settings.gamename, center = T(640, 180), fontsize = T(160), owidth = 0.5, shade = 1)
 	optnames = [
-		"Adventure",
+		"Adventure/Tutorial",
 		"Endless",
 		"Settings",
 	]
 	angle = math.mix(-0.2, 0.2, math.cycle(0.4 * self.t))
 	for j, optname in enumerate(optnames):
-		y = 420 + 90 * j
+		y = 400 + 90 * j
 		ptext.draw(optname, midleft = T(250, y), fontsize = T(80), owidth = 0.5, shade = 1)
 		if j == self.jopt:
+			imgtop = "head-top-0" if progress.endless < 10 else "head-top-3"
 			graphics.drawimgscreen(T(160, y + 15), "head-bottom", pview.f * 10, angle)
-			graphics.drawimgscreen(T(160, y + 15), "head-top", pview.f * 10, angle)
+			graphics.drawimgscreen(T(160, y + 15), imgtop, pview.f * 10, angle)
 	ptext.draw("by Christopher Night\nmusic by Kevin MacLeod",
-		midtop = T(900, 440), fontsize = T(50), owidth = 0.5, shade = 1)
+		midtop = T(960, 540), fontsize = T(40), owidth = 0.5, shade = 1)
 	alpha = math.imix(0, 255, math.fadebetween(self.tdone, 0, 0, 0.5, 1))
 	if alpha > 0:
 		pview.fill((20, 60, 120, alpha))

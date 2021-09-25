@@ -67,6 +67,8 @@ while playing:
 			playscene.init()
 		if "settings" in current:
 			settingsscene.init()
+		if "gameover" in current:
+			gameoverscene.init()
 
 
 	profiler.start("think")
@@ -76,7 +78,7 @@ while playing:
 		dtaccum -= dt0
 		if current in ["adventure", "endless", "gameover_adventure", "gameover_endless"]:
 			playscene.think(dt0, kpressed, kdowns)
-	if current in ["gameover_adventure", "gamover_endless"]:
+	if current in ["gameover_adventure", "gameover_endless"]:
 		gameoverscene.think(dt, kpressed, kdowns)
 	if current == "menu":
 		menuscene.think(dt, kpressed, kdowns)
@@ -91,7 +93,7 @@ while playing:
 		menuscene.draw()
 	if current in ["adventure", "endless", "gameover_adventure", "gameover_endless"]:
 		playscene.draw()
-	if current in ["gameover_adventure", "gamover_endless"]:
+	if current in ["gameover_adventure", "gameover_endless"]:
 		gameoverscene.draw()
 	if "settings" in current:
 		settingsscene.draw()

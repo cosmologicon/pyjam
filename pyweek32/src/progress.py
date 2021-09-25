@@ -23,7 +23,7 @@ if settings.reset:
 	reset()
 else:
 	load()
-
+adventure = 23
 
 def beatendless(stage):
 	global endless

@@ -140,16 +140,18 @@ class You:
 	def draw(self):
 		segments = []
 		a, k, size = -0.25, 0, 0.25
+		imgname = "segment-menu" if self.menu else "segment"
 		while a < self.length - 0.1 and a < self.d - 0.1:
 #			size = 0.5 if k == 0 else max(0.3 * 0.98 ** k, 0.2)
 			a += size
 			pos, theta = geometry.interp(self.d - a, self.ps)
-			size = max(size * 0.997, 0.15)
-			segments.append((pos, theta, size))
+			size = max(size * 0.998, 0.15)
+			segments.append((imgname, pos, theta, size))
 			k += 1
 			a += size
-		imgname = "segment-menu" if self.menu else "segment"
-		for pos, angle, size in reversed(segments):
+		pos, theta = geometry.interp(self.d - self.length, self.ps)
+		segments.append(("tail", pos, theta, size))
+		for imgname, pos, angle, size in reversed(segments):
 			graphics.drawimg(pos, imgname, size, angle - math.tau / 4)
 		theta = self.theta
 		if self.chompin:
@@ -162,14 +164,17 @@ class You:
 			A = 0
 		theta += math.mix(-A, A, math.cycle(0.5 * self.t) ** 2)
 		theta -= math.tau / 4
+		imgtop = "head-top-0"
+		if self.length > 30:
+			imgtop = "head-top-1"
+		if self.length > 45:
+			imgtop = "head-top-2"
+		if self.length > 75:
+			imgtop = "head-top-3"
 		graphics.drawimg(pos, "head-bottom", 0.3, theta + 0.3 * self.aaah)
-		graphics.drawimg(pos, "head-top", 0.3, theta - 0.9 * self.aaah)
-		if self.length > 22:
-			self.drawwing(2, 20, 0)
-		if self.length > 42:
-			self.drawwing(12, 40, 1/3)
-		if self.length > 72:
-			self.drawwing(22, 70, 2/3)
+		graphics.drawimg(pos, imgtop, 0.3, theta - 0.9 * self.aaah)
+		if self.length > 60:
+			self.drawwing(2, 0.8 * self.length, 0)
 
 	def drawwing(self, a0, amax, phi0):
 		a = a0

@@ -90,7 +90,8 @@ def think(dt, kpressed, kdowns):
 		progress.beatendless(state.stage)
 		init()
 	if scene.current == "adventure" and self.twin > 8:
-		
+		progress.resetadventure()
+		scene.setcurrent("menu")
 		
 
 def draw():
@@ -123,7 +124,7 @@ def drawadventurehud():
 		4: ("Space/Enter: bite your own tail. Encircle (go around) the object and bite your tail to unlock the next area.", "bottomright"),
 		5: ("This key is rotating. You must encircle it going clockwise to unlock it.", "topleft"),
 		6: ("This one must be encircled counterclockwise.", "bottomright"),
-		7: ("F3: toggle auto-bite\n[%s]" % ("on" if settings.autochomp else "off"), "right"),
+		7: ("F3: toggle auto-bite\n[%s]" % ("on" if settings.autochomp else "off"), "midright"),
 		8: ("Energy increases your length. Encircle to collect it.", "bottomleft"),
 		12: ("Encircle both keys at the same time. A number on a key tells you how many keys must be encircled at the same time as it.", "bottomright"),
 		13: ("You must encircle them both at the same time in different directions. This calls for a Figure 8.", "topleft"),
@@ -139,13 +140,16 @@ def drawadventurehud():
 		pos = getattr(rect, edge)
 		ptext.draw(text, center = pos, fontsize = T(32), width = T(400),
 			owidth = 0.5, color = (128, 240, 255), shade = 1)
+
+	a = int(math.smoothfadebetween(self.twin, 7.5, 0, 8, 255))
+	if a > 0:
+		pview.fill((20, 60, 120, a))
+
 	
 
+
 def drawendlesshud():
-	a = math.smoothfadebetween(self.t, 1.5, 1, 2, 0)
-	if a > 0:
-		ptext.draw("Endless Stage %s" % state.stage, midbottom = T(640, 700), fontsize = T(60),
-			owidth = 1, alpha = a)
+	ptext.draw("Stage %s" % state.stage, topleft = T(20, 20), fontsize = T(60), owidth = 0.5, shade = 1)
 
 
 

@@ -78,6 +78,9 @@ def draw():
 	ptext.draw(text, topleft = T(700, 150), width = T(500), fontsize = T(34), shadow = (1, 1),
 		shade = 1, pspace = 0.7)
 
+	ptext.draw("Space/Enter: back", midbottom = T(640, 700), fontsize = T(34), shadow = (1, 1),
+		shade = 1)
+
 	alpha = math.imix(0, 255, math.fadebetween(self.tdone, 0, 0, 0.1, 1))
 	if alpha > 0:
 		pview.fill((20, 60, 120, alpha))

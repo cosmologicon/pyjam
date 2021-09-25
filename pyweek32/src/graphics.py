@@ -97,7 +97,7 @@ def aunit(imgname):
 		return 1
 	if imgname == "segment-menu":
 		return 1
-	if imgname == "segment":
+	if imgname in ["segment", "tail"]:
 		return 5
 	return 10
 
@@ -131,6 +131,8 @@ def ifactor(imgname):
 	if "head" in imgname:
 		return 0.032
 	if "segment" in imgname:
+		return 0.036
+	if imgname == "tail":
 		return 0.036
 	if "frames" in imgname:
 		return 0.0086
