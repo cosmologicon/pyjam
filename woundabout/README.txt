@@ -44,16 +44,16 @@ Keyboard.
 * F5: adjust music volume
 * F10: adjust resolution
 * F11: toggle fullscreen
-* F12: take screenshot",
+* F12: take screenshot
 
 How to play
 -----------
 
 There are in-game instructions in Adventure mode, so I recommend checking that out first.
 
-Similar to the classic game Snake, but instead of running an object to collect or activate it, you
-must encircle (go around) it and bite your tail. Objects are shown in the help screen in-game (press
-Esc):
+Similar to the classic game Snake, but instead of running into an object to collect or activate it,
+you must encircle (go around) it and bite your tail. Objects are shown in the help screen in-game
+(press Esc):
 
 * Energy: increase snake length
 * Regular key (blue): unlock the next area. In Endless mode, activate all keys to continue to the

@@ -1,9 +1,9 @@
-import pygame
+import pygame, os.path
 from . import settings, view, ptext, state, pview, profiler, sound
 from . import scene, playscene, gameoverscene, menuscene, settingsscene, hud
 from .pview import T
 
-ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
+ptext.FONT_NAME_TEMPLATE = os.path.join("fonts", "%s.ttf")
 ptext.DEFAULT_FONT_NAME = "berkshire"
 view.init()
 

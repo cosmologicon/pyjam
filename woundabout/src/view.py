@@ -29,17 +29,21 @@ def screenpos(worldpos):
 	return T(pview.centerx0 + scale * (x - x0), pview.centery0 - scale * (y - y0))
 
 def vrect(d = 1):
-	w0, h0 = settings.size0
-	rect = pygame.Rect(0, 0, w0 / scale + 2 * d, h0 / scale + 2 * d)
-	rect.center = x0, y0
-	return rect
+	rx, ry = pview.centerx0 / scale + d, pview.centery0 / scale + d
+	return x0 - rx, y0 - ry, x0 + rx, y0 + ry
 
 def pointvisible(p, d = 1):
-	return vrect(d = d).collidepoint(p)
+	x, y = p
+	xmin, ymin, xmax, ymax = vrect(d = d)
+	return xmin <= x <= xmax and ymin <= y <= ymax
 
 def linevisible(p0, p1, d = 1):
 	(x0, y0), (x1, y1) = p0, p1
-	rect = pygame.Rect(min(x0, x1), min(y0, y1), abs(x1 - x0), abs(y1 - y0))
-	return vrect(d = d).colliderect(rect)
+	xmin, ymin, xmax, ymax = vrect(d = d)
+	if x0 < xmin and x1 < xmin: return False
+	if y0 < ymin and y1 < ymin: return False
+	if x0 > xmax and x1 > xmax: return False
+	if y0 > ymax and y1 > ymax: return False
+	return True
 
 

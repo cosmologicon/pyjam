@@ -177,7 +177,7 @@ class Wall:
 		else:
 			ps = [self.pos0, self.pos1]
 		ps = [view.screenpos(p) for p in ps]
-		pygame.draw.aalines(pview.screen, (200, 200, 255), False, ps, 1)
+		pygame.draw.aalines(pview.screen, (200, 200, 255), False, ps)
 			
 
 	def collides(self, you):
@@ -233,7 +233,7 @@ class Lock(Obj):
 		else:
 			ps = random.choice(self.zotps)
 			ps = [view.screenpos(p) for p in ps]
-			pygame.draw.aalines(pview.screen, (200, 200, 255), True, ps, 1)
+			pygame.draw.aalines(pview.screen, (200, 200, 255), True, ps)
 
 	def collides(self, you):
 		return self.active and Obj.collides(self, you)
