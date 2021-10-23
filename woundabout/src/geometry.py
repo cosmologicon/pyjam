@@ -11,7 +11,7 @@ def interp(x, xyzs):
 	if j >= len(xyzs): return xyzs[-1][1], xyzs[-1][2]
 	x0, y0, z0 = xyzs[j-1]
 	x1, y1, z1 = xyzs[j]
-	return math.fadebetween(x, x0, y0, x1, y1), math.anglefadebetween(x, x0, z0, x1, z1)
+	return math.fadebetween(x, x0, y0, x1, y1), math.fadebetweenA(x, x0, z0, x1, z1)
 
 
 def clearpoly(poly):

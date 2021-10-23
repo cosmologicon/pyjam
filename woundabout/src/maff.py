@@ -14,6 +14,7 @@ tau = math.tau if hasattr(math, "tau") else 2 * math.pi
 phi = (1 + math.sqrt(5)) / 2
 Phi = phi - 1
 
+# So-called golden divergence angle of phyllotaxis, around 137.5 deg.
 phyllo = tau * (2 - phi)
 
 # GLSL functions
@@ -43,14 +44,11 @@ def smoothstep(edge0, edge1, x):
 	a = (x - edge0) / (edge1 - edge0)
 	return a * a * (3 - 2 * a)
 def length(v):
-	return math.sqrt(sum(a * a for a in v))
+	return math.sqrt(sum(a ** 2 for a in v))
 def distance(v0, v1):
 	return math.sqrt(sum((a0 - a1) ** 2 for a0, a1 in zip(v0, v1)))
 def dot(v0, v1):
 	return sum(a * b for a, b in zip(v0, v1))
-def anglemix(x, y, a):
-	y = (y - x + tau / 2) % tau + x - tau / 2
-	return mix(x, y, a)
 
 # Normalize with optional length
 def normalize(v, r = 1):
@@ -68,6 +66,7 @@ def ease(x):
 # Fade function
 def fade(x, x0, dx):
 	x -= x0
+	if dx < 0: return 1 - fade(-x, 0, -dx)
 	if x <= 0: return 0
 	if x >= dx: return 1
 	return x / dx
@@ -81,24 +80,18 @@ def dsmoothfade(x, x0, x1, dx):
 	return ease(dfade(x, x0, x1, dx))
 # Fade between function
 def fadebetween(x, x0, y0, x1, y1):
-	if x1 < x0:
-		x0, y0, x1, y1 = x1, y1, x0, y0
+	if x1 < x0: x1, y1, x0, y0 = x0, y0, x1, y1
 	a = fade(x, x0, x1 - x0)
 	return mix(y0, y1, a)
+interp = fadebetween
 def smoothfadebetween(x, x0, y0, x1, y1):
-	if x1 < x0:
-		x0, y0, x1, y1 = x1, y1, x0, y0
+	if x1 < x0: x1, y1, x0, y0 = x0, y0, x1, y1
 	a = smoothfade(x, x0, x1 - x0)
 	return mix(y0, y1, a)
-def anglefadebetween(x, x0, y0, x1, y1):
-	if x1 < x0:
-		x0, y0, x1, y1 = x1, y1, x0, y0
-	a = fade(x, x0, x1 - x0)
-	return anglemix(y0, y1, a)
-
+smoothinterp = smoothfadebetween
 # Cycle between 0 and 1
 def cycle(a):
-	return 0.5 - 0.5 * math.cos(math.tau * a)
+	return 0.5 - 0.5 * math.cos(tau * a)
 
 # Approach functions
 def approach(x, target, dx):
@@ -114,19 +107,53 @@ def softapproach(x, target, dlogx, dxmax = float("inf"), dymin = 0.1):
 		d = distance(x, target)
 	except TypeError:
 		d = abs(x - target)
-	f = -math.expm1(-dlogx)
-	if f * d > dxmax: f = dxmax / d
-	if (1 - f) * d < dymin:
+	a = -math.expm1(-dlogx)
+	if a * d > dxmax: a = dxmax / d
+	if (1 - a) * d < dymin:
 		return target
-	return mix(x, target, f)
-def logapproach(x, target, dx):
-	return math.exp(approach(math.log(x), math.log(target), dx))
-def softlogapproach(x, target, dlogx, dxmax = float("inf"), dymin = 0.1):
-	return math.exp(softapproach(math.log(x), math.log(target), dlogx, dxmax, dymin))
-def angleapproach(theta, target, dtheta):
-	# The closest value to target that's equal to theta mod tau.
-	theta = (theta - target + tau / 2) % tau + target - tau / 2
-	return approach(theta, target, dtheta)
+	return mix(x, target, a)
+
+
+# Angular analogues - angles are treated modulo tau.
+def dA(A):
+	return (A + tau / 2) % tau - tau / 2
+def mixA(A0, A1, a):
+	return A1 if a >= 1 else A0 + dA(A1 - A0) * clamp(a, 0, 1)
+def fadebetweenA(x, x0, A0, x1, A1):
+	a = fadebetween(x, x0, 0, x1, 1)
+	return mixA(A0, A1, a)
+interpA = fadebetweenA
+def smoothfadebetweenA(x, x0, A0, x1, A1):
+	a = smoothfadebetween(x, x0, 0, x1, 1)
+	return mixA(A0, A1, a)
+smoothinterpA = smoothfadebetweenA
+def approachA(A, targetA, deltaA):
+	d = dA(targetA - A)
+	if abs(d) <= deltaA: return targetA
+	return A + deltaA * sign(d)
+def softapproachA(A, targetA, dlogA, dAmax = float("inf"), dAmin = 0.01):
+	d = abs(dA(targetA - A))
+	a = -math.expm1(-dlogA)
+	if a * d > dAmax: a = dAmax / d
+	if (1 - a) * d < dAmin:
+		return targetA
+	return mixA(A, targetA, a)
+
+
+# Log-space analogues
+def mixL(xL, yL, a):
+	return math.exp(mix(math.log(xL), math.log(yL), a))
+def fadebetweenL(x, x0, yL0, x1, yL1):
+	return math.exp(fadebetween(x, x0, math.log(yL0), x1, math.log(yL1)))
+interpL = fadebetweenL
+def smoothfadebetweenL(x, x0, yL0, x1, yL1):
+	return math.exp(smoothfadebetween(x, x0, math.log(yL0), x1, math.log(yL1)))
+smoothinterpL = smoothfadebetweenL
+def approachL(xL, targetL, dx):
+	return math.exp(approach(math.log(xL), math.log(targetL), dx))
+def softapproachL(xL, targetL, dlogx, dxmax = float("inf"), dymin = 0.1):
+	return math.exp(softapproach(math.log(xL), math.log(targetL), dlogx, dxmax, dymin))
+
 
 # Polar coordinates
 def CS(theta, r = 1, center = (0, 0)):

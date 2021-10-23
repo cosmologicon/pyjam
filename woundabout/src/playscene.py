@@ -91,7 +91,7 @@ def think(dt, kpressed, kdowns):
 		self.snap = False
 	else:
 		view.x0, view.y0 = math.softapproach((view.x0, view.y0), vtarget, 4 * dt, dymin=0.001)
-		view.scale = math.softlogapproach(view.scale, starget, 1 * dt, dymin=0.001)
+		view.scale = math.softapproachL(view.scale, starget, 1 * dt, dymin=0.001)
 
 	if winning():
 		self.twin += dt

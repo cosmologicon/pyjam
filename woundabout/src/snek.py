@@ -121,7 +121,7 @@ class You:
 			if settings.directcontrol:
 				if dkx or dky:
 					target = math.atan2(dkx, dky)
-					self.theta = math.angleapproach(self.theta, target, 0.9 * self.speed * dt)
+					self.theta = math.approachA(self.theta, target, 0.9 * self.speed * dt)
 			else:
 				omega = { -1: 1.2, 0: 0.6, 1: 0.3 }[dky] * self.speed
 				self.theta += omega * dt * dkx % math.tau
