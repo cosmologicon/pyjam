@@ -6,6 +6,7 @@ from .pview import T
 
 view.init()
 
+playscene.init()
 scene = playscene
 
 playing = True
@@ -36,13 +37,7 @@ while playing:
 	scene.draw()
 	
 	if settings.DEBUG:
-		you = scene.self.you
-		room = scene.self.room
-		from . import geometry
-		poly = [(10, -5), (10, 5), (-10, 0)]
-		winding = geometry.polywithin(room.poly, (you.x, you.y), you.r)
 		text = "\n".join([
-			"%s" % winding,
 			"%.1ffps" % clock.get_fps(),
 		])
 		ptext.draw(text, fontsize = T(30), owidth = T(2), bottomleft = T(0, 720))

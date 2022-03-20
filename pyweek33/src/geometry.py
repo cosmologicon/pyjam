@@ -1,5 +1,11 @@
 import math
 
+# The vector v1 - v2
+def vecsub(v1, v2):
+	x1, y1 = v1
+	x2, y2 = v2
+	return x1 - x2, y1 - y2
+
 def rotpoly(poly):
 	for i in range(len(poly)):
 		yield poly[i], poly[(i + 1) % len(poly)]
@@ -16,11 +22,8 @@ def winding(poly, p):
 	return wind % 2 == 1
 
 def psegdist(p1, p2, p):
-	x1, y1 = p1
-	x2, y2 = p2
-	x, y = p
-	v = x2 - x1, y2 - y1
-	w = x - x1, y - y1
+	v = vecsub(p2, p1)
+	w = vecsub(p, p1)
 	a = math.dot(w, v) / math.length(v)
 	if a <= 0:
 		return math.distance(p1, p)
@@ -32,6 +35,26 @@ def polywithin(poly, p, r = 0):
 	if not winding(poly, p):
 		return False
 	return all(psegdist(p0, p1, p) > r for p0, p1 in rotpoly(poly))
-		
-	
+
+
+# The point p reflected across the segment between p1 and p2
+def preflect(p1, p2, p):
+	x2, y2 = vecsub(p2, p1)
+	x, y = vecsub(p, p1)
+	A = x * x2 + y * y2
+	B = x * y2 - y * x2
+	D = x2 ** 2 + y2 ** 2
+	xr = (x2 * A - y2 * B) / D
+	yr = (y2 * A + x2 * B) / D
+	x1, y1 = p1
+	return xr + x1, yr + y1
+
+def polyreflect(p1, p2, poly):
+	return [preflect(p1, p2, p) for p in poly]
+
+
+
+
+if __name__ == "__main__":
+	print(preflect((0, -10), (0, 10), (-6, 0)))
 

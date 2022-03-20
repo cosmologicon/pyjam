@@ -4,7 +4,6 @@ gamename = "My Evil Twin"
 
 minfps = 5
 maxfps = 120
-maxfps = 20
 DEBUG = True
 
 keys = {
