@@ -17,10 +17,10 @@ class You:
 	def reflect(self, mirror):
 		pos = geometry.preflect(mirror.p1, mirror.p2, (self.x, self.y))
 		return You(pos, self.r, mirror.shade(self.color))
-	def draw(self):
+	def draw(self, surf = None):
 		pos = view.screenpos((self.x, self.y))
 		r = view.screenscale(self.r)
-		pygame.draw.circle(pview.screen, self.color, pos, r)
+		pygame.draw.circle(surf or pview.screen, self.color, pos, r)
 
 
 class Room:
@@ -32,9 +32,9 @@ class Room:
 	def reflect(self, mirror):
 		poly = geometry.polyreflect(mirror.p1, mirror.p2, self.poly)
 		return Room(poly, mirror.shade(self.color))
-	def draw(self):
+	def draw(self, surf = None):
 		ps = [view.screenpos(p) for p in self.poly]
-		pygame.draw.polygon(pview.screen, self.color, ps)
+		pygame.draw.polygon(surf or pview.screen, self.color, ps)
 
 
 class Mirror:

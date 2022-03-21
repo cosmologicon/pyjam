@@ -1,10 +1,21 @@
 import math
 
+def vecadd(v1, v2):
+	x1, y1 = v1
+	x2, y2 = v2
+	return x1 + x2, y1 + y2
+
 # The vector v1 - v2
 def vecsub(v1, v2):
 	x1, y1 = v1
 	x2, y2 = v2
 	return x1 - x2, y1 - y2
+
+
+def cross2(p0, p1):
+	x0, y0 = p0
+	x1, y1 = p1
+	return x0 * y1 - x1 * y0
 
 def rotpoly(poly):
 	for i in range(len(poly)):
@@ -53,7 +64,23 @@ def polyreflect(p1, p2, poly):
 	return [preflect(p1, p2, p) for p in poly]
 
 
+# Are p2 and p3 on different sides of the line through p0 and p1?
+def diffsides(p0, p1, p2, p3):
+	v = vecsub(p1, p0)
+	w2 = vecsub(p2, p0)
+	w3 = vecsub(p3, p0)
+	return cross2(v, w2) * cross2(v, w3) < 0
 
+# Does the segment from p0 to p1 intersect the segment from p2 to p3?
+def segscross(p0, p1, p2, p3):
+	return diffsides(p0, p1, p2, p3) and diffsides(p2, p3, p0, p1)
+
+
+def viewfield(p0, p1, p2, r = 1000):
+	yield p0
+	for p in (p1, p2):
+		d = math.norm(vecsub(p, p0), r)
+		yield vecadd(p0, d)
 
 if __name__ == "__main__":
 	print(preflect((0, -10), (0, 10), (-6, 0)))
