@@ -1,16 +1,23 @@
 import pygame, math
+from functools import lru_cache
 from . import view, pview, geometry
 
+@lru_cache(10)
+def sparesurf(name, size):
+	return pygame.Surface(size).convert_alpha()
+
+
 class Mask:
-	surf = None
-	mask = None
+	maskheight = None
 	def __init__(self):
 		t0 = pygame.time.get_ticks()
-		if self.surf is None:
-			Mask.surf = pygame.Surface(pview.size).convert_alpha()
+		self.surf = sparesurf("msurf", pview.size)
 		self.surf.fill((0, 0, 0, 0))
-		if self.mask is None:
-			Mask.mask = pygame.Surface(pview.size).convert_alpha()
+		if self.maskheight is None:
+			self.mask = sparesurf("mask", pview.size)
+		else:
+			width = int(round(self.maskheight * pview.aspect))
+			self.mask = sparesurf("mask", (width, self.maskheight))
 		self.mask.fill((255, 255, 255, 0))
 #		print("init", pygame.time.get_ticks() - t0)
 		
@@ -18,11 +25,16 @@ class Mask:
 		t0 = pygame.time.get_ticks()
 		viewpos = viewer.x, viewer.y
 		ps = [view.screenpos(p) for p in geometry.viewfield(viewpos, mirror.p1, mirror.p2)]
+		if self.mask.get_height() != pview.height:
+			f = self.mask.get_height() / pview.height
+			ps = [pview.I(f * x, f * y) for x, y in ps]
 		pygame.draw.polygon(self.mask, (255, 255, 255, 255), ps)
 #		print("setmask", pygame.time.get_ticks() - t0)
 
 	def draw(self):
 		t0 = pygame.time.get_ticks()
+		if self.mask.get_height() != pview.height:
+			self.mask = pygame.transform.scale(self.mask, pview.size, sparesurf("mask", pview.size))
 		self.surf.blit(self.mask, (0, 0), None, pygame.BLEND_RGBA_MIN)
 		pview.screen.blit(self.surf, (0, 0))
 #		print("draw", pygame.time.get_ticks() - t0)
