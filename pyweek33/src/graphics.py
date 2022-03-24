@@ -21,14 +21,19 @@ class Mask:
 		self.mask.fill((255, 255, 255, 0))
 #		print("init", pygame.time.get_ticks() - t0)
 		
-	def setmask(self, viewer, mirror):
+	def setmask(self, plook, Aset):
 		t0 = pygame.time.get_ticks()
-		viewpos = viewer.x, viewer.y
-		ps = [view.screenpos(p) for p in geometry.viewfield(viewpos, mirror.p1, mirror.p2)]
-		if self.mask.get_height() != pview.height:
-			f = self.mask.get_height() / pview.height
-			ps = [pview.I(f * x, f * y) for x, y in ps]
-		pygame.draw.polygon(self.mask, (255, 255, 255, 255), ps)
+		for Ainterval in Aset.intervals:
+			ps = [
+				plook,
+				math.CS(Ainterval.A0, 1000, plook),
+				math.CS(Ainterval.A1, 1000, plook),
+			]
+			ps = [view.screenpos(p) for p in ps]
+			if self.mask.get_height() != pview.height:
+				f = self.mask.get_height() / pview.height
+				ps = [pview.I(f * x, f * y) for x, y in ps]
+			pygame.draw.polygon(self.mask, (255, 255, 255, 255), ps)
 #		print("setmask", pygame.time.get_ticks() - t0)
 
 	def draw(self):

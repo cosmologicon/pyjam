@@ -82,6 +82,94 @@ def viewfield(p0, p1, p2, r = 1000):
 		d = math.norm(vecsub(p, p0), r)
 		yield vecadd(p0, d)
 
+# The segment of length r on the segment (p1, p2) that is closest to p.
+def nearestsubseg(p, p1, p2, r):
+	v = vecsub(p2, p1)
+	d = math.length(v)
+	if d < r:
+		return None
+	w = vecsub(p, p1)
+	a = math.clamp(math.dot(w, v) / d, r / 2, d - r / 2)
+	q1 = math.mix(p1, p2, (a - r / 2) / d)
+	q2 = math.mix(p1, p2, (a + r / 2) / d)
+	return q1, q2
+
+def Ato(p0, p1):
+	x, y = vecsub(p1, p0)
+	return math.atan2(y, x)
+
+class Ainterval:
+	def __init__(self, A0, A1):
+		self.A0 = A0
+		self.A1 = A0 + math.dA(A1 - A0)
+		assert self.A1 >= self.A0
+	@classmethod
+	def through(cls, plook, p1, p2):
+		A0 = Ato(plook, p1)
+		A1 = Ato(plook, p2)
+		if math.dA(A1 - A0) < 0:
+			A0, A1 = A1, A0
+		return cls(A0, A1)
+	def __repr__(self):
+		return f"[{round(self.A0, 4)}, {round(self.A1, 4)}]"
+	def overlaps(self, other):
+		if math.dA(other.A0 - self.A0) >= 0:
+			return math.dA(self.A1 - other.A0) >= 0
+		else:
+			return math.dA(other.A1 - self.A0) >= 0
+	def union(self, other):
+		assert self.overlaps(other)
+		A0min = self.A0 if math.dA(other.A0 - self.A0) >= 0 else other.A0
+		A1max = self.A1 if math.dA(other.A1 - self.A1) < 0 else other.A1
+		return Ainterval(A0min, A1max)
+	def intersection(self, other):
+		assert self.overlaps(other)
+		A0max = other.A0 if math.dA(other.A0 - self.A0) >= 0 else self.A0
+		A1min = other.A1 if math.dA(other.A1 - self.A1) < 0 else self.A1
+		return Ainterval(A0max, A1min)
+	def subtract(self, other):
+		if not self.overlaps(other):
+			return [self]
+		startswithin = math.dA(other.A0 - self.A0) > 0
+		endswithin = math.dA(self.A1 - other.A1) > 0
+		ret = []
+		if startswithin:
+			ret.append(Ainterval(self.A0, other.A0))
+		if endswithin:
+			ret.append(Ainterval(other.A1, self.A1))
+		return ret
+
+
+class Aintervalset:
+	def __init__(self):
+		self.intervals = []
+	def empty(self):
+		return not self.intervals
+	def __repr__(self):
+		return " ".join(repr(a) for a in self.intervals)
+	def add(self, interval):
+		overlaps = [a for a in self.intervals if interval.overlaps(a)]
+		self.intervals = [a for a in self.intervals if not interval.overlaps(a)]
+		for a in overlaps:
+			interval = interval.union(a)
+		self.intervals.append(interval)
+	def subtract(self, interval):
+		self.intervals = [b for a in self.intervals for b in a.subtract(interval)]
+	def intersection(self, other):
+		ret = Aintervalset()
+		for a in self.intervals:
+			for b in other.intervals:
+				if a.overlaps(b):
+					ret.add(a.intersection(b))
+		return ret
+
 if __name__ == "__main__":
+	from . import maff
 	print(preflect((0, -10), (0, 10), (-6, 0)))
+	ai = Aintervalset()
+	ai.add(Ainterval(3, -3))
+	ai.add(Ainterval(-4.4, 2))
+	ai.subtract(Ainterval(1.9, 3.1))
+	print(ai)
+
 

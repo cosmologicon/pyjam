@@ -24,21 +24,50 @@ class You:
 
 
 class Room:
-	def __init__(self, poly, color = None):
+	def __init__(self, poly, color = None, mirrors = None):
 		self.poly = [(a, b) for a, b in poly]
 		self.color = color or (40, 40, 50)
+		self.mirrors = (mirrors or [])[:]
+	def getwall(self, jwall):
+		return self.poly[jwall], self.poly[(jwall + 1) % len(self.poly)]
+	def nwall(self):
+		return len(self.poly)
+	def addmirror(self, jwall, f, w):
+		self.mirrors.append((jwall, f, w))
 	def within(self, obj):
 		return geometry.polywithin(self.poly, (obj.x, obj.y), obj.r)
-	def reflect(self, mirror):
-		poly = geometry.polyreflect(mirror.p1, mirror.p2, self.poly)
-		return Room(poly, mirror.shade(self.color))
+	def wallpart(self, jwall, f, w):
+		p1, p2 = self.getwall(jwall)
+		d = math.distance(p1, p2)
+		q1 = math.mix(p1, p2, f - w / (2 * d))
+		q2 = math.mix(p1, p2, f + w / (2 * d))
+		return q1, q2
+	def Asetthrough(self, plook, jwall):
+		ret = geometry.Aintervalset()
+		for kwall, f, w in self.mirrors:
+			if kwall == jwall:
+				p1, p2 = self.wallpart(kwall, f, w)
+				ret.add(geometry.Ainterval.through(plook, p1, p2))
+		return ret
+	def reflect(self, jwall, shader = None):
+		p1, p2 = self.getwall(jwall)
+		poly = geometry.polyreflect(p1, p2, self.poly)
+		color = self.color
+		if shader is not None:
+			color = shader.shade(color)
+		return Room(poly, color, self.mirrors)
 	def draw(self, surf = None):
+		surf = surf or pview.screen
 		ps = [view.screenpos(p) for p in self.poly]
-		pygame.draw.polygon(surf or pview.screen, self.color, ps)
+		pygame.draw.polygon(surf, self.color, ps)
+		for jwall, f, w in self.mirrors:
+			ps = [view.screenpos(p) for p in self.wallpart(jwall, f, w)]
+			pygame.draw.line(surf, (200, 200, 255), *ps, view.screenscale(0.2))
+			
 
 
 class Mirror:
-	def __init__(self, p1, p2):
+	def __init__(self, room, jwall):
 		self.p1 = p1
 		self.p2 = p2
 		self.color = (200, 200, 255)
