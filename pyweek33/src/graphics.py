@@ -1,4 +1,5 @@
 import pygame, math
+from collections import defaultdict
 from functools import lru_cache
 from . import view, pview, geometry
 
@@ -6,6 +7,8 @@ from . import view, pview, geometry
 def sparesurf(name, size):
 	return pygame.Surface(size).convert_alpha()
 
+
+timings = defaultdict(int)
 
 class Mask:
 	maskheight = None
@@ -19,7 +22,7 @@ class Mask:
 			width = int(round(self.maskheight * pview.aspect))
 			self.mask = sparesurf("mask", (width, self.maskheight))
 		self.mask.fill((255, 255, 255, 0))
-#		print("init", pygame.time.get_ticks() - t0)
+		timings["init"] += pygame.time.get_ticks() - t0
 		
 	def setmask(self, plook, Aset):
 		t0 = pygame.time.get_ticks()
@@ -34,7 +37,7 @@ class Mask:
 				f = self.mask.get_height() / pview.height
 				ps = [pview.I(f * x, f * y) for x, y in ps]
 			pygame.draw.polygon(self.mask, (255, 255, 255, 255), ps)
-#		print("setmask", pygame.time.get_ticks() - t0)
+		timings["setmask"] += pygame.time.get_ticks() - t0
 
 	def draw(self):
 		t0 = pygame.time.get_ticks()
@@ -42,7 +45,7 @@ class Mask:
 			self.mask = pygame.transform.scale(self.mask, pview.size, sparesurf("mask", pview.size))
 		self.surf.blit(self.mask, (0, 0), None, pygame.BLEND_RGBA_MIN)
 		pview.screen.blit(self.surf, (0, 0))
-#		print("draw", pygame.time.get_ticks() - t0)
+		timings["draw"] += pygame.time.get_ticks() - t0
 		
 		
 
