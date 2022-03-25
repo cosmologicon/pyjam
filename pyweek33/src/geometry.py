@@ -98,6 +98,9 @@ def Ato(p0, p1):
 	x, y = vecsub(p1, p0)
 	return math.atan2(y, x)
 
+def Areflect(p1, p2, A):
+	return math.tau - A + 2 * Ato(p1, p2)
+
 class Ainterval:
 	def __init__(self, A0, A1):
 		self.A0 = A0

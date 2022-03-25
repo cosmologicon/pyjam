@@ -1,7 +1,7 @@
 import pygame, math, os
 from collections import defaultdict
 from functools import lru_cache
-from . import view, pview, geometry
+from . import view, pview, geometry, ptext
 
 @lru_cache(10)
 def sparesurf(name, size):
@@ -47,14 +47,29 @@ class Mask:
 		pview.screen.blit(self.surf, (0, 0))
 		timings["draw"] += pygame.time.get_ticks() - t0
 
+def getplateimg(n):
+	img = pygame.Surface((160, 160)).convert_alpha()
+	img.fill((0, 0, 0, 0))
+	pygame.draw.circle(img, (50, 50, 50), (80, 80), 72)
+	ptext.draw(str(n), color = "white", shadow = (1, 1), alpha = 0.2,
+		fontsize = 120, center = (80, 80),
+		surf=img)
+	return img
+
 
 @lru_cache(1000)
 def loadimg(imgname):
-	return pygame.image.load(os.path.join("img", f"{imgname}.png")).convert_alpha()
+	if imgname.startswith("plate-"):
+		return getplateimg(int(imgname[6:][:-4]))
+	return pygame.image.load(os.path.join("img", imgname)).convert_alpha()
 
 @lru_cache(1000)
 def getimg0(imgname, angle, scale):
-	return pygame.transform.rotozoom(loadimg(imgname), angle, scale)
+	return pygame.transform.rotozoom(loadimg(f"{imgname}.png"), angle, scale)
+
+@lru_cache(1)
+def backgroundimg(size):
+	return pygame.transform.smoothscale(loadimg("starfield.jpg"), size)
 	
 
 Nrot = 24

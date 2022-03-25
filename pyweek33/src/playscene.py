@@ -13,6 +13,9 @@ def init():
 #	room.addmirror(2, 0.5, 10)
 #	room.addmirror(4, 0.7, 10)
 #	room.addmirror(5, 0.7, 10)
+	self.plates = [
+		thing.Plate(0, (-5, 5), 2, 2.5),
+	]
 	self.room0 = room
 
 def control(kdowns, dkx, dky):
@@ -40,10 +43,11 @@ def looktree(room, plook, objs, Aset = None, lastjwall = None, maxdepth = 3):
 
 
 def draw():
-	pview.fill((20, 20, 60))
+#	pview.fill((20, 20, 60))
+	pview.screen.blit(graphics.backgroundimg(pview.size), (0, 0))
 	graphics.timings.clear()
 	plook = self.you.x, self.you.y
-	objs = [self.you]
+	objs = [self.you] + self.plates
 	for room, Aset, objs in looktree(self.room0, plook, objs):
 		mask = graphics.Mask()
 		room.draw(mask.surf)
@@ -55,6 +59,8 @@ def draw():
 		mask.draw()
 #		mirror.draw()
 	self.room0.draw()
+	for plate in self.plates:
+		plate.draw()
 	self.you.draw()
 #	print(graphics.timings)
 	

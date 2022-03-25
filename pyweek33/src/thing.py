@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, view, geometry, graphics
+from . import pview, view, geometry, graphics, ptext
 
 
 class You:
@@ -27,7 +27,7 @@ class You:
 	def reflect(self, p1, p2):
 		pos = geometry.preflect(p1, p2, (self.x, self.y))
 		you = You(pos, self.r)
-		you.A = math.tau - self.A + 2 * geometry.Ato(p1, p2)
+		you.A = geometry.Areflect(p1, p2, self.A)
 		you.twalk = self.twalk
 		return you
 	def draw(self, surf = None):
@@ -35,10 +35,30 @@ class You:
 #		pos = view.screenpos((self.x, self.y))
 #		r = view.screenscale(self.r)
 #		pygame.draw.circle(surf, self.color, pos, r)
-		scale = 0.06
+		scale = 0.06 * self.r
 		frame = int(round(self.twalk * self.speed * 1.8)) % 8
 		A = -math.tau / 4 + self.A
 		graphics.drawimgw(f"oldman-{frame}", (self.x, self.y), A, scale, surf)
+
+class Plate:
+	def __init__(self, jplate, pos, n, r = 1, color = None):
+		self.jplate = jplate
+		self.x, self.y = pos
+		self.n = n
+		self.r = r
+		self.color = color or (100, 100, 100)
+		self.A = 0
+	def reflect(self, p1, p2):
+		pos = geometry.preflect(p1, p2, (self.x, self.y))
+		plate = Plate(self.jplate, pos, self.n, self.r)
+		plate.A = geometry.Areflect(p1, p2, self.A)
+		return plate
+	def draw(self, surf = None):
+		surf = surf or pview.screen
+		scale = 0.01 * self.r
+		graphics.drawimgw(f"plate-{self.n}", (self.x, self.y), self.A, scale, surf)
+		
+
 
 
 class Room:
