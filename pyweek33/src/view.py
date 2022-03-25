@@ -5,7 +5,7 @@ from .pview import T
 class camera:
 	x0 = 0
 	y0 = 0
-	zoom = 14
+	zoom = 30
 
 def init():
 	pview.set_mode(size0 = settings.size0, fullscreen = settings.fullscreen)

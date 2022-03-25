@@ -1,26 +1,44 @@
 import pygame, math
-from . import pview, view, geometry
+from . import pview, view, geometry, graphics
 
 
 class You:
 	def __init__(self, pos, r = 1, color = None):
 		self.x, self.y = pos
 		self.r = r
-		self.speed = 10
+		self.speed = 6
 		self.color = color or (100, 50, 50)
+		self.A = 0
+		self.Astepping = None
+		self.twalk = 0
 	def move(self, dx, dy, room):
+		if dx or dy:
+			A = geometry.Ato((0, 0), (dx, dy))
+			dt = math.length((dx, dy))
+			self.A = math.approachA(self.A, A, 5 * dt)
+			self.twalk += dt
+		else:
+			self.twalk = 0
 		p0 = self.x, self.y
 		self.x += dx * self.speed
 		self.y += dy * self.speed
 		if not room.within(self):
 			self.x, self.y = p0
-	def reflect(self, mirror):
-		pos = geometry.preflect(mirror.p1, mirror.p2, (self.x, self.y))
-		return You(pos, self.r, mirror.shade(self.color))
+	def reflect(self, p1, p2):
+		pos = geometry.preflect(p1, p2, (self.x, self.y))
+		you = You(pos, self.r)
+		you.A = math.tau - self.A + 2 * geometry.Ato(p1, p2)
+		you.twalk = self.twalk
+		return you
 	def draw(self, surf = None):
-		pos = view.screenpos((self.x, self.y))
-		r = view.screenscale(self.r)
-		pygame.draw.circle(surf or pview.screen, self.color, pos, r)
+		surf = surf or pview.screen
+#		pos = view.screenpos((self.x, self.y))
+#		r = view.screenscale(self.r)
+#		pygame.draw.circle(surf, self.color, pos, r)
+		scale = 0.06
+		frame = int(round(self.twalk * self.speed * 1.8)) % 8
+		A = -math.tau / 4 + self.A
+		graphics.drawimgw(f"oldman-{frame}", (self.x, self.y), A, scale, surf)
 
 
 class Room:

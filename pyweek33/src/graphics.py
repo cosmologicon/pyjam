@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, os
 from collections import defaultdict
 from functools import lru_cache
 from . import view, pview, geometry
@@ -46,6 +46,30 @@ class Mask:
 		self.surf.blit(self.mask, (0, 0), None, pygame.BLEND_RGBA_MIN)
 		pview.screen.blit(self.surf, (0, 0))
 		timings["draw"] += pygame.time.get_ticks() - t0
-		
-		
+
+
+@lru_cache(1000)
+def loadimg(imgname):
+	return pygame.image.load(os.path.join("img", f"{imgname}.png")).convert_alpha()
+
+@lru_cache(1000)
+def getimg0(imgname, angle, scale):
+	return pygame.transform.rotozoom(loadimg(imgname), angle, scale)
+	
+
+Nrot = 24
+Nscale = 20
+def getimg(imgname, A, scale):
+	angle = int(round((math.degrees(A) / 360 * Nrot))) % Nrot * (360 / Nrot)
+	scale = math.exp(int(round(math.log(scale) * Nscale)) / Nscale)
+	return getimg0(imgname, angle, scale)
+
+def drawimg(imgname, pos, A, scale, surf = None):
+	surf = surf or pview.screen
+	img = getimg(imgname, A, scale)
+	rect = img.get_rect(center = pos)
+	surf.blit(img, rect)
+
+def drawimgw(imgname, pos, A, scale = 1, surf = None):
+	drawimg(imgname, view.screenpos(pos), A, 0.001 * view.screenscale(1000 * scale), surf)
 
