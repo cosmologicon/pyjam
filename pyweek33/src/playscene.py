@@ -29,6 +29,8 @@ def init(level):
 	self.winning = False
 	self.twin = 0
 	self.ttip = 0
+	self.stepping = False
+	self.jplate = None
 
 
 def control(kdowns, dkx, dky, ktip):
@@ -61,6 +63,8 @@ def control(kdowns, dkx, dky, ktip):
 		if "act" in kdowns:
 			self.lheld = True
 			sound.play("grab")
+			for plate in self.plates:
+				plate.done = False
 	else:
 		self.cmirror = self.room0.mirrorwithin(p, 3)
 		if "act" in kdowns:
@@ -68,6 +72,23 @@ def control(kdowns, dkx, dky, ktip):
 				self.held = self.room0.popmirror(self.cmirror)
 				self.cmirror = None
 				sound.play("grab")
+				for plate in self.plates:
+					plate.done = False
+	self.jplate = None
+	stepping = any(math.distance(p, (plate.x, plate.y)) < plate.r for plate in self.plates)
+	if stepping != self.stepping:
+		sound.play("stepon" if stepping else "stepoff")
+		self.stepping = stepping
+	if stepping and not self.lheld and not self.held:
+		self.jplate, plate = [(jplate, plate) for jplate, plate in enumerate(self.plates)
+			if math.distance(p, (plate.x, plate.y)) < plate.r][0]
+		if "act" in kdowns and not plate.done:
+			if plate.tally == plate.n:
+				plate.done = True
+				sound.play("done")
+			else:
+				sound.play("cantdone")
+
 
 def think(dt):
 	p = self.you.x, self.you.y
@@ -140,20 +161,48 @@ def draw():
 	tallyplates(self.you, self.plates)
 	for plate in self.plates:
 		plate.tally = self.tally[plate.jplate]
-		if not plate.done and plate.tally == plate.n:
-			plate.done = True
-			sound.play("done")
 	self.you.draw(surf = mask.surf)
 	mask.setmask(plook, self.room0.poly)
 	mask.draw()
 
-	a = math.fadebetween(self.t, 2, 0, 2.5, 1)
-	ptext.draw(self.caption, center = T(200, 600), fontsize = T(32), width = T(320),
-		shade = 1, owidth = 1, alpha = a)
+	za = (1 - view.camera.zoomout) ** 2
+	a = math.fadebetween(self.t, 2, 0, 2.5, 1) * za
+	ptext.draw(self.caption, midbottom = T(240, 680), fontsize = T(26), width = T(400),
+		fontname = "Fondamento", shade = 1, owidth = 1, alpha = a, lineheight = 0.86)
+	text = f"Stage {self.level}" if self.level < 8 else "The End"
+	ptext.draw(text, topleft = T(10, 10), fontsize = T(36),
+		fontname = "Fondamento", shade = 1, owidth = 1, alpha = za)
 	if self.ttip > 0:
-		a = math.fadebetween(self.ttip, 0.5, 0, 1, 1)
+		a = math.fadebetween(self.ttip, 0.5, 0, 1, 1) * za
 		ptext.draw(self.tip, midtop = T(640, 10), fontsize = T(40), width = T(800),
-			shade = 1, owidth = 1, alpha = a)
+			fontname = "PatuaOne", shade = 1, owidth = 1, alpha = a)
+	text = []
+	if self.level < 3:
+		text.append("Arrow keys or WASD: move")
+	if self.level < 4:
+		text.append("Space: grab or drop")
+	text.append("1: previous level")
+	text.append("2: next level")
+	text.append("Hold Shift: tip")
+	text.append("Hold Ctrl: zoom out")
+	text.append("Esc: quit")
+	ptext.draw("\n".join(text), fontsize = T(26), owidth = 1, fontname = "PatuaOne",
+		bottomright = T(1270, 710), alpha = za)
+
+	instruction = None
+	if self.lheld:
+		instruction = "Space: place statue"
+	elif self.held:
+		instruction = "Space: place mirror"
+	elif self.jplate is not None and not self.plates[self.jplate].done:
+		instruction = "Space: activate plate"
+	elif self.lwithin:
+		instruction = "Space: take statue"
+	elif self.cmirror is not None:
+		instruction = "Space: take mirror"
+	if instruction is not None:
+		ptext.draw(instruction, fontsize = T(42), owidth = 1, fontname = "PatuaOne",
+			shade = 1, color = (200, 200, 255), center = T(640, 620), alpha = za)
 
 	if all(plate.done for plate in self.plates):
 		self.winning = True

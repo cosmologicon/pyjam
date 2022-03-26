@@ -108,7 +108,7 @@ def getplateimg(s):
 	img.fill((0, 0, 0, 0))
 	pygame.draw.circle(img, (50, 50, 50), (80, 80), 72)
 	ptext.draw(s, color = "white", shadow = (1, 1), alpha = 0.2,
-		fontsize = 120, center = (80, 80),
+		fontsize = 90, center = (80, 80), fontname = "Lobster",
 		surf=img)
 	return img
 

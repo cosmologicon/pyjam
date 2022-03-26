@@ -1,9 +1,9 @@
-import pygame, math
-from . import settings, pview, view, ptext
+import pygame, math, os
+from . import settings, pview, view, ptext, sound
 from . import playscene
 from .pview import T
 
-
+ptext.FONT_NAME_TEMPLATE = os.path.join("fonts", "%s.ttf")
 view.init()
 
 level = 1
@@ -30,9 +30,10 @@ while playing:
 	kdx = kpressed["right"] - kpressed["left"]
 	kdy = kpressed["up"] - kpressed["down"]
 	if kdx or kdy:
-		kdx, kdy = math.norm((kdx, kdy), dt)
+		kdx, kdy = math.norm((kdx, kdy), dt * settings.walkspeed)
 	ktip = kpressed["tip"] * dt
 	scene.control(kdowns, kdx, kdy, ktip)
+	view.setzoomout(kpressed["zoomout"], dt)
 	
 	while dtaccum > 0:
 		scene.think(dt0)
@@ -50,8 +51,17 @@ while playing:
 
 	if "quit" in kdowns:
 		playing = False
-	if playscene.done() or "skip" in kdowns:
+	if playscene.done():
 		level += 1
 		playscene.init(level)
+	elif "next" in kdowns:
+		sound.play("skip")
+		level += 1
+		playscene.init(level)
+	elif "prev" in kdowns:
+		sound.play("skip")
+		level = max(level - 1, 1)
+		playscene.init(level)
+
 
 

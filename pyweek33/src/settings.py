@@ -5,6 +5,7 @@ gamename = "My Evil Twin"
 minfps = 5
 maxfps = 120
 DEBUG = True
+walkspeed = 1.6
 
 keys = {
 	"up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],
@@ -13,7 +14,9 @@ keys = {
 	"right": [pygame.K_RIGHT, pygame.K_d, pygame.K_e],
 	"act": [pygame.K_SPACE, pygame.K_RETURN],
 	"tip": [pygame.K_LSHIFT, pygame.K_RSHIFT],
-	"skip": [pygame.K_1],
+	"next": [pygame.K_2],
+	"prev": [pygame.K_1],
+	"zoomout": [pygame.K_LCTRL, pygame.K_RCTRL],
 	"quit": [pygame.K_ESCAPE],
 	"screenshot": [pygame.K_F12],
 }
