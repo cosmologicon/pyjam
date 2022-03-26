@@ -6,16 +6,14 @@ from .pview import T
 
 view.init()
 
-playscene.init()
+level = 1
+playscene.init(level)
 scene = playscene
 
 playing = True
 dtaccum = 0
 clock = pygame.time.Clock()
 while playing:
-	if playscene.done():
-		playscene.init()
-
 
 	dt0 = 1 / settings.maxfps
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
@@ -26,8 +24,6 @@ while playing:
 			playing = False
 		if event.type == pygame.KEYDOWN:
 			kdowns.add(settings.keys_by_code.get(event.key))
-	if "quit" in kdowns:
-		playing = False
 
 	kpressed = pygame.key.get_pressed()
 	kpressed = { key: any(kpressed[code] for code in codes) for key, codes in settings.keys.items() }
@@ -35,7 +31,8 @@ while playing:
 	kdy = kpressed["up"] - kpressed["down"]
 	if kdx or kdy:
 		kdx, kdy = math.norm((kdx, kdy), dt)
-	scene.control(kdowns, kdx, kdy)
+	ktip = kpressed["tip"] * dt
+	scene.control(kdowns, kdx, kdy, ktip)
 	
 	while dtaccum > 0:
 		scene.think(dt0)
@@ -50,5 +47,11 @@ while playing:
 
 
 	pygame.display.flip()
+
+	if "quit" in kdowns:
+		playing = False
+	if playscene.done() or "skip" in kdowns:
+		level += 1
+		playscene.init(level)
 
 

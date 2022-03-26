@@ -1,37 +1,45 @@
 import pygame, math
-from . import pview, thing, geometry, graphics, sound, ptext
+from . import pview, thing, geometry, graphics, sound, ptext, view, leveldata
 from .pview import T
 
 class self:
 	pass
 
-def init():
-	self.you = thing.You((3, 0))
-	self.looker = thing.Looker((0, 3))
-	room = thing.Room([(16, -9), (16, 9), (-16, 9), (-16, 0), (0, 0), (0, -9)])
-	room.addmirror(0, 0.5, 4)
-	room.addmirror(1, 0.5, 10)
-	self.plates = [
-		thing.Plate(0, (-5, 5), 2, 2.5),
-	]
-	self.room0 = room
-	self.caption = "This statue's eyes seem to gaze in all directions. What all does it see?"
+def init(level):
+	self.level = level
+	data = leveldata.data[self.level]
+	
+	view.camera.zoom = data["zoom"]
+	self.you = thing.You(data["youpos"])
+	self.looker = thing.Looker(data["lookpos"])
+	self.room0 = thing.Room(data["roomps"])
+	for jwall, f, w in data["mirrors"]:
+		self.room0.addmirror(jwall, f, w)
+	self.plates = []
+	for jplate, (p, n) in enumerate(data["plates"]):
+		self.plates.append(thing.Plate(jplate, p, n, 2.4))
+	self.caption = data["caption"]
+	self.tip = data["tip"]
 
 	self.cmirror = None
 	self.held = None
 	self.lheld = False
 	self.lwithin = False
 	self.t = 0
-	
 	self.winning = False
 	self.twin = 0
+	self.ttip = 0
 
 
-def control(kdowns, dkx, dky):
+def control(kdowns, dkx, dky, ktip):
 	self.you.move(dkx, dky, self.room0)
 	p = self.you.x, self.you.y
 	self.cmirror = None
 	self.lwithin = False
+	if ktip:
+		self.ttip += ktip
+	else:
+		self.ttip = 0
 	if self.winning:
 		return
 	if self.lheld:
@@ -100,10 +108,9 @@ def tallyplates(you, plates):
 
 
 def draw():
+	view.camera.x0 = self.you.x
+	view.camera.y0 = self.you.y
 	pview.screen.blit(graphics.backgroundimg(pview.size), (0, 0))
-	a = math.fadebetween(self.t, 2, 0, 2.5, 1)
-	ptext.draw(self.caption, center = T(200, 600), fontsize = T(32), width = T(320),
-		shade = 1, owidth = 1, alpha = a)
 	graphics.timings.clear()
 	self.tally = { plate.jplate: 0 for plate in self.plates }
 	plook = (self.looker.x, self.looker.y) if not self.lheld else (self.you.x, self.you.y)
@@ -139,6 +146,15 @@ def draw():
 	self.you.draw(surf = mask.surf)
 	mask.setmask(plook, self.room0.poly)
 	mask.draw()
+
+	a = math.fadebetween(self.t, 2, 0, 2.5, 1)
+	ptext.draw(self.caption, center = T(200, 600), fontsize = T(32), width = T(320),
+		shade = 1, owidth = 1, alpha = a)
+	if self.ttip > 0:
+		a = math.fadebetween(self.ttip, 0.5, 0, 1, 1)
+		ptext.draw(self.tip, midtop = T(640, 10), fontsize = T(40), width = T(800),
+			shade = 1, owidth = 1, alpha = a)
+
 	if all(plate.done for plate in self.plates):
 		self.winning = True
 		sound.play("win")

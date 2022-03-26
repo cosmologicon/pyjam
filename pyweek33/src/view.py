@@ -1,5 +1,5 @@
 import pygame
-from . import pview, settings
+from . import pview, settings, geometry
 from .pview import T
 
 class camera:
@@ -12,7 +12,7 @@ def init():
 	pygame.display.set_caption(settings.gamename)
 
 def screenpos(pos):
-	x, y = pos
+	x, y = geometry.vecsub(pos, (camera.x0, camera.y0))
 	px = T(pview.w0 / 2 + camera.zoom * x)
 	py = pview.h - T(pview.h0 / 2 + camera.zoom * y)
 	return px, py
