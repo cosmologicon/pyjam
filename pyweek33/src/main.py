@@ -51,13 +51,25 @@ while playing:
 
 	if "quit" in kdowns:
 		playing = False
+	if "controls" in kdowns:
+		settings.showcontrols = not settings.showcontrols
+	if "resolution" in kdowns:
+		pview.cycle_height(settings.heights)
+	if "fullscreen" in kdowns:
+		pview.toggle_fullscreen()
+	if "screenshot" in kdowns:
+		pview.screenshot()
+
 	if playscene.done():
 		level += 1
 		playscene.init(level)
 	elif "next" in kdowns:
 		sound.play("skip")
-		level += 1
-		playscene.init(level)
+		if level < 8:
+			level += 1
+			playscene.init(level)
+		else:
+			playing = False
 	elif "prev" in kdowns:
 		sound.play("skip")
 		level = max(level - 1, 1)

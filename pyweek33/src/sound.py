@@ -7,7 +7,7 @@ pygame.mixer.pre_init(22050, -16, 2, 1)
 def init():
 	pygame.mixer.init()
 	music = pygame.mixer.Sound(os.path.join("sound", "floating-cities.ogg"))
-	music.set_volume(0.3)
+	music.set_volume(0.2)
 	music.play(-1)
 	
 

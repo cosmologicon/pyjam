@@ -10,7 +10,8 @@ class camera:
 	
 
 def init():
-	pview.set_mode(size0 = settings.size0, fullscreen = settings.fullscreen)
+	pview.set_mode(size0 = settings.size0, fullscreen = settings.fullscreen,
+		forceres = settings.forceres)
 	pygame.display.set_caption(settings.gamename)
 
 def setzoomout(k, dt):

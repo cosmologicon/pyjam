@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, thing, geometry, graphics, sound, ptext, view, leveldata
+from . import pview, thing, geometry, graphics, sound, ptext, view, leveldata, settings
 from .pview import T
 
 class self:
@@ -44,13 +44,23 @@ def control(kdowns, dkx, dky, ktip):
 		self.ttip = 0
 	if self.winning:
 		return
+	act = "act" in kdowns
+
+	self.jplate = None
+	stepping = any(math.distance(p, (plate.x, plate.y)) < plate.r for plate in self.plates)
+	if stepping != self.stepping:
+		sound.play("stepon" if stepping else "stepoff")
+		self.stepping = stepping
+
+
 	if self.lheld:
-		if "act" in kdowns:
+		if act:
 			self.looker.x, self.looker.y = p
 			self.lheld = False
 			sound.play("put")
+		return
 	elif self.held:
-		if "act" in kdowns:
+		if act:
 			spot, d = self.room0.spotwithin(p, self.held, 3)
 			if spot is None:
 				sound.play("cantput")
@@ -58,36 +68,37 @@ def control(kdowns, dkx, dky, ktip):
 				self.room0.addmirror(*spot)
 				self.held = None
 				sound.play("put")
-	elif math.distance(p, (self.looker.x, self.looker.y)) < 3:
+		return
+
+	if stepping and not self.lheld and not self.held:
+		self.jplate, plate = [(jplate, plate) for jplate, plate in enumerate(self.plates)
+			if math.distance(p, (plate.x, plate.y)) < plate.r][0]
+		if act and not plate.done:
+			if plate.tally == plate.n:
+				plate.done = True
+				sound.play("done")
+				return
+
+	if math.distance(p, (self.looker.x, self.looker.y)) < 1.8:
 		self.lwithin = True
-		if "act" in kdowns:
+		if act:
 			self.lheld = True
 			sound.play("grab")
 			for plate in self.plates:
 				plate.done = False
+			return
 	else:
 		self.cmirror = self.room0.mirrorwithin(p, 3)
-		if "act" in kdowns:
+		if act:
 			if self.cmirror is not None:
 				self.held = self.room0.popmirror(self.cmirror)
 				self.cmirror = None
 				sound.play("grab")
 				for plate in self.plates:
 					plate.done = False
-	self.jplate = None
-	stepping = any(math.distance(p, (plate.x, plate.y)) < plate.r for plate in self.plates)
-	if stepping != self.stepping:
-		sound.play("stepon" if stepping else "stepoff")
-		self.stepping = stepping
-	if stepping and not self.lheld and not self.held:
-		self.jplate, plate = [(jplate, plate) for jplate, plate in enumerate(self.plates)
-			if math.distance(p, (plate.x, plate.y)) < plate.r][0]
-		if "act" in kdowns and not plate.done:
-			if plate.tally == plate.n:
-				plate.done = True
-				sound.play("done")
-			else:
-				sound.play("cantdone")
+				return
+	if self.jplate is not None and act and not plate.done and plate.tally != plate.n:
+		sound.play("cantdone")
 
 
 def think(dt):
@@ -169,23 +180,28 @@ def draw():
 	a = math.fadebetween(self.t, 2, 0, 2.5, 1) * za
 	ptext.draw(self.caption, midbottom = T(240, 680), fontsize = T(26), width = T(400),
 		fontname = "Fondamento", shade = 1, owidth = 1, alpha = a, lineheight = 0.86)
-	text = f"Stage {self.level}" if self.level < 8 else "The End"
+	text = f"Stage {self.level}" if self.level < 8 else "Stage 8: The End"
 	ptext.draw(text, topleft = T(10, 10), fontsize = T(36),
 		fontname = "Fondamento", shade = 1, owidth = 1, alpha = za)
 	if self.ttip > 0:
-		a = math.fadebetween(self.ttip, 0.5, 0, 1, 1) * za
+		a = math.fadebetween(self.ttip, 0.2, 0, 0.5, 1) * za
 		ptext.draw(self.tip, midtop = T(640, 10), fontsize = T(40), width = T(800),
 			fontname = "PatuaOne", shade = 1, owidth = 1, alpha = a)
 	text = []
-	if self.level < 3:
+	if settings.showcontrols:
+		text.append("Tab: hide controls")
 		text.append("Arrow keys or WASD: move")
-	if self.level < 4:
 		text.append("Space: grab or drop")
-	text.append("1: previous level")
-	text.append("2: next level")
-	text.append("Hold Shift: tip")
-	text.append("Hold Ctrl: zoom out")
-	text.append("Esc: quit")
+		text.append("1: previous stage")
+		text.append("2: next stage")
+		text.append("Hold Shift: tip")
+		text.append("Hold Ctrl: zoom out")
+		text.append("F10: cycle resolution")
+		text.append("F11: toggle fullscreen")
+		text.append("F12: screenshot")
+		text.append("Esc: quit")
+	else:
+		text.append("Tab: show controls")
 	ptext.draw("\n".join(text), fontsize = T(26), owidth = 1, fontname = "PatuaOne",
 		bottomright = T(1270, 710), alpha = za)
 
@@ -194,7 +210,7 @@ def draw():
 		instruction = "Space: place statue"
 	elif self.held:
 		instruction = "Space: place mirror"
-	elif self.jplate is not None and not self.plates[self.jplate].done:
+	elif self.jplate is not None and not self.plates[self.jplate].done and self.plates[self.jplate].tally == self.plates[self.jplate].n:
 		instruction = "Space: activate plate"
 	elif self.lwithin:
 		instruction = "Space: take statue"
@@ -205,8 +221,9 @@ def draw():
 			shade = 1, color = (200, 200, 255), center = T(640, 620), alpha = za)
 
 	if all(plate.done for plate in self.plates):
+		if not self.winning:
+			sound.play("win")
 		self.winning = True
-		sound.play("win")
 	if self.twin > 0:
 		a = math.imix(0, 255, math.fadebetween(self.twin, 1, 0, 1.5, 1))
 		pview.fill((50, 50, 100, a))

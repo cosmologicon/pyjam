@@ -100,7 +100,7 @@ class Looker:
 class Room:
 	def __init__(self, poly, color = None, mirrors = None):
 		self.poly = [(a, b) for a, b in poly]
-		self.color = color or (40, 40, 50)
+		self.color = color or (20, 20, 30)
 		self.mirrors = (mirrors or [])[:]
 	def getwall(self, jwall):
 		return self.poly[jwall], self.poly[(jwall + 1) % len(self.poly)]
@@ -146,7 +146,7 @@ class Room:
 			q0 = math.mix(p0, p1, g0)
 			q1 = math.mix(p0, p1, g1)
 			dist, fsub = geometry.psegdistf(q0, q1, p)
-			if dist < d:
+			if dist < dmin:
 				f = math.mix(g0, g1, fsub)
 				ret = jwall, f, w
 				dmin = dist
@@ -176,7 +176,7 @@ class Room:
 	def reflect(self, jwall, shader = None):
 		p1, p2 = self.getwall(jwall)
 		poly = geometry.polyreflect(p1, p2, self.poly)
-		color = self.color
+		color = math.imix(self.color, (100, 100, 255), 0.1)
 		if shader is not None:
 			color = shader.shade(color)
 		return Room(poly, color, self.mirrors)
@@ -185,11 +185,20 @@ class Room:
 		ps = [view.screenpos(p) for p in self.poly]
 		pygame.draw.polygon(surf, self.color, ps)
 		for jmirror, (jwall, f, w) in enumerate(self.mirrors):
-			ps = [view.screenpos(p) for p in self.wallpart(jwall, f, w)]
-			color = (200, 200, 255)
+			p1, p2 = self.wallpart(jwall, f, w)
+			dx, dy = math.norm(geometry.vecsub(p2, p1), 0.2)
+			d = -dy, dx
+			ps = [
+				geometry.vecsub(p1, d),
+				geometry.vecadd(p1, d),
+				geometry.vecadd(p2, d),
+				geometry.vecsub(p2, d),
+			]
+			ps = [view.screenpos(p) for p in ps]
+			color = (160, 160, 220)
 			if jmirror == cmirror:
-				color = math.imix(color, (255, 255, 255), 0.4)
-			pygame.draw.line(surf, color, *ps, view.screenscale(0.2))
+				color = math.imix(color, (255, 255, 255), 0.7)
+			pygame.draw.polygon(surf, color, ps)
 
 
 

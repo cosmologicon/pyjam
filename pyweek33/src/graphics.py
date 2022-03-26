@@ -104,13 +104,19 @@ class LookerMask:
 
 
 def getplateimg(s):
-	img = pygame.Surface((160, 160)).convert_alpha()
+	img = pygame.Surface((480, 480)).convert_alpha()
 	img.fill((0, 0, 0, 0))
-	pygame.draw.circle(img, (50, 50, 50), (80, 80), 72)
-	ptext.draw(s, color = "white", shadow = (1, 1), alpha = 0.2,
-		fontsize = 90, center = (80, 80), fontname = "Lobster",
+	color = 80, 80, 80
+	if len(s) == 3 and s[0] == s[2]:
+		color = 140, 140, 140
+	elif s == "":
+		color = 100, 100, 255
+	pygame.draw.circle(img, color, (240, 240), 230)
+	pygame.draw.circle(img, math.imix(color, (0, 0, 0), 0.1), (240, 240), 190)
+	ptext.draw(s, color = "white", shadow = (1, 1), alpha = 0.4,
+		fontsize = 220, center = (240, 240), fontname = "Lobster",
 		surf=img)
-	return img
+	return pygame.transform.smoothscale(img, (160, 160))
 
 
 @lru_cache(1000)
