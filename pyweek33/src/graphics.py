@@ -47,6 +47,44 @@ class Mask:
 		pview.screen.blit(self.surf, (0, 0))
 		timings["draw"] += pygame.time.get_ticks() - t0
 
+
+class LookerMask:
+	maskheight = None
+	def __init__(self):
+		t0 = pygame.time.get_ticks()
+		self.surf = sparesurf("msurf", pview.size)
+		self.surf.fill((0, 0, 0, 0))
+		if self.maskheight is None:
+			self.mask = sparesurf("mask", pview.size)
+		else:
+			width = int(round(self.maskheight * pview.aspect))
+			self.mask = sparesurf("mask", (width, self.maskheight))
+		self.mask.fill((255, 255, 255, 255))
+		timings["linit"] += pygame.time.get_ticks() - t0
+		
+	def setmask(self, plook, poly):
+		t0 = pygame.time.get_ticks()
+		for p1, p2 in geometry.rotpoly(poly):
+			q1 = geometry.vecadd(plook, math.norm(geometry.vecsub(p1, plook), 1000))
+			q2 = geometry.vecadd(plook, math.norm(geometry.vecsub(p2, plook), 1000))
+			ps = [p1, p2, q2, q1]
+			ps = [view.screenpos(p) for p in ps]
+			if self.mask.get_height() != pview.height:
+				f = self.mask.get_height() / pview.height
+				ps = [pview.I(f * x, f * y) for x, y in ps]
+			pygame.draw.polygon(self.mask, (128, 128, 128, 255), ps)
+		timings["lsetmask"] += pygame.time.get_ticks() - t0
+
+	def draw(self):
+		t0 = pygame.time.get_ticks()
+		if self.mask.get_height() != pview.height:
+			self.mask = pygame.transform.scale(self.mask, pview.size, sparesurf("mask", pview.size))
+		self.surf.blit(self.mask, (0, 0), None, pygame.BLEND_RGBA_MULT)
+		pview.screen.blit(self.surf, (0, 0))
+		timings["ldraw"] += pygame.time.get_ticks() - t0
+
+
+
 def getplateimg(n):
 	img = pygame.Surface((160, 160)).convert_alpha()
 	img.fill((0, 0, 0, 0))

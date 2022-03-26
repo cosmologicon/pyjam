@@ -61,7 +61,20 @@ class Plate:
 		surf = surf or pview.screen
 		scale = 0.01 * self.r
 		graphics.drawimgw(f"plate-{self.n}", (self.x, self.y), self.A, scale, self.flipped, surf)
-		
+
+
+class Looker:
+	def __init__(self, pos, r = 1):
+		self.x, self.y = pos
+		self.r = r
+		self.color = 80, 80, 80
+		self.A = 0
+	def draw(self, surf = None):
+		surf = surf or pview.screen
+		scale = 0.03 * self.r
+		flipped = False
+		graphics.drawimgw("gargoyle", (self.x, self.y), self.A, scale, flipped, surf)
+
 
 
 
@@ -130,12 +143,16 @@ class Room:
 		q1 = math.mix(p1, p2, f - w / (2 * d))
 		q2 = math.mix(p1, p2, f + w / (2 * d))
 		return q1, q2
-	def Asetthrough(self, plook, jwall):
+	def Asetthrough(self, plook, jwall, lastjwall):
 		ret = geometry.Aintervalset()
 		for kwall, f, w in self.mirrors:
 			if kwall == jwall:
 				p1, p2 = self.wallpart(kwall, f, w)
 				ret.add(geometry.Ainterval.through(plook, p1, p2))
+		for kwall in range(self.nwall()):
+			if kwall != jwall and kwall != lastjwall:
+				p1, p2 = self.getwall(kwall)
+				ret.subtract(geometry.Ainterval.through(plook, p1, p2))
 		return ret
 	def reflect(self, jwall, shader = None):
 		p1, p2 = self.getwall(jwall)
@@ -154,7 +171,7 @@ class Room:
 			if jmirror == cmirror:
 				color = math.imix(color, (255, 255, 255), 0.4)
 			pygame.draw.line(surf, color, *ps, view.screenscale(0.2))
-			
+
 
 
 class Mirror:
