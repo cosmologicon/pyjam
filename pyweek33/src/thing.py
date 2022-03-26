@@ -11,6 +11,7 @@ class You:
 		self.A = 0
 		self.Astepping = None
 		self.twalk = 0
+		self.flipped = False
 	def move(self, dx, dy, room):
 		if dx or dy:
 			A = geometry.Ato((0, 0), (dx, dy))
@@ -29,6 +30,7 @@ class You:
 		you = You(pos, self.r)
 		you.A = geometry.Areflect(p1, p2, self.A)
 		you.twalk = self.twalk
+		you.flipped = not self.flipped
 		return you
 	def draw(self, surf = None):
 		surf = surf or pview.screen
@@ -38,7 +40,7 @@ class You:
 		scale = 0.06 * self.r
 		frame = int(round(self.twalk * self.speed * 1.8)) % 8
 		A = -math.tau / 4 + self.A
-		graphics.drawimgw(f"oldman-{frame}", (self.x, self.y), A, scale, surf)
+		graphics.drawimgw(f"oldman-{frame}", (self.x, self.y), A, scale, self.flipped, surf)
 
 class Plate:
 	def __init__(self, jplate, pos, n, r = 1, color = None):
@@ -48,15 +50,17 @@ class Plate:
 		self.r = r
 		self.color = color or (100, 100, 100)
 		self.A = 0
+		self.flipped = False
 	def reflect(self, p1, p2):
 		pos = geometry.preflect(p1, p2, (self.x, self.y))
 		plate = Plate(self.jplate, pos, self.n, self.r)
-		plate.A = geometry.Areflect(p1, p2, self.A)
+		plate.A = geometry.Areflect(p1, p2, self.A) + math.tau / 2
+		plate.flipped = not self.flipped
 		return plate
 	def draw(self, surf = None):
 		surf = surf or pview.screen
 		scale = 0.01 * self.r
-		graphics.drawimgw(f"plate-{self.n}", (self.x, self.y), self.A, scale, surf)
+		graphics.drawimgw(f"plate-{self.n}", (self.x, self.y), self.A, scale, self.flipped, surf)
 		
 
 
@@ -68,10 +72,56 @@ class Room:
 		self.mirrors = (mirrors or [])[:]
 	def getwall(self, jwall):
 		return self.poly[jwall], self.poly[(jwall + 1) % len(self.poly)]
+	def walllength(self, jwall):
+		return math.distance(*self.getwall(jwall))
 	def nwall(self):
 		return len(self.poly)
 	def addmirror(self, jwall, f, w):
 		self.mirrors.append((jwall, f, w))
+	def mirrorwithin(self, p, d):
+		dmin = d
+		ret = None
+		for jmirror in range(len(self.mirrors)):
+			dmirror = self.mirrordistance(p, jmirror)
+			if dmirror < dmin:
+				dmin = dmirror
+				ret = jmirror
+		return ret
+	def popmirror(self, jmirror):
+		jwall, f, w = self.mirrors.pop(jmirror)
+		return w
+	def freesegments(self):
+		for jwall in range(self.nwall()):
+			fs = [(0, 1)]
+			d = self.walllength(jwall)
+			for kwall, f, w in self.mirrors:
+				if kwall != jwall: continue
+				f1, f2 = f - w / (2 * d), f + w / (2 * d)
+				f0, f3 = fs.pop(-1)
+				fs.append((f0, f1))
+				fs.append((f2, f3))
+			for f0, f1 in fs:
+				yield jwall, d, f0, f1, 
+	def spotwithin(self, p, w, d):
+		dmin = d
+		ret = None
+		for jwall, dwall, f0, f1 in self.freesegments():
+			g0 = f0 + w / (2 * dwall)
+			g1 = f1 - w / (2 * dwall)
+			if g0 > g1:
+				continue
+			p0, p1 = self.getwall(jwall)
+			q0 = math.mix(p0, p1, g0)
+			q1 = math.mix(p0, p1, g1)
+			dist, fsub = geometry.psegdistf(q0, q1, p)
+			if dist < d:
+				f = math.mix(g0, g1, fsub)
+				ret = jwall, f, w
+				dmin = dist
+		return ret, dmin
+	def mirrordistance(self, p, jmirror):
+		p1, p2 = self.wallpart(*self.mirrors[jmirror])
+		return geometry.psegdist(p1, p2, p)
 	def within(self, obj):
 		return geometry.polywithin(self.poly, (obj.x, obj.y), obj.r)
 	def wallpart(self, jwall, f, w):
@@ -94,13 +144,16 @@ class Room:
 		if shader is not None:
 			color = shader.shade(color)
 		return Room(poly, color, self.mirrors)
-	def draw(self, surf = None):
+	def draw(self, cmirror = None, surf = None):
 		surf = surf or pview.screen
 		ps = [view.screenpos(p) for p in self.poly]
 		pygame.draw.polygon(surf, self.color, ps)
-		for jwall, f, w in self.mirrors:
+		for jmirror, (jwall, f, w) in enumerate(self.mirrors):
 			ps = [view.screenpos(p) for p in self.wallpart(jwall, f, w)]
-			pygame.draw.line(surf, (200, 200, 255), *ps, view.screenscale(0.2))
+			color = (200, 200, 255)
+			if jmirror == cmirror:
+				color = math.imix(color, (255, 255, 255), 0.4)
+			pygame.draw.line(surf, color, *ps, view.screenscale(0.2))
 			
 
 

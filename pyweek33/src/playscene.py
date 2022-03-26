@@ -1,5 +1,5 @@
 import pygame
-from . import pview, thing, geometry, graphics
+from . import pview, thing, geometry, graphics, sound
 from .pview import T
 
 class self:
@@ -17,12 +17,33 @@ def init():
 		thing.Plate(0, (-5, 5), 2, 2.5),
 	]
 	self.room0 = room
+	self.cmirror = None
+	self.held = None
 
 def control(kdowns, dkx, dky):
 	self.you.move(dkx, dky, self.room0)
+	p = self.you.x, self.you.y
+	if self.held:
+		self.cmirror = None
+		if "act" in kdowns:
+			spot, d = self.room0.spotwithin(p, self.held, 3)
+			if spot is None:
+				sound.play("cantput")
+			else:
+				self.room0.addmirror(*spot)
+				self.held = None
+				sound.play("put")
+	else:
+		self.cmirror = self.room0.mirrorwithin(p, 3)
+		if "act" in kdowns:
+			if self.cmirror is not None:
+				self.held = self.room0.popmirror(self.cmirror)
+				self.cmirror = None
+				sound.play("grab")
 
 def think(dt):
-	pass
+	p = self.you.x, self.you.y
+
 
 def looktree(room, plook, objs, Aset = None, lastjwall = None, maxdepth = 3):
 	if maxdepth <= 0:
@@ -43,14 +64,13 @@ def looktree(room, plook, objs, Aset = None, lastjwall = None, maxdepth = 3):
 
 
 def draw():
-#	pview.fill((20, 20, 60))
 	pview.screen.blit(graphics.backgroundimg(pview.size), (0, 0))
 	graphics.timings.clear()
 	plook = self.you.x, self.you.y
 	objs = [self.you] + self.plates
 	for room, Aset, objs in looktree(self.room0, plook, objs):
 		mask = graphics.Mask()
-		room.draw(mask.surf)
+		room.draw(surf = mask.surf)
 		for obj in objs:
 			obj.draw(mask.surf)
 #		youreflect = self.you.reflect(mirror)
@@ -58,7 +78,8 @@ def draw():
 		mask.setmask(plook, Aset)
 		mask.draw()
 #		mirror.draw()
-	self.room0.draw()
+	self.room0.draw(cmirror = self.cmirror)
+#	self.room0.draw()
 	for plate in self.plates:
 		plate.draw()
 	self.you.draw()

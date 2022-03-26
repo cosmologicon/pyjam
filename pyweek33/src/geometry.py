@@ -41,7 +41,19 @@ def psegdist(p1, p2, p):
 	if a >= math.length(v):
 		return math.distance(p2, p)
 	return math.sqrt(math.length(w) ** 2 - a ** 2)
-	
+
+
+def psegdistf(p1, p2, p):
+	v = vecsub(p2, p1)
+	w = vecsub(p, p1)
+	a = math.dot(w, v) / math.length(v)
+	if a <= 0:
+		return math.distance(p1, p), 0
+	if a >= math.length(v):
+		return math.distance(p2, p), 1
+	return math.sqrt(math.length(w) ** 2 - a ** 2), a / math.length(v)
+
+
 def polywithin(poly, p, r = 0):
 	if not winding(poly, p):
 		return False

@@ -1,4 +1,4 @@
-import pygame
+import pygame, math
 from . import settings, pview, view, ptext
 from . import playscene
 from .pview import T
@@ -27,8 +27,10 @@ while playing:
 
 	kpressed = pygame.key.get_pressed()
 	kpressed = { key: any(kpressed[code] for code in codes) for key, codes in settings.keys.items() }
-	kdx = dt * (kpressed["right"] - kpressed["left"])
-	kdy = dt * (kpressed["up"] - kpressed["down"])
+	kdx = kpressed["right"] - kpressed["left"]
+	kdy = kpressed["up"] - kpressed["down"]
+	if kdx or kdy:
+		kdx, kdy = math.norm((kdx, kdy), dt)
 	scene.control(kdowns, kdx, kdy)
 	
 	while dtaccum > 0:

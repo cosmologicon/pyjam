@@ -64,8 +64,11 @@ def loadimg(imgname):
 	return pygame.image.load(os.path.join("img", imgname)).convert_alpha()
 
 @lru_cache(1000)
-def getimg0(imgname, angle, scale):
-	return pygame.transform.rotozoom(loadimg(f"{imgname}.png"), angle, scale)
+def getimg0(imgname, angle, scale, flip = False):
+	img = loadimg(f"{imgname}.png")
+	if flip:
+		img = pygame.transform.flip(img, True, False)
+	return pygame.transform.rotozoom(img, angle, scale)
 
 @lru_cache(1)
 def backgroundimg(size):
@@ -74,17 +77,17 @@ def backgroundimg(size):
 
 Nrot = 24
 Nscale = 20
-def getimg(imgname, A, scale):
+def getimg(imgname, A, scale, flip = False):
 	angle = int(round((math.degrees(A) / 360 * Nrot))) % Nrot * (360 / Nrot)
 	scale = math.exp(int(round(math.log(scale) * Nscale)) / Nscale)
-	return getimg0(imgname, angle, scale)
+	return getimg0(imgname, angle, scale, flip)
 
-def drawimg(imgname, pos, A, scale, surf = None):
+def drawimg(imgname, pos, A, scale, flip = False, surf = None):
 	surf = surf or pview.screen
-	img = getimg(imgname, A, scale)
+	img = getimg(imgname, A, scale, flip)
 	rect = img.get_rect(center = pos)
 	surf.blit(img, rect)
 
-def drawimgw(imgname, pos, A, scale = 1, surf = None):
-	drawimg(imgname, view.screenpos(pos), A, 0.001 * view.screenscale(1000 * scale), surf)
+def drawimgw(imgname, pos, A, scale = 1, flip = False, surf = None):
+	drawimg(imgname, view.screenpos(pos), A, 0.001 * view.screenscale(1000 * scale), flip, surf)
 
