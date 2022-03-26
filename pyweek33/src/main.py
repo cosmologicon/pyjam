@@ -5,7 +5,7 @@ from .pview import T
 
 ptext.FONT_NAME_TEMPLATE = os.path.join("fonts", "%s.ttf")
 view.init()
-
+sound.init()
 level = 1
 playscene.init(level)
 scene = playscene
