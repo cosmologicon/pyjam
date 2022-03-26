@@ -12,6 +12,7 @@ class You:
 		self.Astepping = None
 		self.twalk = 0
 		self.flipped = False
+		self.visible = True
 	def move(self, dx, dy, room):
 		if dx or dy:
 			A = geometry.Ato((0, 0), (dx, dy))
@@ -32,11 +33,23 @@ class You:
 		you.twalk = self.twalk
 		you.flipped = not self.flipped
 		return you
+	def setvisible(self, plook, Aset, room, jwall):
+		p = self.x, self.y
+		A = geometry.Ato(plook, p)
+		if Aset is not None and not Aset.contains(A):
+			self.visible = False
+			return
+		for kwall, (p1, p2) in enumerate(geometry.rotpoly(room.poly)):
+			if kwall != jwall and geometry.segscross(plook, p, p1, p2):
+				self.visible = False
+				return
+		self.visible = True
 	def draw(self, surf = None):
 		surf = surf or pview.screen
 #		pos = view.screenpos((self.x, self.y))
 #		r = view.screenscale(self.r)
-#		pygame.draw.circle(surf, self.color, pos, r)
+#		if self.visible:
+#			pygame.draw.circle(surf, self.color, pos, r)
 		scale = 0.06 * self.r
 		frame = int(round(self.twalk * self.speed * 1.8)) % 8
 		A = -math.tau / 4 + self.A
@@ -45,22 +58,28 @@ class You:
 class Plate:
 	def __init__(self, jplate, pos, n, r = 1, color = None):
 		self.jplate = jplate
+		self.tally = 0
 		self.x, self.y = pos
 		self.n = n
 		self.r = r
 		self.color = color or (100, 100, 100)
 		self.A = 0
 		self.flipped = False
+		self.done = False
 	def reflect(self, p1, p2):
 		pos = geometry.preflect(p1, p2, (self.x, self.y))
 		plate = Plate(self.jplate, pos, self.n, self.r)
 		plate.A = geometry.Areflect(p1, p2, self.A) + math.tau / 2
 		plate.flipped = not self.flipped
+		plate.tally = self.tally
+		plate.done = self.done
 		return plate
 	def draw(self, surf = None):
 		surf = surf or pview.screen
 		scale = 0.01 * self.r
-		graphics.drawimgw(f"plate-{self.n}", (self.x, self.y), self.A, scale, self.flipped, surf)
+		s = "plate-" if self.done else f"plate-{self.tally}/{self.n}"
+		graphics.drawimgw(s, (self.x, self.y), self.A, scale,
+			self.flipped, surf)
 
 
 class Looker:

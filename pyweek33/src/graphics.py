@@ -39,6 +39,22 @@ class Mask:
 			pygame.draw.polygon(self.mask, (255, 255, 255, 255), ps)
 		timings["setmask"] += pygame.time.get_ticks() - t0
 
+	def exclude(self, plook, poly, jwall = None):
+		t0 = pygame.time.get_ticks()
+		for kwall, (p1, p2) in enumerate(geometry.rotpoly(poly)):
+			if jwall == kwall:
+				continue
+			q1 = geometry.vecadd(plook, math.norm(geometry.vecsub(p1, plook), 1000))
+			q2 = geometry.vecadd(plook, math.norm(geometry.vecsub(p2, plook), 1000))
+			ps = [p1, p2, q2, q1]
+			ps = [view.screenpos(p) for p in ps]
+			if self.mask.get_height() != pview.height:
+				f = self.mask.get_height() / pview.height
+				ps = [pview.I(f * x, f * y) for x, y in ps]
+			pygame.draw.polygon(self.mask, (255, 255, 255, 0), ps)
+		timings["exclude"] += pygame.time.get_ticks() - t0
+
+
 	def draw(self):
 		t0 = pygame.time.get_ticks()
 		if self.mask.get_height() != pview.height:
@@ -62,9 +78,11 @@ class LookerMask:
 		self.mask.fill((255, 255, 255, 255))
 		timings["linit"] += pygame.time.get_ticks() - t0
 		
-	def setmask(self, plook, poly):
+	def setmask(self, plook, poly, jwall = None):
 		t0 = pygame.time.get_ticks()
-		for p1, p2 in geometry.rotpoly(poly):
+		for kwall, (p1, p2) in enumerate(geometry.rotpoly(poly)):
+			if jwall == kwall:
+				continue
 			q1 = geometry.vecadd(plook, math.norm(geometry.vecsub(p1, plook), 1000))
 			q2 = geometry.vecadd(plook, math.norm(geometry.vecsub(p2, plook), 1000))
 			ps = [p1, p2, q2, q1]
@@ -85,11 +103,11 @@ class LookerMask:
 
 
 
-def getplateimg(n):
+def getplateimg(s):
 	img = pygame.Surface((160, 160)).convert_alpha()
 	img.fill((0, 0, 0, 0))
 	pygame.draw.circle(img, (50, 50, 50), (80, 80), 72)
-	ptext.draw(str(n), color = "white", shadow = (1, 1), alpha = 0.2,
+	ptext.draw(s, color = "white", shadow = (1, 1), alpha = 0.2,
 		fontsize = 120, center = (80, 80),
 		surf=img)
 	return img
@@ -98,7 +116,7 @@ def getplateimg(n):
 @lru_cache(1000)
 def loadimg(imgname):
 	if imgname.startswith("plate-"):
-		return getplateimg(int(imgname[6:][:-4]))
+		return getplateimg(imgname[6:][:-4])
 	return pygame.image.load(os.path.join("img", imgname)).convert_alpha()
 
 @lru_cache(1000)

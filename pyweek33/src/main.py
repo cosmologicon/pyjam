@@ -13,6 +13,10 @@ playing = True
 dtaccum = 0
 clock = pygame.time.Clock()
 while playing:
+	if playscene.done():
+		playscene.init()
+
+
 	dt0 = 1 / settings.maxfps
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	dtaccum += dt
@@ -43,6 +47,7 @@ while playing:
 			"%.1ffps" % clock.get_fps(),
 		])
 		ptext.draw(text, fontsize = T(30), owidth = T(2), bottomleft = T(0, 720))
+
 
 	pygame.display.flip()
 

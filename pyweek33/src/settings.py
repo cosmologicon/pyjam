@@ -11,7 +11,7 @@ keys = {
 	"down": [pygame.K_DOWN, pygame.K_s, pygame.K_o],
 	"left": [pygame.K_LEFT, pygame.K_a],
 	"right": [pygame.K_RIGHT, pygame.K_d, pygame.K_e],
-	"act": [pygame.K_SPACE],
+	"act": [pygame.K_SPACE, pygame.K_RETURN],
 	"quit": [pygame.K_ESCAPE],
 	"screenshot": [pygame.K_F12],
 }

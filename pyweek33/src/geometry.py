@@ -127,6 +127,8 @@ class Ainterval:
 		return cls(A0, A1)
 	def __repr__(self):
 		return f"[{round(self.A0, 4)}, {round(self.A1, 4)}]"
+	def contains(self, A):
+		return 0 <= math.dA(A - self.A0) <= self.A1 - self.A0
 	def overlaps(self, other):
 		if math.dA(other.A0 - self.A0) >= 0:
 			return math.dA(self.A1 - other.A0) >= 0
@@ -160,6 +162,8 @@ class Aintervalset:
 		self.intervals = []
 	def empty(self):
 		return not self.intervals
+	def contains(self, A):
+		return any(a.contains(A) for a in self.intervals)
 	def __repr__(self):
 		return " ".join(repr(a) for a in self.intervals)
 	def add(self, interval):
