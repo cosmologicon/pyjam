@@ -29,6 +29,7 @@ class Mask:
 		for Ainterval in Aset.intervals:
 			ps = [
 				plook,
+				plook,
 				math.CS(Ainterval.A0, 1000, plook),
 				math.CS(Ainterval.A1, 1000, plook),
 			]
@@ -36,7 +37,9 @@ class Mask:
 			if self.mask.get_height() != pview.height:
 				f = self.mask.get_height() / pview.height
 				ps = [pview.I(f * x, f * y) for x, y in ps]
-			pygame.draw.polygon(self.mask, (255, 255, 255, 255), ps)
+			ps = geometry.restrictpoly(ps, self.mask.get_size())
+			if len(ps) > 2:
+				pygame.draw.polygon(self.mask, (255, 255, 255, 255), ps)
 		timings["setmask"] += pygame.time.get_ticks() - t0
 
 	def exclude(self, plook, poly, jwall = None):
@@ -51,7 +54,7 @@ class Mask:
 			if self.mask.get_height() != pview.height:
 				f = self.mask.get_height() / pview.height
 				ps = [pview.I(f * x, f * y) for x, y in ps]
-#			ps = geometry.restrictpoly(ps, self.mask.get_size())
+			ps = geometry.restrictpoly(ps, self.mask.get_size())
 			if len(ps) > 2:
 				pygame.draw.polygon(self.mask, (255, 255, 255, 0), ps)
 		timings["exclude"] += pygame.time.get_ticks() - t0
@@ -92,7 +95,7 @@ class LookerMask:
 			if self.mask.get_height() != pview.height:
 				f = self.mask.get_height() / pview.height
 				ps = [pview.I(f * x, f * y) for x, y in ps]
-#			ps = geometry.restrictpoly(ps, self.mask.get_size())
+			ps = geometry.restrictpoly(ps, self.mask.get_size())
 			if len(ps) > 2:
 				pygame.draw.polygon(self.mask, (128, 128, 128, 255), ps)
 		timings["lsetmask"] += pygame.time.get_ticks() - t0

@@ -98,17 +98,69 @@ def segscrossat(p0, p1, p2, p3):
 	return vecadd(p0, (t * s1x, t * s1y))
 
 
+# https://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
+def polycarea(poly):
+	return sum((x2 - x1) * (y2 + y1) for (x1, y1), (x2, y2) in rotpoly(poly))
+def polyclockwise(poly):
+	return polycarea(poly) > 0
+
+def withinrect(x, y, w, h):
+	return 0 <= x <= w and 0 <= y <= h
+
+# All points of intersection between the segment between (x1, y1) and (x2, y2), and the bundary of
+# the rectangle (0, 0, w, h).
+def crossrect(x1, y1, x2, y2, w, h):
+	ps = []
+	if (x1 < 0) != (x2 < 0):
+		y = int(round(math.interp(0, x1, y1, x2, y2)))
+		if 0 <= y <= h:
+			ps.append((0, y))
+	if (x1 > w) != (x2 > w):
+		y = int(round(math.interp(w, x1, y1, x2, y2)))
+		if 0 <= y <= h:
+			ps.append((w, y))
+	if (y1 < 0) != (y2 < 0):
+		x = int(round(math.interp(0, y1, x1, y2, x2)))
+		if 0 <= x <= w:
+			ps.append((x, 0))
+	if (y1 > h) != (y2 > h):
+		x = int(round(math.interp(h, y1, x1, y2, x2)))
+		if 0 <= x <= w:
+			ps.append((x, h))
+	ps.sort(key = lambda p: math.distance(p, (x1, y1)))
+	return ps
+
+
+# Return a polygon that's the intersection of the given polygon and the given rectangle.
 def restrictpoly(poly, rect):
+	if not polyclockwise(poly):
+		poly = poly[::-1]
 	w, h = rect
+	ps = []
+	allwithin = True
+	for p1, p2 in rotpoly(poly):
+		if withinrect(*p1, *rect):
+			ps.append(p1)
+		else:
+			allwithin = False
+		ps.extend(crossrect(*p1, *p2, *rect))
+	if allwithin:
+		return poly
 	outline = [(0, 0), (0, h), (w, h), (w, 0)]
-	p1, p2, q2, q1 = poly
-	cornersin = [corner for corner in outline if polywithin(poly, corner)]
-	cornersin.sort(key = lambda p: math.dot(math.norm(vecsub(p, p1)), vecsub(q1, p1)))
-	cross1 = [segscrossat(p1, q1, o1, o2) for o1, o2 in rotpoly(outline) if segscross(p1, q1, o1, o2)]
-	c1 = [min(cross1, key = lambda c: math.distance(c, p1))] if cross1 else []
-	cross2 = [segscrossat(p2, q2, o1, o2) for o1, o2 in rotpoly(outline) if segscross(p2, q2, o1, o2)]
-	c2 = [min(cross2, key = lambda c: math.distance(c, p2))] if cross2 else []
-	return [p1, p2] + c2 + cornersin + c1
+	if not ps:
+		# Encloses entire rect
+		if winding(poly, (w/2, h/2)):
+			return outline
+		else:
+			return []
+	# Every rectangle corner that's within the polygon must also be added, but it's really hard to
+	# figure out the right order for it.
+	for corner in outline:
+		if winding(poly, corner):
+			aps = [ps[:j] + [corner] + ps[j:] for j in range(len(ps))]
+			ps = max(aps, key = polycarea)
+	return ps
+
 
 
 def viewfield(p0, p1, p2, r = 1000):
@@ -213,6 +265,36 @@ if __name__ == "__main__":
 	ai.add(Ainterval(-4.4, 2))
 	ai.subtract(Ainterval(1.9, 3.1))
 	print(ai)
+
+	import random, pygame
+	from . import pview, ptext
+	pview.set_mode((900, 600))
+	rect = pygame.Rect(300, 200, 300, 200)
+	redo = True
+	while True:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				exit()
+			elif event.type == pygame.KEYDOWN:
+				redo = True
+		if redo:
+			rpoint = lambda: (random.randint(-100, 400), random.randint(-100, 300))
+			ps = [rpoint() for _ in range(random.choice((3, 4)))]
+			rps = restrictpoly(ps, rect.size)
+			print(ps)
+			print(rps)
+			print()
+			redo = False
+		pview.fill((0, 0, 0, 255))
+		pygame.draw.rect(pview.screen, (0, 200, 0), rect)
+		pygame.draw.polygon(pview.screen, (200, 0, 0), [(x+300,y+200) for x,y in ps])
+		if len(rps) > 2:
+			pygame.draw.polygon(pview.screen, (200, 200, 0), [(x+300,y+200) for x,y in rps])
+		for j, (x, y) in enumerate(ps):
+			ptext.draw(str(j), center = (x+310, y+200), fontsize=16, owidth=1, color=(255,100,100))
+		for j, (x, y) in enumerate(rps):
+			ptext.draw(str(j), center = (x+290, y+200), fontsize=16, owidth=1, color=(255,255,100))
+		pygame.display.flip()
 
 #	p1, p2, q2, q2 = (560, 726), (401, 726), (-6788, 18696), (-2004, 19951)
 #	outline = [(0, 0), (0, 730), (w, h), (w, 0)]

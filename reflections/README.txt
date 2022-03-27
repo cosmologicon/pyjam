@@ -10,11 +10,8 @@ License: see LICENSE.txt
 Requirements
 ------------
 
-Requires Python 3 and Pygame 1.9. Tested on Ubuntu using Python 3.8 with Pygame 1.9.6.
-
-On the last day of PyWeek I encountered a severe performance regression when testing on Pygame 2.1.2
-that makes the game completely unplayable. I will attempt to work around it and upload another
-version, but this version should be run with Pygame 1.9 only.
+Requires Python 3 and Pygame 1.9. Tested on Ubuntu using Python 3.8 with Pygame 1.9.6, and
+Python 3.9 with Pygame 2.1.2.
 
 To install the requirements on Ubuntu:
 
@@ -42,6 +39,10 @@ move.
 
 There are 8 quick stages, with the last one being very optional. Expect 5-10 minutes of gameplay.
 If you get stuck at any point, hold Shift for a tip, and skip any stage you don't want to play.
+
+The game uses a lot of unoptimized draw calls to implement the reflections. You may have performance
+issues especially in the later levels. Pressing F10 to reduce the resolution may help. The game
+should be playable even down to 5fps or so, but feel free to skip any levels you don't want to play.
 
 Controls
 --------
