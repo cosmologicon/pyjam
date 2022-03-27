@@ -87,6 +87,29 @@ def diffsides(p0, p1, p2, p3):
 def segscross(p0, p1, p2, p3):
 	return diffsides(p0, p1, p2, p3) and diffsides(p2, p3, p0, p1)
 
+# https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+def segscrossat(p0, p1, p2, p3):
+	s1x, s1y = vecsub(p1, p0)
+	s2x, s2y = vecsub(p3, p2)
+	d0x, d0y = vecsub(p0, p2)
+	s = (-s1y * d0x + s1x * d0y) / (-s2x * s1y + s1x * s2y)
+	t = (s2x * d0y - s2y * d0x) / (-s2x * s1y + s1x * s2y)
+	assert 0 <= s <= 1 and 0 <= t <= 1
+	return vecadd(p0, (t * s1x, t * s1y))
+
+
+def restrictpoly(poly, rect):
+	w, h = rect
+	outline = [(0, 0), (0, h), (w, h), (w, 0)]
+	p1, p2, q2, q1 = poly
+	cornersin = [corner for corner in outline if polywithin(poly, corner)]
+	cornersin.sort(key = lambda p: math.dot(math.norm(vecsub(p, p1)), vecsub(q1, p1)))
+	cross1 = [segscrossat(p1, q1, o1, o2) for o1, o2 in rotpoly(outline) if segscross(p1, q1, o1, o2)]
+	c1 = [min(cross1, key = lambda c: math.distance(c, p1))] if cross1 else []
+	cross2 = [segscrossat(p2, q2, o1, o2) for o1, o2 in rotpoly(outline) if segscross(p2, q2, o1, o2)]
+	c2 = [min(cross2, key = lambda c: math.distance(c, p2))] if cross2 else []
+	return [p1, p2] + c2 + cornersin + c1
+
 
 def viewfield(p0, p1, p2, r = 1000):
 	yield p0
@@ -190,5 +213,8 @@ if __name__ == "__main__":
 	ai.add(Ainterval(-4.4, 2))
 	ai.subtract(Ainterval(1.9, 3.1))
 	print(ai)
+
+#	p1, p2, q2, q2 = (560, 726), (401, 726), (-6788, 18696), (-2004, 19951)
+#	outline = [(0, 0), (0, 730), (w, h), (w, 0)]
 
 
