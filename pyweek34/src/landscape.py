@@ -22,7 +22,7 @@ def noise(x, y):
 	S, C = 0.6 * 2, 0.8 * 2
 	a = 0
 	f = 1
-	for d in range(4):
+	for d in range(6):
 		a += f * level(x, y, d)
 		x, y = C * x + S * y, -S * x + C * y
 		f *= 0.7
@@ -35,20 +35,24 @@ class Hmap:
 		self.surf = pygame.Surface(size).convert_alpha()
 		self.ready = False
 		self.progress = 0
+		self.ocean = pygame.Surface(size).convert_alpha()
 	def killtime(self):
 		if self.ready:
 			return
 		w, h = self.size
 		y = self.progress
 		for x in range(w):
-			m = noise(0.01 * x, 0.01 * y)
-			c = int(maff.interp(m, -2, 75, 2, 125))
+			m = noise(0.005 * x, 0.005 * y)
+			c = int(maff.interp(m, -2, 50, 2, 150))
 			self.surf.set_at((x, y), (c, 0, 0, 255))
 		self.progress += 1
 		self.ready = self.progress == h
 	def complete(self):
 		while not self.ready:
 			self.killtime()
+	def getocean(self, depth):
+		mask = pygame.mask.from_threshold(self.surf, (0, 0, 0, 255), (depth, 255, 255, 255))
+		return mask.to_surface(self.ocean, setcolor = (0, 20, 60, 255), unsetcolor = (0, 0, 0, 0))
 
 
 queue = []
@@ -67,10 +71,13 @@ if __name__ == "__main__":
 	queue.append(hmap)
 	clock = pygame.time.Clock()
 	while not any(event.type in (pygame.KEYDOWN, pygame.QUIT) for event in pygame.event.get()):
-		dt = clock.tick(20)
-		killtime(0.1)
+		dt = clock.tick(60) * 0.001
+		killtime(dt)
 		pview.fill((0, 0, 0))
 		pview.screen.blit(hmap.surf, (0, 0))
+		depth = maff.imix(50, 150, maff.cycle(0.001 * pygame.time.get_ticks() / 40))
+		pview.screen.blit(hmap.getocean(depth), (0, 0))
 		pygame.display.flip()
+		pygame.display.set_caption("%.1ffps" % clock.get_fps())
 
 
