@@ -1,9 +1,11 @@
 import pygame
 from . import pview, ptext
-from . import settings, view, play
+from . import settings, view, play, sound
 from .pview import T
 
+pygame.init()
 view.init()
+sound.init()
 
 clock = pygame.time.Clock()
 playing = True
