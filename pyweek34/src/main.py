@@ -1,11 +1,13 @@
 import pygame
 from . import pview, ptext
-from . import settings, view, play, sound
+from . import settings, view, play, sound, control
 from .pview import T
 
 pygame.init()
 view.init()
 sound.init()
+control.init()
+play.init()
 
 clock = pygame.time.Clock()
 playing = True
@@ -24,7 +26,11 @@ while playing:
 			if event.key == pygame.K_F12:
 				pview.screenshot()
 
-	pview.fill((60, 20, 0))
+	control.think(dt)
+	
+	play.think(dt)
+	
+	play.draw()
 	
 	if settings.DEBUG:
 		ptext.draw(f"{clock.get_fps():.1f}fps", bottomleft = pview.bottomleft, owidth = 1,
