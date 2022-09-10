@@ -8,7 +8,7 @@ def init():
 
 @cache
 def getsound(sname):
-	path = os.path.join("sound", f"{sound}.ogg")
+	path = os.path.join("sound", f"{sname}.ogg")
 	if not os.path.exists(path):
 		print(f"Missing sound: {path}")
 		return None
