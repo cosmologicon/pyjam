@@ -64,12 +64,17 @@ def init(level):
 		1: 2.5,
 		2: 2.5,
 		3: 4,
+		4: 3,
+		5: 3,
+		6: 8,
+		7: 12,
 	}[self.level]
 	seed = self.level
 
 	self.wG, self.hG = 16 / 9 * h0, h0
 	PscaleG = 30 * settings.mapres / h0
 	self.dmap = landscape.Dmap((self.wG, self.hG), PscaleG = PscaleG, seed = seed)
+	self.dmap.drain(0.92 * self.wG, 0.92 * self.hG, 0.33 * self.hG, 6)
 	view.SscaleG = pview.h0 / self.hG
 	self.t = 0
 	self.suns = []
@@ -89,10 +94,29 @@ def init(level):
 		self.tool = "basic"
 		self.tools = ["basic", "large"]
 		self.recharge = { "basic": 5, "large": 5 }
-	
+	if level == 4:
+		self.tool = "wander"
+		self.tools = ["wander"]
+		self.recharge = { "wander": 3 }
+	if level == 5:
+		self.tool = "spin"
+		self.tools = ["spin"]
+		self.recharge = { "spin": 3 }
+	if level == 6:
+		self.tool = "basic"
+		self.tools = ["basic", "large", "wander", "spin"]
+		self.recharge = { "basic": 10, "large": 10, "wander": 10, "spin": 10 }
+	if level == 7:
+		self.tool = "basic"
+		self.tools = ["basic", "large", "wander", "spin"]
+		self.recharge = { "basic": 4, "large": 4, "wander": 4, "spin": 4 }
+	self.hudrects = [pygame.Rect(1090, 680 - 40 * j, 180, 30) for j in range(len(self.tools))][::-1]
 
 	self.charge = { tool: self.recharge[tool] for tool in self.tools }
-	
+	sound.playmusic("martian-cowboy")
+
+def canuse(tool):
+	return self.charge[tool] >= self.recharge[tool]
 
 def think(dt, kdowns):
 	self.t += dt
@@ -107,20 +131,44 @@ def think(dt, kdowns):
 		self.tool = self.tools[(self.tools.index(self.tool) + 1) % len(self.tools)]
 		sound.play("swap")
 
-	if click and self.tool in ("basic", "large"):
-		if self.charge[self.tool] >= self.recharge[self.tool]:
-			if self.tool == "basic":
-				self.suns.append(Burner(view.GconvertVs(click), 1.5, 3, 2))
-			if self.tool == "large":
-				self.suns.append(Burner(view.GconvertVs(click), 4, 3, 0.5))
-			self.charge[self.tool] = 0
+	if click:
+		for hudrect, tool in zip(self.hudrects, self.tools):
+			if T(hudrect).collidepoint(control.pV):
+				sound.play("click" if self.tool == tool else "swap")
+				self.tool = tool
+				break
 		else:
-			sound.play("no")
+			if self.tool in ("basic", "large"):
+				if canuse(self.tool):
+					if self.tool == "basic":
+						self.suns.append(Burner(view.GconvertVs(click), 1.5, 3, 2))
+						sound.play("use-basic")
+					if self.tool == "large":
+						self.suns.append(Burner(view.GconvertVs(click), 4, 3, 0.5))
+						sound.play("use-large")
+					self.charge[self.tool] = 0
+				else:
+					sound.play("no")
 
 	if drop is not None:
 		dropt, pdownV, pV = drop
+		if self.tool in ("wander", "spin"):
+			if canuse(self.tool):
+				pos0 = view.GconvertVs(pdownV)
+				pos1 = view.GconvertVs(pV)
+				if self.tool == "wander":
+					self.suns.append(Wanderer(pos0, pos1, 1.5, 0.7, 1.2))
+					sound.play("use-wander")
+				if self.tool == "spin":
+					self.suns.append(Spinner(pos0, pos1, 1.5, 0.7, 1.2))
+					sound.play("use-spin")
+				self.charge[self.tool] = 0
+			else:
+				sound.play("no")
+			
+			
 		if self.tool == "burner" and self.bindicator is not None:
-			if self.charge[self.tool] >= self.recharge[self.tool]:
+			if canuse(self.tool):
 				power = 2 * self.bindicator ** -1.2
 				self.suns.append(Burner(view.GconvertVs(pV), self.bindicator, 3, power))
 				self.charge["burner"] = 0
@@ -176,9 +224,13 @@ def getinstructions():
 			return "Tool cooldown shown in lower right."
 		return "Get surface water below 1% to continue."
 	if self.level == 2:
-		return "Larger area of radiation is less concentrated."
+		return "Sunspread is less concentrated but covers a larger area."
 	if self.level == 3:
-		return "Press Tab or right click to swap between tools."
+		return "Use Tab or number keys to switch between tools."
+	if self.level == 4:
+		return "Click and drag a path to use Sunbeam."
+	if self.level == 5:
+		return "Click and drag diameter to use Sunwheel."
 
 
 def draw():
@@ -200,17 +252,41 @@ def draw():
 		1: "Tutorial 1: Argyre Planitia",
 		2: "Tutorial 2: Hesperia Planum",
 		3: "Tutorial 3: Xanthe Terra",
+		4: "Tutorial 4: Terra Sirenum",
+		5: "Tutorial 5: Arcadia Planitia",
+		6: "Challenge: Vastitas Borealis",
+		7: "The End: Utopia Planitia",
 	}[self.level]
 	drawoverlay(title, midtop = T(640, 12), fontsize = T(48))
 	instructions = getinstructions()
 	if instructions is not None:
 		drawoverlay(instructions, midbottom = T(640, 710), fontsize = T(26))
-	info = [
-		"Current: %s" % self.tool,
-	]
-	for tool in self.tools:
-		info.append(f"{tool.upper()}: {self.charge[tool]:.1f}/{self.recharge[tool]:.1f}")
-	drawoverlay("\n".join(info), bottomright = T(1270, 710), fontsize = T(26))
+	for j, (hudrect, tool) in enumerate(zip(self.hudrects, self.tools)):
+		if tool == self.tool:
+			pygame.draw.rect(pview.screen, (100, 100, 255), T(hudrect), T(5))
+		f = math.clamp(self.charge[tool] / self.recharge[tool], 0, 1)
+		if f < 1:
+			pygame.draw.rect(pview.screen, (80, 80, 80), T(hudrect))
+		barrect = pygame.Rect(T(hudrect))
+		barrect.width = T(f * hudrect.width)
+		pygame.draw.rect(pview.screen, (240, 240, 240), barrect)
+		tname = {
+			"basic": "Sunspot",
+			"large": "Sunspread",
+			"wander": "Sunbeam",
+			"spin": "Sunwheel",
+		}[tool]
+		color = (240, 240, 240) if canuse(tool) else (80, 80, 80)
+		ptext.draw(f"{j+1}: {tname}", center = T(hudrect.center), color = color, fontsize = T(24))
+
+	hud = f"{100 * self.dmap.fwater():.1f}% ocean\n{10 * self.t:.0f} million years"
+	drawoverlay(hud, bottomleft = T(10, 710), fontsize = T(40))
+#	info = [
+#		"Current: %s" % self.tool,
+#	]
+#	for tool in self.tools:
+#		info.append(f"{tool.upper()}: {self.charge[tool]:.1f}/{self.recharge[tool]:.1f}")
+#	drawoverlay("\n".join(info), bottomright = T(1270, 710), fontsize = T(26))
 
 	alpha = int(max(math.interp(self.t, 0, 255, 0.5, 0), math.interp(self.twin, 0, 0, 1, 255)))
 	if alpha:

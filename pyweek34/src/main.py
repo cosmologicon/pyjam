@@ -6,6 +6,7 @@ from .pview import T
 ptext.DEFAULT_FONT_NAME = "fonts/PassionOne.ttf"
 ptext.DEFAULT_OUTLINE_WIDTH = 0.5
 ptext.DEFAULT_SHADOW_OFFSET = 0.2, 0.6
+ptext.DEFAULT_SHADE = 1
 pygame.init()
 view.init()
 sound.init()
@@ -44,8 +45,11 @@ while playing:
 		level = max(level - 1, 1)
 		play.init(level)
 	if play.won() or "nextstage" in kdowns:
-		level = min(level + 1, 3)
-		play.init(level)
+		if level == 7:
+			playing = False
+		else:
+			level += 1
+			play.init(level)
 	
 	if settings.DEBUG:
 		text = "\n".join([

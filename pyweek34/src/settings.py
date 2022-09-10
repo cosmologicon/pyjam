@@ -13,7 +13,7 @@ size0 = 1280, 720
 heights = 480, 720, 1080
 fullscreen = False
 
-DEBUG = True
+DEBUG = False
 
 keys = {
 	"quit": pygame.K_ESCAPE,
@@ -23,5 +23,9 @@ keys = {
 	"swap": pygame.K_TAB,
 	"laststage": pygame.K_F1,
 	"nextstage": pygame.K_F2,
+	"tool1": pygame.K_1,
+	"tool2": pygame.K_2,
+	"tool3": pygame.K_3,
+	"tool4": pygame.K_4,
 }
 

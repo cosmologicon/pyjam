@@ -10,7 +10,10 @@ License: see LICENSE.txt
 Requirements
 ------------
 
-Requires Python 3 and pygame. Tested on Python 3.8.10 with pygame 1.9.6,
+Requires Python 3, pygame, and numpy. Tested using:
+
+* Python 3.8.10 with pygame 1.9.6 and numpy 1.17.4
+* Python 3.9.5 with pygame 2.1.2 and numpy 1.23.3
 
 Running the Game
 ----------------
