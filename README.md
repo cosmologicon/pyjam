@@ -16,6 +16,8 @@ Code for my Python game jam entries (PyWeek).
 * PyWeek 30 (`tide-summoner`): The Tide Summoner.
 * PyWeek 31 (`gnorman`): Gnorman's Copse.
 * PyWeek 32 (`woundabout`): Woundabout.
+* PyWeek 33 (`reflections`): On the Nature of Reflections.
+* PyWeek 34 (`ares-firma`): Ares Firma.
 
 ## Setup process
 
