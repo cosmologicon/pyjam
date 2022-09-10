@@ -10,8 +10,10 @@ minfps, maxfps = 5, 120
 
 
 size0 = 1280, 720
-heights = 480, 720, 1080
+heights = 360, 540, 720, 1080, 1400
 fullscreen = False
+
+soundvolume = 1.0
 
 DEBUG = False
 

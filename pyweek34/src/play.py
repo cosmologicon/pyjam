@@ -66,8 +66,8 @@ def init(level):
 		3: 4,
 		4: 3,
 		5: 3,
-		6: 8,
-		7: 12,
+		6: 10,
+		7: 16,
 	}[self.level]
 	seed = self.level
 
@@ -113,7 +113,12 @@ def init(level):
 	self.hudrects = [pygame.Rect(1090, 680 - 40 * j, 180, 30) for j in range(len(self.tools))][::-1]
 
 	self.charge = { tool: self.recharge[tool] for tool in self.tools }
+	self.comets = []
+	self.jcomet = 0
+
 	sound.playmusic("martian-cowboy")
+	if self.level == 7:
+		sound.playmusic("enter-the-party")
 
 def canuse(tool):
 	return self.charge[tool] >= self.recharge[tool]
@@ -125,11 +130,21 @@ def think(dt, kdowns):
 	drop = control.getdrop()
 	
 	for tool in self.charge:
-		self.charge[tool] = math.approach(self.charge[tool], self.recharge[tool], dt)
+		self.charge[tool] += dt
 
 	if "swap" in kdowns:
 		self.tool = self.tools[(self.tools.index(self.tool) + 1) % len(self.tools)]
 		sound.play("swap")
+	for j, tool in enumerate(self.tools, 1):
+		if f"tool{j}" in kdowns and tool != self.tool:
+			self.tool = tool
+			sound.play("swap")
+	if control.getrclick():
+		chargemax = max(self.charge.values())
+		tool = next(tname for tname, charge in self.charge.items() if charge == chargemax)
+		if tool != self.tool:
+			sound.play("swap")
+			self.tool = tool
 
 	if click:
 		for hudrect, tool in zip(self.hudrects, self.tools):
@@ -183,13 +198,37 @@ def think(dt, kdowns):
 			self.bindicator = math.mix(0.5, 2.5, math.cycle(0.5 * tdrag))
 #	if click:
 #		self.suns.append(Burner(view.GconvertVs(click), 1, 3, 0.3))
+
+	tcomet = 2 if self.level == 7 else 20
+	nextcomet = tcomet * (self.jcomet + 1) ** 0.9
+	if self.level in (6, 7) and self.t >= nextcomet:
+		x = math.fuzzrange(0.15, 0.85, self.jcomet, 17) * self.wG
+		y = math.fuzzrange(0.15, 0.85, self.jcomet, 18) * self.hG
+		self.comets.append([-3, x, y])
+		self.jcomet += 1
+
 	
 	for sun in self.suns:
 		sun.think(dt)
 		for (xG, yG), rG, power in sun.getdrains():
 			self.dmap.drain(xG, yG, rG, power * dt)
+	for comet in self.comets:
+		t, x, y = comet
+		if t < 0 and t + dt >= 0:
+			if self.level != 7:
+				sound.play("comet")
+			t, x, y = comet
+		t += dt
+		comet[0] = t
+		if 0 < t < 1:
+			r = 1.5 * (t / 1.0) ** 0.4
+			power = 20.0 * (t / 1.0) ** 4
+			self.dmap.drain(x, y, r + 0.5, power * dt)
+			self.dmap.drain(x, y, r, -1.6 * power * dt)
+
 	self.dmap.clip()
 	self.suns = [sun for sun in self.suns if sun.alive]
+	self.comets = [comet for comet in self.comets if comet[0] < 10]
 	
 	if self.dmap.fwater() <= 0.01 and not self.winning:
 		self.winning = True
@@ -218,20 +257,19 @@ def drawoverlay(text, **kwargs):
 
 def getinstructions():
 	if self.level == 1:
-		if self.dmap.fwater() > 0.4:
-			return "Click to place solar radiation."
-		if self.dmap.fwater() > 0.2:
-			return "Tool cooldown shown in lower right."
-		return "Get surface water below 1% to continue."
+		return "Click to place solar radiation.\nTool cooldown shown in lower right.\nGet surface to less than 1% ocean to continue."
 	if self.level == 2:
-		return "Sunspread is less concentrated but covers a larger area."
+		return "Sunspread is less concentrated but covers a larger area.\nSee README for options, full controls, and cheats."
 	if self.level == 3:
 		return "Use Tab or number keys to switch between tools."
 	if self.level == 4:
 		return "Click and drag a path to use Sunbeam."
 	if self.level == 5:
 		return "Click and drag diameter to use Sunwheel."
-
+	if self.level == 6:
+		return "Tab cycles between tools.\nRight click swaps to tool with highest charge."
+	if self.level == 7:
+		return "Optional final level. Thank you for playing."
 
 def draw():
 	pview.fill((0, 0, 0))
@@ -239,8 +277,49 @@ def draw():
 	sizeV = view.VconvertG(self.wG), view.VconvertG(self.hG)
 	surf = pygame.transform.smoothscale(surf, sizeV)
 	pview.screen.blit(surf, (0, 0))
+	for t, x, y in self.comets:
+		if t >= 0: continue
+		pos = view.VconvertG(x), view.VconvertG(y)
+		rV = view.VconvertG(1 - t % 1)
+		wV = view.VconvertG(0.02)
+		if wV < rV:
+			pygame.draw.circle(pview.screen, (40, 100, 160), pos, rV, wV)
+		
 	for sun in self.suns:
 		sun.draw()
+	color = (160, 160, 20) if canuse(self.tool) else (50, 50, 50)
+	if control.self.pressed:
+		drag = control.getdragging()
+		if drag is not None and self.tool in ("wander", "spin"):
+			tdrag, pV0, pV1, ddrug = drag
+			if math.distance(pV0, pV1) > 10:
+				pygame.draw.line(pview.screen, color, pV0, pV1, view.VconvertG(0.02))
+	else:
+		if self.tool == "basic":
+			rV = view.VconvertG(1.5/8)
+			wV = view.VconvertG(0.02)
+			pygame.draw.circle(pview.screen, color, control.pV, rV, wV)
+		elif self.tool == "large":
+			rV = view.VconvertG(4/8)
+			wV = view.VconvertG(0.01)
+			pygame.draw.circle(pview.screen, color, control.pV, rV, wV)
+		elif self.tool == "wander":
+			dx = view.VconvertG(0.1)
+			dy = view.VconvertG(0.2)
+			x0, x1 = control.xV - dx, control.xV + dx
+			y0, y1 = control.yV - dy, control.yV + dy
+			wV = view.VconvertG(0.02)
+			pygame.draw.line(pview.screen, color, (x0, y0), (x0, y1), wV)
+			pygame.draw.line(pview.screen, color, (x1, y0), (x1, y1), wV)
+		elif self.tool == "spin":
+			rV = view.VconvertG(1.5/8)
+			rect = pygame.Rect(0, 0, 2 * rV, 2 * rV)
+			rect.center = control.pV
+			a0 = self.t * 2 % math.tau
+			wV = view.VconvertG(0.01)
+			pygame.draw.arc(pview.screen, color, rect, a0, a0 + math.tau / 4, wV)
+			pygame.draw.arc(pview.screen, color, rect, a0 + math.tau / 2, a0 + 3 * math.tau / 4, wV)
+
 	if self.bindicator is not None:
 		rV = view.VconvertG(0.2 * self.bindicator)
 		wV = view.VconvertG(0.05)
@@ -262,8 +341,8 @@ def draw():
 	if instructions is not None:
 		drawoverlay(instructions, midbottom = T(640, 710), fontsize = T(26))
 	for j, (hudrect, tool) in enumerate(zip(self.hudrects, self.tools)):
-		if tool == self.tool:
-			pygame.draw.rect(pview.screen, (100, 100, 255), T(hudrect), T(5))
+		bcolor = (100, 100, 255) if tool == self.tool else (0, 0, 0)
+		pygame.draw.rect(pview.screen, bcolor, T(hudrect).inflate(T(9), T(9)))
 		f = math.clamp(self.charge[tool] / self.recharge[tool], 0, 1)
 		if f < 1:
 			pygame.draw.rect(pview.screen, (80, 80, 80), T(hudrect))

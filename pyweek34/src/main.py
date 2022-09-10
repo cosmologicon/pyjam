@@ -47,6 +47,7 @@ while playing:
 	if play.won() or "nextstage" in kdowns:
 		if level == 7:
 			playing = False
+			print(f"Your time to complete Utopia Planitia was: {int(10 * play.self.t)} million years.")
 		else:
 			level += 1
 			play.init(level)

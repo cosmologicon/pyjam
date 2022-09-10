@@ -1,7 +1,8 @@
 import pygame, os.path, functools
+from . import settings
 cache = functools.lru_cache(None)
 
-pygame.mixer.pre_init(frequency=22050, size=16, channels=1, buffer=512)
+pygame.mixer.pre_init(frequency=22050, size=-16, channels=1, buffer=1024)
 
 def init():
 	pygame.mixer.init()

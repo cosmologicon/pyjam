@@ -194,7 +194,7 @@ class Dmap:
 		#self.array = numpy.clip(self.array, 0.0, 1.0)
 		pass
 	def tosurf(self):
-		carr = 1.0 / (1.0 + numpy.exp(-self.array))
+		carr = 1.0 / (1.0 + numpy.exp(-0.5 * self.array))
 		land = self.img0 + (self.dimg * carr).astype(numpy.uint8)
 		water = self.water0 + (self.dwater * carr).astype(numpy.uint8)
 		img = numpy.where(self.array >= 0.0, land, water)

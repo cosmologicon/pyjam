@@ -7,7 +7,9 @@ ddragV = 10
 
 class self:
 	pressed = False
+	rpressed = False
 	click = None
+	rclick = False
 	drag = None
 	dragging = False
 	drop = None
@@ -22,12 +24,14 @@ def now():
 def think(dt):
 	global xV, yV, pV
 	pV = xV, yV = pygame.mouse.get_pos()
-	pressed = pygame.mouse.get_pressed()[0]
+	pressed, mpressed, rpressed = pygame.mouse.get_pressed()
 	if pressed and not self.pressed:
 		self.pdownV = pV
 		self.tdown = now()
 		self.dragging = False
 		self.ddrug = False
+	if rpressed and not self.rpressed:
+		self.rclick = True
 	if self.pressed:
 		dt = now() - self.tdown
 		if dt > tdrag:
@@ -48,6 +52,11 @@ def think(dt):
 def getclick():
 	ret = self.click
 	self.click = None
+	return ret
+
+def getrclick():
+	ret = self.rclick
+	self.rclick = False
 	return ret
 
 def getdragging():
