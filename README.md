@@ -67,4 +67,6 @@ Check that dependencies are listed in the README. In particular check for: pygam
 
 	tar czf gamename.tgz gamename/
 
+Check that dependencies are listed in requirements.txt and specify minimum versions as necessary.
+
 TODO: avoid temp files
