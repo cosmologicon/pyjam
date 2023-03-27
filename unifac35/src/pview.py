@@ -19,7 +19,7 @@ def set_mode(size0 = None, height = _EMPTY_SENTINEL, fullscreen = None, forceres
 	if size0 is not None:
 		_set_size0(size0)
 	if height is not _EMPTY_SENTINEL:
-		_height = int(round(height))
+		_height = None if height is None else int(round(height))
 	if fullscreen is not None:
 		_fullscreen = fullscreen
 	if forceres is not None:
@@ -33,13 +33,12 @@ def _set_size0(r):
 
 def cycle_height(heights, reverse = False):
 	heights = list(heights)
-	if _height is None:
-		height = max(heights) if reverse else min(heights)
-	elif reverse:
-		ok_heights = [height for height in heights if height < _height]
+	current = size0[1] if _height is None else _height
+	if reverse:
+		ok_heights = [height for height in heights if height < current]
 		height = max(ok_heights or heights)
 	else:
-		ok_heights = [height for height in heights if height > _height]
+		ok_heights = [height for height in heights if height > current]
 		height = min(ok_heights or heights)
 	set_mode(height = height)
 
@@ -48,7 +47,7 @@ def toggle_fullscreen():
 
 def _update():
 	if size0 is None:
-		raise ValueError("view.size0 must be set")
+		raise ValueError("pview.size0 must be set")
 	w0, h0 = size0
 	if _forceres or not _fullscreen:
 		w, h = size0 if _height is None else (int(round(w0 * _height / h0)), _height)
@@ -112,6 +111,8 @@ def _setattrs():
 	f = h / h0
 
 def fill(color, rect = None):
+	if size0 is None:
+		raise ValueError("pview.size0 must be set")
 	# Color can be a color name string, a 3- or 4-tuple, or a pygame.Color object.
 	try:
 		color = pygame.Color(color)

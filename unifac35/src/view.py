@@ -11,7 +11,9 @@ VscaleG = 40
 
 
 def init():
-	pview.set_mode(size0 = settings.size0)
+	pview.set_mode(size0 = settings.size0, height = settings.height,
+		fullscreen = settings.fullscreen, forceres = settings.forceres)
+	pygame.display.set_caption(settings.gamename)
 
 def set_camera(xG0_, yG0_, VscaleG_):
 	global xG0, yG0, VscaleG
