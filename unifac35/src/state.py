@@ -9,4 +9,7 @@ you = None
 lights = []
 obstacles = []
 
+turn = None
+maxturn = None
+
 

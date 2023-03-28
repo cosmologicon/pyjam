@@ -1,5 +1,6 @@
 import math
 from functools import lru_cache, cache
+from collections import defaultdict
 import pygame
 
 adjs = [(1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1)]
@@ -37,30 +38,55 @@ def neighbors(pH):
 class Grid:
 	def __init__(self, cells):
 		self.cells = set(cells)
-		self.todo = self.dowork()
+		self.reset()
+
+	def reset(self):
+		self.open = set(self.cells)
+		self.lit = set()
+		self.walls = { cell: set() for cell in self.cells }
 		self.tsetup = 0
-		self.setup = False
+		self.nsetup = 0
+		self.todo = self.dowork()
+
+	def block(self, pH):
+		self.open.remove(pH)
+		self.todo = self.dowork()
+
+	def illuminate(self, pH):
+		self.lit.add(pH)
+		self.todo = self.dowork()
+	
+	def addwall(self, pH0, pH1, bothways=True):
+		if pH0 in self.walls:
+			self.walls[pH0].add(pH1)
+		if bothways:
+			self.addwall(pH1, pH0, bothways=False)		
 
 	def pGs(self):
 		return [GconvertH(cell) for cell in self.cells]
 		
 	def killtime(self, dt):
-		if self.setup: return
+		if not self.todo: return
 		t0 = pygame.time.get_ticks() * 0.001
 		t1 = t0 + dt
 		try:
 			while pygame.time.get_ticks() * 0.001 < t1:
 				next(self.todo)
 		except StopIteration:
-			self.setup = True
+			self.todo = None
 		self.tsetup += pygame.time.get_ticks() * 0.001 - t0
+		self.nsetup += 1
+		if self.todo is None:
+			print(self.nsetup, self.tsetup)
 
 	def dowork(self):
+		yield
 		self.neighbors = {}
 		self.pathstep = {}
 		self.drings = {}
-		for cell in self.cells:
-			self.neighbors[cell] = self.cells & set(neighbors(cell))
+		self.walkable = self.open - self.lit
+		for cell in self.walkable:
+			self.neighbors[cell] = (self.walkable & set(neighbors(cell))) - self.walls[cell]
 			self.pathstep[(cell, cell)] = [], 0
 			self.drings[cell] = { 0: set([cell]) }
 			yield
@@ -80,9 +106,24 @@ class Grid:
 					empty = False
 			if empty:
 				break
+		self.components = []
+		self.componentmap = {}
+		toconnect = set(self.walkable)
+		while toconnect:
+			cell = next(iter(toconnect))
+			component = set()
+			for dring in self.drings[cell].values():
+				component |= dring
+				yield
+			toconnect -= component
+			jcomponent = len(self.components)
+			for cell in component:
+				self.componentmap[cell] = jcomponent
+				yield
+			self.components.append(component)
 
 	def getpath(self, p0, p1):
-		if not self.setup: return None
+		if self.todo is not None: return None
 		p = p0
 		path = [p]
 		while p != p1:

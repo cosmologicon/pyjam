@@ -13,12 +13,14 @@ def drawcircleat(pH, rG, color):
 class You:
 	def __init__(self, pH):
 		self.pH = pH
+
 	def draw0(self):
 		drawcircleat(self.pH, 0.4, (255, 200, 40))
 
 class Obstacle:
 	def __init__(self, pH):
 		self.pH = pH
+
 	def draw0(self):
 		drawcircleat(self.pH, 0.3, (255, 255, 255))
 
@@ -29,16 +31,14 @@ class Light:
 		self.pH = pH
 		self.dirHs = dirHs
 
-	def monitored(self):
-		hitcells = []
+	def illuminate(self):
 		for dxH, dyH in self.dirHs:
 			xH, yH = self.pH
 			while True:
 				xH, yH = xH + dxH, yH + dyH
-				if (xH, yH) not in self.grid.cells:
+				if (xH, yH) not in self.grid.open:
 					break
-				hitcells.append((xH, yH))
-		return hitcells
+				self.grid.illuminate((xH, yH))
 
 	def draw0(self):
 		xG, yG = grid.GconvertH(self.pH)
@@ -52,7 +52,7 @@ class Light:
 			n = 0
 			while True:
 				xH, yH = xH + dxH, yH + dyH
-				if (xH, yH) not in self.grid.cells:
+				if (xH, yH) not in self.grid.open:
 					break
 				n += 1
 			if n > 0:
