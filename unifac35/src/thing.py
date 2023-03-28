@@ -2,9 +2,26 @@ import pygame
 from . import pview, grid, view
 from .pview import T
 
+def drawcircleat(pH, rG, color):
+	xG, yG = grid.GconvertH(pH)
+	xV, yV = view.VconvertG((xG, yG))
+	r = T(view.VscaleG * rG)
+	h = T(view.VscaleG * rG * 0.6)
+	pygame.draw.circle(pview.screen, color, (xV, yV - h), r)
+
+
+class You:
+	def __init__(self, pH):
+		self.pH = pH
+	def draw0(self):
+		drawcircleat(self.pH, 0.4, (255, 200, 40))
+
 class Obstacle:
 	def __init__(self, pH):
 		self.pH = pH
+	def draw0(self):
+		drawcircleat(self.pH, 0.3, (255, 255, 255))
+
 
 class Light:
 	def __init__(self, grid, pH, dirHs):

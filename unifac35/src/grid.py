@@ -25,8 +25,8 @@ def HnearestG(pG):
 	xH, yH = HconvertG(pG)
 	x0 = math.floor(xH)
 	y0 = math.floor(yH)
-	pHs = [(x0 + dx, y0 + dy) for dx in (0, 1) for y in (0, 1)]
-	return min(pHs, key = lambda pH: math.hypot(GconvertH(pH), pG))
+	pHs = [(x0 + dx, y0 + dy) for dx in (0, 1) for dy in (0, 1)]
+	return min(pHs, key = lambda pH: math.distance(GconvertH(pH), pG))
 	
 
 @lru_cache(1000)
@@ -78,7 +78,6 @@ class Grid:
 					yield
 				if dcells:
 					empty = False
-				yield
 			if empty:
 				break
 
@@ -91,13 +90,16 @@ class Grid:
 			path.append(p)
 		return path
 
-	def draw0(self):
+	def draw0(self, shading):
 		from . import view, pview
-		colors = (220, 220, 220), (210, 210, 240), (200, 200, 255)
+		colors = (160, 160, 160), (170, 170, 130), (150, 150, 190)
 		for x, y in self.cells:
 			pHs = [(x + dx, y + dy) for dx, dy in dcorners]
 			pVs = [view.VconvertG(GconvertH(pH)) for pH in pHs]
 			color = colors[(x - y) % 3]
+			for scell, f, scolor in shading:
+				if scell == (x, y):
+					color = math.imix(color, scolor, f)
 			pygame.draw.polygon(pview.screen, color, pVs)
 
 if __name__ == "__main__":
