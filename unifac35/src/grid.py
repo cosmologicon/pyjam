@@ -94,12 +94,12 @@ class Grid:
 	def draw0(self):
 		from . import view, pview
 		colors = (220, 220, 220), (210, 210, 240), (200, 200, 255)
-		for x, y in cells:
+		for x, y in self.cells:
 			pHs = [(x + dx, y + dy) for dx, dy in dcorners]
 			pVs = [view.VconvertG(GconvertH(pH)) for pH in pHs]
 			color = colors[(x - y) % 3]
 			pygame.draw.polygon(pview.screen, color, pVs)
-			
+
 if __name__ == "__main__":
 	from . import pview, view
 	pygame.init()
