@@ -8,8 +8,16 @@ grid = None
 you = None
 lights = []
 obstacles = []
+goals = []
 
 turn = None
 maxturn = None
+
+def grabat(pH):
+	if you.pH == pH:
+		return you
+	for obstacle in obstacles:
+		if obstacle.pH == pH:
+			return obstacle
 
 

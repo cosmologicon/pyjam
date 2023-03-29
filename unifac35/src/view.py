@@ -9,7 +9,6 @@ iso = 0.5
 xG0, yG0 = 0, 0
 VscaleG = 40
 
-
 def init():
 	pview.set_mode(size0 = settings.size0, height = settings.height,
 		fullscreen = settings.fullscreen, forceres = settings.forceres)

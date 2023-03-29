@@ -10,6 +10,11 @@ dcorners = [
 	[(adjs[j-1], adjs[j]) for j in range(6)]
 ]
 
+def distanceH(pH0, pH1):
+	(xH0, yH0), (xH1, yH1) = pH0, pH1
+	dx, dy = xH1 - xH0, yH1 - yH0
+	return max(abs(dx), abs(dy), abs(dx + dy))
+
 def GconvertH(pH):
 	xH, yH = pH
 	xG = 1.5 * xH
@@ -41,8 +46,12 @@ class Grid:
 		self.reset()
 
 	def reset(self):
+		# Currently no lights or obstacles occupying this space.
 		self.open = set(self.cells)
+		# In the sights of a beam.
 		self.lit = set()
+		# Occupied by a goal.
+		self.goals = set()
 		self.walls = { cell: set() for cell in self.cells }
 		self.tsetup = 0
 		self.nsetup = 0
@@ -50,6 +59,10 @@ class Grid:
 
 	def block(self, pH):
 		self.open.remove(pH)
+		self.todo = self.dowork()
+
+	def addgoal(self, pH):
+		self.goals.add(pH)
 		self.todo = self.dowork()
 
 	def illuminate(self, pH):
@@ -77,7 +90,7 @@ class Grid:
 		self.tsetup += pygame.time.get_ticks() * 0.001 - t0
 		self.nsetup += 1
 		if self.todo is None:
-			print(self.nsetup, self.tsetup)
+			print("setup time", self.nsetup, self.tsetup)
 
 	def dowork(self):
 		yield
@@ -142,6 +155,9 @@ class Grid:
 				if scell == (x, y):
 					color = math.imix(color, scolor, f)
 			pygame.draw.polygon(pview.screen, color, pVs)
+
+	def samecomponent(self, pH0, pH1):
+		return self.componentmap.get(pH0, -1) == self.componentmap.get(pH1, -2)
 
 if __name__ == "__main__":
 	from . import pview, view

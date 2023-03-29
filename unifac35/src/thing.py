@@ -10,20 +10,49 @@ def drawcircleat(pH, rG, color):
 	pygame.draw.circle(pview.screen, color, (xV, yV - h), r)
 
 
+
 class You:
-	def __init__(self, pH):
+	def __init__(self, pH, grid):
 		self.pH = pH
+		self.grid = grid
 
 	def draw0(self):
 		drawcircleat(self.pH, 0.4, (255, 200, 40))
 
-class Obstacle:
-	def __init__(self, pH):
+	def drawghost(self, pH):
+		drawcircleat(pH, 0.4, (60, 60, 60))
+
+	def canplaceat(self, pH):
+		return self.grid.samecomponent(self.pH, pH)
+	
+	def placeat(self, pH):
 		self.pH = pH
+
+class Obstacle:
+	def __init__(self, pH, grid):
+		self.pH = pH
+		self.grid = grid
 
 	def draw0(self):
 		drawcircleat(self.pH, 0.3, (255, 255, 255))
 
+	def drawghost(self, pH):
+		drawcircleat(pH, 0.4, (60, 60, 60))
+
+	def canplaceat(self, pH):
+		return pH in self.grid.open and grid.distanceH(self.pH, pH) <= 1
+	
+	def placeat(self, pH):
+		self.pH = pH
+
+
+
+class Goal:
+	def __init__(self, pH):
+		self.pH = pH
+
+	def draw0(self):
+		drawcircleat(self.pH, 0.3, (255, 255, 0))
 
 class Light:
 	def __init__(self, grid, pH, dirHs):
@@ -36,7 +65,7 @@ class Light:
 			xH, yH = self.pH
 			while True:
 				xH, yH = xH + dxH, yH + dyH
-				if (xH, yH) not in self.grid.open:
+				if (xH, yH) not in self.grid.open or (xH, yH) in self.grid.goals:
 					break
 				self.grid.illuminate((xH, yH))
 
