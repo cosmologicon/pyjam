@@ -1,5 +1,5 @@
 import pygame
-from . import settings, play, view, pview, control
+from . import settings, play, view, pview, control, state
 
 view.init()
 scene = play
@@ -21,6 +21,10 @@ while playing:
 				pview.toggle_fullscreen()
 			if event.key == pygame.K_F12:
 				pview.screenshot()
+			if scene is play and event.key == pygame.K_BACKSPACE:
+				play.handle("undo")
+			if scene is play and event.key == pygame.K_r:
+				play.handle("reset")
 	control.think(dt)
 
 	scene.think(dt)

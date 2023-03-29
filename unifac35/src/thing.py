@@ -1,5 +1,5 @@
 import pygame
-from . import pview, grid, view
+from . import pview, grid, view, state
 from .pview import T
 
 def drawcircleat(pH, rG, color):
@@ -12,9 +12,8 @@ def drawcircleat(pH, rG, color):
 
 
 class You:
-	def __init__(self, pH, grid):
+	def __init__(self, pH):
 		self.pH = pH
-		self.grid = grid
 
 	def draw0(self):
 		drawcircleat(self.pH, 0.4, (255, 200, 40))
@@ -22,27 +21,39 @@ class You:
 	def drawghost(self, pH):
 		drawcircleat(pH, 0.4, (60, 60, 60))
 
+	def canclaim(self, goal):
+		return grid.distanceH(self.pH, goal.pH) <= 1
+
 	def canplaceat(self, pH):
-		return self.grid.samecomponent(self.pH, pH)
+		return state.grid0.samecomponent(self.pH, pH)
 	
 	def placeat(self, pH):
+		moving = pH != self.pH
 		self.pH = pH
+		if moving:
+			state.advanceturn()
 
 class Obstacle:
-	def __init__(self, pH, grid):
+	def __init__(self, pH):
 		self.pH = pH
-		self.grid = grid
+		self.reset()
+
+	def reset(self):
+		self.ready = True
 
 	def draw0(self):
-		drawcircleat(self.pH, 0.3, (255, 255, 255))
+		color = (255, 255, 255) if self.ready else (128, 128, 128)
+		drawcircleat(self.pH, 0.3, color)
 
 	def drawghost(self, pH):
 		drawcircleat(pH, 0.4, (60, 60, 60))
 
 	def canplaceat(self, pH):
-		return pH in self.grid.open and grid.distanceH(self.pH, pH) <= 1
+		return pH in state.grid0.open and grid.distanceH(self.pH, pH) <= 1
 	
 	def placeat(self, pH):
+		if pH != self.pH:
+			self.ready = False
 		self.pH = pH
 
 
@@ -52,11 +63,10 @@ class Goal:
 		self.pH = pH
 
 	def draw0(self):
-		drawcircleat(self.pH, 0.3, (255, 255, 0))
+		drawcircleat(self.pH, 0.3, (100, 255, 100))
 
 class Light:
-	def __init__(self, grid, pH, dirHs):
-		self.grid = grid
+	def __init__(self, pH, dirHs):
 		self.pH = pH
 		self.dirHs = dirHs
 
@@ -65,9 +75,9 @@ class Light:
 			xH, yH = self.pH
 			while True:
 				xH, yH = xH + dxH, yH + dyH
-				if (xH, yH) not in self.grid.open or (xH, yH) in self.grid.goals:
+				if (xH, yH) not in state.grid0.open or (xH, yH) in state.grid0.goals:
 					break
-				self.grid.illuminate((xH, yH))
+				state.grid0.illuminate((xH, yH))
 
 	def draw0(self):
 		xG, yG = grid.GconvertH(self.pH)
@@ -81,7 +91,7 @@ class Light:
 			n = 0
 			while True:
 				xH, yH = xH + dxH, yH + dyH
-				if (xH, yH) not in self.grid.open:
+				if (xH, yH) not in state.grid0.open:
 					break
 				n += 1
 			if n > 0:

@@ -157,6 +157,9 @@ class Grid:
 			pygame.draw.polygon(pview.screen, color, pVs)
 
 	def samecomponent(self, pH0, pH1):
+		if self.todo is not None:
+			print("PATHFINDING....", self.nsetup, self.tsetup)
+			return False
 		return self.componentmap.get(pH0, -1) == self.componentmap.get(pH1, -2)
 
 if __name__ == "__main__":
