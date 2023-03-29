@@ -1,5 +1,5 @@
 import pygame
-from . import pview, grid, view, state
+from . import pview, grid, view, state, ptext
 from .pview import T
 
 def drawcircleat(pH, rG, color):
@@ -44,18 +44,24 @@ class Obstacle:
 	def draw0(self):
 		color = (255, 255, 255) if self.ready else (128, 128, 128)
 		drawcircleat(self.pH, 0.3, color)
+		pV = view.VconvertG(grid.GconvertH(self.pH))
+		ptext.draw(self.name, center = pV, fontsize = T(view.VscaleG * 0.2), owidth = 0.5)
 
 	def drawghost(self, pH):
 		drawcircleat(pH, 0.4, (60, 60, 60))
 
 	def canplaceat(self, pH):
-		return pH in state.grid0.open and grid.distanceH(self.pH, pH) <= 1
+		return pH in state.grid0.open and self.legalmove(pH)
 	
 	def placeat(self, pH):
 		if pH != self.pH:
 			self.ready = False
 		self.pH = pH
 
+class Pawn(Obstacle):
+	name = "P"
+	def legalmove(self, pH):
+		return grid.distanceH(self.pH, pH) <= 1
 
 
 class Goal:

@@ -26,8 +26,8 @@ def VconvertG(pG):
 
 def GconvertV(pV):
 	xV, yV = pV
-	xG = (xV - pview.centerx0) / VscaleG
-	yG = -(yV - pview.centery0) / VscaleG / iso
+	xG = xG0 + (xV - pview.centerx0) / VscaleG
+	yG = yG0 - (yV - pview.centery0) / VscaleG / iso
 	return xG, yG
 
 def box(pGs):

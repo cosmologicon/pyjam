@@ -33,6 +33,11 @@ def HnearestG(pG):
 	y0 = math.floor(yH)
 	pHs = [(x0 + dx, y0 + dy) for dx in (0, 1) for dy in (0, 1)]
 	return min(pHs, key = lambda pH: math.distance(GconvertH(pH), pG))
+
+@lru_cache(1000)
+def GoutlineH(pH):
+	x, y = pH
+	return [GconvertH((x + dx, y + dy)) for dx, dy in dcorners]
 	
 
 @lru_cache(1000)
@@ -148,8 +153,8 @@ class Grid:
 		from . import view, pview
 		colors = (160, 160, 160), (170, 170, 130), (150, 150, 190)
 		for x, y in self.cells:
-			pHs = [(x + dx, y + dy) for dx, dy in dcorners]
-			pVs = [view.VconvertG(GconvertH(pH)) for pH in pHs]
+			pGs = GoutlineH((x, y))
+			pVs = [view.VconvertG(pG) for pG in pGs]
 			color = colors[(x - y) % 3]
 			for scell, f, scolor in shading:
 				if scell == (x, y):
