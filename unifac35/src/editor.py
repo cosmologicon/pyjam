@@ -24,7 +24,9 @@ if levelname in levels.levels:
 
 
 ldirs = [[(1, 0)], [(0, 1)], [(-1, 1)], [(-1, 0)], [(0, -1)], [(1, -1)]]
-
+for j in range(6):
+	ldirs.append(ldirs[j] + ldirs[(j + 1) % 6])
+ldirs.append([d for ldir in ldirs[:6] for d in ldir])
 
 clock = pygame.time.Clock()
 playing = True

@@ -24,8 +24,7 @@ def advanceturn():
 	turn += 1
 	for obstacle in obstacles:
 		obstacle.reset()
-	for goal in goals:
-		print(you.pH, goal.pH, you.canclaim(goal))
+	for goal in list(goals):
 		if you.canclaim(goal):
 			goals.remove(goal)
 
@@ -57,7 +56,8 @@ def canundo():
 	return len(snapstack) > 1
 
 def undo():
-	restore(pickle.loads(snapstack.pop()))
+	snapstack.pop()
+	restore(pickle.loads(snapstack[-1]))
 
 def reset():
 	del snapstack[1:]

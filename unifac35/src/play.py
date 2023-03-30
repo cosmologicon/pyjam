@@ -9,7 +9,7 @@ buttons = [("undo", (1000, 30), 30), ("reset", (1100, 30), 30), ("quit", (1200, 
 bpointed = None
 
 def init():
-	levelname = "test"
+	levelname = "charlie"
 	if levelname is None:
 		cells = [(x, y) for x in range(-7, 8) for y in range(-7, 8) if abs(x + y) <= 7]
 		random.shuffle(cells)
