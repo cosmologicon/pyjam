@@ -9,7 +9,8 @@ buttons = [("undo", (1000, 30), 30), ("reset", (1100, 30), 30), ("quit", (1200, 
 bpointed = None
 
 def init():
-	levelname = "charlie"
+	global fflash
+	levelname = "alfa"
 	if levelname is None:
 		cells = [(x, y) for x in range(-7, 8) for y in range(-7, 8) if abs(x + y) <= 7]
 		random.shuffle(cells)
@@ -46,9 +47,11 @@ def init():
 	state.turn = 1
 	state.maxturn = 7
 	state.snapshot()
+	fflash = 1
 
 def think(dt):
-	global cursorG, cursorH, held, bpointed
+	global cursorG, cursorH, held, bpointed, fflash
+	fflash = math.approach(fflash, 0, 3 * dt)
 	cursorV, cursorG, click, release, drop = control.getstate()
 	bpointed = None
 	for bname, bpos, r in buttons:
@@ -76,16 +79,22 @@ def think(dt):
 	else:
 		if click:
 			handle(bpointed)
+	state.you.think(dt)
+	for obstacle in state.obstacles:
+		obstacle.think(dt)
 	state.grid0.killtime(0.01)
 
 def handle(bname):
+	global fflash
 	if bname == "undo":
 		if state.canundo():
 			state.undo()
 			sound.play("undo")
+			fflash = 1
 		else:
 			sound.play("no")
 	if bname == "reset":
+		fflash = 1
 		state.reset()
 		sound.play("reset")
 	if bname == "quit":
@@ -126,6 +135,10 @@ def draw():
 	graphics.draw("talk", T(1120, 720 - 150), scale = 0.5 * pview.f)
 	text = "Hey followers, we're back with another cat burgling live stream. I am your host Francois Debonair. Today I'm heisting this lovely seven-piece set."
 	ptext.draw(text, midbottom = T(500, 700), width = T(900), fontsize = T(40), owidth = 1)
+
+	if fflash > 0:
+		alpha = math.imix(0, 255, fflash)
+		pview.fill((40, 40, 40, alpha))
 
 	for bname, bpos, r in buttons:
 		size = 70 if bname == bpointed else 50

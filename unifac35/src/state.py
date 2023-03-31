@@ -26,7 +26,7 @@ def advanceturn():
 		obstacle.reset()
 	for goal in list(goals):
 		if you.canclaim(goal):
-			goals.remove(goal)
+			you.claim(goal)
 
 def won():
 	return not goals and you.pH == escape

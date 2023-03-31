@@ -10,19 +10,43 @@ def drawcircleat(pH, rG, color):
 	pygame.draw.circle(pview.screen, color, (xV, yV - h), r)
 
 
-
 class You:
 	def __init__(self, pH):
 		self.pH = pH
+		self.t = 0
+		self.fmove = 0
+		self.fnab = 0
+		self.tonab = []
+
+	def think(self, dt):
+		self.t += dt
+		if self.fmove:
+			self.fmove = math.approach(self.fmove, 0, dt * 4 * len(self.pH) ** -0.4)
+		if self.fnab and not self.fmove:
+			self.fnab = math.approach(self.fnab, 0, dt * 2)
+			if self.fnab == 0:
+				self.tonab.pop()
+				if self.tonab:
+					self.fnab = 1
 
 	def draw0(self):
 		drawcircleat(self.pH, 0.4, (255, 200, 40))
 
 	def draw(self):
-		zG = math.mix(0.7, 1, math.cycle(0.001 * pygame.time.get_ticks() / 4))
-		pV = view.VconvertG(grid.GconvertH(self.pH), zG = zG)
+		if self.fmove:
+			a = (1 - self.fmove) * (len(self.movepath) - 1)
+			n, k = divmod(a, 1)
+			n = int(n)
+			pG = math.mix(self.movepath[n], self.movepath[n+1], k)
+		else:
+			pG = grid.GconvertH(self.pH)
+		zG = math.mix(0.7, 1, math.cycle(self.t / 4))
+		pV = view.VconvertG(pG, zG = zG)
 		scale = 0.004 * view.VscaleG * pview.f
 		graphics.draw("token", pV, scale)
+		for jgoal, goal in enumerate(self.tonab):
+			f = self.fnab if jgoal == len(self.tonab) - 1 else 1
+			goal.drawnab(self.pH, f)
 
 	def drawghost(self, pH):
 		zG = 0.7
@@ -33,19 +57,33 @@ class You:
 	def canclaim(self, goal):
 		return grid.distanceH(self.pH, goal.pH) <= 1
 
+	def claim(self, goal):
+		state.goals.remove(goal)
+		self.tonab.append(goal)
+		self.fnab = 1
+
 	def canplaceat(self, pH):
-		return state.grid0.samecomponent(self.pH, pH)
+		return state.grid0.samecomponent(self.pH, pH) and pH not in state.grid0.goals
 	
 	def placeat(self, pH):
-		moving = pH != self.pH
+		pH0 = self.pH
 		self.pH = pH
-		if moving:
+		if pH != pH0:
+			self.fmove = 1
+			self.movepath = [grid.GconvertH(p) for p in state.grid0.getpath(pH0, pH)]
 			state.advanceturn()
 
 class Obstacle:
 	def __init__(self, pH):
 		self.pH = pH
 		self.reset()
+		self.fmove = 0
+		self.t = 0
+
+	def think(self, dt):
+		self.t += dt
+		if self.fmove:
+			self.fmove = math.approach(self.fmove, 0, dt * 4)
 
 	def reset(self):
 		self.ready = True
@@ -57,7 +95,13 @@ class Obstacle:
 		ptext.draw(self.name, center = pV, fontsize = T(view.VscaleG * 0.2), owidth = 0.5)
 
 	def draw(self):
-		pV = view.VconvertG(grid.GconvertH(self.pH))
+		if self.fmove > 0:
+			pH = math.mix(self.pH, self.movepH, self.fmove)
+			zG = 2.5 * self.fmove * (1 - self.fmove)
+		else:
+			pH = self.pH
+			zG = 0
+		pV = view.VconvertG(grid.GconvertH(pH), zG = zG)
 		scale = 0.007 * view.VscaleG * pview.f
 		shade = 1 if self.ready else 0.4
 		graphics.draw(self.name, pV, scale, shade = shade)
@@ -72,6 +116,8 @@ class Obstacle:
 	
 	def placeat(self, pH):
 		if pH != self.pH:
+			self.fmove = 1
+			self.movepH = self.pH
 			self.ready = False
 		self.pH = pH
 
@@ -89,15 +135,26 @@ class Goal:
 		drawcircleat(self.pH, 0.3, (100, 255, 100))
 
 	def draw(self):
-		xV, yV = view.VconvertG(grid.GconvertH(self.pH))
+		pV0 = view.VconvertG(grid.GconvertH(self.pH))
 		scale = 0.007 * view.VscaleG * pview.f
-		graphics.draw("pedestal", (xV, yV), scale)
+		graphics.draw("pedestal", pV0, scale)
 		a = math.cycle(0.001 * pygame.time.get_ticks() + math.fuzz(1, *self.pH))
 		mask = math.imix((100, 255, 100), (120, 120, 255), a)
 		tcycle = math.fuzzrange(2, 3, 2, *self.pH)
 		a = math.cycle(0.001 * pygame.time.get_ticks() / tcycle + math.fuzz(3, *self.pH))
-		hV = int(round(pview.f * view.VscaleG * math.mix(1, 1.2, a)))
-		graphics.draw("goal", (xV, yV - hV), scale = scale, mask = mask)
+		pV1 = view.VconvertG(grid.GconvertH(self.pH), zG = math.mix(1, 1.2, a))
+		graphics.draw("goal", pV1, scale = scale, mask = mask)
+
+	def drawnab(self, pH, f):
+		pV0 = view.VconvertG(grid.GconvertH(self.pH))
+		scale = 0.007 * view.VscaleG * pview.f
+		graphics.draw("pedestal", pV0, scale, alpha = f)
+		pG = grid.GconvertH(math.mix(pH, self.pH, f))
+		zG = 1 + 3 * f * (1 - f)
+		pV = view.VconvertG(pG, zG = zG)
+		mask = (100, 255, 100)
+		graphics.draw("goal", pV, scale = scale, mask = mask)
+		
 
 
 class Light:
@@ -113,8 +170,12 @@ class Light:
 			while True:
 				xH, yH = xH + dxH, yH + dyH
 				dlight += 1
+				if (xH, yH) == state.you.pH:
+					dlight += 0.1
+					break
 				if (xH, yH) not in state.grid0.cells:
 					dlight -= 0.25
+					break
 				if (xH, yH) not in state.grid0.open or (xH, yH) in state.grid0.goals:
 					break
 				state.grid0.illuminate((xH, yH))
