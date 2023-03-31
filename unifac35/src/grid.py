@@ -159,13 +159,15 @@ class Grid:
 	def draw0(self, shading):
 		from . import view, pview
 		colors = (160, 160, 160), (170, 170, 130), (150, 150, 190)
+		sdict = defaultdict(list)
+		for scell, f, scolor in shading:
+			sdict[scell].append((f, scolor))
 		for x, y in self.cells:
 			pGs = GoutlineH((x, y))
 			pVs = [view.VconvertG(pG) for pG in pGs]
 			color = colors[(x - y) % 3]
-			for scell, f, scolor in shading:
-				if scell == (x, y):
-					color = math.imix(color, scolor, f)
+			for f, scolor in sdict[(x, y)]:
+				color = math.imix(color, scolor, f)
 			pygame.draw.polygon(pview.screen, color, pVs)
 
 	def drawpath(self, p0, p1):

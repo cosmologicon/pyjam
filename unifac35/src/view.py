@@ -1,10 +1,11 @@
-import pygame
+import pygame, math
 from . import settings
 from . import pview
 from .pview import T
 
 # isometric dimension ratio
 iso = 0.5
+siso = math.sqrt(1 - iso ** 2)
 
 xG0, yG0 = 0, 0
 VscaleG = 40
@@ -18,10 +19,10 @@ def set_camera(xG0_, yG0_, VscaleG_):
 	global xG0, yG0, VscaleG
 	xG0, yG0, VscaleG = xG0_, yG0_, VscaleG_
 
-def VconvertG(pG):
+def VconvertG(pG, zG = 0):
 	xG, yG = pG
 	xV = pview.centerx0 + (xG - xG0) * VscaleG
-	yV = pview.centery0 - (yG - yG0) * VscaleG * iso
+	yV = pview.centery0 - (yG - yG0) * VscaleG * iso - zG * VscaleG * siso
 	return T(xV, yV)
 
 def GconvertV(pV):

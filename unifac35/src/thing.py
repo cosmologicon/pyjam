@@ -18,8 +18,17 @@ class You:
 	def draw0(self):
 		drawcircleat(self.pH, 0.4, (255, 200, 40))
 
+	def draw(self):
+		zG = math.mix(0.7, 1, math.cycle(0.001 * pygame.time.get_ticks() / 4))
+		pV = view.VconvertG(grid.GconvertH(self.pH), zG = zG)
+		scale = 0.004 * view.VscaleG * pview.f
+		graphics.draw("token", pV, scale)
+
 	def drawghost(self, pH):
-		drawcircleat(pH, 0.4, (60, 60, 60))
+		zG = 0.7
+		pV = view.VconvertG(grid.GconvertH(pH), zG = zG)
+		scale = 0.004 * view.VscaleG * pview.f
+		graphics.draw("token", pV, scale, alpha = 0.4)
 
 	def canclaim(self, goal):
 		return grid.distanceH(self.pH, goal.pH) <= 1

@@ -1,5 +1,5 @@
 import random, math, pygame
-from . import pview, state, grid, view, thing, control, sound, ptext, levels
+from . import pview, state, grid, view, thing, control, sound, ptext, levels, graphics
 from .pview import T
 
 cursorG = None
@@ -97,7 +97,11 @@ def draw():
 	shading = []
 	if cursorH is not None:
 		shading += [(cursorH, 0.6, (255, 255, 255))]
-	shading += [(cell, 0.5, (255, 0, 0)) for cell in state.grid0.lit]
+#	shading += [(cell, 0.5, (255, 0, 0)) for cell in state.grid0.lit]
+	if held is not None:
+		for cell in state.grid0.cells:
+			if not held.canplaceat(cell):
+				shading += [(cell, 0.3, (0, 0, 0))]
 	fglow = math.mix(0.1, 0.9, math.cycle(pygame.time.get_ticks() * 0.001))
 	for pH in [goal.pH for goal in state.goals] or [state.escape]:
 		shading += [(pH, fglow, (255, 255, 200))]
@@ -111,13 +115,17 @@ def draw():
 		obstacle.draw()
 	for goal in state.goals:
 		goal.draw()
-	state.you.draw0()
+	state.you.draw()
 	if held and cursorH != held.pH and held.canplaceat(cursorH):
 		held.drawghost(cursorH)
 
 	text = f"Turn: {state.turn}/{state.maxturn}" if state.turn <= state.maxturn else "Time's up!"
 	ptext.draw(text, T(10, 10), fontsize = T(80),
 		color = "white", owidth = 1, shade = 1, shadow = (1, 1))
+
+	graphics.draw("talk", T(1120, 720 - 150), scale = 0.5 * pview.f)
+	text = "Hey followers, we're back with another cat burgling live stream. I am your host Francois Debonair. Today I'm heisting this lovely seven-piece set."
+	ptext.draw(text, midbottom = T(500, 700), width = T(900), fontsize = T(40), owidth = 1)
 
 	for bname, bpos, r in buttons:
 		size = 70 if bname == bpointed else 50
