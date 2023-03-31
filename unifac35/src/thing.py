@@ -1,5 +1,5 @@
-import pygame
-from . import pview, grid, view, state, ptext
+import pygame, math
+from . import pview, grid, view, state, ptext, graphics
 from .pview import T
 
 def drawcircleat(pH, rG, color):
@@ -47,8 +47,16 @@ class Obstacle:
 		pV = view.VconvertG(grid.GconvertH(self.pH))
 		ptext.draw(self.name, center = pV, fontsize = T(view.VscaleG * 0.2), owidth = 0.5)
 
+	def draw(self):
+		pV = view.VconvertG(grid.GconvertH(self.pH))
+		scale = 0.007 * view.VscaleG * pview.f
+		shade = 1 if self.ready else 0.4
+		graphics.draw(self.name, pV, scale, shade = shade)
+
 	def drawghost(self, pH):
-		drawcircleat(pH, 0.4, (60, 60, 60))
+		pV = view.VconvertG(grid.GconvertH(pH))
+		scale = 0.007 * view.VscaleG * pview.f
+		graphics.draw(self.name, pV, scale, alpha = 0.6)
 
 	def canplaceat(self, pH):
 		return pH in state.grid0.open and self.legalmove(pH)
@@ -59,7 +67,7 @@ class Obstacle:
 		self.pH = pH
 
 class Pawn(Obstacle):
-	name = "P"
+	name = "pawn"
 	def legalmove(self, pH):
 		return grid.distanceH(self.pH, pH) <= 1
 
@@ -70,6 +78,18 @@ class Goal:
 
 	def draw0(self):
 		drawcircleat(self.pH, 0.3, (100, 255, 100))
+
+	def draw(self):
+		xV, yV = view.VconvertG(grid.GconvertH(self.pH))
+		scale = 0.007 * view.VscaleG * pview.f
+		graphics.draw("pedestal", (xV, yV), scale)
+		a = math.cycle(0.001 * pygame.time.get_ticks() + math.fuzz(1, *self.pH))
+		mask = math.imix((100, 255, 100), (120, 120, 255), a)
+		tcycle = math.fuzzrange(2, 3, 2, *self.pH)
+		a = math.cycle(0.001 * pygame.time.get_ticks() / tcycle + math.fuzz(3, *self.pH))
+		hV = int(round(pview.f * view.VscaleG * math.mix(1, 1.2, a)))
+		graphics.draw("goal", (xV, yV - hV), scale = scale, mask = mask)
+
 
 class Light:
 	def __init__(self, pH, dirHs):

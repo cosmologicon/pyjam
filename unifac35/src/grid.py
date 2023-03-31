@@ -9,6 +9,13 @@ dcorners = [
 	for (x0, y0), (x1, y1) in
 	[(adjs[j-1], adjs[j]) for j in range(6)]
 ]
+angledH = { adj: (60 * j - 60) % 360 for j, adj in enumerate(adjs) }
+
+
+def vsub(p0, p1):
+	x0, y0 = p0
+	x1, y1 = p1
+	return x0 - x1, y0 - y1
 
 def distanceH(pH0, pH1):
 	(xH0, yH0), (xH1, yH1) = pH0, pH1
@@ -95,7 +102,7 @@ class Grid:
 		self.tsetup += pygame.time.get_ticks() * 0.001 - t0
 		self.nsetup += 1
 		if self.todo is None:
-			print("setup time", self.nsetup, self.tsetup)
+			print("setup time", self.nsetup, round(self.tsetup, 3))
 
 	def dowork(self):
 		yield
@@ -160,6 +167,24 @@ class Grid:
 				if scell == (x, y):
 					color = math.imix(color, scolor, f)
 			pygame.draw.polygon(pview.screen, color, pVs)
+
+	def drawpath(self, p0, p1):
+		path = self.getpath(p0, p1)
+		if path is None:
+			return
+		from . import view, pview, graphics
+		pGs = [GconvertH(pH) for pH in path]
+		da = (pygame.time.get_ticks() * 0.001 * 3) % 1
+		for ja in range(len(pGs) - 1):
+			a = ja + da
+			n, k = divmod(a, 1)
+			n = int(n)
+			pG = math.mix(pGs[n], pGs[n+1], k)
+			angle = angledH[vsub(path[n+1], path[n])]
+			pV = view.VconvertG(pG)
+			scale = view.VscaleG * 0.005
+			color = 200, 100, 0
+			graphics.draw("path", pV, scale, angle = angle, mask = color)
 
 	def samecomponent(self, pH0, pH1):
 		if self.todo is not None:

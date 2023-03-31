@@ -102,12 +102,15 @@ def draw():
 	for pH in [goal.pH for goal in state.goals] or [state.escape]:
 		shading += [(pH, fglow, (255, 255, 200))]
 	state.grid0.draw0(shading)
+	if held is state.you:
+		if state.you.canplaceat(cursorH):
+			state.grid0.drawpath(state.you.pH, cursorH)
 	for light in state.lights:
 		light.draw0()
 	for obstacle in state.obstacles:
-		obstacle.draw0()
+		obstacle.draw()
 	for goal in state.goals:
-		goal.draw0()
+		goal.draw()
 	state.you.draw0()
 	if held and cursorH != held.pH and held.canplaceat(cursorH):
 		held.drawghost(cursorH)
