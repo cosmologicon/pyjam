@@ -106,7 +106,7 @@ def draw():
 		if state.you.canplaceat(cursorH):
 			state.grid0.drawpath(state.you.pH, cursorH)
 	for light in state.lights:
-		light.draw0()
+		light.draw()
 	for obstacle in state.obstacles:
 		obstacle.draw()
 	for goal in state.goals:

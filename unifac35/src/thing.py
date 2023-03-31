@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, random
 from . import pview, grid, view, state, ptext, graphics
 from .pview import T
 
@@ -97,13 +97,19 @@ class Light:
 		self.dirHs = dirHs
 
 	def illuminate(self):
+		self.dlights = []
 		for dxH, dyH in self.dirHs:
+			dlight = 0
 			xH, yH = self.pH
 			while True:
 				xH, yH = xH + dxH, yH + dyH
+				dlight += 1
+				if (xH, yH) not in state.grid0.cells:
+					dlight -= 0.25
 				if (xH, yH) not in state.grid0.open or (xH, yH) in state.grid0.goals:
 					break
 				state.grid0.illuminate((xH, yH))
+			self.dlights.append(dlight)
 
 	def draw0(self):
 		xG, yG = grid.GconvertH(self.pH)
@@ -127,5 +133,39 @@ class Light:
 				xV1, yV1 = view.VconvertG(grid.GconvertH(pH1))
 				pygame.draw.line(pview.screen, (255, 160, 160),
 					(xV0, yV0 - h), (xV1, yV1 - h), T(view.VscaleG * 0.1))
+
+	def draw(self):
+		xH, yH = self.pH
+		h = T(view.VscaleG * 0.2)
+		for (dxH, dyH), dlight in zip(self.dirHs, self.dlights):
+			xH0 = xH + 0.25 * dxH
+			yH0 = yH + 0.25 * dyH
+			xH1 = xH + (dlight - 0.25) * dxH
+			yH1 = yH + (dlight - 0.25) * dyH
+			xV0, yV0 = view.VconvertG(grid.GconvertH((xH0, yH0)))
+			xV1, yV1 = view.VconvertG(grid.GconvertH((xH1, yH1)))
+			yV0 -= h
+			yV1 -= h
+			for _ in range(4):
+				angle = random.uniform(0, 360)
+				scale, alpha = random.choice([(1, 0.8), (1.2, 0.5), (1.4, 0.3)])
+				scale *= view.VscaleG * pview.f * 0.003
+				color = (255, 255, 100)
+				graphics.draw("splash", (xV1, yV1), scale, alpha = alpha,
+					mask = color, angle = angle)
+			colors = [
+				(255, 255, 100),
+				(255, 255, 150),
+				(255, 255, 200),
+			]
+			ws = [
+				random.uniform(0.18, 0.20),
+				random.uniform(0.13, 0.16),
+				random.uniform(0.09, 0.12),
+			]
+			for color, w in zip(colors, ws):
+				pygame.draw.line(pview.screen, color,
+					(xV0, yV0), (xV1, yV1), T(view.VscaleG * w))
+	
 
 
