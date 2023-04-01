@@ -1,16 +1,18 @@
 import random, math, pygame
-from . import pview, state, grid, view, thing, control, sound, ptext, levels, graphics
+from . import pview, state, grid, view, thing, control, sound, ptext, levels, graphics, progress
 from .pview import T
 
+current = None
 cursorG = None
 cursorH = None
 held = None
 buttons = [("undo", (1000, 30), 30), ("reset", (1100, 30), 30), ("quit", (1200, 30), 30)]
 bpointed = None
 
-def init():
-	global fflash
-	levelname = "alfa"
+def init(levelname):
+	global fflash, flose, fcaught, fwin, current
+	current = levelname
+	state.init()
 	if levelname is None:
 		cells = [(x, y) for x in range(-7, 8) for y in range(-7, 8) if abs(x + y) <= 7]
 		random.shuffle(cells)
@@ -45,13 +47,26 @@ def init():
 		state.updategrid()
 
 	state.turn = 1
-	state.maxturn = 7
+	state.maxturn = 10
 	state.snapshot()
 	fflash = 1
+	flose = 0
+	fcaught = 0
+	fwin = 0
+	think(0)
 
 def think(dt):
-	global cursorG, cursorH, held, bpointed, fflash
+	global cursorG, cursorH, held, bpointed, fflash, flose, fcaught, fwin
 	fflash = math.approach(fflash, 0, 3 * dt)
+	if state.caught():
+		fcaught = math.approach(fcaught, 1, dt)
+		flose = fwin = 0
+	elif state.lost():
+		flose = math.approach(flose, 1, dt)
+		fcaught = fwin = 0
+	elif state.won():
+		fwin = math.approach(fwin, 10, dt)
+		fcaught = flose = 0
 	cursorV, cursorG, click, release, drop = control.getstate()
 	bpointed = None
 	for bname, bpos, r in buttons:
@@ -59,7 +74,9 @@ def think(dt):
 			bpointed = bname
 	if bpointed is None:
 		cursorH = grid.HnearestG(cursorG)
-		if click and not held:
+		if flose or fcaught or fwin:
+			held = None
+		elif click and not held:
 			held = state.grabat(cursorH)
 			if held is not None:
 				sound.play("grab")
@@ -84,6 +101,13 @@ def think(dt):
 		obstacle.think(dt)
 	state.grid0.killtime(0.01)
 
+	if fwin >= 2:
+		progress.complete(current)
+		from . import main, menu
+		menu.init()
+		main.scene = menu
+
+
 def handle(bname):
 	global fflash
 	if bname == "undo":
@@ -98,13 +122,26 @@ def handle(bname):
 		state.reset()
 		sound.play("reset")
 	if bname == "quit":
-		from . import main
-		main.playing = False
+		from . import main, menu
+		menu.init()
+		main.scene = menu
 
 def draw():
+	note = None
+	nalpha = 0
+	if fcaught > 0:
+		note = "Caught!"
+		nalpha = fcaught
+	elif flose > 0:
+		note = "Time's up!"
+		nalpha = flose
+	elif fwin > 0:
+		note = "Heist complete!"
+		nalpha = fwin
+
 	pview.fill((100, 100, 100))
 	shading = []
-	if cursorH is not None:
+	if cursorH is not None and note is None:
 		shading += [(cursorH, 0.6, (255, 255, 255))]
 #	shading += [(cell, 0.5, (255, 0, 0)) for cell in state.grid0.lit]
 	if held is not None:
@@ -132,17 +169,25 @@ def draw():
 	ptext.draw(text, T(10, 10), fontsize = T(80),
 		color = "white", owidth = 1, shade = 1, shadow = (1, 1))
 
-	graphics.draw("talk", T(1120, 720 - 150), scale = 0.5 * pview.f)
-	text = "Hey followers, we're back with another cat burgling live stream. I am your host Francois Debonair. Today I'm heisting this lovely seven-piece set."
-	ptext.draw(text, midbottom = T(500, 700), width = T(900), fontsize = T(40), owidth = 1)
+	if state.turn < 2:
+		graphics.draw("talk", T(1120, 720 - 150), scale = 0.5 * pview.f)
+		text = "Good evening my darling followers, it's me, Francois Debonair, coming at you with another daring jewel heist live stream."
+		ptext.draw(text, midbottom = T(500, 700), width = T(900), fontsize = T(40), owidth = 1)
+
+	if note is not None:
+		pview.fill((80, 20, 20, math.imix(0, 200, nalpha)))
+		ptext.draw(note, color = (255, 127, 127), alpha = nalpha,
+			center = pview.center, fontsize = T(150),
+			owidth = 0.5, shadow = (1, 1), shade = 1)
+
+	for bname, bpos, r in buttons:
+		size = 70 if bname == bpointed else 50
+		ptext.draw(bname, center = T(bpos), fontsize = T(size), owidth = 1)
 
 	if fflash > 0:
 		alpha = math.imix(0, 255, fflash)
 		pview.fill((40, 40, 40, alpha))
 
-	for bname, bpos, r in buttons:
-		size = 70 if bname == bpointed else 50
-		ptext.draw(bname, center = T(bpos), fontsize = T(size), owidth = 1)
 	text = "\n".join([
 		f"cursorG: {cursorG[0]:.2f},{cursorG[1]:.2f}",
 		f"cursorH: {cursorH[0]},{cursorH[1]}",

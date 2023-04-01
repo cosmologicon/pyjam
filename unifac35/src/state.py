@@ -1,16 +1,19 @@
 import pickle
 
 # The grid without any lights or obstacles.
-grid0 = None
+def init():
+	global grid0, you, lights, obstacles, goals, escape, turn, maxturn
+	grid0 = None
 
-you = None
-lights = []
-obstacles = []
-goals = []
-escape = None
+	you = None
+	lights = []
+	obstacles = []
+	goals = []
+	escape = None
 
-turn = None
-maxturn = None
+	turn = None
+	maxturn = None
+init()
 
 def grabat(pH):
 	if you.pH == pH:
@@ -34,6 +37,8 @@ def won():
 def lost():
 	return turn > maxturn
 
+def caught():
+	return any(light.hitsyou for light in lights)
 
 def updategrid():
 	grid0.reset()

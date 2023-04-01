@@ -8,3 +8,5 @@ heights = 240, 480, 720, 1080
 fullscreen = False
 forceres = False
 
+savefile = "save.pkl"
+

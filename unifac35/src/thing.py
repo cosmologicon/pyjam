@@ -161,9 +161,11 @@ class Light:
 	def __init__(self, pH, dirHs):
 		self.pH = pH
 		self.dirHs = dirHs
+		self.hitsyou = False
 
 	def illuminate(self):
 		self.dlights = []
+		self.hitsyou = False
 		for dxH, dyH in self.dirHs:
 			dlight = 0
 			xH, yH = self.pH
@@ -172,6 +174,7 @@ class Light:
 				dlight += 1
 				if (xH, yH) == state.you.pH:
 					dlight += 0.1
+					self.hitsyou = True
 					break
 				if (xH, yH) not in state.grid0.cells:
 					dlight -= 0.25

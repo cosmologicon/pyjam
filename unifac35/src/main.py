@@ -1,8 +1,8 @@
 import pygame
-from . import settings, play, view, pview, control, state
+from . import settings, play, view, pview, control, state, menu
 
 view.init()
-scene = play
+scene = menu
 scene.init()
 
 clock = pygame.time.Clock()
@@ -13,7 +13,7 @@ while playing:
 		if event.type == pygame.QUIT:
 			playing = False
 		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_ESCAPE:
+			if scene is menu and event.key == pygame.K_ESCAPE:
 				playing = False
 			if event.key == pygame.K_F10:
 				pview.cycle_height(settings.heights)
@@ -25,6 +25,9 @@ while playing:
 				play.handle("undo")
 			if scene is play and event.key == pygame.K_r:
 				play.handle("reset")
+			if scene is play and event.key == pygame.K_ESCAPE:
+				play.handle("quit")
+
 	control.think(dt)
 
 	scene.think(dt)
