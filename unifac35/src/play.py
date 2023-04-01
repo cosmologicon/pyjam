@@ -128,6 +128,7 @@ def draw():
 		nalpha = fwin
 
 	pview.fill((100, 100, 100))
+	graphics.qclear()
 	shading = []
 	if cursorH is not None and note is None:
 		shading += [(cursorH, 0.6, (255, 255, 255))]
@@ -139,10 +140,14 @@ def draw():
 	fglow = math.mix(0.1, 0.9, math.cycle(pygame.time.get_ticks() * 0.001))
 	for pH in [goal.pH for goal in state.goals] or [state.escape]:
 		shading += [(pH, fglow, (255, 255, 200))]
-	state.grid0.draw0(shading)
+	state.grid0.draw(shading)
+	graphics.qrender()
+
 	if held is state.you:
 		if state.you.canplaceat(cursorH):
 			state.grid0.drawpath(state.you.pH, cursorH)
+			graphics.qrender()
+
 	for light in state.lights:
 		light.draw()
 	for obstacle in state.obstacles:
@@ -152,6 +157,7 @@ def draw():
 	state.you.draw()
 	if held and cursorH != held.pH and held.canplaceat(cursorH):
 		held.drawghost(cursorH)
+	graphics.qrender()
 
 	text = f"Turn: {state.turn}/{state.maxturn}" if state.turn <= state.maxturn else "Time's up!"
 	ptext.draw(text, T(10, 10), fontsize = T(80),

@@ -43,16 +43,17 @@ class You:
 		zG = math.mix(0.7, 1, math.cycle(self.t / 4))
 		pV = view.VconvertG(pG, zG = zG)
 		scale = 0.004 * view.VscaleG * pview.f
-		graphics.draw("token", pV, scale)
+		graphics.qdraw(view.depthG(pG), "token", pV, scale)
 		for jgoal, goal in enumerate(self.tonab):
 			f = self.fnab if jgoal == len(self.tonab) - 1 else 1
 			goal.drawnab(self.pH, f)
 
 	def drawghost(self, pH):
 		zG = 0.7
-		pV = view.VconvertG(grid.GconvertH(pH), zG = zG)
+		pG = grid.GconvertH(pH)
+		pV = view.VconvertG(pG, zG = zG)
 		scale = 0.004 * view.VscaleG * pview.f
-		graphics.draw("token", pV, scale, alpha = 0.4)
+		graphics.qdraw(view.depthG(pG), "token", pV, scale, alpha = 0.4)
 
 	def canclaim(self, goal):
 		return grid.distanceH(self.pH, goal.pH) <= 1
@@ -101,15 +102,17 @@ class Obstacle:
 		else:
 			pH = self.pH
 			zG = 0
-		pV = view.VconvertG(grid.GconvertH(pH), zG = zG)
+		pG = grid.GconvertH(pH)
+		pV = view.VconvertG(pG, zG = zG)
 		scale = 0.007 * view.VscaleG * pview.f
 		shade = 1 if self.ready else 0.4
-		graphics.draw(self.name, pV, scale, shade = shade)
+		graphics.qdraw(view.depthG(pG), self.name, pV, scale, shade = shade)
 
 	def drawghost(self, pH):
-		pV = view.VconvertG(grid.GconvertH(pH))
+		pG = grid.GconvertH(pH)
+		pV = view.VconvertG(pG)
 		scale = 0.007 * view.VscaleG * pview.f
-		graphics.draw(self.name, pV, scale, alpha = 0.6)
+		graphics.qdraw(view.depthG(pG), self.name, pV, scale, alpha = 0.6)
 
 	def canplaceat(self, pH):
 		return pH in state.grid0.open and self.legalmove(pH)
@@ -152,26 +155,27 @@ class Goal:
 		drawcircleat(self.pH, 0.3, (100, 255, 100))
 
 	def draw(self):
-		pV0 = view.VconvertG(grid.GconvertH(self.pH))
+		pG = grid.GconvertH(self.pH)
+		pV0 = view.VconvertG(pG)
 		scale = 0.007 * view.VscaleG * pview.f
-		graphics.draw("pedestal", pV0, scale)
+		graphics.qdraw(view.depthG(pG), "pedestal", pV0, scale)
 		a = math.cycle(0.001 * pygame.time.get_ticks() + math.fuzz(1, *self.pH))
 		mask = math.imix((100, 255, 100), (120, 120, 255), a)
 		tcycle = math.fuzzrange(2, 3, 2, *self.pH)
 		a = math.cycle(0.001 * pygame.time.get_ticks() / tcycle + math.fuzz(3, *self.pH))
-		pV1 = view.VconvertG(grid.GconvertH(self.pH), zG = math.mix(1, 1.2, a))
-		graphics.draw("goal", pV1, scale = scale, mask = mask)
+		pV1 = view.VconvertG(pG, zG = math.mix(1, 1.2, a))
+		graphics.qdraw(view.depthG(pG, 1), "goal", pV1, scale = scale, mask = mask)
 
 	def drawnab(self, pH, f):
-		pV0 = view.VconvertG(grid.GconvertH(self.pH))
+		pG = grid.GconvertH(self.pH)
+		pV0 = view.VconvertG(pG)
 		scale = 0.007 * view.VscaleG * pview.f
-		graphics.draw("pedestal", pV0, scale, alpha = f)
+		graphics.qdraw(view.depthG(pG), "pedestal", pV0, scale, alpha = f)
 		pG = grid.GconvertH(math.mix(pH, self.pH, f))
 		zG = 1 + 3 * f * (1 - f)
 		pV = view.VconvertG(pG, zG = zG)
 		mask = (100, 255, 100)
-		graphics.draw("goal", pV, scale = scale, mask = mask)
-		
+		graphics.qdraw(view.depthG(pG), "goal", pV, scale = scale, mask = mask)
 
 
 class Light:
@@ -226,22 +230,17 @@ class Light:
 
 	def draw(self):
 		xH, yH = self.pH
-		h = T(view.VscaleG * 0.2)
 		for (dxH, dyH), dlight in zip(self.dirHs, self.dlights):
-			xH0 = xH + 0.25 * dxH
-			yH0 = yH + 0.25 * dyH
-			xH1 = xH + (dlight - 0.25) * dxH
-			yH1 = yH + (dlight - 0.25) * dyH
-			xV0, yV0 = view.VconvertG(grid.GconvertH((xH0, yH0)))
-			xV1, yV1 = view.VconvertG(grid.GconvertH((xH1, yH1)))
-			yV0 -= h
-			yV1 -= h
-			for _ in range(4):
+			dmax = dlight - 0.25
+			pHmax = xH + dmax * dxH, yH + dmax * dyH
+			pGmax = grid.GconvertH(pHmax)
+			pVmax = view.VconvertG(pGmax, 0.2)
+			for j in range(4):
 				angle = random.uniform(0, 360)
 				scale, alpha = random.choice([(1, 0.8), (1.2, 0.5), (1.4, 0.3)])
 				scale *= view.VscaleG * pview.f * 0.003
 				color = (255, 255, 100)
-				graphics.draw("splash", (xV1, yV1), scale, alpha = alpha,
+				graphics.qdraw(view.depthG(pGmax, j), "splash", pVmax, scale, alpha = alpha,
 					mask = color, angle = angle)
 			colors = [
 				(255, 255, 100),
@@ -253,9 +252,21 @@ class Light:
 				random.uniform(0.13, 0.16),
 				random.uniform(0.09, 0.12),
 			]
-			for color, w in zip(colors, ws):
-				pygame.draw.line(pview.screen, color,
-					(xV0, yV0), (xV1, yV1), T(view.VscaleG * w))
+			d0, d1 = 0.25, 0.5
+			while d0 < dmax:
+				pH0 = xH + d0 * dxH, yH + d0 * dyH
+				dhi = min(d1, dmax)
+				pH1 = xH + dhi * dxH, yH + dhi * dyH
+				pGmid = grid.GconvertH(math.mix(pH0, pH1, 0.5))
+				pV0 = view.VconvertG(grid.GconvertH(pH0), 0.2)
+				pV1 = view.VconvertG(grid.GconvertH(pH1), 0.2)
+				for j, (color, w) in enumerate(zip(colors, ws)):
+					depth = view.depthG(pGmid, j)
+					graphics.qfunc(depth, pygame.draw.line,
+						pview.screen, color,
+						pV0, pV1, T(view.VscaleG * w))
+				d0, d1 = d1, d1 + 1
+				
 	
 
 

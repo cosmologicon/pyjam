@@ -41,4 +41,19 @@ def draw(imgname, pV, scale, alpha = 1, angle = 0, yscale = 1, shade = 1, mask =
 	img = getimg(imgname, scale, alpha, angle, yscale, shade, mask)
 	pview.screen.blit(img, img.get_rect(center = pV))
 
+q = []
+def qclear():
+	del q[:]
+
+def qfunc(depth, func, *args, **kwargs):
+	q.append((depth, func, args, kwargs))
+
+def qdraw(depth, *args, **kwargs):
+	qfunc(depth, draw, *args, **kwargs)
+
+def qrender():
+	q.sort(key = lambda x: x[0], reverse = True)
+	for depth, func, args, kwargs in q:
+		func(*args, **kwargs)
+	qclear()
 

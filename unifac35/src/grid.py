@@ -181,6 +181,21 @@ class Grid:
 				color = math.imix(color, scolor, f)
 			pygame.draw.polygon(pview.screen, color, pVs)
 
+	def draw(self, shading):
+		from . import view, pview, graphics
+		colors = (200, 200, 200), (195, 195, 215), (190, 190, 230)
+		sdict = defaultdict(list)
+		for scell, f, scolor in shading:
+			sdict[scell].append((f, scolor))
+		scale = pview.f * view.VscaleG * 0.01
+		for x, y in self.cells:
+			pG = GconvertH((x, y))
+			pV = view.VconvertG(pG)
+			color = colors[(x - y) % 3]
+			for f, scolor in sdict[(x, y)]:
+				color = math.imix(color, scolor, f)
+			graphics.qdraw(view.depthG(pG), "tile", pV, scale = scale, mask = color)
+
 	def drawpath(self, p0, p1):
 		path = self.getpath(p0, p1)
 		if path is None:
@@ -197,7 +212,7 @@ class Grid:
 			pV = view.VconvertG(pG)
 			scale = view.VscaleG * 0.005
 			color = 200, 100, 0
-			graphics.draw("path", pV, scale, angle = angle, mask = color)
+			graphics.qdraw(view.depthG(pG), "path", pV, scale, angle = angle, mask = color)
 
 	def samecomponent(self, pH0, pH1):
 		if self.todo is not None:

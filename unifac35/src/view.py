@@ -10,6 +10,10 @@ siso = math.sqrt(1 - iso ** 2)
 xG0, yG0 = 0, 0
 VscaleG = 40
 
+S = math.sin(math.radians(10))
+C = math.cos(math.radians(10))
+
+
 def init():
 	pview.set_mode(size0 = settings.size0, height = settings.height,
 		fullscreen = settings.fullscreen, forceres = settings.forceres)
@@ -21,6 +25,7 @@ def set_camera(xG0_, yG0_, VscaleG_):
 
 def VconvertG(pG, zG = 0):
 	xG, yG = pG
+	xG, yG = C * xG - S * yG, S * xG + C * yG
 	xV = pview.centerx0 + (xG - xG0) * VscaleG
 	yV = pview.centery0 - (yG - yG0) * VscaleG * iso - zG * VscaleG * siso
 	return T(xV, yV)
@@ -29,7 +34,12 @@ def GconvertV(pV):
 	xV, yV = pV
 	xG = xG0 + (xV - pview.centerx0) / VscaleG
 	yG = yG0 - (yV - pview.centery0) / VscaleG / iso
+	xG, yG = C * xG + S * yG, -S * xG + C * yG
 	return xG, yG
+
+def depthG(pG, ddepth = 0):
+	xG, yG = pG
+	return S * xG + C * yG - 0.001 * ddepth
 
 def box(pGs):
 	xGs, yGs = zip(*pGs)
