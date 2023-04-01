@@ -32,8 +32,8 @@ def VconvertG(pG, zG = 0):
 
 def GconvertV(pV):
 	xV, yV = pV
-	xG = xG0 + (xV - pview.centerx0) / VscaleG
-	yG = yG0 - (yV - pview.centery0) / VscaleG / iso
+	xG = xG0 + (xV / pview.f - pview.centerx0) / VscaleG
+	yG = yG0 - (yV / pview.f - pview.centery0) / VscaleG / iso
 	xG, yG = C * xG + S * yG, -S * xG + C * yG
 	return xG, yG
 
