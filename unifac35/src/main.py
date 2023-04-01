@@ -1,5 +1,8 @@
-import pygame
-from . import settings, play, view, pview, control, state, menu
+import pygame, os.path
+from . import settings, play, view, pview, control, state, menu, ptext
+
+ptext.FONT_NAME_TEMPLATE = os.path.join("font", "%s.ttf")
+ptext.DEFAULT_FONT_NAME = "ZenDots"
 
 view.init()
 scene = menu

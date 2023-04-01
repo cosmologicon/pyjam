@@ -5,12 +5,13 @@ from .pview import T
 current = None
 cursorG = None
 cursorH = None
+cursorV = None
 held = None
-buttons = [("undo", (1000, 30), 30), ("reset", (1100, 30), 30), ("quit", (1200, 30), 30)]
+buttons = [("undo", (780, 30), 50), ("reset", (980, 30), 50), ("quit", (1180, 30), 50)]
 bpointed = None
 
 def init(levelname):
-	global fflash, flose, fcaught, fwin, current
+	global fflash, flose, fcaught, fwin, current, t
 	current = levelname
 	state.init()
 	ldata = levels.levels[levelname]
@@ -41,10 +42,12 @@ def init(levelname):
 	flose = 0
 	fcaught = 0
 	fwin = 0
+	t = 0
 	think(0)
 
 def think(dt):
-	global cursorG, cursorH, held, bpointed, fflash, flose, fcaught, fwin
+	global cursorV, cursorG, cursorH, held, bpointed, fflash, flose, fcaught, fwin, t
+	t += dt
 	fflash = math.approach(fflash, 0, 3 * dt)
 	if state.caught():
 		fcaught = math.approach(fcaught, 1, dt)
@@ -125,7 +128,7 @@ def draw():
 		note = "Time's up!"
 		nalpha = flose
 	elif fwin > 0:
-		note = "Heist complete!"
+		note = "Heist\ncomplete!"
 		nalpha = fwin
 
 	pview.fill((100, 100, 100))
@@ -138,9 +141,14 @@ def draw():
 		for cell in state.grid0.cells:
 			if not held.canplaceat(cell):
 				shading += [(cell, 0.3, (0, 0, 0))]
-	fglow = math.mix(0.1, 0.9, math.cycle(pygame.time.get_ticks() * 0.001))
-	for pH in [goal.pH for goal in state.goals] or [state.escape]:
-		shading += [(pH, fglow, (255, 255, 200))]
+	if state.goals:
+		fglow = math.mix(0.1, 0.9, math.cycle(pygame.time.get_ticks() * 0.001))
+		for pH in [goal.pH for goal in state.goals]:
+			shading += [(pH, fglow, (255, 255, 200))]
+		shading += [(state.escape, 0.5, (255, 255, 255))]
+	else:
+		fglow = math.mix(0.5, 1, math.cycle(2 * pygame.time.get_ticks() * 0.001))
+		shading += [(state.escape, fglow, (255, 255, 255))]
 	state.grid0.draw(shading)
 	graphics.qrender()
 
@@ -162,13 +170,25 @@ def draw():
 
 	if state.maxturn is not None:
 		text = f"Turn: {state.turn}/{state.maxturn}" if state.turn <= state.maxturn else "Time's up!"
-		ptext.draw(text, T(10, 10), fontsize = T(80),
-			color = "white", owidth = 1, shade = 1, shadow = (1, 1))
+		ptext.draw(text, T(10, 10), fontsize = T(60),
+			color = (200, 200, 255), owidth = 0.6, shade = 1, shadow = (0.6, 0.6))
 
-	if state.turn < 2:
-		graphics.draw("talk", T(1120, 720 - 150), scale = 0.5 * pview.f)
-		text = "Good evening my darling followers, it's me, Francois Debonair, coming at you with another daring jewel heist live stream."
-		ptext.draw(text, midbottom = T(500, 700), width = T(900), fontsize = T(40), owidth = 1)
+	alpha = math.interp(cursorV[1], T(520), 1, T(580), 0.2)
+		
+	if t < 3:
+		graphics.draw("talk", T(1120, 720 - 150), scale = 0.5 * pview.f, alpha = alpha)
+		text = "Good evening my darling followers. Francois Debonair here, coming at you with another daring jewel heist live stream!"
+		ptext.draw(text, midbottom = T(500, 700), width = T(1000), fontsize = T(60),
+			color = (255, 220, 170), fontname = "BigshotOne",
+			owidth = 0.7, shadow = (0.5, 0.5), shade = 1, alpha = alpha)
+	else:
+		if state.turn == 1:
+			text = "Click and drag to move."
+		else:
+			text = "Collect all the jewels and return to the starting point."
+		ptext.draw(text, midbottom = T(640, 700), width = T(1100), fontsize = T(50),
+			color = (200, 200, 255), alpha = alpha,
+			owidth = 0.7, shadow = (0.5, 0.5), shade = 1)
 
 	if note is not None:
 		pview.fill((80, 20, 20, math.imix(0, 200, nalpha)))
@@ -178,16 +198,18 @@ def draw():
 
 	for bname, bpos, r in buttons:
 		size = 70 if bname == bpointed else 50
-		ptext.draw(bname, center = T(bpos), fontsize = T(size), owidth = 1)
+		ptext.draw(bname, center = T(bpos), fontsize = T(size),
+			color = (200, 200, 255), owidth = 0.6, shade = 1, shadow = (0.6, 0.6))
 
 	if fflash > 0:
 		alpha = math.imix(0, 255, fflash)
 		pview.fill((40, 40, 40, alpha))
 
-	text = "\n".join([
-		f"cursorG: {cursorG[0]:.2f},{cursorG[1]:.2f}",
-		f"cursorH: {cursorH[0]},{cursorH[1]}",
-	])
-	ptext.draw(text, bottomleft = pview.bottomleft, fontsize = T(30), owidth = 1)
+	if False:
+		text = "\n".join([
+			f"cursorG: {cursorG[0]:.2f},{cursorG[1]:.2f}",
+			f"cursorH: {cursorH[0]},{cursorH[1]}",
+		])
+		ptext.draw(text, bottomleft = pview.bottomleft, fontsize = T(30), owidth = 1)
 
 
