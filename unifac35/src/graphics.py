@@ -22,7 +22,7 @@ def getimg(imgname, scale, alpha = 255, angle = 0, yscale = 1, shade = 1, mask =
 		mask = int(round(r * shade)), int(round(g * shade)), int(round(b * shade)), alpha
 		return filterimg(img, mask)
 	if yscale != 1:
-		img = getimg(imgname, angle = angle)
+		img = getimg(imgname, 1, angle = angle)
 		w, h = img.get_size()
 		size = pview.I(w * scale, h * scale * yscale)
 		return pygame.transform.smoothscale(img, size)

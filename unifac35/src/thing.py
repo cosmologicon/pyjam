@@ -178,7 +178,8 @@ class Goal:
 		pG = grid.GconvertH(math.mix(pH, self.pH, f))
 		zG = 1.2 + 3 * f * (1 - f)
 		pV = view.VconvertG(pG, zG = zG)
-		mask = (100, 255, 100)
+		a = math.cycle(0.001 * pygame.time.get_ticks() + math.fuzz(1, *self.pH))
+		mask = math.imix((100, 255, 100), (120, 120, 255), a)
 		graphics.qdraw(view.depthG(pG), "goal", pV, scale = scale, mask = mask)
 
 

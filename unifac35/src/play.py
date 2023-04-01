@@ -9,11 +9,12 @@ cursorV = None
 held = None
 buttons = [("undo", (780, 30), 50), ("reset", (980, 30), 50), ("quit", (1180, 30), 50)]
 bpointed = None
+talktext = None
 
 def init(levelname):
-	global fflash, flose, fcaught, fwin, current, t
+	global fflash, flose, fcaught, fwin, current, t, talktext
 	current = levelname
-	if levelname in ["finale"]:
+	if levelname in ["delta", "finale"]:
 		sound.playmusic("fearless-first")
 	else:
 		sound.playmusic("spy-glass")
@@ -47,10 +48,11 @@ def init(levelname):
 	fcaught = 0
 	fwin = 0
 	t = 0
+	talktext = levels.talktext.get(levelname)
 	think(0)
 
 def think(dt):
-	global cursorV, cursorG, cursorH, held, bpointed, fflash, flose, fcaught, fwin, t
+	global cursorV, cursorG, cursorH, held, bpointed, fflash, flose, fcaught, fwin, t, talktext
 	t += dt
 	fflash = math.approach(fflash, 0, 3 * dt)
 	if state.caught():
@@ -71,33 +73,37 @@ def think(dt):
 		fcaught = fwin = 0
 	cursorV, cursorG, click, release, drop = control.getstate()
 	bpointed = None
-	for bname, bpos, r in buttons:
-		if math.distance(T(bpos), cursorV) <= T(r):
-			bpointed = bname
-	if bpointed is None:
-		cursorH = grid.HnearestG(cursorG)
-		if flose or fcaught or fwin:
-			held = None
-		elif click and not held:
-			held = state.grabat(cursorH)
-			if held is not None:
-				sound.play("grab")
-		elif drop and held or click and held:
-			if held.canplaceat(cursorH):
-				moving = cursorH != held.pH
-				held.placeat(cursorH)
-				if moving:
-					sound.play("place")
-					state.updategrid()
-					state.snapshot()
-				else:
-					sound.play("ungrab")
-			else:
-				sound.play("no")
-			held = None
+	if talktext:
+		if t > 0.5 and click:
+			talktext = None
 	else:
-		if click:
-			handle(bpointed)
+		for bname, bpos, r in buttons:
+			if math.distance(T(bpos), cursorV) <= T(r):
+				bpointed = bname
+		if bpointed is None:
+			cursorH = grid.HnearestG(cursorG)
+			if flose or fcaught or fwin:
+				held = None
+			elif click and not held:
+				held = state.grabat(cursorH)
+				if held is not None:
+					sound.play("grab")
+			elif drop and held or click and held:
+				if held.canplaceat(cursorH):
+					moving = cursorH != held.pH
+					held.placeat(cursorH)
+					if moving:
+						sound.play("place")
+						state.updategrid()
+						state.snapshot()
+					else:
+						sound.play("ungrab")
+				else:
+					sound.play("no")
+				held = None
+		else:
+			if click:
+				handle(bpointed)
 	state.you.think(dt)
 	for obstacle in state.obstacles:
 		obstacle.think(dt)
@@ -185,23 +191,43 @@ def draw():
 
 	if state.maxturn is not None:
 		text = f"Turn: {state.turn}/{state.maxturn}" if state.turn <= state.maxturn else "Time's up!"
-		ptext.draw(text, T(10, 10), fontsize = T(60),
+		ptext.draw(text, T(10, 40), fontsize = T(40),
 			color = (200, 200, 255), owidth = 0.6, shade = 1, shadow = (0.6, 0.6))
+
+	text = f"The {levels.titles[current]} Caper"
+	ptext.draw(text, T(10, 10), fontsize = T(30),
+			color = (200, 200, 255), owidth = 0.6, shade = 1, shadow = (0.6, 0.6))
+
 
 	alpha = math.interp(cursorV[1], T(520), 1, T(580), 0.2)
 		
-	if t < 3:
+	if talktext:
+		pview.fill((0, 0, 60, 200))
 		graphics.draw("talk", T(1120, 720 - 150), scale = 0.5 * pview.f, alpha = alpha)
-		text = "Good evening my darling followers. Francois Debonair here, coming at you with another daring jewel heist live stream!"
-		ptext.draw(text, midbottom = T(500, 700), width = T(1000), fontsize = T(60),
+		ptext.draw(talktext, midbottom = T(500, 700), width = T(1000), fontsize = T(60),
 			color = (255, 220, 170), fontname = "BigshotOne",
 			owidth = 0.7, shadow = (0.5, 0.5), shade = 1, alpha = alpha)
 	else:
-		if state.turn == 1:
+		text = None
+		if flose or fcaught or fwin:
+			pass
+		elif current == "tutorial0" and state.turn == 1:
 			text = "Click and drag to move."
-		else:
+		elif current == "tutorial0":
 			text = "Collect all the jewels and return to the starting point."
-		ptext.draw(text, midbottom = T(640, 700), width = T(1100), fontsize = T(50),
+		elif current == "tutorial1":
+			text = "Finish before time is up."
+		elif current == "tutorial2":
+			text = "Sculptures can each be moved one space, once per turn."
+		elif current == "tutorial3":
+			text = "Use sculptures to cast shadows. Stay in the shadows and out of the security beam!"
+		elif current == "bishop0" and state.turn < 4:
+			text = "Differently shaped sculptures have different movement options."
+		elif current == "rook1" and state.turn < 3:
+			text = "Triangle sculptures can move an unlimited distance in any of 3 directions."
+		elif current == "finale":
+			text = "The end! Thank you for playing."
+		ptext.draw(text, midbottom = T(640, 700), width = T(1200), fontsize = T(32),
 			color = (200, 200, 255), alpha = alpha,
 			owidth = 0.7, shadow = (0.5, 0.5), shade = 1)
 

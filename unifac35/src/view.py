@@ -52,7 +52,6 @@ def framegrid(grid):
 	xscale = pview.w0 / (xG1 - xG0 + 5)
 	yscale = pview.h0 / (yG1 - yG0 + 5) / iso
 	scale = min(xscale, yscale)
-	print(xG1 - xG0, yG1 - yG0, xscale, yscale, scale)
 	set_camera(xG, yG, scale)
 
 

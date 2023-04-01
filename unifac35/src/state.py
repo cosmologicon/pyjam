@@ -2,7 +2,7 @@ import pickle
 
 # The grid without any lights or obstacles.
 def init():
-	global grid0, you, lights, obstacles, goals, escape, turn, maxturn
+	global grid0, you, lights, obstacles, goals, escape, turn, maxturn, snapstack
 	grid0 = None
 
 	you = None
@@ -13,6 +13,7 @@ def init():
 
 	turn = None
 	maxturn = None
+	snapstack = []
 init()
 
 def grabat(pH):
@@ -47,8 +48,9 @@ def updategrid():
 		grid0.block(obj.pH)
 	for light in lights:
 		light.illuminate()
+	for goal in goals:
+		grid0.addgoal(goal.pH)
 
-snapstack = []
 def snapshot():
 	state = you, lights, obstacles, goals, turn, maxturn
 	obj = pickle.dumps(state)

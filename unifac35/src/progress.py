@@ -3,24 +3,41 @@ from . import settings
 
 stages = {
 #	(0, 0): "alfa",
-#	(2, 2): "bravo",
 #	(-2, 2): "1",
 #	(2, -2): "playground",
 	
-	(0, 3): "tutorial0",
-	(1, 2): "tutorial1",
-	(2, 2): "tutorial2",
+	(-3, 4): "tutorial0",
+	(-1, 4): "tutorial1",
+	(1, 3): "tutorial2",
 	(3, 1): "tutorial3",
+
+	(-1, 2): "charlie",
+	(1, 1): "bravo",
+
+	(-2, 1): "bishop0",
+	(-1, -1): "bishop1",
+	(2, -1): "rook1",
+	(1, -2): "rook0",
 	
-	(0, -3): "bishop0",
-	(4, -4): "rook0",
-	
+	(0, -3): "delta",
 	(0, 0): "finale",
+	
+	(4, -4): "quit",
 }
 
+
 unlocks = {
-	"alfa": "1",
-#	"tutorial0": "tutorial1",
+	"tutorial1": ["tutorial0"],
+	"tutorial2": ["tutorial1"],
+	"tutorial3": ["tutorial2"],
+	"charlie": ["tutorial3"],
+	"bravo": ["tutorial3"],
+	"bishop0": ["charlie"],
+	"rook1": ["bravo"],
+	"bishop1": ["bishop0"],
+	"rook0": ["rook1"],
+	"delta": ["bishop1", "rook0"],
+	"finale": ["delta"],
 }
 
 unlocked = set(["tutorial0"])
@@ -38,9 +55,9 @@ def load():
 
 def complete(stagename):
 	completed.add(stagename)
-	if stagename in unlocks:
-		for unlock in unlocks[stagename]:
-			unlocked.add(unlock)
+	for stage, prereqs in unlocks.items():
+		if all(s in completed for s in prereqs):
+			unlocked.add(stage)
 	save()
 
 def unlockall():

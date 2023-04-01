@@ -21,6 +21,9 @@ while playing:
 		if event.type == pygame.KEYDOWN:
 			if scene is menu and event.key == pygame.K_ESCAPE:
 				playing = False
+			if event.key == pygame.K_F1:
+				if state.maxturn is not None:
+					state.maxturn += 1
 			if event.key == pygame.K_F10:
 				pview.cycle_height(settings.heights)
 			if event.key == pygame.K_F11:

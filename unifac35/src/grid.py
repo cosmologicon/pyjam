@@ -2,6 +2,7 @@ import math
 from functools import lru_cache, cache
 from collections import defaultdict
 import pygame
+from . import settings
 
 adjs = [(1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1)]
 dcorners = [
@@ -111,7 +112,7 @@ class Grid:
 			self.todo = None
 		self.tsetup += pygame.time.get_ticks() * 0.001 - t0
 		self.nsetup += 1
-		if self.todo is None:
+		if self.todo is None and settings.DEBUG:
 			print("setup time", self.nsetup, round(self.tsetup, 3))
 
 	def dowork(self):
@@ -208,11 +209,12 @@ class Grid:
 			n, k = divmod(a, 1)
 			n = int(n)
 			pG = math.mix(pGs[n], pGs[n+1], k)
-			angle = angledH[vsub(path[n+1], path[n])]
+			angle = angledH[vsub(path[n+1], path[n])] + 10
 			pV = view.VconvertG(pG)
-			scale = view.VscaleG * 0.005
+			scale = view.VscaleG * 0.007
 			color = 200, 100, 0
-			graphics.qdraw(view.depthG(pG), "path", pV, scale, angle = angle, mask = color)
+			graphics.qdraw(view.depthG(pG), "path", pV, scale, yscale = 0.5,
+				angle = angle, mask = color)
 
 	def samecomponent(self, pH0, pH1):
 		if self.todo is not None:

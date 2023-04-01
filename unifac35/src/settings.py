@@ -1,4 +1,4 @@
-gamename = "In the Shadows"
+gamename = "BurgleCast"
 
 minfps, maxfps = 5, 120
 
@@ -10,6 +10,8 @@ forceres = False
 
 savefile = "save.pkl"
 
-reset = True
-unlockall = True
+reset = False
+unlockall = False
 
+
+DEBUG = False
