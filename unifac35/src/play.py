@@ -146,7 +146,7 @@ def draw():
 		note = "Heist complete!"
 		nalpha = fwin
 
-	pview.fill((100, 100, 100))
+	graphics.drawblueprint()
 	graphics.qclear()
 	shading = []
 	if cursorH is not None and note is None:

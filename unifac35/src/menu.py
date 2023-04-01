@@ -33,7 +33,7 @@ def think(dt):
 	grid0.killtime(0.01)
 
 def draw():
-	pview.fill((100, 100, 100))
+	graphics.drawblueprint()
 	shading = []
 	if cursorH is not None:
 		shading += [(cursorH, 0.6, (255, 255, 255))]

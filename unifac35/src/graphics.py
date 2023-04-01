@@ -57,3 +57,22 @@ def qrender():
 		func(*args, **kwargs)
 	qclear()
 
+def drawblueprint():
+	from . import grid
+	pview.fill((100, 100, 255))
+	color = 115, 115, 255
+	x0, y0 = 640, 360
+	a = pygame.time.get_ticks() * 0.001 / 30 % 1
+	dx, dy = math.R(math.radians(-10), (70 * (3 * 2/math.sqrt(3) + 2 * 1/math.sqrt(3)), 70 * (2 * 1)))
+	x0 += a * dx
+	y0 += a * dy
+	for theta in [math.radians(-10 + 120 * jtheta) for jtheta in (0, 1, 2)]:
+		for jline in range(-10, 15):
+			d0 = math.R(theta, (-1000, 70 * jline))
+			d1 = math.R(theta, (1000, 70 * jline))
+			p0 = T(grid.vadd((x0, y0), d0))
+			p1 = T(grid.vadd((x0, y0), d1))
+			pygame.draw.aaline(pview.screen, color, p0, p1)
+
+
+
