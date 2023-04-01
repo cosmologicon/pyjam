@@ -5,8 +5,16 @@ from .pview import T
 
 
 def init():
-	global grid0
-	cells = [cell for cell, stage in progress.stages.items() if stage in progress.unlocked]
+	global grid0, goals
+	cells = []
+	goals = []
+	for cell, stage in progress.stages.items():
+		if stage in progress.unlocked:
+			goal = thing.Goal(cell)
+			goals.append(goal)
+			if stage not in progress.completed:
+				goal.there = False
+			cells.append(cell)
 	grid0 = grid.Grid(cells)
 	view.framegrid(grid0)
 	think(0)
@@ -29,7 +37,15 @@ def draw():
 	shading = []
 	if cursorH is not None:
 		shading += [(cursorH, 0.6, (255, 255, 255))]
-	grid0.draw0(shading)
+
+	graphics.qclear()
+	grid0.draw(shading)
+	graphics.qrender()
+
+	for goal in goals:
+		goal.draw()
+	graphics.qrender()
+
 	for cell, stage in progress.stages.items():
 		if stage in progress.unlocked:
 			pV = view.VconvertG(grid.GconvertH(cell))

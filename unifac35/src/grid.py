@@ -187,7 +187,7 @@ class Grid:
 		sdict = defaultdict(list)
 		for scell, f, scolor in shading:
 			sdict[scell].append((f, scolor))
-		scale = pview.f * view.VscaleG * 0.01
+		scale = pview.f * view.VscaleG * 0.0103
 		for x, y in self.cells:
 			pG = GconvertH((x, y))
 			pV = view.VconvertG(pG)

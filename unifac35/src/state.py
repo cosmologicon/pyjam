@@ -36,7 +36,7 @@ def won():
 	return not goals and you.pH == escape
 
 def lost():
-	return turn > maxturn
+	return maxturn is not None and turn > maxturn
 
 def caught():
 	return any(light.hitsyou for light in lights)

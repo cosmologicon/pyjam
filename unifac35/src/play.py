@@ -35,7 +35,7 @@ def init(levelname):
 	state.updategrid()
 
 	state.turn = 1
-	state.maxturn = 10
+	state.maxturn = levels.maxturns[levelname]
 	state.snapshot()
 	fflash = 1
 	flose = 0
@@ -49,12 +49,14 @@ def think(dt):
 	if state.caught():
 		fcaught = math.approach(fcaught, 1, dt)
 		flose = fwin = 0
+	elif state.won():
+		if fwin == 0:
+			progress.complete(current)
+		fwin = math.approach(fwin, 10, dt)
+		fcaught = flose = 0
 	elif state.lost():
 		flose = math.approach(flose, 1, dt)
 		fcaught = fwin = 0
-	elif state.won():
-		fwin = math.approach(fwin, 10, dt)
-		fcaught = flose = 0
 	cursorV, cursorG, click, release, drop = control.getstate()
 	bpointed = None
 	for bname, bpos, r in buttons:
@@ -90,7 +92,6 @@ def think(dt):
 	state.grid0.killtime(0.01)
 
 	if fwin >= 2:
-		progress.complete(current)
 		from . import main, menu
 		menu.init()
 		main.scene = menu
@@ -159,9 +160,10 @@ def draw():
 		held.drawghost(cursorH)
 	graphics.qrender()
 
-	text = f"Turn: {state.turn}/{state.maxturn}" if state.turn <= state.maxturn else "Time's up!"
-	ptext.draw(text, T(10, 10), fontsize = T(80),
-		color = "white", owidth = 1, shade = 1, shadow = (1, 1))
+	if state.maxturn is not None:
+		text = f"Turn: {state.turn}/{state.maxturn}" if state.turn <= state.maxturn else "Time's up!"
+		ptext.draw(text, T(10, 10), fontsize = T(80),
+			color = "white", owidth = 1, shade = 1, shadow = (1, 1))
 
 	if state.turn < 2:
 		graphics.draw("talk", T(1120, 720 - 150), scale = 0.5 * pview.f)

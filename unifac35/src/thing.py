@@ -150,6 +150,7 @@ class Drook(Obstacle):
 class Goal:
 	def __init__(self, pH):
 		self.pH = pH
+		self.there = True
 
 	def draw0(self):
 		drawcircleat(self.pH, 0.3, (100, 255, 100))
@@ -159,12 +160,13 @@ class Goal:
 		pV0 = view.VconvertG(pG)
 		scale = 0.007 * view.VscaleG * pview.f
 		graphics.qdraw(view.depthG(pG), "pedestal", pV0, scale)
-		a = math.cycle(0.001 * pygame.time.get_ticks() + math.fuzz(1, *self.pH))
-		mask = math.imix((100, 255, 100), (120, 120, 255), a)
-		tcycle = math.fuzzrange(2, 3, 2, *self.pH)
-		a = math.cycle(0.001 * pygame.time.get_ticks() / tcycle + math.fuzz(3, *self.pH))
-		pV1 = view.VconvertG(pG, zG = math.mix(1, 1.2, a))
-		graphics.qdraw(view.depthG(pG, 1), "goal", pV1, scale = scale, mask = mask)
+		if self.there:
+			a = math.cycle(0.001 * pygame.time.get_ticks() + math.fuzz(1, *self.pH))
+			mask = math.imix((100, 255, 100), (120, 120, 255), a)
+			tcycle = math.fuzzrange(2, 3, 2, *self.pH)
+			a = math.cycle(0.001 * pygame.time.get_ticks() / tcycle + math.fuzz(3, *self.pH))
+			pV1 = view.VconvertG(pG, zG = math.mix(1.2, 1.5, a))
+			graphics.qdraw(view.depthG(pG, 1), "goal", pV1, scale = scale, mask = mask)
 
 	def drawnab(self, pH, f):
 		pG = grid.GconvertH(self.pH)
@@ -172,7 +174,7 @@ class Goal:
 		scale = 0.007 * view.VscaleG * pview.f
 		graphics.qdraw(view.depthG(pG), "pedestal", pV0, scale, alpha = f)
 		pG = grid.GconvertH(math.mix(pH, self.pH, f))
-		zG = 1 + 3 * f * (1 - f)
+		zG = 1.2 + 3 * f * (1 - f)
 		pV = view.VconvertG(pG, zG = zG)
 		mask = (100, 255, 100)
 		graphics.qdraw(view.depthG(pG), "goal", pV, scale = scale, mask = mask)
@@ -243,8 +245,8 @@ class Light:
 				graphics.qdraw(view.depthG(pGmax, j), "splash", pVmax, scale, alpha = alpha,
 					mask = color, angle = angle)
 			colors = [
+				(255, 255, 0),
 				(255, 255, 100),
-				(255, 255, 150),
 				(255, 255, 200),
 			]
 			ws = [

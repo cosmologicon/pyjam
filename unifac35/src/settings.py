@@ -10,3 +10,6 @@ forceres = False
 
 savefile = "save.pkl"
 
+reset = True
+unlockall = True
+
