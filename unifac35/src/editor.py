@@ -48,6 +48,12 @@ while playing:
 					goals.add(cursorH)
 			if event.key == pygame.K_p and cursorH:
 				obstacles[cursorH] = "P"
+			if event.key == pygame.K_b and cursorH:
+				obstacles[cursorH] = "B"
+			if event.key == pygame.K_u and cursorH:
+				obstacles[cursorH] = "U"
+			if event.key == pygame.K_d and cursorH:
+				obstacles[cursorH] = "D"
 			if event.key == pygame.K_TAB and cursorH:
 				if cursorH not in lights:
 					lights[cursorH] = ldirs[0]
@@ -104,6 +110,9 @@ while playing:
 		"2: place goal",
 		"Tab: place/rotate light",
 		"P: place pawn",
+		"B: place bishop",
+		"U: place urook",
+		"D: place drook",
 		f"{cursorH[0], cursorH[1]}"
 	])
 	ptext.draw(text, T(0, 0), fontsize = T(24), owidth=0.5)

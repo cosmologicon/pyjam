@@ -30,4 +30,9 @@ def draw():
 	if cursorH is not None:
 		shading += [(cursorH, 0.6, (255, 255, 255))]
 	grid0.draw0(shading)
+	for cell, stage in progress.stages.items():
+		if stage in progress.unlocked:
+			pV = view.VconvertG(grid.GconvertH(cell))
+			ptext.draw(stage, center = pV, fontsize = T(view.VscaleG * 0.2),
+				owidth = 1)
 

@@ -126,6 +126,23 @@ class Pawn(Obstacle):
 	def legalmove(self, pH):
 		return grid.distanceH(self.pH, pH) <= 1
 
+class Bishop(Obstacle):
+	name = "bishop"
+	def legalmove(self, pH):
+		return grid.vsub(self.pH, pH) in grid.secondary
+
+class Urook(Obstacle):
+	name = "urook"
+	ds = [(0, 1), (-1, 0), (1, -1)]
+	def canplaceat(self, pH):
+		return any(state.grid0.allopenalong(self.pH, pH, d) for d in self.ds)
+
+class Drook(Obstacle):
+	name = "drook"
+	ds = [(1, 0), (-1, 1), (0, -1)]
+	def canplaceat(self, pH):
+		return any(state.grid0.allopenalong(self.pH, pH, d) for d in self.ds)
+
 
 class Goal:
 	def __init__(self, pH):

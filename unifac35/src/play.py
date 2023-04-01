@@ -13,38 +13,26 @@ def init(levelname):
 	global fflash, flose, fcaught, fwin, current
 	current = levelname
 	state.init()
-	if levelname is None:
-		cells = [(x, y) for x in range(-7, 8) for y in range(-7, 8) if abs(x + y) <= 7]
-		random.shuffle(cells)
-		cells = cells[:-50]
-		state.grid0 = grid.Grid(cells)
-		view.framegrid(state.grid0)
-		for cell in cells[:3]:
-			state.lights.append(thing.Light(cell, grid.adjs))
-		for cell in cells[3:6]:
-			state.obstacles.append(thing.Pawn(cell))
-		state.updategrid()
-		canstand = state.grid0.open - state.grid0.lit
-		freecells = (cell for cell in cells[6:] if cell in canstand)
-		for j in range(3):
-			state.goals.append(thing.Goal(next(freecells)))
-		pHyou = next(freecells)
-		state.you = thing.You(pHyou)
-		state.escape = pHyou
-	else:
-		ldata = levels.levels[levelname]
-		state.grid0 = grid.Grid(ldata["floor"])
-		view.framegrid(state.grid0)
-		for pos, dirHs in ldata["lights"].items():
-			state.lights.append(thing.Light(pos, dirHs))
-		for pos, name in ldata["obstacles"].items():
-			if name == "P":
-				state.obstacles.append(thing.Pawn(pos))
-		for pos in ldata["goals"]:
-			state.goals.append(thing.Goal(pos))
-		state.you = thing.You(ldata["you"])
-		state.escape = ldata["you"]
-		state.updategrid()
+	ldata = levels.levels[levelname]
+	state.grid0 = grid.Grid(ldata["floor"])
+	view.framegrid(state.grid0)
+	for pos, dirHs in ldata["lights"].items():
+		state.lights.append(thing.Light(pos, dirHs))
+	for pos, name in ldata["obstacles"].items():
+		if name == "P":
+			state.obstacles.append(thing.Pawn(pos))
+		if name == "B":
+			state.obstacles.append(thing.Bishop(pos))
+		if name == "U":
+			state.obstacles.append(thing.Urook(pos))
+		if name == "D":
+			state.obstacles.append(thing.Drook(pos))
+	for pos in ldata["goals"]:
+		state.goals.append(thing.Goal(pos))
+		state.grid0.addgoal(pos)
+	state.you = thing.You(ldata["you"])
+	state.escape = ldata["you"]
+	state.updategrid()
 
 	state.turn = 1
 	state.maxturn = 10

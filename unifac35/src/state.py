@@ -30,6 +30,7 @@ def advanceturn():
 	for goal in list(goals):
 		if you.canclaim(goal):
 			you.claim(goal)
+			grid0.removegoal(goal.pH)
 
 def won():
 	return not goals and you.pH == escape

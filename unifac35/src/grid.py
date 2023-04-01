@@ -11,11 +11,17 @@ dcorners = [
 ]
 angledH = { adj: (60 * j - 60) % 360 for j, adj in enumerate(adjs) }
 
+def vadd(p0, p1):
+	x0, y0 = p0
+	x1, y1 = p1
+	return x0 + x1, y0 + y1
 
 def vsub(p0, p1):
 	x0, y0 = p0
 	x1, y1 = p1
 	return x0 - x1, y0 - y1
+
+secondary = [vadd(adjs[j], adjs[((j+1) % 6)]) for j in range(6)]
 
 def distanceH(pH0, pH1):
 	(xH0, yH0), (xH1, yH1) = pH0, pH1
@@ -56,14 +62,14 @@ class Grid:
 	def __init__(self, cells):
 		self.cells = set(cells)
 		self.reset()
+		# Occupied by a goal.
+		self.goals = set()
 
 	def reset(self):
 		# Currently no lights or obstacles occupying this space.
 		self.open = set(self.cells)
 		# In the sights of a beam.
 		self.lit = set()
-		# Occupied by a goal.
-		self.goals = set()
 		self.walls = { cell: set() for cell in self.cells }
 		self.tsetup = 0
 		self.nsetup = 0
@@ -75,6 +81,10 @@ class Grid:
 
 	def addgoal(self, pH):
 		self.goals.add(pH)
+		self.todo = self.dowork()
+
+	def removegoal(self, pH):
+		self.goals.remove(pH)
 		self.todo = self.dowork()
 
 	def illuminate(self, pH):
@@ -106,6 +116,7 @@ class Grid:
 
 	def dowork(self):
 		yield
+		self.open -= self.goals
 		self.neighbors = {}
 		self.pathstep = {}
 		self.drings = {}
@@ -193,6 +204,24 @@ class Grid:
 			print("PATHFINDING....", self.nsetup, self.tsetup)
 			return False
 		return self.componentmap.get(pH0, -1) == self.componentmap.get(pH1, -2)
+
+	def allopenalong(self, pH0, pH1, dH):
+		if pH1 == pH0:
+			return True
+		dxH, dyH = dH
+		qxH, qyH = vsub(pH1, pH0)
+		if dxH * qyH != qxH * dyH:
+			return False
+		if dxH * qxH + dyH * qyH < 0:
+			return False
+		pH = pH0
+		while pH != pH1:
+			pH = vadd(pH, dH)
+			if pH not in self.open:
+				return False
+		return True
+		
+
 
 if __name__ == "__main__":
 	from . import pview, view

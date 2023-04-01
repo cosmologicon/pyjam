@@ -5,13 +5,14 @@ stages = {
 	(0, 0): "alfa",
 	(2, 2): "bravo",
 	(-2, 2): "1",
+	(2, -2): "playground",
 }
 
 unlocks = {
 	"alfa": "1",
 }
 
-unlocked = set(["alfa", "bravo"])
+unlocked = set(["alfa", "bravo", "playground"])
 completed = set()
 
 def save():
