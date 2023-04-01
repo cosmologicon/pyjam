@@ -1,12 +1,15 @@
 import pygame, os.path
-from . import settings, play, view, pview, control, state, menu, ptext
+from . import settings, play, view, pview, control, state, menu, ptext, sound
 
 ptext.FONT_NAME_TEMPLATE = os.path.join("font", "%s.ttf")
 ptext.DEFAULT_FONT_NAME = "ZenDots"
 
+sound.init()
 view.init()
 scene = menu
 scene.init()
+
+sound.playmusic("spy-glass")
 
 clock = pygame.time.Clock()
 playing = True

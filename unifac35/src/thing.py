@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import pview, grid, view, state, ptext, graphics
+from . import pview, grid, view, state, ptext, graphics, sound
 from .pview import T
 
 def drawcircleat(pH, rG, color):
@@ -23,6 +23,8 @@ class You:
 		if self.fmove:
 			self.fmove = math.approach(self.fmove, 0, dt * 4 * len(self.pH) ** -0.4)
 		if self.fnab and not self.fmove:
+			if self.fnab == 1:
+				sound.play("claim")
 			self.fnab = math.approach(self.fnab, 0, dt * 2)
 			if self.fnab == 0:
 				self.tonab.pop()
@@ -232,6 +234,10 @@ class Light:
 
 	def draw(self):
 		xH, yH = self.pH
+		pG = grid.GconvertH(self.pH)
+		pV = view.VconvertG(pG)
+		scale = 0.006 * pview.f * view.VscaleG
+		graphics.qdraw(view.depthG(pG), "light", pV, scale)
 		for (dxH, dyH), dlight in zip(self.dirHs, self.dlights):
 			dmax = dlight - 0.25
 			pHmax = xH + dmax * dxH, yH + dmax * dyH
@@ -250,11 +256,11 @@ class Light:
 				(255, 255, 200),
 			]
 			ws = [
-				random.uniform(0.18, 0.20),
-				random.uniform(0.13, 0.16),
+				random.uniform(0.11, 0.15),
 				random.uniform(0.09, 0.12),
+				random.uniform(0.07, 0.10),
 			]
-			d0, d1 = 0.25, 0.5
+			d0, d1 = 0.13, 0.5
 			while d0 < dmax:
 				pH0 = xH + d0 * dxH, yH + d0 * dyH
 				dhi = min(d1, dmax)

@@ -13,6 +13,10 @@ bpointed = None
 def init(levelname):
 	global fflash, flose, fcaught, fwin, current, t
 	current = levelname
+	if levelname in ["finale"]:
+		sound.playmusic("fearless-first")
+	else:
+		sound.playmusic("spy-glass")
 	state.init()
 	ldata = levels.levels[levelname]
 	state.grid0 = grid.Grid(ldata["floor"])
@@ -50,14 +54,19 @@ def think(dt):
 	t += dt
 	fflash = math.approach(fflash, 0, 3 * dt)
 	if state.caught():
+		if fcaught == 0:
+			sound.play("lose")
 		fcaught = math.approach(fcaught, 1, dt)
 		flose = fwin = 0
 	elif state.won():
 		if fwin == 0:
 			progress.complete(current)
+			sound.play("win")
 		fwin = math.approach(fwin, 10, dt)
 		fcaught = flose = 0
 	elif state.lost():
+		if flose == 0:
+			sound.play("lose")
 		flose = math.approach(flose, 1, dt)
 		fcaught = fwin = 0
 	cursorV, cursorG, click, release, drop = control.getstate()
