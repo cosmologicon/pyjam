@@ -138,13 +138,13 @@ class Urook(Obstacle):
 	name = "urook"
 	ds = [(0, 1), (-1, 0), (1, -1)]
 	def canplaceat(self, pH):
-		return any(state.grid0.allopenalong(self.pH, pH, d) for d in self.ds)
+		return any(state.grid0.allopenalong(self.pH, pH, [state.you.pH], d) for d in self.ds)
 
 class Drook(Obstacle):
 	name = "drook"
 	ds = [(1, 0), (-1, 1), (0, -1)]
 	def canplaceat(self, pH):
-		return any(state.grid0.allopenalong(self.pH, pH, d) for d in self.ds)
+		return any(state.grid0.allopenalong(self.pH, pH, [state.you.pH], d) for d in self.ds)
 
 
 class Goal:

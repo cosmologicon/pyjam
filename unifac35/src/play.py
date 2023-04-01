@@ -101,16 +101,22 @@ def think(dt):
 
 
 def handle(bname):
-	global fflash
+	global fflash, flose, fcaught, fwin
 	if bname == "undo":
 		if state.canundo():
 			state.undo()
 			sound.play("undo")
 			fflash = 1
+			flose = 0
+			fcaught = 0
+			fwin = 0
 		else:
 			sound.play("no")
 	if bname == "reset":
 		fflash = 1
+		flose = 0
+		fcaught = 0
+		fwin = 0
 		state.reset()
 		sound.play("reset")
 	if bname == "quit":
@@ -128,7 +134,7 @@ def draw():
 		note = "Time's up!"
 		nalpha = flose
 	elif fwin > 0:
-		note = "Heist\ncomplete!"
+		note = "Heist complete!"
 		nalpha = fwin
 
 	pview.fill((100, 100, 100))
@@ -137,18 +143,18 @@ def draw():
 	if cursorH is not None and note is None:
 		shading += [(cursorH, 0.6, (255, 255, 255))]
 #	shading += [(cell, 0.5, (255, 0, 0)) for cell in state.grid0.lit]
-	if held is not None:
-		for cell in state.grid0.cells:
-			if not held.canplaceat(cell):
-				shading += [(cell, 0.3, (0, 0, 0))]
 	if state.goals:
 		fglow = math.mix(0.1, 0.9, math.cycle(pygame.time.get_ticks() * 0.001))
 		for pH in [goal.pH for goal in state.goals]:
 			shading += [(pH, fglow, (255, 255, 200))]
-		shading += [(state.escape, 0.5, (255, 255, 255))]
+		shading += [(state.escape, 1, (255, 200, 150))]
 	else:
 		fglow = math.mix(0.5, 1, math.cycle(2 * pygame.time.get_ticks() * 0.001))
-		shading += [(state.escape, fglow, (255, 255, 255))]
+		shading += [(state.escape, fglow, (255, 200, 150))]
+	if held is not None:
+		for cell in state.grid0.cells:
+			if not held.canplaceat(cell):
+				shading += [(cell, 0.3, (0, 0, 0))]
 	state.grid0.draw(shading)
 	graphics.qrender()
 
@@ -191,10 +197,15 @@ def draw():
 			owidth = 0.7, shadow = (0.5, 0.5), shade = 1)
 
 	if note is not None:
-		pview.fill((80, 20, 20, math.imix(0, 200, nalpha)))
-		ptext.draw(note, color = (255, 127, 127), alpha = nalpha,
-			center = pview.center, fontsize = T(150),
-			owidth = 0.5, shadow = (1, 1), shade = 1)
+		if fwin:
+			pview.fill((20, 20, 120, math.imix(0, 200, nalpha)))
+			color = (127, 127, 255)
+		else:
+			pview.fill((80, 20, 20, math.imix(0, 200, nalpha)))
+			color = (255, 127, 127)
+		ptext.draw(note, color = color, alpha = nalpha,
+			center = T(640, 540), fontsize = T(100),
+			owidth = 0.5, shadow = (0.6, 0.6), shade = 1)
 
 	for bname, bpos, r in buttons:
 		size = 70 if bname == bpointed else 50

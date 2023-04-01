@@ -7,10 +7,15 @@ stages = {
 #	(-2, 2): "1",
 #	(2, -2): "playground",
 	
-	(0, 0): "tutorial0",
-	(1, -1): "tutorial1",
-	(2, -1): "tutorial2",
-	(3, -2): "tutorial3",
+	(0, 3): "tutorial0",
+	(1, 2): "tutorial1",
+	(2, 2): "tutorial2",
+	(3, 1): "tutorial3",
+	
+	(0, -3): "bishop0",
+	(4, -4): "rook0",
+	
+	(0, 0): "finale",
 }
 
 unlocks = {

@@ -220,7 +220,7 @@ class Grid:
 			return False
 		return self.componentmap.get(pH0, -1) == self.componentmap.get(pH1, -2)
 
-	def allopenalong(self, pH0, pH1, dH):
+	def allopenalong(self, pH0, pH1, pHexclude, dH):
 		if pH1 == pH0:
 			return True
 		dxH, dyH = dH
@@ -232,7 +232,7 @@ class Grid:
 		pH = pH0
 		while pH != pH1:
 			pH = vadd(pH, dH)
-			if pH not in self.open:
+			if pH not in self.open or pH in pHexclude:
 				return False
 		return True
 		
