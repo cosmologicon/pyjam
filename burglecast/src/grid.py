@@ -211,7 +211,7 @@ class Grid:
 			pG = math.mix(pGs[n], pGs[n+1], k)
 			angle = angledH[vsub(path[n+1], path[n])] + 10
 			pV = view.VconvertG(pG)
-			scale = view.VscaleG * 0.007
+			scale = pview.f * view.VscaleG * 0.007
 			color = 200, 100, 0
 			graphics.qdraw(view.depthG(pG), "path", pV, scale, yscale = 0.5,
 				angle = angle, mask = color)

@@ -1,3 +1,5 @@
+import sys
+
 gamename = "BurgleCast"
 
 minfps, maxfps = 5, 120
@@ -15,3 +17,15 @@ unlockall = False
 
 
 DEBUG = False
+
+
+if "--reset" in sys.argv:
+	reset = True
+if "--unlockall" in sys.argv:
+	unlockall = True
+if "--fullscreen" in sys.argv:
+	fullscreen = True
+for arg in sys.argv:
+	if arg.startswith("--res="):
+		height = int(arg[6:])
+
