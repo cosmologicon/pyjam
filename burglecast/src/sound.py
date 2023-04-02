@@ -13,7 +13,7 @@ def loadsound(sname):
 		print("MISSING SOUND", sname)
 		return None
 	sound = pygame.mixer.Sound(path)
-	sound.set_volume(0.7)
+	sound.set_volume(0.4)
 	return sound
 
 
