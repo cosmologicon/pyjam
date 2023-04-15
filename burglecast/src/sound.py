@@ -13,7 +13,11 @@ def loadsound(sname):
 		print("MISSING SOUND", sname)
 		return None
 	sound = pygame.mixer.Sound(path)
-	sound.set_volume(0.4)
+	sound.set_volume({
+		"grab": 0.2,
+		"claim": 0.4,
+		"place": 0.2,
+	}.get(sname, 1))
 	return sound
 
 
@@ -29,8 +33,8 @@ def playmusic(mname):
 		return
 	path = os.path.join("sound", f"{mname}.ogg")
 	pygame.mixer.music.set_volume({
-		"fearless-first": 0.5,
-		"spy-glass": 0.7,
+		"fearless-first": 0.15,
+		"spy-glass": 0.5,
 	}[mname])
 	pygame.mixer.music.load(path)
 	pygame.mixer.music.play(-1)
