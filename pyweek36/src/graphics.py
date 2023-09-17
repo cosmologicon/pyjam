@@ -21,3 +21,4 @@ def draw(imgname, pV, scale, A):
 	img = getimg(imgname, scale, A)
 	pview.screen.blit(img, img.get_rect(center = pV))
 
+
