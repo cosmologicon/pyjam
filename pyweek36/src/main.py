@@ -4,6 +4,7 @@ from . import ptext, pview
 from .pview import T
 
 scene.current = playscene
+scene.current.init()
 view.init()
 playing = True
 clock = pygame.time.Clock()
