@@ -1,9 +1,9 @@
 Game Title
 ==========
 
-Entry in PyWeek ##  <http://www.pyweek.org/##/>
-URL: https://www.pyweek.org/e/unifac##/
-Team: Universe Factory ##
+Entry in PyWeek 36  <http://www.pyweek.org/36/>
+URL: https://www.pyweek.org/e/unifac36/
+Team: Universe Factory 36
 Members: Christopher Night (Cosmologicon)
 License: see LICENSE.txt
 
