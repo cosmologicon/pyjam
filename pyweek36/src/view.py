@@ -1,6 +1,6 @@
 # positive xG: to the right
 # positive yG: up
-# angles increase clockwise: A = 0 up, A = tau/4 right
+# angles increase counter-clockwise: A = 0 right, A = tau/4 up
 
 import pygame
 from . import settings, pview

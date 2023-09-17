@@ -17,7 +17,7 @@ def loground(value, N):
 
 def draw(imgname, pV, scale, A):
 	scale = loground(scale, 20)
-	A = round(math.degrees(-A) / 5) * 5
+	A = round(math.degrees(A) / 5) * 5
 	img = getimg(imgname, scale, A)
 	pview.screen.blit(img, img.get_rect(center = pV))
 
