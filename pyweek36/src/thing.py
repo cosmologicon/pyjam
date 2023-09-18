@@ -82,6 +82,11 @@ class You:
 	def draw(self):
 		pV = view.VconvertG(self.pos)
 		graphics.draw("ship", pV, pview.f * 0.3, self.A)
+
+		pV = view.VconvertG(math.CS(self.A, 1.4, self.pos))
+		glow = graphics.glow(T(view.VscaleG * 1.0), seed = random.randint(0, 9), color = (100, 50, 0, 100))
+		pview.screen.blit(glow, glow.get_rect(center = pV))
+
 		if self.on:
 			beam = Beam(self.pos, self.A, 0.5, 4, 0.15, 0.3)
 			for DM in state.DMs:

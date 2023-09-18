@@ -1,5 +1,5 @@
 import random, math
-from . import state, thing, view
+from . import state, thing, view, graphics
 from . import pview
 
 
@@ -12,9 +12,7 @@ def init():
 	state.pulses = []
 	state.tracers = []
 	state.spawners = []
-	
-	
-	
+
 
 def think(dt, kdowns, kpressed):
 	state.you.control(kdowns, kpressed)
@@ -35,6 +33,9 @@ def think(dt, kdowns, kpressed):
 def draw():
 	pview.fill((20, 20, 20))
 	pview.fill((0, 0, 0))
+	graphics.drawnebula()
+	graphics.drawstars()
+
 	for pulse in state.pulses:
 		pulse.draw()
 	for DM in state.DMs:
