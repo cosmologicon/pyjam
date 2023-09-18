@@ -12,6 +12,7 @@ def init():
 	state.pulses = []
 	state.tracers = []
 	state.spawners = []
+	state.shots = []
 
 
 def think(dt, kdowns, kpressed):
@@ -25,8 +26,11 @@ def think(dt, kdowns, kpressed):
 		DM.think(dt)
 	for tracer in state.tracers:
 		tracer.think(dt)
+	for shot in state.shots:
+		shot.think(dt)
 	state.pulses = [pulse for pulse in state.pulses if pulse.alive]
 	state.tracers = [tracer for tracer in state.tracers if tracer.alive]
+	state.shots = [shot for shot in state.shots if shot.alive]
 	view.xG0, view.yG0 = state.you.pos
 
 
@@ -42,5 +46,7 @@ def draw():
 		DM.draw()
 	for tracer in state.tracers:
 		tracer.draw()
+	for shot in state.shots:
+		shot.draw()
 	state.you.draw()
 

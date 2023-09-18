@@ -32,6 +32,18 @@ class HasVelocity(enco.Component):
 		vx, vy = self.v
 		self.pos = x + vx * dt, y + vy * dt
 
+
+class ShotPath(enco.Component):
+	def __init__(self, D, d0):
+		self.D = D
+		self.d0 = d0
+
+	def think(self, dt):
+		f = self.f * (2 - self.f ** 2)
+		d = math.mix(self.d0, self.D, f)
+		self.pos = math.CS(self.A, d, self.pos0)
+		
+
 @KeepsTime()
 class You:
 	def __init__(self, pos):
@@ -76,22 +88,26 @@ class You:
 		self.v = vx, vy
 		self.A = A
 		if self.controls["act"]:
-			state.pulses.append(Pulse(self.pos))
+#			state.pulses.append(Pulse(self.pos))
+			state.shots.append(Cage(self.pos, self.A))
 
 
 	def draw(self):
 		pV = view.VconvertG(self.pos)
 		graphics.draw("ship", pV, pview.f * 0.3, self.A)
 
+
+	def drawglow(self):
 		pV = view.VconvertG(math.CS(self.A, 1.4, self.pos))
 		glow = graphics.glow(T(view.VscaleG * 1.0), seed = random.randint(0, 9), color = (100, 50, 0, 100))
 		pview.screen.blit(glow, glow.get_rect(center = pV))
 
-		if self.on:
-			beam = Beam(self.pos, self.A, 0.5, 4, 0.15, 0.3)
-			for DM in state.DMs:
-				beam.occlude(DM)
-			beam.draw()
+
+	def drawbeam(self):
+		beam = Beam(self.pos, self.A, 0.5, 4, 0.15, 0.3)
+		for DM in state.DMs:
+			beam.occlude(DM)
+		beam.draw()
 
 class Findable(enco.Component):
 	def __init__(self, Tfind):
@@ -109,8 +125,12 @@ class Findable(enco.Component):
 	def draw(self):
 		pV = view.VconvertG(self.pos)
 		rV = T(view.VscaleG * self.r)
-		color = (0, 100, 100) if self.found else (0, 0, 0)
-		pygame.draw.circle(pview.screen, color, pV, rV)
+		if self.found:
+			graphics.drawcage(self.t * 0.5, pV, 0.65 * pview.f * self.r, 0)
+			pygame.draw.circle(pview.screen, (255, 255, 255), pV, rV, 1)
+		else:
+			color = (0, 100, 100) if self.found else (0, 0, 0)
+			pygame.draw.circle(pview.screen, color, pV, rV)
 		
 @Findable(3)
 class Stander:
@@ -218,6 +238,27 @@ class Tracer:
 		rV = T(view.VscaleG * self.r)
 		color = (255, 200, 100)
 		pygame.draw.circle(pview.screen, color, pV, rV)
+
+
+@KeepsTime()
+@Lifetime(1)
+@ShotPath(5, 0.6)
+class Cage:
+	def __init__(self, pos0, A):
+		self.pos0 = pos0
+		self.A = A
+		self.pos = math.CS(A, self.d0, pos0)
+		self.r = 0.2
+
+	def think(self, dt):
+		for DM in state.DMs:
+			if not DM.found and overlaps(DM, self):
+				self.alive = False
+				DM.found = True
+
+	def draw(self):
+		pV = view.VconvertG(self.pos)
+		graphics.drawcage(self.t * 0.5, pV, 0.65 * pview.f * self.r, 0)
 
 
 @KeepsTime()

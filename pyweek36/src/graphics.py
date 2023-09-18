@@ -5,6 +5,11 @@ from .pview import T
 
 @lru_cache(1000)
 def getimg(imgname, scale, A):
+	if scale != 1 and A == 0:
+		img = getimg(imgname, 1, 0)
+		w, h = img.get_size()
+		size = int(round(w * scale)), int(round(h * scale))
+		return pygame.transform.smoothscale(img, size)
 	if scale != 1 or A != 0:
 		img = getimg(imgname, 1, 0)
 		return pygame.transform.rotozoom(img, A, scale)
@@ -20,6 +25,10 @@ def draw(imgname, pV, scale, A):
 	A = round(math.degrees(A) / 5) * 5
 	img = getimg(imgname, scale, A)
 	pview.screen.blit(img, img.get_rect(center = pV))
+
+def drawcage(f, pV, scale, A):
+	j = int(f * 40) % 40
+	draw(os.path.join("cage", f"frame-{j:02}"), pV, scale, A)
 
 @lru_cache(20)
 def glow(s, seed = 0, color = None):
