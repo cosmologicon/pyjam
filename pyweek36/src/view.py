@@ -7,7 +7,7 @@ from . import settings, pview
 from .pview import T
 
 xG0, yG0 = 0, 0
-VscaleG = 100  # Technically V0scaleG, since this is in pview baseline coordinates.
+VscaleG = 40  # Technically V0scaleG, since this is in pview baseline coordinates.
 
 
 def init():

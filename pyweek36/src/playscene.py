@@ -6,9 +6,16 @@ from . import pview
 def init():
 	state.you = thing.You((0, 0))
 	state.DMs = [
-		thing.Orbiter((0, 0), j * math.tau / 3, 0.3, 5, 0.4)
-		for j in range(3)
+#		thing.Orbiter((0, 0), j * math.tau / 3, 0.3, 5, 0.4)
+#		for j in range(3)
 	]
+	for _ in range(1):
+		pos0 = math.CS(random.uniform(0, math.tau), random.uniform(0, 4))
+		Rorbit = random.uniform(3, 6)
+		pos1 = math.CS(random.uniform(0, math.tau), random.uniform(20, 50))
+		v = random.uniform(1, 3)
+		Nstay = random.choice([3, 4, 5])
+		state.DMs += [thing.Visitor(pos0, pos1, Nstay, Rorbit, v, reverse=True)]
 	state.pulses = []
 	state.tracers = []
 	state.spawners = []

@@ -3,13 +3,22 @@ from . import view, pview, graphics, state, enco
 from .pview import T
 
 
-def dist(obj0, obj1):
-	x0, y0 = obj0.pos
-	x1, y1 = obj1.pos
+def pdist(p0, p1):
+	x0, y0 = p0
+	x1, y1 = p1
 	return math.hypot(x1 - x0, y1 - y0)
+
+def dvec(p0, p1):
+	x0, y0 = p0
+	x1, y1 = p1
+	return x1 - x0, y1 - y0
+
+def dist(obj0, obj1):
+	return pdist(obj0.pos, obj1.pos)
 
 def overlaps(obj0, obj1):
 	return dist(obj0, obj1) <= obj0.r + obj1.r
+
 
 class KeepsTime(enco.Component):
 	def __init__(self):
@@ -39,7 +48,7 @@ class ShotPath(enco.Component):
 		self.d0 = d0
 
 	def think(self, dt):
-		f = self.f * (2 - self.f ** 2)
+		f = 0.5 * self.f * (3 - self.f ** 2)
 		d = math.mix(self.d0, self.D, f)
 		self.pos = math.CS(self.A, d, self.pos0)
 		
@@ -91,10 +100,9 @@ class You:
 #			state.pulses.append(Pulse(self.pos))
 			state.shots.append(Cage(self.pos, self.A))
 
-
 	def draw(self):
 		pV = view.VconvertG(self.pos)
-		graphics.draw("ship", pV, pview.f * 0.3, self.A)
+		graphics.drawG("ship", pV, 0.003, self.A)
 
 
 	def drawglow(self):
@@ -126,8 +134,8 @@ class Findable(enco.Component):
 		pV = view.VconvertG(self.pos)
 		rV = T(view.VscaleG * self.r)
 		if self.found:
-			graphics.drawcage(self.t * 0.5, pV, 0.65 * pview.f * self.r, 0)
-			pygame.draw.circle(pview.screen, (255, 255, 255), pV, rV, 1)
+			graphics.drawcageG(self.t * 0.5, pV, 0.0065 * self.r, 0)
+#			pygame.draw.circle(pview.screen, (255, 255, 255), pV, rV, 1)
 		else:
 			color = (0, 100, 100) if self.found else (0, 0, 0)
 			pygame.draw.circle(pview.screen, color, pV, rV)
@@ -158,6 +166,117 @@ class Orbiter:
 		x0, y0 = self.pos0
 		self.pos = x0 + dx, y0 + dy
 
+
+class LinePart:
+	def __init__(self, pos0, pos1, v):
+		self.pos0 = pos0
+		self.pos1 = pos1
+		self.v = v
+		self.d = pdist(pos0, pos1)
+		self.T = self.d / v
+	def pos(self, t):
+		return math.mix(self.pos0, self.pos1, t / self.T)
+
+def joinparts(part0, part1, v):
+	return LinePart(part0.pos(part0.T), part1.pos(0), v)
+
+
+# v > 0 counterclockwise, v < 0 clockwise
+class CirclePart:
+	def __init__(self, center, Rorbit, v, Aoff, A0 = 0, A1 = math.tau):
+		self.center = center
+		self.Rorbit = Rorbit
+		self.omega = v / Rorbit
+		self.Aoff = Aoff
+		self.A0 = A0
+		self.A1 = A1
+		self.T = (A1 - A0) * Rorbit / abs(v)
+	def pos(self, t):
+		theta = self.A0 + self.Aoff + t * self.omega
+		return math.CS(theta, self.Rorbit, self.center)
+
+class WavePart:
+	def __init__(self, pos0, pos1, v, amp, Nwave, neg):
+		self.pos0 = pos0
+		self.pos1 = pos1
+		self.v = v
+		self.amp = amp
+		self.Nwave = Nwave
+		self.neg = neg
+		self.d = pdist(pos0, pos1)
+		self.T = self.d / v
+		x0, y0 = pos0
+		x1, y1 = pos1
+		self.px, self.py = x1 - x0, y1 - y0
+		self.qx, self.qy = math.norm((-self.px, self.py), amp)
+		if neg:
+			self.qx, self.qy = -self.qx, -self.qy
+	def pos(self, t):
+		f = t / self.T
+		x, y = math.mix(self.pos0, self.pos1, f)
+		C = math.cos(f * math.tau / 2 * self.Nwave)
+		x += C * self.qx
+		y += C * self.qy
+		return x, y
+		
+class FollowsPath(enco.Component):
+	def __init__(self):
+		self.jpath = 0
+		self.tpath = 0
+	def think(self, dt):
+		self.tpath += -dt if self.reverse else dt
+		self.setpos()
+	def jumprandom(self):
+		T = sum(path.T for path in self.paths)
+		self.tpath += math.random(0, T) * (-1 if self.reverse else 1)
+	def setpos(self):
+		if self.reverse:
+			while self.tpath < 0:
+				self.jpath = (self.jpath - 1) % len(self.paths)
+				self.tpath += self.paths[self.jpath].T
+		else:
+			while self.tpath >= self.paths[self.jpath].T:
+				self.tpath -= self.paths[self.jpath].T
+				self.jpath = (self.jpath + 1) % len(self.paths)
+		self.pos = self.paths[self.jpath].pos(self.tpath)
+	def draw(self):
+		self.drawpath()
+
+	def drawpath(self):
+		ps = []
+		for path in self.paths:
+			ps += [path.pos(t) for t in range(int(path.T))] + [path.pos(path.T)]
+		pVs = [view.VconvertG(p) for p in ps]
+		pygame.draw.lines(pview.screen, (255, 255, 255), False, pVs, 1)
+
+
+@Findable(3)
+@KeepsTime()
+@FollowsPath()
+class Visitor:
+	def __init__(self, pos0, pos1, Nstay, Rorbit, v, reverse=False):
+		self.r = 0.4
+		self.pos0 = pos0
+		self.pos1 = pos1
+		self.Nstay = Nstay
+		self.Rorbit = Rorbit
+		self.v = v
+		self.reverse = reverse
+#		self.Nwave = int(round(pdist(pos0, pos1) / (3 * self.Rorbit)))
+		dx, dy = dvec(pos1, pos0)
+		Aoff = math.atan2(dy, dx)
+		backpath = CirclePart(pos0, Rorbit, v, Aoff, -math.tau/4, math.tau * (1/4 + Nstay))
+		frontpath = CirclePart(pos1, Rorbit, v, Aoff, math.tau/4, math.tau * 3/4)
+		self.paths = [
+			backpath,
+			joinparts(backpath, frontpath, v),
+			frontpath,
+			joinparts(frontpath, backpath, v),
+		]
+		self.setpos()
+		self.found = True
+		self.jumprandom()
+		
 
 
 def cutbeampath(w1, yB0, yB1, d1, fences):
@@ -242,7 +361,7 @@ class Tracer:
 
 @KeepsTime()
 @Lifetime(1)
-@ShotPath(5, 0.6)
+@ShotPath(7, 0.6)
 class Cage:
 	def __init__(self, pos0, A):
 		self.pos0 = pos0
@@ -258,7 +377,7 @@ class Cage:
 
 	def draw(self):
 		pV = view.VconvertG(self.pos)
-		graphics.drawcage(self.t * 0.5, pV, 0.65 * pview.f * self.r, 0)
+		graphics.drawcageG(self.t * 0.5, pV, 0.0065 * self.r, 0)
 
 
 @KeepsTime()

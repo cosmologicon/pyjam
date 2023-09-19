@@ -26,9 +26,12 @@ def draw(imgname, pV, scale, A):
 	img = getimg(imgname, scale, A)
 	pview.screen.blit(img, img.get_rect(center = pV))
 
-def drawcage(f, pV, scale, A):
+def drawG(imgname, pV, scaleG, A):
+	draw(imgname, pV, scaleG * view.VscaleG * pview.f, A)
+
+def drawcageG(f, pV, scaleG, A):
 	j = int(f * 40) % 40
-	draw(os.path.join("cage", f"frame-{j:02}"), pV, scale, A)
+	drawG(os.path.join("cage", f"frame-{j:02}"), pV, scaleG, A)
 
 @lru_cache(20)
 def glow(s, seed = 0, color = None):

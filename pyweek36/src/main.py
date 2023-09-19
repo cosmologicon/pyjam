@@ -17,11 +17,13 @@ while playing:
 	if pygame.K_F11 in kdowns: view.toggle_fullscreen()
 	if pygame.K_F12 in kdowns: pview.screenshot()
 	kpressed = pygame.key.get_pressed()
+	if settings.DEBUG and kpressed[pygame.K_F3]: dt *= 10
 
 	scene.current.think(dt, kdowns, kpressed)
 	scene.current.draw()
 
-	text = f"{clock.get_fps():.1f}fps"
-	ptext.draw(text, bottomleft = T(5, 715), fontsize = T(30), owidth = 1)
+	if settings.DEBUG:
+		text = f"{clock.get_fps():.1f}fps"
+		ptext.draw(text, bottomleft = T(5, 715), fontsize = T(30), owidth = 1)
 	pygame.display.flip()
 
