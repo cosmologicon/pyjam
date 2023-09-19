@@ -139,7 +139,11 @@ class Findable(enco.Component):
 		else:
 			color = (0, 100, 100) if self.found else (0, 0, 0)
 			pygame.draw.circle(pview.screen, color, pV, rV)
-		
+
+class Unfindable(enco.Component):
+	def __init__(self):
+		self.found = False
+
 @Findable(3)
 class Stander:
 	def __init__(self, pos, r):
@@ -228,7 +232,7 @@ class FollowsPath(enco.Component):
 		self.setpos()
 	def jumprandom(self):
 		T = sum(path.T for path in self.paths)
-		self.tpath += math.random(0, T) * (-1 if self.reverse else 1)
+		self.tpath += random.uniform(0, T) * (-1 if self.reverse else 1)
 	def setpos(self):
 		if self.reverse:
 			while self.tpath < 0:
@@ -239,8 +243,8 @@ class FollowsPath(enco.Component):
 				self.tpath -= self.paths[self.jpath].T
 				self.jpath = (self.jpath + 1) % len(self.paths)
 		self.pos = self.paths[self.jpath].pos(self.tpath)
-	def draw(self):
-		self.drawpath()
+#	def draw(self):
+#		self.drawpath()
 
 	def drawpath(self):
 		ps = []
@@ -276,7 +280,25 @@ class Visitor:
 		self.setpos()
 		self.found = True
 		self.jumprandom()
-		
+
+class DrawRock(enco.Component):
+	def draw(self):
+		pV = view.VconvertG(self.pos)
+		rV = T(view.VscaleG * self.r)
+		color = (80, 80, 80)
+		pygame.draw.circle(pview.screen, color, pV, rV)
+
+@KeepsTime()
+@FollowsPath()
+@DrawRock()
+@Unfindable()
+class CircleRock:
+	def __init__(self, center, Rorbit, v, r, reverse = False):
+		self.paths = [CirclePart(center, Rorbit, v, 0)]
+		self.reverse = reverse
+		self.r = r
+		self.setpos()
+		self.jumprandom()
 
 
 def cutbeampath(w1, yB0, yB1, d1, fences):
