@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, pview, graphics, state, enco
+from . import view, pview, graphics, state, enco, ptext
 from .pview import T
 
 
@@ -278,7 +278,7 @@ class Visitor:
 			joinparts(frontpath, backpath, v),
 		]
 		self.setpos()
-		self.found = True
+		self.found = False
 		self.jumprandom()
 
 class DrawRock(enco.Component):
@@ -408,7 +408,7 @@ class Tspawner:
 		self.pos = pos
 		self.Tspawn = 0.01
 		self.jspawn = 0
-		
+
 	def think(self, dt):
 		while self.t > self.Tspawn * self.jspawn:
 			state.tracers.append(Tracer(self.pos, self.jspawn * math.phyllo, 1, 3))
@@ -448,5 +448,23 @@ class Pulse:
 				continue
 			pV = view.VconvertG((x, y))
 			pview.screen.set_at(pV, (100, 100, 255))
+
+
+class Spot:
+	def __init__(self, pos):
+		self.pos = pos
+		self.r = 2
+
+	def think(self, dt):
+		pass
+
+	def draw(self):
+		pV = view.VconvertG(self.pos)
+		rV = T(view.VscaleG * self.r)
+		pygame.draw.circle(pview.screen, (30, 40, 50), pV, rV)
+		nnear = sum(dist(self, DM) < 25 for DM in state.DMs)
+		text = f"{nnear}"
+		ptext.draw(text, center = pV, color = "#7f7fff", owidth = 1, fontsize = T(view.VscaleG * 1))
+
 
 
