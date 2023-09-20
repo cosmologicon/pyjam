@@ -5,6 +5,7 @@ from .pview import T
 
 
 def init():
+	state.xp = 0
 	state.you = thing.You((0, 0))
 	state.DMs = [
 #		thing.Orbiter((0, 0), j * math.tau / 3, 0.3, 5, 0.4)
@@ -50,7 +51,7 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 	state.pulses = [pulse for pulse in state.pulses if pulse.alive]
 	state.tracers = [tracer for tracer in state.tracers if tracer.alive]
 	state.shots = [shot for shot in state.shots if shot.alive]
-	if math.hypot(*state.you.pos) < 10:
+	if math.hypot(*state.you.pos) < 0:
 		view.xG0, view.yG0 = math.mix((0, 0), state.you.pos, 0.5)
 		view.VscaleG = math.interp(math.hypot(*state.you.pos), 0, 100, 10, 40)
 	else:
@@ -77,6 +78,7 @@ def draw():
 	state.you.draw()
 	drawminimap()
 #	drawmap()
+	drawHUD()
 
 
 def drawmap():
@@ -151,5 +153,9 @@ def drawminimap():
 	pview.screen.blit(img, rect)
 	pygame.draw.rect(pview.screen, (60, 120, 120), rect, 1)
 
+
+def drawHUD():
+	text = f"XP: {state.xp}"
+	ptext.draw(text, bottomleft = T(10, 710), fontsize = T(50), color = (200, 255, 255), shade = 1)
 
 

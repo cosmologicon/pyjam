@@ -118,19 +118,22 @@ class You:
 		beam.draw()
 
 class Findable(enco.Component):
-	def __init__(self, Tfind):
-		self.Tfind = Tfind
-		self.ffind = 0
+	def __init__(self, xp = 1):
+		self.xp = xp
 		self.found = False
 
-	def think(self, dt):
-		if not self.found:
-			ffind = 1 if dist(self, state.you) < self.r + 0.5 else 0
-			self.ffind = math.approach(self.ffind, ffind, dt / self.Tfind)
-			if self.ffind == 1:
-				self.found = True
+	def find(self):
+		self.found = True
+		self.onfound()
+	
+	def onfound(self):
+		state.xp += self.xp
 
+
+class DrawDM(enco.Component):
 	def draw(self):
+		if not view.isvisible(self):
+			return
 		pV = view.VconvertG(self.pos)
 		rV = T(view.VscaleG * self.r)
 		if self.found:
@@ -144,32 +147,8 @@ class Unfindable(enco.Component):
 	def __init__(self):
 		self.found = False
 
-@Findable(3)
-class Stander:
-	def __init__(self, pos, r):
-		self.pos = pos
-		self.r = r
-
-@Findable(3)
-@KeepsTime()
-class Orbiter:
-	def __init__(self, pos0, A0, omega, Rorbit, r):
-		self.pos0 = pos0
-		self.r = r
-		self.A0 = A0
-		self.omega = omega
-		self.Rorbit = Rorbit
-		self.setpos()
-	
-	def think(self, dt):
-		self.setpos()
-	
-	def setpos(self):
-		self.A = self.A0 + self.omega * self.t
-		dy, dx = math.CS(self.A, self.Rorbit)
-		x0, y0 = self.pos0
-		self.pos = x0 + dx, y0 + dy
-
+	def find(self):
+		pass
 
 class LinePart:
 	def __init__(self, pos0, pos1, v):
@@ -254,9 +233,10 @@ class FollowsPath(enco.Component):
 		pygame.draw.lines(pview.screen, (255, 255, 255), False, pVs, 1)
 
 
-@Findable(3)
+@Findable(1)
 @KeepsTime()
 @FollowsPath()
+@DrawDM()
 class Visitor:
 	def __init__(self, pos0, pos1, Nstay, Rorbit, v, reverse=False):
 		self.r = 0.4
@@ -382,7 +362,7 @@ class Tracer:
 
 
 @KeepsTime()
-@Lifetime(1)
+@Lifetime(0.5)
 @ShotPath(7, 0.6)
 class Cage:
 	def __init__(self, pos0, A):
@@ -394,8 +374,8 @@ class Cage:
 	def think(self, dt):
 		for DM in state.DMs:
 			if not DM.found and overlaps(DM, self):
+				DM.find()
 				self.alive = False
-				DM.found = True
 
 	def draw(self):
 		pV = view.VconvertG(self.pos)
@@ -459,6 +439,8 @@ class Spot:
 		pass
 
 	def draw(self):
+		if not view.isvisible(self):
+			return
 		pV = view.VconvertG(self.pos)
 		rV = T(view.VscaleG * self.r)
 		pygame.draw.circle(pview.screen, (30, 40, 50), pV, rV)

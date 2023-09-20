@@ -10,7 +10,7 @@ scene.current = playscene
 scene.current.init()
 playing = True
 clock = pygame.time.Clock()
-
+dtaccum = 0
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	kdowns = set(event.key for event in pygame.event.get(pygame.KEYDOWN))
@@ -23,11 +23,17 @@ while playing:
 	if settings.DEBUG and kpressed[pygame.K_F3]: dt *= 10
 	mpos = pygame.mouse.get_pos()
 
-	scene.current.think(dt, kdowns, kpressed, mpos, mdowns)
+	dtaccum += dt
+	dt0 = 1 / settings.maxfps
+	while dtaccum >= dt0:
+		scene.current.think(dt0, kdowns, kpressed, mpos, mdowns)
+		kdowns = set()
+		mdowns = set()
+		dtaccum -= dt0
 	scene.current.draw()
 
 	if settings.DEBUG:
 		text = f"{clock.get_fps():.1f}fps"
-		ptext.draw(text, bottomleft = T(5, 715), fontsize = T(30), owidth = 1)
+		ptext.draw(text, bottomright = T(1275, 715), fontsize = T(30), owidth = 1)
 	pygame.display.flip()
 

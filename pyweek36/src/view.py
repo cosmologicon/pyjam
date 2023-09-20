@@ -2,7 +2,7 @@
 # positive yG: up
 # angles increase counter-clockwise: A = 0 right, A = tau/4 up
 
-import pygame
+import pygame, math
 from . import settings, pview
 from .pview import T
 
@@ -27,4 +27,10 @@ def VconvertG(pG):
 	xG, yG = pG
 	xV0, yV0 = pview.center0
 	return T(xV0 + VscaleG * (xG - xG0), yV0 - VscaleG * (yG - yG0))
+
+def isvisible(obj):
+	xG, yG = obj.pos
+	distG = math.hypot(xG - xG0, yG - yG0)
+	radiusG = pview.diag0 / VscaleG / 2
+	return distG < radiusG + obj.r
 
