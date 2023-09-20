@@ -184,6 +184,14 @@ def fuzz(*args):
 def fuzzrange(a, b, *args):
 	return mix(a, b, fuzz(*args))
 
+def fuzzrandint(a, b, *args):
+	return clamp(int(fuzzrange(a, b + 1, *args)), a, b)
+
+def fuzzchoice(values, *args):
+	return values[fuzzrandint(0, len(values) - 1, *args)]
+
+def fuzzflip(*args):
+	return fuzz(*args) < 0.5
 
 # Add to math module
 _globals = dict(globals())

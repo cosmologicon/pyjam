@@ -59,6 +59,7 @@ class You:
 		self.pos = pos
 		self.v = 0, 0
 		self.A = 0
+		self.r = 1
 		self.omega = 3
 		self.aup = 4
 		self.adrag = 2

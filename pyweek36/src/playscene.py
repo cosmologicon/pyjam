@@ -1,26 +1,36 @@
 import random, math, pygame
-from . import state, thing, view, graphics, sector
+from . import state, thing, view, graphics, sector, quest, perform
 from . import pview, ptext
 from .pview import T
+
+def randomvisitor(spot, adjs, *seed):
+	A0 = math.fuzzrange(0, math.tau, 1.01, *seed)
+	r0 = math.fuzzrange(0, 5, 1.02, *seed)
+	pos0 = math.CS(A0, r0, spot)
+	Rorbit = math.fuzzrange(10, 20, 1.03, *seed)
+	adj = math.fuzzchoice(adjs, 1.04, *seed)
+	A1 = math.fuzzrange(0, math.tau, 1.05, *seed)
+	r1 = math.fuzzrange(0, 5, 1.06, *seed)
+	pos1 = math.CS(A1, r1, adj)
+	v = math.fuzzrange(1.5, 3, 1.07, *seed)
+	Nstay = math.fuzzrandint(10, 20, 1.08, *seed)
+	reverse = math.fuzzflip(1.09, *seed)
+	return thing.Visitor(pos0, pos1, Nstay, Rorbit, v, reverse=reverse)
 
 
 def init():
 	state.xp = 0
-	state.you = thing.You((0, 0))
+	state.you = thing.You((10, 6))
 	state.DMs = [
 #		thing.Orbiter((0, 0), j * math.tau / 3, 0.3, 5, 0.4)
 #		for j in range(3)
 	]
-	state.spots = [thing.Spot(spot) for spot in sector.spots]
-	for spot, adjs in sector.adjs.items():
-		for _ in range(10):
-			pos0 = math.CS(random.uniform(0, math.tau), random.uniform(0, 5), spot)
-			Rorbit = random.uniform(10, 20)
-			pos1 = random.choice(adjs)
-			v = random.uniform(1, 3)
-			Nstay = random.randint(10, 20)
-			reverse = random.choice([False, True])
-			state.DMs += [thing.Visitor(pos0, pos1, Nstay, Rorbit, v, reverse=reverse)]
+	state.home = thing.Spot((0, 0))
+	state.spots = [state.home]
+	state.spots += [thing.Spot(spot) for spot in sector.spots if spot != state.home.pos]
+	for jspot, (spot, adjs) in enumerate(sector.adjs.items()):
+		for jDM in range(10):
+			state.DMs += [randomvisitor(spot, adjs, jspot, jDM)]
 	if False:
 		for _ in range(100):
 			pos0 = math.CS(random.uniform(0, math.tau), random.uniform(0, 50))
@@ -33,10 +43,13 @@ def init():
 	state.tracers = []
 	state.spawners = []
 	state.shots = []
+	quest.init()
 
 
 def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
+	perform.start("think")
 	state.you.control(kdowns, kpressed)
+	perform.start("statethink")
 	state.you.think(dt)
 	for pulse in state.pulses:
 		pulse.think(dt)
@@ -48,23 +61,30 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 		tracer.think(dt)
 	for shot in state.shots:
 		shot.think(dt)
+	perform.stop("statethink")
 	state.pulses = [pulse for pulse in state.pulses if pulse.alive]
 	state.tracers = [tracer for tracer in state.tracers if tracer.alive]
 	state.shots = [shot for shot in state.shots if shot.alive]
+	quest.think(dt)
 	if math.hypot(*state.you.pos) < 0:
 		view.xG0, view.yG0 = math.mix((0, 0), state.you.pos, 0.5)
 		view.VscaleG = math.interp(math.hypot(*state.you.pos), 0, 100, 10, 40)
 	else:
 		view.xG0, view.yG0 = state.you.pos
 		view.VscaleG = 40
+	perform.stop("think")
 
 
 def draw():
-	pview.fill((20, 20, 20))
 	pview.fill((0, 0, 0))
+	perform.start("drawnebula")
 	graphics.drawnebula()
+	perform.stop("drawnebula")
+	perform.start("drawstars")
 	graphics.drawstars()
+	perform.stop("drawstars")
 
+	perform.start("drawstate")
 	for pulse in state.pulses:
 		pulse.draw()
 	for DM in state.DMs:
@@ -76,12 +96,18 @@ def draw():
 	for spot in state.spots:
 		spot.draw()
 	state.you.draw()
+	perform.stop("drawstate")
 	drawminimap()
 #	drawmap()
+	text = quest.info()
+	if text:
+		ptext.draw(text, midbottom = T(640, 710), fontsize = T(50), width = T(800), owidth = 1,
+			color = "#ff7fff", shade = 1)
 	drawHUD()
 
 
 def drawmap():
+	perform.start("drawmap")
 	mradius = 500
 	mrect = T(pygame.Rect(0, 0, 640, 640))
 	def MconvertG(pos):
@@ -94,9 +120,11 @@ def drawmap():
 		pygame.draw.circle(pview.screen, (0, 0, 0), pM, T(3))
 		pygame.draw.circle(pview.screen, (0, 255, 255), pM, T(3), T(1))
 	pygame.draw.circle(pview.screen, (255, 0, 0), MconvertG(state.you.pos), T(5))
+	perform.stop("drawmap")
 
 
 def drawminimap():
+	perform.start("drawminimap")
 	mradius = 50
 	s = 120
 	k = 2
@@ -152,6 +180,7 @@ def drawminimap():
 	rect = img.get_rect(bottomright = T(1270, 710))
 	pview.screen.blit(img, rect)
 	pygame.draw.rect(pview.screen, (60, 120, 120), rect, 1)
+	perform.stop("drawminimap")
 
 
 def drawHUD():

@@ -1,6 +1,6 @@
 import pygame
 from . import settings, view, sector
-from . import scene, playscene, calibratescene
+from . import scene, playscene, calibratescene, perform
 from . import ptext, pview
 from .pview import T
 
@@ -20,11 +20,13 @@ while playing:
 	if pygame.K_F11 in kdowns: view.toggle_fullscreen()
 	if pygame.K_F12 in kdowns: pview.screenshot()
 	kpressed = pygame.key.get_pressed()
-	if settings.DEBUG and kpressed[pygame.K_F3]: dt *= 10
+	dtf = 10 if settings.DEBUG and kpressed[pygame.K_F3] else 1
+	if settings.DEBUG and kpressed[pygame.K_F4]: perform.print_report()
 	mpos = pygame.mouse.get_pos()
+	#perform.print_report()
 
-	dtaccum += dt
-	dt0 = 1 / settings.maxfps
+	dtaccum += dt * dtf
+	dt0 = 1 / settings.maxfps * dtf
 	while dtaccum >= dt0:
 		scene.current.think(dt0, kdowns, kpressed, mpos, mdowns)
 		kdowns = set()

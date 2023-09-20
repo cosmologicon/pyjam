@@ -36,15 +36,29 @@ def parse_image():
 	adjs = []
 	for spot in spots:
 		closest = min(dist(spot, s) for s in spots if s != spot)
-		sadjs = [spot1 for spot1 in spots if spot1 != spot and dist(spot, spot1) < 2 * closest]
+		sadjs = [spot1 for spot1 in spots if spot1 != spot and dist(spot, spot1) < 1.5 * closest]
 		adjs.append((spot, sadjs))
 	sector_data = {
 		"spots": spots,
 		"adjs": adjs,
 	}
-	json.dump(sector_data, open(path, "w"))
+	return sector_data
 	
 
 if __name__ == "__main__":
-	parse_image()
+	sector_data = parse_image()
+	json.dump(sector_data, open(path, "w"))
+	s = 400
+	screen = pygame.display.set_mode((2 * s, 2 * s))
+	screen.fill((0, 0, 0))
+	def SconvertG(pG):
+		xG, yG = pG
+		return int(s + s/50 * xG / SCALE), int(s - s/50 * yG / SCALE)
+	for s0, sadjs in sector_data["adjs"]:
+		for s1 in sadjs:
+			pygame.draw.line(screen, (100, 100, 100), SconvertG(s0), SconvertG(s1), 1)
+	for spot in sector_data["spots"]:
+		pygame.draw.circle(screen, (0, 200, 200), SconvertG(spot), 4)
+	pygame.display.flip()
+	while not pygame.event.get(pygame.KEYDOWN, pump=True): pass
 
