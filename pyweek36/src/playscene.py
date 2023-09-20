@@ -1,5 +1,5 @@
 import random, math, pygame
-from . import state, thing, view, graphics
+from . import state, thing, view, graphics, sector
 from . import pview
 from .pview import T
 
@@ -10,28 +10,30 @@ def init():
 #		thing.Orbiter((0, 0), j * math.tau / 3, 0.3, 5, 0.4)
 #		for j in range(3)
 	]
-	for _ in range(10):
-		pos0 = math.CS(random.uniform(0, math.tau), random.uniform(0, 5))
-		Rorbit = random.uniform(10, 20)
-		pos1 = math.CS(random.uniform(0, math.tau), random.uniform(60, 100))
-		v = random.uniform(1, 3)
-		Nstay = random.randint(10, 20)
-		reverse = random.choice([False, True])
-		state.DMs += [thing.Visitor(pos0, pos1, Nstay, Rorbit, v, reverse=reverse)]
-	for _ in range(100):
-		pos0 = math.CS(random.uniform(0, math.tau), random.uniform(0, 50))
-		Rorbit = random.uniform(60, 100)
-		v = random.uniform(1, 3)
-		reverse = random.choice([False, True])
-		r = random.uniform(0.4, 1)
-		state.DMs += [thing.CircleRock(pos0, Rorbit, v, r, reverse)]
+	for spot, adjs in sector.adjs.items():
+		for _ in range(10):
+			pos0 = math.CS(random.uniform(0, math.tau), random.uniform(0, 5), spot)
+			Rorbit = random.uniform(10, 20)
+			pos1 = random.choice(adjs)
+			v = random.uniform(1, 3)
+			Nstay = random.randint(10, 20)
+			reverse = random.choice([False, True])
+			state.DMs += [thing.Visitor(pos0, pos1, Nstay, Rorbit, v, reverse=reverse)]
+	if False:
+		for _ in range(100):
+			pos0 = math.CS(random.uniform(0, math.tau), random.uniform(0, 50))
+			Rorbit = random.uniform(60, 100)
+			v = random.uniform(1, 3)
+			reverse = random.choice([False, True])
+			r = random.uniform(0.4, 1)
+			state.DMs += [thing.CircleRock(pos0, Rorbit, v, r, reverse)]
 	state.pulses = []
 	state.tracers = []
 	state.spawners = []
 	state.shots = []
 
 
-def think(dt, kdowns = [], kpressed = [0] * 128):
+def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 	state.you.control(kdowns, kpressed)
 	state.you.think(dt)
 	for pulse in state.pulses:
@@ -47,7 +49,12 @@ def think(dt, kdowns = [], kpressed = [0] * 128):
 	state.pulses = [pulse for pulse in state.pulses if pulse.alive]
 	state.tracers = [tracer for tracer in state.tracers if tracer.alive]
 	state.shots = [shot for shot in state.shots if shot.alive]
-	view.xG0, view.yG0 = state.you.pos
+	if math.hypot(*state.you.pos) < 10:
+		view.xG0, view.yG0 = math.mix((0, 0), state.you.pos, 0.5)
+		view.VscaleG = math.interp(math.hypot(*state.you.pos), 0, 100, 10, 40)
+	else:
+		view.xG0, view.yG0 = state.you.pos
+		view.VscaleG = 40
 
 
 def draw():
@@ -65,7 +72,7 @@ def draw():
 	for shot in state.shots:
 		shot.draw()
 	state.you.draw()
-#	drawmap()
+	drawmap()
 
 
 def drawmap():

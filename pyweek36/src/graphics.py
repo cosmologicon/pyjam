@@ -67,10 +67,28 @@ def getstars(N):
 def drawstars():
 	density = 0.001
 	N = int(pview.area * density)
-	for x, y, z, color in getstars(N):
+	stars = getstars(N)
+	j0 = int(N // 5)
+	for j in range(j0, N):
+		x, y, z, color = stars[j]
 		px = int(-view.VscaleG * view.xG0 * z + x) % pview.w
 		py = int(view.VscaleG * view.yG0 * z + y) % pview.h
 		pview.screen.set_at((px, py), color)
+
+def drawstarrange(density, frac):
+	N = int(pview.area * density)
+	stars = getstars(N)
+	j0 = int(N * (1 - frac))
+	z0 = stars[j0][2]
+	for j in range(j0, N):
+		x, y, z, _ = stars[j]
+		f = math.interp(z, z0, 0, 1, 1)
+		color = math.imix((0, 0, 0), (255, 255, 255), f)
+		px = int(-view.VscaleG * view.xG0 * z + x) % pview.w
+		py = int(view.VscaleG * view.yG0 * z + y) % pview.h
+		pview.screen.set_at((px, py), color)
+	
+
 
 @lru_cache(10)
 def getnebula(s = 40):
