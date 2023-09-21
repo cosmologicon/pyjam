@@ -38,12 +38,32 @@ color = 100, 255, 255
 theta = 0
 def T(p):
 	x, y, z = p
-	y, z = math.R(0.4, (y, z))
+	y, z = math.R(0.5535743588970451, (y, z))
 	x, y = math.R(theta, (x, y))
-	z, x = math.R(0.8, (z, x))
-	y, z = math.R(0.9, (y, z))
-	x, y = math.R(1.0, (x, y))
+	y, z = math.R(0.4, (y, z))
+	z, x = math.R(0.5, (z, x))
+	y, z = math.R(0.6, (y, z))
+	x, y = math.R(0.7, (x, y))
 	return x, y, z
+
+if False:
+	def T(p):
+		x, y, z = p
+		y, z = math.R(theta, (y, z))
+		return x, y, z
+	def f(x):
+		global theta
+		theta = x
+		zs = [T(p)[2] for p in vertices]
+		return max(zs)
+
+	x0 = 0.55
+	dx = 0.001
+	for _ in range(50):
+		x0s = [x0 + j * dx for j in range(-20, 20)]
+		x0 = min(x0s, key = f)
+		dx /= 2
+		print(x0, f(x0), dx)
 
 
 def draw():
@@ -68,7 +88,7 @@ def draw():
 
 Nframe = 40
 for j in range(Nframe):
-	theta = math.tau * j / Nframe
+	theta = math.tau * j / Nframe / 5
 	pygame.image.save(draw(), f"img/cage/frame-{j:02d}.png")
 
 while not pygame.event.get(pygame.KEYDOWN, pump=True):

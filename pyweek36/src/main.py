@@ -20,6 +20,7 @@ while playing:
 	if pygame.K_F11 in kdowns: view.toggle_fullscreen()
 	if pygame.K_F12 in kdowns: pview.screenshot()
 	kpressed = pygame.key.get_pressed()
+	settings.drawbox = settings.DEBUG and kpressed[pygame.K_F2]
 	dtf = 10 if settings.DEBUG and kpressed[pygame.K_F3] else 1
 	if settings.DEBUG and kpressed[pygame.K_F4]: perform.print_report()
 	mpos = pygame.mouse.get_pos()

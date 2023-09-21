@@ -35,6 +35,17 @@ class Lifetime(enco.Component):
 		if self.f == 1:
 			self.alive = False
 
+# Set pos and r in game coordinates in constructor.
+class WorldBound(enco.Component):
+	boxcolor = 255, 255, 255
+	def pV(self):
+		return view.VconvertG(self.pos)
+	def rV(self):
+		return T(view.VscaleG * self.r)
+	def drawbox(self, color=None):
+		pygame.draw.circle(pview.screen, (color or self.boxcolor), self.pV(), self.rV(), 1)
+
+
 class HasVelocity(enco.Component):
 	def think(self, dt):
 		x, y = self.pos
@@ -54,6 +65,7 @@ class ShotPath(enco.Component):
 		
 
 @KeepsTime()
+@WorldBound()
 class You:
 	def __init__(self, pos):
 		self.pos = pos
@@ -102,14 +114,13 @@ class You:
 			state.shots.append(Cage(self.pos, self.A))
 
 	def draw(self):
-		pV = view.VconvertG(self.pos)
-		graphics.drawG("ship", pV, 0.003, self.A)
+		graphics.drawG("ship", self.pV(), 0.003, self.A)
 
 
 	def drawglow(self):
 		pV = view.VconvertG(math.CS(self.A, 1.4, self.pos))
 		glow = graphics.glow(T(view.VscaleG * 1.0), seed = random.randint(0, 9), color = (100, 50, 0, 100))
-		pview.screen.blit(glow, glow.get_rect(center = pV))
+		pview.screen.blit(glow, glow.get_rect(center = self.pV()))
 
 
 	def drawbeam(self):
@@ -131,16 +142,27 @@ class Findable(enco.Component):
 		state.xp += self.xp
 
 
-class DrawDM(enco.Component):
-	def draw(self):
+class DrawCage(enco.Component):
+	def __init__(self):
+		self.omegaspin = None
+	def drawcage(self):
+		if self.omegaspin is None:
+			self.omegaspin = random.uniform(0.8, 2.5) * random.choice([-1, 1])
 		if not view.isvisible(self):
 			return
 		pV = view.VconvertG(self.pos)
 		rV = T(view.VscaleG * self.r)
+		graphics.drawcageG(self.t * self.omegaspin, pV, 0.0065 * self.r, 0)
+
+
+class DrawDM(enco.Component):
+	def draw(self):
 		if self.found:
-			graphics.drawcageG(self.t * 0.5, pV, 0.0065 * self.r, 0)
+			self.drawcage()
 #			pygame.draw.circle(pview.screen, (255, 255, 255), pV, rV, 1)
 		else:
+			pV = view.VconvertG(self.pos)
+			rV = T(view.VscaleG * self.r)
 			color = (0, 100, 100) if self.found else (0, 0, 0)
 			pygame.draw.circle(pview.screen, color, pV, rV)
 
@@ -234,9 +256,11 @@ class FollowsPath(enco.Component):
 		pygame.draw.lines(pview.screen, (255, 255, 255), False, pVs, 1)
 
 
+@WorldBound()
 @Findable(1)
 @KeepsTime()
 @FollowsPath()
+@DrawCage()
 @DrawDM()
 class Visitor:
 	def __init__(self, pos0, pos1, Nstay, Rorbit, v, reverse=False):
@@ -365,6 +389,7 @@ class Tracer:
 @KeepsTime()
 @Lifetime(0.5)
 @ShotPath(7, 0.6)
+@DrawCage()
 class Cage:
 	def __init__(self, pos0, A):
 		self.pos0 = pos0
@@ -379,8 +404,7 @@ class Cage:
 				self.alive = False
 
 	def draw(self):
-		pV = view.VconvertG(self.pos)
-		graphics.drawcageG(self.t * 0.5, pV, 0.0065 * self.r, 0)
+		self.drawcage()
 
 
 @KeepsTime()
@@ -431,6 +455,7 @@ class Pulse:
 			pview.screen.set_at(pV, (100, 100, 255))
 
 
+@WorldBound()
 class Spot:
 	def __init__(self, pos):
 		self.pos = pos
@@ -442,12 +467,10 @@ class Spot:
 	def draw(self):
 		if not view.isvisible(self):
 			return
-		pV = view.VconvertG(self.pos)
-		rV = T(view.VscaleG * self.r)
-		pygame.draw.circle(pview.screen, (30, 40, 50), pV, rV)
+		pygame.draw.circle(pview.screen, (30, 40, 50), self.pV(), self.rV())
 		nnear = sum(dist(self, DM) < 25 for DM in state.DMs)
 		text = f"{nnear}"
-		ptext.draw(text, center = pV, color = "#7f7fff", owidth = 1, fontsize = T(view.VscaleG * 1))
+		ptext.draw(text, center = self.pV(), color = "#7f7fff", owidth = 1, fontsize = T(view.VscaleG * 1))
 
 
 

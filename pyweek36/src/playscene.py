@@ -1,5 +1,5 @@
 import random, math, pygame
-from . import state, thing, view, graphics, sector, quest, perform
+from . import settings, state, thing, view, graphics, sector, quest, perform
 from . import pview, ptext
 from .pview import T
 
@@ -96,6 +96,12 @@ def draw():
 	for spot in state.spots:
 		spot.draw()
 	state.you.draw()
+	if settings.drawbox:
+		for DM in state.DMs:
+			DM.drawbox()
+		for spot in state.spots:
+			spot.drawbox()
+		state.you.drawbox()
 	perform.stop("drawstate")
 	drawminimap()
 #	drawmap()
