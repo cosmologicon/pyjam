@@ -51,6 +51,14 @@ def drawcreature(jrow, f, rect, subrect = None):
 	img = getcreatureimg(jrow, jframe, tuple(subrect), rect.size)
 	pview.screen.blit(img, rect)
 
+@lru_cache(50)
+def pset(s):
+	return [(j, (p - s + 0.5) / s) for j, p in enumerate(range(2 * s))]
+
+@lru_cache(10)
+def pgrid(s):
+	return [(px, py, x, y, math.hypot(x, y)) for px, x in pset(s) for py, y in pset(s)]
+
 @lru_cache(20)
 def glow(s, seed = 0, color = None):
 	if s != 40:
@@ -62,13 +70,21 @@ def glow(s, seed = 0, color = None):
 		img.blit(img0, (0, 0), special_flags = pygame.BLEND_RGBA_MULT)
 		return img
 	img = pygame.Surface((2 * s, 2 * s)).convert_alpha()
-	ps = [(p - s + 0.5) / s for p in range(2 * s)]
-	for px, x in enumerate(ps):
-		for py, y in enumerate(ps):
-			r = math.hypot(x, y)
-			f = math.fuzzrange(0.8, 1, px, py, seed)
-			alpha = math.clamp(int(round(255 * f * (1 - r ** 4))), 0, 255)
-			img.set_at((px, py), (255, 255, 255, alpha))
+	for px, py, x, y, r in pgrid(s):
+		f = math.fuzzrange(0.8, 1, px, py, seed)
+		alpha = math.clamp(int(round(255 * f * (1 - r ** 4))), 0, 255)
+		img.set_at((px, py), (255, 255, 255, alpha))
+	return img
+
+@lru_cache(20)
+def fadeimg(s = 200):
+	if s != 200:
+		return pygame.transform.smoothscale(fadeimg(), (2 * s, 2 * s))
+	img = pygame.Surface((2 * s, 2 * s)).convert_alpha()
+	for px, py, x, y, r in pgrid(s):
+		f = math.smoothinterp(r, 0.5, 1, 1, 0)
+		alpha = math.clamp(int(round(255 * f)), 0, 255)
+		img.set_at((px, py), (255, 255, 255, alpha))
 	return img
 
 @lru_cache(1)
@@ -134,5 +150,9 @@ def drawnebula():
 		for px in tilerange(s, px0, 0, pview.w):
 			for py in tilerange(s, py0, 0, pview.h):
 				pview.screen.blit(img, (px, py))
+
+
+
+
 
 

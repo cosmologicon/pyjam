@@ -37,12 +37,12 @@ class ArriveQuest:
 			if self.tstep > 30:
 				return "See README.md for instructions to adjust the difficulty, if desired."
 			else:
-				return "Hit a piece of dark matter to track it. Look closely at the stars."
+				return "Hit a piece of unmatter to track it. Look closely at the stars."
 		if self.jstep == 3:
 			if self.tstep > 60:
 				return "See README.md for instructions to adjust the difficulty, if desired."
 			else:
-				return "Find and track 3 pieces of dark matter. Don't go too far."
+				return "Find and track 3 pieces of unmatter. Don't go too far."
 		if self.jstep == 4:
 			return "Return to the station."
 	def think(self, dt):

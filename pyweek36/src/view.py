@@ -31,6 +31,6 @@ def VconvertG(pG):
 def isvisible(obj):
 	xG, yG = obj.pos
 	distG = math.hypot(xG - xG0, yG - yG0)
-	radiusG = pview.diag0 / VscaleG / 2
+	radiusG = pview.s0 / VscaleG
 	return distG < radiusG + obj.r
 

@@ -77,15 +77,15 @@ def draw():
 
 convos = {
 	0: [
-		"So, you want to hunt dark matter, huh? Well you came to the right place, heh heh. This sector is loaded with it.",
-		"I've equipped your ship with a gravnet system. Fire a gravnet at some dark matter so we can track it.",
-		"Unfortunately no instruments can detect dark matter until you've got it in a net. You'll just have to look very closely for what isn't there.",
-		"Come back here after you've found 3 pieces of dark matter. Don't go too far.",
+		"So, you want to hunt unmatter, huh? Well you came to the right place, heh heh. This sector is loaded with it.",
+		"I've equipped your ship with a gravnet system. Fire a gravnet at some unmatter so we can track it.",
+		"Unfortunately no instruments can detect unmatter until you've got it in a net. You'll just have to look very closely for what isn't there.",
+		"Come back here after you've found 3 pieces of unmatter. Don't go too far.",
 	],
 	1: [
 		"That's some good data, mmm, keep it coming!",
-		"The more dark matter you find, the more tech we can access, not to mention upgrades to your ship.",
-		"We can now measure how many unfound pieces of dark matter are still orbiting this station.",
+		"The more unmatter you find, the more tech we can access, not to mention upgrades to your ship.",
+		"We can now measure how many unfound pieces of unmatter are still orbiting this station.",
 		"Locating them, though, that's still on you.",
 	],
 }

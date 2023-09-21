@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, pview, graphics, state, enco, ptext
+from . import view, pview, graphics, state, enco, ptext, perform
 from .pview import T
 
 
@@ -143,7 +143,7 @@ class You:
 
 	def draw(self):
 		graphics.drawG("ship", self.pV(), 0.003, self.A)
-
+		self.drawbeam()
 
 	def drawglow(self):
 		pV = view.VconvertG(math.CS(self.A, 1.4, self.pos))
@@ -152,10 +152,12 @@ class You:
 
 
 	def drawbeam(self):
-		beam = Beam(self.pos, self.A, 0.5, 4, 0.15, 0.3)
+		perform.start("beam")
+		beam = Beam(self.pos, self.A, 0.5, 10, 0.15, 1)
 		for DM in state.DMs:
 			beam.occlude(DM)
 		beam.draw()
+		perform.stop("beam")
 
 class Findable(enco.Component):
 	def __init__(self, xp = 1):
@@ -383,6 +385,69 @@ class Beam:
 		dps = [self.R((dx, dy)) for dx, dy in occludebeam(self.w0, self.w1, self.d0, self.d1, self.fences)]
 		pVs = [view.VconvertG((self.x0 + dx, self.y0 + dy)) for dx, dy in dps]
 		pygame.draw.polygon(pview.screen, (255, 230, 200), pVs)
+		#self.drawfences()
+
+	def drawfences(self):
+		for xB, w, yB0, yB1 in self.fences:
+			dps = [self.R((xB, w * yB)) for yB in [yB0, yB1]]
+			pVs = [view.VconvertG((self.x0 + dx, self.y0 + dy)) for dx, dy in dps]
+			pygame.draw.line(pview.screen, (100, 100, 255), *pVs)
+
+class Beam:
+	def __init__(self, p0, A, d0, d1, w0, w1):
+		self.p0 = self.x0, self.y0 = p0
+		self.A = A
+		self.d0 = d0
+		self.d1 = d1
+		self.w0 = w0
+		self.w1 = w1
+		self.R = math.R(self.A)
+		self.Rinv = math.R(-self.A)
+		self.fences = []
+		self.blockers = []
+
+	def occlude(self, obj):
+		x, y = obj.pos
+		xB, yB = self.Rinv((x - self.x0, y - self.y0))
+		if not self.d0 <= xB <= self.d1:
+			return
+		w = math.interp(xB, self.d0, self.w0, self.d1, self.w1)
+		if abs(yB) > w + obj.r:
+			return
+		self.fences.append((xB, w, (yB - obj.r) / w, (yB + obj.r) / w))
+		self.blockers.append(obj)
+
+	def draw(self):
+		self.fences.sort()
+#		dps = [(self.d0, self.w0), (self.d0, -self.w0), (self.d1, -self.w1), (self.d1, self.w1)]
+#		dps = [self.R((dx, dy)) for dx, dy in dps]
+		polys = []
+#		for alpha0, fw in [(40, 1), (50, 0.8), (60, 0.6)]:
+		for alpha0, fw in [(40, 1)]:
+			alpha = int(alpha0 * random.uniform(1, 1.1))
+			dps = [self.R((dx, dy)) for dx, dy in occludebeam(self.w0 * fw, self.w1 * fw, self.d0, self.d1, self.fences)]
+			pVs = [view.VconvertG((self.x0 + dx, self.y0 + dy)) for dx, dy in dps]
+			polys.append((alpha, pVs))
+		xs = [x for alpha, pVs in polys for x, y in pVs]
+		ys = [y for alpha, pVs in polys for x, y in pVs]
+		xVmin = max(min(xs), 0)
+		xVmax = min(max(xs), pview.w)
+		yVmin = max(min(ys), 0)
+		yVmax = min(max(ys), pview.h)
+		w, h = xVmax - xVmin, yVmax - yVmin
+		surf = pygame.Surface((w, h)).convert_alpha()
+		surf.fill((255, 255, 50, 0))
+		for alpha, pVs in polys:
+			pVs = [(xV - xVmin, yV - yVmin) for xV, yV in pVs]
+			pygame.draw.polygon(surf, (255, 255, 50, alpha), pVs)
+		for obj in self.blockers:
+			xV, yV = obj.pV()
+			pygame.draw.circle(surf, (255, 255, 50, 0), (xV - xVmin, yV - yVmin), obj.rV())
+		fade = graphics.fadeimg(T(view.VscaleG * self.d1))
+		xV0, yV0 = view.VconvertG((self.x0, self.y0))
+		center = xV0 - xVmin, yV0 - yVmin
+		surf.blit(fade, fade.get_rect(center = center), special_flags = pygame.BLEND_RGBA_MULT)
+		pview.screen.blit(surf, (xVmin, yVmin))
 		#self.drawfences()
 
 	def drawfences(self):
