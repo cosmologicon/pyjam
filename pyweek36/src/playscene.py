@@ -43,7 +43,19 @@ def init():
 	state.tracers = []
 	state.spawners = []
 	state.shots = []
+	state.techlevel = {
+		"count": 0,
+		"engine": 0,
+		"gravnet": -1,
+		"drag": -1,
+	}
+	state.at = None
 	quest.init()
+
+def resume():
+	state.you.A = 0
+	state.you.leave(state.at)
+	state.at = None
 
 
 def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
@@ -72,6 +84,13 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 	else:
 		view.xG0, view.yG0 = state.you.pos
 		view.VscaleG = 40
+	for spot in state.spots:
+		if thing.overlaps(state.you, spot):
+			from . import scene, homescene
+			if spot is state.home:
+				state.at = spot
+				scene.current = homescene
+				homescene.init()
 	perform.stop("think")
 
 

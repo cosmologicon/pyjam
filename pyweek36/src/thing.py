@@ -74,7 +74,6 @@ class You:
 		self.r = 1
 		self.omega = 3
 		self.aup = 4
-		self.adrag = 2
 		self.adown = 20
 		self.vmax = 4
 		self.on = False
@@ -91,6 +90,12 @@ class You:
 			"dA": left - right,
 			"act": pygame.K_SPACE in kdowns,
 		}
+	
+	def leave(self, obj):
+		self.v = 2, 0
+		self.A = 0
+		self.pos = math.CS(self.A, 5, obj.pos)
+
 
 	def think(self, dt):
 		x, y = self.pos
@@ -99,7 +104,9 @@ class You:
 		if self.controls["up"]:
 			vx, vy = math.CS(math.mixA(self.A, A, 0.5), self.aup * dt, (vx, vy))
 		else:
-			a = self.adown if self.controls["down"] else self.adrag
+			level = state.techlevel["drag"]
+			adrag = [0, 1, 2, 5, 100][level] if level >= 0 else 2
+			a = self.adown if self.controls["down"] else adrag
 			vx, vy = math.approach((vx, vy), (0, 0), dt * a)
 		v = math.hypot(vx, vy)
 		if v > self.vmax:
@@ -109,7 +116,7 @@ class You:
 		self.pos = x + dt * vxavg, y + dt * vyavg
 		self.v = vx, vy
 		self.A = A
-		if self.controls["act"]:
+		if self.controls["act"] and state.techlevel["gravnet"] >= 0:
 #			state.pulses.append(Pulse(self.pos))
 			state.shots.append(Cage(self.pos, self.A))
 

@@ -1,6 +1,6 @@
 import pygame
-from . import settings, view, sector
-from . import scene, playscene, calibratescene, perform
+from . import settings, view, sector, perform
+from . import scene, playscene, calibratescene, homescene
 from . import ptext, pview
 from .pview import T
 
@@ -36,7 +36,12 @@ while playing:
 	scene.current.draw()
 
 	if settings.DEBUG:
-		text = f"{clock.get_fps():.1f}fps"
+		text = "\n".join([
+			"F2: show hit boxes",
+			"F3: speed boost",
+			"F4: print peformance report",
+			f"{clock.get_fps():.1f}fps",
+		])
 		ptext.draw(text, bottomright = T(1275, 715), fontsize = T(30), owidth = 1)
 	pygame.display.flip()
 
