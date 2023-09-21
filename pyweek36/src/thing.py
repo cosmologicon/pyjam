@@ -62,10 +62,39 @@ class ShotPath(enco.Component):
 		f = 0.5 * self.f * (3 - self.f ** 2)
 		d = math.mix(self.d0, self.D, f)
 		self.pos = math.CS(self.A, d, self.pos0)
-		
+
+class Engines(enco.Component):
+	def aup(self):
+		return [3, 4, 5.5, 8, 12][state.techlevel["engine"]]
+	def adown(self):
+		return 10
+	def adrag(self):
+		level = state.techlevel["drag"]
+		return ([0, 0.5, 1, 2, 10][level] if level >= 0 else 1) * self.aup()
+
+class LaunchCages(enco.Component):
+	def think(self, dt):
+		if self.cageunlocked() and state.charge["gravnet"] < 1:
+			state.charge["gravnet"] = math.approach(state.charge["gravnet"], 1, self.cagechargerate() * dt)
+		if self.controls["act"] and self.cageunlocked():
+			if self.canlaunchcage():
+				self.launchcage()
+			else:
+				pass
+	def cagechargerate(self):
+		return [0.5, 1, 2, 10][state.techlevel["gravnet"]]
+	def cageunlocked(self):
+		return state.techlevel["gravnet"] >= 0
+	def canlaunchcage(self):
+		return state.charge["gravnet"] == 1
+	def launchgage(self):
+		state.shots.append(Cage(self.pos, self.A))
+		state.charge["gravnet"] = 0
 
 @KeepsTime()
 @WorldBound()
+@Engines()
+@LaunchCages()
 class You:
 	def __init__(self, pos):
 		self.pos = pos
@@ -73,8 +102,6 @@ class You:
 		self.A = 0
 		self.r = 1
 		self.omega = 3
-		self.aup = 4
-		self.adown = 20
 		self.vmax = 4
 		self.on = False
 
@@ -96,17 +123,14 @@ class You:
 		self.A = 0
 		self.pos = math.CS(self.A, 5, obj.pos)
 
-
 	def think(self, dt):
 		x, y = self.pos
 		vx, vy = self.v
 		A = math.dA(self.A + dt * self.omega * self.controls["dA"])
 		if self.controls["up"]:
-			vx, vy = math.CS(math.mixA(self.A, A, 0.5), self.aup * dt, (vx, vy))
+			vx, vy = math.CS(math.mixA(self.A, A, 0.5), self.aup() * dt, (vx, vy))
 		else:
-			level = state.techlevel["drag"]
-			adrag = [0, 1, 2, 5, 100][level] if level >= 0 else 2
-			a = self.adown if self.controls["down"] else adrag
+			a = self.adown() if self.controls["down"] else self.adrag()
 			vx, vy = math.approach((vx, vy), (0, 0), dt * a)
 		v = math.hypot(vx, vy)
 		if v > self.vmax:
@@ -116,9 +140,6 @@ class You:
 		self.pos = x + dt * vxavg, y + dt * vyavg
 		self.v = vx, vy
 		self.A = A
-		if self.controls["act"] and state.techlevel["gravnet"] >= 0:
-#			state.pulses.append(Pulse(self.pos))
-			state.shots.append(Cage(self.pos, self.A))
 
 	def draw(self):
 		graphics.drawG("ship", self.pV(), 0.003, self.A)
@@ -471,13 +492,18 @@ class Spot:
 	def think(self, dt):
 		pass
 
+	def nnear(self):
+		DMs = [DM for DM in state.DMs if dist(self, DM) < 25]
+		return sum(not DM.found for DM in DMs), sum(DM.found for DM in DMs)
+
 	def draw(self):
 		if not view.isvisible(self):
 			return
-		pygame.draw.circle(pview.screen, (30, 40, 50), self.pV(), self.rV())
-		nnear = sum(dist(self, DM) < 25 for DM in state.DMs)
-		text = f"{nnear}"
-		ptext.draw(text, center = self.pV(), color = "#7f7fff", owidth = 1, fontsize = T(view.VscaleG * 1))
+		pygame.draw.circle(pview.screen, (30, 50, 70), self.pV(), self.rV())
+		if state.techlevel["count"] > 0:
+			nunfound, nfound = self.nnear()
+			text = f"{nfound} : {nunfound}"
+			ptext.draw(text, center = self.pV(), color = "#7f7fff", owidth = 1, fontsize = T(view.VscaleG * 1))
 
 
 

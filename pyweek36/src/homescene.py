@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, ptext, quest, state
+from . import pview, ptext, quest, state, graphics
 from .pview import T
 
 class self:
@@ -59,6 +59,8 @@ def onclick(bname):
 
 def draw():
 	pview.fill((60, 60, 60))
+	graphics.drawcreature(6, self.t, T(pygame.Rect(100, 100, 500, 500)), pygame.Rect(8, 0, 16, 16))
+
 	if self.convo:
 		text = self.convo[0]
 		y = math.mix(705, 710, math.cycle(0.2 * self.t))

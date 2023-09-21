@@ -46,8 +46,8 @@ def init():
 	state.techlevel = {
 		"count": 0,
 		"engine": 0,
-		"gravnet": -1,
-		"drag": -1,
+		"gravnet": -1,  # Not enabled.
+		"drag": -1,  # drag level 2, cannot be set.
 	}
 	state.at = None
 	quest.init()

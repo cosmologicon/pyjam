@@ -5,6 +5,9 @@ cost = {
 	"engine": [5, 10, 20],
 	"gravnet": [5, 10, 20],
 }
+charge = {
+	"gravnet": 1,
+}
 
 def getcost(techname):
 	if techlevel[techname] <= 0:

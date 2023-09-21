@@ -1,7 +1,11 @@
 import pygame, os, math
-from functools import lru_cache
+from functools import lru_cache, cache
 from . import pview, view
 from .pview import T
+
+@cache
+def loadimg(*path):
+	return pygame.image.load(os.path.join(*path)).convert_alpha()
 
 @lru_cache(1000)
 def getimg(imgname, scale, A):
@@ -13,9 +17,7 @@ def getimg(imgname, scale, A):
 	if scale != 1 or A != 0:
 		img = getimg(imgname, 1, 0)
 		return pygame.transform.rotozoom(img, A, scale)
-	path = os.path.join("img", f"{imgname}.png")
-	img = pygame.image.load(path).convert_alpha()
-	return img
+	return loadimg("img", f"{imgname}.png")
 
 def loground(value, N):
 	return math.exp(round(N * math.log(value)) / N)
@@ -32,6 +34,22 @@ def drawG(imgname, pV, scaleG, A):
 def drawcageG(f, pV, scaleG, A):
 	j = int(f * 40) % 40
 	drawG(os.path.join("cage", f"frame-{j:02}"), pV, scaleG, A)
+
+@lru_cache(20)
+def getcreatureimg(jrow, jframe, subrect = None, size = None):
+	if size is not None:
+		img0 = getcreatureimg(jrow, jframe, subrect)
+		return pygame.transform.scale(img0, size)
+	img0 = loadimg("img", "creatures.png")
+	subrect = pygame.Rect(subrect or (0, 0, 32, 32))
+	subrect.x += jframe * 32
+	subrect.y += jrow * 32
+	return img0.subsurface(subrect)
+
+def drawcreature(jrow, f, rect, subrect = None):
+	jframe = [0, 1, 2, 1][int(f * 4) % 4]
+	img = getcreatureimg(jrow, jframe, tuple(subrect), rect.size)
+	pview.screen.blit(img, rect)
 
 @lru_cache(20)
 def glow(s, seed = 0, color = None):
