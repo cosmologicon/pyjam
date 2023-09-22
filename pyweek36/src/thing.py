@@ -119,10 +119,11 @@ class You:
 		self.pos = pos
 		self.v = 0, 0
 		self.A = 0
-		self.r = 1
+		self.r = 0.6
 		self.omega = 3
 		self.vmax = 4
 		self.on = False
+		self.flean = 0
 
 	def control(self, kdowns, kpressed):
 		left = kpressed[pygame.K_LEFT]
@@ -159,9 +160,10 @@ class You:
 		self.pos = x + dt * vxavg, y + dt * vyavg
 		self.v = vx, vy
 		self.A = A
+		self.flean = math.approach(self.flean, -self.controls["dA"], 4 * dt)
 
 	def draw(self):
-		graphics.drawG("ship", self.pV(), 0.003, self.A)
+		graphics.drawshipG(self.pV(), 0.008 * self.r, self.A, self.flean)
 		self.drawbeam()
 
 	def drawglow(self):
@@ -558,30 +560,59 @@ class Pulse:
 			pV = view.VconvertG((x, y))
 			pview.screen.set_at(pV, (100, 100, 255))
 
-
+class TracksNear(enco.Component):
+	def __init__(self, Dnear = 25):
+		self.Dnear = Dnear
+	def nnear(self):
+		DMs = [DM for DM in state.DMs if dist(self, DM) < self.Dnear]
+		return sum(not DM.found for DM in DMs), sum(DM.found for DM in DMs)
+	def nunfound(self):
+		return self.nnear()[0]
+	def nfound(self):
+		return self.nnear()[1]
 
 @WorldBound()
-class Spot:
+@KeepsTime()
+@TracksNear()
+class Home:
 	def __init__(self, pos):
 		self.pos = pos
 		self.r = 2
+
+	def draw(self):
+		if not view.isvisible(self):
+			return
+		A = math.tau / 8 * (self.t * 0.1 % 1)
+		graphics.drawG("starbase", self.pV(), 0.006 * self.r, A, dA = 0.5)
+		if state.techlevel["count"] > 0:
+			nunfound, nfound = self.nnear()
+			text = f"{nfound} : {nunfound}"
+			ptext.draw(text, center = self.pV(), color = "#7f7fff", owidth = 1, fontsize = T(view.VscaleG * 2))
+
+
+@WorldBound()
+@KeepsTime()
+@TracksNear()
+class Spot:
+	def __init__(self, pos):
+		self.pos = pos
+		self.r = 1
 		self.unlocked = False
-		self.tunlock = 0
+		self.funlock = 0
 
 	def think(self, dt):
 		if not self.unlocked and view.isvisible(self) and state.techlevel["count"] > 0:
 			self.unlocked = True
 			quest.marquee.append("New Counter deployed.")
-			self.tunlock = 
-
-	def nnear(self):
-		DMs = [DM for DM in state.DMs if dist(self, DM) < 25]
-		return sum(not DM.found for DM in DMs), sum(DM.found for DM in DMs)
+			self.funlock = 0
+		if self.unlocked:
+			self.funlock = math.approach(self.funlock, 1, 0.5 * dt)
 
 	def draw(self):
-		if not view.isvisible(self):
+		if not view.isvisible(self) or not self.unlocked:
 			return
-		pygame.draw.circle(pview.screen, (30, 50, 70), self.pV(), self.rV())
+		A = math.tau / 8 * (self.t % 1)
+		graphics.drawG("starbase", self.pV(), 0.006 * self.r, A, dA = 5)
 		if state.techlevel["count"] > 0:
 			nunfound, nfound = self.nnear()
 			text = f"{nfound} : {nunfound}"

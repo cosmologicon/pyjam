@@ -6,6 +6,10 @@ from .pview import T
 
 def init():
 	progress.init()
+	for j, DM in enumerate(state.DMs):
+		DM.found = math.fuzzflip(j, 123)
+	for j, spot in enumerate(state.spots):
+		spot.unlocked = math.fuzzflip(j, 234)
 
 def resume():
 	state.you.A = 0
@@ -28,6 +32,8 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 		tracer.think(dt)
 	for shot in state.shots:
 		shot.think(dt)
+	for spot in state.spots:
+		spot.think(dt)
 	perform.stop("statethink")
 	state.pulses = [pulse for pulse in state.pulses if pulse.alive]
 	state.tracers = [tracer for tracer in state.tracers if tracer.alive]
@@ -39,7 +45,7 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 		view.VscaleG = math.interp(math.hypot(*state.you.pos), 0, 100, 10, 40)
 	else:
 		view.xG0, view.yG0 = state.you.pos
-		view.VscaleG = 40
+		view.VscaleG = 80
 	for spot in state.spots:
 		if thing.overlaps(state.you, spot):
 			from . import scene, homescene
@@ -47,6 +53,7 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 				state.at = spot
 				scene.current = homescene
 				homescene.init()
+
 	perform.stop("think")
 
 
@@ -90,18 +97,55 @@ def draw():
 
 def drawmap():
 	perform.start("drawmap")
-	mradius = 500
-	mrect = T(pygame.Rect(0, 0, 640, 640))
+	flash = pygame.time.get_ticks() % 1000 > 500
+
+	mradius = 1000
+	s = 340
+	k = 1
+	img = pygame.Surface(T(2 * k * s, 2 * k * s)).convert_alpha()
+	img.fill((0, 0, 0, 200))
 	def MconvertG(pos):
 		x, y = pos
-		return pview.T(640 + 320 / mradius * x, 360 - 320 / mradius * y)
-	mrect.center = pview.center
-	pview.screen.fill((10, 10, 10), mrect)
+		return T(k * s + k * s / mradius * x, k * s - k * s / mradius * y)
+
+	def drawcircleG(posG, rV, color, ocolor=None):
+		pM = MconvertG(posG)
+		pygame.draw.circle(img, color, pM, T(k * rV))
+		if ocolor is not None:
+			pygame.draw.circle(img, ocolor, pM, T(k * rV), k)
+
+	Dring = 100
+	Nspoke = 8
+	color = math.imix((0, 0, 0), (128, 255, 255), k / 4)
+	for jring in range(1, 11):
+		rG = Dring * jring
+		rV = rG * s / mradius
+		pygame.draw.circle(img, color, MconvertG((0, 0)), T(k * rV), 1)
+	for jspoke in range(48):
+		A = jspoke / Nspoke * math.tau / 6
+		jring = Nspoke
+		while jring > 1 and jspoke % 2 == 0:
+			jring /= 2
+			jspoke /= 2
+		r0, r1 = jring * Dring, 10 * Dring
+		pygame.draw.line(img, color, MconvertG(math.CS(A, r0)), MconvertG(math.CS(A, r1)), 1)
+
 	for DM in state.DMs:
-		pM = MconvertG(DM.pos)
-		pygame.draw.circle(pview.screen, (0, 0, 0), pM, T(3))
-		pygame.draw.circle(pview.screen, (0, 255, 255), pM, T(3), T(1))
-	pygame.draw.circle(pview.screen, (255, 0, 0), MconvertG(state.you.pos), T(5))
+		if DM.found:
+			drawcircleG(DM.pos, 1, (0, 0, 0), (0, 200, 200))
+	for spot in state.spots:
+		if spot.unlocked:
+			drawcircleG(spot.pos, 5, (0, 0, 0), (0, 200, 200))
+			if flash:
+				nunfound, nfound = spot.nnear()
+				ptext.draw(f"{nunfound}", center = MconvertG(spot.pos), fontsize = T(25 * k), owidth = 1, surf=img)
+	if not flash:
+		drawcircleG(state.you.pos, 6, (200, 100, 100), (255, 128, 128))
+	if k != 1:
+		img = pygame.transform.smoothscale(img, (2 * s, 2 * s))
+	rect = img.get_rect(center = pview.center)
+	pview.screen.blit(img, rect)
+	pygame.draw.rect(pview.screen, (60, 120, 120), rect, 1)
 	perform.stop("drawmap")
 
 

@@ -22,14 +22,14 @@ def getimg(imgname, scale, A):
 def loground(value, N):
 	return math.exp(round(N * math.log(value)) / N)
 
-def draw(imgname, pV, scale, A):
+def draw(imgname, pV, scale, A, dA = 5):
 	scale = loground(scale, 20)
-	A = round(math.degrees(A) / 5) * 5
+	A = round(math.degrees(A) / dA) * dA
 	img = getimg(imgname, scale, A)
 	pview.screen.blit(img, img.get_rect(center = pV))
 
-def drawG(imgname, pV, scaleG, A):
-	draw(imgname, pV, scaleG * view.VscaleG * pview.f, A)
+def drawG(imgname, pV, scaleG, A, dA = 5):
+	draw(imgname, pV, scaleG * view.VscaleG * pview.f, A, dA = dA)
 
 def drawcageG(f, pV, scaleG, A):
 	j = int(f * 40) % 40
@@ -50,6 +50,30 @@ def drawcreature(jrow, f, rect, subrect = None):
 	jframe = [0, 1, 2, 1][int(f * 4) % 4]
 	img = getcreatureimg(jrow, jframe, tuple(subrect), rect.size)
 	pview.screen.blit(img, rect)
+
+@lru_cache(100)
+def getshipimg(scale, A, frame):
+	if scale != 1 and A == 0:
+		img = getshipimg(1, 0, frame)
+		w, h = img.get_size()
+		size = int(round(w * scale)), int(round(h * scale))
+		return pygame.transform.smoothscale(img, size)
+	if scale != 1 or A != 0:
+		img = getshipimg(1, 0, frame)
+		return pygame.transform.rotozoom(img, A, scale)
+	img0 = loadimg("img", f"redfighter{frame+1:04d}.png")
+	img = pygame.Surface((460, 460)).convert_alpha()
+	img.fill((0, 0, 0, 0))
+	img.blit(img0, img0.get_rect(midtop = img.get_rect().midtop))
+	return pygame.transform.rotate(img, -90)
+
+def drawshipG(pV, scaleG, A, flean, dA = 5):
+	frame = int(round((1 + math.clamp(flean, -1, 1)) * 4))
+	scale = loground(scaleG * view.VscaleG * pview.f, 20)
+	A = round(math.degrees(A) / dA) * dA
+	img = getshipimg(scale, A, frame)
+	pview.screen.blit(img, img.get_rect(center = pV))
+	
 
 @lru_cache(50)
 def pset(s):

@@ -100,8 +100,7 @@ class ArriveQuest:
 			self.advance()
 			self.marquee("Tech unlocked: Counter")
 		if self.jstep == 5:
-			nunfound, nfound = state.home.nnear()
-			if nfound <= 3:
+			if state.home.nunfound() <= 3:
 				state.homeconvo = 2
 				self.advance()
 		if self.jstep == 6 and state.at is state.home:

@@ -11,11 +11,9 @@ cost = {
 def init():
 	state.xp = 0
 	state.you = thing.You((10, 6))
-	state.DMs = [
-#		thing.Orbiter((0, 0), j * math.tau / 3, 0.3, 5, 0.4)
-#		for j in range(3)
-	]
-	state.home = thing.Spot((0, 0))
+	state.DMs = []
+	state.home = thing.Home((0, 0))
+	state.home.unlocked = True
 	state.spots = [state.home]
 	state.spots += [thing.Spot(spot) for spot in sector.spots if spot != state.home.pos]
 	for jspot, (spot, adjs) in enumerate(sector.adjs.items()):
