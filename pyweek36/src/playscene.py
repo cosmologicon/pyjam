@@ -1,56 +1,11 @@
 import random, math, pygame
-from . import settings, state, thing, view, graphics, sector, quest, perform
+from . import settings, state, thing, view, graphics, sector, quest, perform, progress
 from . import pview, ptext
 from .pview import T
 
-def randomvisitor(spot, adjs, *seed):
-	A0 = math.fuzzrange(0, math.tau, 1.01, *seed)
-	r0 = math.fuzzrange(0, 5, 1.02, *seed)
-	pos0 = math.CS(A0, r0, spot)
-	Rorbit = math.fuzzrange(10, 20, 1.03, *seed)
-	adj = math.fuzzchoice(adjs, 1.04, *seed)
-	A1 = math.fuzzrange(0, math.tau, 1.05, *seed)
-	r1 = math.fuzzrange(0, 5, 1.06, *seed)
-	pos1 = math.CS(A1, r1, adj)
-	v = math.fuzzrange(1.5, 3, 1.07, *seed)
-	Nstay = math.fuzzrandint(10, 20, 1.08, *seed)
-	reverse = math.fuzzflip(1.09, *seed)
-	return thing.Visitor(pos0, pos1, Nstay, Rorbit, v, reverse=reverse)
-
 
 def init():
-	state.xp = 0
-	state.you = thing.You((10, 6))
-	state.DMs = [
-#		thing.Orbiter((0, 0), j * math.tau / 3, 0.3, 5, 0.4)
-#		for j in range(3)
-	]
-	state.home = thing.Spot((0, 0))
-	state.spots = [state.home]
-	state.spots += [thing.Spot(spot) for spot in sector.spots if spot != state.home.pos]
-	for jspot, (spot, adjs) in enumerate(sector.adjs.items()):
-		for jDM in range(10):
-			state.DMs += [randomvisitor(spot, adjs, jspot, jDM)]
-	if False:
-		for _ in range(100):
-			pos0 = math.CS(random.uniform(0, math.tau), random.uniform(0, 50))
-			Rorbit = random.uniform(60, 100)
-			v = random.uniform(1, 3)
-			reverse = random.choice([False, True])
-			r = random.uniform(0.4, 1)
-			state.DMs += [thing.CircleRock(pos0, Rorbit, v, r, reverse)]
-	state.pulses = []
-	state.tracers = []
-	state.spawners = []
-	state.shots = []
-	state.techlevel = {
-		"count": 0,
-		"engine": 0,
-		"gravnet": -1,  # Not enabled.
-		"drag": -1,  # drag level 2, cannot be set.
-	}
-	state.at = None
-	quest.init()
+	progress.init()
 
 def resume():
 	state.you.A = 0
@@ -78,6 +33,7 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 	state.tracers = [tracer for tracer in state.tracers if tracer.alive]
 	state.shots = [shot for shot in state.shots if shot.alive]
 	quest.think(dt)
+	quest.marquee.think(dt)
 	if math.hypot(*state.you.pos) < 0:
 		view.xG0, view.yG0 = math.mix((0, 0), state.you.pos, 0.5)
 		view.VscaleG = math.interp(math.hypot(*state.you.pos), 0, 100, 10, 40)
@@ -128,6 +84,7 @@ def draw():
 	if text:
 		ptext.draw(text, midbottom = T(640, 710), fontsize = T(50), width = T(800), owidth = 1,
 			color = "#ff7fff", shade = 1)
+	quest.marquee.draw()
 	drawHUD()
 
 
@@ -209,7 +166,27 @@ def drawminimap():
 
 
 def drawHUD():
+	infos = []
+	if state.you.cageunlocked():
+		infos.append("gravnet")
+	if state.you.beamunlocked():
+		infos.append("beam")
+	srect = pygame.Rect(T(15, 620, 160, 40))
+	for j, info in enumerate(infos):
+		rect = pygame.Rect(0, 0, srect.w, srect.h)
+		surf = pygame.Surface(rect.size).convert_alpha()
+		surf.fill((0, 0, 0, 0))
+		color = (100, 100, 255, 50)
+		pygame.draw.rect(surf, color, rect, T(4))
+		rect.w = pview.I(rect.w * state.charge[info])
+		if rect.w:
+			pygame.draw.rect(surf, color, rect)
+		pview.screen.blit(surf, srect)
+		ptext.draw(info.upper(), center = srect.center, fontsize = T(40), owidth = 0.5, color = (100, 100, 255), alpha = 0.5)
+		srect.y -= 50
+
 	text = f"XP: {state.xp}"
-	ptext.draw(text, bottomleft = T(10, 710), fontsize = T(50), color = (200, 255, 255), shade = 1)
+	ptext.draw(text, bottomleft = T(15, 710), fontsize = T(50), color = (200, 255, 255), shade = 1)
+	
 
 

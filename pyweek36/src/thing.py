@@ -87,14 +87,33 @@ class LaunchCages(enco.Component):
 		return state.techlevel["gravnet"] >= 0
 	def canlaunchcage(self):
 		return state.charge["gravnet"] == 1
-	def launchgage(self):
+	def launchcage(self):
 		state.shots.append(Cage(self.pos, self.A))
 		state.charge["gravnet"] = 0
+
+
+class ShineBeam(enco.Component):
+	def beamunlocked(self):
+		return state.techlevel["beam"] >= 0
+	def drawbeam(self):
+		if not self.beamunlocked():
+			return
+		perform.start("beam")
+		beam = Beam(self.pos, self.A, 0.5, 10, 0.15, 1)
+		for DM in state.DMs:
+			beam.occlude(DM)
+		for spot in state.spots:
+			beam.occlude(spot)
+		beam.draw()
+		perform.stop("beam")
+
+
 
 @KeepsTime()
 @WorldBound()
 @Engines()
 @LaunchCages()
+@ShineBeam()
 class You:
 	def __init__(self, pos):
 		self.pos = pos
@@ -150,14 +169,6 @@ class You:
 		glow = graphics.glow(T(view.VscaleG * 1.0), seed = random.randint(0, 9), color = (100, 50, 0, 100))
 		pview.screen.blit(glow, glow.get_rect(center = self.pV()))
 
-
-	def drawbeam(self):
-		perform.start("beam")
-		beam = Beam(self.pos, self.A, 0.5, 10, 0.15, 1)
-		for DM in state.DMs:
-			beam.occlude(DM)
-		beam.draw()
-		perform.stop("beam")
 
 class Findable(enco.Component):
 	def __init__(self, xp = 1):
@@ -548,14 +559,20 @@ class Pulse:
 			pview.screen.set_at(pV, (100, 100, 255))
 
 
+
 @WorldBound()
 class Spot:
 	def __init__(self, pos):
 		self.pos = pos
 		self.r = 2
+		self.unlocked = False
+		self.tunlock = 0
 
 	def think(self, dt):
-		pass
+		if not self.unlocked and view.isvisible(self) and state.techlevel["count"] > 0:
+			self.unlocked = True
+			quest.marquee.append("New Counter deployed.")
+			self.tunlock = 
 
 	def nnear(self):
 		DMs = [DM for DM in state.DMs if dist(self, DM) < 25]

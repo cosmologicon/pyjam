@@ -1,12 +1,16 @@
 import pygame, math
-from . import pview, ptext, quest, state, graphics
+from . import pview, ptext, quest, state, graphics, progress
 from .pview import T
 
 class self:
 	pass
 
 def init():
-	self.convo = list(convos[0])
+	if state.homeconvo is None:
+		self.convo = []
+	else:
+		self.convo = list(convos[state.homeconvo])
+		state.homeconvo = None
 	self.t = 0
 	self.tconvo = 0
 	self.buttons = [
@@ -42,9 +46,9 @@ def bstate(bname):
 		techname = bname.title()
 		if state.techlevel[bname] <= 0:
 			return False, False, ""
-		if state.techlevel[bname] == len(state.cost[bname]) + 1:
+		if state.techlevel[bname] == len(progress.cost[bname]) + 1:
 			return True, False, f"Upgrade {techname}\nMAX"
-		cost = state.getcost(bname)
+		cost = progress.getcost(bname)
 		return True, (cost <= state.xp), f"Upgrade {techname}\n{cost} XP"
 	if bname == "drag":
 		if state.techlevel[bname] == -1:
@@ -54,7 +58,7 @@ def bstate(bname):
 	
 def onclick(bname):
 	if bname in ("drag", "engine", "gravnet"):
-		state.upgrade(bname)
+		progress.upgrade(bname)
 		
 
 def draw():
@@ -85,8 +89,15 @@ convos = {
 	1: [
 		"That's some good data, mmm, keep it coming!",
 		"The more unmatter you find, the more tech we can access, not to mention upgrades to your ship.",
-		"We can now measure how many unfound pieces of unmatter are still orbiting this station.",
+		"We can now measure how many pieces of unmatter are still orbiting this station.",
 		"Locating them, though, that's still on you.",
+		"See if you can get the count down to 3.",
+	],
+	2: [
+		"We've determined that the unmatter orbits around nexus points in space.",
+		"This station is at a nexus point, but there are others out there.",
+		"Follow a piece of unmatter that you've found. It may lead you to another nexus.",
+		"Once you find 3 pieces of unmatter around a nexus, we can drop a counter there.",
 	],
 }
 
