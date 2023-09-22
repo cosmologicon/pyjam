@@ -1,5 +1,5 @@
 import math
-from . import enco, thing, state, ptext, pview, progress
+from . import enco, thing, state, ptext, pview, progress, settings
 from .pview import T
 
 quests = []
@@ -39,7 +39,7 @@ class Marquee:
 		if not self.queue:
 			t = self.t
 		else:
-			t = max(self.t, self.queue[-1][1] + 1)
+			t = max(self.t, self.queue[-1][0] + 1)
 		self.queue.append((t, text))
 	def draw(self):
 		for t, text in self.queue:
@@ -57,53 +57,91 @@ marquee = Marquee()
 
 @Quest()
 class ArriveQuest:
-	nstep = 7
+	nstep = 9
 	def info(self):
-		if self.jstep == 0:
-			return "Arrow keys or WASD: fly to the station."
 		if self.jstep == 1:
-			return "Space, Enter, or left mouse click: throw a gravnet."
+			return "Arrow keys or WASD: fly to the station."
 		if self.jstep == 2:
+			return "Space, Enter, or left mouse click: throw a gravnet."
+		if self.jstep == 3:
 			if self.tstep > 30:
-				return "See README.md for instructions to adjust the difficulty, if desired."
+				return "Come back to the station. I have some tips that might help."
 			else:
 				return "Hit a piece of unmatter to track it. Look closely at the stars."
-		if self.jstep == 3:
-			if self.tstep > 60:
-				return "See README.md for instructions to adjust the difficulty, if desired."
-			else:
-				return "Find and track 3 pieces of unmatter. Don't go too far."
 		if self.jstep == 4:
-			return "Return to the station."
-		if self.jstep == 5 and state.xp == 3:
-			return "Find more unmatter until the station counter reads 3."
-		if self.jstep == 6:
-			return "Return to the station."
+			if self.tstep > 60:
+				return "Come back to the station. I have some tips that might help."
+			else:
+				return "Find and track 3 pieces of unmatter."
+		if self.jstep == 5:
+			return "Great job! Come back to the station."
+		if self.jstep == 7 and state.xp == 3:
+			return "Find more unmatter until the station counter reads 4."
+		if self.jstep == 8:
+			return "Great job! Come back to the station."
 	def think(self, dt):
 		if self.jstep == 0:
 			state.homeconvo = 0
-		if self.jstep == 0 and state.at is state.home:
+			self.advance()
+		if self.jstep == 1 and state.at is state.home:
 			progress.upgrade("gravnet")
 			self.advance()
-		if self.jstep == 1 and state.shots:
-			self.advance()
-		if self.jstep == 2 and state.xp >= 1:
-			self.advance()
-		if self.jstep == 3 and state.xp >= 3:
+		if self.jstep == 2 and state.shots:
 			state.homeconvo = 1
 			self.advance()
-		if self.jstep == 4 and state.at is state.home:
+		if self.jstep == 3 and state.xp >= 1:
+			self.advance()
+		if self.jstep == 4 and state.xp >= 3:
+			state.homeconvo = 2
+			self.advance()
+		if self.jstep == 5 and state.at is state.home:
 			progress.upgrade("engine")
 			progress.upgrade("gravnet")
 			progress.upgrade("count")
 			state.techlevel["drag"] = 2
 			self.advance()
 			self.marquee("Tech unlocked: Counter")
-		if self.jstep == 5:
-			if state.home.nunfound() <= 3:
-				state.homeconvo = 2
-				self.advance()
-		if self.jstep == 6 and state.at is state.home:
+		if self.jstep == 6 and self.tstep > 1:
+			state.homeconvo = 3
+			self.advance()
+		if self.jstep == 7 and state.home.nunfound() <= 4:
+			state.homeconvo = 4
+			self.advance()
+		if self.jstep == 8 and state.at is state.home:
+			self.advance()
+		if self.jstep < 6:
+			state.you.pos = math.vclamp(state.you.pos, settings.countradius)
+	def complete(self):
+		quests.append(UnlockQuest())
+
+@Quest()
+class UnlockQuest:
+	nstep = 6
+	def info(self):
+		if self.jstep == 0 and self.tstep < 10:
+			return "Follow some unmatter away from the station.",
+		if self.jstep == 2 and self.tstep < 10:
+			return "Head back to the station. I've got something for ya."
+		if self.jstep == 3:
+			return "Press 1 or right-click to activate the beam."
+		if self.jstep == 4 and self.tstep < 10:
+			return "The beam will last until you fire a gravnet, so make it count."
+		if self.jstep == 5 and self.tstep < 10:
+			return "Return to the station whenever you want to refill your energy. Press Backspace at any time to warp there?"
+	def think(self, dt):
+		if self.jstep == 0 and sum(spot.unlocked for spot in state.spots) > 1:
+			self.advance()
+		if self.jstep == 1 and (self.tstep >= 10 or state.at is state.home):
+			self.advance()
+		if self.jstep == 2 and state.at is state.home:
+			self.marquee("Tech unlocked: Beam")
+			progress.upgrade("beam")
+			self.advance()
+		if self.jstep == 3 and state.you.beamon:
+			self.advance()
+		if self.jstep == 4 and not state.you.beamon:
+			self.advance()
+		if self.jstep == 5 and state.at is state.home:
 			self.advance()
 
 def init():

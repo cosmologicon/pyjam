@@ -1,5 +1,5 @@
 import pygame, random, math
-from . import pview, ptext, graphics, view
+from . import pview, ptext, graphics, view, settings
 from .pview import T
 
 
@@ -53,7 +53,10 @@ def advance():
 	elif self.mode == "done":
 		from . import scene, playscene
 		scene.current = playscene
-	self.t = 0
+	if self.mode in ("cal1", "cal2") and self.times[self.mode]:
+		self.t /= 2
+	else:
+		self.t = 0
 	self.rect = randomrect()
 	view.xG0 = random.uniform(0, 1000)
 	view.yG0 = random.uniform(0, 1000)
@@ -71,6 +74,8 @@ def misclick():
 		self.times["cal3"] = []
 
 def think(dt, kdowns, kpressed, mpos, mdowns):
+	if self.mode in ("cal1", "cal2"):
+		dt /= 1.5 ** len(self.times[self.mode])
 	self.t += dt
 	if self.mode in ["intro", "done"]:
 		if self.t > 0.5 and 1 in mdowns:
@@ -117,10 +122,12 @@ def draw():
 		pview.fill(color)
 	if self.mode == "cal2":
 		pview.fill((0, 0, 0))
-		frac = math.interp(self.t, 0, 0.01, 100, 1)
-		graphics.drawstarrange(0.03, frac)
+		view.xG0, view.yG0 = 0, 0
+		settings.stars = math.interp(self.t, 0, 0, 5, 40)
+		graphics.drawstars()
 	if self.mode == "cal3":
 		pview.fill((0, 0, 0))
+		settings.nebula = math.interp(self.t, 0, 0, 5, 40)
 		graphics.drawnebula()
 	if self.mode not in ["intro", "done"]:
 		pview.screen.fill((0, 0, 0), T(self.rect))

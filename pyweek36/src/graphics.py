@@ -1,6 +1,6 @@
 import pygame, os, math
 from functools import lru_cache, cache
-from . import pview, view
+from . import pview, view, settings
 from .pview import T
 
 @cache
@@ -117,18 +117,17 @@ def getstars(N):
 	for j in range(N):
 		x = math.fuzzrange(0, 100000, j, 123)
 		y = math.fuzzrange(0, 100000, j, 234)
-		z = math.mix(0.2, 1.0, j / N)
+		z = math.mix(0.2, 1.0, 1 - j / N)
 		color = math.imix((0, 0, 0), (255, 255, 255), z)
 		stars.append((x, y, z, color))
+	stars.reverse()
 	return stars
 
 def drawstars():
-	density = 0.001
-	N = int(pview.area * density)
+	density = 0.005 * (1 + settings.stars ** 2)
+	N = int(pview.s * density)
 	stars = getstars(N)
-	j0 = int(N // 5)
-	for j in range(j0, N):
-		x, y, z, color = stars[j]
+	for x, y, z, color in stars:
 		px = int(-view.VscaleG * view.xG0 * z + x) % pview.w
 		py = int(view.VscaleG * view.yG0 * z + y) % pview.h
 		pview.screen.set_at((px, py), color)
@@ -149,14 +148,24 @@ def drawstarrange(density, frac):
 
 
 @lru_cache(10)
-def getnebula(s = 40):
-	if s != 40:
-		return pygame.transform.smoothscale(getnebula(40), (s, s))
+def getnebula(s, alphamax, seed):
+	if s != 40 :
+		img0 = getnebula(40, alphamax, seed)
+		img1 = pygame.Surface((80, 80)).convert_alpha()
+		img1.fill((0, 0, 0, 0))
+		for dx in [0, 40]:
+			for dy in [0, 40]:
+				img1.blit(img0, (dx, dy))
+		img2 = pygame.transform.smoothscale(img1, (2 * s, 2 * s))
+		return img2.subsurface((int(s//2), int(s//2), s, s))
+		img3 = pygame.Surface((s, s)).convert_alpha()
+		img3.blit(img2, (0, 0)) # (-int(s//2), -int(s//2)))
+		return img3
 	img = pygame.Surface((s, s)).convert_alpha()
 	for px in range(s):
 		for py in range(s):
-			alpha = int(math.fuzzrange(0, 3, px, py))
-			img.set_at((px, py), (255, 255, 255, alpha))
+			alpha = int(math.fuzzrange(0, alphamax, px, py, seed))
+			img.set_at((px, py), (100, 200, 255, alpha))
 	return img
 
 def tilerange(s, p0, pmin, pmax):
@@ -167,10 +176,17 @@ def tilerange(s, p0, pmin, pmax):
 def drawnebula():
 	for jz in range(3):
 		z = 0.2 * math.Phi ** jz
-		s = T(view.VscaleG * 20 * z)
-		px0 = int(round(-pview.f * view.VscaleG * z * view.xG0 + math.fuzzrange(0, s, jz, 1.3)))
-		py0 = int(round(pview.f * view.VscaleG * z * view.yG0 + math.fuzzrange(0, s, jz, 1.4)))
-		img = getnebula(s)
+		alphamax = 1 + 0.02 * settings.nebula ** 2
+		s = T(4000 * z)
+		zscale = pview.f * view.VscaleG * z * 5
+#		Aoff = math.fuzzrange(0, math.tau, jz, 1.0)
+#		omega = math.fuzzrange(0.01, 0.02, jz, 1.1)
+#		Roff = math.fuzzrange(100, 200, jz, 1.2)
+#		dxG, dyG = math.CS(0.001 * pygame.time.get_ticks() * omega, Roff)
+		dxG, dyG = math.CS(0.001 * pygame.time.get_ticks() * 0.001 + jz * math.tau / 3, 200)
+		px0 = int(round(-zscale * (view.xG0 + dxG) + math.fuzzrange(0, s, jz, 1.3)))
+		py0 = int(round(zscale * (view.yG0 + dyG) + math.fuzzrange(0, s, jz, 1.4)))
+		img = getnebula(s, alphamax, jz)
 		for px in tilerange(s, px0, 0, pview.w):
 			for py in tilerange(s, py0, 0, pview.h):
 				pview.screen.blit(img, (px, py))

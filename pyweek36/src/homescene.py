@@ -6,6 +6,7 @@ class self:
 	pass
 
 def init():
+	state.hp = progress.getmaxhp()
 	if state.homeconvo is None:
 		self.convo = []
 	else:
@@ -17,6 +18,7 @@ def init():
 		("engine", pygame.Rect(900, 100, 300, 90)),
 		("gravnet", pygame.Rect(900, 200, 300, 90)),
 		("drag", pygame.Rect(900, 300, 300, 90)),
+		("leave", pygame.Rect(640 - 150, 600, 300, 90)),
 	]
 
 def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
@@ -25,10 +27,6 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 		self.tconvo += dt
 		if self.tconvo > 0.5 and 1 in mdowns:
 			del self.convo[0]
-	if not self.convo:
-		from . import scene, playscene
-		scene.current = playscene
-		playscene.resume()
 	quest.think(dt)
 
 	if 1 in mdowns:
@@ -55,10 +53,16 @@ def bstate(bname):
 			return False, False, ""
 		percent = 25 * state.techlevel["drag"]
 		return True, True, f"Drag:\n{percent}%"
+	if bname == "leave":
+		return not self.convo, not self.convo, "Leave"
 	
 def onclick(bname):
 	if bname in ("drag", "engine", "gravnet"):
 		progress.upgrade(bname)
+	if bname == "leave":
+		from . import scene, playscene
+		scene.current = playscene
+		playscene.resume()
 		
 
 def draw():
@@ -82,21 +86,31 @@ def draw():
 convos = {
 	0: [
 		"So, you want to hunt unmatter, huh? Well you came to the right place, heh heh. This sector is loaded with it.",
-		"I've equipped your ship with a gravnet system. Fire a gravnet at some unmatter so we can track it.",
+		"We've equipped your ship with a gravnet system. Fire a gravnet at some unmatter so we can track it.",
 		"Unfortunately no instruments can detect unmatter until you've got it in a net. You'll just have to look very closely for what isn't there.",
-		"Come back here after you've found 3 pieces of unmatter. Don't go too far.",
 	],
 	1: [
+		"Fly around in the area around this station and look closely.",
+		"The unmatter will appear as black objects blocking out the background stars and nebula.",
+		"If you're having trouble seeing anything, check out the README for instructions of how to adjust the brightness.",
+		"It should be challenging but not frustrating.",
+	],
+	2: [
 		"That's some good data, mmm, keep it coming!",
 		"The more unmatter you find, the more tech we can access, not to mention upgrades to your ship.",
 		"We can now measure how many pieces of unmatter are still orbiting this station.",
 		"Locating them, though, that's still on you.",
-		"See if you can get the count down to 3.",
 	],
-	2: [
+	3: [
+		"Strange, the counter is changing even when you're not finding anything.",
+		"It's possible the unmatter moves from place to place.",
+		"If you can get the counter down to 4, that should give us enough data to form a conclusion.",
+	],
+	4: [
 		"We've determined that the unmatter orbits around nexus points in space.",
 		"This station is at a nexus point, but there are others out there.",
-		"Follow a piece of unmatter that you've found. It may lead you to another nexus.",
+		"It looks like sometimes unmatter travels between nexus points.",
+		"Follow a piece of unmatter that you've found and keep your eye out for more unmatter. You may find another nexus.",
 		"Once you find 3 pieces of unmatter around a nexus, we can drop a counter there.",
 	],
 }

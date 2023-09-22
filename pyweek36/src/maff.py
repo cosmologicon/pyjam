@@ -59,6 +59,13 @@ def normalize(v, r = 1):
 	return [a * f for a in v]
 norm = normalize
 
+def vclamp(v, r = 1):
+	l = length(v)
+	if l <= r:
+		return v
+	f = r / l
+	return [a * f for a in v]
+
 # Equal to smoothstep(0, 1, x)
 def ease(x):
 	return 0 if x <= 0 else 1 if x >= 1 else x * x * (3 - 2 * x)

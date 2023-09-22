@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, pview, graphics, state, enco, ptext, perform
+from . import view, pview, graphics, state, enco, ptext, perform, settings
 from .pview import T
 
 
@@ -44,7 +44,9 @@ class WorldBound(enco.Component):
 		return T(view.VscaleG * self.r)
 	def drawbox(self, color=None):
 		pygame.draw.circle(pview.screen, (color or self.boxcolor), self.pV(), self.rV(), 1)
-
+	def isactive(self, T):
+		v = self.v + 20
+		return view.beyondminimap(self) < T * v
 
 class HasVelocity(enco.Component):
 	def think(self, dt):
@@ -64,6 +66,8 @@ class ShotPath(enco.Component):
 		self.pos = math.CS(self.A, d, self.pos0)
 
 class Engines(enco.Component):
+	def vmax(self):
+		return self.aup()
 	def aup(self):
 		return [3, 4, 5.5, 8, 12][state.techlevel["engine"]]
 	def adown(self):
@@ -72,35 +76,88 @@ class Engines(enco.Component):
 		level = state.techlevel["drag"]
 		return ([0, 0.5, 1, 2, 10][level] if level >= 0 else 1) * self.aup()
 
+class TakesDamage(enco.Component):
+	def __init__(self):
+		self.finvul = 0
+	def think(self, dt):
+		if self.finvul:
+			if any(DM.collides(self) for DM in state.DMtracker.active):
+				self.finvul = 1
+			else:
+				self.finvul = math.approach(self.finvul, 0, 0.5 * dt)
+		else:
+			for DM in state.DMtracker.active:
+				if DM.collides(self):
+					from . import progress
+					progress.takedamage(DM.dhp)
+					self.finvul = 1
+					break
+	def invulframe(self):
+		if state.hp <= 0:
+			return True
+		if not self.finvul:
+			return False
+		N = 10 if self.finvul < 0.5 else 5
+		return (self.t * N) % 1 > 0.5
+
 class LaunchCages(enco.Component):
 	def think(self, dt):
 		if self.cageunlocked() and state.charge["gravnet"] < 1:
 			state.charge["gravnet"] = math.approach(state.charge["gravnet"], 1, self.cagechargerate() * dt)
-		if self.controls["act"] and self.cageunlocked():
+		if self.controls["gravnet"] and self.cageunlocked():
 			if self.canlaunchcage():
 				self.launchcage()
 			else:
 				pass
 	def cagechargerate(self):
-		return [0.5, 1, 2, 10][state.techlevel["gravnet"]]
+		return [0.25, 0.5, 1, 3][state.techlevel["gravnet"]]
 	def cageunlocked(self):
 		return state.techlevel["gravnet"] >= 0
 	def canlaunchcage(self):
 		return state.charge["gravnet"] == 1
 	def launchcage(self):
 		state.shots.append(Cage(self.pos, self.A))
+		if state.techlevel["gravnet"] >= 3:
+			dA = 0.1
+			state.shots.append(Cage(self.pos, self.A + dA))
+			state.shots.append(Cage(self.pos, self.A - dA))
 		state.charge["gravnet"] = 0
 
 
 class ShineBeam(enco.Component):
+	def __init__(self):
+		self.beamon = False
+		self.tbeam = 0
+	def onhome(self):
+		self.tbeam = 0
+		self.beamon = False
+	def turnbeamoff(self):
+		self.tbeam = 0
+		self.beamon = False
+	def turnbeamon(self):
+		self.tbeam = 0
+		self.beamon = True
 	def beamunlocked(self):
 		return state.techlevel["beam"] >= 0
-	def drawbeam(self):
+	def think(self, dt):
 		if not self.beamunlocked():
 			return
+		if self.beamon:
+			self.tbeam += dt
+		if self.beamon and self.controls["stop"]:
+			self.turnbeamoff()
+		if self.controls["beam"]:
+			self.turnbeamon()
+	def launchcage(self):
+		if self.beamon:
+			self.turnbeamoff()
+	def drawbeam(self):
+		if not self.beamon:
+			return
 		perform.start("beam")
-		beam = Beam(self.pos, self.A, 0.5, 10, 0.15, 1)
-		for DM in state.DMs:
+		falpha = math.interp(self.tbeam, 0, 0, 2, 1)
+		beam = Beam(self.pos, self.A, 0.5, 10, 0.15, 1, falpha)
+		for DM in state.DMtracker.active:
 			beam.occlude(DM)
 		for spot in state.spots:
 			beam.occlude(spot)
@@ -112,6 +169,7 @@ class ShineBeam(enco.Component):
 @KeepsTime()
 @WorldBound()
 @Engines()
+@TakesDamage()
 @LaunchCages()
 @ShineBeam()
 class You:
@@ -121,21 +179,17 @@ class You:
 		self.A = 0
 		self.r = 0.6
 		self.omega = 3
-		self.vmax = 4
 		self.on = False
 		self.flean = 0
 
-	def control(self, kdowns, kpressed):
-		left = kpressed[pygame.K_LEFT]
-		right = kpressed[pygame.K_RIGHT]
-		up = kpressed[pygame.K_UP]
-		down = kpressed[pygame.K_DOWN]
+	def control(self, kdowns, kpressed, mdowns):
+		keys = set(kname for kname, kcodes in settings.keys.items() if any(kpressed[kcode] for kcode in kcodes))
 		self.controls = {
-			"up": up and not down,
-			"down": down and not up,
-			"acting": kpressed[pygame.K_SPACE],
-			"dA": left - right,
-			"act": pygame.K_SPACE in kdowns,
+			"thrust": "thrust" in keys,
+			"stop": "stop" in keys,
+			"dA": ("left" in keys) - ("right" in keys),
+			"gravnet": bool(set(settings.keys["gravnet"]) & set(kdowns)),
+			"beam": bool(set(settings.keys["beam"]) & set(kdowns)),
 		}
 	
 	def leave(self, obj):
@@ -144,27 +198,25 @@ class You:
 		self.pos = math.CS(self.A, 5, obj.pos)
 
 	def think(self, dt):
+		if not state.hp:
+			return
 		x, y = self.pos
-		vx, vy = self.v
+		v = self.v
 		A = math.dA(self.A + dt * self.omega * self.controls["dA"])
-		if self.controls["up"]:
-			vx, vy = math.CS(math.mixA(self.A, A, 0.5), self.aup() * dt, (vx, vy))
+		if self.controls["thrust"]:
+			v = math.CS(math.mixA(self.A, A, 0.5), self.aup() * dt, v)
 		else:
-			a = self.adown() if self.controls["down"] else self.adrag()
-			vx, vy = math.approach((vx, vy), (0, 0), dt * a)
-		v = math.hypot(vx, vy)
-		if v > self.vmax:
-			vx *= self.vmax / v
-			vy *= self.vmax / v
-		vxavg, vyavg = math.mix(self.v, (vx, vy), 0.5)
+			v = math.approach(v, (0, 0), self.adrag() * dt)
+		v = math.vclamp(v, self.vmax())
+		vxavg, vyavg = math.mix(self.v, v, 0.5)
 		self.pos = x + dt * vxavg, y + dt * vyavg
-		self.v = vx, vy
+		self.v = v
 		self.A = A
 		self.flean = math.approach(self.flean, -self.controls["dA"], 4 * dt)
 
 	def draw(self):
-		graphics.drawshipG(self.pV(), 0.008 * self.r, self.A, self.flean)
-		self.drawbeam()
+		if not self.invulframe():
+			graphics.drawshipG(self.pV(), 0.008 * self.r, self.A, self.flean)
 
 	def drawglow(self):
 		pV = view.VconvertG(math.CS(self.A, 1.4, self.pos))
@@ -176,6 +228,9 @@ class Findable(enco.Component):
 	def __init__(self, xp = 1):
 		self.xp = xp
 		self.found = False
+
+	def isunfound(self):
+		return not self.found
 
 	def find(self):
 		self.found = True
@@ -197,21 +252,21 @@ class DrawCage(enco.Component):
 		rV = T(view.VscaleG * self.r)
 		graphics.drawcageG(self.t * self.omegaspin, pV, 0.0065 * self.r, 0)
 
-
 class DrawDM(enco.Component):
 	def draw(self):
 		if self.found:
 			self.drawcage()
-#			pygame.draw.circle(pview.screen, (255, 255, 255), pV, rV, 1)
 		else:
-			pV = view.VconvertG(self.pos)
-			rV = T(view.VscaleG * self.r)
-			color = (0, 100, 100) if self.found else (0, 0, 0)
-			pygame.draw.circle(pview.screen, color, pV, rV)
+			pygame.draw.circle(pview.screen, (0, 0, 0), self.pV(), self.rV())
+	def mapcolor(self):
+		return (0, 200, 200) if self.found else None
 
 class Unfindable(enco.Component):
 	def __init__(self):
 		self.found = False
+
+	def isunfound(self):
+		return False
 
 	def find(self):
 		pass
@@ -277,7 +332,7 @@ class FollowsPath(enco.Component):
 		self.setpos()
 	def jumprandom(self):
 		T = sum(path.T for path in self.paths)
-		self.tpath += random.uniform(0, T) * (-1 if self.reverse else 1)
+		self.tpath += math.fuzzrange(0, T, *self.pos) * (-1 if self.reverse else 1)
 	def setpos(self):
 		if self.reverse:
 			while self.tpath < 0:
@@ -299,10 +354,20 @@ class FollowsPath(enco.Component):
 		pygame.draw.lines(pview.screen, (255, 255, 255), False, pVs, 1)
 
 
+class DamagesYou(enco.Component):
+	dhp = 1
+	def collides(self, obj):
+		return overlaps(self, obj)
+	
+class DoesntDamageYou(enco.Component):
+	def collides(self, obj):
+		return False
+
 @WorldBound()
 @Findable(1)
 @KeepsTime()
 @FollowsPath()
+@DoesntDamageYou()
 @DrawCage()
 @DrawDM()
 class Visitor:
@@ -335,8 +400,14 @@ class DrawRock(enco.Component):
 		rV = T(view.VscaleG * self.r)
 		color = (80, 80, 80)
 		pygame.draw.circle(pview.screen, color, pV, rV)
+	def mapcolor(self):
+		return None
 
+
+
+@WorldBound()
 @KeepsTime()
+@DamagesYou()
 @FollowsPath()
 @DrawRock()
 @Unfindable()
@@ -345,6 +416,7 @@ class CircleRock:
 		self.paths = [CirclePart(center, Rorbit, v, 0)]
 		self.reverse = reverse
 		self.r = r
+		self.v = v
 		self.setpos()
 		self.jumprandom()
 
@@ -407,13 +479,14 @@ class Beam:
 			pygame.draw.line(pview.screen, (100, 100, 255), *pVs)
 
 class Beam:
-	def __init__(self, p0, A, d0, d1, w0, w1):
+	def __init__(self, p0, A, d0, d1, w0, w1, falpha=1):
 		self.p0 = self.x0, self.y0 = p0
 		self.A = A
 		self.d0 = d0
 		self.d1 = d1
 		self.w0 = w0
 		self.w1 = w1
+		self.falpha = falpha
 		self.R = math.R(self.A)
 		self.Rinv = math.R(-self.A)
 		self.fences = []
@@ -437,7 +510,7 @@ class Beam:
 		polys = []
 #		for alpha0, fw in [(40, 1), (50, 0.8), (60, 0.6)]:
 		for alpha0, fw in [(40, 1)]:
-			alpha = int(alpha0 * random.uniform(1, 1.1))
+			alpha = int(self.falpha * alpha0 * random.uniform(1, 1.1))
 			dps = [self.R((dx, dy)) for dx, dy in occludebeam(self.w0 * fw, self.w1 * fw, self.d0, self.d1, self.fences)]
 			pVs = [view.VconvertG((self.x0 + dx, self.y0 + dy)) for dx, dy in dps]
 			polys.append((alpha, pVs))
@@ -481,7 +554,7 @@ class Tracer:
 		self.r = 0.05
 
 	def think(self, dt):
-		for DM in state.DMs:
+		for DM in state.DMtracker.active:
 			if overlaps(DM, self):
 				self.alive = False
 
@@ -502,9 +575,12 @@ class Cage:
 		self.A = A
 		self.pos = math.CS(A, self.d0, pos0)
 		self.r = 0.2
+		self.d0 = state.you.r
+		self.D = [4, 5, 7, 10][state.techlevel["gravnet"]]
+		self.T = [0.7, 0.6, 0.4, 0.2][state.techlevel["gravnet"]]
 
 	def think(self, dt):
-		for DM in state.DMs:
+		for DM in state.DMtracker.active:
 			if not DM.found and overlaps(DM, self):
 				DM.find()
 				self.alive = False
@@ -555,19 +631,20 @@ class Pulse:
 			Rmin, Rmax, x, y = self.ps[j]
 			if not Rmin < self.R < Rmax:
 				continue
-			if any(math.hypot(DM.pos[0] - x, DM.pos[1] - y) < DM.r for DM in state.DMs):
+			if any(math.hypot(DM.pos[0] - x, DM.pos[1] - y) < DM.r for DM in state.DMtracker.active):
 				continue
 			pV = view.VconvertG((x, y))
 			pview.screen.set_at(pV, (100, 100, 255))
 
 class TracksNear(enco.Component):
-	def __init__(self, Dnear = 25):
-		self.Dnear = Dnear
-	def nnear(self):
-		DMs = [DM for DM in state.DMs if dist(self, DM) < self.Dnear]
+	def nnear(self, countall = False):
+		DMs = state.DMs if countall else state.DMtracker.active
+		DMs = [DM for DM in DMs if dist(self, DM) < settings.countradius]
 		return sum(not DM.found for DM in DMs), sum(DM.found for DM in DMs)
-	def nunfound(self):
-		return self.nnear()[0]
+	def nunfound(self, countall = False):
+		DMs = state.DMs if countall else state.DMtracker.active
+		DMs = [DM for DM in DMs if dist(self, DM) < settings.countradius]
+		return sum(DM.isunfound() for DM in DMs)
 	def nfound(self):
 		return self.nnear()[1]
 
@@ -585,9 +662,8 @@ class Home:
 		A = math.tau / 8 * (self.t * 0.1 % 1)
 		graphics.drawG("starbase", self.pV(), 0.006 * self.r, A, dA = 0.5)
 		if state.techlevel["count"] > 0:
-			nunfound, nfound = self.nnear()
-			text = f"{nfound} : {nunfound}"
-			ptext.draw(text, center = self.pV(), color = "#7f7fff", owidth = 1, fontsize = T(view.VscaleG * 2))
+			text = f"{self.nunfound()}"
+			ptext.draw(text, center = self.pV(), color = "#7f7fff", owidth = 0.5, fontsize = T(view.VscaleG * 2))
 
 
 @WorldBound()
@@ -601,9 +677,12 @@ class Spot:
 		self.funlock = 0
 
 	def think(self, dt):
-		if not self.unlocked and view.isvisible(self) and state.techlevel["count"] > 0:
+		if not self.unlocked and view.isvisible(self) and state.techlevel["count"] > 0 and self.nfound() >= 3:
+			from . import quest
 			self.unlocked = True
 			quest.marquee.append("New Counter deployed.")
+			quest.marquee.append("+10 XP")
+			state.xp += 10
 			self.funlock = 0
 		if self.unlocked:
 			self.funlock = math.approach(self.funlock, 1, 0.5 * dt)
@@ -614,9 +693,8 @@ class Spot:
 		A = math.tau / 8 * (self.t % 1)
 		graphics.drawG("starbase", self.pV(), 0.006 * self.r, A, dA = 5)
 		if state.techlevel["count"] > 0:
-			nunfound, nfound = self.nnear()
-			text = f"{nfound} : {nunfound}"
-			ptext.draw(text, center = self.pV(), color = "#7f7fff", owidth = 1, fontsize = T(view.VscaleG * 1))
+			text = f"{self.nunfound()}"
+			ptext.draw(text, center = self.pV(), color = "#7f7fff", owidth = 0.5, fontsize = T(view.VscaleG * 1))
 
 
 

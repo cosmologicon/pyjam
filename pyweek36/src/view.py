@@ -28,9 +28,19 @@ def VconvertG(pG):
 	xV0, yV0 = pview.center0
 	return T(xV0 + VscaleG * (xG - xG0), yV0 - VscaleG * (yG - yG0))
 
-def isvisible(obj):
+def beyond(obj):
 	xG, yG = obj.pos
 	distG = math.hypot(xG - xG0, yG - yG0)
+	return distG - obj.r
+
+def beyondview(obj):
 	radiusG = pview.s0 / VscaleG
-	return distG < radiusG + obj.r
+	return beyond(obj) - radiusG
+
+def beyondminimap(obj):
+	return beyond(obj) - math.sqrt(2) * settings.minimapradius
+
+def isvisible(obj):
+	return beyondview(obj) < 5
+
 

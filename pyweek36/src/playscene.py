@@ -1,4 +1,5 @@
 import random, math, pygame
+from collections import defaultdict
 from . import settings, state, thing, view, graphics, sector, quest, perform, progress
 from . import pview, ptext
 from .pview import T
@@ -6,6 +7,8 @@ from .pview import T
 
 def init():
 	progress.init()
+	think(0)
+	return
 	for j, DM in enumerate(state.DMs):
 		DM.found = math.fuzzflip(j, 123)
 	for j, spot in enumerate(state.spots):
@@ -17,17 +20,17 @@ def resume():
 	state.at = None
 
 
-def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
+def think(dt, kdowns = [], kpressed = defaultdict(bool), mpos = (0, 0), mdowns = set()):
 	perform.start("think")
-	state.you.control(kdowns, kpressed)
+	state.you.control(kdowns, kpressed, mdowns)
+	state.showmap = kpressed[pygame.K_m]
 	perform.start("statethink")
 	state.you.think(dt)
 	for pulse in state.pulses:
 		pulse.think(dt)
 	for spawner in state.spawners:
 		spawner.think(dt)
-	for DM in state.DMs:
-		DM.think(dt)
+	state.DMtracker.think(dt)
 	for tracer in state.tracers:
 		tracer.think(dt)
 	for shot in state.shots:
@@ -45,7 +48,7 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 		view.VscaleG = math.interp(math.hypot(*state.you.pos), 0, 100, 10, 40)
 	else:
 		view.xG0, view.yG0 = state.you.pos
-		view.VscaleG = 80
+		view.VscaleG = 50
 	for spot in state.spots:
 		if thing.overlaps(state.you, spot):
 			from . import scene, homescene
@@ -69,7 +72,8 @@ def draw():
 	perform.start("drawstate")
 	for pulse in state.pulses:
 		pulse.draw()
-	for DM in state.DMs:
+	state.you.drawbeam()
+	for DM in state.DMtracker.active:
 		DM.draw()
 	for tracer in state.tracers:
 		tracer.draw()
@@ -79,14 +83,15 @@ def draw():
 		spot.draw()
 	state.you.draw()
 	if settings.drawbox:
-		for DM in state.DMs:
+		for DM in state.DMtracker.active:
 			DM.drawbox()
 		for spot in state.spots:
 			spot.drawbox()
 		state.you.drawbox()
 	perform.stop("drawstate")
 	drawminimap()
-#	drawmap()
+	if state.showmap:
+		drawmap()
 	text = quest.info()
 	if text:
 		ptext.draw(text, midbottom = T(640, 710), fontsize = T(50), width = T(800), owidth = 1,
@@ -131,14 +136,14 @@ def drawmap():
 		pygame.draw.line(img, color, MconvertG(math.CS(A, r0)), MconvertG(math.CS(A, r1)), 1)
 
 	for DM in state.DMs:
-		if DM.found:
-			drawcircleG(DM.pos, 1, (0, 0, 0), (0, 200, 200))
+		color = DM.mapcolor()
+		if color is not None:
+			drawcircleG(DM.pos, 1, color)
 	for spot in state.spots:
 		if spot.unlocked:
 			drawcircleG(spot.pos, 5, (0, 0, 0), (0, 200, 200))
 			if flash:
-				nunfound, nfound = spot.nnear()
-				ptext.draw(f"{nunfound}", center = MconvertG(spot.pos), fontsize = T(25 * k), owidth = 1, surf=img)
+				ptext.draw(f"{spot.nunfound()}", center = MconvertG(spot.pos), fontsize = T(25 * k), owidth = 1, surf=img)
 	if not flash:
 		drawcircleG(state.you.pos, 6, (200, 100, 100), (255, 128, 128))
 	if k != 1:
@@ -151,7 +156,7 @@ def drawmap():
 
 def drawminimap():
 	perform.start("drawminimap")
-	mradius = 50
+	mradius = settings.minimapradius
 	s = 120
 	k = 2
 	img = pygame.Surface(T(2 * k * s, 2 * k * s)).convert_alpha()
@@ -191,15 +196,19 @@ def drawminimap():
 
 	def drawcircleG(posG, rV, color, ocolor=None):
 		pM = MconvertG(posG)
-		pygame.draw.circle(img, color, pM, T(k * rV))
+		if color is not None:
+			pygame.draw.circle(img, color, pM, T(k * rV))
 		if ocolor is not None:
 			pygame.draw.circle(img, ocolor, pM, T(k * rV), k)
 
-	for DM in state.DMs:
+	for spot in state.spots:
+		if spot.unlocked:
+			drawcircleG(spot.pos, 8, (0, 0, 0), (0, 200, 200))
+			rV = settings.countradius * s / mradius
+			pygame.draw.circle(img, (30 * k, 15 * k, 0), MconvertG(spot.pos), T(k * rV), 1)
+	for DM in state.DMtracker.active:
 		if DM.found:
 			drawcircleG(DM.pos, 3, (0, 0, 0), (0, 200, 200))
-	for spot in state.spots:
-		drawcircleG(spot.pos, 8, (0, 0, 0), (0, 200, 200))
 	drawcircleG(state.you.pos, 4, (60, 30, 0), (120, 60, 0))
 	if k != 1:
 		img = pygame.transform.smoothscale(img, (2 * s, 2 * s))
@@ -229,7 +238,7 @@ def drawHUD():
 		ptext.draw(info.upper(), center = srect.center, fontsize = T(40), owidth = 0.5, color = (100, 100, 255), alpha = 0.5)
 		srect.y -= 50
 
-	text = f"XP: {state.xp}"
+	text = f"XP: {state.xp}   HP: {state.hp}/{progress.getmaxhp()}   ENERGY: {state.energy}/{progress.getmaxenergy()}"
 	ptext.draw(text, bottomleft = T(15, 710), fontsize = T(50), color = (200, 255, 255), shade = 1)
 	
 
