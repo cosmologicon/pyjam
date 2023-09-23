@@ -146,7 +146,6 @@ class ArriveQuest:
 class UnlockBeamQuest:
 	nstep = 9
 	def info(self):
-		print(self.jstep, self.tstep)
 		if self.jstep == 2 and self.tstep < 10:
 			return "Look for unmatter that's moving away from the station."
 		if self.jstep == 3 and self.tstep < 10:

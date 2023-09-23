@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, ptext, quest, state, graphics, progress, hud, view, settings
+from . import pview, ptext, quest, state, graphics, progress, hud, view, settings, sound
 from .pview import T
 
 class self:
@@ -38,7 +38,7 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 				if active:
 					onclick(bname)
 				else:
-					pass
+					sound.play("no")
 	quest.think(dt)
 
 

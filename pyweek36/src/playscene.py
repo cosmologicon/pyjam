@@ -52,7 +52,7 @@ def think(dt, kdowns = [], kpressed = defaultdict(bool), mpos = (0, 0), mdowns =
 		view.VscaleG = math.interp(math.hypot(*state.you.pos), 0, 100, 10, 40)
 	else:
 		view.xG0, view.yG0 = state.you.pos
-		view.VscaleG = 50
+		view.VscaleG = settings.viewscale
 	for spot in state.spots:
 		if thing.overlaps(state.you, spot):
 			from . import scene, homescene

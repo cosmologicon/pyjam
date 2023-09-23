@@ -398,6 +398,7 @@ class DrawDM(enco.Component):
 	def ringcharge(self, t):
 		self.tring = t
 	def think(self, dt):
+		self.r = 0.05 + 0.4 * (settings.objsize / 10) ** 1.4
 		self.tring = math.approach(self.tring, 0, dt)
 	def draw(self):
 		if self.found:
@@ -543,6 +544,28 @@ class Visitor:
 		self.setpos()
 		self.found = False
 		self.jumprandom()
+
+@WorldBound()
+@Findable(1)
+@KeepsTime()
+@FollowsPath()
+@DoesntDamageYou()
+@DrawCage()
+@DrawDM()
+class ExampleDM:
+	def __init__(self, pos0, Rorbit, A0, reverse=False):
+		self.r = 0.4
+		self.pos0 = pos0
+		self.Rorbit = Rorbit
+		self.v = 1
+		self.reverse = reverse
+		self.A0 = A0
+		self.paths = [
+			CirclePart(pos0, Rorbit, self.v, Aoff = A0)
+		]
+		self.setpos()
+		self.found = False
+
 
 class DrawRock(enco.Component):
 	def ringcharge(self, t):
@@ -700,7 +723,7 @@ class Cage:
 		self.pos0 = pos0
 		self.A = A
 		self.pos = math.CS(A, self.d0, pos0)
-		self.r = 0.2
+		self.r = 0.4
 		self.d0 = state.you.r
 		self.D = [4, 5, 7, 10, 12][state.techlevel["gravnet"]]
 		self.T = [0.7, 0.6, 0.5, 0.4, 0.3][state.techlevel["gravnet"]]

@@ -2,15 +2,8 @@ import pygame, pickle, os.path
 
 gamename = "Unmatter Hunter"
 
-# DIFFICULTY SETTINGS - ADJUST THESE AS NECESSARY!
-# These values control how prominent the background graphics are, which determines how
-# hard it is to see the unmatter in the game. Lower values will make the game harder.
-# You want seeing the unmatter to be challenging but not frustrating.
-# 0: basically impossible
-# 7: my preferred setting for fullscreen mode
-# 10: my preferred setting for windowed mode
-# 14: my preferred setting for small windows or poor lighting conditions
-# 20: very easy on any resolution
+# DEFAULT DIFFICULTY SETTINGS
+# If you update these be sure to delete settings.pkl too.
 stars = 10
 nebula = 10
 objsize = 10
@@ -39,6 +32,7 @@ DEBUG = True
 minimapradius = 50
 mapradius = 1000
 countradius = 25
+viewscale = 50
 
 keys = {
 	"thrust": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],
@@ -55,13 +49,13 @@ keys = {
 }
 
 def save():
-	obj = height, fullscreen, forceres, stars, nebula
+	obj = height, fullscreen, forceres, stars, nebula, objsize
 	pickle.dump(obj, open(settingspath, "wb"))
 
 def load():
-	global height, fullscreen, forceres, stars, nebula
+	global height, fullscreen, forceres, stars, nebula, objsize
 	if os.path.exists(settingspath):
 		obj = pickle.load(open(settingspath, "rb"))
-		height, fullscreen, forceres, stars, nebula = obj
+		height, fullscreen, forceres, stars, nebula, objsize = obj
 load()		
 

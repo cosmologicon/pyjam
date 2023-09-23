@@ -1,6 +1,6 @@
 import pygame, os.path
 from . import settings, view, sector, perform, state, progress, graphics, sound
-from . import scene, playscene, calibratescene, homescene
+from . import scene, playscene, calibratescene, homescene, adjustscene
 from . import ptext, pview
 from .pview import T
 
@@ -26,6 +26,11 @@ while playing:
 	kdowns = set(event.key for event in pygame.event.get(pygame.KEYDOWN))
 	mdowns = set(event.button for event in pygame.event.get(pygame.MOUSEBUTTONDOWN))
 	if pygame.K_ESCAPE in kdowns or pygame.event.get(pygame.QUIT, pump = True): playing = False
+	if pygame.K_F9 in kdowns:
+		if scene.current is not adjustscene:
+			adjustscene.init(scene.current)
+			scene.current = adjustscene
+
 	if pygame.K_F10 in kdowns: view.cycle_height()
 	if pygame.K_F11 in kdowns: view.toggle_fullscreen()
 	if pygame.K_F12 in kdowns: pview.screenshot()
