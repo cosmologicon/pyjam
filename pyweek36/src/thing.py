@@ -690,8 +690,6 @@ class Beam:
 			dps = [self.R((dx, dy)) for dx, dy in occludebeam(self.w0 * fw, self.w1 * fw, self.d0, self.d1, self.fences)]
 			pVs = [view.VconvertG((self.x0 + dx, self.y0 + dy)) for dx, dy in dps]
 			polys.append((alpha, pVs))
-		for alpha, pVs in polys:
-			print(alpha, pVs)
 		xs = [x for alpha, pVs in polys for x, y in pVs]
 		ys = [y for alpha, pVs in polys for x, y in pVs]
 		xVmin = max(min(xs), 0)

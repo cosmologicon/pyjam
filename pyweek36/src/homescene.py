@@ -99,6 +99,7 @@ def onclick(bname):
 	if bname == "ending":
 		self.convo = list(convos["ending"])
 		progress.upgrade("ending")
+		quest.marquee.append("TECH UNLOCKED: REPAIR COUNTERS")
 		sound.play("win")
 		return
 	if bname == "drag":
@@ -108,6 +109,7 @@ def onclick(bname):
 		progress.upgrade(bname)
 		sound.play("unlock")
 	if bname in unlocktechs:
+		self.convo = list(convos[bname])
 		quest.marquee.append(f"TECH UNLOCKED: {unlocktechs[bname]}")
 		progress.upgrade(bname)
 		sound.play("unlock")
@@ -127,7 +129,7 @@ def draw():
 	settings.nebula -= 5
 	settings.stars -= 5
 #	graphics.drawcreature(6, self.t, T(pygame.Rect(100, 100, 500, 500)), pygame.Rect(8, 0, 16, 16))
-	graphics.draw("alien", T(380, 360), pview.f * 0.8, 0)
+	graphics.draw("alien", T(380, 372), pview.f * 0.8, 0)
 	rect = pygame.Rect(T(0, 0, 580, 580))
 	rect.center = T(380, 360)
 	color = 60, 180, 180
@@ -162,35 +164,36 @@ convos = {
 	0: [
 		"So, you're interested in unmatter, that hot new particle that everyone's talking about, huh?",
 		"Well you came to the right place, heh heh. This sector is loaded with it.",
-		"We've equipped your ship with a gravnet system. Throw a gravnet at some unmatter so we can track it.",
-		"Unfortunately no instruments can detect unmatter until you've got it in a net. You'll just have to look very closely for what isn't there.",
+		"We've equipped your ship with a gravitational net launcher. Throw a gravnet at some unmatter so we can track it.",
+		"Unfortunately no instruments can detect unmatter until you've got it in a net. You'll just have to look very closely to see what isn't there.",
 	],
 	1: [
-		"Want my advice for finding unmatter? Fly around in the area around this station and look closely.",
+		"There's a bunch of unmatter orbiting the station right now.",
+		"Want my advice for finding it? Fly a little bit away from the station and sit still for a minute, and just watch the stars.",
+		"Stay within the orange circle on your map, at least for now.",
 		"The unmatter will appear as black objects blocking out the background stars and nebula.",
-		"If it's too subtle and you're having trouble seeing the nebula, press F9 to adjust the settings.",
-		"It should be challenging but not frustrating.",
+		"If it's too subtle and you're having trouble seeing the nebula, press F9 to adjust the display settings.",
+		"This should be challenging but not frustrating.",
 	],
 	2: [
-		"That's some good data, mmm, keep it coming!",
-		"The more unmatter you find, the more tech we can access, not to mention upgrades to your ship.",
-		"We can now measure how many pieces of unmatter are still orbiting this station that we don't know about.",
-		"Locating them, though, that's still on you.",
+		"That's some good data you're collecting, mmm, keep it coming!",
+		"The more unmatter you find, the more tech we can build, not to mention upgrades to your ship.",
+		"We can now measure how many pieces of unmatter are still orbiting this station that we haven't located.",
+		"You don't need to get them all, but at least a few more.",
 	],
 	3: [
-		"Strange, the counter is going up and down even while you're not finding anything.",
-		"It's possible the unmatter moves from place to place.",
-		"If you can get the counter down to 4, that should give us enough data to form a conclusion.",
+		"Strange, the counter does go down when you find a piece of unmatter, but it's also going up and down on its own.",
+		"It's possible the unmatter moves from place to place, but we need more data to form a conclusion.",
+		"If you can get the station counter down to 4, that should be enough.",
 	],
 	4: [
-		"We've determined that the unmatter orbits around gravity wells in space.",
+		"From what we can tell, the unmatter orbits around gravity wells in space.",
 		"This station is at a gravity well, but there are others out there.",
-		"It looks like sometimes unmatter travels between gravity wells.",
-		"Follow a piece of unmatter that you've found and keep your eye out for more unmatter along the way. If you find a cluster of them, it must be another well.",
-		"Once you find 3 pieces of unmatter around a well, we can drop a counter there.",
+		"It looks like sometimes unmatter travels between gravity wells, so if you see one leaving from the station, you may be able to follow it to another well.",
+		"If you find some unmatter in another well, we should be able to deploy a counter there.",
 	],
 	"beam": [
-		"Behold! I call it the Xazer beam, after my brother in law.",
+		"Behold, my latest invention! I call it the Xazer beam, after my brother in law's pet flarg Xazer.",
 		"Once my technicians finish duct taping it to your hull, this will let you pick out unmatter more easily.",
 		"You've got a limited number of uses, but come back here any time to recharge.",
 		"Once activated it will last until you throw a gravnet.",
@@ -198,25 +201,33 @@ convos = {
 	"more": [
 		"Get out there and find more gravity wells!",
 		"3 pieces of unmatter around a well lets us deploy a counter.",
-		"The more unmatter you find, you're more likely to get one that leads you to a new gravity well.",
+		"The more unmatter you find, the more likely you'll get one that leads you to a new gravity well.",
 	],
 	"ring": [
-		"I call this newest invention the Linz flare.",
+		"I call this newest invention the Linz flare, after my book club organizer (it's short for Linda).",
 		"Use it when you think a piece of unmatter is nearby for a temporary hint.",
+		"By the way, don't forget to read through the controls in the lower left.",
 	],
 	"glow": [
-		"This searchlight will last until you throw a gravnet.",
-		"You can use more than one light together for extra effectiveness (but they each take charge).",
+		"Like the Xazer beam, the Searchlight will last until you throw a gravnet.",
+		"If you've got charge to spare, you can use them at the same time for extra effectiveness.",
+	],
+	"map": [
+		"Hold down M or 5 at any time to view the sector map.",
+		"Sure it's pretty empty now, but you're here to change that, right?",
 	],
 	"drive": [
 		"This hyperdrive should let you reach outer areas much faster.",
 		"It will last until you throw a gravnet, and you'll be invulnerable while using it.",
 		"I recommend saving one charge to get back, though!",
 	],
+	"return": [
+		"Press Backspace at any time to warp immediately back here. No charge required.",
+	],
 	"ending": [
-		"Congratulations! You have collected enough data and solved the mystery of the unmatter.",
+		"Congratulations! You have collected enough data to solve the mystery of the unmatter.",
 		"Turns out it's made of socks that got lost in the laundry.",
-		"Thank you for playing.",
+		"The end.\n\nThank you for playing.",
 		"If you want to keep playing for some reason, counters will now repair you.",
 		"Fly through any counter to refill your hull and charge bars.",
 	],

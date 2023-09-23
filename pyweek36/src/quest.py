@@ -150,8 +150,8 @@ class UnlockBeamQuest:
 			return "Keep hunting unmatter, and watch for a piece of unmatter that's moving away from the station."
 		if self.jstep == 3 and self.tstep < 20:
 			return "If you find a cluster of unmatter, you must be near a gravity well. Locate 3 pieces to deploy a counter  there."
-		if self.jstep == 5 and self.tstep < 10:
-			return "Head back to the station. I've got something for ya."
+		if self.jstep == 5 and self.tstep < 15:
+			return "Head back to the station whenver you feel like it. I've got something for ya."
 		if self.jstep == 6:
 			return "Press 1 to activate the Xazer beam."
 		if self.jstep == 7 and self.tstep < 10:
@@ -193,8 +193,8 @@ class UnlockBeamQuest:
 class UnlockRingQuest:
 	nstep = 4
 	def info(self):
-		if self.jstep == 2 and self.tstep < 10:
-			return "Head back to the station. I've got something for ya."
+		if self.jstep == 2 and self.tstep < 15:
+			return "Head back to the station whenver you feel like it. I've got something for ya."
 	def controlinfo(self):
 		if state.techlevel["ring"] > -1:
 			return ["2: activate Linz flare (uses charge)"]
@@ -214,8 +214,8 @@ class UnlockRingQuest:
 class UnlockGlowQuest:
 	nstep = 4
 	def info(self):
-		if self.jstep == 2 and self.tstep < 10:
-			return "Head back to the station. I've got something for ya."
+		if self.jstep == 2 and self.tstep < 15:
+			return "Head back to the station whenver you feel like it. I've got something for ya."
 	def controlinfo(self):
 		if state.techlevel["glow"] > -1:
 			return ["3: activate Searchlight (uses charge)"]
