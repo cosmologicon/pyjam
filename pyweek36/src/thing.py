@@ -69,7 +69,7 @@ class Engines(enco.Component):
 	def vmax(self):
 		return self.aup()
 	def omega(self):
-		return [2.5, 3, 4, 6, 8][state.techlevel["engine"]]
+		return [2.5, 3, 3.8, 5, 6][state.techlevel["engine"]]
 	def aup(self):
 		return [3, 4, 5.5, 8, 12][state.techlevel["engine"]]
 	def adown(self):
@@ -172,7 +172,7 @@ class ShineBeam(enco.Component):
 		perform.start("beam")
 
 		d0 = 0.5
-		d1 = [4, 6, 8, 10, 14][state.techlevel["beam"]]
+		d1 = [4, 6, 9, 12, 16][state.techlevel["beam"]]
 		w0 = [0.03, 0.05, 0.07, 0.03, 0.05][state.techlevel["beam"]]
 		w1 = w0 * d1 / d0
 		alphamax = [0.2, 0.3, 0.4, 0.4, 0.5][state.techlevel["beam"]]
@@ -250,10 +250,10 @@ class HasGlow(enco.Component):
 		r = [2, 2, 3, 4.5, 4.5][state.techlevel["glow"]]
 		N = [1, 2, 2, 3, 4][state.techlevel["glow"]]
 		A = omega * self.tglow
-		R = math.smoothinterp(self.tglow, 0, 0, 1, R0)
+		R = math.smoothinterp(self.tglow, 0, 0, 5, R0)
 		for j in range(N):
 			pV = view.VconvertG(math.CS(A + j / N * math.tau, R, self.pos))
-			glow = graphics.glow(T(view.VscaleG * r), seed = random.randint(0, 9), color = (100, 50, 0, 100))
+			glow = graphics.glow(T(view.VscaleG * r), seed = random.randint(0, 9), color = (50, 100, 100, 100))
 			pview.screen.blit(glow, glow.get_rect(center = pV))
 
 
@@ -377,6 +377,7 @@ class Findable(enco.Component):
 		self.onfound()
 	
 	def onfound(self):
+		sound.play("find")
 		state.xp += self.xp
 
 
@@ -406,7 +407,7 @@ class DrawDM(enco.Component):
 		else:
 			pygame.draw.circle(pview.screen, (0, 0, 0), self.pV(), self.rV())
 			if self.tring > 0:
-				color = math.imix((0, 0, 0), (255, 255, 100), math.interp(self.tring, 0, 0, 1, 1))
+				color = math.imix((0, 0, 0), (100, 255, 255), math.interp(self.tring, 0, 0, 1, 1))
 				pygame.draw.circle(pview.screen, color, self.pV(), self.rV(), T(2))
 				
 	def mapcolor(self):
@@ -573,8 +574,9 @@ class DrawRock(enco.Component):
 	def draw(self):
 		graphics.drawG("mimas", self.pV(), self.r * 0.0033, 0)
 	def mapcolor(self):
+		if settings.DEBUG:
+			return 50, 50, 50
 		return None
-		return 50, 50, 50
 
 
 
@@ -660,13 +662,15 @@ class Beam:
 		yVmax = min(max(ys), pview.h)
 		w, h = xVmax - xVmin, yVmax - yVmin
 		surf = pygame.Surface((w, h)).convert_alpha()
-		surf.fill((255, 255, 50, 0))
+		color0 = (50, 255, 255, 0)
+		surf.fill(color0)
 		for alpha, pVs in polys:
+			color1 = (50, 255, 255, alpha)
 			pVs = [(xV - xVmin, yV - yVmin) for xV, yV in pVs]
-			pygame.draw.polygon(surf, (255, 255, 50, alpha), pVs)
+			pygame.draw.polygon(surf, color1, pVs)
 		for obj in self.blockers:
 			xV, yV = obj.pV()
-			pygame.draw.circle(surf, (255, 255, 50, 0), (xV - xVmin, yV - yVmin), obj.rV())
+			pygame.draw.circle(surf, color0, (xV - xVmin, yV - yVmin), obj.rV())
 		fade = graphics.fadeimg(T(view.VscaleG * self.d1))
 		xV0, yV0 = view.VconvertG((self.x0, self.y0))
 		center = xV0 - xVmin, yV0 - yVmin
@@ -674,13 +678,13 @@ class Beam:
 		w, h = surf.get_size()
 		surf.blit(fade, rect, special_flags = pygame.BLEND_RGBA_MULT)
 		if rect.x > 0:
-			surf.fill((255, 255, 50, 0), (0, 0, rect.x, h))
+			surf.fill(color0, (0, 0, rect.x, h))
 		if rect.y > 0:
-			surf.fill((255, 255, 50, 0), (0, 0, w, rect.y))
+			surf.fill(color0, (0, 0, w, rect.y))
 		if rect.right < w:
-			surf.fill((255, 255, 50, 0), (rect.right, 0, w - rect.right, h))
+			surf.fill(color0, (rect.right, 0, w - rect.right, h))
 		if rect.bottom < h:
-			surf.fill((255, 255, 50, 0), (0, rect.bottom, w, h - rect.bottom))
+			surf.fill(color0, (0, rect.bottom, w, h - rect.bottom))
 			
 		pview.screen.blit(surf, (xVmin, yVmin))
 		#self.drawfences()
@@ -723,14 +727,14 @@ class Cage:
 		self.pos0 = pos0
 		self.A = A
 		self.pos = math.CS(A, self.d0, pos0)
-		self.r = 0.4
+		self.r = 0.3
 		self.d0 = state.you.r
 		self.D = [4, 5, 7, 10, 12][state.techlevel["gravnet"]]
 		self.T = [0.7, 0.6, 0.5, 0.4, 0.3][state.techlevel["gravnet"]]
 
 	def think(self, dt):
 		for DM in state.DMtracker.active:
-			if not DM.found and overlaps(DM, self):
+			if not DM.found and dist(DM, self) <= DM.r:
 				DM.find()
 				self.alive = False
 
@@ -812,7 +816,7 @@ class Ring:
 		rV0 = T(view.VscaleG * self.ringr(self.f))
 		rV1 = T(view.VscaleG * self.ringr(self.f - self.df))
 		w = 0 if rV1 <= 0 else rV0 - rV1
-		color = math.imix((255, 255, 0), (0, 0, 0), self.f)
+		color = math.imix((50, 255, 255), (0, 0, 0), self.f)
 		pygame.draw.circle(pview.screen, color, self.origin.pV(), rV0, w)
 
 
@@ -859,9 +863,9 @@ class Spot:
 	def canunlock(self):
 		if self.unlocked:
 			return False
-		if state.techlevel["count"] <= 0:
+		if state.techlevel["count"] <= 1:
 			return False
-		return view.isvisible(self) and self.nfound() >= 3 and dist(self, state.you) < settings.countradius
+		return dist(self, state.you) < settings.countradius and self.nfound() >= 3
 
 	def think(self, dt):
 		if self.canunlock():
@@ -873,6 +877,12 @@ class Spot:
 			self.funlock = 0
 		if self.unlocked:
 			self.funlock = math.approach(self.funlock, 1, 0.5 * dt)
+			if state.techlevel["ending"] and overlaps(self, state.you):
+				from . import progress
+				if state.hp < progress.getmaxhp() or state.energy < progress.getmaxenergy():
+					sound.play("arrive")
+					state.hp = progress.getmaxhp()
+					state.energy = progress.getmaxenergy()
 
 	def draw(self):
 		if not view.isvisible(self) or not self.unlocked:

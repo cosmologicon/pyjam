@@ -1,6 +1,6 @@
-import pygame, pickle, os.path
+import pygame, pickle, os.path, sys
 
-gamename = "Unmatter Hunter"
+gamename = "The Mystery of the Unmatter"
 
 # DEFAULT DIFFICULTY SETTINGS
 # If you update these be sure to delete settings.pkl too.
@@ -25,13 +25,16 @@ savepath = "save.pkl"
 quicksavepath = "qsave.pkl"
 settingspath = "settings.pkl"
 tquicksave = 5
-reset = False
+reset = "--reset" in sys.argv
 
-DEBUG = True
+DEBUG = "--DEBUG" in sys.argv
+qunlock = "--qunlock" in sys.argv
 
 minimapradius = 50
-mapradius = 1000
+mapradius = 500
 countradius = 25
+
+viewscales = 25, 35, 50, 70, 100
 viewscale = 50
 
 keys = {
@@ -45,17 +48,17 @@ keys = {
 	"glow": [pygame.K_3],
 	"drive": [pygame.K_4],
 	"map": [pygame.K_5, pygame.K_m],
-	"return": [pygame.K_6, pygame.K_BACKSPACE],
+	"return": [pygame.K_BACKSPACE],
 }
 
 def save():
-	obj = height, fullscreen, forceres, stars, nebula, objsize
+	obj = height, fullscreen, forceres, stars, nebula, objsize, viewscale
 	pickle.dump(obj, open(settingspath, "wb"))
 
 def load():
-	global height, fullscreen, forceres, stars, nebula, objsize
+	global height, fullscreen, forceres, stars, nebula, objsize, viewscale
 	if os.path.exists(settingspath):
 		obj = pickle.load(open(settingspath, "rb"))
-		height, fullscreen, forceres, stars, nebula, objsize = obj
+		height, fullscreen, forceres, stars, nebula, objsize, viewscale = obj
 load()		
 

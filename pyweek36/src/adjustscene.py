@@ -8,6 +8,8 @@ class self:
 
 def init(oldscene):
 	self.oldscene = oldscene
+	self.oldvis = pygame.mouse.get_visible()
+	pygame.mouse.set_visible(True)
 	self.t = 0
 	cols = [
 		["starsdown", "nebuladown", "objsizedown"],
@@ -23,17 +25,19 @@ def init(oldscene):
 	]
 	view.xG0 = 0
 	view.yG0 = 0
-	view.VscaleG = settings.viewscale
+	view.VscaleG = 50
 
 def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 	self.t += dt
 	if self.t > 0.1 and pygame.K_F9 in kdowns:
+		pygame.mouse.set_visible(self.oldvis)
 		scene.current = self.oldscene
 	if 1 in mdowns:
 		for bname, rect in self.buttons:
 			visible, active, text = bstate(bname)
 			if visible and T(rect).collidepoint(mpos):
 				if active:
+					sound.play("click")
 					onclick(bname)
 				else:
 					sound.play("no")
@@ -78,14 +82,15 @@ def draw():
 	graphics.drawnebula()
 	graphics.drawstars()
 	for DM in self.DMs:
+		DM.r = 0.4 * settings.viewscale / 50
 		DM.draw()
 
 	text = "\n".join([
-		"This game is about locating black objects on a dark background. How difficult this is depends a lot on your monitor and lighting conditions. This screen lets you adjust the background settings to make the game easier or harder. Ideally it's challenging without being frustrating. You should be able to barely make out the nebula in the background, and see a few stars wink out here or there as an object passes in front of them.",
+		"This game is about locating black objects on a dark background. It's supposed to be challenging, but how difficult this is depends a lot on your monitor and lighting conditions. This screen lets you adjust the background settings to make the game easier or harder. You should be able to barely make out the nebula in the background, and see a few stars wink out here and there as an object passes in front of them. If you can easily see the objects at a glance, it's probably too easy. Ideally it's challenging without being frustrating.",
 		"",
 		"Press F9 to resume the game.",
 	])
-	ptext.draw(text, center = T(940, 440), width = T(480), fontsize = T(22),
+	ptext.draw(text, center = T(940, 440), width = T(480), fontsize = T(18),
 		shade = 1)
 	ptext.draw(f"STARS: {settings.stars}", center = T(940, 120), fontsize = T(20), shade = 1)
 	ptext.draw(f"NEBULA: {settings.nebula}", center = T(940, 170), fontsize = T(20), shade = 1)

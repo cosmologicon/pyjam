@@ -12,6 +12,7 @@ cost = {
 	"map": [10],
 	"drive": [20],
 	"return": [30],
+	"ending": [100],
 }
 
 
@@ -24,19 +25,21 @@ def init():
 	state.spots = [state.home]
 	state.spots += [thing.Spot(spot) for spot in sector.spots if spot != state.home.pos]
 	for jspot, (spot, adjs) in enumerate(sector.adjs.items()):
-		for jDM in range(10):
+		NDM = int(math.interp(math.hypot(*spot), 0, 10, 600, 30))
+		for jDM in range(NDM):
 			state.DMs += [randomvisitor(spot, adjs, jspot, jDM)]
-	for Nrock, R0, size0 in [
-		(3, 15, 0.5),
-		(10, 25, 1),
-		(20, 50, 1.5),
-		(50, 100, 2),
-		(200, 200, 2.5),
-		(400, 400, 3),
-		(400, 500, 4),
+	for Nrock, R0, R1, size0 in [
+		(10, 15, 30, 0.5),
+		(20, 25, 50, 1),
+		(60, 50, 100, 1.5),
+		(60, 100, 200, 2),
+		(60, 150, 300, 2.5),
+		(100, 200, 400, 3),
+		(100, 300, 500, 3.5),
+		(100, 400, 500, 4),
 	]:
 		for jrock in range(Nrock):
-			state.DMs += [randomrock(R0, size0, R0, jrock)]
+			state.DMs += [randomrock(R0, R1, size0, R0, size0, jrock)]
 #	for jrock in range(10):
 #		state.DMs += [thing.CircleRock((0, 0), 10 + jrock, 2, 0.5 + 0.1 * jrock)]
 	state.pulses = []
@@ -47,13 +50,14 @@ def init():
 		"beam": -1,
 		"ring": -1,
 		"glow": -1,
-		"health": -1,
+		"health": 0,
 		"energy": -1,
 		# Individually purchaseable upgrades
 		"count": 0,
 		"drive": 0,
 		"map": 0,
 		"return": 0,
+		"ending": 0,
 		"drag": -1,  # drag level 2, cannot be set.
 	}
 	state.charge = {
@@ -90,12 +94,12 @@ def randomvisitor(spot, adjs, *seed):
 	reverse = math.fuzzflip(1.09, *seed)
 	return thing.Visitor(pos0, pos1, Nstay, Rorbit, v, reverse=reverse)
 
-def randomrock(R0, size0, *seed):
+def randomrock(R0, R1, size0, *seed):
 	A0 = math.fuzzrange(0, math.tau, 2.01, *seed)
 	r0 = math.fuzzrange(0, R0 / 2, 2.02, *seed)
 	pos0 = math.CS(A0, r0)
-	Rorbit = math.fuzzrange(R0, 2 * R0, 2.03, *seed)
-	v = math.fuzzrange(1, 3, 2.07, *seed)
+	Rorbit = math.fuzzrange(R0, R1, 2.03, *seed)
+	v = math.fuzzrange(1.5, 3, 2.07, *seed) * math.interp(Rorbit, 0, 1, 600, 3)
 	r = size0 * math.fuzzchoice([1, 1.5, 2], 2.08, *seed)
 	reverse = math.fuzzflip(2.09, *seed)
 	return thing.CircleRock(pos0, Rorbit, v, r, reverse = reverse)
@@ -207,6 +211,7 @@ def readsave(path):
 		quest.quests,
 		quest.marquee,
 	] = pickle.load(open(path, "rb"))
+	state.showmap = False
 
 def checksave():
 	if settings.reset:

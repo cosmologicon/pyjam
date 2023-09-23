@@ -12,12 +12,14 @@ def init():
 	progress.init()
 #	progress.cheat()
 	think(0)
+	pygame.mouse.set_visible(False)
 	sound.playmusic("floating-cities")
-	return
-	for j, DM in enumerate(state.DMs):
-		DM.found = math.fuzzflip(j, 123)
-	for j, spot in enumerate(state.spots):
-		spot.unlocked = math.fuzzflip(j, 234)
+	if settings.qunlock:
+		for j, DM in enumerate(state.DMs):
+			if math.fuzzflip(j, 123):
+				DM.find()
+		for j, spot in enumerate(state.spots):
+			spot.unlocked = math.fuzzflip(j, 234)
 
 
 def resume():
@@ -26,6 +28,7 @@ def resume():
 	state.you.leave(state.at)
 	state.at = None
 	progress.save()
+	pygame.mouse.set_visible(False)
 	quest.marquee.append("GAME SAVED")
 
 
@@ -73,6 +76,8 @@ def think(dt, kdowns = [], kpressed = defaultdict(bool), mpos = (0, 0), mdowns =
 	progress.quicksave()
 	global trespawn
 	if state.hp <= 0:
+		if trespawn == 0:
+			sound.play("die")
 		trespawn = math.approach(trespawn, 3, dt)
 	else:
 		trespawn = 0
@@ -120,11 +125,21 @@ def draw():
 	text = quest.info()
 	if text:
 		ptext.draw(text, midbottom = T(640, 710), fontname = "JollyLodger", fontsize = T(50),
-			width = T(700), owidth = 1, color = "#ff7fff", shade = 1)
+			width = T(700), owidth = 1, color = "#7fffff", shade = 1)
 	quest.marquee.draw()
 	hud.draw()
 	hud.drawcontrols()
-
+	if quest.drawtitle():
+		ocolor = "#cfffff"
+		ptext.draw(settings.gamename, center = T(640, 140), fontname = "JollyLodger", fontsize = T(120),
+			owidth = 0.2, color = "#333333", gcolor = "black", ocolor = ocolor, scolor = ocolor, shadow = (0.3, 0.3))
+		text = "\n".join([
+			"by Christopher Night",
+			"music: Kevin Macleod (incompetech.com)",
+			"graphics: pendleburyannette, WikiImages, MillionthVector",
+			"fonts: Jovanny Lemonad, Font Diner",
+		])
+		ptext.draw(text, midtop = T(640, 540), fontsize = T(20), shade = 1, owidth = 0.5)
 
 def drawmap():
 	perform.start("drawmap")
@@ -145,7 +160,7 @@ def drawmap():
 		if ocolor is not None:
 			pygame.draw.circle(img, ocolor, pM, T(k * rV), k)
 
-	Dring = 100
+	Dring = 50
 	Nspoke = 8
 	color = math.imix((0, 0, 0), (128, 255, 255), k / 4)
 	for jring in range(1, 11):
@@ -164,13 +179,14 @@ def drawmap():
 	for DM in state.DMs:
 		color = DM.mapcolor()
 		if color is not None:
-			drawcircleG(DM.pos, 1, color)
+			drawcircleG(DM.pos, max(1, DM.r), color)
 	for spot in state.spots:
 		if spot.unlocked:
 			drawcircleG(spot.pos, 5, (0, 0, 0), (0, 200, 200))
 			if flash:
 				text = f"{spot.nunfound(countall=True)}"
-				ptext.draw(text, center = MconvertG(spot.pos), fontsize = T(25 * k), owidth = 1, surf=img)
+				ptext.draw(text, center = MconvertG(spot.pos), fontsize = T(10 * k),
+					color = (100, 255, 255), owidth = 1, surf=img)
 	if not flash:
 		drawcircleG(state.you.pos, 6, (200, 100, 100), (255, 128, 128))
 	if k != 1:
@@ -206,13 +222,13 @@ def drawminimap():
 	Nspoke = 1
 	while Nspoke < jring1:
 		Nspoke *= 2
-	if Dmin < 0:
+	if Dmin <= 1:
 		jring0 = 1
 		jspoke0, jspoke1 = 0, 6 * Nspoke
 	else:
 		jring0 = max(1, int(Dmin / Dring))
 		Acenter = math.atan2(y0, x0)
-		dA = 1.5 * mradius / Dmin
+		dA = min(1.5 * mradius / Dmin, math.tau / 2)
 		jspoke0 = int((Acenter - dA) * 6 * Nspoke / math.tau)
 		jspoke1 = int((Acenter + dA) * 6 * Nspoke / math.tau) + 1
 	for jring in range(jring0, jring1):
@@ -239,8 +255,12 @@ def drawminimap():
 	perform.stop("minimapsetup")
 	perform.start("drawminimapspots")
 	for spot in state.spots:
-		if spot.unlocked:
-			drawcircleG(spot.pos, 8, (0, 0, 0), (0, 200, 200))
+		if spot.unlocked and view.beyondminimap(spot) < 5:
+			rV = 4 * spot.r ** 0.5 * s / mradius
+			drawcircleG(spot.pos, rV, (0, 0, 0), (0, 200, 200))
+			if state.techlevel["count"] > 0:
+				ptext.draw(f"{spot.nunfound()}", center = MconvertG(spot.pos), fontsize = T(3 * rV), owidth = 0.5,
+					color = "#7f7fff", surf=img)
 			rV = settings.countradius * s / mradius
 			pygame.draw.circle(img, (30 * k, 15 * k, 0), MconvertG(spot.pos), T(k * rV), 1)
 	perform.stop("drawminimapspots")

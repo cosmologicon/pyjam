@@ -8,7 +8,7 @@ ptext.DEFAULT_FONT_NAME = "DaysOne"
 ptext.FONT_NAME_TEMPLATE = os.path.join("fonts", "%s.ttf")
 ptext.DEFAULT_LINE_HEIGHT = 0.9
 
-
+pygame.init()
 sector.load()
 sound.init()
 view.init()
@@ -26,6 +26,12 @@ while playing:
 	kdowns = set(event.key for event in pygame.event.get(pygame.KEYDOWN))
 	mdowns = set(event.button for event in pygame.event.get(pygame.MOUSEBUTTONDOWN))
 	if pygame.K_ESCAPE in kdowns or pygame.event.get(pygame.QUIT, pump = True): playing = False
+	if pygame.K_F8 in kdowns:
+		if settings.viewscale >= max(settings.viewscales):
+			settings.viewscale = min(settings.viewscales)
+		else:
+			settings.viewscale = min(viewscale for viewscale in settings.viewscales if viewscale > settings.viewscale)
+		settings.save()
 	if pygame.K_F9 in kdowns:
 		if scene.current is not adjustscene:
 			adjustscene.init(scene.current)

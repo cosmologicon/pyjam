@@ -29,6 +29,8 @@ class Quest(enco.Component):
 		marquee.append(text)
 	def numspot(self):
 		return sum(spot.unlocked for spot in state.spots)
+	def drawtitle(self):
+		return False
 
 class Marquee:
 	def __init__(self):
@@ -62,17 +64,21 @@ marquee = Marquee()
 @Quest()
 class ArriveQuest:
 	nstep = 9
+	def drawtitle(self):
+		return self.jstep <= 1
 	def info(self):
 		if self.jstep == 1:
 			return "Fly to the station."
+		if self.jstep == 2:
+			return "New controls appear in the bottom left as you unlock abilities."
 		if self.jstep == 3:
 			if self.tstep > 30 and state.homeconvo == 1:
-				return "Come back to the station. I have some tips that might help."
+				return "Are you having trouble? Come back to the station for tips if you want."
 			else:
-				return "Hit a piece of unmatter to track it. Look closely at the stars. And don't worry, it can't hurt ya."
+				return "Hit a piece of unmatter to track it. Look at the background stars. And don't worry about getting close, it can't hurt ya."
 		if self.jstep == 4:
 			if self.tstep > 60 and state.homeconvo == 1:
-				return "Come back to the station. I have some tips that might help."
+				return "Are you having trouble? Come back to the station for tips if you want."
 			elif state.xp == 1:
 				return "You got one! Find and track 3 pieces of unmatter."
 		if self.jstep == 5:
@@ -87,20 +93,23 @@ class ArriveQuest:
 		if self.jstep == 1:
 			return [
 				"Arrow keys or WASD: move",
+				"F8: change zoom level",
 				"F9: calibrate difficulty",
 				"F10: change resolution",
 				"F11: toggle fullscreen",
 				"Esc: quit (autosaved)",
 			]
-		if self.jstep == 2:
+		if self.jstep in (2, 3, 4, 5):
 			return [
-				"Space, Enter, left click: throw gravnet",
+				"Space, Enter: throw gravnet",
+				"F8: change zoom level",
 				"F9: calibrate difficulty",
 				"F10: change resolution",
 				"F11: toggle fullscreen",
 				"Esc: quit (autosaved)",
 			]
 		return [
+			"F8: change zoom level",
 			"F9: calibrate difficulty",
 			"F10: change resolution",
 			"F11: toggle fullscreen",
@@ -134,6 +143,7 @@ class ArriveQuest:
 			state.homeconvo = 4
 			self.advance()
 		if self.jstep == 8 and state.at is state.home:
+			progress.upgrade("count")
 			self.advance()
 		if self.jstep < 6:
 			state.you.pos = math.vclamp(state.you.pos, settings.countradius)
@@ -144,20 +154,23 @@ class ArriveQuest:
 
 @Quest()
 class UnlockBeamQuest:
-	nstep = 9
+	nstep = 10
 	def info(self):
-		if self.jstep == 2 and self.tstep < 10:
-			return "Look for unmatter that's moving away from the station."
-		if self.jstep == 3 and self.tstep < 10:
-			return "If you find a cluster of unmatter, you must be near a nexus point."
+		if self.jstep == 2 and self.tstep < 20:
+			return "Keep hunting unmatter, and watch for a piece of unmatter that's moving away from the station."
+		if self.jstep == 3 and self.tstep < 20:
+			return "If you find a cluster of unmatter, you must be near a gravity well. Locate 3 pieces to deploy a counter  there."
 		if self.jstep == 5 and self.tstep < 10:
 			return "Head back to the station. I've got something for ya."
 		if self.jstep == 6:
-			return "Press 1 or right-click to activate the beam."
+			return "Press 1 to activate the Xazer beam."
 		if self.jstep == 7 and self.tstep < 10:
-			return "The beam will last until you fire a gravnet, so make it count."
+			return "The beam will last until you throw a gravnet, so make it count."
 		if self.jstep == 8 and self.tstep < 10:
 			return "Return to the station whenever you want to refill your charge."
+	def controlinfo(self):
+		if state.techlevel["beam"] > -1:
+			return ["1: activate Xazer Beam (uses charge)"]
 	def think(self, dt):
 		if self.jstep == 0 and state.at is state.home:
 			self.advance()
@@ -165,7 +178,7 @@ class UnlockBeamQuest:
 			self.advance()
 		if self.jstep == 2 and self.numspot() > 1:
 			self.advance()
-		if self.jstep == 3 and any(thing.dist(state.you, spot) < settings.countradius for spot in state.spots if spot is not state.home):
+		if self.jstep == 2 and any(thing.dist(state.you, spot) < settings.countradius for spot in state.spots if spot is not state.home):
 			self.advance()
 		if self.jstep == 3 and self.numspot() > 1:
 			state.homeconvo = "beam"
@@ -173,7 +186,7 @@ class UnlockBeamQuest:
 		if self.jstep == 4 and (self.tstep >= 10 or state.at is state.home):
 			self.advance()
 		if self.jstep == 5 and state.at is state.home:
-			self.marquee("Tech unlocked: Beam")
+			self.marquee("Tech unlocked: Xazer beam")
 			sound.play("unlock")
 			progress.upgrade("energy")
 			progress.upgrade("beam")
@@ -188,43 +201,62 @@ class UnlockBeamQuest:
 
 @Quest()
 class UnlockRingQuest:
-	nstep = 3
+	nstep = 4
 	def info(self):
 		if self.jstep == 2 and self.tstep < 10:
 			return "Head back to the station. I've got something for ya."
+	def controlinfo(self):
+		if state.techlevel["ring"] > -1:
+			return ["2: activate Linz flare (uses charge)"]
 	def think(self, dt):
-		if self.jstep == 0 and sum(spot.unlocked for spot in state.spots) > 2:
-			self.homeconvo = "ring"
+		if self.jstep == 0 and sum(spot.unlocked for spot in state.spots) > 3:
+			state.homeconvo = "ring"
 			self.advance()
 		if self.jstep == 1 and (self.tstep >= 10 or state.at is state.home):
 			self.advance()
 		if self.jstep == 2 and state.at is state.home:
-			self.marquee("Tech unlocked: Ring")
+			self.marquee("Tech unlocked: Linz flare")
 			sound.play("unlock")
 			progress.upgrade("ring")
 			self.advance()
 
 @Quest()
 class UnlockGlowQuest:
-	nstep = 3
+	nstep = 4
 	def info(self):
 		if self.jstep == 2 and self.tstep < 10:
 			return "Head back to the station. I've got something for ya."
+	def controlinfo(self):
+		if state.techlevel["glow"] > -1:
+			return ["3: activate Searchlight (uses charge)"]
 	def think(self, dt):
-		if self.jstep == 0 and sum(spot.unlocked for spot in state.spots) > 3:
-			self.homeconvo = "glow"
+		if self.jstep == 0 and sum(spot.unlocked for spot in state.spots) > 5:
+			state.homeconvo = "glow"
 			self.advance()
 		if self.jstep == 1 and (self.tstep >= 10 or state.at is state.home):
 			self.advance()
 		if self.jstep == 2 and state.at is state.home:
-			self.marquee("Tech unlocked: Glow")
+			self.marquee("Tech unlocked: Searchlight")
 			sound.play("unlock")
 			progress.upgrade("glow")
 			self.advance()
 
+@Quest()
+class PurchasesQuest:
+	nstep = 10
+	def controlinfo(self):
+		lines = []
+		if state.techlevel["drive"]:
+			lines.append("4: activate Hyperdrive (uses energy)")
+		if state.techlevel["map"]:
+			lines.append("Hold 5 or M: view map")
+		if state.techlevel["return"]:
+			lines.append("Backspace: warp back to station")
+		return lines
 
 def init():
 	quests[:] = [
+		PurchasesQuest(),
 		ArriveQuest(),
 	]
 
@@ -238,6 +270,7 @@ def info():
 	return "\n".join(info for info in infos if info)
 
 def getcontrolinfo():
-	return [info for q in quests for info in q.controlinfo()]
+	return [info for q in quests for info in (q.controlinfo() or [])]
 
-
+def drawtitle():
+	return any(q.drawtitle() for q in quests)
