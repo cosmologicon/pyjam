@@ -1,5 +1,5 @@
-import math, random
-from . import state, thing, sector, quest
+import math, random, pickle, os.path, os, pygame
+from . import state, thing, sector, quest, settings, perform
 
 cost = {
 	"engine": [5, 10, 15, 20],
@@ -40,8 +40,6 @@ def init():
 #	for jrock in range(10):
 #		state.DMs += [thing.CircleRock((0, 0), 10 + jrock, 2, 0.5 + 0.1 * jrock)]
 	state.pulses = []
-	state.tracers = []
-	state.spawners = []
 	state.shots = []
 	state.techlevel = {
 		"engine": 0,
@@ -168,4 +166,84 @@ class ThinkTracker:
 		self.active = [self.objs[j] for j in sorted(self.sactive)]
 		self.jcheck = jcheck
 
+
+def writesave(path):
+	obj = [
+		state.xp,
+		state.you,
+		state.DMs,
+		state.home,
+		state.spots,
+		state.pulses,
+		state.shots,
+		state.techlevel,
+		state.charge,
+		state.at,
+		state.homeconvo,
+		state.DMtracker,
+		state.hp,
+		state.energy,
+		quest.quests,
+		quest.marquee,
+	]
+	pickle.dump(obj, open(path, "wb"))
+
+def readsave(path):
+	obj = [
+		state.xp,
+		state.you,
+		state.DMs,
+		state.home,
+		state.spots,
+		state.pulses,
+		state.shots,
+		state.techlevel,
+		state.charge,
+		state.at,
+		state.homeconvo,
+		state.DMtracker,
+		state.hp,
+		state.energy,
+		quest.quests,
+		quest.marquee,
+	] = pickle.load(open(path, "rb"))
+
+def checksave():
+	if settings.reset:
+		if os.path.exists(settings.quicksavepath):
+			os.remove(settings.quicksavepath)
+		elif os.path.exists(settings.savepath):
+			os.remove(settings.savepath)
+	else:
+		if os.path.exists(settings.quicksavepath):
+			readsave(settings.quicksavepath)
+			return True
+		elif os.path.exists(settings.savepath):
+			readsave(settings.savepath)
+			return True
+	return False
+	
+def save():
+	writesave(settings.savepath)
+
+lastquicksave = None
+def quicksave():
+	global lastquicksave
+	t = pygame.time.get_ticks() * 0.001
+	if lastquicksave is None or t - lastquicksave > settings.tquicksave:
+		perform.start("quicksave")
+		writesave(settings.quicksavepath)
+		perform.stop("quicksave")
+		lastquicksave = t
+
+def loadlastsave():
+	global lastquicksave
+	if os.path.exists(settings.savepath):
+		readsave(settings.savepath)
+	else:
+		init()
+	if os.path.exists(settings.quicksavepath):
+		os.remove(settings.quicksavepath)
+	lastquicksave = None
+	
 

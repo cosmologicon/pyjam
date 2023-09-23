@@ -105,6 +105,7 @@ def draw():
 		y = math.mix(360, 366, math.cycle(0.2 * self.t))
 		ptext.draw(text, center = T(960, y), fontname = "JollyLodger", fontsize = T(70), width = T(540),
 			color = "#ff7fff", owidth = 0.5, shadow = (1, 1), shade = 1)
+		ptext.draw("CLICK TO CONTINUE", midbottom = T(960, 710), fontsize = T(18), shade = 1)
 	else:
 		for bname, rect in self.buttons:
 			visible, active, text = bstate(bname)
@@ -116,7 +117,7 @@ def draw():
 				if active:
 					bcolor = math.imix(bcolor, (255, 255, 255), 0.5)
 				rect = rect.inflate(-T(8), -T(8))
-				ptext.drawbox(text, rect, color = bcolor, owidth = 0.5)
+				ptext.drawbox(text, T(rect), color = bcolor, owidth = 0.5)
 	hud.draw()
 
 convos = {

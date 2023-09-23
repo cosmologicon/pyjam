@@ -5,6 +5,8 @@ from . import settings, state, thing, view, graphics, sector, quest, perform, pr
 from . import pview, ptext
 from .pview import T
 
+trespawn = 0
+
 
 def init():
 	progress.init()
@@ -17,11 +19,14 @@ def init():
 	for j, spot in enumerate(state.spots):
 		spot.unlocked = math.fuzzflip(j, 234)
 
+
 def resume():
 	sound.playmusic("floating-cities")
 	state.you.A = 0
 	state.you.leave(state.at)
 	state.at = None
+	progress.save()
+	quest.marquee.append("GAME SAVED")
 
 
 def think(dt, kdowns = [], kpressed = defaultdict(bool), mpos = (0, 0), mdowns = set()):
@@ -32,18 +37,13 @@ def think(dt, kdowns = [], kpressed = defaultdict(bool), mpos = (0, 0), mdowns =
 	state.you.think(dt)
 	for pulse in state.pulses:
 		pulse.think(dt)
-	for spawner in state.spawners:
-		spawner.think(dt)
 	state.DMtracker.think(dt)
-	for tracer in state.tracers:
-		tracer.think(dt)
 	for shot in state.shots:
 		shot.think(dt)
 	for spot in state.spots:
 		spot.think(dt)
 	perform.stop("statethink")
 	state.pulses = [pulse for pulse in state.pulses if pulse.alive]
-	state.tracers = [tracer for tracer in state.tracers if tracer.alive]
 	state.shots = [shot for shot in state.shots if shot.alive]
 	quest.think(dt)
 	quest.marquee.think(dt)
@@ -70,6 +70,19 @@ def think(dt, kdowns = [], kpressed = defaultdict(bool), mpos = (0, 0), mdowns =
 		sound.play("return")
 		scene.current = homescene
 		homescene.init()
+	progress.quicksave()
+	global trespawn
+	if state.hp <= 0:
+		trespawn = math.approach(trespawn, 3, dt)
+	else:
+		trespawn = 0
+	if trespawn == 3:
+		from . import scene, homescene
+		progress.loadlastsave()
+		state.at = state.home
+		scene.current = homescene
+		homescene.init()
+		sound.play("respawn")
 		
 
 
@@ -89,8 +102,6 @@ def draw():
 	state.you.drawbeam()
 	for DM in state.DMtracker.active:
 		DM.draw()
-	for tracer in state.tracers:
-		tracer.draw()
 	for shot in state.shots:
 		shot.draw()
 	for spot in state.spots:
@@ -122,7 +133,7 @@ def drawmap():
 	mradius = settings.mapradius
 	s = 340
 	k = 1
-	img = pygame.Surface(T(2 * k * s, 2 * k * s)).convert_alpha()
+	img = minimapimg(k, s)
 	img.fill((0, 0, 0, 200))
 	def MconvertG(pos):
 		x, y = pos
@@ -170,8 +181,8 @@ def drawmap():
 	perform.stop("drawmap")
 
 
-@lru_cache(1)
-def minimapimg(self, k, s):
+@lru_cache(2)
+def minimapimg(k, s):
 	return pygame.Surface(T(2 * k * s, 2 * k * s)).convert_alpha()
 
 
@@ -179,7 +190,7 @@ def drawminimap():
 	perform.start("drawminimap")
 	perform.start("minimapsetup")
 	mradius = settings.minimapradius
-	s = 120
+	s = T(120)
 	k = 2
 	img = minimapimg(k, s)
 	img.fill((0, 0, 0, 200))
@@ -187,6 +198,7 @@ def drawminimap():
 	def MconvertG(pos):
 		x, y = pos
 		return T(k * s + k * s / mradius * (x - x0), k * s - k * s / mradius * (y - y0))
+	perform.start("minimapgrid")
 	D = thing.pdist((x0, y0), (0, 0))
 	Dmin, Dmax = D - 1.5 * mradius, D + 1.5 * mradius
 	Dring = 30
@@ -215,6 +227,7 @@ def drawminimap():
 			jspoke /= 2
 		r0, r1 = max(jring * Dring, Dmin), Dmax
 		pygame.draw.line(img, (60, 120, 120), MconvertG(math.CS(A, r0)), MconvertG(math.CS(A, r1)), 1)
+	perform.stop("minimapgrid")
 
 	def drawcircleG(posG, rV, color, ocolor=None):
 		pM = MconvertG(posG)

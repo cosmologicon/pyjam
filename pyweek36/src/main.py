@@ -13,7 +13,11 @@ sector.load()
 sound.init()
 view.init()
 scene.current = playscene
-scene.current.init()
+if not progress.checksave():
+	scene.current.init()
+else:
+	sound.playmusic("floating-cities")
+
 playing = True
 clock = pygame.time.Clock()
 dtaccum = 0

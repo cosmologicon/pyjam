@@ -18,10 +18,12 @@ def init():
 def toggle_fullscreen():
 	settings.fullscreen = not settings.fullscreen
 	pview.set_mode(fullscreen = settings.fullscreen)
+	settings.save()
 
 def cycle_height():
 	pview.cycle_height(settings.heights)
 	settings.height = pview.height
+	settings.save()
 
 def VconvertG(pG):
 	xG, yG = pG

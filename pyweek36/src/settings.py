@@ -1,6 +1,6 @@
-import pygame
+import pygame, pickle, os.path
 
-gamename = "Dark Matter"
+gamename = "Unmatter Hunter"
 
 # DIFFICULTY SETTINGS - ADJUST THESE AS NECESSARY!
 # These values control how prominent the background graphics are, which determines how
@@ -13,6 +13,7 @@ gamename = "Dark Matter"
 # 20: very easy on any resolution
 stars = 10
 nebula = 10
+objsize = 10
 
 
 minfps, maxfps = 5, 120
@@ -26,6 +27,12 @@ forceres = False
 
 sfxvolume = 0.5
 musicvolume = 0.5
+
+savepath = "save.pkl"
+quicksavepath = "qsave.pkl"
+settingspath = "settings.pkl"
+tquicksave = 5
+reset = False
 
 DEBUG = True
 
@@ -47,5 +54,14 @@ keys = {
 	"return": [pygame.K_6, pygame.K_BACKSPACE],
 }
 
+def save():
+	obj = height, fullscreen, forceres, stars, nebula
+	pickle.dump(obj, open(settingspath, "wb"))
 
+def load():
+	global height, fullscreen, forceres, stars, nebula
+	if os.path.exists(settingspath):
+		obj = pickle.load(open(settingspath, "rb"))
+		height, fullscreen, forceres, stars, nebula = obj
+load()		
 

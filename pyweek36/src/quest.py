@@ -53,7 +53,7 @@ class Marquee:
 			alpha = math.dsmoothfade(f, 0, 1, 0.2)
 			y = math.mix(600, 500, f)
 			ptext.draw(text.upper(), center = T(640, y), fontsize = T(30),
-				color = "#442200", ocolor = "white", owidth = 0.3,
+				color = "#221100", ocolor = "white", owidth = 0.3,
 				shade = 1, alpha = alpha)
 
 marquee = Marquee()
@@ -82,7 +82,7 @@ class ArriveQuest:
 		if self.jstep == 7 and state.xp == 5:
 			return "Return to the station at any time for repairs and to purchase upgrades."
 		if self.jstep == 8:
-			return "Great job! Come back to the station."
+			return "The counter is down to 4! Come back to the station."
 	def controlinfo(self):
 		if self.jstep == 1:
 			return [
@@ -144,43 +144,47 @@ class ArriveQuest:
 
 @Quest()
 class UnlockBeamQuest:
-	nstep = 7
+	nstep = 9
 	def info(self):
 		print(self.jstep, self.tstep)
-		if self.jstep == 0 and self.tstep < 10:
-			return "Look for unmatter that's moving away from the station.",
-		if self.jstep == 1 and self.tstep < 10:
-			return "Look for unmatter that's moving away from the station.",
+		if self.jstep == 2 and self.tstep < 10:
+			return "Look for unmatter that's moving away from the station."
 		if self.jstep == 3 and self.tstep < 10:
-			return "Head back to the station. I've got something for ya."
-		if self.jstep == 4:
-			return "Press 1 or right-click to activate the beam."
+			return "If you find a cluster of unmatter, you must be near a nexus point."
 		if self.jstep == 5 and self.tstep < 10:
+			return "Head back to the station. I've got something for ya."
+		if self.jstep == 6:
+			return "Press 1 or right-click to activate the beam."
+		if self.jstep == 7 and self.tstep < 10:
 			return "The beam will last until you fire a gravnet, so make it count."
-		if self.jstep == 6 and self.tstep < 10:
+		if self.jstep == 8 and self.tstep < 10:
 			return "Return to the station whenever you want to refill your charge."
 	def think(self, dt):
-		if self.jstep == 0 and self.numspot() > 1:
+		if self.jstep == 0 and state.at is state.home:
 			self.advance()
-		if self.jstep == 0 and any(thing.dist(state.you, spot) < settings.countradius for spot in state.spots if spot is not state.home):
+		if self.jstep == 1 and state.at is not state.home:
 			self.advance()
-		if self.jstep == 1 and self.numspot() > 1:
+		if self.jstep == 2 and self.numspot() > 1:
+			self.advance()
+		if self.jstep == 3 and any(thing.dist(state.you, spot) < settings.countradius for spot in state.spots if spot is not state.home):
+			self.advance()
+		if self.jstep == 3 and self.numspot() > 1:
 			state.homeconvo = "beam"
 			self.advance()
-		if self.jstep == 2 and (self.tstep >= 10 or state.at is state.home):
+		if self.jstep == 4 and (self.tstep >= 10 or state.at is state.home):
 			self.advance()
-		if self.jstep == 3 and state.at is state.home:
+		if self.jstep == 5 and state.at is state.home:
 			self.marquee("Tech unlocked: Beam")
 			sound.play("unlock")
 			progress.upgrade("energy")
 			progress.upgrade("beam")
 			self.advance()
-		if self.jstep == 4 and state.you.beamon:
+		if self.jstep == 6 and state.you.beamon:
 			self.advance()
 			state.homeconvo = "more"
-		if self.jstep == 5 and not state.you.beamon:
+		if self.jstep == 7 and not state.you.beamon:
 			self.advance()
-		if self.jstep == 6 and state.at is state.home:
+		if self.jstep == 8 and state.at is state.home:
 			self.advance()
 
 @Quest()
