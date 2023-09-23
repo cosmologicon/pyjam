@@ -144,6 +144,15 @@ def draw():
 		])
 		ptext.draw(text, midtop = T(640, 540), fontsize = T(20), shade = 1, owidth = 0.5)
 
+	if trespawn:
+		alpha = math.imix(0, 200, math.interp(trespawn, 0, 0, 1, 1))
+		pview.fill((0, 0, 0, alpha))
+		alpha = math.imix(0, 255, math.interp(trespawn, 0.5, 0, 1.5, 1))
+		ptext.draw("LOADING LAST SAVE", center = pview.center,
+			fontsize = T(60), color = (200, 255, 255), owidth = 0.5, shade = 1,
+			alpha = alpha)
+
+
 def drawmap():
 	perform.start("drawmap")
 	flash = pygame.time.get_ticks() % 1000 > 500
@@ -198,13 +207,6 @@ def drawmap():
 	pview.screen.blit(img, rect)
 	pygame.draw.rect(pview.screen, (60, 120, 120), rect, 1)
 	perform.stop("drawmap")
-
-	if trespawn:
-		alpha = math.imix(0, 200, math.interp(trespawn, 0, 0, 1, 1))
-		pview.fill((0, 0, 0, alpha))
-		alpha = math.imix(0, 255, math.interp(trespawn, 0.5, 0, 1.5, 1))
-		ptext.draw("LOADING LAST SAVE", fontsize = T(60), color = (200, 255, 255), owidth = 0.5, shade = 1,
-			alpha = alpha)
 
 @lru_cache(2)
 def minimapimg(k, s):
@@ -271,7 +273,7 @@ def drawminimap():
 				ptext.draw(f"{spot.nunfound()}", center = MconvertG(spot.pos), fontsize = T(3 * rV), owidth = 0.5,
 					color = "#7f7fff", surf=img)
 			rV = settings.countradius * s / mradius
-			pygame.draw.circle(img, (30 * k, 15 * k, 0), MconvertG(spot.pos), T(k * rV), 1)
+			pygame.draw.circle(img, (80 * k, 40 * k, 0), MconvertG(spot.pos), T(k * rV), 1)
 	perform.stop("drawminimapspots")
 	perform.start("drawminimapDM")
 	for DM in state.DMtracker.active:

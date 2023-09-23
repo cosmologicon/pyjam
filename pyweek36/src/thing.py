@@ -93,6 +93,8 @@ class Engines(enco.Component):
 				self.trails.append((self.t, pos, 0.06))
 		self.trails = [(t, pos, r) for t, pos, r in self.trails if self.t - t < self.Ttrail]
 	def draw(self):
+		if not state.hp:
+			return
 		for t, pos, r in self.trails:
 			pV = view.VconvertG(pos)
 			f = math.interp(self.t - t, 0, 1, self.Ttrail, 0)
@@ -195,6 +197,8 @@ class ShineBeam(enco.Component):
 	def drawbeam(self):
 		if not self.beamon:
 			return
+		if not state.hp:
+			return
 		perform.start("beam")
 
 		d0 = 0.5
@@ -272,6 +276,8 @@ class HasGlow(enco.Component):
 			self.turnglowoff()
 	def drawglow(self):
 		if not self.glowon:
+			return
+		if not state.hp:
 			return
 		omega = [1, 1, 1.5, 2, 3][state.techlevel["glow"]]
 		R0 = [2.5, 2.5, 3.5, 5, 5][state.techlevel["glow"]]
@@ -375,9 +381,9 @@ class You:
 			return
 		x, y = self.pos
 		v = self.v
-		fAdrive = 2 if self.driveon else 1
+		fAdrive = 1.5 if self.driveon else 1
 		A = math.dA(self.A + dt * self.omega() * self.controls["dA"] * fAdrive)
-		fdrive = 6 if self.driveon else 1
+		fdrive = 4 if self.driveon else 1
 		if self.controls["thrust"]:
 			v = math.CS(math.mixA(self.A, A, 0.5), self.aup() * dt * fdrive, v)
 		else:
@@ -684,6 +690,8 @@ class Beam:
 			dps = [self.R((dx, dy)) for dx, dy in occludebeam(self.w0 * fw, self.w1 * fw, self.d0, self.d1, self.fences)]
 			pVs = [view.VconvertG((self.x0 + dx, self.y0 + dy)) for dx, dy in dps]
 			polys.append((alpha, pVs))
+		for alpha, pVs in polys:
+			print(alpha, pVs)
 		xs = [x for alpha, pVs in polys for x, y in pVs]
 		ys = [y for alpha, pVs in polys for x, y in pVs]
 		xVmin = max(min(xs), 0)
@@ -691,6 +699,8 @@ class Beam:
 		yVmin = max(min(ys), 0)
 		yVmax = min(max(ys), pview.h)
 		w, h = xVmax - xVmin, yVmax - yVmin
+		if w <= 0 or h <= 0:
+			return
 		surf = pygame.Surface((w, h)).convert_alpha()
 		color0 = (50, 255, 255, 0)
 		surf.fill(color0)

@@ -22,9 +22,9 @@ def play(sname):
 		sound.play()
 
 currentmname = None
-def playmusic(mname):
+def playmusic(mname, volume = 1):
 	global currentmname
-	pygame.mixer.music.set_volume(settings.musicvolume)
+	pygame.mixer.music.set_volume(settings.musicvolume * volume)
 	if mname == currentmname:
 		return
 	currentmname = mname

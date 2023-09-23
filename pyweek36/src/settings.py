@@ -18,8 +18,8 @@ heights = 480, 720, 1080, 1440  # Ok to add your own resolutions
 fullscreen = False
 forceres = False
 
-sfxvolume = 0.5
-musicvolume = 0.5
+sfxvolume = 0.7
+musicvolume = 0.3
 
 savepath = "save.pkl"
 quicksavepath = "qsave.pkl"

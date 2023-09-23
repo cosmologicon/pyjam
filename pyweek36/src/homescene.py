@@ -7,6 +7,7 @@ class self:
 
 def init():
 	pygame.mouse.set_visible(True)
+	sound.playmusic("journey-to-ascend", 0.5)
 	state.hp = progress.getmaxhp()
 	state.energy = progress.getmaxenergy()
 	state.you.onhome()
@@ -100,6 +101,9 @@ def onclick(bname):
 		progress.upgrade("ending")
 		sound.play("win")
 		return
+	if bname == "drag":
+		progress.upgrade(bname)
+		sound.play("click")
 	if bname in upgradetechs:
 		progress.upgrade(bname)
 		sound.play("unlock")

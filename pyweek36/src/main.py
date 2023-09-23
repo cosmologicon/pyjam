@@ -17,6 +17,7 @@ if not progress.checksave():
 	scene.current.init()
 else:
 	sound.playmusic("floating-cities")
+	pygame.mouse.set_visible(False)
 
 playing = True
 clock = pygame.time.Clock()

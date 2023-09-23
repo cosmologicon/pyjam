@@ -82,7 +82,7 @@ def draw():
 	graphics.drawnebula()
 	graphics.drawstars()
 	for DM in self.DMs:
-		DM.r = 0.4 * settings.viewscale / 50
+		DM.r = (0.05 + 0.4 * (settings.objsize / 10) ** 1.4) * settings.viewscale / 50
 		DM.draw()
 
 	text = "\n".join([
