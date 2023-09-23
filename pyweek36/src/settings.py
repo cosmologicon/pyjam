@@ -29,6 +29,7 @@ sfxvolume = 0.5
 DEBUG = True
 
 minimapradius = 50
+mapradius = 1000
 countradius = 25
 
 keys = {

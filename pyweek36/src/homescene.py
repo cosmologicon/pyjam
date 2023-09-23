@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, ptext, quest, state, graphics, progress, hud
+from . import pview, ptext, quest, state, graphics, progress, hud, view, settings
 from .pview import T
 
 class self:
@@ -16,11 +16,13 @@ def init():
 		state.homeconvo = None
 	self.t = 0
 	self.tconvo = 0
+	cols = [
+		["engine", "gravnet", "health", "energy", None, "drag", "leave"],
+		["beam", "ring", "glow", None, "map", "drive", "return"],
+	]
 	self.buttons = [
-		("engine", pygame.Rect(900, 100, 300, 90)),
-		("gravnet", pygame.Rect(900, 200, 300, 90)),
-		("drag", pygame.Rect(900, 300, 300, 90)),
-		("leave", pygame.Rect(960 - 100, 630, 200, 50)),
+		(bname, pygame.Rect(700 + 300 * x, 100 + 80 * y, 270, 70))
+		for x, col in enumerate(cols) for y, bname in enumerate(col) if bname is not None
 	]
 
 def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
@@ -29,9 +31,7 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 		self.tconvo += dt
 		if self.tconvo > 0.5 and 1 in mdowns:
 			del self.convo[0]
-	quest.think(dt)
-
-	if 1 in mdowns and not self.convo:
+	elif 1 in mdowns:
 		for bname, rect in self.buttons:
 			visible, active, text = bstate(bname)
 			if visible and T(rect).collidepoint(mpos):
@@ -39,30 +39,39 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 					onclick(bname)
 				else:
 					pass
+	quest.think(dt)
+
 
 
 def bstate(bname):
-	if bname in ("engine", "gravnet"):
-		techname = bname.title()
+	if bname in ("engine", "gravnet", "health", "energy", "beam", "ring", "glow"):
+		techname = bname.upper()
 		if state.techlevel[bname] < 0:
 			return False, False, ""
-		if state.techlevel[bname] == len(progress.cost[bname]) + 1:
-			return True, False, f"Upgrade {techname}\nMAX"
+		if state.techlevel[bname] == len(progress.cost[bname]):
+			return True, False, f"{techname}\nMAX LEVEL"
 		cost = progress.getcost(bname)
 		if cost is None:
 			return False, False, ""
 		else:
-			return True, (cost <= state.xp), f"Upgrade {techname}\n{cost} XP"
+			return True, (cost <= state.xp), f"UPGRADE {techname}\n{cost} XP"
+	if bname in ("map", "drive", "return"):
+		techname = bname.upper()
+		if state.techlevel[bname] == 1:
+			return True, False, f"{techname}\nUNLOCKED"
+		elif state.techlevel[bname] == 0:
+			cost = progress.getcost(bname)
+			return True, (cost <= state.xp), f"UNLOCK {techname}\n{cost} XP"
 	if bname == "drag":
 		if state.techlevel[bname] == -1:
 			return False, False, ""
 		percent = 25 * state.techlevel["drag"]
-		return True, True, f"Drag:\n{percent}%"
+		return True, True, f"DRAG: {percent}%"
 	if bname == "leave":
 		return not self.convo, not self.convo, "LEAVE"
 	
 def onclick(bname):
-	if bname in ("drag", "engine", "gravnet"):
+	if bname in ("drag", "engine", "gravnet", "health", "energy", "beam", "ring", "glow", "map", "drive", "return"):
 		progress.upgrade(bname)
 	if bname == "leave":
 		from . import scene, playscene
@@ -71,7 +80,14 @@ def onclick(bname):
 		
 
 def draw():
-	pview.fill((60, 60, 60))
+	pview.fill((0, 0, 0))
+	view.xG0 = self.t * 0.5
+	settings.nebula += 5
+	settings.stars += 5
+	graphics.drawnebula()
+	graphics.drawstars()
+	settings.nebula -= 5
+	settings.stars -= 5
 #	graphics.drawcreature(6, self.t, T(pygame.Rect(100, 100, 500, 500)), pygame.Rect(8, 0, 16, 16))
 	graphics.draw("alien", T(380, 360), pview.f * 0.8, 0)
 	rect = pygame.Rect(T(0, 0, 580, 580))
@@ -99,8 +115,8 @@ def draw():
 				pygame.draw.rect(pview.screen, bcolor, T(rect), T(6), border_radius = T(8))
 				if active:
 					bcolor = math.imix(bcolor, (255, 255, 255), 0.5)
-				ptext.draw(text, center = T(rect.center), fontsize = T(28),
-					color = bcolor, owidth = 0.5)
+				rect = rect.inflate(-T(8), -T(8))
+				ptext.drawbox(text, rect, color = bcolor, owidth = 0.5)
 	hud.draw()
 
 convos = {
@@ -122,7 +138,7 @@ convos = {
 		"Locating them, though, that's still on you.",
 	],
 	3: [
-		"Strange, the counter is changing even when you're not finding anything.",
+		"Strange, the counter is changing even while you're not finding anything.",
 		"It's possible the unmatter moves from place to place.",
 		"If you can get the counter down to 4, that should give us enough data to form a conclusion.",
 	],
@@ -130,7 +146,7 @@ convos = {
 		"We've determined that the unmatter orbits around nexus points in space.",
 		"This station is at a nexus point, but there are others out there.",
 		"It looks like sometimes unmatter travels between nexus points.",
-		"Follow a piece of unmatter that you've found and keep your eye out for more unmatter. You may find another nexus.",
+		"Follow a piece of unmatter that you've found and keep your eye out for more unmatter along the way. If you find a cluster of them, it must be another nexus.",
 		"Once you find 3 pieces of unmatter around a nexus, we can drop a counter there.",
 	],
 	"beam": [

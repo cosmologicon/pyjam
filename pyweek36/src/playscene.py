@@ -7,7 +7,7 @@ from .pview import T
 
 def init():
 	progress.init()
-	progress.cheat()
+#	progress.cheat()
 	think(0)
 	return
 	for j, DM in enumerate(state.DMs):
@@ -116,7 +116,7 @@ def drawmap():
 	perform.start("drawmap")
 	flash = pygame.time.get_ticks() % 1000 > 500
 
-	mradius = 1000
+	mradius = settings.mapradius
 	s = 340
 	k = 1
 	img = pygame.Surface(T(2 * k * s, 2 * k * s)).convert_alpha()
@@ -224,6 +224,9 @@ def drawminimap():
 	for DM in state.DMtracker.active:
 		if DM.found:
 			drawcircleG(DM.pos, 3, (0, 0, 0), (0, 200, 200))
+		elif not DM.isunfound():
+			rV = DM.r * s / mradius
+			drawcircleG(DM.pos, rV, (40, 40, 40), (60, 60, 60))
 	perform.stop("drawminimapDM")
 	drawcircleG(state.you.pos, 4, (60, 30, 0), (120, 60, 0))
 	if k != 1:

@@ -26,8 +26,17 @@ def init():
 	for jspot, (spot, adjs) in enumerate(sector.adjs.items()):
 		for jDM in range(10):
 			state.DMs += [randomvisitor(spot, adjs, jspot, jDM)]
-	for jrock in range(400):
-		state.DMs += [randomrock(jrock)]
+	for Nrock, R0, size0 in [
+		(3, 15, 0.5),
+		(10, 25, 1),
+		(50, 50, 1.5),
+		(100, 100, 2),
+		(200, 200, 2.5),
+		(400, 400, 3),
+		(400, 500, 4),
+	]:
+		for jrock in range(Nrock):
+			state.DMs += [randomrock(R0, size0, R0, jrock)]
 #	for jrock in range(10):
 #		state.DMs += [thing.CircleRock((0, 0), 10 + jrock, 2, 0.5 + 0.1 * jrock)]
 	state.pulses = []
@@ -83,13 +92,13 @@ def randomvisitor(spot, adjs, *seed):
 	reverse = math.fuzzflip(1.09, *seed)
 	return thing.Visitor(pos0, pos1, Nstay, Rorbit, v, reverse=reverse)
 
-def randomrock(*seed):
+def randomrock(R0, size0, *seed):
 	A0 = math.fuzzrange(0, math.tau, 2.01, *seed)
-	r0 = math.fuzzrange(0, 100, 2.02, *seed)
+	r0 = math.fuzzrange(0, R0 / 2, 2.02, *seed)
 	pos0 = math.CS(A0, r0)
-	Rorbit = math.fuzzrange(200, 1000, 2.03, *seed)
-	v = math.fuzzrange(5, 10, 2.07, *seed)
-	r = math.fuzzrange(0.5, 2, 2.08, *seed)
+	Rorbit = math.fuzzrange(R0, 2 * R0, 2.03, *seed)
+	v = math.fuzzrange(1, 3, 2.07, *seed)
+	r = size0 * math.fuzzchoice([1, 1.5, 2], 2.08, *seed)
 	reverse = math.fuzzflip(2.09, *seed)
 	return thing.CircleRock(pos0, Rorbit, v, r, reverse = reverse)
 

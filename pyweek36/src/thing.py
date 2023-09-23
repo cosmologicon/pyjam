@@ -82,7 +82,9 @@ class TakesDamage(enco.Component):
 	def __init__(self):
 		self.finvul = 0
 	def think(self, dt):
-		if self.finvul or self.driveon:
+		if self.driveon:
+			self.finvul = 0
+		elif self.finvul:
 			if any(DM.collides(self) for DM in state.DMtracker.active):
 				self.finvul = 1
 			else:
@@ -93,6 +95,7 @@ class TakesDamage(enco.Component):
 					from . import progress
 					progress.takedamage(DM.dhp)
 					self.finvul = 1
+					sound.play("ouch")
 					break
 	def invulframe(self):
 		if state.hp <= 0:
@@ -127,6 +130,7 @@ class LaunchCages(enco.Component):
 			state.shots.append(Cage(self.pos, self.A + 2 * dA))
 			state.shots.append(Cage(self.pos, self.A - 2 * dA))
 		state.charge["gravnet"] = 0
+		sound.play("cage")
 
 
 class ShineBeam(enco.Component):
@@ -541,13 +545,12 @@ class Visitor:
 		self.jumprandom()
 
 class DrawRock(enco.Component):
+	def ringcharge(self, t):
+		pass
 	def draw(self):
-		pV = view.VconvertG(self.pos)
-		rV = T(view.VscaleG * self.r)
-		color = (80, 80, 80)
-		pygame.draw.circle(pview.screen, color, pV, rV)
+		graphics.drawG("mimas", self.pV(), self.r * 0.0033, 0)
 	def mapcolor(self):
-		return None
+		return 50, 50, 50
 
 
 

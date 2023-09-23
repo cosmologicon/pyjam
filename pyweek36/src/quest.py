@@ -153,7 +153,7 @@ class UnlockBeamQuest:
 		if self.jstep == 4 and self.tstep < 10:
 			return "The beam will last until you fire a gravnet, so make it count."
 		if self.jstep == 5 and self.tstep < 10:
-			return "Return to the station whenever you want to refill your charge. Press Backspace at any time to warp there?"
+			return "Return to the station whenever you want to refill your charge."
 	def think(self, dt):
 		if self.jstep == 0 and sum(spot.unlocked for spot in state.spots) > 1:
 			state.homeconvo = "beam"
