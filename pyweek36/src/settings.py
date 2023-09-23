@@ -24,6 +24,8 @@ heights = 480, 720, 1080, 1440  # Ok to add your own resolutions
 fullscreen = False
 forceres = False
 
+sfxvolume = 0.5
+
 DEBUG = True
 
 minimapradius = 50
@@ -36,6 +38,11 @@ keys = {
 	"stop": [pygame.K_DOWN, pygame.K_s, pygame.K_o],
 	"gravnet": [pygame.K_SPACE, pygame.K_RETURN],
 	"beam": [pygame.K_1],
+	"ring": [pygame.K_2],
+	"glow": [pygame.K_3],
+	"drive": [pygame.K_4],
+	"map": [pygame.K_5, pygame.K_m],
+	"return": [pygame.K_6, pygame.K_BACKSPACE],
 }
 
 

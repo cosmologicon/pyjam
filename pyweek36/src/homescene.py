@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, ptext, quest, state, graphics, progress
+from . import pview, ptext, quest, state, graphics, progress, hud
 from .pview import T
 
 class self:
@@ -7,6 +7,8 @@ class self:
 
 def init():
 	state.hp = progress.getmaxhp()
+	state.energy = progress.getmaxenergy()
+	state.you.onhome()
 	if state.homeconvo is None:
 		self.convo = []
 	else:
@@ -18,7 +20,7 @@ def init():
 		("engine", pygame.Rect(900, 100, 300, 90)),
 		("gravnet", pygame.Rect(900, 200, 300, 90)),
 		("drag", pygame.Rect(900, 300, 300, 90)),
-		("leave", pygame.Rect(960 - 100, 660, 200, 50)),
+		("leave", pygame.Rect(960 - 100, 630, 200, 50)),
 	]
 
 def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
@@ -29,7 +31,7 @@ def think(dt, kdowns = [], kpressed = [0] * 128, mpos = (0, 0), mdowns = set()):
 			del self.convo[0]
 	quest.think(dt)
 
-	if 1 in mdowns:
+	if 1 in mdowns and not self.convo:
 		for bname, rect in self.buttons:
 			visible, active, text = bstate(bname)
 			if visible and T(rect).collidepoint(mpos):
@@ -72,14 +74,14 @@ def draw():
 	pview.fill((60, 60, 60))
 #	graphics.drawcreature(6, self.t, T(pygame.Rect(100, 100, 500, 500)), pygame.Rect(8, 0, 16, 16))
 	graphics.draw("alien", T(380, 360), pview.f * 0.8, 0)
-	rect = pygame.Rect(T(0, 0, 540, 540))
+	rect = pygame.Rect(T(0, 0, 580, 580))
 	rect.center = T(380, 360)
 	color = 60, 180, 180
 	pygame.draw.rect(pview.screen, color, rect, T(20), border_radius = T(40))
 	rect.inflate_ip(-T(5), -T(5))
-	rect.move_ip(-T(3), -T(3))
-	color = math.imix(color, (255, 255, 255), 0.2)
-	pygame.draw.rect(pview.screen, (200, 255, 255), rect, T(5), border_radius = T(40))
+	rect.move_ip(-T(2), -T(2))
+	color = math.imix(color, (255, 255, 255), 0.1)
+	pygame.draw.rect(pview.screen, color, rect, T(5), border_radius = T(40))
 	
 
 	if self.convo:
@@ -91,13 +93,15 @@ def draw():
 		for bname, rect in self.buttons:
 			visible, active, text = bstate(bname)
 			if visible:
-				color = (255, 255, 255) if active else (50, 50, 50)
 				bcolor = (50, 50, 150) if active else (20, 20, 20)
-				pygame.draw.rect(pview.screen, (100, 100, 200), T(rect), 0, border_radius = T(8))
-				bcolor = math.imix(bcolor, (255, 255, 255), 0.1)
-				pygame.draw.rect(pview.screen, (100, 100, 200), T(rect), T(6), border_radius = T(8))
+				pygame.draw.rect(pview.screen, bcolor, T(rect), 0, border_radius = T(8))
+				bcolor = math.imix(bcolor, (255, 255, 255), 0.05)
+				pygame.draw.rect(pview.screen, bcolor, T(rect), T(6), border_radius = T(8))
+				if active:
+					bcolor = math.imix(bcolor, (255, 255, 255), 0.5)
 				ptext.draw(text, center = T(rect.center), fontsize = T(28),
 					color = bcolor, owidth = 0.5)
+	hud.draw()
 
 convos = {
 	0: [
@@ -133,6 +137,13 @@ convos = {
 		"Behold! I call it the Xazer beam. This should really help out.",
 		"You've got a limited number of uses, but come back here any time to recharge.",
 		"Once you turn it on it will last until you fire a gravnet.",
+	],
+	"ring": [
+	],
+	"drive": [
+		"This hyperdrive should let you reach outer areas much faster.",
+		"It will last until you fire a gravnet, and you'll be invulnerable while using it.",
+		"I recommend saving one charge to get back, though!",
 	],
 }
 

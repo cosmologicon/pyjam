@@ -1,5 +1,5 @@
 import math
-from . import enco, thing, state, ptext, pview, progress, settings
+from . import enco, thing, state, ptext, pview, progress, settings, sound
 from .pview import T
 
 quests = []
@@ -71,12 +71,14 @@ class ArriveQuest:
 		if self.jstep == 4:
 			if self.tstep > 60 and state.homeconvo == 1:
 				return "Come back to the station. I have some tips that might help."
-			else if state.xp == 1:
+			elif state.xp == 1:
 				return "You got one! Find and track 3 pieces of unmatter."
 		if self.jstep == 5:
 			return "Great job! Come back to the station."
 		if self.jstep == 7 and state.xp == 3:
 			return "Keep finding unmatter until the station counter reads 4."
+		if self.jstep == 7 and state.xp == 5:
+			return "Return to the station at any time for repairs and to purchase upgrades."
 		if self.jstep == 8:
 			return "Great job! Come back to the station."
 	def controlinfo(self):
@@ -122,6 +124,7 @@ class ArriveQuest:
 			state.techlevel["drag"] = 2
 			self.advance()
 			self.marquee("Tech unlocked: Counter")
+			sound.play("unlock")
 		if self.jstep == 6 and self.tstep > 1:
 			state.homeconvo = 3
 			self.advance()
@@ -133,10 +136,12 @@ class ArriveQuest:
 		if self.jstep < 6:
 			state.you.pos = math.vclamp(state.you.pos, settings.countradius)
 	def complete(self):
-		quests.append(UnlockQuest())
+		quests.append(UnlockBeamQuest())
+		quests.append(UnlockRingQuest())
+		quests.append(UnlockGlowQuest())
 
 @Quest()
-class UnlockQuest:
+class UnlockBeamQuest:
 	nstep = 6
 	def info(self):
 		if self.jstep == 0 and self.tstep < 10:
@@ -151,11 +156,13 @@ class UnlockQuest:
 			return "Return to the station whenever you want to refill your charge. Press Backspace at any time to warp there?"
 	def think(self, dt):
 		if self.jstep == 0 and sum(spot.unlocked for spot in state.spots) > 1:
+			state.homeconvo = "beam"
 			self.advance()
 		if self.jstep == 1 and (self.tstep >= 10 or state.at is state.home):
 			self.advance()
 		if self.jstep == 2 and state.at is state.home:
 			self.marquee("Tech unlocked: Beam")
+			sound.play("unlock")
 			progress.upgrade("energy")
 			progress.upgrade("beam")
 			self.advance()
@@ -165,6 +172,43 @@ class UnlockQuest:
 			self.advance()
 		if self.jstep == 5 and state.at is state.home:
 			self.advance()
+
+@Quest()
+class UnlockRingQuest:
+	nstep = 3
+	def info(self):
+		if self.jstep == 2 and self.tstep < 10:
+			return "Head back to the station. I've got something for ya."
+	def think(self, dt):
+		if self.jstep == 0 and sum(spot.unlocked for spot in state.spots) > 3:
+			self.homeconvo = "ring"
+			self.advance()
+		if self.jstep == 1 and (self.tstep >= 10 or state.at is state.home):
+			self.advance()
+		if self.jstep == 2 and state.at is state.home:
+			self.marquee("Tech unlocked: Ring")
+			sound.play("unlock")
+			progress.upgrade("ring")
+			self.advance()
+
+@Quest()
+class UnlockGlowQuest:
+	nstep = 3
+	def info(self):
+		if self.jstep == 2 and self.tstep < 10:
+			return "Head back to the station. I've got something for ya."
+	def think(self, dt):
+		if self.jstep == 0 and sum(spot.unlocked for spot in state.spots) > 5:
+			self.homeconvo = "glow"
+			self.advance()
+		if self.jstep == 1 and (self.tstep >= 10 or state.at is state.home):
+			self.advance()
+		if self.jstep == 2 and state.at is state.home:
+			self.marquee("Tech unlocked: Glow")
+			sound.play("unlock")
+			progress.upgrade("glow")
+			self.advance()
+
 
 def init():
 	quests[:] = [

@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, pview, graphics, state, enco, ptext, perform, settings
+from . import view, pview, graphics, state, enco, ptext, perform, settings, sound
 from .pview import T
 
 
@@ -68,6 +68,8 @@ class ShotPath(enco.Component):
 class Engines(enco.Component):
 	def vmax(self):
 		return self.aup()
+	def omega(self):
+		return [2.5, 3, 4, 6, 8][state.techlevel["engine"]]
 	def aup(self):
 		return [3, 4, 5.5, 8, 12][state.techlevel["engine"]]
 	def adown(self):
@@ -80,7 +82,7 @@ class TakesDamage(enco.Component):
 	def __init__(self):
 		self.finvul = 0
 	def think(self, dt):
-		if self.finvul:
+		if self.finvul or self.driveon:
 			if any(DM.collides(self) for DM in state.DMtracker.active):
 				self.finvul = 1
 			else:
@@ -110,17 +112,20 @@ class LaunchCages(enco.Component):
 			else:
 				pass
 	def cagechargerate(self):
-		return [0.25, 0.5, 1, 3][state.techlevel["gravnet"]]
+		return [0.25, 0.5, 1, 2, 4][state.techlevel["gravnet"]]
 	def cageunlocked(self):
 		return state.techlevel["gravnet"] >= 0
 	def canlaunchcage(self):
 		return state.charge["gravnet"] == 1
 	def launchcage(self):
 		state.shots.append(Cage(self.pos, self.A))
+		dA = 0.08
 		if state.techlevel["gravnet"] >= 3:
-			dA = 0.1
 			state.shots.append(Cage(self.pos, self.A + dA))
 			state.shots.append(Cage(self.pos, self.A - dA))
+		if state.techlevel["gravnet"] >= 4:
+			state.shots.append(Cage(self.pos, self.A + 2 * dA))
+			state.shots.append(Cage(self.pos, self.A - 2 * dA))
 		state.charge["gravnet"] = 0
 
 
@@ -140,8 +145,9 @@ class ShineBeam(enco.Component):
 			progress.useenergy(1)
 			self.tbeam = 0
 			self.beamon = True
+			sound.play("beam")
 		else:
-			pass
+			sound.play("lowcharge")
 	def beamunlocked(self):
 		return state.techlevel["beam"] >= 0
 	def think(self, dt):
@@ -160,15 +166,138 @@ class ShineBeam(enco.Component):
 		if not self.beamon:
 			return
 		perform.start("beam")
-		falpha = math.interp(self.tbeam, 0, 0, 2, 1)
-		beam = Beam(self.pos, self.A, 0.5, 10, 0.15, 1, falpha)
-		for DM in state.DMtracker.active:
-			beam.occlude(DM)
-		for spot in state.spots:
-			beam.occlude(spot)
-		beam.draw()
+
+		d0 = 0.5
+		d1 = [4, 6, 8, 10, 14][state.techlevel["beam"]]
+		w0 = [0.03, 0.05, 0.07, 0.03, 0.05][state.techlevel["beam"]]
+		w1 = w0 * d1 / d0
+		alphamax = [0.2, 0.3, 0.4, 0.4, 0.5][state.techlevel["beam"]]
+		falpha = math.interp(self.tbeam, 0, 0, 2, alphamax)
+		beams = [Beam(self.pos, self.A, d0, d1, w0, w1, falpha)]
+		if state.techlevel["beam"] >= 3:
+			for dA in (-1, 1):
+				pos = math.CS(self.A + dA * math.tau / 4, 0.5, self.pos)
+				beams.append(Beam(pos, self.A + 0.1 * dA, d0 - 0.3, d1 - 0.3, w0, w1, falpha))
+		for beam in beams:
+			for DM in state.DMtracker.active:
+				beam.occlude(DM)
+			for spot in state.spots:
+				beam.occlude(spot)
+			beam.draw()
 		perform.stop("beam")
 
+class ShootRing(enco.Component):
+	def __init__(self):
+		self.tring = 0
+	def onhome(self):
+		self.tring = 0
+	def ringunlocked(self):
+		return state.techlevel["ring"] >= 0
+	def think(self, dt):
+		if not self.ringunlocked():
+			return
+		if self.controls["ring"]:
+			if state.energy >= 1:
+				from . import progress
+				progress.useenergy(1)
+				state.pulses.append(Ring(self))
+				sound.play("ring")
+			else:
+				sound.play("lowcharge")
+
+class HasGlow(enco.Component):
+	def __init__(self):
+		self.glowon = False
+		self.tglow = 0
+	def onhome(self):
+		self.tglow = 0
+		self.glowon = False
+	def turnglowoff(self):
+		self.tglow = 0
+		self.glowon = False
+	def turnglowon(self):
+		if state.energy >= 1:
+			from . import progress
+			progress.useenergy(1)
+			self.tglow = 0
+			self.glowon = True
+			sound.play("glow")
+		else:
+			sound.play("lowcharge")
+	def glowunlocked(self):
+		return state.techlevel["glow"] >= 0
+	def think(self, dt):
+		if not self.glowunlocked():
+			return
+		if self.glowon:
+			self.tglow += dt
+		if self.glowon and self.controls["stop"]:
+			self.turnglowoff()
+		if self.controls["glow"]:
+			self.turnglowon()
+	def launchcage(self):
+		if self.glowon:
+			self.turnglowoff()
+	def drawglow(self):
+		if not self.glowon:
+			return
+		omega = [1, 1, 1.5, 2, 3][state.techlevel["glow"]]
+		R0 = [2.5, 2.5, 3.5, 5, 5][state.techlevel["glow"]]
+		r = [2, 2, 3, 4.5, 4.5][state.techlevel["glow"]]
+		N = [1, 2, 2, 3, 4][state.techlevel["glow"]]
+		A = omega * self.tglow
+		R = math.smoothinterp(self.tglow, 0, 0, 1, R0)
+		for j in range(N):
+			pV = view.VconvertG(math.CS(A + j / N * math.tau, R, self.pos))
+			glow = graphics.glow(T(view.VscaleG * r), seed = random.randint(0, 9), color = (100, 50, 0, 100))
+			pview.screen.blit(glow, glow.get_rect(center = pV))
+
+
+class Hyperdrive(enco.Component):
+	def __init__(self):
+		self.driveon = False
+		self.tdrive = 0
+	def onhome(self):
+		self.tdrive = 0
+		self.driveon = False
+	def turndriveoff(self):
+		self.tdrive = 0
+		self.driveon = False
+		sound.play("driveoff")
+	def turndriveon(self):
+		if state.energy >= 1:
+			from . import progress
+			progress.useenergy(1)
+			self.tdrive = 0
+			self.driveon = True
+			sound.play("drive")
+		else:
+			sound.play("lowcharge")
+	def driveunlocked(self):
+		return state.techlevel["drive"] >= 0
+	def think(self, dt):
+		if not self.driveunlocked():
+			return
+		if self.driveon:
+			self.tdrive += dt
+		if self.driveon and self.controls["stop"]:
+			self.turndriveoff()
+		if self.controls["drive"]:
+			self.turndriveon()
+	def launchcage(self):
+		if self.driveon:
+			self.turndriveoff()
+	def draw(self):
+		if not self.driveon:
+			return
+		for j in range(T(view.VscaleG * 0.05)):
+			pG = math.CS(random.uniform(0, math.tau), random.uniform(0, 0.1), self.pos)
+			pV = view.VconvertG(pG)
+			rV = T(view.VscaleG * 1)
+			color = math.imix((0, 0, 50), (100, 100, 255), random.uniform(0.5, 0.6))
+			pygame.draw.circle(pview.screen, color, pV, rV, 1)
+			
+			
 
 
 @KeepsTime()
@@ -177,13 +306,15 @@ class ShineBeam(enco.Component):
 @TakesDamage()
 @LaunchCages()
 @ShineBeam()
+@ShootRing()
+@HasGlow()
+@Hyperdrive()
 class You:
 	def __init__(self, pos):
 		self.pos = pos
 		self.v = 0, 0
 		self.A = 0
 		self.r = 0.6
-		self.omega = 3
 		self.on = False
 		self.flean = 0
 
@@ -195,24 +326,29 @@ class You:
 			"dA": ("left" in keys) - ("right" in keys),
 			"gravnet": bool(set(settings.keys["gravnet"]) & set(kdowns)),
 			"beam": bool(set(settings.keys["beam"]) & set(kdowns)),
+			"ring": bool(set(settings.keys["ring"]) & set(kdowns)),
+			"glow": bool(set(settings.keys["glow"]) & set(kdowns)),
+			"drive": bool(set(settings.keys["drive"]) & set(kdowns)),
 		}
 	
 	def leave(self, obj):
 		self.v = 2, 0
 		self.A = 0
-		self.pos = math.CS(self.A, 5, obj.pos)
+		self.pos = math.CS(self.A, obj.r + self.r + 0.5, obj.pos)
 
 	def think(self, dt):
 		if not state.hp:
 			return
 		x, y = self.pos
 		v = self.v
-		A = math.dA(self.A + dt * self.omega * self.controls["dA"])
+		fAdrive = 2 if self.driveon else 1
+		A = math.dA(self.A + dt * self.omega() * self.controls["dA"] * fAdrive)
+		fdrive = 6 if self.driveon else 1
 		if self.controls["thrust"]:
-			v = math.CS(math.mixA(self.A, A, 0.5), self.aup() * dt, v)
+			v = math.CS(math.mixA(self.A, A, 0.5), self.aup() * dt * fdrive, v)
 		else:
-			v = math.approach(v, (0, 0), self.adrag() * dt)
-		v = math.vclamp(v, self.vmax())
+			v = math.approach(v, (0, 0), self.adrag() * dt * fdrive)
+		v = math.vclamp(v, self.vmax() * fdrive)
 		vxavg, vyavg = math.mix(self.v, v, 0.5)
 		self.pos = x + dt * vxavg, y + dt * vyavg
 		self.v = v
@@ -222,11 +358,6 @@ class You:
 	def draw(self):
 		if not self.invulframe():
 			graphics.drawshipG(self.pV(), 0.008 * self.r, self.A, self.flean)
-
-	def drawglow(self):
-		pV = view.VconvertG(math.CS(self.A, 1.4, self.pos))
-		glow = graphics.glow(T(view.VscaleG * 1.0), seed = random.randint(0, 9), color = (100, 50, 0, 100))
-		pview.screen.blit(glow, glow.get_rect(center = self.pV()))
 
 
 class Findable(enco.Component):
@@ -258,11 +389,21 @@ class DrawCage(enco.Component):
 		graphics.drawcageG(self.t * self.omegaspin, pV, 0.0065 * self.r, 0)
 
 class DrawDM(enco.Component):
+	def __init__(self):
+		self.tring = 0
+	def ringcharge(self, t):
+		self.tring = t
+	def think(self, dt):
+		self.tring = math.approach(self.tring, 0, dt)
 	def draw(self):
 		if self.found:
 			self.drawcage()
 		else:
 			pygame.draw.circle(pview.screen, (0, 0, 0), self.pV(), self.rV())
+			if self.tring > 0:
+				color = math.imix((0, 0, 0), (255, 255, 100), math.interp(self.tring, 0, 0, 1, 1))
+				pygame.draw.circle(pview.screen, color, self.pV(), self.rV(), T(2))
+				
 	def mapcolor(self):
 		return (0, 200, 200) if self.found else None
 
@@ -449,41 +590,6 @@ def occludebeam(w0, w1, d0, d1, fences):
 
 
 class Beam:
-	def __init__(self, p0, A, d0, d1, w0, w1):
-		self.p0 = self.x0, self.y0 = p0
-		self.A = A
-		self.d0 = d0
-		self.d1 = d1
-		self.w0 = w0
-		self.w1 = w1
-		self.R = math.R(self.A)
-		self.Rinv = math.R(-self.A)
-		self.fences = []
-
-	def occlude(self, obj):
-		x, y = obj.pos
-		xB, yB = self.Rinv((x - self.x0, y - self.y0))
-		if not self.d0 <= xB <= self.d1:
-			return
-		w = math.interp(xB, self.d0, self.w0, self.d1, self.w1)
-		if abs(yB) > w + obj.r:
-			return
-		self.fences.append((xB, w, (yB - obj.r) / w, (yB + obj.r) / w))
-
-	def draw(self):
-		self.fences.sort()
-		dps = [self.R((dx, dy)) for dx, dy in occludebeam(self.w0, self.w1, self.d0, self.d1, self.fences)]
-		pVs = [view.VconvertG((self.x0 + dx, self.y0 + dy)) for dx, dy in dps]
-		pygame.draw.polygon(pview.screen, (255, 230, 200), pVs)
-		#self.drawfences()
-
-	def drawfences(self):
-		for xB, w, yB0, yB1 in self.fences:
-			dps = [self.R((xB, w * yB)) for yB in [yB0, yB1]]
-			pVs = [view.VconvertG((self.x0 + dx, self.y0 + dy)) for dx, dy in dps]
-			pygame.draw.line(pview.screen, (100, 100, 255), *pVs)
-
-class Beam:
 	def __init__(self, p0, A, d0, d1, w0, w1, falpha=1):
 		self.p0 = self.x0, self.y0 = p0
 		self.A = A
@@ -514,7 +620,7 @@ class Beam:
 #		dps = [self.R((dx, dy)) for dx, dy in dps]
 		polys = []
 #		for alpha0, fw in [(40, 1), (50, 0.8), (60, 0.6)]:
-		for alpha0, fw in [(40, 1)]:
+		for alpha0, fw in [(100, 1)]:
 			alpha = int(self.falpha * alpha0 * random.uniform(1, 1.1))
 			dps = [self.R((dx, dy)) for dx, dy in occludebeam(self.w0 * fw, self.w1 * fw, self.d0, self.d1, self.fences)]
 			pVs = [view.VconvertG((self.x0 + dx, self.y0 + dy)) for dx, dy in dps]
@@ -537,7 +643,18 @@ class Beam:
 		fade = graphics.fadeimg(T(view.VscaleG * self.d1))
 		xV0, yV0 = view.VconvertG((self.x0, self.y0))
 		center = xV0 - xVmin, yV0 - yVmin
-		surf.blit(fade, fade.get_rect(center = center), special_flags = pygame.BLEND_RGBA_MULT)
+		rect = fade.get_rect(center = center)
+		w, h = surf.get_size()
+		surf.blit(fade, rect, special_flags = pygame.BLEND_RGBA_MULT)
+		if rect.x > 0:
+			surf.fill((255, 255, 50, 0), (0, 0, rect.x, h))
+		if rect.y > 0:
+			surf.fill((255, 255, 50, 0), (0, 0, w, rect.y))
+		if rect.right < w:
+			surf.fill((255, 255, 50, 0), (rect.right, 0, w - rect.right, h))
+		if rect.bottom < h:
+			surf.fill((255, 255, 50, 0), (0, rect.bottom, w, h - rect.bottom))
+			
 		pview.screen.blit(surf, (xVmin, yVmin))
 		#self.drawfences()
 
@@ -581,8 +698,8 @@ class Cage:
 		self.pos = math.CS(A, self.d0, pos0)
 		self.r = 0.2
 		self.d0 = state.you.r
-		self.D = [4, 5, 7, 10][state.techlevel["gravnet"]]
-		self.T = [0.7, 0.6, 0.4, 0.2][state.techlevel["gravnet"]]
+		self.D = [4, 5, 7, 10, 12][state.techlevel["gravnet"]]
+		self.T = [0.7, 0.6, 0.5, 0.4, 0.3][state.techlevel["gravnet"]]
 
 	def think(self, dt):
 		for DM in state.DMtracker.active:
@@ -640,6 +757,37 @@ class Pulse:
 				continue
 			pV = view.VconvertG((x, y))
 			pview.screen.set_at(pV, (100, 100, 255))
+
+@WorldBound()
+@KeepsTime()
+@Lifetime(2)
+class Ring:
+	def __init__(self, origin):
+		self.origin = origin
+		self.pos = origin.pos
+		self.R = [5, 7, 9, 12, 16][state.techlevel["ring"]]
+		self.T = [1, 1, 1, 1, 1][state.techlevel["ring"]]
+		self.df = [0.05, 0.1, 0.15, 0.2, 0.25][state.techlevel["ring"]]
+		self.power = [0.5, 1, 3, 8, 20][state.techlevel["ring"]]
+		self.charged = []
+
+	def think(self, dt):
+		r = self.ringr(self.f)
+		for DM in state.DMtracker.active:
+			if dist(self.origin, DM) < r and DM not in self.charged:
+				DM.ringcharge(self.power)
+				self.charged.append(DM)
+
+	def ringr(self, f):
+		return self.R * f ** 0.5 if f > 0 else 0
+
+	def draw(self):
+		rV0 = T(view.VscaleG * self.ringr(self.f))
+		rV1 = T(view.VscaleG * self.ringr(self.f - self.df))
+		w = 0 if rV1 <= 0 else rV0 - rV1
+		color = math.imix((255, 255, 0), (0, 0, 0), self.f)
+		pygame.draw.circle(pview.screen, color, self.origin.pV(), rV0, w)
+
 
 class TracksNear(enco.Component):
 	def nnear(self, countall = False):

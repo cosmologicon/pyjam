@@ -2,11 +2,16 @@ import math, random
 from . import state, thing, sector, quest
 
 cost = {
-	"engine": [5, 10, 20],
-	"gravnet": [5, 10, 20],
-	"beam": [5, 10, 20],
-	"health": [5, 10, 20],
+	"engine": [5, 10, 20, 50],
+	"gravnet": [5, 10, 20, 50],
+	"beam": [5, 10, 20, 50],
+	"ring": [5, 10, 20, 50],
+	"glow": [5, 10, 20, 50],
+	"health": [5, 10, 20, 50],
 	"energy": [5, 10, 20, 50],
+	"map": [20],
+	"drive": [20],
+	"return": [20],
 }
 
 
@@ -30,24 +35,38 @@ def init():
 	state.spawners = []
 	state.shots = []
 	state.techlevel = {
-		"count": 0,
 		"engine": 0,
 		"gravnet": -1,  # Not enabled.
 		"beam": -1,
-		"drag": -1,  # drag level 2, cannot be set.
+		"ring": -1,
+		"glow": -1,
 		"health": -1,
 		"energy": -1,
+		# Individually purchaseable upgrades
+		"count": 0,
+		"drive": 0,
+		"map": 0,
+		"return": 0,
+		"drag": -1,  # drag level 2, cannot be set.
 	}
 	state.charge = {
 		"gravnet": 1,
-		"beam": 1,
 	}
-	state.hp = 3
 	state.at = None
 	state.homeconvo = None
 	state.DMtracker = ThinkTracker(state.DMs)
-	state.energy = 1
+	state.hp = getmaxhp()
+	state.energy = getmaxenergy()
 	quest.init()
+
+def cheat():
+	for tech in state.techlevel:
+		if tech in cost and state.techlevel[tech] >= len(cost[tech]):
+			continue
+		upgrade(tech)
+	state.techlevel["drag"] = 2
+	state.xp = 1000
+	quest.quests.clear()
 
 
 def randomvisitor(spot, adjs, *seed):
@@ -78,7 +97,7 @@ def randomrock(*seed):
 def getcost(techname):
 	if state.techlevel[techname] < 0:
 		return None
-	if state.techlevel[techname] > len(cost[techname]):
+	if state.techlevel[techname] >= len(cost[techname]):
 		return None
 	return cost[techname][state.techlevel[techname]]
 
@@ -86,21 +105,24 @@ def upgrade(techname):
 	if techname == "drag":
 		state.techlevel["drag"] = (state.techlevel["drag"] + 1) % 5
 		return
-	if state.techlevel[techname] > 0:
-		state.xp -= cost[techname][state.techlevel[techname] - 1]
+	if state.techlevel[techname] > -1 and techname in cost:
+		state.xp -= cost[techname][state.techlevel[techname]]
 	state.techlevel[techname] += 1
+	state.hp = getmaxhp()
+	state.energy = getmaxenergy()
+
 
 def takedamage(dhp):
 	state.hp = math.approach(state.hp, 0, dhp)
 
 def getmaxhp():
-	return 3 if state.techlevel["health"] < 0 else [3, 5, 7, 10][state.techlevel["health"]]
+	return 3 if state.techlevel["health"] < 0 else [3, 5, 7, 10, 15][state.techlevel["health"]]
 
 def useenergy(denergy):
 	state.energy = math.approach(state.energy, 0, denergy)
 
 def getmaxenergy():
-	return 0 if state.techlevel["energy"] < 0 else [3, 5, 8, 12][state.techlevel["energy"]]
+	return 0 if state.techlevel["energy"] < 0 else [3, 5, 8, 12, 20][state.techlevel["energy"]]
 
 class ThinkTracker:
 	T = 0.5  # All objs should have their think function called at least this often.

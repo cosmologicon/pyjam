@@ -1,5 +1,5 @@
 import pygame, os.path
-from . import settings, view, sector, perform
+from . import settings, view, sector, perform, state, progress
 from . import scene, playscene, calibratescene, homescene
 from . import ptext, pview
 from .pview import T
@@ -27,7 +27,11 @@ while playing:
 	kpressed = pygame.key.get_pressed()
 	settings.drawbox = settings.DEBUG and kpressed[pygame.K_F2]
 	dtf = 10 if settings.DEBUG and kpressed[pygame.K_F3] else 1
-	if settings.DEBUG and kpressed[pygame.K_F4]: perform.print_report()
+	if settings.DEBUG and pygame.K_F4 in kdowns:
+		perform.print_report()
+		print(state.techlevel)
+	if settings.DEBUG and pygame.K_F5 in kdowns:
+		progress.cheat()
 	mpos = pygame.mouse.get_pos()
 	#perform.print_report()
 
@@ -45,8 +49,9 @@ while playing:
 			"F2: show hit boxes",
 			"F3: speed boost",
 			"F4: print peformance report",
+			"F5: cheat",
 			f"{clock.get_fps():.1f}fps",
 		])
-		ptext.draw(text, bottomright = T(1275, 715), fontsize = T(30), owidth = 1)
+		ptext.draw(text, bottomright = T(1275, 715), fontsize = T(18), owidth = 1)
 	pygame.display.flip()
 
