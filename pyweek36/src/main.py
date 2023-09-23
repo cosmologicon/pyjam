@@ -26,7 +26,7 @@ while playing:
 	kdowns = set(event.key for event in pygame.event.get(pygame.KEYDOWN))
 	mdowns = set(event.button for event in pygame.event.get(pygame.MOUSEBUTTONDOWN))
 	if pygame.K_ESCAPE in kdowns or pygame.event.get(pygame.QUIT, pump = True): playing = False
-	if pygame.K_F8 in kdowns:
+	if pygame.K_TAB in kdowns:
 		if settings.viewscale >= max(settings.viewscales):
 			settings.viewscale = min(settings.viewscales)
 		else:

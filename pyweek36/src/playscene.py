@@ -24,12 +24,15 @@ def init():
 
 def resume():
 	sound.playmusic("floating-cities")
+	sound.play("leave")
 	state.you.A = 0
 	state.you.leave(state.at)
 	state.at = None
 	progress.save()
+	progress.quicksave(force = True)
 	pygame.mouse.set_visible(False)
 	quest.marquee.append("GAME SAVED")
+	think(0)
 
 
 def think(dt, kdowns = [], kpressed = defaultdict(bool), mpos = (0, 0), mdowns = set()):
@@ -188,7 +191,7 @@ def drawmap():
 				ptext.draw(text, center = MconvertG(spot.pos), fontsize = T(10 * k),
 					color = (100, 255, 255), owidth = 1, surf=img)
 	if not flash:
-		drawcircleG(state.you.pos, 6, (200, 100, 100), (255, 128, 128))
+		drawcircleG(state.you.pos, 6, (80, 0, 0), (160, 0, 0))
 	if k != 1:
 		img = pygame.transform.smoothscale(img, (2 * s, 2 * s))
 	rect = img.get_rect(center = pview.center)
@@ -196,6 +199,12 @@ def drawmap():
 	pygame.draw.rect(pview.screen, (60, 120, 120), rect, 1)
 	perform.stop("drawmap")
 
+	if trespawn:
+		alpha = math.imix(0, 200, math.interp(trespawn, 0, 0, 1, 1))
+		pview.fill((0, 0, 0, alpha))
+		alpha = math.imix(0, 255, math.interp(trespawn, 0.5, 0, 1.5, 1))
+		ptext.draw("LOADING LAST SAVE", fontsize = T(60), color = (200, 255, 255), owidth = 0.5, shade = 1,
+			alpha = alpha)
 
 @lru_cache(2)
 def minimapimg(k, s):
@@ -255,9 +264,9 @@ def drawminimap():
 	perform.stop("minimapsetup")
 	perform.start("drawminimapspots")
 	for spot in state.spots:
-		if spot.unlocked and view.beyondminimap(spot) < 5:
+		if spot.unlocked and view.beyondminimap(spot) < 5 + settings.countradius:
 			rV = 4 * spot.r ** 0.5 * s / mradius
-			drawcircleG(spot.pos, rV, (0, 0, 0), (0, 200, 200))
+			drawcircleG(spot.pos, rV, (0, 50, 50), (0, 200, 200))
 			if state.techlevel["count"] > 0:
 				ptext.draw(f"{spot.nunfound()}", center = MconvertG(spot.pos), fontsize = T(3 * rV), owidth = 0.5,
 					color = "#7f7fff", surf=img)
@@ -272,7 +281,7 @@ def drawminimap():
 			rV = DM.r * s / mradius
 			drawcircleG(DM.pos, rV, (40, 40, 40), (60, 60, 60))
 	perform.stop("drawminimapDM")
-	drawcircleG(state.you.pos, 4, (60, 30, 0), (120, 60, 0))
+	drawcircleG(state.you.pos, 4, (80, 0, 0), (160, 0, 0))
 	if k != 1:
 		img = pygame.transform.smoothscale(img, (2 * s, 2 * s))
 	rect = img.get_rect(bottomright = T(1270, 710))

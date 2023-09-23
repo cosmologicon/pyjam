@@ -102,9 +102,11 @@ def onclick(bname):
 		return
 	if bname in upgradetechs:
 		progress.upgrade(bname)
+		sound.play("unlock")
 	if bname in unlocktechs:
 		quest.marquee.append(f"TECH UNLOCKED: {unlocktechs[bname]}")
 		progress.upgrade(bname)
+		sound.play("unlock")
 	if bname == "leave":
 		from . import scene, playscene
 		scene.current = playscene
@@ -200,7 +202,7 @@ convos = {
 	],
 	"glow": [
 		"This searchlight will last until you throw a gravnet.",
-		"You can use more than one light together for extra effectiveness (but they each take energy).",
+		"You can use more than one light together for extra effectiveness (but they each take charge).",
 	],
 	"drive": [
 		"This hyperdrive should let you reach outer areas much faster.",

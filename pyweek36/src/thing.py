@@ -66,6 +66,10 @@ class ShotPath(enco.Component):
 		self.pos = math.CS(self.A, d, self.pos0)
 
 class Engines(enco.Component):
+	def __init__(self):
+		self.trails = []
+		self.Ttrail = 0.4
+		self.dttrail = 0.08
 	def vmax(self):
 		return self.aup()
 	def omega(self):
@@ -77,6 +81,26 @@ class Engines(enco.Component):
 	def adrag(self):
 		level = state.techlevel["drag"]
 		return ([0, 0.5, 1, 2, 10][level] if level >= 0 else 1) * self.aup()
+	def think(self, dt):
+		if self.controls["thrust"]:
+			if not self.trails or self.t - self.trails[-1][0] > self.dttrail:
+				pos = math.CS(self.A + math.tau / 2, 0.6, self.pos)
+				self.trails.append((self.t, pos, 0.1))
+				dA = 0.8
+				pos = math.CS(self.A + math.tau / 2 + dA, 0.8, self.pos)
+				self.trails.append((self.t, pos, 0.06))
+				pos = math.CS(self.A + math.tau / 2 - dA, 0.8, self.pos)
+				self.trails.append((self.t, pos, 0.06))
+		self.trails = [(t, pos, r) for t, pos, r in self.trails if self.t - t < self.Ttrail]
+	def draw(self):
+		for t, pos, r in self.trails:
+			pV = view.VconvertG(pos)
+			f = math.interp(self.t - t, 0, 1, self.Ttrail, 0)
+			rV = T(view.VscaleG * r * f)
+			color = math.imix((0, 0, 0), (20, 50, 150), 0.5 * f)
+			pygame.draw.circle(pview.screen, color, pV, rV)
+	def onhome(self):
+		self.trails.clear()
 
 class TakesDamage(enco.Component):
 	def __init__(self):
@@ -113,7 +137,7 @@ class LaunchCages(enco.Component):
 			if self.canlaunchcage():
 				self.launchcage()
 			else:
-				pass
+				sound.play("no")
 	def cagechargerate(self):
 		return [0.25, 0.5, 1, 2, 4][state.techlevel["gravnet"]]
 	def cageunlocked(self):
@@ -144,6 +168,8 @@ class ShineBeam(enco.Component):
 		self.tbeam = 0
 		self.beamon = False
 	def turnbeamon(self):
+		if self.beamon:
+			return
 		if state.energy >= 1:
 			from . import progress
 			progress.useenergy(1)
@@ -220,6 +246,8 @@ class HasGlow(enco.Component):
 		self.tglow = 0
 		self.glowon = False
 	def turnglowon(self):
+		if self.glowon:
+			return
 		if state.energy >= 1:
 			from . import progress
 			progress.useenergy(1)
@@ -269,6 +297,8 @@ class Hyperdrive(enco.Component):
 		self.driveon = False
 		sound.play("driveoff")
 	def turndriveon(self):
+		if self.driveon:
+			return
 		if state.energy >= 1:
 			from . import progress
 			progress.useenergy(1)
@@ -734,7 +764,7 @@ class Cage:
 
 	def think(self, dt):
 		for DM in state.DMtracker.active:
-			if not DM.found and dist(DM, self) <= DM.r:
+			if not DM.found and dist(DM, self) <= DM.r + 0.2:
 				DM.find()
 				self.alive = False
 
@@ -871,8 +901,10 @@ class Spot:
 		if self.canunlock():
 			from . import quest
 			self.unlocked = True
-			quest.marquee.append("New Counter deployed")
+			quest.marquee.append("Gravity well discovered")
+			quest.marquee.append("Counter deployed")
 			quest.marquee.append("+10 XP")
+			sound.play("deploy")
 			state.xp += 10
 			self.funlock = 0
 		if self.unlocked:

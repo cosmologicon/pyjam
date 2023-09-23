@@ -127,7 +127,7 @@ def takedamage(dhp):
 	state.hp = math.approach(state.hp, 0, dhp)
 
 def getmaxhp():
-	return 3 if state.techlevel["health"] < 0 else [3, 5, 7, 10, 15][state.techlevel["health"]]
+	return 2 if state.techlevel["health"] < 0 else [2, 3, 4, 5, 8][state.techlevel["health"]]
 
 def useenergy(denergy):
 	state.energy = math.approach(state.energy, 0, denergy)
@@ -232,10 +232,10 @@ def save():
 	writesave(settings.savepath)
 
 lastquicksave = None
-def quicksave():
+def quicksave(force = False):
 	global lastquicksave
 	t = pygame.time.get_ticks() * 0.001
-	if lastquicksave is None or t - lastquicksave > settings.tquicksave:
+	if lastquicksave is None or t - lastquicksave > settings.tquicksave or force:
 		perform.start("quicksave")
 		writesave(settings.quicksavepath)
 		perform.stop("quicksave")

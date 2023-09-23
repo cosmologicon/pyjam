@@ -63,7 +63,7 @@ marquee = Marquee()
 
 @Quest()
 class ArriveQuest:
-	nstep = 9
+	nstep = 10
 	def drawtitle(self):
 		return self.jstep <= 1
 	def info(self):
@@ -93,23 +93,16 @@ class ArriveQuest:
 		if self.jstep == 1:
 			return [
 				"Arrow keys or WASD: move",
-				"F8: change zoom level",
-				"F9: calibrate difficulty",
-				"F10: change resolution",
-				"F11: toggle fullscreen",
-				"Esc: quit (autosaved)",
-			]
-		if self.jstep in (2, 3, 4, 5):
-			return [
-				"Space, Enter: throw gravnet",
-				"F8: change zoom level",
+				"Tab: change zoom level",
 				"F9: calibrate difficulty",
 				"F10: change resolution",
 				"F11: toggle fullscreen",
 				"Esc: quit (autosaved)",
 			]
 		return [
-			"F8: change zoom level",
+			"Space, Enter: throw gravnet",
+			"Arrow keys or WASD: move",
+			"Tab: change zoom level",
 			"F9: calibrate difficulty",
 			"F10: change resolution",
 			"F11: toggle fullscreen",
@@ -144,13 +137,10 @@ class ArriveQuest:
 			self.advance()
 		if self.jstep == 8 and state.at is state.home:
 			progress.upgrade("count")
+			quests[:] = [UnlockBeamQuest(), UnlockRingQuest(), UnlockGlowQuest()] + quests
 			self.advance()
 		if self.jstep < 6:
 			state.you.pos = math.vclamp(state.you.pos, settings.countradius)
-	def complete(self):
-		quests.append(UnlockBeamQuest())
-		quests.append(UnlockRingQuest())
-		quests.append(UnlockGlowQuest())
 
 @Quest()
 class UnlockBeamQuest:
@@ -247,7 +237,7 @@ class PurchasesQuest:
 	def controlinfo(self):
 		lines = []
 		if state.techlevel["drive"]:
-			lines.append("4: activate Hyperdrive (uses energy)")
+			lines.append("4: activate Hyperdrive (uses charge)")
 		if state.techlevel["map"]:
 			lines.append("Hold 5 or M: view map")
 		if state.techlevel["return"]:

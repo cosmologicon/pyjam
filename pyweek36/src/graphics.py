@@ -9,8 +9,10 @@ def loadimg(*path):
 
 @lru_cache(1000)
 def getimg(imgname, scale, A):
-	if scale != 1 and A == 0:
+	if scale != 1 and imgname != "starbase":
 		img = getimg(imgname, 1, 0)
+		if A != 0:
+			img = pygame.transform.rotate(img, A)
 		w, h = img.get_size()
 		size = int(round(w * scale)), int(round(h * scale))
 		return pygame.transform.smoothscale(img, size)
@@ -101,9 +103,9 @@ def glow(s, seed = 0, color = None):
 	return img
 
 @lru_cache(20)
-def fadeimg(s = 200):
-	if s != 200:
-		return pygame.transform.smoothscale(fadeimg(), (2 * s, 2 * s))
+def fadeimg(s = 100):
+	if s != 100:
+		return pygame.transform.smoothscale(fadeimg(100), (2 * s, 2 * s))
 	img = pygame.Surface((2 * s, 2 * s)).convert_alpha()
 	for px, py, x, y, r in pgrid(s):
 		f = math.smoothinterp(r, 0.5, 1, 1, 0)
