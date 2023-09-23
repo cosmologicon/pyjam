@@ -128,7 +128,7 @@ convos = {
 	1: [
 		"Fly around in the area around this station and look closely.",
 		"The unmatter will appear as black objects blocking out the background stars and nebula.",
-		"If you're having trouble seeing anything, press F9 to adjust the brightness.",
+		"If it's too subtle and you're having trouble seeing anything, press F9 to adjust the brightness.",
 		"It should be challenging but not frustrating.",
 	],
 	2: [
@@ -150,11 +150,19 @@ convos = {
 		"Once you find 3 pieces of unmatter around a nexus, we can drop a counter there.",
 	],
 	"beam": [
-		"Behold! I call it the Xazer beam. This should really help out.",
+		"Behold! I call it the Xazer beam. This will definitely let you pick out unmatter more easily.",
 		"You've got a limited number of uses, but come back here any time to recharge.",
 		"Once you turn it on it will last until you fire a gravnet.",
 	],
 	"ring": [
+		"Get out there and find more nexus points!",
+		"3 pieces of unmatter around a nexus point lets us deploy a counter.",
+	],
+	"ring": [
+		"Behold, the Xazer Ring.",
+	],
+	"glow": [
+		"Again, this lasts until you fire a gravnet.",
 	],
 	"drive": [
 		"This hyperdrive should let you reach outer areas much faster.",

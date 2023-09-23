@@ -191,7 +191,12 @@ def drawnebula():
 			for py in tilerange(s, py0, 0, pview.h):
 				pview.screen.blit(img, (px, py))
 
-
+def print_report():
+	print("CACHE loadimg", loadimg.cache_info().currsize)
+	print("CACHE getimg", getimg.cache_info().currsize)
+	print("CACHE getshipimg", getshipimg.cache_info().currsize)
+	print("CACHE glow", glow.cache_info().currsize)
+	print("CACHE fadeimg", fadeimg.cache_info().currsize)
 
 
 

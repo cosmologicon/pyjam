@@ -25,6 +25,7 @@ fullscreen = False
 forceres = False
 
 sfxvolume = 0.5
+musicvolume = 0.5
 
 DEBUG = True
 

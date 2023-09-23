@@ -1,5 +1,5 @@
 import pygame, os.path
-from . import settings, view, sector, perform, state, progress
+from . import settings, view, sector, perform, state, progress, graphics, sound
 from . import scene, playscene, calibratescene, homescene
 from . import ptext, pview
 from .pview import T
@@ -10,6 +10,7 @@ ptext.DEFAULT_LINE_HEIGHT = 0.9
 
 
 sector.load()
+sound.init()
 view.init()
 scene.current = playscene
 scene.current.init()
@@ -29,6 +30,7 @@ while playing:
 	dtf = 10 if settings.DEBUG and kpressed[pygame.K_F3] else 1
 	if settings.DEBUG and pygame.K_F4 in kdowns:
 		perform.print_report()
+		graphics.print_report()
 		print(state.techlevel)
 	if settings.DEBUG and pygame.K_F5 in kdowns:
 		progress.cheat()
@@ -48,10 +50,10 @@ while playing:
 		text = "\n".join([
 			"F2: show hit boxes",
 			"F3: speed boost",
-			"F4: print peformance report",
+			"F4: print debug info",
 			"F5: cheat",
 			f"{clock.get_fps():.1f}fps",
 		])
-		ptext.draw(text, bottomright = T(1275, 715), fontsize = T(18), owidth = 1)
+		ptext.draw(text, topright = T(1275, 5), fontsize = T(18), owidth = 1, alpha = 0.3)
 	pygame.display.flip()
 

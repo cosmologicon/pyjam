@@ -2,16 +2,16 @@ import math, random
 from . import state, thing, sector, quest
 
 cost = {
-	"engine": [5, 10, 20, 50],
-	"gravnet": [5, 10, 20, 50],
-	"beam": [5, 10, 20, 50],
-	"ring": [5, 10, 20, 50],
-	"glow": [5, 10, 20, 50],
-	"health": [5, 10, 20, 50],
-	"energy": [5, 10, 20, 50],
-	"map": [20],
+	"engine": [5, 10, 15, 20],
+	"gravnet": [5, 10, 15, 20],
+	"beam": [5, 10, 15, 20],
+	"ring": [5, 10, 15, 20],
+	"glow": [5, 10, 15, 20],
+	"health": [5, 10, 15, 20],
+	"energy": [5, 10, 15, 20],
+	"map": [10],
 	"drive": [20],
-	"return": [20],
+	"return": [30],
 }
 
 
@@ -29,8 +29,8 @@ def init():
 	for Nrock, R0, size0 in [
 		(3, 15, 0.5),
 		(10, 25, 1),
-		(50, 50, 1.5),
-		(100, 100, 2),
+		(20, 50, 1.5),
+		(50, 100, 2),
 		(200, 200, 2.5),
 		(400, 400, 3),
 		(400, 500, 4),
@@ -131,7 +131,7 @@ def useenergy(denergy):
 	state.energy = math.approach(state.energy, 0, denergy)
 
 def getmaxenergy():
-	return 0 if state.techlevel["energy"] < 0 else [3, 5, 8, 12, 20][state.techlevel["energy"]]
+	return 0 if state.techlevel["energy"] < 0 else [2, 3, 5, 8, 13][state.techlevel["energy"]]
 
 class ThinkTracker:
 	T = 0.5  # All objs should have their think function called at least this often.

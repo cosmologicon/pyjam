@@ -1,5 +1,6 @@
 import random, math, pygame
 from collections import defaultdict
+from functools import lru_cache
 from . import settings, state, thing, view, graphics, sector, quest, perform, progress, hud, sound
 from . import pview, ptext
 from .pview import T
@@ -9,6 +10,7 @@ def init():
 	progress.init()
 #	progress.cheat()
 	think(0)
+	sound.playmusic("floating-cities")
 	return
 	for j, DM in enumerate(state.DMs):
 		DM.found = math.fuzzflip(j, 123)
@@ -16,6 +18,7 @@ def init():
 		spot.unlocked = math.fuzzflip(j, 234)
 
 def resume():
+	sound.playmusic("floating-cities")
 	state.you.A = 0
 	state.you.leave(state.at)
 	state.at = None
@@ -155,7 +158,8 @@ def drawmap():
 		if spot.unlocked:
 			drawcircleG(spot.pos, 5, (0, 0, 0), (0, 200, 200))
 			if flash:
-				ptext.draw(f"{spot.nunfound()}", center = MconvertG(spot.pos), fontsize = T(25 * k), owidth = 1, surf=img)
+				text = f"{spot.nunfound(countall=True)}"
+				ptext.draw(text, center = MconvertG(spot.pos), fontsize = T(25 * k), owidth = 1, surf=img)
 	if not flash:
 		drawcircleG(state.you.pos, 6, (200, 100, 100), (255, 128, 128))
 	if k != 1:
@@ -166,12 +170,18 @@ def drawmap():
 	perform.stop("drawmap")
 
 
+@lru_cache(1)
+def minimapimg(self, k, s):
+	return pygame.Surface(T(2 * k * s, 2 * k * s)).convert_alpha()
+
+
 def drawminimap():
 	perform.start("drawminimap")
+	perform.start("minimapsetup")
 	mradius = settings.minimapradius
 	s = 120
 	k = 2
-	img = pygame.Surface(T(2 * k * s, 2 * k * s)).convert_alpha()
+	img = minimapimg(k, s)
 	img.fill((0, 0, 0, 200))
 	x0, y0 = state.you.pos
 	def MconvertG(pos):
@@ -213,6 +223,7 @@ def drawminimap():
 		if ocolor is not None:
 			pygame.draw.circle(img, ocolor, pM, T(k * rV), k)
 
+	perform.stop("minimapsetup")
 	perform.start("drawminimapspots")
 	for spot in state.spots:
 		if spot.unlocked:

@@ -550,6 +550,7 @@ class DrawRock(enco.Component):
 	def draw(self):
 		graphics.drawG("mimas", self.pV(), self.r * 0.0033, 0)
 	def mapcolor(self):
+		return None
 		return 50, 50, 50
 
 
@@ -832,11 +833,18 @@ class Spot:
 		self.unlocked = False
 		self.funlock = 0
 
+	def canunlock(self):
+		if self.unlocked:
+			return False
+		if state.techlevel["count"] <= 0:
+			return False
+		return view.isvisible(self) and self.nfound() >= 3 and dist(self, state.you) < settings.countradius
+
 	def think(self, dt):
-		if not self.unlocked and view.isvisible(self) and state.techlevel["count"] > 0 and self.nfound() >= 3:
+		if self.canunlock():
 			from . import quest
 			self.unlocked = True
-			quest.marquee.append("New Counter deployed.")
+			quest.marquee.append("New Counter deployed")
 			quest.marquee.append("+10 XP")
 			state.xp += 10
 			self.funlock = 0
