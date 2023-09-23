@@ -1,8 +1,13 @@
-import pygame
+import pygame, os.path
 from . import settings, view, sector, perform
 from . import scene, playscene, calibratescene, homescene
 from . import ptext, pview
 from .pview import T
+
+ptext.DEFAULT_FONT_NAME = "DaysOne"
+ptext.FONT_NAME_TEMPLATE = os.path.join("fonts", "%s.ttf")
+ptext.DEFAULT_LINE_HEIGHT = 0.9
+
 
 sector.load()
 view.init()

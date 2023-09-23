@@ -58,6 +58,7 @@ def think(dt, kdowns = [], kpressed = defaultdict(bool), mpos = (0, 0), mdowns =
 				homescene.init()
 
 	perform.stop("think")
+	print(state.techlevel)
 
 
 def draw():
@@ -94,8 +95,8 @@ def draw():
 		drawmap()
 	text = quest.info()
 	if text:
-		ptext.draw(text, midbottom = T(640, 710), fontsize = T(50), width = T(800), owidth = 1,
-			color = "#ff7fff", shade = 1)
+		ptext.draw(text, midbottom = T(640, 710), fontname = "JollyLodger", fontsize = T(50),
+			width = T(700), owidth = 1, color = "#ff7fff", shade = 1)
 	quest.marquee.draw()
 	drawHUD()
 
@@ -219,27 +220,51 @@ def drawminimap():
 
 
 def drawHUD():
-	infos = []
-	if state.you.cageunlocked():
-		infos.append("gravnet")
-	if state.you.beamunlocked():
-		infos.append("beam")
-	srect = pygame.Rect(T(15, 620, 160, 40))
-	for j, info in enumerate(infos):
-		rect = pygame.Rect(0, 0, srect.w, srect.h)
-		surf = pygame.Surface(rect.size).convert_alpha()
-		surf.fill((0, 0, 0, 0))
-		color = (100, 100, 255, 50)
-		pygame.draw.rect(surf, color, rect, T(4))
-		rect.w = pview.I(rect.w * state.charge[info])
-		if rect.w:
-			pygame.draw.rect(surf, color, rect)
-		pview.screen.blit(surf, srect)
-		ptext.draw(info.upper(), center = srect.center, fontsize = T(40), owidth = 0.5, color = (100, 100, 255), alpha = 0.5)
-		srect.y -= 50
+	ptext.draw("HULL", topleft = T(10, 0), fontsize = T(30), color = (120, 180, 180), shade = 1)
+	rect = pygame.Rect(T(114, 8, 12, 22))
+	for j in range(progress.getmaxhp()):
+		width = 0 if j < state.hp else T(2)
+		pygame.draw.rect(pview.screen, (120, 180, 180), rect, width)
+		rect.x += T(15)
 
-	text = f"XP: {state.xp}   HP: {state.hp}/{progress.getmaxhp()}   ENERGY: {state.energy}/{progress.getmaxenergy()}"
-	ptext.draw(text, bottomleft = T(15, 710), fontsize = T(50), color = (200, 255, 255), shade = 1)
+	if progress.getmaxenergy():
+		ptext.draw("CHARGE", topleft = T(10, 30), fontsize = T(30), color = (180, 180, 120), shade = 1)
+		rect = pygame.Rect(T(164, 8, 12, 22))
+		rect.y += T(30)
+		for j in range(progress.getmaxenergy()):
+			width = 0 if j < state.energy else T(2)
+			pygame.draw.rect(pview.screen, (160, 160, 100), rect, width)
+			rect.x += T(15)
+
+	if state.you.cageunlocked():
+		ptext.draw(f"XP {state.xp}", topleft = T(10, 60), fontsize = T(30), color = (0, 0, 0), owidth = 1, ocolor = "gray")
+
+	
+	
+	if False:
+		infos = []
+		if state.you.cageunlocked():
+			infos.append("gravnet")
+		if state.you.beamunlocked():
+			infos.append("beam")
+		srect = pygame.Rect(T(15, 620, 160, 40))
+		for j, info in enumerate(infos):
+			rect = pygame.Rect(0, 0, srect.w, srect.h)
+			surf = pygame.Surface(rect.size).convert_alpha()
+			surf.fill((0, 0, 0, 0))
+			color = (100, 100, 255, 50)
+			pygame.draw.rect(surf, color, rect, T(4))
+			rect.w = pview.I(rect.w * state.charge[info])
+			if rect.w:
+				pygame.draw.rect(surf, color, rect)
+			pview.screen.blit(surf, srect)
+			ptext.draw(info.upper(), center = srect.center, fontsize = T(40), owidth = 0.5, color = (100, 100, 255), alpha = 0.5)
+			srect.y -= 50
+
+
+	text = "\n".join(quest.getcontrolinfo())
+	if text:
+		ptext.draw(text, bottomleft = T(10, 710), fontsize = T(16), color = (200, 255, 255), shade = 1)
 	
 
 

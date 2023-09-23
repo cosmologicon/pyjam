@@ -135,8 +135,13 @@ class ShineBeam(enco.Component):
 		self.tbeam = 0
 		self.beamon = False
 	def turnbeamon(self):
-		self.tbeam = 0
-		self.beamon = True
+		if state.energy >= 1:
+			from . import progress
+			progress.useenergy(1)
+			self.tbeam = 0
+			self.beamon = True
+		else:
+			pass
 	def beamunlocked(self):
 		return state.techlevel["beam"] >= 0
 	def think(self, dt):
@@ -663,7 +668,7 @@ class Home:
 		graphics.drawG("starbase", self.pV(), 0.006 * self.r, A, dA = 0.5)
 		if state.techlevel["count"] > 0:
 			text = f"{self.nunfound()}"
-			ptext.draw(text, center = self.pV(), color = "#7f7fff", owidth = 0.5, fontsize = T(view.VscaleG * 2))
+			ptext.draw(text, center = self.pV(), color = "#7f7fff", shade = 1, owidth = 0.5, fontsize = T(view.VscaleG * 2))
 
 
 @WorldBound()
@@ -694,7 +699,7 @@ class Spot:
 		graphics.drawG("starbase", self.pV(), 0.006 * self.r, A, dA = 5)
 		if state.techlevel["count"] > 0:
 			text = f"{self.nunfound()}"
-			ptext.draw(text, center = self.pV(), color = "#7f7fff", owidth = 0.5, fontsize = T(view.VscaleG * 1))
+			ptext.draw(text, center = self.pV(), color = "#7f7fff", shade = 1, owidth = 0.5, fontsize = T(view.VscaleG * 1))
 
 
 

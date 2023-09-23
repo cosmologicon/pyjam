@@ -76,11 +76,11 @@ def randomrock(*seed):
 
 
 def getcost(techname):
-	if state.techlevel[techname] <= 0:
+	if state.techlevel[techname] < 0:
 		return None
 	if state.techlevel[techname] > len(cost[techname]):
 		return None
-	return cost[techname][state.techlevel[techname] - 1]
+	return cost[techname][state.techlevel[techname]]
 
 def upgrade(techname):
 	if techname == "drag":
@@ -100,7 +100,7 @@ def useenergy(denergy):
 	state.energy = math.approach(state.energy, 0, denergy)
 
 def getmaxenergy():
-	return 0 if state.techlevel["energy"] < 0 else [1, 2, 4, 8][state.techlevel["energy"]]
+	return 0 if state.techlevel["energy"] < 0 else [3, 5, 8, 12][state.techlevel["energy"]]
 
 class ThinkTracker:
 	T = 0.5  # All objs should have their think function called at least this often.
