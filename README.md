@@ -18,6 +18,8 @@ Code for my Python game jam entries (PyWeek).
 * PyWeek 32 (`woundabout`): Woundabout.
 * PyWeek 33 (`reflections`): On the Nature of Reflections.
 * PyWeek 34 (`ares-firma`): Ares Firma.
+* PyWeek 35 (`burglecast`): BurgleCast.
+* PyWeek 36 (`unmatter`): The Mystery of the Unmatter.
 
 ## Setup process
 
