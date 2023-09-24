@@ -41,7 +41,7 @@ keys = {
 	"thrust": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],
 	"left": [pygame.K_LEFT, pygame.K_a],
 	"right": [pygame.K_RIGHT, pygame.K_d, pygame.K_e],
-	"stop": [pygame.K_DOWN, pygame.K_s, pygame.K_o],
+	"stop": [],
 	"gravnet": [pygame.K_SPACE, pygame.K_RETURN],
 	"beam": [pygame.K_1],
 	"ring": [pygame.K_2],
