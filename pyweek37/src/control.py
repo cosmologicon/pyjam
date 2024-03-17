@@ -1,20 +1,25 @@
 import pygame
 
 def init():
-	global pos, kdowns, quit
-	pos = [0, 0]
+	global posD, kdowns, quit, click
+	posD = [0, 0]
 	kdowns = []
 	quit = False
+	click = False
 
 def think(dt):
-	global pos, kdowns, quit
-	pos = pygame.mouse.get_pos()
+	global posD, kdowns, quit, click
+	posD = pygame.mouse.get_pos()
 	kdowns = []
 	quit = False
+	click = False
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			quit = True
 		if event.type == pygame.KEYDOWN:
 			kdowns.append(event.key)
+		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+			click = True
+			
 	
 

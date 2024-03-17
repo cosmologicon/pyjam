@@ -7,7 +7,7 @@ control.init()
 
 clock = pygame.time.Clock()
 dtaccum = 0
-while not control.quit:
+while not control.quit and pygame.K_ESCAPE not in control.kdowns:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	control.think(dt)
 
