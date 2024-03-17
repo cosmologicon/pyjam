@@ -1,4 +1,5 @@
 import math
+from functools import cache
 
 s = math.sqrt(3) / 2
 
@@ -10,6 +11,10 @@ adjsH = [[0, 1], [1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1]]
 def GconvertH(pH):
 	xH, yH = pH
 	return [xH, (yH + 0.5 * xH) * s]
+
+def HadjsH(pH):
+	xH, yH = pH
+	return [(xH + dxH, yH + dyH) for dxH, dyH in adjsH]
 
 def HconvertG(pG):
 	xG, yG = pG
@@ -28,5 +33,14 @@ def HnearestHG(pH, pG):
 
 def HnearestG(pG):
 	return HnearestHG(HconvertG(pG), pG)
+
+@cache
+def Hrect(R):
+	ret = set()
+	for xH in range(-R, R + 1):
+		for yH in range(-R, R + 1):
+			if abs(xH + yH) <= R:
+				ret.add((xH, yH))
+	return frozenset(ret)
 
 

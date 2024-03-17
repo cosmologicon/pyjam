@@ -1,35 +1,48 @@
 import pygame
-from . import control, view, grid
+from . import control, view, grid, state
 from . import pview, ptext
 
 
 def init():
 	global path
-	path = []
+	path = None
+	state.addplanet((0, 0))
+	state.addplanet((4, -1))
+	state.addplanet((-3, -2))
+	state.addplanet((-2, 5))
+	
 
 def think(dt):
+	global path
 	pHcursor = grid.HnearestG(view.GconvertD(control.posD))
 	if control.click:
-		if pHcursor not in path:
-			path.append(pHcursor)
+		if pHcursor in state.planets and path is None:
+			path = state.Path(pHcursor)
+		if path is not None and path.cango(pHcursor):
+			path.add(pHcursor)
+	if control.rclick:
+		if path is not None:
+			state.paths.append(path)
+			path = None
 
 def draw():
 	pview.fill((0, 0, 12))
 	pygame.draw.circle(pview.screen, (255, 200, 128), control.posD, 3)
 
 	pHcursor = grid.HnearestG(view.GconvertD(control.posD))
-	for xH in range(-5, 6):
-		for yH in range(-5, 6):
-			if abs(xH + yH) > 5: continue
-			pD = view.DconvertG(grid.GconvertH((xH, yH)))
-			alpha = 0.4 if (xH, yH) == pHcursor else 0.12
-			ptext.draw(f"{xH},{yH}", center = pD, alpha = alpha, fontsize = 40, owidth = 2)
+	for xH, yH in state.free:
+		pD = view.DconvertG(grid.GconvertH((xH, yH)))
+		alpha = 0.4 if (xH, yH) == pHcursor else 0.12
+		ptext.draw(f"{xH},{yH}", center = pD, alpha = alpha, fontsize = 40, owidth = 2)
 
-	pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in path]
-	for pD in pDs:
-		pygame.draw.circle(pview.screen, (0, 0, 100), pD, view.DscaleG(0.2), 1)
-	if len(pDs) >= 2:
-		pygame.draw.lines(pview.screen, (0, 50, 0), False, pDs, view.DscaleG(0.1))
+	for planetH in state.planets:
+		pD = view.DconvertH(planetH)
+		pygame.draw.circle(pview.screen, (0, 160, 160), pD, view.DscaleG(0.4))
+
+	for p in state.paths:
+		p.draw()
+	if path is not None:
+		path.draw(glow = True)
 
 	pygame.display.flip()
 

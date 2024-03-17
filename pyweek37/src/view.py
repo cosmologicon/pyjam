@@ -1,8 +1,9 @@
 import pygame
-from . import pview, settings
+from . import pview, settings, grid
 
 def init():
 	pygame.display.init()
+	pygame.display.set_caption(settings.gamename)
 	pview.set_mode(size0 = settings.size0, height = settings.height,
 		fullscreen = settings.fullscreen, forceres = settings.forceres)
 
@@ -39,3 +40,6 @@ def GconvertD(pD):
 	
 def DscaleG(pG):
 	return pview.T(VscaleG * pG)
+
+def DconvertH(pH):
+	return DconvertG(grid.GconvertH(pH))
