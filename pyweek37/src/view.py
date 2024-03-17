@@ -13,7 +13,7 @@ def init():
 #   D: display coordinates
 
 xG0, yG0 = 0, 0
-VscaleG = 100  # VscaleG
+VscaleG = 40  # VscaleG
 
 def VconvertG(pG):
 	xV0, yV0 = pview.center

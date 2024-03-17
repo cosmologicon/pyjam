@@ -10,7 +10,7 @@ adjsH = [[0, 1], [1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1]]
 
 def GconvertH(pH):
 	xH, yH = pH
-	return [xH, (yH + 0.5 * xH) * s]
+	return [xH, (yH + 0.5 * xH) / s]
 
 def HadjsH(pH):
 	xH, yH = pH
@@ -18,7 +18,7 @@ def HadjsH(pH):
 
 def HconvertG(pG):
 	xG, yG = pG
-	return [xG, yG / s - 0.5 * xG]
+	return [xG, yG * s - 0.5 * xG]
 
 def Gdist(pG0, pG1):
 	xG0, yG0 = pG0
