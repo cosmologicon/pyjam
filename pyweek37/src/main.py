@@ -1,4 +1,19 @@
-from . import settings
+import pygame
+from . import settings, view, control, pview, playscene
 
-print("Welcome to game %s" % settings.gamename)
-print("Press the left mouse button to fire the ducks.")
+view.init()
+playscene.init()
+control.init()
+
+clock = pygame.time.Clock()
+dtaccum = 0
+while not control.quit:
+	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
+	control.think(dt)
+
+	playscene.think(dt)
+	playscene.draw()
+	
+	
+
+

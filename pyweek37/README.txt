@@ -15,7 +15,7 @@ How it fits the theme:
 Requirements
 ------------
 
-Python 3 and Pygame. Developed using Python 3.x.x and Pygame x.x.x.
+Python 3 and Pygame. Developed using Python 3.10.12 and Pygame 2.1.2.
 
 To install the requirements on Ubuntu:
 
@@ -26,7 +26,8 @@ Running the Game
 
 Open a terminal / console and "cd" to the game directory and run:
 
-    python run_game.py
+    python3 run_game.py
 
 Controls
 --------
+
