@@ -1,6 +1,12 @@
 import random, pygame, math
-from collections import defaultdict
-from . import grid, view, pview, ptext
+from collections import defaultdict, Counter
+from . import settings, grid, view, pview, ptext
+
+def cycle_opts(value, values, reverse = False):
+	if value not in values:
+		return values[0]
+	j = values.index(value)
+	return values[(j + (-1 if reverse else 1)) % len(values)]
 
 
 class Planet:
@@ -18,7 +24,7 @@ class Planet:
 		ptext.draw("\n".join(self.info()), center = view.DconvertG((xG, yG)),
 			fontsize = view.DscaleG(0.4), owidth = 1)
 	def info(self):
-		lines = []
+		lines = [f"pos: {self.pH}"]
 		if self.has:
 			hastext = " ".join(f"{n}{x}" for x, n in sorted(self.has.items()))
 			lines.append(f"has: {hastext}")
@@ -32,7 +38,6 @@ class Planet:
 class Tube:
 	def __init__(self, pH0):
 		self.pHs = [pH0]
-		self.color = [random.randint(20, 60) for _ in range(3)]
 		self.forward = True
 		self.carry = ""
 		self.supplier = planetat(pH0)
@@ -45,14 +50,14 @@ class Tube:
 	def flip(self):
 		self.forward = False
 		self.supplier, self.consumer = self.consumer, self.supplier
+		self.carry = ""
+		self.togglecarry()
 		resolvenetwork()
 	def togglecarry(self):
-		self.carry = {
-			"": "A",
-			"A": "B",
-			"B": "C",
-			"C": "",
-		}[self.carry]
+		cancarry = ["", self.carry]
+		cancarry += [x for x, n in self.supplier.netsupply.items() if n > 0]
+		cancarry = sorted(set(cancarry))
+		self.carry = cycle_opts(self.carry, cancarry)
 		resolvenetwork()
 	def add(self, pH):
 		self.pHs.append(pH)
@@ -60,7 +65,9 @@ class Tube:
 			self.consumer = planetat(pH)
 	def draw(self, glow = False):
 		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]
-		color = math.imix(self.color, (255, 255, 255), 0.5) if glow else self.color
+		color = settings.colors.get(self.carry, (160, 160, 160))
+		mix = (255, 255, 255) if glow else (0, 0, 0)
+		color = math.imix(color, mix, 0.5)
 		for pD in pDs:
 			pygame.draw.circle(pview.screen, color, pD, view.DscaleG(0.2))
 		if len(pDs) >= 2:
@@ -72,6 +79,17 @@ class Tube:
 			f"From {self.supplier.pH} to {self.consumer.pH}",
 			f"Supplied {self.supplied}",
 		]
+
+class Rock:
+	def __init__(self, pH):
+		self.pH = pH
+	def draw(self, glow = False):
+		xG, yG = grid.GconvertH(self.pH)
+		color = (50, 50, 50)
+		color = math.imix(color, (255, 255, 255), 0.5) if glow else color
+		pygame.draw.circle(pview.screen, color, view.DconvertG((xG, yG)), view.DscaleG(0.4))
+	def info(self):
+		return ["Just a rock."]
 
 def resolvenetwork():
 	for planet in planets:
@@ -100,16 +118,32 @@ def resolvenetwork():
 		suppliers = nsuppliers
 
 
-board = { pH: None for pH in grid.Hrect(10) }
+board = { pH: None for pH in grid.Hrect(60) }
 
 tubes = []
 planets = []
+rocks = []
 
+
+def addrock(pH):
+	rock = Rock(pH)
+	rocks.append(rock)
+	board[pH] = rock
 
 def addplanet(pH, has=None, needs=None):
 	planet = Planet(pH, (has or {}), (needs or {}))
 	planets.append(planet)
 	board[pH] = planet
+
+def addrandomplanet(pH, ncolor, nhas, nneeds):
+	if nhas + nneeds > ncolor:
+		raise ValueError
+	colors = list("ROYGBV"[:ncolor])
+	random.shuffle(colors)
+	has = dict(Counter(colors[:nhas]))
+	needs = dict(Counter(colors[nhas:nhas+nneeds]))
+	addplanet(pH, has, needs)
+
 
 def addtube(tube):
 	for pH in tube.pHs:
@@ -117,6 +151,7 @@ def addtube(tube):
 			board[pH] = tube
 	tube.supplier.tubes.append(tube)
 	tube.consumer.tubes.append(tube)
+	tube.togglecarry()
 	tubes.append(tube)
 	resolvenetwork()
 

@@ -1,16 +1,19 @@
 import pygame
+from collections import defaultdict
+from . import settings
 
 def init():
-	global posD, kdowns, quit, click, mclick, rclick
+	global posD, kdowns, kpressed, quit, click, mclick, rclick
 	posD = [0, 0]
 	kdowns = []
+	kpressed = defaultdict(bool)
 	quit = False
 	click = False
 	mclick = False
 	rclick = False
 
 def think(dt):
-	global posD, kdowns, quit, click, mclick, rclick
+	global posD, kdowns, kpressed, quit, click, mclick, rclick
 	posD = pygame.mouse.get_pos()
 	kdowns = []
 	quit = False
@@ -28,5 +31,10 @@ def think(dt):
 			mclick = True
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
 			rclick = True
-
+	pressed = pygame.key.get_pressed()
+	kpressed = {}
+	for keyname, codes in settings.keys.items():
+		if any(code in kdowns for code in codes):
+			kdowns.append(keyname)
+		kpressed[keyname] = any(pressed[code] for code in codes)
 
