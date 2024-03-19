@@ -1,9 +1,33 @@
 import pygame, math, random
 from collections import Counter
-from . import control, view, grid, state
+from functools import cache
+from . import control, view, grid, state, settings
 from . import pview, ptext
 from .pview import T
 
+
+colorcosts = [1, 1, 1, 2, 2, 3]
+
+@cache
+def colorsets(cost, j0 = 0):
+	if cost == 0:
+		return [[]]
+	if j0 >= len(colorcosts):
+		return []
+	ret = list(colorsets(cost, j0 + 1))
+	if colorcosts[j0] <= cost:
+		ret += [[j0] + cset for cset in colorsets(cost - colorcosts[j0], j0 + 1)]
+	return ret
+
+def randomplanet(hasvalue, needsvalue, *seed):
+	for j in range(10000):
+		has = math.fuzzchoice(colorsets(hasvalue), j, 101, *seed)
+		needs = math.fuzzchoice(colorsets(needsvalue), j, 102, *seed)
+		if not(set(has) & set(needs)):
+			return [
+				{ settings.colors[x]: 1 for x in has },
+				{ settings.colors[x]: 1 for x in needs },
+			]
 
 def init():
 	global building, selected
@@ -15,20 +39,16 @@ def init():
 	for j in range(3, 100):
 		pG = math.CS(j * math.phyllo, r = 2 * math.sqrt(j))
 		pH = grid.HnearestG(pG)
-		ncolor = int(math.interp(j, 1, 3, 40, 6))
-		if j < 10:
-			nhas, nneeds = 1, 1
-		elif j < 30:
-			nhas, nneeds = random.choice([[1, 2], [2, 1]])
-		elif j < 60:
-			nhas, nneeds = 2, 2
-		else:
-			nhas, nneeds = random.choice([[2, 3], [3, 2]])
-		state.addrandomplanet(pH, ncolor, nhas, nneeds)
+		hasvalue = int(math.interp(j, 1, 1, 60, 4))
+		needsvalue = int(math.interp(j, 1, 1, 80, 4))
+#		state.addrandomplanet(pH, ncolor, nhas, nneeds)
+		has, needs = randomplanet(hasvalue, needsvalue, j)
+		state.addplanet(pH, has = has, needs = needs)
 
 	for pH in state.board:
-		if state.objat(pH) is None and random.random() < 0.2:
-			state.addrock(pH)
+		if state.objat(pH) is None and not any(state.planetat(pHadj) for pHadj in grid.HadjsH(pH)):
+			if math.fuzz(1, *pH) < 0.35:
+				state.addrock(pH)
 	state.resolvenetwork()
 
 def think(dt):
@@ -71,6 +91,10 @@ def think(dt):
 	view.scootD(dx, dy)
 	view.scootD(-control.mdragD[0], -control.mdragD[1])
 	view.zoom(control.dwheel, control.posD)
+	for tube in state.tubes:
+		tube.think(dt)
+	for planet in state.planets:
+		planet.think(dt)
 
 
 def draw():
@@ -85,6 +109,10 @@ def draw():
 			alpha = 0.4 if (xH, yH) == pHcursor else 0.12
 			ptext.draw(f"{xH},{yH}", center = pD, alpha = alpha,
 				fontsize = view.DscaleG(0.6), owidth = 2)
+	if building is not None:
+		for nextpH in building.nexts():
+			pDs = [view.DconvertG(pG) for pG in grid.GoutlineH(nextpH)]
+			pygame.draw.lines(pview.screen, (0, 255, 255), True, pDs, 1)
 
 	for rock in state.rocks:
 		rock.draw(glow = rock is selected)

@@ -20,7 +20,8 @@ height = None
 fullscreen = False
 forceres = False
 
-colors = {
+colors = "ROYGBV"
+colorcodes = {
 	"R": [255, 50, 50],
 	"O": [255, 150, 0],
 	"Y": [222, 222, 0],

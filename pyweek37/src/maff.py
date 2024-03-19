@@ -184,6 +184,8 @@ def fuzz(*args):
 def fuzzrange(a, b, *args):
 	return mix(a, b, fuzz(*args))
 
+def fuzzchoice(values, *args):
+	return values[int(fuzz(*args) * len(values))]
 
 # Add to math module
 _globals = dict(globals())

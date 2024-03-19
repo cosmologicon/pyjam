@@ -17,9 +17,14 @@ class Planet:
 		self.needs = needs
 		self.tubes = []
 		self.netsupply = defaultdict(int)
+		self.t = 0
+	def think(self, dt):
+		self.t += dt
 	def draw(self, glow = False):
 		xG, yG = grid.GconvertH(self.pH)
-		color = math.imix(self.color, (255, 255, 255), 0.5) if glow else self.color
+		supplied = all(self.netsupply.get(x, 0) >= self.needs[x] for x in self.needs)
+		color = (180, 180, 180) if supplied else (60, 60, 60)
+		color = math.imix(color, (255, 255, 255), 0.5) if glow else color
 		pygame.draw.circle(pview.screen, color, view.DconvertG((xG, yG)), view.DscaleG(0.4))
 		ptext.draw("\n".join(self.info()), center = view.DconvertG((xG, yG)),
 			fontsize = view.DscaleG(0.4), owidth = 1)
@@ -44,20 +49,36 @@ class Tube:
 		self.supplier = planetat(pH0)
 		self.consumer = None
 		self.supplied = False
-	# Does not account for adjacency.
-	def canplace(self, pH):
-		if pH in self.pHs:
-			return False
-		if isfree(pH):
-			return True
-		planet = planetat(pH)
-		if planet is None:
-			return False
-		if planet is self.supplier:
-			return False
-		return len(self.pHs) > 1
+		self.t = 0
+	def think(self, dt):
+		self.t += dt
+	# Does not check for legality.
+	def add(self, pH):
+		self.pHs.append(pH)
+		if planetat(pH):
+			self.complete()
+	def complete(self):
+		self.consumer = planetat(self.pHs[-1])
+		self.built = True
+		straights = [grid.isrowH(self.pHs[j-1], self.pHs[j], self.pHs[j+1])
+			for j in range(1, len(self.pHs) - 1)]
+		straights = [False] + straights + [False]
+		self.straights = dict(zip(self.pHs, straights))
 	def nexts(self):
-		return [pH for pH in grid.HadjsH(self.pHs[-1]) if self.canplace(pH)]
+		for pH in grid.HadjsH(self.pHs[-1]):
+			if pH in self.pHs:
+				continue
+			obj = objat(pH)
+			if obj is None:
+				yield pH
+			elif isinstance(obj, Planet):
+				if obj is not self.supplier and len(self.pHs) > 1:
+					yield pH
+			elif isinstance(obj, Tube):
+				if obj.straights[pH]:
+					pH2 = tuple(grid.HpastH(self.pHs[-1], pH))
+					if isfree(pH2) and pH2 not in self.pHs:
+						yield pH2
 	def cango(self, pH):
 		return pH in self.nexts()
 	def trybuild(self, pH):
@@ -81,6 +102,12 @@ class Tube:
 			self.pHs.pop()
 			return True
 		return False
+	def pHalong(self, d):
+		n, f = divmod(d, 1)
+		n = int(n)
+		if not 0 <= n < len(self.pHs) - 1:
+			return None
+		return math.mix(self.pHs[n], self.pHs[n + 1], f)
 	def flip(self):
 		self.forward = False
 		self.supplier, self.consumer = self.consumer, self.supplier
@@ -93,20 +120,26 @@ class Tube:
 		cancarry = sorted(set(cancarry))
 		self.carry = cycle_opts(self.carry, cancarry)
 		resolvenetwork()
-	def add(self, pH):
-		self.pHs.append(pH)
-		if planetat(pH):
-			self.consumer = planetat(pH)
-			self.built = True
 	def draw(self, glow = False):
 		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]
-		color = settings.colors.get(self.carry, (160, 160, 160))
+		color = settings.colorcodes.get(self.carry, (160, 160, 160))
 		mix = (255, 255, 255) if glow else (0, 0, 0)
 		color = math.imix(color, mix, 0.5)
 		for pD in pDs:
 			pygame.draw.circle(pview.screen, color, pD, view.DscaleG(0.2))
 		if len(pDs) >= 2:
 			pygame.draw.lines(pview.screen, color, False, pDs, view.DscaleG(0.1))
+		if self.carry and self.supplied:
+			d = self.supplier.t * 3 % 3
+			while True:
+				pH = self.pHalong(d)
+				if pH is None: break
+				pD = view.DconvertG(grid.GconvertH(pH))
+				color = settings.colorcodes[self.carry]
+				ptext.draw(self.carry, center = pD, color = color,
+					fontsize = view.DscaleG(0.7), owidth = 2)
+				d += 3
+				
 	def info(self):
 		return [
 			f"length: {len(self.pHs) - 1}",
@@ -153,7 +186,7 @@ def resolvenetwork():
 		suppliers = nsuppliers
 
 
-board = { pH: None for pH in grid.Hrect(60) }
+board = { pH: None for pH in grid.Hrect(20) }
 
 tubes = []
 planets = []
