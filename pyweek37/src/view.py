@@ -1,4 +1,4 @@
-import pygame
+import pygame, math
 from . import pview, settings, grid
 
 def init():
@@ -15,10 +15,23 @@ def init():
 xG0, yG0 = 0, 0
 VscaleG = 100  # VscaleG
 
-def scoot(dx, dy):
+def scootD(dx, dy):
 	global xG0, yG0
-	xG0 += 600 * dx / VscaleG
-	yG0 += 600 * dy / VscaleG
+	xG0 += dx / VscaleG
+	yG0 -= dy / VscaleG
+
+def zoom(dz, pDanchor = None):
+	global xG0, yG0, VscaleG
+	if dz == 0: return
+	xV0, yV0 = pview.center
+	xVanchor, yVanchor = VconvertD(pDanchor or pview.center)
+	oldVscaleG = VscaleG
+	VscaleG *= 1.2 ** dz
+	VscaleG = math.clamp(VscaleG, 10, 200)
+	# xG(xVanchor) = xG0 + (xVanchor - xV0) / VscaleG is a constant
+	# oldxG0 + (xVanchor - xV0) / oldVscaleG = xG0 + (xVanchor - xV0) / VscaleG0
+	xG0 += (xVanchor - xV0) * (1 / oldVscaleG - 1 / VscaleG)
+	yG0 -= (yVanchor - yV0) * (1 / oldVscaleG - 1 / VscaleG)
 
 def VconvertG(pG):
 	xV0, yV0 = pview.center

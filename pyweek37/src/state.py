@@ -38,15 +38,49 @@ class Planet:
 class Tube:
 	def __init__(self, pH0):
 		self.pHs = [pH0]
+		self.built = False
 		self.forward = True
 		self.carry = ""
 		self.supplier = planetat(pH0)
 		self.consumer = None
 		self.supplied = False
+	# Does not account for adjacency.
+	def canplace(self, pH):
+		if pH in self.pHs:
+			return False
+		if isfree(pH):
+			return True
+		planet = planetat(pH)
+		if planet is None:
+			return False
+		if planet is self.supplier:
+			return False
+		return len(self.pHs) > 1
 	def nexts(self):
-		return [pH for pH in grid.HadjsH(self.pHs[-1]) if pH not in self.pHs and isfree(pH)]
+		return [pH for pH in grid.HadjsH(self.pHs[-1]) if self.canplace(pH)]
 	def cango(self, pH):
 		return pH in self.nexts()
+	def trybuild(self, pH):
+		if self.cango(pH):
+			self.add(pH)
+			return True
+		return False
+	# Click interface. Either add to the end or remove the end.
+	def tryclick(self, pH):
+		if self.trybuild(pH):
+			return True
+		if len(self.pHs) > 1 and pH == self.pHs[-1]:
+			self.pHs.pop()
+			return True
+		return False
+	# Drag interface. Either add to the end or back up 1.
+	def trydrag(self, pH):
+		if self.trybuild(pH):
+			return True
+		if len(self.pHs) > 1 and pH == self.pHs[-2]:
+			self.pHs.pop()
+			return True
+		return False
 	def flip(self):
 		self.forward = False
 		self.supplier, self.consumer = self.consumer, self.supplier
@@ -63,6 +97,7 @@ class Tube:
 		self.pHs.append(pH)
 		if planetat(pH):
 			self.consumer = planetat(pH)
+			self.built = True
 	def draw(self, glow = False):
 		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]
 		color = settings.colors.get(self.carry, (160, 160, 160))
@@ -153,6 +188,15 @@ def addtube(tube):
 	tube.consumer.tubes.append(tube)
 	tube.togglecarry()
 	tubes.append(tube)
+	resolvenetwork()
+
+def removetube(tube):
+	for pH in tube.pHs:
+		if board[pH] is tube:
+			board[pH] = None
+	tube.supplier.tubes.remove(tube)
+	tube.consumer.tubes.remove(tube)
+	tubes.remove(tube)
 	resolvenetwork()
 
 def isfree(pH):

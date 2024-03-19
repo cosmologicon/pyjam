@@ -9,8 +9,10 @@ def init():
 	global building, selected
 	building = None
 	selected = None
-	state.addplanet((0, 0), has = {"R": 1, "O": 1, "Y": 1})
-	for j in range(1, 100):
+	state.addplanet((0, 1), has = {"R": 1 })
+	state.addplanet((1, -1), has = {"O": 1 })
+	state.addplanet((-1, 0), has = {"Y": 1 })
+	for j in range(3, 100):
 		pG = math.CS(j * math.phyllo, r = 2 * math.sqrt(j))
 		pH = grid.HnearestG(pG)
 		ncolor = int(math.interp(j, 1, 3, 40, 6))
@@ -27,39 +29,48 @@ def init():
 	for pH in state.board:
 		if state.objat(pH) is None and random.random() < 0.2:
 			state.addrock(pH)
-		
-#	state.addplanet((4, -1), needs = {"A": 1}, has = {"B": 1})
-#	state.addplanet((-3, -2), needs = {"A": 1, "B": 1})
-#	state.addplanet((-2, 5))
 	state.resolvenetwork()
 
 def think(dt):
 	global building, selected
 	pHcursor = grid.HnearestG(view.GconvertD(control.posD))
-	if control.mclick:
-		if state.planetat(pHcursor) and building is None:
-			building = state.Tube(pHcursor)
-			selected = None
 	if control.click:
 		if building is not None:
-			if building.cango(pHcursor):
-				building.add(pHcursor)
-			elif state.planetat(pHcursor):
-				building.add(pHcursor)
+			building.tryclick(pHcursor)
+			if building.built:
 				state.addtube(building)
 				building = None
 		else:
 			selected = state.objat(pHcursor)
+	if control.mclick:
+		if state.planetat(pHcursor) and building is None:
+			building = state.Tube(pHcursor)
+			selected = None
+	if control.dragfrom is not None and building is None:
+		dragfromH = grid.HnearestG(view.GconvertD(control.dragfrom))
+		if state.planetat(dragfromH):
+			building = state.Tube(dragfromH)
+			selected = None
+	if any(control.dragD) and building is not None:
+		building.trydrag(pHcursor)
+		if building.built:
+			state.addtube(building)
+			building = None
 	if control.rclick:
 		building = None
+		selected = None
 	if isinstance(selected, state.Tube):
 		if pygame.K_TAB in control.kdowns:
 			selected.flip()
 		if pygame.K_LSHIFT in control.kdowns:
 			selected.togglecarry()
-	dx = (control.kpressed["right"] - control.kpressed["left"]) * dt
-	dy = (control.kpressed["up"] - control.kpressed["down"]) * dt
-	view.scoot(dx, dy)
+		if "remove" in control.kdowns:
+			state.removetube(selected)
+	dx = 600 * (control.kpressed["right"] - control.kpressed["left"]) * dt
+	dy = 600 * (control.kpressed["down"] - control.kpressed["up"]) * dt
+	view.scootD(dx, dy)
+	view.scootD(-control.mdragD[0], -control.mdragD[1])
+	view.zoom(control.dwheel, control.posD)
 
 
 def draw():

@@ -10,6 +10,7 @@ keys = {
 	"right": [pygame.K_RIGHT, pygame.K_d, pygame.K_e],
 	"down": [pygame.K_DOWN, pygame.K_s, pygame.K_o],
 	"act": [pygame.K_SPACE, pygame.K_RETURN],
+	"remove": [pygame.K_BACKSPACE, pygame.K_DELETE],
 }
 
 
