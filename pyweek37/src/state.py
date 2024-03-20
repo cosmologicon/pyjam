@@ -1,5 +1,6 @@
 import random, pygame, math
 from collections import defaultdict, Counter
+from functools import cache
 from . import settings, grid, view, pview, ptext
 
 def cycle_opts(value, values, reverse = False):
@@ -14,44 +15,82 @@ def drawsymbolat(symbol, pD, fontsizeG, dim = 0):
 	ptext.draw(symbol, center = pD, color = color,
 		fontsize = view.DscaleG(fontsizeG), owidth = 2)
 
+# s1 <= s2 for multisets as lists
+@cache
+def issubset(s1, s2):
+	return all(s1.count(c) <= s2.count(c) for c in s1)
+@cache
+def removesymbols(s1, s2):
+	s = Counter(s1)
+	for c in s2:
+		s[c] -= 1
+	return "".join(c * n for c, n in sorted(s.items()))
+assert removesymbols("aabaacc", "abca") == "aac"
+
 
 class Planet:
 	def __init__(self, pH, has, needs):
 		self.pH = pH
-		self.has = has
-		self.needs = needs
+		self.supply = "".join(sorted(has.keys()))
+		self.demand = "".join(sorted(needs.keys()))
 		self.tubes = []
-		self.netsupply = defaultdict(int)
+		self.supplied = False
 		self.t = 0
+		self.exports = ""
+	# Update the planet's supplied bit and imports/exports based on the resources coming in.
+	# Returns whether the planet's exports have changed.
+	def checksupply(self):
+		exports = self.exports
+		self.imports = "".join(sorted((tube.supplyto(self) or "") for tube in self.tubes))
+		self.supplied = issubset(self.demand, self.imports)
+		if self.supplied:
+			self.exports = removesymbols(self.supply + self.imports, self.demand)
+		else:
+			self.exports = ""
+		return self.exports != exports
+	# For a newly created tube, recommend an export. Does not claim said export.
+	def firstexport(self, consumer):
+		if not self.exports:
+			return ""
+		wanted = removesymbols(consumer.demand, consumer.imports)
+		if not wanted:
+			return self.exports[0]
+		for export in self.exports:
+			if export in wanted:
+				return export
+		return self.exports[0]
+	# For a tube for which this is the supplier, try to claim an export.
+	# Returns whether successful.
+	def tryclaim(self, symbol):
+		if symbol in self.exports:
+			self.exports = removesymbols(self.exports, symbol)
+			return True
+		return False
 	def think(self, dt):
 		self.t += dt
 	def draw(self, glow = False):
 		if not self.pH in visible:
 			return
 		xG, yG = grid.GconvertH(self.pH)
-		supplied = all(self.netsupply.get(x, 0) >= self.needs[x] for x in self.needs)
-		color = (180, 180, 180) if supplied else (60, 60, 60)
+		color = (180, 180, 180) if self.supplied else (60, 60, 60)
 		color = math.imix(color, (255, 255, 255), 0.5) if glow else color
 		pygame.draw.circle(pview.screen, color, view.DconvertG((xG, yG)), view.DscaleG(0.4))
-		for j, symbol in enumerate(sorted(self.needs.keys())):
-			dim = 0.9 if self.netsupply[symbol] < 0 else 0
-			dim = 0
+		for j, symbol in enumerate(reversed(self.demand)):
+			dim = 0.7 if symbol in self.imports else 0
 			drawsymbolat(symbol, view.DconvertG((xG - 0.1 - 0.25 * j, yG + 0.3)), 0.5, dim)
-		for j, symbol in enumerate(sorted(self.has.keys())):
-			dim = 0.9 if self.netsupply[symbol] > 0 else 0
-			dim = 0
+		for j, symbol in enumerate(self.supply):
+			dim = 0 if self.supplied else 0.7
 			drawsymbolat(symbol, view.DconvertG((xG + 0.1 + 0.25 * j, yG - 0.3)), 0.5, dim)
 		
 	def info(self):
-		lines = [f"pos: {self.pH}"]
-		if self.has:
-			hastext = " ".join(f"{n}{x}" for x, n in sorted(self.has.items()))
-			lines.append(f"has: {hastext}")
-		if self.needs:
-			needstext = " ".join(f"{n}{x}" for x, n in sorted(self.needs.items()))
-			lines.append(f"needs: {needstext}")
-		supplied = all(self.netsupply.get(x, 0) >= self.needs[x] for x in self.needs)
-		lines.append(f"supplied: {supplied}")
+		return [
+			f"pos: {self.pH}",
+			f"imports: {self.imports}",
+			f"demand: {self.demand}",
+			f"supply: {self.supply}",
+			f"exports: {self.exports}",
+			f"supplied: {self.supplied}",
+		]
 		return lines
 
 class Tube:
@@ -131,15 +170,25 @@ class Tube:
 	def flip(self):
 		self.forward = False
 		self.supplier, self.consumer = self.consumer, self.supplier
-		self.carry = ""
-		self.togglecarry()
 		resolvenetwork()
+	def initializecarry(self):
+		self.carry = self.supplier.firstexport(self.consumer)
 	def togglecarry(self):
-		cancarry = ["", self.carry]
-		cancarry += [x for x, n in self.supplier.netsupply.items() if n > 0]
-		cancarry = sorted(set(cancarry))
+		cancarry = [""] + sorted(set(self.supplier.exports))
 		self.carry = cycle_opts(self.carry, cancarry)
 		resolvenetwork()
+	# What resource, if any, do I supply to this planet?
+	def supplyto(self, planet):
+		return self.carry if planet is self.consumer and self.carry else None
+	# Update the supplied bit.
+	# Returns whether the claim is newly successful.
+	def tryclaim(self):
+		if not self.carry:
+			return False
+		if self.supplied:
+			return False
+		self.supplied = self.supplier.tryclaim(self.carry)
+		return self.supplied
 	def draw(self, glow = False):
 		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]
 		color = settings.colorcodes.get(self.carry, (160, 160, 160))
@@ -180,30 +229,22 @@ class Rock:
 		return ["Just a rock."]
 
 def resolvenetwork():
-	for planet in planets:
-		planet.netsupply = defaultdict(int)
-		for x, n in planet.has.items():
-			planet.netsupply[x] += n
+	# Shut down everything.
 	for tube in tubes:
 		tube.supplied = False
-	suppliers = list(planets)
-	while True:
-		updated = False
-		nsuppliers = []
+	for planet in planets:
+		planet.checksupply()
+	# Planets with unaccounted for exports.
+	suppliers = [planet for planet in planets if planet.exports]
+	while suppliers:
+		newsuppliers = []
 		for planet in suppliers:
 			for tube in planet.tubes:
-				if tube.supplied: continue
 				if planet is not tube.supplier: continue
-				if planet.netsupply[tube.carry] <= 0: continue
-				tube.supplied = True
-				tube.consumer.netsupply[tube.carry] += 1
-				planet.netsupply[tube.carry] -= 1
-				if tube.consumer not in nsuppliers:
-					nsuppliers.append(tube.consumer)
-				updated = True
-		if not updated:
-			break
-		suppliers = nsuppliers
+				if not tube.tryclaim(): continue
+				if tube.consumer not in newsuppliers:
+					newsuppliers.append(tube.consumer)
+		suppliers = newsuppliers
 
 
 board = { pH: None for pH in grid.Hrect(20) }
@@ -241,7 +282,7 @@ def addtube(tube):
 			board[pH] = tube
 	tube.supplier.tubes.append(tube)
 	tube.consumer.tubes.append(tube)
-	tube.togglecarry()
+	tube.initializecarry()
 	tubes.append(tube)
 	resolvenetwork()
 
