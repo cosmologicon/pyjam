@@ -1,7 +1,7 @@
 import random, pygame, math
 from collections import defaultdict, Counter
 from functools import cache
-from . import settings, grid, view, pview, ptext
+from . import settings, grid, view, pview, ptext, graphics, hud
 
 def cycle_opts(value, values, reverse = False):
 	if value not in values:
@@ -9,11 +9,6 @@ def cycle_opts(value, values, reverse = False):
 	j = values.index(value)
 	return values[(j + (-1 if reverse else 1)) % len(values)]
 
-
-def drawsymbolat(symbol, pD, fontsizeG, dim = 0):
-	color = math.imix(settings.colorcodes[symbol], (0, 0, 0), dim)
-	ptext.draw(symbol, center = pD, color = color,
-		fontsize = view.DscaleG(fontsizeG), owidth = 2)
 
 # s1 <= s2 for multisets as lists
 @cache
@@ -27,6 +22,11 @@ def removesymbols(s1, s2):
 	return "".join(c * n for c, n in sorted(s.items()))
 assert removesymbols("aabaacc", "abca") == "aac"
 
+@cache
+def symbollit(symbols, lits):
+	s = Counter(symbols)
+	l = Counter(lits)
+	return [(c, j < l[c]) for c, n in sorted(s.items()) for j in range(n)]
 
 class Planet:
 	def __init__(self, pH, has, needs):
@@ -43,10 +43,8 @@ class Planet:
 		exports = self.exports
 		self.imports = "".join(sorted((tube.supplyto(self) or "") for tube in self.tubes))
 		self.supplied = issubset(self.demand, self.imports)
-		if self.supplied:
-			self.exports = removesymbols(self.supply + self.imports, self.demand)
-		else:
-			self.exports = ""
+		self.exports0 = removesymbols(self.supply + self.imports, self.demand)
+		self.exports = self.exports0 if self.supplied else ""
 		return self.exports != exports
 	# For a newly created tube, recommend an export. Does not claim said export.
 	def firstexport(self, consumer):
@@ -76,11 +74,19 @@ class Planet:
 		color = math.imix(color, (255, 255, 255), 0.5) if glow else color
 		pygame.draw.circle(pview.screen, color, view.DconvertG((xG, yG)), view.DscaleG(0.4))
 		for j, symbol in enumerate(reversed(self.demand)):
-			dim = 0.7 if symbol in self.imports else 0
-			drawsymbolat(symbol, view.DconvertG((xG - 0.1 - 0.25 * j, yG + 0.3)), 0.5, dim)
-		for j, symbol in enumerate(self.supply):
-			dim = 0 if self.supplied else 0.7
-			drawsymbolat(symbol, view.DconvertG((xG + 0.1 + 0.25 * j, yG - 0.3)), 0.5, dim)
+			beta = 0.3 if symbol in self.imports else 1
+			beta *= hud.factor(symbol, "import")
+			pG = xG - 0.1 - 0.25 * j, yG + 0.3
+			graphics.drawsymbolat(symbol, view.DconvertG(pG), 0.5, beta)
+		if not self.supplied:
+			symbols = [(symbol, False) for symbol in self.supply]
+		else:
+			symbols = symbollit(self.exports0, self.exports)
+		for j, (symbol, lit) in enumerate(symbols):
+			beta = 1 if lit else 0.3
+			beta *= hud.factor(symbol, "export")
+			pG = xG + 0.1 + 0.25 * j, yG - 0.3
+			graphics.drawsymbolat(symbol, view.DconvertG(pG), 0.5, beta)
 		
 	def info(self):
 		return [
@@ -88,6 +94,7 @@ class Planet:
 			f"imports: {self.imports}",
 			f"demand: {self.demand}",
 			f"supply: {self.supply}",
+			f"exports0: {self.exports0}",
 			f"exports: {self.exports}",
 			f"supplied: {self.supplied}",
 		]
@@ -179,13 +186,11 @@ class Tube:
 		resolvenetwork()
 	# What resource, if any, do I supply to this planet?
 	def supplyto(self, planet):
-		return self.carry if planet is self.consumer and self.carry else None
+		return self.carry if planet is self.consumer and self.supplied and self.carry else None
 	# Update the supplied bit.
 	# Returns whether the claim is newly successful.
 	def tryclaim(self):
 		if not self.carry:
-			return False
-		if self.supplied:
 			return False
 		self.supplied = self.supplier.tryclaim(self.carry)
 		return self.supplied
@@ -204,7 +209,8 @@ class Tube:
 				pH = self.pHalong(d)
 				if pH is None: break
 				pD = view.DconvertG(grid.GconvertH(pH))
-				drawsymbolat(self.carry, pD, 0.7)
+				beta = hud.factor(self.carry, "tube")
+				graphics.drawsymbolat(self.carry, pD, 0.7, beta)
 				d += 3
 				
 	def info(self):
@@ -239,6 +245,7 @@ def resolvenetwork():
 	while suppliers:
 		newsuppliers = []
 		for planet in suppliers:
+			planet.checksupply()
 			for tube in planet.tubes:
 				if planet is not tube.supplier: continue
 				if not tube.tryclaim(): continue

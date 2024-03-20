@@ -1,7 +1,7 @@
 import pygame, math, random
 from collections import Counter
 from functools import cache
-from . import control, view, grid, state, settings
+from . import control, view, grid, state, settings, hud
 from . import pview, ptext
 from .pview import T
 
@@ -50,6 +50,7 @@ def init():
 			if math.fuzz(1, *pH) < 0.35:
 				state.addrock(pH)
 	state.resolvenetwork()
+	hud.init()
 
 def think(dt):
 	global building, selected
@@ -95,6 +96,7 @@ def think(dt):
 		tube.think(dt)
 	for planet in state.planets:
 		planet.think(dt)
+	hud.think(dt)
 
 
 def draw():
@@ -122,6 +124,8 @@ def draw():
 		planet.draw(glow = planet is selected)
 	if building is not None:
 		building.draw(glow = True)
+
+	hud.draw()
 
 	lines = [
 		"Tab: switch selected tube flow",
