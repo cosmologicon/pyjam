@@ -9,10 +9,15 @@ def cycle_opts(value, values, reverse = False):
 	return values[(j + (-1 if reverse else 1)) % len(values)]
 
 
+def drawsymbolat(symbol, pD, fontsizeG, dim = 0):
+	color = math.imix(settings.colorcodes[symbol], (0, 0, 0), dim)
+	ptext.draw(symbol, center = pD, color = color,
+		fontsize = view.DscaleG(fontsizeG), owidth = 2)
+
+
 class Planet:
 	def __init__(self, pH, has, needs):
 		self.pH = pH
-		self.color = [random.randint(60, 120) for _ in range(3)]
 		self.has = has
 		self.needs = needs
 		self.tubes = []
@@ -21,13 +26,22 @@ class Planet:
 	def think(self, dt):
 		self.t += dt
 	def draw(self, glow = False):
+		if not self.pH in visible:
+			return
 		xG, yG = grid.GconvertH(self.pH)
 		supplied = all(self.netsupply.get(x, 0) >= self.needs[x] for x in self.needs)
 		color = (180, 180, 180) if supplied else (60, 60, 60)
 		color = math.imix(color, (255, 255, 255), 0.5) if glow else color
 		pygame.draw.circle(pview.screen, color, view.DconvertG((xG, yG)), view.DscaleG(0.4))
-		ptext.draw("\n".join(self.info()), center = view.DconvertG((xG, yG)),
-			fontsize = view.DscaleG(0.4), owidth = 1)
+		for j, symbol in enumerate(sorted(self.needs.keys())):
+			dim = 0.9 if self.netsupply[symbol] < 0 else 0
+			dim = 0
+			drawsymbolat(symbol, view.DconvertG((xG - 0.1 - 0.25 * j, yG + 0.3)), 0.5, dim)
+		for j, symbol in enumerate(sorted(self.has.keys())):
+			dim = 0.9 if self.netsupply[symbol] > 0 else 0
+			dim = 0
+			drawsymbolat(symbol, view.DconvertG((xG + 0.1 + 0.25 * j, yG - 0.3)), 0.5, dim)
+		
 	def info(self):
 		lines = [f"pos: {self.pH}"]
 		if self.has:
@@ -68,17 +82,23 @@ class Tube:
 		for pH in grid.HadjsH(self.pHs[-1]):
 			if pH in self.pHs:
 				continue
-			obj = objat(pH)
-			if obj is None:
+			if isfree(pH):
 				yield pH
-			elif isinstance(obj, Planet):
+				continue
+			obj = objat(pH)
+			if isinstance(obj, Planet):
 				if obj is not self.supplier and len(self.pHs) > 1:
 					yield pH
 			elif isinstance(obj, Tube):
-				if obj.straights[pH]:
-					pH2 = tuple(grid.HpastH(self.pHs[-1], pH))
-					if isfree(pH2) and pH2 not in self.pHs:
-						yield pH2
+				if not obj.straights[pH]:
+					continue
+				pH2 = tuple(grid.HpastH(self.pHs[-1], pH))
+				if pH2 in self.pHs:
+					continue
+				if isfree(pH2):
+					yield pH2
+				elif planetat(pH2) not in [None, self.supplier]:
+					yield pH2
 	def cango(self, pH):
 		return pH in self.nexts()
 	def trybuild(self, pH):
@@ -135,9 +155,7 @@ class Tube:
 				pH = self.pHalong(d)
 				if pH is None: break
 				pD = view.DconvertG(grid.GconvertH(pH))
-				color = settings.colorcodes[self.carry]
-				ptext.draw(self.carry, center = pD, color = color,
-					fontsize = view.DscaleG(0.7), owidth = 2)
+				drawsymbolat(self.carry, pD, 0.7)
 				d += 3
 				
 	def info(self):
@@ -152,6 +170,8 @@ class Rock:
 	def __init__(self, pH):
 		self.pH = pH
 	def draw(self, glow = False):
+		if not self.pH in visible:
+			return
 		xG, yG = grid.GconvertH(self.pH)
 		color = (50, 50, 50)
 		color = math.imix(color, (255, 255, 255), 0.5) if glow else color
@@ -187,6 +207,8 @@ def resolvenetwork():
 
 
 board = { pH: None for pH in grid.Hrect(20) }
+R = 10
+visible = set(pH for pH in board if math.length(grid.GconvertH(pH)) <= R)
 
 tubes = []
 planets = []
@@ -233,13 +255,17 @@ def removetube(tube):
 	resolvenetwork()
 
 def isfree(pH):
-	return pH in board and board[pH] is None
+	return pH in visible and board[pH] is None
 
 def planetat(pH):
+	if pH not in visible:
+		return None
 	obj = board.get(pH)
 	return obj if isinstance(obj, Planet) else None
 
 def objat(pH):
+	if pH not in visible:
+		return None
 	return board.get(pH)
 
 

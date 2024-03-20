@@ -36,8 +36,8 @@ def init():
 	state.addplanet((0, 1), has = {"R": 1 })
 	state.addplanet((1, -1), has = {"O": 1 })
 	state.addplanet((-1, 0), has = {"Y": 1 })
-	for j in range(3, 100):
-		pG = math.CS(j * math.phyllo, r = 2 * math.sqrt(j))
+	for j in range(4, 100):
+		pG = math.CS(j * math.phyllo, r = 1.5 * math.sqrt(j))
 		pH = grid.HnearestG(pG)
 		hasvalue = int(math.interp(j, 1, 1, 60, 4))
 		needsvalue = int(math.interp(j, 1, 1, 80, 4))
