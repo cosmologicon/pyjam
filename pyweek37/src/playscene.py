@@ -102,6 +102,7 @@ def draw():
 #		graphics.outlineH(planet.pH)
 	if building is not None:
 		building.draw(glow = True)
+	graphics.renderqueue()
 
 	graphics.drawsand()
 

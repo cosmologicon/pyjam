@@ -20,8 +20,19 @@ def img0(iname, scale = 1, mask = None):
 		img.blit(maskimg, (0, 0), None, pygame.BLEND_RGBA_MULT)
 	return img
 
+
+imgqueue = []
+def renderqueue():
+	def qkey(item):
+		img, (xD, yD) = item
+		return yD
+	imgqueue.sort(key = qkey)
+	for img, pD in imgqueue:
+		pview.screen.blit(img, img.get_rect(center = pD))
+	del imgqueue[:]
+
 def drawimgat(img, pD):
-	pview.screen.blit(img, img.get_rect(center = pD))
+	imgqueue.append((img, pD))
 
 def outlineH(pH):
 	pDs = [view.DconvertG(pG) for pG in grid.GoutlineH(pH)]
@@ -35,14 +46,28 @@ def drawsymbolatD(symbol, pD, fontsizeD, beta = 1):
 def drawsymbolat(symbol, pD, fontsizeG, beta = 1):
 	drawsymbolatD(symbol, pD, view.DscaleG(fontsizeG), beta)
 
-def drawdomeat(pG):
+def drawdomeatG(pG):
 	scale = pview.f * view.VscaleG / 400
 	drawimgat(img0("dome", scale = scale, mask = (80, 100, 100)), view.DconvertG(pG))
 
-def drawtubeat(pG, mask, jbeta0, jbeta1):
+def drawtubeatG(pG, mask, jbeta0, jbeta1):
 	scale = pview.f * view.VscaleG / 400
 	drawimgat(img0(f"tube-{jbeta0}-{jbeta1}", scale = scale, mask = mask), view.DconvertG(pG))
+
+def drawdockatG(pG, jbeta):
+	scale = pview.f * view.VscaleG / 400
+	drawimgat(img0(f"dock-{jbeta}", scale = scale), view.DconvertG(pG))
+
 	
+def drawdomeatH(pH):
+	drawdomeatG(grid.GconvertH(pH))
+
+def drawtubeatH(pH, mask, jbeta0, jbeta1):
+	drawtubeatG(grid.GconvertH(pH), mask, jbeta0, jbeta1)
+
+def drawdockatH(pH, jbeta):
+	drawdockatG(grid.GconvertH(pH), jbeta)
+
 
 @cache
 def groundimg0():

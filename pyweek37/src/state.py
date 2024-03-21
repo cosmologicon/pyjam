@@ -74,7 +74,7 @@ class Planet:
 	def think(self, dt):
 		self.t += dt
 	def draw(self, glow = False):
-		graphics.drawdomeat(grid.GconvertH(self.pH))
+		graphics.drawdomeatH(self.pH)
 #		pygame.draw.circle(pview.screen, (255, 0, 255), view.DconvertG(grid.GconvertH(self.pH)), 3)
 	def draw_old(self, glow = False):
 		if not self.pH in visible:
@@ -213,9 +213,14 @@ class Tube:
 		color = settings.colorcodes.get(self.carry, (160, 160, 160))
 		mix = (255, 255, 255) if glow else (0, 0, 0)
 		color = math.imix(color, mix, 0.5)
+		if self.dirs:
+			pH = math.mix(self.pHs[0], self.pHs[1], 0.5)
+			graphics.drawdockatH(pH, self.dirs[0])
+		if self.dirs:
+			pH = math.mix(self.pHs[-2], self.pHs[-1], 0.5)
+			graphics.drawdockatH(pH, (self.dirs[-1] + 3) % 6)
 		for j in range(len(self.dirs) - 1):
-			pG = grid.GconvertH(self.pHs[j+1])
-			graphics.drawtubeat(pG, color, self.dirs[j], self.dirs[j+1])
+			graphics.drawtubeatH(self.pHs[j+1], color, self.dirs[j], self.dirs[j+1])
 		if self.carry and self.supplied:
 			d = self.supplier.t * 3 % 3
 			while True:
