@@ -31,16 +31,16 @@ def isrowH(pH0, pH1, pH2):
 def HpastH(pH0, pH1):
 	xH0, yH0 = pH0
 	xH1, yH1 = pH1
-	return [2 * xH1 - xH0, 2 * yH1 - yH0]
+	return 2 * xH1 - xH0, 2 * yH1 - yH0
 
 
 def GconvertH(pH):
 	xH, yH = pH
-	return [xH, (yH + 0.5 * xH) / s]
+	return xH, (yH + 0.5 * xH) / s
 
 def HconvertG(pG):
 	xG, yG = pG
-	return [xG, yG * s - 0.5 * xG]
+	return xG, yG * s - 0.5 * xG
 
 def HnearestHG(pH, pG):
 	xH, yH = pH

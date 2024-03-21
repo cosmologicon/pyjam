@@ -29,10 +29,10 @@ def symbollit(symbols, lits):
 	return [(c, j < l[c]) for c, n in sorted(s.items()) for j in range(n)]
 
 class Planet:
-	def __init__(self, pH, has, needs):
+	def __init__(self, pH, supply, demand):
 		self.pH = pH
-		self.supply = "".join(sorted(has.keys()))
-		self.demand = "".join(sorted(needs.keys()))
+		self.supply = "".join(sorted(supply))
+		self.demand = "".join(sorted(demand))
 		self.tubes = []
 		self.supplied = False
 		self.t = 0
@@ -189,6 +189,7 @@ class Tube:
 		self.carry = self.supplier.firstexport(self.consumer)
 	def togglecarry(self):
 		cancarry = [""] + sorted(set(self.supplier.exports))
+		print(f"cancarry {cancarry}, self.carry {self.carry}, {cycle_opts(self.carry, cancarry)}")
 		self.carry = cycle_opts(self.carry, cancarry)
 		resolvenetwork()
 	# What resource, if any, do I supply to this planet?
@@ -252,9 +253,13 @@ def resolvenetwork():
 		suppliers = newsuppliers
 
 
-board = { pH: None for pH in grid.Hrect(20) }
-R = 5
-visible = set(pH for pH in board if math.length(grid.GconvertH(pH)) <= R)
+board = { pH: None for pH in grid.Hrect(40) }
+visible = set()
+
+def setvisibility(R):
+	global visible
+	visible = set(pH for pH in board if math.length(grid.GconvertH(pH)) <= R)
+	
 
 tubes = []
 planets = []
@@ -266,19 +271,19 @@ def addrock(pH):
 	rocks.append(rock)
 	board[pH] = rock
 
-def addplanet(pH, has=None, needs=None):
-	planet = Planet(pH, (has or {}), (needs or {}))
+def addplanet(pH, supply="", demand = ""):
+	planet = Planet(pH, supply, demand)
 	planets.append(planet)
 	board[pH] = planet
 
-def addrandomplanet(pH, ncolor, nhas, nneeds):
-	if nhas + nneeds > ncolor:
+def addrandomplanet(pH, ncolor, nsupply, ndemand):
+	if nsupply + ndemand > ncolor:
 		raise ValueError
 	colors = list("ROYGBV"[:ncolor])
 	random.shuffle(colors)
-	has = dict(Counter(colors[:nhas]))
-	needs = dict(Counter(colors[nhas:nhas+nneeds]))
-	addplanet(pH, has, needs)
+	supply = colors[:nsupply]
+	demand = colors[nsupply:nsupply+ndemand]
+	addplanet(pH, supply, demand)
 
 
 def addtube(tube):

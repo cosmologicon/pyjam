@@ -192,6 +192,7 @@ def fuzzshuffle(values, *args):
 		k = j + int(fuzz(j, *args) * (len(values) - j))
 		if j != k:
 			values[j], values[k] = values[k], values[j]
+	return values
 
 # Add to math module
 _globals = dict(globals())

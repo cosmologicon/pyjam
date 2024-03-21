@@ -1,45 +1,8 @@
 import pygame, math, random
 from collections import Counter
-from functools import cache
-from itertools import cycle
-from . import control, view, grid, state, settings, hud
+from . import control, view, grid, state, settings, hud, generate
 from . import pview, ptext
 from .pview import T
-
-
-colorcosts = [1, 1, 1, 2, 2, 3]
-
-@cache
-def colorsets(cost, j0 = 0):
-	if cost == 0:
-		return [[]]
-	if j0 >= len(colorcosts):
-		return []
-	ret = list(colorsets(cost, j0 + 1))
-	if colorcosts[j0] <= cost:
-		ret += [[j0] + cset for cset in colorsets(cost - colorcosts[j0], j0 + 1)]
-	return ret
-
-def randomplanet(hasvalue, needsvalue, *seed):
-	for j in range(10000):
-		has = math.fuzzchoice(colorsets(hasvalue), j, 101, *seed)
-		needs = math.fuzzchoice(colorsets(needsvalue), j, 102, *seed)
-		if not(set(has) & set(needs)):
-			return [
-				{ settings.colors[x]: 1 for x in has },
-				{ settings.colors[x]: 1 for x in needs },
-			]
-
-def spiral():
-	for j in range(4, 100):
-		pG = math.CS(j * math.phyllo, r = 1.5 * math.sqrt(j))
-		pH = grid.HnearestG(pG)
-		hasvalue = int(math.interp(j, 1, 1, 60, 4))
-		needsvalue = int(math.interp(j, 1, 1, 80, 4))
-#		state.addrandomplanet(pH, ncolor, nhas, nneeds)
-		has, needs = randomplanet(hasvalue, needsvalue, j)
-		state.addplanet(pH, has = has, needs = needs)
-
 
 
 
@@ -47,22 +10,10 @@ def init():
 	global building, selected
 	building = None
 	selected = None
-	state.addplanet((0, 1), has = {"R": 1 })
-	state.addplanet((1, -1), has = {"O": 1 })
-	state.addplanet((-1, 0), has = {"Y": 1 })
-	pHs = list(state.board)
-	math.fuzzshuffle(pHs, 107)
-	opts = cycle(["R,O", "O,Y", "Y,R", "R,Y", "Y,O", "O,R"])
-	for pH in pHs:
-		if state.isfree(pH) and not any(state.planetat(pHadj) for pHadj in grid.HadjsH(pH)):
-			has, needs = next(opts).split()
-			state.addplanet(pH, has = {has: 1}, needs = {needs: 1})
-	
-	for pH in state.board:
-		if state.isfree(pH) and not any(state.planetat(pHadj) for pHadj in grid.HadjsH(pH)):
-			if math.fuzz(1, *pH) < 0.35:
-				state.addrock(pH)
-	state.resolvenetwork()
+	generate.phase1()
+	generate.phase2()
+	generate.phase3()
+#	generate.revealto(30)
 	hud.init()
 
 def think(dt):
@@ -90,6 +41,8 @@ def think(dt):
 		if building.built:
 			state.addtube(building)
 			building = None
+	if building is not None and "remove" in control.kdowns:
+		building = None
 	if control.rclick:
 		building = None
 		selected = None
@@ -100,6 +53,7 @@ def think(dt):
 			selected.togglecarry()
 		if "remove" in control.kdowns:
 			state.removetube(selected)
+			selected = None
 	dx = 600 * (control.kpressed["right"] - control.kpressed["left"]) * dt
 	dy = 600 * (control.kpressed["down"] - control.kpressed["up"]) * dt
 	view.scootD(dx, dy)
