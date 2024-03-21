@@ -1,6 +1,6 @@
 import pygame, math, random
 from collections import Counter
-from . import control, view, grid, state, settings, hud, generate
+from . import control, view, grid, state, settings, hud, generate, quest
 from . import pview, ptext
 from .pview import T
 
@@ -10,9 +10,15 @@ def init():
 	global building, selected
 	building = None
 	selected = None
-	generate.phase1()
-	generate.phase2()
-	generate.phase3()
+	quest.inittutorial()
+	generate.tutorial1()
+#	generate.tutorial2()
+#	generate.tutorial3()
+#	generate.tutorial4()
+#	generate.tutorial5()
+#	generate.phase1()
+#	generate.phase2()
+#	generate.phase3()
 #	generate.revealto(30)
 	hud.init()
 
@@ -64,6 +70,7 @@ def think(dt):
 	for planet in state.planets:
 		planet.think(dt)
 	hud.think(dt)
+	quest.think(dt)
 
 
 def draw():
@@ -94,6 +101,11 @@ def draw():
 		building.draw(glow = True)
 
 	hud.draw()
+
+	marquee = quest.marquee()
+	if marquee:
+		ptext.draw(marquee, width = T(800), midbottom = T(640, 690),
+			fontsize = T(40), shade = 1, owidth = 1)
 
 	lines = [
 		"Tab: switch selected tube flow",

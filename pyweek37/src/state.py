@@ -136,6 +136,8 @@ class Tube:
 			if pH in self.pHs:
 				continue
 			if isfree(pH):
+				if len(self.pHs) > 1 and grid.issharpH(self.pHs[-2], self.pHs[-1], pH):
+					continue
 				yield pH
 				continue
 			obj = objat(pH)
@@ -143,15 +145,16 @@ class Tube:
 				if obj is not self.supplier and len(self.pHs) > 1:
 					yield pH
 			elif isinstance(obj, Tube):
-				if not obj.straights[pH]:
-					continue
-				pH2 = tuple(grid.HpastH(self.pHs[-1], pH))
-				if pH2 in self.pHs:
-					continue
-				if isfree(pH2):
-					yield pH2
-				elif planetat(pH2) not in [None, self.supplier]:
-					yield pH2
+				if False:  # Crossing paths feature
+					if not obj.straights[pH]:
+						continue
+					pH2 = tuple(grid.HpastH(self.pHs[-1], pH))
+					if pH2 in self.pHs:
+						continue
+					if isfree(pH2):
+						yield pH2
+					elif planetat(pH2) not in [None, self.supplier]:
+						yield pH2
 	def cango(self, pH):
 		return pH in self.nexts()
 	def trybuild(self, pH):
@@ -255,15 +258,19 @@ def resolvenetwork():
 
 board = { pH: None for pH in grid.Hrect(40) }
 visible = set()
+tubes = []
+planets = []
+rocks = []
+
 
 def setvisibility(R):
 	global visible
 	visible = set(pH for pH in board if math.length(grid.GconvertH(pH)) <= R)
-	
 
-tubes = []
-planets = []
-rocks = []
+def addvisibility(R, pH0 = (0, 0)):
+	global visible
+	pG0 = grid.GconvertH(pH0)
+	visible |= set(pH for pH in board if math.distance(grid.GconvertH(pH), pG0) <= R)
 
 
 def addrock(pH):
@@ -313,6 +320,9 @@ def planetat(pH):
 		return None
 	obj = board.get(pH)
 	return obj if isinstance(obj, Planet) else None
+
+def allsupplied():
+	return all(planet.supplied for planet in planets)
 
 def objat(pH):
 	if pH not in visible:

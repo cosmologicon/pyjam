@@ -33,6 +33,13 @@ def HpastH(pH0, pH1):
 	xH1, yH1 = pH1
 	return 2 * xH1 - xH0, 2 * yH1 - yH0
 
+def issharpH(pH0, pH1, pH2):
+	xH0, yH0 = pH0
+	xH1, yH1 = pH1
+	xH2, yH2 = pH2
+	dG0 = GconvertH((xH1 - xH0, yH1 - yH0))
+	dG1 = GconvertH((xH2 - xH1, yH2 - yH1))
+	return math.dot(dG0, dG1) < 0
 
 def GconvertH(pH):
 	xH, yH = pH

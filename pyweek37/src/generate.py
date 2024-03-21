@@ -174,6 +174,54 @@ def phase3():
 	]
 	phase(13.0, 303, opts0, opts, 46)
 
+def tutorial1():
+	state.addvisibility(3, (-2, 1))
+	state.addvisibility(3, (2, -1))
+	state.addplanet((-2, 1), demand = "", supply = "R")
+	state.addplanet((2, -1), demand = "R", supply = "O")
+	state.resolvenetwork()
+
+def tutorial2():
+	state.addvisibility(4, (0, 4))
+	state.addplanet((0, 6), demand = "O", supply = "Y")
+	state.addplanet((2, 2), demand = "Y", supply = "R")
+	state.addplanet((-2, 4), demand = "R", supply = "G")
+	state.resolvenetwork()
+
+def tutorial3():
+	state.addvisibility(4, (-4, 5))
+	state.addplanet((-5, 7), demand = "G", supply = "O")
+	state.addplanet((-6, 9), demand = "O", supply = "Y")
+	state.addplanet((-5, 4), demand = "Y")
+	state.addrock((-7, 7))
+	state.addrock((-6, 7))
+	state.addrock((-4, 7))
+	state.addrock((-3, 7))
+	state.resolvenetwork()
+
+
+def tutorial4():
+	state.addvisibility(4.5, (6, 2))
+	state.addplanet((6, 2), demand = "ROY", supply = "GB")
+	state.addplanet((5, 1), demand = "", supply = "R")
+	state.addplanet((5, 4), demand = "", supply = "O")
+	state.addplanet((8, 1), demand = "", supply = "Y")
+	state.addplanet((7, 0), demand = "G", supply = "")
+	state.addplanet((7, 3), demand = "B", supply = "")
+	state.resolvenetwork()
+
+
+def tutorial5():
+	state.addvisibility(8.5, (12, -9))
+	state.addplanet((8, -4), demand = "", supply = "RRR")
+	state.addplanet((12, -6), demand = "", supply = "OOO")
+	state.addplanet((16, -8), demand = "", supply = "YYY")
+	state.addplanet((8, -10), demand = "ROY", supply = "")
+	state.addplanet((12, -12), demand = "ROY", supply = "")
+	state.addplanet((16, -14), demand = "ROY", supply = "")
+	state.resolvenetwork()
+
+
 if __name__ == "__main__":
 	import pygame
 	from . import pview, maff
