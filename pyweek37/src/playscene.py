@@ -10,8 +10,8 @@ def init():
 	global building, selected
 	building = None
 	selected = None
-	quest.inittutorial()
-	generate.tutorial1()
+	quest.init()
+#	generate.tutorial1()
 #	generate.tutorial2()
 #	generate.tutorial3()
 #	generate.tutorial4()
@@ -20,6 +20,9 @@ def init():
 #	generate.phase2()
 #	generate.phase3()
 #	generate.revealto(30)
+#	generate.ezphase1()
+#	generate.ezphase2()
+#	generate.ezphase3()
 	hud.init()
 
 def think(dt):

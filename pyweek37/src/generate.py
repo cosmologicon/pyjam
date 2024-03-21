@@ -127,6 +127,7 @@ def phase(R, seed, opts0, opts, planetmax):
 			break
 	print(len(state.planets))
 	state.resolvenetwork()
+	
 
 def phase1():
 	addcentral()
@@ -136,9 +137,8 @@ def phase1():
 		["R,Y", "Y,R"],
 	]
 	phase(6, 101, [], opts, 15)
-	
+
 def phase2():
-	visible0 = set(state.visible)
 	opts0 = ["G,RY", "R,G", "Y,G"]  # +1G
 	opts = [
 		["G,RY", "RY,G"],
@@ -173,6 +173,35 @@ def phase3():
 		["BO,GR", "GY,BO", "GR,BY", "B,G"],
 	]
 	phase(13.0, 303, opts0, opts, 46)
+
+def ezphase1():
+	addcentral()
+	opts0 = ["R,OY", "Y,OR", "O,YR"]
+	opts = [
+		["R,O", "O,R"],
+		["O,Y", "Y,O"],
+		["R,Y", "Y,R"],
+	]
+	phase(6.8, 402, opts0, opts, 12)
+
+def ezphase2():
+	visible0 = set(state.visible)
+	opts0 = ["G,RY", "R,G", "Y,G", "G,RO", "R,G", "O,G", "G,OY", "O,G", "Y,G"]  # +3G
+	opts = [
+		["R,O", "O,R"],
+		["O,Y", "Y,O"],
+		["R,Y", "Y,R"],
+	]
+	phase(10.5, 502, opts0, opts, 27)
+
+def ezphase3():
+	opts0 = ["B,RY", "R,B", "Y,B", "B,RO", "R,B", "O,B", "B,OY", "O,B", "Y,B"]  # +3B
+	opts = [
+		["B,G", "G,B"],
+	]
+	phase(16.5, 602, opts0, opts, 38)
+	
+
 
 def tutorial1():
 	state.addvisibility(3, (-2, 1))

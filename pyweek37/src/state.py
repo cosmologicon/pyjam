@@ -143,6 +143,8 @@ class Tube:
 			obj = objat(pH)
 			if isinstance(obj, Planet):
 				if obj is not self.supplier and len(self.pHs) > 1:
+					if grid.issharpH(self.pHs[-2], self.pHs[-1], pH):
+						continue
 					yield pH
 			elif isinstance(obj, Tube):
 				if False:  # Crossing paths feature
