@@ -1,6 +1,6 @@
 import pygame, math, random
 from collections import Counter
-from . import control, view, grid, state, settings, hud, generate, quest
+from . import control, view, grid, state, settings, hud, generate, quest, graphics
 from . import pview, ptext
 from .pview import T
 
@@ -77,11 +77,11 @@ def think(dt):
 
 
 def draw():
-	pview.fill((0, 0, 12))
+	graphics.drawground()
 	pygame.draw.circle(pview.screen, (255, 200, 128), control.posD, 3)
 
 	pHcursor = grid.HnearestG(view.GconvertD(control.posD))
-	if True:
+	if False:
 		for pH in state.visible:
 			if not state.isfree(pH): continue
 			pD = view.DconvertG(grid.GconvertH(pH))
@@ -102,6 +102,8 @@ def draw():
 		planet.draw(glow = planet is selected)
 	if building is not None:
 		building.draw(glow = True)
+
+	graphics.drawsand()
 
 	hud.draw()
 
