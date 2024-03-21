@@ -1,6 +1,6 @@
 import math, pygame, os.path
 from functools import cache
-from . import ptext, pview, view, settings
+from . import ptext, pview, view, settings, grid
 
 @cache
 def loadimg(filename):
@@ -23,6 +23,11 @@ def img0(iname, scale = 1, mask = None):
 def drawimgat(img, pD):
 	pview.screen.blit(img, img.get_rect(center = pD))
 
+def outlineH(pH):
+	pDs = [view.DconvertG(pG) for pG in grid.GoutlineH(pH)]
+	pygame.draw.lines(pview.screen, (0, 255, 255), True, pDs, 1)
+
+
 def drawsymbolatD(symbol, pD, fontsizeD, beta = 1):
 	color = math.imix((0, 0, 0), settings.colorcodes[symbol], beta)
 	ptext.draw(symbol, center = pD, color = color,
@@ -31,7 +36,13 @@ def drawsymbolat(symbol, pD, fontsizeG, beta = 1):
 	drawsymbolatD(symbol, pD, view.DscaleG(fontsizeG), beta)
 
 def drawdomeat(pG):
-	drawimgat(img0("dome", scale = view.VscaleG / 400, mask = (80, 100, 100)), view.DconvertG(pG))
+	scale = pview.f * view.VscaleG / 400
+	drawimgat(img0("dome", scale = scale, mask = (80, 100, 100)), view.DconvertG(pG))
+
+def drawtubeat(pG, mask, jbeta0, jbeta1):
+	scale = pview.f * view.VscaleG / 400
+	drawimgat(img0(f"tube-{jbeta0}-{jbeta1}", scale = scale, mask = mask), view.DconvertG(pG))
+	
 
 @cache
 def groundimg0():

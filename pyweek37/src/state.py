@@ -75,6 +75,7 @@ class Planet:
 		self.t += dt
 	def draw(self, glow = False):
 		graphics.drawdomeat(grid.GconvertH(self.pH))
+#		pygame.draw.circle(pview.screen, (255, 0, 255), view.DconvertG(grid.GconvertH(self.pH)), 3)
 	def draw_old(self, glow = False):
 		if not self.pH in visible:
 			return
@@ -99,7 +100,8 @@ class Planet:
 		
 	def info(self):
 		return [
-			f"pos: {self.pH}",
+			f"posH: {self.pH}",
+			f"posG: {grid.GconvertH(self.pH)}",
 			f"imports: {self.imports}",
 			f"demand: {self.demand}",
 			f"supply: {self.supply}",
@@ -119,10 +121,12 @@ class Tube:
 		self.consumer = None
 		self.supplied = False
 		self.t = 0
+		self.dirs = []
 	def think(self, dt):
 		self.t += dt
 	# Does not check for legality.
 	def add(self, pH):
+		self.dirs.append(grid.dirH(self.pHs[-1], pH))
 		self.pHs.append(pH)
 		if planetat(pH):
 			self.complete()
@@ -172,6 +176,7 @@ class Tube:
 			return True
 		if len(self.pHs) > 1 and pH == self.pHs[-1]:
 			self.pHs.pop()
+			self.dirs.pop()
 			return True
 		return False
 	# Drag interface. Either add to the end or back up 1.
@@ -180,6 +185,7 @@ class Tube:
 			return True
 		if len(self.pHs) > 1 and pH == self.pHs[-2]:
 			self.pHs.pop()
+			self.dirs.pop()
 			return True
 		return False
 	def pHalong(self, d):
@@ -203,6 +209,23 @@ class Tube:
 	def supplyto(self, planet):
 		return self.carry if planet is self.consumer and self.supplied and self.carry else None
 	def draw(self, glow = False):
+		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]
+		color = settings.colorcodes.get(self.carry, (160, 160, 160))
+		mix = (255, 255, 255) if glow else (0, 0, 0)
+		color = math.imix(color, mix, 0.5)
+		for j in range(len(self.dirs) - 1):
+			pG = grid.GconvertH(self.pHs[j+1])
+			graphics.drawtubeat(pG, color, self.dirs[j], self.dirs[j+1])
+		if self.carry and self.supplied:
+			d = self.supplier.t * 3 % 3
+			while True:
+				pH = self.pHalong(d)
+				if pH is None: break
+				pD = view.DconvertG(grid.GconvertH(pH))
+				beta = hud.factor(self.carry, "tube")
+				graphics.drawsymbolat(self.carry, pD, 0.7, beta)
+				d += 3
+	def draw_old(self, glow = False):
 		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]
 		color = settings.colorcodes.get(self.carry, (160, 160, 160))
 		mix = (255, 255, 255) if glow else (0, 0, 0)

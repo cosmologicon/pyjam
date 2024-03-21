@@ -13,8 +13,8 @@ def init():
 #   D: display coordinates
 
 xG0, yG0 = 0, 0
-VscaleG = 100  # VscaleG
-tilt = 0
+VscaleG = 100
+tilt = 0.15
 tip = 0.7
 
 def scootD(dx, dy):

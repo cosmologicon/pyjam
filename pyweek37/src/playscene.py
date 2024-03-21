@@ -91,8 +91,7 @@ def draw():
 				fontsize = view.DscaleG(0.6), owidth = 2)
 	if building is not None:
 		for nextpH in building.nexts():
-			pDs = [view.DconvertG(pG) for pG in grid.GoutlineH(nextpH)]
-			pygame.draw.lines(pview.screen, (0, 255, 255), True, pDs, 1)
+			graphics.outlineH(nextpH)
 
 	for rock in state.rocks:
 		rock.draw(glow = rock is selected)
@@ -100,6 +99,7 @@ def draw():
 		tube.draw(glow = tube is selected)
 	for planet in state.planets:
 		planet.draw(glow = planet is selected)
+#		graphics.outlineH(planet.pH)
 	if building is not None:
 		building.draw(glow = True)
 

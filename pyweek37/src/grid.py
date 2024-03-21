@@ -10,6 +10,7 @@ adjsH = [[0, 1], [1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1]]
 outlinedH = [[1/3, 1/3], [2/3, -1/3], [1/3, -2/3],
 	[-1/3, -1/3], [-2/3, 1/3], [-1/3, 2/3]]
 adjsetH = set((dx, dy) for dx, dy in adjsH)
+adjdirH = {(dx, dy): j for j, (dx, dy) in enumerate(adjsH)}
 
 def HadjsH(pH):
 	xH, yH = pH
@@ -19,6 +20,11 @@ def isadjH(pH0, pH1):
 	xH0, yH0 = pH0
 	xH1, yH1 = pH1
 	return (xH1 - xH0, yH1 - yH0) in adjsetH
+
+def dirH(pH0, pH1):
+	xH0, yH0 = pH0
+	xH1, yH1 = pH1
+	return adjdirH.get((xH1 - xH0, yH1 - yH0))
 
 # pH1 is the midpoint of the segment [pH0, pH2]
 def isrowH(pH0, pH1, pH2):

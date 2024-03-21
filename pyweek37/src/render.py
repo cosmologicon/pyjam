@@ -1,5 +1,5 @@
 import pygame, math
-from . import view, pview, maff
+from . import view, pview, maff, grid
 
 def minus(p0, p1):
 	x0, y0, z0 = p0
@@ -44,7 +44,7 @@ def renderquad(surf, pGs, color0):
 	rendertri(surf, (p1, p0, p2), color0)
 	rendertri(surf, (p1, p2, p3), color0)
 
-Rdome = 0.4
+Rdome = 0.6
 Rphi0 = 0.3
 
 def pdome(ftheta, fphi):
@@ -66,15 +66,69 @@ def renderdome(scale):
 	surf = pygame.Surface((2 * scale, 2 * scale)).convert_alpha()
 	surf.fill((0, 0, 0, 0))
 	for jtheta in range(ntheta):
-		theta0 = math.tau * jtheta / ntheta
-		theta1 = math.tau * ((jtheta + 1) % ntheta) / ntheta
 		for jphi in range(nphi):
-			phi0 = math.tau * jphi / nphi
-			phi1 = math.tau * ((jphi + 1) % nphi) / nphi
 			ps = [(theta, phi) for phi in (jphi, jphi + 1) for theta in (jtheta, jtheta + 1)]
 			pGs = [pdome(theta / ntheta, phi / nphi) for theta, phi in ps]
 			renderquad(surf, pGs, (255, 255, 255))
 	return surf
+
+rtube = 0.2
+def pstraight(ftheta, a, beta):
+	theta = math.tau * ftheta
+	x, y, z = rtube, 2/3 * grid.s * 1.01 * math.mix(-1, 1, a), 0
+	x, z = math.R(-theta, (x, z))
+	z += rtube
+	x, y = math.R(-beta, (x, y))
+	return x, y, z
+# d = -1 left turn, d = 1 right turn
+def pturn(ftheta, fphi, beta, d):
+	theta = math.tau * ftheta
+	phi = math.tau / 6 * (fphi * 1.02 - 0.01)
+	x, y, z = -d + rtube * math.cos(theta), 0, rtube * math.sin(theta)
+	x, y = math.R(-d * phi, (x, y))
+	x += d
+	y -= 2/3 * grid.s
+	z += rtube
+	x, y = math.R(-beta, (x, y))
+	return x, y, z
+
+def renderstraight(scale, beta):
+	view.VscaleG = scale
+	view.xG0, view.yG0 = 0, 0
+	pview.center = scale, scale
+	ntheta = 100
+	surf = pygame.Surface((2 * scale, 2 * scale)).convert_alpha()
+	surf.fill((0, 0, 0, 0))
+	for jtheta in range(ntheta):
+		ps = [(theta, a) for a in (1, 0) for theta in (jtheta, jtheta + 1)]
+		pGs = [pstraight(theta / ntheta, a, beta) for theta, a in ps]
+		renderquad(surf, pGs, (50, 50, 50))
+	for jtheta in range(ntheta):
+		ps = [(theta, a) for a in (0, 1) for theta in (jtheta, jtheta + 1)]
+		pGs = [pstraight(theta / ntheta, a, beta) for theta, a in ps]
+		renderquad(surf, pGs, (255, 255, 255))
+	return surf
+
+def renderturn(scale, beta, d):
+	view.VscaleG = scale
+	view.xG0, view.yG0 = 0, 0
+	pview.center = scale, scale
+	ntheta = 100
+	nphi = 40
+	surf = pygame.Surface((2 * scale, 2 * scale)).convert_alpha()
+	surf.fill((0, 0, 0, 0))
+	for jtheta in range(ntheta):
+		for jphi in range(nphi):
+			ps = [(theta, phi) for phi in (jphi, jphi + 1) for theta in (jtheta, jtheta + 1)]
+			pGs = [pturn(theta / ntheta, phi / nphi, beta, d) for theta, phi in ps]
+			renderquad(surf, pGs, (50, 50, 50))
+	for jtheta in range(ntheta):
+		for jphi in range(nphi):
+			ps = [(theta, phi) for phi in (jphi + 1, jphi) for theta in (jtheta, jtheta + 1)]
+			pGs = [pturn(theta / ntheta, phi / nphi, beta, d) for theta, phi in ps]
+			renderquad(surf, pGs, (255, 255, 255))
+	return surf
+
 
 
 if __name__ == "__main__":
@@ -82,14 +136,22 @@ if __name__ == "__main__":
 	pview.set_mode((800, 800))
 	setcamera()
 	pygame.image.save(renderdome(400), "img/dome.png")
-	while not any(event.type == pygame.QUIT for event in pygame.event.get()):
-		pview.fill((0, 0, 0))
-		view.tip = math.cycle(pygame.time.get_ticks() * 0.0002)
-		view.tilt = pygame.time.get_ticks() * 0.0001
-		setcamera()
-		img = renderdome(400)
-		pview.screen.blit(img, (0, 0))
-		pygame.display.flip()
+	for jbeta in range(6):
+		beta = jbeta * math.tau / 6
+		pygame.image.save(renderstraight(400, beta), f"img/tube-{jbeta}-{jbeta}.png")
+		jbetaL = (jbeta - 1) % 6
+		pygame.image.save(renderturn(400, beta, -1), f"img/tube-{jbeta}-{jbetaL}.png")
+		jbetaR = (jbeta + 1) % 6
+		pygame.image.save(renderturn(400, beta, 1), f"img/tube-{jbeta}-{jbetaR}.png")
+	if False:
+		while not any(event.type == pygame.QUIT for event in pygame.event.get()):
+			pview.fill((60, 30, 0))
+			view.tip = math.cycle(pygame.time.get_ticks() * 0.0002)
+			view.tilt = pygame.time.get_ticks() * 0.0001
+			setcamera()
+			img = renderturn(400, 0, 1)
+			pview.screen.blit(img, (0, 0))
+			pygame.display.flip()
 
 
 
