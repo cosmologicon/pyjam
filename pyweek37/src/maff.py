@@ -187,6 +187,12 @@ def fuzzrange(a, b, *args):
 def fuzzchoice(values, *args):
 	return values[int(fuzz(*args) * len(values))]
 
+def fuzzshuffle(values, *args):
+	for j in range(len(values)):
+		k = j + int(fuzz(j, *args) * (len(values) - j))
+		if j != k:
+			values[j], values[k] = values[k], values[j]
+
 # Add to math module
 _globals = dict(globals())
 for k, v in _globals.items():

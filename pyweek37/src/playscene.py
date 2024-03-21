@@ -1,6 +1,7 @@
 import pygame, math, random
 from collections import Counter
 from functools import cache
+from itertools import cycle
 from . import control, view, grid, state, settings, hud
 from . import pview, ptext
 from .pview import T
@@ -29,13 +30,7 @@ def randomplanet(hasvalue, needsvalue, *seed):
 				{ settings.colors[x]: 1 for x in needs },
 			]
 
-def init():
-	global building, selected
-	building = None
-	selected = None
-	state.addplanet((0, 1), has = {"R": 1 })
-	state.addplanet((1, -1), has = {"O": 1 })
-	state.addplanet((-1, 0), has = {"Y": 1 })
+def spiral():
 	for j in range(4, 100):
 		pG = math.CS(j * math.phyllo, r = 1.5 * math.sqrt(j))
 		pH = grid.HnearestG(pG)
@@ -45,8 +40,26 @@ def init():
 		has, needs = randomplanet(hasvalue, needsvalue, j)
 		state.addplanet(pH, has = has, needs = needs)
 
+
+
+
+def init():
+	global building, selected
+	building = None
+	selected = None
+	state.addplanet((0, 1), has = {"R": 1 })
+	state.addplanet((1, -1), has = {"O": 1 })
+	state.addplanet((-1, 0), has = {"Y": 1 })
+	pHs = list(state.board)
+	math.fuzzshuffle(pHs, 107)
+	opts = cycle(["R,O", "O,Y", "Y,R", "R,Y", "Y,O", "O,R"])
+	for pH in pHs:
+		if state.isfree(pH) and not any(state.planetat(pHadj) for pHadj in grid.HadjsH(pH)):
+			has, needs = next(opts).split()
+			state.addplanet(pH, has = {has: 1}, needs = {needs: 1})
+	
 	for pH in state.board:
-		if state.objat(pH) is None and not any(state.planetat(pHadj) for pHadj in grid.HadjsH(pH)):
+		if state.isfree(pH) and not any(state.planetat(pHadj) for pHadj in grid.HadjsH(pH)):
 			if math.fuzz(1, *pH) < 0.35:
 				state.addrock(pH)
 	state.resolvenetwork()
@@ -104,11 +117,12 @@ def draw():
 	pygame.draw.circle(pview.screen, (255, 200, 128), control.posD, 3)
 
 	pHcursor = grid.HnearestG(view.GconvertD(control.posD))
-	if False:
-		for (xH, yH), obj in state.board.items():
-			if obj is not None: continue
-			pD = view.DconvertG(grid.GconvertH((xH, yH)))
-			alpha = 0.4 if (xH, yH) == pHcursor else 0.12
+	if True:
+		for pH in state.visible:
+			if not state.isfree(pH): continue
+			pD = view.DconvertG(grid.GconvertH(pH))
+			alpha = 0.4 if pH == pHcursor else 0.12
+			xH, yH = pH
 			ptext.draw(f"{xH},{yH}", center = pD, alpha = alpha,
 				fontsize = view.DscaleG(0.6), owidth = 2)
 	if building is not None:

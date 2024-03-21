@@ -38,14 +38,21 @@ class Planet:
 		self.t = 0
 		self.exports = ""
 	# Update the planet's supplied bit and imports/exports based on the resources coming in.
-	# Returns whether the planet's exports have changed.
+	# Returns a list of tubes that are newly supplied.
 	def checksupply(self):
 		exports = self.exports
 		self.imports = "".join(sorted((tube.supplyto(self) or "") for tube in self.tubes))
 		self.supplied = issubset(self.demand, self.imports)
 		self.exports0 = removesymbols(self.supply + self.imports, self.demand)
 		self.exports = self.exports0 if self.supplied else ""
-		return self.exports != exports
+		ret = []
+		if self.exports:
+			for tube in self.tubes:
+				if tube.supplier is not self: continue
+				wassupplied = tube.supplied
+				tube.supplied = self.tryclaim(tube.carry)
+				if tube.supplied and not wassupplied: ret.append(tube)
+		return ret
 	# For a newly created tube, recommend an export. Does not claim said export.
 	def firstexport(self, consumer):
 		if not self.exports:
@@ -187,13 +194,6 @@ class Tube:
 	# What resource, if any, do I supply to this planet?
 	def supplyto(self, planet):
 		return self.carry if planet is self.consumer and self.supplied and self.carry else None
-	# Update the supplied bit.
-	# Returns whether the claim is newly successful.
-	def tryclaim(self):
-		if not self.carry:
-			return False
-		self.supplied = self.supplier.tryclaim(self.carry)
-		return self.supplied
 	def draw(self, glow = False):
 		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]
 		color = settings.colorcodes.get(self.carry, (160, 160, 160))
@@ -228,7 +228,7 @@ class Rock:
 		if not self.pH in visible:
 			return
 		xG, yG = grid.GconvertH(self.pH)
-		color = (50, 50, 50)
+		color = (30, 60, 60)
 		color = math.imix(color, (255, 255, 255), 0.5) if glow else color
 		pygame.draw.circle(pview.screen, color, view.DconvertG((xG, yG)), view.DscaleG(0.4))
 	def info(self):
@@ -238,24 +238,22 @@ def resolvenetwork():
 	# Shut down everything.
 	for tube in tubes:
 		tube.supplied = False
-	for planet in planets:
-		planet.checksupply()
+#	for planet in planets:
+#		planet.checksupply()
 	# Planets with unaccounted for exports.
-	suppliers = [planet for planet in planets if planet.exports]
+	suppliers = [planet for planet in planets if planet.supplied]
+	suppliers = list(planets)
 	while suppliers:
 		newsuppliers = []
 		for planet in suppliers:
-			planet.checksupply()
-			for tube in planet.tubes:
-				if planet is not tube.supplier: continue
-				if not tube.tryclaim(): continue
+			for tube in planet.checksupply():
 				if tube.consumer not in newsuppliers:
 					newsuppliers.append(tube.consumer)
 		suppliers = newsuppliers
 
 
 board = { pH: None for pH in grid.Hrect(20) }
-R = 10
+R = 5
 visible = set(pH for pH in board if math.length(grid.GconvertH(pH)) <= R)
 
 tubes = []
