@@ -12,6 +12,12 @@ outlinedH = [[1/3, 1/3], [2/3, -1/3], [1/3, -2/3],
 adjsetH = set((dx, dy) for dx, dy in adjsH)
 adjdirH = {(dx, dy): j for j, (dx, dy) in enumerate(adjsH)}
 
+# Distance from the center in the hex metric.
+def normH(pH):
+	xH, yH = pH
+	return max(abs(xH), abs(yH), abs(xH + yH))
+	
+
 def HadjsH(pH):
 	xH, yH = pH
 	return [(xH + dxH, yH + dyH) for dxH, dyH in adjsH]

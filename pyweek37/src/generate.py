@@ -114,7 +114,8 @@ def revealto(R):
 	state.setvisibility(R)
 	for pH in list(state.visible):
 		if not nvisible(pH):
-			state.visible.remove(pH)
+			state.addrock(pH)
+#			state.visible.remove(pH)
 
 def phase(R, seed, opts0, opts, planetmax):
 	visible0 = set(state.visible)

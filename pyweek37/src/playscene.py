@@ -93,6 +93,13 @@ def draw():
 		for nextpH in building.nexts():
 			graphics.outlineH(nextpH)
 
+	dmax = max(grid.normH(pH) for pH in state.visible)
+	for pH in state.board:
+		if pH not in state.visible and grid.normH(pH) < dmax + 2:
+#			graphics.drawcircleH(pH, (255, 255, 255), 0.4)
+			graphics.drawcloudatH(pH)
+	graphics.fog(dmax)
+
 	for rock in state.rocks:
 		rock.draw(glow = rock is selected)
 	for tube in state.tubes:
