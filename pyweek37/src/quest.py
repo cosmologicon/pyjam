@@ -75,6 +75,8 @@ def inittutorial():
 	quests.append(TutorialQuest())
 def initeasy():
 	quests.append(EasyQuest())
+def inithard():
+	quests.append(HardQuest())
 
 def think(dt):
 	global quests

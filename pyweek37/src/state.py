@@ -74,6 +74,8 @@ class Planet:
 	def think(self, dt):
 		self.t += dt
 	def draw(self, glow = False):
+		graphics.drawdomeat(grid.GconvertH(self.pH))
+	def draw_old(self, glow = False):
 		if not self.pH in visible:
 			return
 		xG, yG = grid.GconvertH(self.pH)

@@ -14,6 +14,8 @@ def init():
 
 xG0, yG0 = 0, 0
 VscaleG = 100  # VscaleG
+tilt = 0
+tip = 0.7
 
 def scootD(dx, dy):
 	global xG0, yG0
@@ -33,25 +35,28 @@ def zoom(dz, pDanchor = None):
 	xG0 += (xVanchor - xV0) * (1 / oldVscaleG - 1 / VscaleG)
 	yG0 -= (yVanchor - yV0) * (1 / oldVscaleG - 1 / VscaleG)
 
-def VconvertG(pG):
+def VconvertG(pG, zG = 0):
 	xV0, yV0 = pview.center
-	xG, yG = pG
-	return [xV0 + VscaleG * (xG - xG0), yV0 - VscaleG * (yG - yG0)]
+	xG, yG = math.R(tilt, pG)
+	yG, zG = math.R(-tip, (yG, zG))
+	return xV0 + VscaleG * (xG - xG0), yV0 - VscaleG * (yG - yG0)
 
 def GconvertV(pV):
 	xV0, yV0 = pview.center
 	xV, yV = pV
-	return [xG0 + (xV - xV0) / VscaleG, yG0 - (yV - yV0) / VscaleG]
+	xG, yG = xG0 + (xV - xV0) / VscaleG, yG0 - (yV - yV0) / VscaleG
+	yG /= math.cos(tip)
+	return math.R(-tilt, (xG, yG))
 
 def VconvertD(pD):
 	xD, yD = pD
-	return [xD / pview.f, yD / pview.f]
+	return xD / pview.f, yD / pview.f
 
 def DconvertV(pV):
 	return pview.T(pV)
 
-def DconvertG(pG):
-	return DconvertV(VconvertG(pG))
+def DconvertG(pG, zG = 0):
+	return DconvertV(VconvertG(pG, zG))
 
 def GconvertD(pD):
 	return GconvertV(VconvertD(pD))

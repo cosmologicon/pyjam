@@ -10,14 +10,14 @@ def init():
 	global building, selected
 	building = None
 	selected = None
-	quest.init()
+#	quest.inithard()
 #	generate.tutorial1()
 #	generate.tutorial2()
 #	generate.tutorial3()
 #	generate.tutorial4()
 #	generate.tutorial5()
-#	generate.phase1()
-#	generate.phase2()
+	generate.phase1()
+	generate.phase2()
 #	generate.phase3()
 #	generate.revealto(30)
 #	generate.ezphase1()
