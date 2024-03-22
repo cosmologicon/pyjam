@@ -87,11 +87,15 @@ class Planet:
 		if symbols:
 			graphics.drawbubbleatH(self.pH, symbols, False)
 		symbols = []
-		for symbol, lit in symbollit(self.exports0, self.exports):
-			if not lit and settings.showdemand == "off":
-				continue
-			strength = 1 if lit or settings.showdemand == "on" else 0.2
-			symbols.append((symbol, strength))
+		if self.supplied:
+			for symbol, lit in symbollit(self.exports0, self.exports):
+				if not lit and settings.showsupply == "off":
+					continue
+				strength = 1 if lit or settings.showsupply == "on" else 0.2
+				symbols.append((symbol, strength))
+		else:
+			for symbol in self.exports:
+				symbols.append((symbol, 0.2))
 		if symbols:
 			graphics.drawbubbleatH(self.pH, symbols, True)
 	def draw_old(self, glow = False):
@@ -133,7 +137,6 @@ class Tube:
 	def __init__(self, pH0):
 		self.pHs = [pH0]
 		self.built = False
-		self.forward = True
 		self.carry = ""
 		self.supplier = planetat(pH0)
 		self.consumer = None
@@ -151,10 +154,11 @@ class Tube:
 	def complete(self):
 		self.consumer = planetat(self.pHs[-1])
 		self.built = True
-		straights = [grid.isrowH(self.pHs[j-1], self.pHs[j], self.pHs[j+1])
-			for j in range(1, len(self.pHs) - 1)]
-		straights = [False] + straights + [False]
-		self.straights = dict(zip(self.pHs, straights))
+		if False:  # Needed for crossing paths feature
+			straights = [grid.isrowH(self.pHs[j-1], self.pHs[j], self.pHs[j+1])
+				for j in range(1, len(self.pHs) - 1)]
+			straights = [False] + straights + [False]
+			self.straights = dict(zip(self.pHs, straights))
 	def nexts(self):
 		for pH in grid.HadjsH(self.pHs[-1]):
 			if pH in self.pHs:
@@ -213,14 +217,14 @@ class Tube:
 			return None
 		return math.mix(self.pHs[n], self.pHs[n + 1], f)
 	def flip(self):
-		self.forward = False
 		self.supplier, self.consumer = self.consumer, self.supplier
+		self.pHs = list(reversed(self.pHs))
+		self.dirs = [grid.dirH(self.pHs[j], self.pHs[j + 1]) for j in range(len(self.pHs) - 1)]
 		resolvenetwork()
 	def initializecarry(self):
 		self.carry = self.supplier.firstexport(self.consumer)
 	def togglecarry(self):
 		cancarry = [""] + sorted(set(self.supplier.exports))
-		print(f"cancarry {cancarry}, self.carry {self.carry}, {cycle_opts(self.carry, cancarry)}")
 		self.carry = cycle_opts(self.carry, cancarry)
 		resolvenetwork()
 	# What resource, if any, do I supply to this planet?

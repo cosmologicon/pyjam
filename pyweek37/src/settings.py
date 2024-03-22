@@ -63,7 +63,6 @@ showsupply = "dim"
 
 def save():
 	obj = height, fullscreen, forceres, palette, showdemand, showsupply
-	print(obj)
 	pickle.dump(obj, open(settingsfile, "wb"))
 
 # Do I actually need this to be a function?
@@ -74,6 +73,5 @@ def load():
 	obj = pickle.load(open(settingsfile, "rb"))
 	height, fullscreen, forceres, palette, showdemand, showsupply = obj
 load()
-print(palette)
 
 

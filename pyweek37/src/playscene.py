@@ -7,9 +7,9 @@ from .pview import T
 
 
 def init():
-	global building, selected
+	global building
 	building = None
-	selected = None
+	control.selected = None
 	quest.inittutorial()
 #	quest.inithard()
 #	generate.tutorial1()
@@ -27,8 +27,9 @@ def init():
 	hud.init()
 
 def think(dt):
-	global building, selected
+	global building
 	pHcursor = grid.HnearestG(view.GconvertD(control.posD))
+	hud.think(dt)
 	if control.click:
 		if building is not None:
 			building.tryclick(pHcursor)
@@ -36,16 +37,16 @@ def think(dt):
 				state.addtube(building)
 				building = None
 		else:
-			selected = state.objat(pHcursor)
+			control.selected = state.objat(pHcursor)
 	if control.mclick:
 		if state.planetat(pHcursor) and building is None:
 			building = state.Tube(pHcursor)
-			selected = None
+			control.selected = None
 	if control.dragfrom is not None and building is None:
 		dragfromH = grid.HnearestG(view.GconvertD(control.dragfrom))
 		if state.planetat(dragfromH):
 			building = state.Tube(dragfromH)
-			selected = None
+			control.selected = None
 	if any(control.dragD) and building is not None:
 		building.trydrag(pHcursor)
 		if building.built:
@@ -55,15 +56,15 @@ def think(dt):
 		building = None
 	if control.rclick:
 		building = None
-		selected = None
-	if isinstance(selected, state.Tube):
+		control.selected = None
+	if isinstance(control.selected, state.Tube):
 		if pygame.K_TAB in control.kdowns:
-			selected.flip()
+			control.selected.flip()
 		if pygame.K_LSHIFT in control.kdowns:
-			selected.togglecarry()
+			control.selected.togglecarry()
 		if "remove" in control.kdowns:
-			state.removetube(selected)
-			selected = None
+			state.removetube(control.selected)
+			control.selected = None
 	dx = 600 * (control.kpressed["right"] - control.kpressed["left"]) * dt
 	dy = 600 * (control.kpressed["down"] - control.kpressed["up"]) * dt
 	view.scootD(dx, dy)
@@ -73,7 +74,6 @@ def think(dt):
 		tube.think(dt)
 	for planet in state.planets:
 		planet.think(dt)
-	hud.think(dt)
 	quest.think(dt)
 
 
@@ -102,11 +102,11 @@ def draw():
 	graphics.fog(dmax)
 
 	for rock in state.rocks:
-		rock.draw(glow = rock is selected)
+		rock.draw(glow = rock is control.selected)
 	for tube in state.tubes:
-		tube.draw(glow = tube is selected)
+		tube.draw(glow = tube is control.selected)
 	for planet in state.planets:
-		planet.draw(glow = planet is selected)
+		planet.draw(glow = planet is control.selected)
 #		graphics.outlineH(planet.pH)
 	if building is not None:
 		building.draw(glow = True)
@@ -136,8 +136,8 @@ def draw():
 		"Middle click: start tube at planet",
 		"Right click: cancel tube",
 	]
-	if selected is not None:
-		lines = selected.info() + lines
+	if control.selected is not None:
+		lines = control.selected.info() + lines
 	ptext.draw("\n".join(lines), bottomright = pview.bottomright, fontsize = T(25),
 		owidth = 1)
 
