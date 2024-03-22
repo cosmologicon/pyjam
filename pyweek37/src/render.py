@@ -65,8 +65,8 @@ def renderdome(scale):
 	view.VscaleG = scale
 	view.xG0, view.yG0 = 0, 0
 	pview.center = scale, scale
-	ntheta = 12
-	nphi = 4
+	ntheta = 10
+	nphi = 3
 	surf = pygame.Surface((2 * scale, 2 * scale)).convert_alpha()
 	surf.fill((0, 0, 0, 0))
 	for jtheta in range(ntheta):
@@ -75,6 +75,41 @@ def renderdome(scale):
 			pGs = [pdome(theta / ntheta, phi / nphi) for theta, phi in ps]
 			renderquad(surf, pGs, (255, 255, 255))
 	return surf
+
+
+def rendercity(scale):
+	view.VscaleG = scale
+	view.xG0, view.yG0 = 0, 0
+	pview.center = scale, scale
+	dome = renderdome(scale)
+	dimg = dome.copy()
+	dimg.fill((0, 0, 255, 60))
+	dimg.blit(dome, (0, 0), None, pygame.BLEND_RGBA_MULT)
+	img = dome.copy()
+	buildings = []
+	for j in range(200):
+#		x = math.fuzzrange(-1, 1, 1200, j)
+#		y = math.fuzzrange(-1, 1, 1201, j)
+#		if math.hypot(x, y) > 1: continue
+#		x *= 0.65
+#		y *= 0.65
+		r = math.fuzzrange(0, 0.48, 1204, j)
+		theta = math.fuzzrange(0, math.tau, 1205, j)
+		x, y = math.CS(theta, r)
+		h = math.fuzzrange(0.05, 0.1, 1202, j)
+		rect = pygame.Rect(0, 0, int(view.VscaleG * h), int(view.VscaleG * h))
+		rect.midbottom = view.DconvertG((x, y))
+		r = int(math.fuzzrange(40, 80, 1203, j))
+		g = int(math.fuzzrange(20, 40, 1204, j))
+		b = int(math.fuzzrange(0, 20, 1205, j))
+		buildings.append((rect.bottom, rect, (r, g, b)))
+	buildings.sort()
+	for _, rect, color in buildings:
+		img.fill(color, rect)
+	img.blit(dimg, (0, 0))
+	return img
+	
+
 
 def pstraight(ftheta, a, beta):
 	theta = math.tau * ftheta
@@ -144,8 +179,8 @@ def renderturn(scale, beta, d):
 	view.VscaleG = scale
 	view.xG0, view.yG0 = 0, 0
 	pview.center = scale, scale
-	ntheta = 40
-	nphi = 16
+	ntheta = 400
+	nphi = 160
 	surf = pygame.Surface((2 * scale, 2 * scale)).convert_alpha()
 	surf.fill((0, 0, 0, 0))
 	if drawback:
@@ -213,22 +248,24 @@ if __name__ == "__main__":
 	pygame.init()
 	pview.set_mode((800, 800))
 	setcamera()
-	shave(renderdome(400), "dome")
-	for jbeta in range(6):
-		beta = jbeta * math.tau / 6
-		shave(renderstraight(400, beta), f"tube-{jbeta}-{jbeta}")
-		jbetaL = (jbeta - 1) % 6
-		shave(renderturn(400, beta, -1), f"tube-{jbeta}-{jbetaL}")
-		jbetaR = (jbeta + 1) % 6
-		shave(renderturn(400, beta, 1), f"tube-{jbeta}-{jbetaR}")
-		shave(renderdock(400, beta), f"dock-{jbeta}")
+	if False:
+		shave(rendercity(400), "dome")
+		for jbeta in range(6):
+			beta = jbeta * math.tau / 6
+			shave(renderstraight(400, beta), f"tube-{jbeta}-{jbeta}")
+			# The turns take 7 hours to render at full resolution.
+			jbetaL = (jbeta - 1) % 6
+			shave(renderturn(400, beta, -1), f"tube-{jbeta}-{jbetaL}")
+			jbetaR = (jbeta + 1) % 6
+			shave(renderturn(400, beta, 1), f"tube-{jbeta}-{jbetaR}")
+			shave(renderdock(400, beta), f"dock-{jbeta}")
 	if True:
 		while not any(event.type in (pygame.QUIT, pygame.KEYDOWN) for event in pygame.event.get()):
 			pview.fill((60, 30, 0))
 			view.tip = math.cycle(pygame.time.get_ticks() * 0.0002)
 			view.tilt = pygame.time.get_ticks() * 0.0001
 			setcamera()
-			img = renderdock(400, 0)
+			img = rendercity(400)
 			pview.screen.blit(img, (0, 0))
 			pygame.display.flip()
 

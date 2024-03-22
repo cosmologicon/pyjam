@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, ptext, control, colorscene, settings, graphics, scene, state
+from . import pview, ptext, control, colorscene, settings, graphics, scene, state, render, view
 from .pview import T
 
 class self:
@@ -35,6 +35,8 @@ def think(dt):
 			else:
 				scene.scene = playscene
 			state.level = self.selected
+			view.tilt = 0.15
+			view.tip = 0.7
 			scene.scene.init()
 
 def drawbox(rectV, text):
@@ -46,10 +48,16 @@ def drawbox(rectV, text):
 
 def draw():
 	pview.fill((60, 40, 20))
+
+	view.tilt = 0.04 * 0.001 * pygame.time.get_ticks()
+	render.setcamera()
+	img = render.rendercity(600)
+	img = pygame.transform.smoothscale(img, T(600, 600))
+	pview.screen.blit(img, img.get_rect(center = T(500, 420)))
 	
 	for rectV, text in self.boxes:
 		drawbox(rectV, text)
-	ptext.draw(settings.gamename, center = T(400, 400), width = T(600), fontsize = T(100),
+	ptext.draw(settings.gamename, center = T(400, 100), width = T(600), fontsize = T(100),
 		shade = 1, owidth = 1)
 	ptext.draw("by Christopher Night\nmusic by Kevin MacLeod",
 		bottomleft = T(20, 700), fontsize = T(40),

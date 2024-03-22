@@ -166,10 +166,10 @@ def drawcloudatH(pH):
 	t = pygame.time.get_ticks() * 0.001
 	theta0 = math.fuzzrange(0, 1000, 3000, *pH)
 	omega = math.fuzzrange(0.1, 0.2, 3001, *pH)
-	yG += 0.1 * math.cycle(theta0 + omega * t)
+	yG += 0.12 * math.cycle(theta0 + omega * t)
 	theta0 = math.fuzzrange(0, 1000, 3002, *pH)
 	omega = math.fuzzrange(0.1, 0.2, 3003, *pH)
-	xG += 0.1 * math.cycle(theta0 + omega * t)
+	xG += 0.12 * math.cycle(theta0 + omega * t)
 	sizeD = view.DscaleG(2), view.DscaleG(2 * math.cos(view.tip))
 	drawimgat(cloudimg(sizeD), view.DconvertG((xG, yG), 0.2))
 
