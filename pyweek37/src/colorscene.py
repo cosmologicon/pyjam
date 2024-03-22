@@ -1,4 +1,4 @@
-import pygame
+import pygame, math
 from . import pview, ptext, control, colorscene, settings, graphics, scene
 from .pview import T
 
@@ -28,7 +28,7 @@ def think(dt):
 			self.done = True
 	else:
 		self.tdone += dt
-		if self.tdone > 0.5:
+		if self.tdone > 0.2:
 			from . import playscene
 			scene.scene = playscene
 			playscene.init()
@@ -57,5 +57,12 @@ def draw():
 		drawbox(rectV, palette)
 	ptext.draw(text, midbottom = T(640, 690), width = T(800), fontsize = T(40),
 		shade = 1, owidth = 1)
+
+	if self.t < 0.5:
+		alpha = int(math.interp(self.tdone, 0, 255, 0.2, 0))
+		pview.fill((0, 0, 0, alpha))
+	if self.tdone:
+		alpha = int(math.interp(self.tdone, 0, 0, 0.2, 255))
+		pview.fill((0, 0, 0, alpha))
 
 	

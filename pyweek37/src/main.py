@@ -1,11 +1,8 @@
 import pygame
 from . import settings, view, control, pview, ptext
-from . import scene, playscene, colorscene
+from . import scene, playscene, colorscene, menuscene
 
-if settings.palette is None:
-	scene.scene = colorscene
-else:
-	scene.scene = playscene
+scene.scene = menuscene
 scene.scene.init()
 
 view.init()

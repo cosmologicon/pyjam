@@ -9,21 +9,14 @@ from .pview import T
 def init():
 	global building
 	building = None
+	if state.level == "Tutorial":
+		quest.inittutorial()
+	elif state.level == "Easy Mode":
+		quest.initeasy()
+	elif state.level == "Hard Mode":
+		quest.inithard()
+	control.init()
 	control.selected = None
-	quest.inittutorial()
-#	quest.inithard()
-#	generate.tutorial1()
-#	generate.tutorial2()
-#	generate.tutorial3()
-#	generate.tutorial4()
-#	generate.tutorial5()
-#	generate.phase1()
-#	generate.phase2()
-#	generate.phase3()
-#	generate.revealto(30)
-#	generate.ezphase1()
-#	generate.ezphase2()
-#	generate.ezphase3()
 	hud.init()
 
 def think(dt):
