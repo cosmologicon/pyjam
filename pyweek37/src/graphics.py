@@ -15,27 +15,33 @@ def drawsymbol(symbol):
 		pygame.draw.circle(img, (255, 255, 255), (200, 200), 140 - 14)
 		return img
 	if symbol == "O":
-		rs = [120 * (math.sqrt(2) if j % 2 else 1) for j in range(8)]
+		rs = [140] * 4
 	if symbol == "Y":
 		rs = [180] * 3
 	if symbol == "G":
 		rs = [180, 90] * 4
 	if symbol == "B":
 		rs = [200, 100] * 5
-	thetas = [(jtheta / len(rs) - 1/4) * math.tau for jtheta in range(len(rs))]
-	ps = [pview.I(math.CS(theta, r, center = (200, 200))) for theta, r in zip(thetas, rs)]
+	theta0 = 1/8 if symbol == "O" else 1/4
+	thetas = [(jtheta / len(rs) - theta0) * math.tau for jtheta in range(len(rs))]
+	center = (200, 230) if symbol == "Y" else (200, 200)
+	ps = [pview.I(math.CS(theta, r, center = center)) for theta, r in zip(thetas, rs)]
 	pygame.draw.polygon(img, (0, 0, 0), ps)
 	dr = 18 if symbol == "O" else 24
-	ps = [pview.I(math.CS(theta, r - dr, center = (200, 200))) for theta, r in zip(thetas, rs)]
+	ps = [pview.I(math.CS(theta, r - dr, center = center)) for theta, r in zip(thetas, rs)]
 	pygame.draw.polygon(img, (255, 255, 255), ps)
 	return img
 
 @cache
-def img0(iname, scale = 1, mask = None):
+def img0(iname, scale = 1, mask = None, smooth = False):
 	if scale != 1:
 		img = img0(iname, mask = mask)
-		w, h = img.get_rect().size
-		return pygame.transform.rotozoom(img, 0, scale)
+		w, h = img.get_size()
+		if smooth:
+			size = pview.I(w * scale, h * scale)
+			return pygame.transform.smoothscale(img, size)
+		else:
+			return pygame.transform.rotozoom(img, 0, scale)
 	if iname.startswith("symbol"):
 		img = drawsymbol(iname[7:]).copy()
 	else:
@@ -57,8 +63,11 @@ def renderqueue():
 		pview.screen.blit(img, img.get_rect(center = pD))
 	del imgqueue[:]
 
-def drawimgat(img, pD):
-	imgqueue.append((img, pD))
+def drawimgat(img, pD, immediate = False):
+	if immediate:
+		pview.screen.blit(img, img.get_rect(center = pD))
+	else:
+		imgqueue.append((img, pD))
 
 def outlineH(pH):
 	pDs = [view.DconvertG(pG) for pG in grid.GoutlineH(pH)]
@@ -69,14 +78,51 @@ def drawcircleH(pH, color, scaleG):
 	pygame.draw.circle(pview.screen, color, pD, view.DscaleG(scaleG))
 
 
-def drawsymbolatD(symbol, pD, sizeD, strength = 1, palette = None):
+def drawsymbolatD(symbol, pD, sizeD, strength = 1, palette = None, immediate = False):
 	color = math.imix((0, 0, 0), settings.getcolor(symbol, palette), strength)
 	scale = sizeD / 400
 	img = img0(f"symbol-{symbol}", scale = scale, mask = color)
-	drawimgat(img, pD)
+	drawimgat(img, pD, immediate)
 
 def drawsymbolat(symbol, pD, sizeG, strength = 1, palette = None):
 	drawsymbolatD(symbol, pD, view.DscaleG(sizeG), strength, palette)
+
+@cache
+def bubbleimg(size, flip = False):
+	if flip is True:
+		return pygame.transform.rotate(bubbleimg(size), 180)
+	width, height = size
+	if height != 200:
+		w = int(round(width * 200 / height))
+		return pygame.transform.smoothscale(bubbleimg((w, 200)), size)
+	img = pygame.Surface(size).convert_alpha()
+	img.fill((0, 0, 0, 0))
+	d = 12
+	thetas = [-math.tau * jtheta / 100 for jtheta in range(26)]
+	pcurve = [math.CS(theta, 200, center = (width - 200, 200)) for theta in thetas]
+	ps = [[0, 0], [0, 200]] + [pview.I(p) for p in pcurve]
+	pygame.draw.polygon(img, (10, 10, 10), ps)
+	pcurve = [math.CS(theta, 200 - 2 * d, center = (width - 200 + d, 200 - d)) for theta in thetas]
+	ps = [[d, d], [d, 200-d]] + [pview.I(p) for p in pcurve]
+	pygame.draw.polygon(img, (100, 90, 80), ps)
+	return img
+
+# flip = True for supply, flip = False for demand
+def drawbubbleatH(pH, symbols, flip):
+	hD = view.DscaleG(0.4)
+	d = -1 if flip else 1
+	xD, yD = view.DconvertG(grid.GconvertH(pH), zG = 0.3)
+	xD += d * int(0 * hD)
+	yD -= d * int(0.2 * hD)
+	wD = pview.I(hD * (0.8 * len(symbols) + 0.9))
+	img = bubbleimg((wD, hD), flip)
+	rect = img.get_rect(topleft = (xD, yD)) if flip else img.get_rect(bottomright = (xD, yD))
+	pview.screen.blit(img, rect)
+	yD -= d * int(0.5 * hD)
+	xD -= d * int(1.1 * hD)
+	for symbol, strength in reversed(symbols):
+		drawsymbolatD(symbol, (xD, yD), int(1 * hD), strength, immediate = True)
+		xD -= d * int(0.8 * hD)
 
 def drawdomeatG(pG):
 	scale = pview.f * view.VscaleG / 400
@@ -116,9 +162,16 @@ def cloudimg(sizeD):
 	return img
 
 def drawcloudatH(pH):
-	pG = grid.GconvertH(pH)
+	xG, yG = grid.GconvertH(pH)
+	t = pygame.time.get_ticks() * 0.001
+	theta0 = math.fuzzrange(0, 1000, 3000, *pH)
+	omega = math.fuzzrange(0.1, 0.2, 3001, *pH)
+	yG += 0.1 * math.cycle(theta0 + omega * t)
+	theta0 = math.fuzzrange(0, 1000, 3002, *pH)
+	omega = math.fuzzrange(0.1, 0.2, 3003, *pH)
+	xG += 0.1 * math.cycle(theta0 + omega * t)
 	sizeD = view.DscaleG(2), view.DscaleG(2 * math.cos(view.tip))
-	drawimgat(cloudimg(sizeD), view.DconvertG(pG))
+	drawimgat(cloudimg(sizeD), view.DconvertG((xG, yG), 0.2))
 
 @lru_cache(1)
 def fogimg0(size):

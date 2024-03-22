@@ -115,6 +115,9 @@ def draw():
 	for tube in state.tubes:
 		tube.drawcarry()
 	graphics.renderqueue()
+	for planet in state.planets:
+		planet.drawbubbles()
+	graphics.renderqueue()
 
 
 	graphics.drawsand()

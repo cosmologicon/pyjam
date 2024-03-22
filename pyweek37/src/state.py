@@ -76,6 +76,24 @@ class Planet:
 	def draw(self, glow = False):
 		graphics.drawdomeatH(self.pH)
 #		pygame.draw.circle(pview.screen, (255, 0, 255), view.DconvertG(grid.GconvertH(self.pH)), 3)
+	def drawbubbles(self):
+		symbols = []
+		for symbol in self.demand:
+			met = symbol in self.imports
+			if met and settings.showdemand == "off":
+				continue
+			strength = 1 if not met or settings.showdemand == "on" else 0.2
+			symbols.append((symbol, strength))
+		if symbols:
+			graphics.drawbubbleatH(self.pH, symbols, False)
+		symbols = []
+		for symbol, lit in symbollit(self.exports0, self.exports):
+			if not lit and settings.showdemand == "off":
+				continue
+			strength = 1 if lit or settings.showdemand == "on" else 0.2
+			symbols.append((symbol, strength))
+		if symbols:
+			graphics.drawbubbleatH(self.pH, symbols, True)
 	def draw_old(self, glow = False):
 		if not self.pH in visible:
 			return
