@@ -18,7 +18,7 @@ class FilterBox:
 		]
 
 	def draw(self):
-		color = settings.colorcodes.get(self.symbol, (160, 160, 160))
+		color = settings.getcolor(self.symbol)
 		if not self.selected:
 			color = math.imix(color, (0, 0, 0), 0.6)
 		pygame.draw.rect(pview.screen, color, pview.T(self.rectV))

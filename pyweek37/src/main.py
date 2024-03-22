@@ -1,8 +1,14 @@
 import pygame
-from . import settings, view, control, pview, playscene, ptext
+from . import settings, view, control, pview, ptext
+from . import scene, playscene, colorscene
+
+if settings.palette is None:
+	scene.scene = colorscene
+else:
+	scene.scene = playscene
+scene.scene.init()
 
 view.init()
-playscene.init()
 control.init()
 
 clock = pygame.time.Clock()
@@ -12,9 +18,9 @@ while not control.quit and pygame.K_ESCAPE not in control.kdowns:
 	control.think(dt)
 	if pygame.K_F12 in control.kdowns: pview.screenshot()
 
-	playscene.think(dt)
-	playscene.draw()
-	
+	scene.scene.think(dt)
+	scene.scene.draw()
+
 	ptext.draw(f"{clock.get_fps():.1f}fps",
 		bottomleft = pview.bottomleft, fontsize = pview.T(20), owidth = 1)
 	pygame.display.flip()

@@ -6,6 +6,29 @@ from . import ptext, pview, view, settings, grid
 def loadimg(filename):
 	return pygame.image.load(filename)
 
+@cache
+def drawsymbol(symbol):
+	img = pygame.Surface((400, 400)).convert_alpha()
+	img.fill((0, 0, 0, 0))
+	if symbol == "R":
+		pygame.draw.circle(img, (0, 0, 0), (200, 200), 140)
+		pygame.draw.circle(img, (255, 255, 255), (200, 200), 140 - 14)
+		return img
+	if symbol == "O":
+		rs = [120 * (math.sqrt(2) if j % 2 else 1) for j in range(8)]
+	if symbol == "Y":
+		rs = [180] * 3
+	if symbol == "G":
+		rs = [180, 90] * 4
+	if symbol == "B":
+		rs = [200, 100] * 5
+	thetas = [(jtheta / len(rs) - 1/4) * math.tau for jtheta in range(len(rs))]
+	ps = [pview.I(math.CS(theta, r, center = (200, 200))) for theta, r in zip(thetas, rs)]
+	pygame.draw.polygon(img, (0, 0, 0), ps)
+	dr = 18 if symbol == "O" else 24
+	ps = [pview.I(math.CS(theta, r - dr, center = (200, 200))) for theta, r in zip(thetas, rs)]
+	pygame.draw.polygon(img, (255, 255, 255), ps)
+	return img
 
 @cache
 def img0(iname, scale = 1, mask = None):
@@ -13,7 +36,10 @@ def img0(iname, scale = 1, mask = None):
 		img = img0(iname, mask = mask)
 		w, h = img.get_rect().size
 		return pygame.transform.rotozoom(img, 0, scale)
-	img = loadimg(os.path.join("img", iname + ".png")).copy()
+	if iname.startswith("symbol"):
+		img = drawsymbol(iname[7:]).copy()
+	else:
+		img = loadimg(os.path.join("img", iname + ".png")).copy()
 	if mask is not None:
 		maskimg = img.copy()
 		maskimg.fill(mask)
@@ -43,12 +69,14 @@ def drawcircleH(pH, color, scaleG):
 	pygame.draw.circle(pview.screen, color, pD, view.DscaleG(scaleG))
 
 
-def drawsymbolatD(symbol, pD, fontsizeD, beta = 1):
-	color = math.imix((0, 0, 0), settings.colorcodes[symbol], beta)
-	ptext.draw(symbol, center = pD, color = color,
-		fontsize = fontsizeD, owidth = 2)
-def drawsymbolat(symbol, pD, fontsizeG, beta = 1):
-	drawsymbolatD(symbol, pD, view.DscaleG(fontsizeG), beta)
+def drawsymbolatD(symbol, pD, sizeD, strength = 1, palette = None):
+	color = math.imix((0, 0, 0), settings.getcolor(symbol, palette), strength)
+	scale = sizeD / 400
+	img = img0(f"symbol-{symbol}", scale = scale, mask = color)
+	drawimgat(img, pD)
+
+def drawsymbolat(symbol, pD, sizeG, strength = 1, palette = None):
+	drawsymbolatD(symbol, pD, view.DscaleG(sizeG), strength, palette)
 
 def drawdomeatG(pG):
 	scale = pview.f * view.VscaleG / 400

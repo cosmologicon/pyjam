@@ -210,9 +210,9 @@ class Tube:
 		return self.carry if planet is self.consumer and self.supplied and self.carry else None
 	def draw(self, glow = False):
 		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]
-		color = settings.colorcodes.get(self.carry, (160, 160, 160))
+		color = settings.getcolor(self.carry) if self.carry else [180, 180, 180]
 		mix = (255, 255, 255) if glow else (0, 0, 0)
-		color = math.imix(color, mix, 0.5)
+		color = math.imix(color, mix, 0.2)
 		if self.dirs:
 			pH = math.mix(self.pHs[0], self.pHs[1], 0.5)
 			graphics.drawdockatH(pH, self.dirs[0])
@@ -221,14 +221,15 @@ class Tube:
 			graphics.drawdockatH(pH, (self.dirs[-1] + 3) % 6)
 		for j in range(len(self.dirs) - 1):
 			graphics.drawtubeatH(self.pHs[j+1], color, self.dirs[j], self.dirs[j+1])
+	def drawcarry(self):
 		if self.carry and self.supplied:
 			d = self.supplier.t * 3 % 3
 			while True:
 				pH = self.pHalong(d)
 				if pH is None: break
-				pD = view.DconvertG(grid.GconvertH(pH))
-				beta = hud.factor(self.carry, "tube")
-				graphics.drawsymbolat(self.carry, pD, 0.7, beta)
+				pD = view.DconvertG(grid.GconvertH(pH), zG = 0.15)
+				strength = hud.factor(self.carry, "tube")
+				graphics.drawsymbolat(self.carry, pD, 0.4, strength)
 				d += 3
 	def draw_old(self, glow = False):
 		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]

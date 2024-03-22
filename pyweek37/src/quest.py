@@ -1,4 +1,4 @@
-from . import state, generate
+from . import state, generate, view
 
 class Quest:
 	nsteps = 1
@@ -24,10 +24,14 @@ class Quest:
 
 class TutorialQuest(Quest):
 	nsteps = 6
+	def __init__(self):
+		Quest.__init__(self)
+		view.VscaleG = 120
+		view.xG0, view.yG0 = 0, 0
+		generate.tutorial1()
 	def check(self):
 		if self.step == 0:
 			self.advance()
-			generate.tutorial1()
 		if self.step == 1 and state.allsupplied():
 			self.advance()
 			generate.tutorial2()
