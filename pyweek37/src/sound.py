@@ -17,10 +17,21 @@ def load(sname):
 
 def getvolume(sname):
 	return {
-	}.get(sname, 0.2) * settings.sfxvolume ** 0.5
+	}.get(sname, 0.8) * settings.sfxvolume ** 1.8
 
 def play(sname):
 	sound = load(sname)
 	if sound is not None:
+		sound.set_volume(getvolume(sname))
 		sound.play()
 
+currentmusic = None
+def playmusic(mname):
+	global currentmusic
+	if mname == currentmusic:
+		return
+	pygame.mixer.music.load(f"sound/{mname}.ogg")
+	pygame.mixer.music.set_volume(0.8 * settings.musicvolume ** 1.8)
+	pygame.mixer.music.play(-1)
+	
+	

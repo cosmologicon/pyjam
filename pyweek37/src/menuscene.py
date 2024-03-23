@@ -16,6 +16,7 @@ def init():
 	self.selected = None
 	self.done = False
 	self.tdone = 0
+	sound.playmusic("notasitseems")
 
 def think(dt):
 	self.t += dt

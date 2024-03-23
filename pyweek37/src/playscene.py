@@ -10,6 +10,10 @@ def init():
 	global building, marquee0, malpha
 	building = None
 	state.load()
+	if state.level == "tutorial":
+		sound.playmusic("notasitseems")
+	else:
+		sound.playmusic("entertheparty")
 #	generate.phase1()
 #	generate.phase2()
 #	generate.phase3()
