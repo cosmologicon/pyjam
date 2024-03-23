@@ -65,14 +65,14 @@ class Firework:
 def init():
 	global building, marquee0, malpha, firework
 	building = None
-#	state.load()
+	state.load()
 	if state.level == "tutorial":
 		sound.playmusic("notasitseems")
 	else:
 		sound.playmusic("entertheparty")
-	state.init()
+#	state.init()
 #	generate.medphase1()
-	generate.medphase2()
+#	generate.medphase2()
 #	generate.medphase3()
 	control.init()
 	control.selected = None
@@ -176,7 +176,7 @@ def think(dt):
 	malpha = math.approach(malpha, alpha, 5 * dt)
 	if malpha == 0:
 		marquee0 = marquee
-	if not quest.quests:
+	if quest.quests[0].step == 10:
 		firework.think(dt)
 
 
@@ -184,6 +184,7 @@ def draw():
 	graphics.drawground()
 #	pygame.draw.circle(pview.screen, (255, 200, 128), control.posD, 3)
 
+	pGcursor = view.GconvertD(control.posD)
 	pHcursor = grid.HnearestG(view.GconvertD(control.posD))
 	if False:
 		for pH in state.visible:
@@ -194,8 +195,15 @@ def draw():
 			ptext.draw(f"{xH},{yH}", center = pD, alpha = alpha,
 				fontsize = view.DscaleG(0.6), owidth = 2)
 	if building is not None:
+		color = (200, 200, 255)
+		d = math.interp(math.log(view.DscaleG(1)), math.log(20), 0.1, math.log(300), 1)
+		color = math.imix((50, 40, 30), color, d)
+		tiles = [pH for pH in state.visible if math.distance(grid.GconvertH(pH), pGcursor) < 3]
+		for pG0, pG1 in grid.GgridoutlineH(tiles):
+			pygame.draw.aaline(pview.screen, color, view.DconvertG(pG0), view.DconvertG(pG1))
 		for nextpH in building.nexts():
-			graphics.outlineH(nextpH)
+			graphics.targetH(nextpH)
+#			graphics.outlineH(nextpH)
 
 	dmax = max(grid.normH(pH) for pH in state.visible)
 	for pH in state.board:

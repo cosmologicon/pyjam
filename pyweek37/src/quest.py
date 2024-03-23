@@ -23,7 +23,7 @@ class Quest:
 
 
 class TutorialQuest(Quest):
-	nsteps = 9
+	nsteps = 10
 	def __init__(self):
 		Quest.__init__(self)
 		view.VscaleG = 120
@@ -87,28 +87,30 @@ class TutorialQuest(Quest):
 			elif not self.zoomed:
 				return "Scroll wheel or 1 and 2 keys to zoom."
 			elif sum(planet.supplied for planet in state.planets) < 3:
-				return "Each habitat requires certain resources to activate, and provides certain resources when activated. Chain habitats together in the right order to satisfy all the requirements."
+				return "Each habitat requires certain resources to activate (upper left), and provides certain resources when activated (lower right). Chain habitats together in the right order to satisfy all the requirements."
 		if self.step == 5:
 			if not self.moved:
 				return "Right drag or arrow keys or WASD to pan."
 			elif not self.zoomed:
 				return "Scroll wheel or 1 and 2 keys to zoom."
-			return "Conduits cannot pass through rocks or other conduits."
+			return "Conduits cannot pass through rocks or other conduits. (Have you tried out the buttons on the left?)"
 		if self.step == 6:
 			if not self.moved:
 				return "Right drag or arrow keys or WASD to pan."
 			elif not self.zoomed:
 				return "Scroll wheel or 1 and 2 keys to zoom."
-			return "Resources can be routed through activated habitats, if there's not room to go around."
+			return "Resources can be routed through habitats that are activated, if there's not room to go around. Use the habitat in the rocks to get the triangle to the lower habitat."
 		if self.step == 7:
 			return "Habitats may require more than one resource, and may provide more than one resource. Each conduit can transfer only one of a single type of resource."
 		if self.step == 8:
 			if self.tstep < 15:
 				return "See README.txt for more controls and settings."
-			return "Press Esc at any time to quit. Your progress is saved."
+			return "Pro tip: set the Met Demand and Claimed Supply to OFF when you're building out to new areas. It might help to switch back to DIM if you need to reroute something."
+		if self.step == 9:
+			return "You are now a tube placing expert. Press Esc to return to the menu."
 
 class EasyQuest(Quest):
-	nsteps = 10
+	nsteps = 11
 	def __init__(self):
 		Quest.__init__(self)
 		self.load(1)
@@ -130,9 +132,9 @@ class EasyQuest(Quest):
 			self.advance()
 			self.load(2)
 
-		if self.step == 3 and state.numunsupplied() < 8:
+		if self.step == 3 and state.numunsupplied() < 12:
 			self.advance()
-		if self.step == 4 and state.numunsupplied() < 4:
+		if self.step == 4 and state.numunsupplied() < 6:
 			self.advance()
 		if self.step == 5 and state.allsupplied():
 			sound.play("advance")
@@ -167,8 +169,8 @@ class EasyQuest(Quest):
 		if self.step == 7:
 			return "But just as important as moving resources was moving people. With easy travel between habitats, our culture developed alongside our technology."
 		if self.step == 8:
-			return "I see bright things in the future for Planet Hardscrabble. Hey, we'll have to change that name!"
-		if self.step == 9:
+			return "And now, all thanks to the tube, I see bright things in the future for Planet Hardscrabble. Hey, we'll have to change that name!"
+		if self.step == 10:
 			return "What do you think about: Planet Tubetopia? Thank you for playing. Press Esc to quit."
 
 class MediumQuest(EasyQuest):

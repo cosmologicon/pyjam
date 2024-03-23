@@ -11,12 +11,19 @@ control.init()
 
 clock = pygame.time.Clock()
 dtaccum = 0
-while not control.quit and "quit" not in control.kdowns:
+while not control.quit:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	control.think(dt)
 	if "resolution" in control.kdowns: view.toggleresolution()
 	if "fullscreen" in control.kdowns: view.togglefullscreen()
 	if "screenshot" in control.kdowns: pview.screenshot()
+	if "quit" in control.kdowns:
+		if scene.scene is playscene:
+			state.save()
+			scene.scene = menuscene
+			scene.scene.init()
+		else:
+			break
 
 	scene.scene.think(dt)
 	scene.scene.draw()

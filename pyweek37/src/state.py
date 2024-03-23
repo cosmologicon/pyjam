@@ -416,19 +416,19 @@ def aimcamera():
 def init():
 	from . import quest
 	global board, visible, tubes, planets, rocks
-	board = { pH: None for pH in grid.Hrect(20) }
+	board = { pH: None for pH in grid.Hrect(22) }
 	visible = set()
 	tubes = []
 	planets = []
 	rocks = []
 	if level == "tutorial":
-		quest.quests.append(quest.TutorialQuest())
+		quest.quests = [quest.TutorialQuest()]
 	if level == "easy":
-		quest.quests.append(quest.EasyQuest())
+		quest.quests = [quest.EasyQuest()]
 	if level == "medium":
-		quest.quests.append(quest.MediumQuest())
+		quest.quests = [quest.MediumQuest()]
 	if level == "hard":
-		quest.quests.append(quest.HardQuest())
+		quest.quests = [quest.HardQuest()]
 	setbounds()
 	aimcamera()
 

@@ -17,7 +17,7 @@ def load(sname):
 
 def getvolume(sname):
 	return {
-		"buildup": 0.4,
+		"buildup": 0.6,
 	}.get(sname, 0.8) * settings.sfxvolume ** 1.8
 
 def play(sname):
@@ -32,7 +32,10 @@ def playmusic(mname):
 	if mname == currentmusic:
 		return
 	pygame.mixer.music.load(f"sound/{mname}.ogg")
-	pygame.mixer.music.set_volume(0.8 * settings.musicvolume ** 1.8)
+	volume = {
+		"notasitseems": 0.25,
+	}.get(mname, 0.8) * settings.musicvolume ** 1.8
+	pygame.mixer.music.set_volume(volume)
 	pygame.mixer.music.play(-1)
 	
 	

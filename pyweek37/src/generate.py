@@ -130,7 +130,7 @@ def phase(R, seed, opts0, opts, planetmax):
 		state.addplanet(pH, supply, demand)
 		if len(state.planets) >= planetmax:
 			break
-	print(len(state.planets), R, seed, len(opts0), len(opts), planetmax)
+#	print(len(state.planets), R, seed, len(opts0), len(opts), planetmax)
 	state.resolvenetwork(silent = True)
 	state.setbounds()
 
@@ -265,6 +265,7 @@ def tutorial1():
 	state.addplanet((-2, 1), demand = "", supply = "R")
 	state.addplanet((2, -1), demand = "R", supply = "O")
 	state.resolvenetwork()
+	state.setbounds()
 
 def tutorial2():
 	state.addvisibility(4, (0, 4))
@@ -272,6 +273,7 @@ def tutorial2():
 	state.addplanet((2, 2), demand = "Y", supply = "R")
 	state.addplanet((-2, 4), demand = "R", supply = "G")
 	state.resolvenetwork()
+	state.setbounds()
 
 def tutorial3():
 	state.addvisibility(4, (-4, 5))
@@ -283,6 +285,7 @@ def tutorial3():
 	state.addrock((-4, 7))
 	state.addrock((-3, 7))
 	state.resolvenetwork()
+	state.setbounds()
 
 
 def tutorial4():
@@ -294,6 +297,7 @@ def tutorial4():
 	state.addplanet((7, 0), demand = "G", supply = "")
 	state.addplanet((7, 3), demand = "B", supply = "")
 	state.resolvenetwork()
+	state.setbounds()
 
 
 def tutorial5():
@@ -305,6 +309,7 @@ def tutorial5():
 	state.addplanet((12, -12), demand = "ROY", supply = "")
 	state.addplanet((16, -14), demand = "ROY", supply = "")
 	state.resolvenetwork()
+	state.setbounds()
 
 
 if __name__ == "__main__":

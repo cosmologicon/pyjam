@@ -10,7 +10,13 @@ minfps, maxfps = 10, 120
 sfxvolume = 0.6
 musicvolume = 0.6
 
-DEBUG = True
+gamemodes = "easy", "hard"
+# Uncomment this if you want to try the medium mode, but be warned
+# I didn't finish testing it.
+#gamemodes = "easy", "medium", "hard"
+
+
+DEBUG = False
 
 keys = {
 	"up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],

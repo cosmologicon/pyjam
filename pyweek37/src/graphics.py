@@ -90,6 +90,17 @@ def outlineH(pH):
 	pDs = [view.DconvertG(pG) for pG in grid.GoutlineH(pH)]
 	pygame.draw.lines(pview.screen, (0, 255, 255), True, pDs, 1)
 
+
+def targetH(pH):
+	pG0 = grid.GconvertH(pH)
+	t = 0.001 * pygame.time.get_ticks()
+	d = 1 - 0.3 * (t % 1)
+	pGouts = grid.GoutlineH(pH)
+	while d > 0:
+		pDs = [view.DconvertG(math.mix(pG0, pGout, d)) for pGout in pGouts]
+		pygame.draw.lines(pview.screen, (0, 80, 80), True, pDs, 1)
+		d -= 0.3
+
 def drawcircleH(pH, color, scaleG):
 	pD = view.DconvertG(grid.GconvertH(pH))
 	pygame.draw.circle(pview.screen, color, pD, view.DscaleG(scaleG))
