@@ -7,7 +7,7 @@ class self:
 
 def init():
 	global posD, kdowns, kpressed, quit, click, mclick, rclick, dwheel
-	global dragD, dragfrom, mdragD
+	global dragD, dragfrom, mdragD, rdragD
 	posD = (0, 0)
 	kdowns = []
 	kpressed = defaultdict(bool)
@@ -17,6 +17,7 @@ def init():
 	dragD = (0, 0)
 	dragfrom = None  # On the frame when dragging begins, p0
 	mdragD = (0, 0)
+	rdragD = (0, 0)
 	rclick = False
 	dwheel = 0
 	self.current = None
@@ -28,7 +29,7 @@ def init():
 
 def think(dt):
 	global posD, kdowns, kpressed, quit, click, mclick, rclick, dwheel
-	global dragD, dragfrom, mdragD
+	global dragD, dragfrom, mdragD, rdragD
 	posD = pygame.mouse.get_pos()
 	kdowns = []
 	quit = False
@@ -39,6 +40,7 @@ def think(dt):
 	dragD = (0, 0)
 	dragfrom = None
 	mdragD = (0, 0)
+	rdragD = (0, 0)
 	if self.borked and not any(pygame.mouse.get_pressed()):
 		self.borked = False
 	if self.current and not self.dragging and not self.borked:
@@ -55,6 +57,8 @@ def think(dt):
 			dragD = x1 - x0, y1 - y0
 		elif self.current == 2:
 			mdragD = x1 - x0, y1 - y0
+		elif self.current == 3:
+			rdragD = x1 - x0, y1 - y0
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			quit = True

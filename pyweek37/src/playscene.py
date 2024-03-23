@@ -82,10 +82,9 @@ def think(dt):
 		if "remove" in control.kdowns:
 			state.removetube(control.selected)
 			control.selected = None
-	dx = 600 * (control.kpressed["right"] - control.kpressed["left"]) * dt
-	dy = 600 * (control.kpressed["down"] - control.kpressed["up"]) * dt
-	view.scootD(dx, dy)
-	view.scootD(-control.mdragD[0], -control.mdragD[1])
+	dx = T(600 * (control.kpressed["right"] - control.kpressed["left"]) * dt)
+	dy = T(600 * (control.kpressed["down"] - control.kpressed["up"]) * dt)
+	view.scootD((dx - control.rdragD[0], dy - control.rdragD[1]))
 	if control.dwheel > 0:
 		view.zoomstep(1, control.posD)
 	if control.dwheel < 0:
@@ -158,9 +157,14 @@ def draw():
 			"Scroll wheel or 1/2: zoom",
 			"Backspace: delete conduit",
 			"Tab: hide controls",
+			f"{view.VscaleG}, {view.xG0}, {view.yG0}",
 		]
 	else:
 		lines = ["Tab: expand controls"]
+#	pygame.draw.circle(pview.screen, (255, 200, 100), view.DconvertG((view.xG0, view.yG0)), 3)
+#	pygame.draw.circle(pview.screen, (100, 255, 100), view.DconvertG((0, 0)), 3)
+#	pygame.draw.circle(pview.screen, (100, 255, 100), view.DconvertG((0, 1)), 3)
+#	pygame.draw.circle(pview.screen, (100, 255, 100), view.DconvertG((1, 1)), 3)
 	if control.selected is not None:
 		lines = control.selected.info() + lines
 	ptext.draw("\n".join(lines), bottomright = pview.bottomright, fontsize = T(25),

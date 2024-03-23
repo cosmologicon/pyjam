@@ -1,7 +1,7 @@
 import pygame, math
 from . import view, pview, maff, grid
 
-scale = 100
+scale = 400
 w0 = int(round(scale / 20))
 kscale = 2
 
@@ -221,7 +221,7 @@ def renderstraight(scale, beta, amax = 1, drawback = False):
 	view.xG0, view.yG0 = 0, 0
 	pview.center = scale, scale
 	surf = pygame.Surface((2 * scale, 2 * scale)).convert_alpha()
-	surf.fill((0, 0, 0, 0))
+	surf.fill((255, 255, 255, 0))
 	ntheta = kscale * scale
 	na = kscale * scale
 	if drawback:
@@ -240,7 +240,7 @@ def renderstraight(scale, beta, amax = 1, drawback = False):
 			if a > amax: continue
 			color = (255, 255, 255)
 			jstripe = gamma(ftheta) - 2 * a
-			if jstripe % 1 > 0.5:
+			if jstripe % 1 < 0.5:
 				color = math.imix((0, 0, 0), color, 0.7)
 			pG, normG = pnormstraight(ftheta, a, beta)
 			renderpoint(surf, pG, normG, color)
@@ -285,15 +285,14 @@ def renderturn(scale, beta, d):
 	ntheta = kscale * scale
 	nphi = kscale * scale
 	surf = pygame.Surface((2 * scale, 2 * scale)).convert_alpha()
-	surf.fill((0, 0, 0, 0))
+	surf.fill((255, 255, 255, 0))
 	for jtheta in range(ntheta):
 		ftheta = jtheta / ntheta
-		print(beta, d, jtheta, ntheta, ftheta)
 		for jphi in range(nphi + 1):
 			fphi = jphi / nphi
 			color = (255, 255, 255)
 			jstripe = gamma(ftheta) + 2 * fphi + 0.5
-			if jstripe % 1 > 0.5:
+			if jstripe % 1 < 0.5:
 				color = math.imix((0, 0, 0), color, 0.7)
 			pG, normG = pnormturn(ftheta, fphi, beta, d)
 			renderpoint(surf, pG, normG, color)
@@ -367,7 +366,7 @@ if __name__ == "__main__":
 			glowshave(renderturn(scale, beta, 1), f"tube-{jbeta}-{jbetaR}")
 			glowshave(renderdock(scale, beta), f"dock-{jbeta}")
 			glowshave(renderstraight(scale, beta, amax = 0.4, drawback = True), f"build-{jbeta}")
-	if True:
+	if False:
 		while not any(event.type in (pygame.QUIT, pygame.KEYDOWN) for event in pygame.event.get()):
 			pview.fill((60, 30, 0))
 			view.tip = math.cycle(pygame.time.get_ticks() * 0.0002)

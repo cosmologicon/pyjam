@@ -333,14 +333,13 @@ def resolvenetwork():
 def aimcamera():
 	from . import view
 	if not visible:
-		view.xG, view.yG = 0, 0
+		view.xG0, view.yG0 = 0, 0
 		view.zoomto(40)
 		return
 	xGs, yGs = zip(*[grid.GconvertH(pG) for pG in visible])
-	view.xG, view.yG = sum(xGs) / len(xGs), sum(yGs) / len(yGs)
+	view.xG0, view.yG0 = sum(xGs) / len(xGs), sum(yGs) / len(yGs)
 	# The scale that would fit everything to the screen.
 	scale = pview.s0 / math.hypot(max(xGs) - min(xGs), max(yGs) - min(yGs))
-	print(view.xG, view.yG, scale)
 	# Bias toward medium values.
 	scale = 40 * (scale / 40) ** 0.7
 	view.zoomto(scale)

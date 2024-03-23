@@ -4,7 +4,8 @@ from . import ptext, pview, view, settings, grid
 
 @cache
 def loadimg(filename):
-	return pygame.transform.scale2x(pygame.transform.scale2x(pygame.image.load(filename)))
+#	return pygame.transform.scale2x(pygame.transform.scale2x(pygame.image.load(filename)))
+	return pygame.image.load(filename)
 
 @cache
 def drawsymbol(symbol):
