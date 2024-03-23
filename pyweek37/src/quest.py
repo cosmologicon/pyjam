@@ -111,21 +111,42 @@ class EasyQuest(Quest):
 	nsteps = 10
 	def __init__(self):
 		Quest.__init__(self)
-		generate.ezphase1()
+		self.load(1)
+	def load(self, phase):
+		if phase == 1:
+			generate.ezphase1()
+		if phase == 2:
+			generate.ezphase2()
+		if phase == 3:
+			generate.ezphase3()
 	def check(self):
 		if self.step == 0:
 			self.advance()
-		if self.step == 1 and state.allsupplied():
+
+		if self.step == 1 and state.numunsupplied() < 6:
 			self.advance()
-			sound.play("advance")
-			generate.ezphase2()
 		if self.step == 2 and state.allsupplied():
+			sound.play("advance")
+			self.load(2)
+
+		if self.step == 3 and state.numunsupplied() < 8:
+			self.advance()
+		if self.step == 4 and state.numunsupplied() < 4:
+			self.advance()
+		if self.step == 5 and state.allsupplied():
+			sound.play("advance")
+			self.load(3)
+
+		if self.step == 6 and state.numunsupplied() < 12:
+			self.advance()
+		if self.step == 7 and state.numunsupplied() < 8:
+			self.advance()
+		if self.step == 8 and state.numunsupplied() < 4:
+			self.advance()
+		if self.step == 9 and state.allsupplied():
 			self.advance()
 			sound.play("advance")
-			generate.ezphase3()
-		if self.step == 3 and state.allsupplied():
-			self.advance()
-			sound.play("advance")
+
 	def marquee(self):
 		if self.tstep > 15:
 			return
@@ -146,24 +167,16 @@ class EasyQuest(Quest):
 		if self.step == 8:
 			return "Welcome to planet Hardscrabble. Dialog #8."
 		if self.step == 9:
-			return "Welcome to planet Hardscrabble. Dialog #9."
+			return "Thank you for playing. Press Esc to quit."
 
-class HardQuest(Quest):
-	nsteps = 4
-	def __init__(self):
-		Quest.__init__(self)
-		generate.phase1()
-	def check(self):
-		if self.step == 0:
-			self.advance()
-		if self.step == 1 and state.allsupplied():
-			self.advance()
+class HardQuest(EasyQuest):
+	def load(self, phase):
+		if phase == 1:
+			generate.phase1()
+		if phase == 2:
 			generate.phase2()
-		if self.step == 2 and state.allsupplied():
-			self.advance()
+		if phase == 3:
 			generate.phase3()
-		if self.step == 3 and state.allsupplied():
-			self.advance()
 	
 
 quests = []

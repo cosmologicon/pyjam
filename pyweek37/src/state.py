@@ -37,6 +37,7 @@ class Planet:
 		self.supplied = False
 		self.t = 0
 		self.exports = ""
+		self.winning = True
 	# Update the planet's supplied bit and imports/exports based on the resources coming in.
 	# Returns a list of tubes that are newly supplied.
 	def checksupply(self):
@@ -467,6 +468,9 @@ def planetat(pH):
 
 def allsupplied():
 	return all(planet.supplied for planet in planets)
+
+def numunsupplied():
+	return sum(not planet.supplied for planet in planets)
 
 def objat(pH):
 	if pH not in visible:

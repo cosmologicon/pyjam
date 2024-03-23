@@ -1,13 +1,68 @@
 import pygame, math, random
 from collections import Counter
+from functools import cache
 from . import control, view, grid, state, settings, hud, generate, quest, graphics, sound
 from . import pview, ptext
 from .pview import T
 
 
 
+@cache
+def symbolsparks(pH, symbol):
+	img = graphics.drawsymbol(symbol)
+	w, h = img.get_size()
+	sparks = []
+	for j in range(200):
+		x = math.fuzzrange(-1, 1, 2703, j, *pH)
+		y = math.fuzzrange(-1, 1, 2704, j ,*pH)
+		px = int(math.interp(x, -1, 0, 1, w - 1))
+		py = int(math.interp(y, 1, 0, -1, h - 1))
+		if img.get_at((px, py))[3] > 0:
+			sparks.append((x, y))
+	return sparks
+
+class Firework:
+	def __init__(self):
+		self.nextwork = {}
+		self.t = 0
+		self.works = []
+	def think(self, dt):
+		self.t += dt
+		for planet in state.planets:
+			twork = math.fuzzrange(10, 20, 2700, *planet.pH)
+			t0 = math.fuzzrange(0, twork, 2701, *planet.pH)
+			if planet.pH not in self.nextwork:
+				self.nextwork[planet.pH] = t0
+			t = self.nextwork[planet.pH]
+			if planet.supplied and planet.supply and self.t > t:
+				symbol = math.fuzzchoice(planet.supply, 2702, t)
+				work = t, planet.pH, symbol
+				self.nextwork[planet.pH] += twork
+				self.works.append(work)
+		self.works = [(t, pH, symbol) for t, pH, symbol in self.works if t < self.t + 10]
+	def drawpoint(self, pH, dxG, zG, color, sizeG):
+		xG, yG = grid.GconvertH(pH)
+		pD = view.DconvertG((xG + dxG, yG), zG)
+		pygame.draw.circle(pview.screen, color, pD, view.DscaleG(sizeG))
+	def draw(self):
+		for t, pH, symbol in self.works:
+			dt = self.t - t
+			if dt < 1:
+				color = math.imix((50, 50, 50), (255, 255, 255), math.fuzz(dt, *pH))
+				h = math.mix(0.4, 3, (dt / 1) ** 0.7)
+				self.drawpoint(pH, 0, h, color, 0.06)
+			elif dt < 3:
+				r = 1.5 * math.interp(dt, 1, 0, 3, 1) ** 0.5
+				h = 3 - 0.3 * (dt - 1.5) ** 2
+				color = settings.getcolor(symbol)
+				sparks = symbolsparks(pH, symbol)
+				nsparks = int(math.interp(dt, 2.5, 1, 3, 0) * len(sparks))
+				for dx, dz in sparks[:nsparks]:
+					self.drawpoint(pH, r * dx, h + r * dz * 1.4, color, 0.02)
+
+
 def init():
-	global building, marquee0, malpha
+	global building, marquee0, malpha, firework
 	building = None
 	state.load()
 	if state.level == "tutorial":
@@ -22,9 +77,11 @@ def init():
 	marquee0 = None
 	malpha = 0
 	hud.init()
+	firework = Firework()
+	
 
 def think(dt):
-	global building, marquee0, malpha
+	global building, marquee0, malpha, twin, fireworks
 	pHcursor = grid.HnearestG(view.GconvertD(control.posD))
 	hud.think(dt)
 	if control.click:
@@ -107,6 +164,8 @@ def think(dt):
 	malpha = math.approach(malpha, alpha, 5 * dt)
 	if malpha == 0:
 		marquee0 = marquee
+	if True:
+		firework.think(dt)
 
 
 def draw():
@@ -153,6 +212,7 @@ def draw():
 		planet.drawbubbles()
 	graphics.renderqueue()
 
+	firework.draw()
 
 	graphics.drawsand()
 
