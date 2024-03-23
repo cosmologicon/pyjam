@@ -3,6 +3,10 @@ from functools import cache
 from itertools import cycle, chain
 from . import state, grid
 
+vs = [math.fuzz(j) for j in range(100)]
+math.fuzzshuffle(vs, 1234)
+assert math.fuzz(*vs) == 0.6878685656702146, "Failure in deterministic RNG."
+
 
 colorcosts = [1, 1, 1, 2, 2, 3]
 
@@ -126,8 +130,59 @@ def phase(R, seed, opts0, opts, planetmax):
 		state.addplanet(pH, supply, demand)
 		if len(state.planets) >= planetmax:
 			break
-	print(len(state.planets))
+	print(len(state.planets), R, seed, len(opts0), len(opts), planetmax)
 	state.resolvenetwork(silent = True)
+	state.setbounds()
+
+def medphase1():
+	addcentral()
+	opts0 = ["R,OY", "Y,R"] # +1O
+	opts = [
+		["R,O", "O,R"],
+		["O,Y", "Y,O"],
+		["R,Y", "Y,R"],
+	]
+	phase(6.5, 19005, opts0, opts, 15)
+
+def medphase2():
+	opts0 = ["G,RY", "R,G", "Y,G", "G,OR", "R,G", "O,G", "O,RY", "R,O"]  # +2G +1Y
+	opts = [
+		["G,RY", "RY,G"],
+		["G,O", "O,G"],
+		["G,OR", "OR,G"],
+		["G,Y", "Y,G"],
+		["G,OY", "OY,G"],
+		["G,R", "R,G"],
+		["R,O", "O,R"],
+		["O,Y", "Y,O"],
+		["R,Y", "Y,R"],
+	]
+	phase(10.5, 19115, opts0, opts, 31)
+	
+def medphase3():
+	opts0 = [
+		"B,OY", "O,B", "Y,G", "G,B",
+		"B,OR", "R,B", "O,G", "G,B",
+		"G,OY", "O,G", "Y,G",
+		"Y,OR", "O,Y"]  # +2B +1G +1R
+	opts = [
+		["B,G", "G,B"],
+		["G,RY", "RY,G"],
+		["B,O", "O,B"],
+		["B,OR", "OR,B"],
+		["G,Y", "Y,G"],
+		["G,OY", "OY,G"],
+		["B,R", "R,B"],
+		["B,RY", "RY,B"],
+		["G,O", "O,G"],
+		["G,OR", "OR,G"],
+		["B,Y", "Y,B"],
+		["B,OY", "OY,B"],
+		["G,R", "R,G"],
+		["BY,GO", "BR,GY", "GO,BR", "G,B"],
+		["BO,GR", "GY,BO", "GR,BY", "B,G"],
+	]
+	phase(14.5, 19208, opts0, opts, 45)
 	
 
 def phase1():

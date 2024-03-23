@@ -8,10 +8,11 @@ class self:
 def init():
 	self.t = 0
 	control.init()
+	texts = ["tutorial", "easy", "medium", "hard"]
 	texts = ["tutorial", "easy", "hard"]
-	rectVs = [pygame.Rect(0, 0, 400, 100) for text in texts]
+	rectVs = [pygame.Rect(0, 0, 320, 80) for text in texts]
 	for j, rectV in enumerate(rectVs):
-		rectV.center = 1000, 200 + 130 * j
+		rectV.center = 1000, 200 + 100 * j
 	self.boxes = [(rectV, text) for rectV, text in zip(rectVs, texts)]
 	self.selected = None
 	self.done = False
@@ -46,6 +47,7 @@ def drawbox(rectV, name):
 	text = {
 		"tutorial": "Tutorial",
 		"easy": "Easy Mode",
+		"medium": "Medium Mode",
 		"hard": "Hard Mode",
 	}[name]
 	sizeD = T(rectV.h * 0.7)
@@ -58,13 +60,23 @@ def drawbox(rectV, name):
 		fontname = "BebasNeue", shadow = (0.3, 0.3), owidth = 0.1)
 
 def draw():
-	pview.fill((60, 40, 20))
+#	pview.fill((60, 40, 20))
 
 	view.tilt = 0.04 * 0.001 * pygame.time.get_ticks()
 	render.setcamera()
+	img = graphics.groundimg0(alpha = 255)
+	img = pygame.transform.rotozoom(img, math.degrees(view.tilt), 20)
+	f = 4 * pview.f
+	w, h = img.get_size()
+	img = pygame.transform.smoothscale(img, pview.I(w * f, h * f * math.cos(view.tip)))
+	pview.screen.blit(img, img.get_rect(center = T(400, 420)))
+	
+
 	img = render.renderdome(T(300))
 #	img = pygame.transform.smoothscale(img, T(600, 600))
 	pview.screen.blit(img, img.get_rect(center = T(400, 420)))
+	center = T(math.CS(-view.tilt + 0.6, 700, (400, 420)))
+	pview.screen.blit(img, img.get_rect(center = center))
 	
 	for rectV, name in self.boxes:
 		drawbox(rectV, name)
@@ -73,8 +85,8 @@ def draw():
 		fontname = "RussoOne", fontsize = T(80),
 		shade = 1, owidth = 0.5, shadow = (1, 1))
 	ptext.draw("by Christopher Night\nmusic by Kevin MacLeod",
-		bottomleft = T(20, 700), fontname = "RussoOne", fontsize = T(40),
-		shade = 1, owidth = 1)
+		bottomleft = T(10, 712), fontname = "RussoOne", fontsize = T(22),
+		shade = 1, owidth = 2)
 
 	lines = [
 		"F10: change resolution",

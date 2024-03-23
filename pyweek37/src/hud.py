@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, ptext, control, settings, graphics, state
+from . import pview, ptext, control, settings, graphics, state, sound
 from .pview import T
 
 class self:
@@ -22,10 +22,12 @@ class FilterBox:
 		return True
 
 	def draw(self):
-		color = settings.getcolor(self.symbol)
+		ocolor = settings.getcolor(self.symbol)
 		if not self.selected:
-			color = math.imix(color, (0, 0, 0), 0.6)
-		pygame.draw.rect(pview.screen, color, pview.T(self.rectV))
+			ocolor = math.imix(ocolor, (0, 0, 0), 0.6)
+		color = math.imix(ocolor, (0, 0, 0), 0.6)
+		pygame.draw.rect(pview.screen, color, pview.T(self.rectV), border_radius = T(5))
+		pygame.draw.rect(pview.screen, ocolor, pview.T(self.rectV), border_radius = T(5), width = T(3))
 		if self.ctype is None:
 			graphics.drawsymbolatD(self.symbol, pview.T(self.rectV.center), pview.T(35),
 				immediate = True)
@@ -37,9 +39,12 @@ class FilterBox:
 		selfobj.active = self
 
 	def onclick(self, selfobj):
-		self.selected = self.selected
-		selfobj.selected = box if self.selected else None
+		self.selected = not self.selected
+		selfobj.selected = self if self.selected else None
 		control.click = False
+		for box in selfobj.boxes:
+			if box is not self:
+				box.selected = False
 
 class Button:
 	def __init__(self, rectV):
@@ -134,12 +139,17 @@ class TrashButton(Button):
 def init():
 	self.t = 0
 	self.boxes = []
-	for jcol, ctype in enumerate([None, "import", "export", "tube"]):
-		for jrow, symbol in enumerate([None] + list(settings.colors)):
-			if ctype is None and symbol is None: continue
-			rect = pygame.Rect(20 + 34 * jcol, 20 + 54 * jrow, 30, 50)
-			box = FilterBox(rect, symbol, ctype)
-			self.boxes.append(box)
+	if False:
+		for jcol, ctype in enumerate([None, "import", "export", "tube"]):
+			for jrow, symbol in enumerate([None] + list(settings.colors)):
+				if ctype is None and symbol is None: continue
+				rect = pygame.Rect(25 + 34 * jcol, 50 + 54 * jrow, 30, 50)
+				box = FilterBox(rect, symbol, ctype)
+				self.boxes.append(box)
+	for jrow, symbol in enumerate(list(settings.colors)):
+		rect = pygame.Rect(20, 60 + 54 * jrow, 80, 50)
+		box = FilterBox(rect, symbol, None)
+		self.boxes.append(box)
 	texts = ["Met demand", "Claimed supply"]
 	optnames = ["showdemand", "showsupply"]
 	rectV = pygame.Rect(0, 0, 180, 40)
@@ -168,6 +178,9 @@ def think(dt):
 				if box.getactive():
 					box.onclick(self)
 					control.click = False
+					sound.play("click")
+				else:
+					sound.play("no")
 	ftarget = 0 if self.active else 1
 	if self.active:
 		for key in self.active.keys:
@@ -192,6 +205,9 @@ def factor(symbol, ctype):
 	return self.f.get((symbol, ctype), self.f[None])
 
 def draw():
+	ptext.draw("Hover or click to highlight", midtop = T(60, 10), width = T(100),
+		fontname = "BebasNeue", fontsize = T(18),
+		owidth = 1, shade = 1)
 	for box in self.boxes:
 		box.draw()
 

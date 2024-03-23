@@ -25,6 +25,7 @@ keys = {
 	"quit": [pygame.K_ESCAPE],
 	"zoomin": [pygame.K_1],
 	"zoomout": [pygame.K_2],
+	"cheat": [pygame.K_F1],
 }
 
 size0 = 1280, 720
@@ -40,17 +41,17 @@ colors = "ROYGB"
 
 PALETTES = {
 	"roygb": {
-		"R": [255, 50, 50],
+		"R": [255, 80, 80],
 		"O": [255, 128, 0],
 		"Y": [255, 255, 0],
 		"G": [50, 255, 50],
-		"B": [100, 100, 255],
+		"B": [130, 130, 255],
 	},
 	"roybw": {
-		"R": [255, 50, 50],
+		"R": [255, 80, 80],
 		"O": [255, 128, 0],
 		"Y": [255, 255, 0],
-		"G": [100, 100, 255],
+		"G": [130, 130, 255],
 		"B": [200, 200, 200],
 	},
 	# https://lospec.com/palette-list/ibm-color-blind-safe

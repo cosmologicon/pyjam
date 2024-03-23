@@ -30,14 +30,17 @@ tilt = 0.15
 tip = 0.7
 
 def scootD(dpD):
+	from . import state
 	global xG0, yG0
 	dxD, dyD = dpD
 	VscaleD = 1 / pview.f
 	dxG, dyG = VscaleD * dxD / VscaleG, -VscaleD * dyD / VscaleG
 	dyG /= math.cos(tip)
 	dxG, dyG = math.R(-tilt, (dxG, dyG))
-	xG0 += dxG
-	yG0 += dyG
+	xG0 += dxG / 3.5
+	yG0 += dyG / 3.5
+	xG0 = math.clamp(xG0 + dxG, state.minxG, state.maxxG)
+	yG0 = math.clamp(yG0 + dyG, state.minyG, state.maxyG)
 
 def zoomto(scale):
 	global VscaleG
@@ -56,11 +59,11 @@ def zoom(scale, pDanchor = None):
 	xVanchor, yVanchor = VconvertD(pDanchor or pview.center)
 	oldVscaleG = VscaleG
 	VscaleG = scale
-	VscaleG = math.clamp(VscaleG, 10, 200)
+	VscaleG = math.clamp(VscaleG, settings.minzoom, settings.maxzoom)
 	# xG(xVanchor) = xG0 + (xVanchor - xV0) / VscaleG is a constant
 	# oldxG0 + (xVanchor - xV0) / oldVscaleG = xG0 + (xVanchor - xV0) / VscaleG0
-	xG0 += (xVanchor - xV0) * (1 / oldVscaleG - 1 / VscaleG)
-	yG0 -= (yVanchor - yV0) * (1 / oldVscaleG - 1 / VscaleG)
+	xG0 += (xVanchor - pview.centerx0) * (1 / oldVscaleG - 1 / VscaleG)
+	yG0 -= (yVanchor - pview.centery0) * (1 / oldVscaleG - 1 / VscaleG)
 
 def VconvertG(pG, zG = 0):
 	xG, yG = pG

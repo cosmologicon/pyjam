@@ -65,14 +65,15 @@ class Firework:
 def init():
 	global building, marquee0, malpha, firework
 	building = None
-	state.load()
+#	state.load()
 	if state.level == "tutorial":
 		sound.playmusic("notasitseems")
 	else:
 		sound.playmusic("entertheparty")
-#	generate.phase1()
-#	generate.phase2()
-#	generate.phase3()
+	state.init()
+#	generate.medphase1()
+	generate.medphase2()
+#	generate.medphase3()
 	control.init()
 	control.selected = None
 	marquee0 = None
@@ -161,6 +162,10 @@ def think(dt):
 		view.zoomstep(-1, control.posD)
 	if "zoomout" in control.kdowns:
 		view.zoomstep(-1)
+	if settings.DEBUG and "cheat" in control.kdowns:
+		if building and len(building.pHs) == 1:
+			building.supplier.cheat()
+
 	for tube in state.tubes:
 		tube.think(dt)
 	for planet in state.planets:
@@ -171,7 +176,7 @@ def think(dt):
 	malpha = math.approach(malpha, alpha, 5 * dt)
 	if malpha == 0:
 		marquee0 = marquee
-	if True:
+	if not quest.quests:
 		firework.think(dt)
 
 

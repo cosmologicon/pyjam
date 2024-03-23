@@ -17,6 +17,7 @@ def load(sname):
 
 def getvolume(sname):
 	return {
+		"buildup": 0.4,
 	}.get(sname, 0.8) * settings.sfxvolume ** 1.8
 
 def play(sname):

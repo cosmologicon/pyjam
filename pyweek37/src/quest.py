@@ -153,7 +153,7 @@ class EasyQuest(Quest):
 		if self.tstep > 15:
 			return
 		if self.step == 1:
-			return "Planet Hardscrabble, Class Q marginally habitable. 10 billion hectares of windswept wasteland."
+			return "Planet Hardscrabble, Class W marginally habitable. 10 billion hectares of windswept wasteland."
 		if self.step == 2:
 			return "Nothing grows here. Nothing lives here but 70 million inhabitants crammed into aging, spartan, domed habitats, cut off from one another by kilometers of tundra."
 		if self.step == 3:
@@ -170,6 +170,15 @@ class EasyQuest(Quest):
 			return "I see bright things in the future for Planet Hardscrabble. Hey, we'll have to change that name!"
 		if self.step == 9:
 			return "What do you think about: Planet Tubetopia? Thank you for playing. Press Esc to quit."
+
+class MediumQuest(EasyQuest):
+	def load(self, phase):
+		if phase == 1:
+			generate.medphase1()
+		if phase == 2:
+			generate.medphase2()
+		if phase == 3:
+			generate.medphase3()
 
 class HardQuest(EasyQuest):
 	def load(self, phase):

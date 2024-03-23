@@ -105,13 +105,13 @@ def drawsymbolat(symbol, pD, sizeG, strength = 1, palette = None):
 	drawsymbolatD(symbol, pD, view.DscaleG(sizeG), strength, palette)
 
 @cache
-def bubbleimg(size, flip = False):
+def bubbleimg(size, flip = False, color = None):
 	if flip is True:
-		return pygame.transform.rotate(bubbleimg(size), 180)
+		return pygame.transform.rotate(bubbleimg(size, color = (160, 120, 120)), 180)
 	width, height = size
 	if height != 200:
 		w = int(round(width * 200 / height))
-		return pygame.transform.smoothscale(bubbleimg((w, 200)), size)
+		return pygame.transform.smoothscale(bubbleimg((w, 200), color = color), size)
 	img = pygame.Surface(size).convert_alpha()
 	img.fill((0, 0, 0, 0))
 	d = 12
@@ -121,7 +121,8 @@ def bubbleimg(size, flip = False):
 	pygame.draw.polygon(img, (10, 10, 10), ps)
 	pcurve = [math.CS(theta, 200 - 2 * d, center = (width - 200 + d, 200 - d)) for theta in thetas]
 	ps = [[d, d], [d, 200-d]] + [pview.I(p) for p in pcurve]
-	pygame.draw.polygon(img, (100, 90, 80), ps)
+	color = color or (120, 160, 120)
+	pygame.draw.polygon(img, color, ps)
 	return img
 
 # flip = True for supply, flip = False for demand
@@ -228,24 +229,29 @@ def fog(dmax):
 	img = fogimg(dmax + 1, pview.size, view.VscaleG, view.xG0, view.yG0)
 	pview.screen.blit(img, (0, 0))
 
+sground = 15
+
 @cache
-def groundimg0():
-	s = 15
-	surf = pygame.Surface((2 * s, 2 * s)).convert_alpha()
-	for px in range(s):
-		for py in range(s):
-			c = math.imix((40, 30, 20), (70, 60, 50), math.fuzz(1001, px, py))
-			for dx in [0, s]:
-				for dy in [0, s]:
+def groundimg0(alpha = 100):
+	surf = pygame.Surface((2 * sground, 2 * sground)).convert_alpha()
+	for px in range(sground):
+		for py in range(sground):
+			c = math.imix((40, 30, 20, alpha), (70, 60, 50, alpha), math.fuzz(1001, px, py))
+			for dx in [0, sground]:
+				for dy in [0, sground]:
 					surf.set_at((px + dx, py + dy), c)
 	return surf
 
 @cache
 def groundimg(scale):
-	w0, h0 = int(15 * scale), int(15 * scale * math.cos(view.tip))
-	surf0 = pygame.transform.smoothscale(groundimg0(), (2 * w0, 2 * h0))
-	surf = pygame.Surface((w0, h0)).convert_alpha()
-	surf.blit(surf0, (-w0 // 2, -h0 // 2))
+	w, h = int(sground * scale), int(sground * scale * math.cos(view.tip))
+	f = (2 * sground + 1) / (sground + 1)
+	size0 = pview.I(f * w, f * h)
+	surf0 = pygame.transform.smoothscale(groundimg0(), size0)
+	surf = pygame.Surface((w, h)).convert_alpha()
+	surf.fill((50, 40, 30))
+	for (dx, dy) in [(0.1, math.Phi), (math.Phi, 0.1), (0.8, 0.8)]:
+		surf.blit(surf0, pview.I(-w * dx, -h * dy))
 	return surf
 	
 

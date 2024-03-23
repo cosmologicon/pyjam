@@ -77,7 +77,7 @@ class Planet:
 	def draw(self, outline = False):
 		color = (160, 200, 240)
 		if not self.supplied:
-			color = (100, 80, 80)
+			color = (80, 80, 80)
 		graphics.drawdomeatH(self.pH, color, outline = outline)
 #		pygame.draw.circle(pview.screen, (255, 0, 255), view.DconvertG(grid.GconvertH(self.pH)), 3)
 	def drawbubbles(self):
@@ -86,7 +86,8 @@ class Planet:
 			met = symbol in self.imports
 			if met and settings.showdemand == "off":
 				continue
-			strength = 1 if not met or settings.showdemand == "on" else 0.2
+			strength = 1 if not met or settings.showdemand == "on" else 0.5
+			strength = min(strength, hud.factor(symbol, "import"))
 			symbols.append((symbol, strength))
 		if symbols:
 			graphics.drawbubbleatH(self.pH, symbols, False)
@@ -95,11 +96,13 @@ class Planet:
 			for symbol, lit in symbollit(self.exports0, self.exports):
 				if not lit and settings.showsupply == "off":
 					continue
-				strength = 1 if lit or settings.showsupply == "on" else 0.2
+				strength = 1 if lit or settings.showsupply == "on" else 0.5
+				strength = min(strength, hud.factor(symbol, "export"))
 				symbols.append((symbol, strength))
 		else:
 			for symbol in self.exports0:
-				symbols.append((symbol, 0.2))
+				strength = min(0.5, hud.factor(symbol, "export"))
+				symbols.append((symbol, strength))
 		if symbols:
 			graphics.drawbubbleatH(self.pH, symbols, True)
 	def draw_old(self, glow = False):
@@ -123,7 +126,9 @@ class Planet:
 			beta *= hud.factor(symbol, "export")
 			pG = xG + 0.1 + 0.25 * j, yG - 0.3
 			graphics.drawsymbolat(symbol, view.DconvertG(pG), 0.5, beta)
-		
+	def cheat(self):
+		self.demand = self.demand[1:]
+		resolvenetwork(silent = True)
 	def info(self):
 		return [
 			f"posH: {self.pH}",
@@ -381,16 +386,28 @@ def resolvenetwork(silent = False):
 		if dnumsupplied < 0:
 			sound.play("completedown")
 
-def aimcamera():
-	from . import view
+
+minxG, maxxG = None, None
+minyG, maxyG = None, None
+
+def setbounds():
+	global minxG, maxxG, minyG, maxyG
 	if not visible:
-		view.xG0, view.yG0 = 0, 0
-		view.zoomto(40)
+		minxG, maxxG = -5, 5
+		minyG, maxyG = -5, 5
 		return
 	xGs, yGs = zip(*[grid.GconvertH(pG) for pG in visible])
-	view.xG0, view.yG0 = sum(xGs) / len(xGs), sum(yGs) / len(yGs)
+	minxG = min(xGs)
+	maxxG = max(xGs)
+	minyG = min(yGs)
+	maxyG = max(yGs)
+	
+
+def aimcamera():
+	from . import view
+	view.xG0, view.yG0 = math.mix(minxG, maxxG, 0.5), math.mix(minyG, maxyG, 0.5)
 	# The scale that would fit everything to the screen.
-	scale = pview.s0 / math.hypot(max(xGs) - min(xGs), max(yGs) - min(yGs))
+	scale = pview.s0 / math.hypot(maxxG - minxG, maxyG - minyG)
 	# Bias toward medium values.
 	scale = 40 * (scale / 40) ** 0.7
 	view.zoomto(scale)
@@ -408,8 +425,11 @@ def init():
 		quest.quests.append(quest.TutorialQuest())
 	if level == "easy":
 		quest.quests.append(quest.EasyQuest())
+	if level == "medium":
+		quest.quests.append(quest.MediumQuest())
 	if level == "hard":
 		quest.quests.append(quest.HardQuest())
+	setbounds()
 	aimcamera()
 
 
@@ -500,6 +520,7 @@ def save():
 def load():
 	if os.path.exists(savename()):
 		fromobj(pickle.load(open(savename(), "rb")))
+		setbounds()
 		aimcamera()
 	else:
 		init()
