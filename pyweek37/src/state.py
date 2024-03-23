@@ -307,9 +307,10 @@ class Rock:
 	def draw(self, glow = False):
 		if not self.pH in visible:
 			return
-		color = (30, 60, 60)
-		color = math.imix(color, (255, 255, 255), 0.5) if glow else color
-		graphics.drawcircleH(self.pH, color, 0.4)
+		graphics.drawrockatH(self.pH)
+#		color = (30, 60, 60)
+#		color = math.imix(color, (255, 255, 255), 0.5) if glow else color
+#		graphics.drawcircleH(self.pH, color, 0.4)
 	def info(self):
 		return ["Just a rock."]
 

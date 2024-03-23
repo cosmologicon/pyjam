@@ -10,6 +10,9 @@ def init():
 	global building
 	building = None
 	state.load()
+	generate.phase1()
+	generate.phase2()
+	generate.phase3()
 	control.init()
 	control.selected = None
 	hud.init()

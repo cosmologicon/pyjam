@@ -59,11 +59,11 @@ def VconvertG(pG, zG = 0):
 	return pview.centerx0 + VscaleG * dxG, pview.centery0 - VscaleG * dyG
 
 def GconvertV(pV):
-	xV0, yV0 = pview.center
 	xV, yV = pV
 	dxG, dyG = (xV - pview.centerx0) / VscaleG, -(yV - pview.centery0) / VscaleG
 	dyG /= math.cos(tip)
-	return math.R(-tilt, (xG0 + dxG, yG0 + dyG))
+	dxG, dyG = math.R(-tilt, (dxG, dyG))
+	return xG0 + dxG, yG0 + dyG
 
 def VconvertD(pD):
 	xD, yD = pD

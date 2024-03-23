@@ -46,7 +46,8 @@ def rendertri(surf, pGs, color0):
 	color = math.mix((0, 0, 0), color0, trilight(pGs))
 	pygame.draw.polygon(surf, color, pDs)
 	
-	
+
+# Zig-zag pattern, e.g. top left, top right, bottom left, bottom right	
 def renderquad(surf, pGs, color0):
 	p0, p1, p2, p3 = pGs
 	rendertri(surf, (p1, p0, p2), color0)
@@ -323,6 +324,67 @@ def renderdock(scale, beta):
 		rendertri(surf, pGs, (255, 255, 255))
 	return surf
 
+
+def prock(pG0, r, h, n, *seed):
+	jtheta0 = math.fuzz(8000, *seed)
+	pbase = [
+		(x + math.fuzzrange(-1, 1, 8001, j, *seed) * 0.2 * r,
+		y + math.fuzzrange(-1, 1, 8002, j, *seed) * 0.2 * r,
+		0)
+		for j, (x, y) in enumerate(math.CSround(n, r = r, jtheta0 = jtheta0, center = pG0))
+	]
+	ptop = [
+		(x + math.fuzzrange(-1, 1, 8003, j, *seed) * 0.2 * r,
+		y + math.fuzzrange(-1, 1, 8004, j, *seed) * 0.2 * r,
+		0.7 * h + math.fuzzrange(-1, 1, 8005, j, *seed) * 0.2 * h)
+		for j, (x, y) in enumerate(math.CSround(n, r = 0.8 * r, jtheta0 = jtheta0, center = pG0))
+	]
+	ptip = pG0[0], pG0[1], h
+	for j in range(n):
+		k = (j + 1) % n
+		yield pbase[j], pbase[k], ptop[j], ptop[k]
+#		yield pbase[j], ptop[k], ptop[j], ptop[j]
+		yield ptop[j], ptop[k], ptip, ptip
+	
+
+rockcolor0 = 60, 40, 20
+drockcolor = 10, 10, 10
+def rockcolor(*seed):
+	return [int(c0 + math.fuzzrange(-dc, dc, 9000, j, *seed))
+		for j, (c0, dc) in enumerate(zip(rockcolor0, drockcolor))]
+
+def renderrock(scale, *seed):
+	view.VscaleG = scale
+	view.xG0, view.yG0 = 0, 0
+	pview.center = scale, scale
+	ntheta = 10
+	nphi = 3
+	surf = pygame.Surface((2 * scale, 2 * scale)).convert_alpha()
+	surf.fill(rockcolor0 + (0,))
+	rockps = []
+	for j in range(1000):
+		x = math.fuzzrange(-1, 1, 6000, j, *seed)
+		y = math.fuzzrange(-1, 1, 6001, j, *seed)
+		if math.hypot(x, y) > 1: continue
+		r = math.fuzzrange(0.12, 0.25, 6002, j, *seed)
+		h = math.fuzzrange(1, 2.5, 6003, j, *seed) * r
+		x *= 2/3 * grid.s - r + 0.1
+		y *= 2/3 * grid.s - r + 0.1
+		if any(math.hypot(x - x1, y - y1) < 0.8 * (r + r1) for x1, y1, r1, _, _ in rockps):
+			continue
+		color = rockcolor(j, *seed)
+		rockps.append((x, y, r, h, color))
+		n = int(math.fuzzrange(3, 6, 6004, j, *seed))
+		if len(rockps) >= 10:
+			break
+	rockps.sort(key = lambda rockp: rockp[1], reverse = True)
+	for j, (x, y, r, h, color) in enumerate(rockps):
+		for quad in prock((x, y), r, h, 5, j, *seed):
+			renderquad(surf, quad, color)
+	return surf
+
+
+
 def shave(img0, fname):
 	print("shave", fname)
 	w0, h0 = img0.get_size()
@@ -350,11 +412,14 @@ def glowshave(img0, fname):
 	shave(img0, fname)
 	shave(glowify(img0), f"{fname}-outline")
 
+
 if __name__ == "__main__":
 	pygame.init()
 	pview.set_mode((2 * scale, 2 * scale))
 	setcamera()
-	if True:
+	for j in range(10):
+		shave(renderrock(scale, j), f"rock-{j}")
+	if False:
 		glowshave(renderdome(scale), "dome")
 		for jbeta in range(6):
 			beta = jbeta * math.tau / 6
@@ -366,13 +431,13 @@ if __name__ == "__main__":
 			glowshave(renderturn(scale, beta, 1), f"tube-{jbeta}-{jbetaR}")
 			glowshave(renderdock(scale, beta), f"dock-{jbeta}")
 			glowshave(renderstraight(scale, beta, amax = 0.4, drawback = True), f"build-{jbeta}")
-	if False:
+	if True:
 		while not any(event.type in (pygame.QUIT, pygame.KEYDOWN) for event in pygame.event.get()):
 			pview.fill((60, 30, 0))
 			view.tip = math.cycle(pygame.time.get_ticks() * 0.0002)
 			view.tilt = pygame.time.get_ticks() * 0.0001
 			setcamera()
-			img = rendercity(scale)
+			img = renderrock(scale, 123)
 			pview.screen.blit(img, (0, 0))
 			pygame.display.flip()
 

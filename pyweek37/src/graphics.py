@@ -149,6 +149,11 @@ def drawbuildatG(pG, jbeta, outline = False):
 	scale = pview.f * view.VscaleG / 400
 	fname = f"build-{jbeta}" + ("-outline" if outline else "")
 	drawimgat(img0(fname, scale = scale), view.DconvertG(pG))
+
+def drawrockatG(pG):
+	j = int(math.fuzzrange(0, 10, 2100, *pG))
+	scale = pview.f * view.VscaleG / 400
+	drawimgat(img0(f"rock-{j}", scale = scale), view.DconvertG(pG))
 	
 def drawdomeatH(pH, color, outline = False):
 	drawdomeatG(grid.GconvertH(pH), color, outline)
@@ -161,6 +166,10 @@ def drawdockatH(pH, jbeta, outline = False):
 
 def drawbuildatH(pH, jbeta, outline = False):
 	drawbuildatG(grid.GconvertH(pH), jbeta, outline)
+
+def drawrockatH(pH):
+	drawrockatG(grid.GconvertH(pH))
+	
 
 @cache
 def cloudimg(sizeD):
