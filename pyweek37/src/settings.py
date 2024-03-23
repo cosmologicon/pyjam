@@ -7,7 +7,10 @@ autosave_seconds = 5
 
 minfps, maxfps = 10, 120
 
-DEBUG = False
+sfxvolume = 0.6
+musicvolume = 0.6
+
+DEBUG = True
 
 keys = {
 	"up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],
@@ -26,6 +29,8 @@ size0 = 1280, 720
 height = None
 fullscreen = False
 forceres = False
+
+heights = 360, 480, 540, 720, 1080
 
 # Can be any of the below palettes. Set to None to trigger the color selection screen.
 palette = None

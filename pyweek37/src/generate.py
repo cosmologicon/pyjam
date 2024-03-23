@@ -127,7 +127,7 @@ def phase(R, seed, opts0, opts, planetmax):
 		if len(state.planets) >= planetmax:
 			break
 	print(len(state.planets))
-	state.resolvenetwork()
+	state.resolvenetwork(silent = True)
 	
 
 def phase1():

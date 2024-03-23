@@ -1,7 +1,7 @@
 import random, pygame, math, os, pickle, bisect
 from collections import defaultdict, Counter
 from functools import cache
-from . import settings, grid, view, pview, ptext, graphics, hud, render
+from . import settings, grid, view, pview, ptext, graphics, hud, render, sound
 
 def cycle_opts(value, values, reverse = False):
 	if value not in values:
@@ -163,6 +163,8 @@ class Tube:
 				for j in range(1, len(self.pHs) - 1)]
 			straights = [False] + straights + [False]
 			self.straights = dict(zip(self.pHs, straights))
+		self.setalongpGs()
+	def setalongpGs(self):
 		self.alongpGs = [
 			grid.GconvertH(math.mix(self.pHs[0], self.pHs[1], 0.4)),
 			grid.GconvertH(math.mix(self.pHs[0], self.pHs[1], 0.5)),
@@ -254,6 +256,7 @@ class Tube:
 		self.supplier, self.consumer = self.consumer, self.supplier
 		self.pHs = list(reversed(self.pHs))
 		self.dirs = [grid.dirH(self.pHs[j], self.pHs[j + 1]) for j in range(len(self.pHs) - 1)]
+		self.setalongpGs()
 		resolvenetwork()
 	def initializecarry(self):
 		self.carry = self.supplier.firstexport(self.consumer)
@@ -348,7 +351,8 @@ class Rock:
 	def info(self):
 		return ["Just a rock."]
 
-def resolvenetwork():
+def resolvenetwork(silent = False):
+	numsupplied = sum(planet.supplied for planet in planets)
 	# Shut down everything.
 	for tube in tubes:
 		tube.supplied = False
@@ -364,6 +368,12 @@ def resolvenetwork():
 				if tube.consumer not in newsuppliers:
 					newsuppliers.append(tube.consumer)
 		suppliers = newsuppliers
+	dnumsupplied = sum(planet.supplied for planet in planets) - numsupplied
+	if not silent:
+		if dnumsupplied > 0:
+			sound.play("completeup")
+		if dnumsupplied < 0:
+			sound.play("completedown")
 
 def aimcamera():
 	from . import view

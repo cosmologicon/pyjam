@@ -34,7 +34,6 @@ def think(dt):
 					sound.play("cancel")
 					building = None
 				elif building.built:
-					sound.play("complete")
 					state.addtube(building)
 					building = None
 				elif dlen > 0:
@@ -166,7 +165,7 @@ def draw():
 			"Left click or drag: build conduit",
 			"Right click: cancel build",
 			"Right drag, WASD, arrow keys: pan",
-			"Scroll wheel or 1/2: zoom",
+			"Scroll wheel or 1 and 2 keys: zoom",
 			"Backspace: delete selected conduit",
 			"F10: change resolution",
 			"F11: toggle fullscreen",

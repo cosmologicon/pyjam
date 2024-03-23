@@ -42,9 +42,9 @@ def culltri(pGs):
 
 def rendertri(surf, pGs, color0):
 	if not culltri(pGs): return
-	pDs = [view.DconvertG(pG[:2], pG[2]) for pG in pGs]
+	pVs = [pview.I(view.VconvertG(pG[:2], pG[2])) for pG in pGs]
 	color = math.mix((0, 0, 0), color0, trilight(pGs))
-	pygame.draw.polygon(surf, color, pDs)
+	pygame.draw.polygon(surf, color, pVs)
 	
 
 # Zig-zag pattern, e.g. top left, top right, bottom left, bottom right	
@@ -55,9 +55,9 @@ def renderquad(surf, pGs, color0):
 
 def renderpoint(surf, pG, normG, color0):
 	if not cullnorm(normG): return
-	pD = view.DconvertG(pG[:2], pG[2])
+	pV = pview.I(view.VconvertG(pG[:2], pG[2]))
 	color = math.mix((0, 0, 0), color0, lightnorm(normG))
-	surf.set_at(pD, color)
+	surf.set_at(pV, color)
 	
 
 Rdome = 0.6
@@ -79,7 +79,7 @@ def pdome(ftheta, fphi):
 def renderdome(scale):
 	view.VscaleG = scale
 	view.xG0, view.yG0 = 0, 0
-	pview.center = scale, scale
+	pview.centerx0, pview.centery0 = scale, scale
 	ntheta = 10
 	nphi = 3
 	surf = pygame.Surface((2 * scale, 2 * scale)).convert_alpha()
@@ -93,6 +93,7 @@ def renderdome(scale):
 
 
 def rendercity(scale):
+	raise NotImplementedError
 	view.VscaleG = scale
 	view.xG0, view.yG0 = 0, 0
 	pview.center = scale, scale

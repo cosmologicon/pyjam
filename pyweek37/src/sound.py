@@ -1,7 +1,11 @@
 import pygame, os.path
 from functools import cache
+from . import settings
 
 pygame.mixer.pre_init(frequency=22050, size=-16, channels=1, buffer=1)
+
+def init():
+	pygame.mixer.init()
 
 @cache
 def load(sname):
@@ -11,6 +15,9 @@ def load(sname):
 		return sound
 	print("Missing sound", sname)
 
+def getvolume(sname):
+	return {
+	}.get(sname, 0.2) * settings.sfxvolume ** 0.5
 
 def play(sname):
 	sound = load(sname)

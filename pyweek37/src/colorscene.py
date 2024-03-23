@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, ptext, control, colorscene, settings, graphics, scene
+from . import pview, ptext, control, colorscene, settings, graphics, scene, sound
 from .pview import T
 
 class self:
@@ -31,6 +31,7 @@ def think(dt):
 		if self.tdone > 0.2:
 			from . import playscene
 			scene.scene = playscene
+			sound.play("advance")
 			playscene.init()
 			settings.palette = self.selected
 			settings.save()

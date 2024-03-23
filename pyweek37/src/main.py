@@ -1,7 +1,8 @@
 import pygame
-from . import settings, view, control, pview, ptext, state
+from . import settings, view, control, pview, ptext, state, sound
 from . import scene, playscene, colorscene, menuscene
 
+sound.init()
 scene.scene = menuscene
 scene.scene.init()
 
@@ -20,11 +21,12 @@ while not control.quit and "quit" not in control.kdowns:
 	scene.scene.think(dt)
 	scene.scene.draw()
 
-	ptext.draw(f"{clock.get_fps():.1f}fps",
-		bottomleft = pview.bottomleft, fontsize = pview.T(20), owidth = 1)
+	if settings.DEBUG:
+		ptext.draw(f"{clock.get_fps():.1f}fps",
+			bottomleft = pview.bottomleft, fontsize = pview.T(40), owidth = 1)
 	pygame.display.flip()
 
 if scene.scene is playscene:
-	state.save()	
+	state.save()
 
 

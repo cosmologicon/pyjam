@@ -1,5 +1,5 @@
 import pygame, math
-from . import pview, ptext, control, colorscene, settings, graphics, scene, state, render, view
+from . import pview, ptext, control, colorscene, settings, graphics, scene, state, render, view, sound
 from .pview import T
 
 class self:
@@ -30,6 +30,7 @@ def think(dt):
 		self.tdone += dt
 		if self.tdone > 0.2:
 			from . import playscene
+			pview.centerx0, pview.centery0 = pview.center0
 			if settings.palette is None:
 				scene.scene = colorscene
 			else:
@@ -38,6 +39,7 @@ def think(dt):
 			view.tilt = 0.15
 			view.tip = 0.7
 			scene.scene.init()
+			sound.play("advance")
 
 def drawbox(rectV, name):
 	text = {
@@ -59,18 +61,28 @@ def draw():
 
 	view.tilt = 0.04 * 0.001 * pygame.time.get_ticks()
 	render.setcamera()
-	img = render.renderdome(600)
-	img = pygame.transform.smoothscale(img, T(600, 600))
-	pview.screen.blit(img, img.get_rect(center = T(400, 520)))
+	img = render.renderdome(T(300))
+#	img = pygame.transform.smoothscale(img, T(600, 600))
+	pview.screen.blit(img, img.get_rect(center = T(400, 420)))
 	
 	for rectV, name in self.boxes:
 		drawbox(rectV, name)
-	ptext.draw(settings.gamename, center = T(400, 100), width = T(600),
-		fontname = "RussoOne", fontsize = T(100),
-		shade = 1, owidth = 1)
+	ptext.draw(settings.gamename, midtop = T(400, 40), width = T(600),
+		color = (200, 200, 255),
+		fontname = "RussoOne", fontsize = T(80),
+		shade = 1, owidth = 0.5, shadow = (1, 1))
 	ptext.draw("by Christopher Night\nmusic by Kevin MacLeod",
 		bottomleft = T(20, 700), fontname = "RussoOne", fontsize = T(40),
 		shade = 1, owidth = 1)
+
+	lines = [
+		"F10: change resolution",
+		"F11: toggle fullscreen",
+		"See README.txt for more settings.",
+	]
+	ptext.draw("\n".join(lines), bottomright = T(1262, 710), fontsize = T(19),
+		fontname = "RussoOne", owidth = 0.5, color = (200, 200, 255), shade = 0.5)
+
 
 	if self.t < 0.2:
 		alpha = int(math.interp(self.tdone, 0, 255, 0.2, 0))

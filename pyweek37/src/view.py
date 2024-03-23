@@ -7,6 +7,18 @@ def init():
 	pview.set_mode(size0 = settings.size0, height = settings.height,
 		fullscreen = settings.fullscreen, forceres = settings.forceres)
 
+def toggleresolution():
+	pview.cycle_height(settings.heights)
+	settings.height = pview.height
+	settings.save()
+
+def togglefullscreen():
+	settings.fullscreen = not settings.fullscreen
+	pview.set_mode(fullscreen = settings.fullscreen)
+	settings.save()
+
+
+
 # Coordinate systems:
 #   G: game coordinates
 #   V: view coordinates (size0 resolution)

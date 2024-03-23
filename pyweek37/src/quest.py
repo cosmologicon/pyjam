@@ -117,12 +117,15 @@ class EasyQuest(Quest):
 			self.advance()
 		if self.step == 1 and state.allsupplied():
 			self.advance()
+			sound.play("advance")
 			generate.ezphase2()
 		if self.step == 2 and state.allsupplied():
 			self.advance()
+			sound.play("advance")
 			generate.ezphase3()
 		if self.step == 3 and state.allsupplied():
 			self.advance()
+			sound.play("advance")
 	def marquee(self):
 		if self.tstep > 15:
 			return
