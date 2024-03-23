@@ -1,6 +1,6 @@
 import pygame, pickle, os.path
 
-gamename = "Space Age Tube"
+gamename = "Hardscrabble"
 savefile = "save-{mode}.pkl"
 settingsfile = "settings.pkl"
 autosave_seconds = 5
@@ -28,16 +28,16 @@ colors = "ROYGB"
 PALETTES = {
 	"roygb": {
 		"R": [255, 50, 50],
-		"O": [255, 150, 0],
-		"Y": [222, 222, 0],
+		"O": [255, 128, 0],
+		"Y": [255, 255, 0],
 		"G": [50, 255, 50],
-		"B": [80, 80, 255],
+		"B": [100, 100, 255],
 	},
 	"roybw": {
 		"R": [255, 50, 50],
-		"O": [255, 150, 0],
-		"Y": [222, 222, 0],
-		"G": [80, 80, 255],
+		"O": [255, 128, 0],
+		"Y": [255, 255, 0],
+		"G": [100, 100, 255],
 		"B": [200, 200, 200],
 	},
 	# https://lospec.com/palette-list/ibm-color-blind-safe

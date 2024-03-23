@@ -55,11 +55,17 @@ class Button:
 		return True
 
 	def draw(self):
-		color = (0, 255, 255) if self.getactive() else (40, 40, 40)
-		pygame.draw.rect(pview.screen, color, T(self.rectV), border_radius = T(self.borderV))
+		color0 = 60, 60, 120
+		color1 = 128, 128, 255
+		if not self.getactive():
+			color0 = math.imix(color0, (0, 0, 0), 0.8)
+			color1 = math.imix(color0, (0, 0, 0), 0.8)
+		pygame.draw.rect(pview.screen, color0, T(self.rectV), border_radius = T(self.borderV))
+		pygame.draw.rect(pview.screen, color1, T(self.rectV), border_radius = T(self.borderV),
+			width = T(3))
 		text = self.gettext()
 		ptext.draw(text, center = T(self.rectV).center, fontsize = T(self.fontsizeV),
-			owidth = 1)
+			fontname = "BebasNeue", color = color1, shade = 0.3, shadow = (0.3, 0.3))
 
 	def within(self, pD):
 		return pview.T(self.rectV).collidepoint(pD)
@@ -136,8 +142,8 @@ def init():
 			self.boxes.append(box)
 	texts = ["Met demand", "Claimed supply"]
 	optnames = ["showdemand", "showsupply"]
-	rectV = pygame.Rect(0, 0, 150, 40)
-	rectV.center = 100, 440
+	rectV = pygame.Rect(0, 0, 180, 40)
+	rectV.center = 110, 480
 	dy = 50
 	self.boxes.append(ReverseButton(rectV))
 	rectV = rectV.move(0, dy)

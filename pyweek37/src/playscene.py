@@ -53,7 +53,7 @@ def think(dt):
 				control.selected = None
 				sound.play("click")
 			
-	if control.dragfrom is not None and building is None:
+	if control.dragfrom is not None and building is None and control.self.current == 1:
 		dragfromH = grid.HnearestG(view.GconvertD(control.dragfrom))
 		if state.planetat(dragfromH):
 			building = state.Tube(dragfromH)
@@ -170,8 +170,8 @@ def draw():
 #	pygame.draw.circle(pview.screen, (100, 255, 100), view.DconvertG((1, 1)), 3)
 	if control.selected is not None:
 		lines = control.selected.info() + lines
-	ptext.draw("\n".join(lines), bottomright = pview.bottomright, fontsize = T(25),
-		owidth = 1)
+	ptext.draw("\n".join(lines), bottomright = T(1262, 712), fontsize = T(19),
+		fontname = "RussoOne", owidth = 0.5, color = (200, 200, 255), shade = 0.5)
 
 
 
