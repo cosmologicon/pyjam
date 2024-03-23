@@ -7,6 +7,8 @@ autosave_seconds = 5
 
 minfps, maxfps = 10, 120
 
+DEBUG = False
+
 keys = {
 	"up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],
 	"left": [pygame.K_LEFT, pygame.K_a],
@@ -14,6 +16,10 @@ keys = {
 	"down": [pygame.K_DOWN, pygame.K_s, pygame.K_o],
 	"act": [pygame.K_SPACE, pygame.K_RETURN],
 	"remove": [pygame.K_BACKSPACE, pygame.K_DELETE],
+	"resolution": [pygame.K_F10],
+	"fullscreen": [pygame.K_F11],
+	"screenshot": [pygame.K_F12],
+	"quit": [pygame.K_ESCAPE],
 }
 
 size0 = 1280, 720

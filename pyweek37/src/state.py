@@ -1,4 +1,4 @@
-import random, pygame, math, os.path, pickle, bisect
+import random, pygame, math, os, pickle, bisect
 from collections import defaultdict, Counter
 from functools import cache
 from . import settings, grid, view, pview, ptext, graphics, hud, render
@@ -177,7 +177,6 @@ class Tube:
 				xGc, yGc = xG2 - xG1 + xG0, yG2 - yG1 + yG0
 				dx1 = math.mix(xG0, xG1, 0.5) - xGc
 				dy1 = math.mix(yG0, yG1, 0.5) - yGc
-				print(math.hypot(dx0, dy0), math.hypot(dx1, dy1), math.dot((dx0, dy0), (dx1, dy1)))
 				for jtheta in range(11):
 					C, S = math.CS(jtheta / 12 * math.tau / 6)
 					xG = xGc + C * dx1 + S * dx0
@@ -486,6 +485,9 @@ def load():
 	else:
 		init()
 
+def removesave():
+	if os.path.exists(savename()):
+		os.remove(savename())
 
 
 

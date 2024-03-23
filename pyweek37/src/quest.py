@@ -1,4 +1,4 @@
-from . import state, generate, view
+from . import state, generate, view, sound
 
 class Quest:
 	nsteps = 1
@@ -23,47 +23,94 @@ class Quest:
 
 
 class TutorialQuest(Quest):
-	nsteps = 6
+	nsteps = 9
 	def __init__(self):
 		Quest.__init__(self)
 		view.VscaleG = 120
 		view.xG0, view.yG0 = 0, 0
 		generate.tutorial1()
+		self.moved = False
+		self.zoomed = False
+		self.pG0 = None
+		self.zoom = None
 	def check(self):
+		from . import playscene
+		building = playscene.building
+		if self.pG0 is None:
+			self.pG0 = view.xG0, view.yG0
+		if self.zoom is None:
+			self.zoom = view.VscaleG
+		if self.pG0 is not None and self.pG0 != (view.xG0, view.yG0):
+			self.moved = True
+		if self.zoom is not None and self.zoom != view.VscaleG:
+			self.zoomed = True
 		if self.step == 0:
 			self.advance()
-		if self.step == 1 and state.allsupplied():
+		if self.step == 1 and building:
 			self.advance()
-			generate.tutorial2()
-		if self.step == 2 and state.allsupplied():
+		if self.step == 2 and building and len(building.pHs) > 1:
 			self.advance()
-			generate.tutorial3()
 		if self.step == 3 and state.allsupplied():
 			self.advance()
-			generate.tutorial4()
+			sound.play("advance")
+			generate.tutorial2()
 		if self.step == 4 and state.allsupplied():
 			self.advance()
+			sound.play("advance")
+			generate.tutorial3()
+		if self.step == 5 and sum(not planet.supplied for planet in state.planets) <= 1:
+			self.advance()
+		if self.step == 6 and state.allsupplied():
+			self.advance()
+			sound.play("advance")
+			generate.tutorial4()
+		if self.step == 7 and state.allsupplied():
+			self.advance()
+			sound.play("advance")
 			generate.tutorial5()
-		if self.step == 5 and state.allsupplied():
+		if self.step == 8 and state.allsupplied():
+			sound.play("win")
 			self.advance()
 	def marquee(self):
 		if self.step == 1:
-			return "Welcome to the Windswept Waste. Left click and drag from the western dome to the eastern dome to connect them and transfer a resource."	
+			return "Click on the western habitat."	
 		if self.step == 2:
-			return "Each dome requires certain resources to activate, and provides certain resources when activated. Chain domes together in the right order to satisfy all the requirements."
+			return "Click or drag on adjacent spaces to build a conduit."
 		if self.step == 3:
-			return "Resources can be routed through activated domes, if there's not room to go around."
+			if not state.tubes:
+				return "Right click to cancel. Build a conduit from the western habitat to the eastern habitat."
+			else:
+				return "Reverse or remove a conduit once it's built by selecting it and using the buttons in the lower left."
 		if self.step == 4:
-			return "Domes may require more than one resource, and may provide more than one resource. Each tube can only transfer only one of a single type of resource."
+			if not self.moved:
+				return "Right drag or arrow keys or WASD to pan."
+			elif not self.zoomed:
+				return "Scroll wheel or 1 and 2 keys to zoom."
+			elif sum(planet.supplied for planet in state.planets) < 3:
+				return "Each habitat requires certain resources to activate, and provides certain resources when activated. Chain habitats together in the right order to satisfy all the requirements."
 		if self.step == 5:
-			return "Good luck, and remember, trust in the tubes. Only through tubes may we survive."
+			if not self.moved:
+				return "Right drag or arrow keys or WASD to pan."
+			elif not self.zoomed:
+				return "Scroll wheel or 1 and 2 keys to zoom."
+			return "Conduits cannot pass through rocks or other conduits."
+		if self.step == 6:
+			if not self.moved:
+				return "Right drag or arrow keys or WASD to pan."
+			elif not self.zoomed:
+				return "Scroll wheel or 1 and 2 keys to zoom."
+			return "Resources can be routed through activated habitats, if there's not room to go around."
+		if self.step == 7:
+			return "Habitats may require more than one resource, and may provide more than one resource. Each conduit can transfer only one of a single type of resource."
+		if self.step == 8:
+			if self.tstep < 15:
+				return "See README.txt for more controls and settings."
+			return "Press Esc at any time to quit. Your progress is saved."
 
 class EasyQuest(Quest):
-	nsteps = 4
+	nsteps = 10
 	def __init__(self):
 		Quest.__init__(self)
-		view.VscaleG = 70
-		view.xG0, view.yG0 = 0, 0
 		generate.ezphase1()
 	def check(self):
 		if self.step == 0:
@@ -76,13 +123,32 @@ class EasyQuest(Quest):
 			generate.ezphase3()
 		if self.step == 3 and state.allsupplied():
 			self.advance()
-	
+	def marquee(self):
+		if self.tstep > 15:
+			return
+		if self.step == 1:
+			return "Welcome to planet Hardscrabble. Dialog #1."
+		if self.step == 2:
+			return "Welcome to planet Hardscrabble. Dialog #2."
+		if self.step == 3:
+			return "Welcome to planet Hardscrabble. Dialog #3."
+		if self.step == 4:
+			return "Welcome to planet Hardscrabble. Dialog #4."
+		if self.step == 5:
+			return "Welcome to planet Hardscrabble. Dialog #5."
+		if self.step == 6:
+			return "Welcome to planet Hardscrabble. Dialog #6."
+		if self.step == 7:
+			return "Welcome to planet Hardscrabble. Dialog #7."
+		if self.step == 8:
+			return "Welcome to planet Hardscrabble. Dialog #8."
+		if self.step == 9:
+			return "Welcome to planet Hardscrabble. Dialog #9."
+
 class HardQuest(Quest):
 	nsteps = 4
 	def __init__(self):
 		Quest.__init__(self)
-		view.VscaleG = 70
-		view.xG0, view.yG0 = 0, 0
 		generate.phase1()
 	def check(self):
 		if self.step == 0:

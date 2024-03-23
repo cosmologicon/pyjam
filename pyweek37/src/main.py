@@ -1,5 +1,5 @@
 import pygame
-from . import settings, view, control, pview, ptext
+from . import settings, view, control, pview, ptext, state
 from . import scene, playscene, colorscene, menuscene
 
 scene.scene = menuscene
@@ -10,10 +10,12 @@ control.init()
 
 clock = pygame.time.Clock()
 dtaccum = 0
-while not control.quit and pygame.K_ESCAPE not in control.kdowns:
+while not control.quit and "quit" not in control.kdowns:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	control.think(dt)
-	if pygame.K_F12 in control.kdowns: pview.screenshot()
+	if "resolution" in control.kdowns: view.toggleresolution()
+	if "fullscreen" in control.kdowns: view.togglefullscreen()
+	if "screenshot" in control.kdowns: pview.screenshot()
 
 	scene.scene.think(dt)
 	scene.scene.draw()
@@ -21,6 +23,8 @@ while not control.quit and pygame.K_ESCAPE not in control.kdowns:
 	ptext.draw(f"{clock.get_fps():.1f}fps",
 		bottomleft = pview.bottomleft, fontsize = pview.T(20), owidth = 1)
 	pygame.display.flip()
-	
+
+if scene.scene is playscene:
+	state.save()	
 
 

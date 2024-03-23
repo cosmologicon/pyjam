@@ -7,7 +7,7 @@ from .pview import T
 
 
 def init():
-	global building
+	global building, marquee0, malpha
 	building = None
 	state.load()
 #	generate.phase1()
@@ -15,10 +15,12 @@ def init():
 #	generate.phase3()
 	control.init()
 	control.selected = None
+	marquee0 = None
+	malpha = 0
 	hud.init()
 
 def think(dt):
-	global building
+	global building, marquee0, malpha
 	pHcursor = grid.HnearestG(view.GconvertD(control.posD))
 	hud.think(dt)
 	if control.click:
@@ -97,6 +99,11 @@ def think(dt):
 	for planet in state.planets:
 		planet.think(dt)
 	quest.think(dt)
+	marquee = quest.marquee()
+	alpha = 1 if marquee == marquee0 is not None else 0
+	malpha = math.approach(malpha, alpha, 5 * dt)
+	if malpha == 0:
+		marquee0 = marquee
 
 
 def draw():
@@ -148,30 +155,34 @@ def draw():
 
 	hud.draw()
 
-	marquee = quest.marquee()
-	if marquee:
-		ptext.draw(marquee, width = T(600), midbottom = T(640, 690),
+	if malpha and marquee0 is not None:
+		ptext.draw(marquee0, width = T(800), midbottom = T(640, 690),
 			fontname = "OdibeeSans",
-			fontsize = T(40), shade = 1, owidth = 1)
+			fontsize = T(40), shade = 1, owidth = 1, alpha = malpha)
 
 	if settings.expandinfo:
 		lines = [
-			"Left click or drag: build conduit",
-			"Right drag or WASD: pan",
-			"Scroll wheel or 1/2: zoom",
-			"Backspace: delete conduit",
 			"Tab: hide controls",
-			f"{view.VscaleG}, {view.xG0}, {view.yG0}",
+			"Left click or drag: build conduit",
+			"Right click: cancel build",
+			"Right drag, WASD, arrow keys: pan",
+			"Scroll wheel or 1/2: zoom",
+			"Backspace: delete selected conduit",
+			"F10: change resolution",
+			"F11: toggle fullscreen",
+			"F12: screenshot",
+#			f"{view.VscaleG}, {view.xG0}, {view.yG0}",
 		]
 	else:
-		lines = ["Tab: expand controls"]
+		lines = ["Tab: show controls"]
 #	pygame.draw.circle(pview.screen, (255, 200, 100), view.DconvertG((view.xG0, view.yG0)), 3)
 #	pygame.draw.circle(pview.screen, (100, 255, 100), view.DconvertG((0, 0)), 3)
 #	pygame.draw.circle(pview.screen, (100, 255, 100), view.DconvertG((0, 1)), 3)
 #	pygame.draw.circle(pview.screen, (100, 255, 100), view.DconvertG((1, 1)), 3)
-	if control.selected is not None:
-		lines = control.selected.info() + lines
-	ptext.draw("\n".join(lines), bottomright = T(1262, 712), fontsize = T(19),
+	if settings.DEBUG and control.selected is not None:
+#		lines += control.selected.info()
+		lines += control.selected.supplier.info()
+	ptext.draw("\n".join(lines), topright = T(1262, 10), fontsize = T(19),
 		fontname = "RussoOne", owidth = 0.5, color = (200, 200, 255), shade = 0.5)
 
 
