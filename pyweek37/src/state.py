@@ -1,7 +1,7 @@
-import random, pygame, math, os.path, pickle
+import random, pygame, math, os.path, pickle, bisect
 from collections import defaultdict, Counter
 from functools import cache
-from . import settings, grid, view, pview, ptext, graphics, hud
+from . import settings, grid, view, pview, ptext, graphics, hud, render
 
 def cycle_opts(value, values, reverse = False):
 	if value not in values:
@@ -76,7 +76,7 @@ class Planet:
 	def draw(self, outline = False):
 		color = (160, 200, 240)
 		if not self.supplied:
-			color = math.imix((30, 30, 30), color, 0.4)
+			color = (100, 80, 80)
 		graphics.drawdomeatH(self.pH, color, outline = outline)
 #		pygame.draw.circle(pview.screen, (255, 0, 255), view.DconvertG(grid.GconvertH(self.pH)), 3)
 	def drawbubbles(self):
@@ -97,7 +97,7 @@ class Planet:
 				strength = 1 if lit or settings.showsupply == "on" else 0.2
 				symbols.append((symbol, strength))
 		else:
-			for symbol in self.exports:
+			for symbol in self.exports0:
 				symbols.append((symbol, 0.2))
 		if symbols:
 			graphics.drawbubbleatH(self.pH, symbols, True)
@@ -146,6 +146,7 @@ class Tube:
 		self.supplied = False
 		self.t = 0
 		self.dirs = []
+		self.alongpGs = None
 	def think(self, dt):
 		self.t += dt
 	# Does not check for legality.
@@ -162,6 +163,33 @@ class Tube:
 				for j in range(1, len(self.pHs) - 1)]
 			straights = [False] + straights + [False]
 			self.straights = dict(zip(self.pHs, straights))
+		self.alongpGs = [
+			grid.GconvertH(math.mix(self.pHs[0], self.pHs[1], 0.4)),
+			grid.GconvertH(math.mix(self.pHs[0], self.pHs[1], 0.5)),
+		]
+		for j in range(1, len(self.pHs) - 1):
+			if not grid.isrowH(*self.pHs[j-1:j+2]):
+				pG0, pG1, pG2 = [grid.GconvertH(pH) for pH in self.pHs[j-1:j+2]]
+				xG0, yG0 = pG0
+				xG1, yG1 = pG1
+				xG2, yG2 = pG2
+				dx0, dy0 = math.norm((xG1 - xG0, yG1 - yG0))
+				xGc, yGc = xG2 - xG1 + xG0, yG2 - yG1 + yG0
+				dx1 = math.mix(xG0, xG1, 0.5) - xGc
+				dy1 = math.mix(yG0, yG1, 0.5) - yGc
+				print(math.hypot(dx0, dy0), math.hypot(dx1, dy1), math.dot((dx0, dy0), (dx1, dy1)))
+				for jtheta in range(11):
+					C, S = math.CS(jtheta / 12 * math.tau / 6)
+					xG = xGc + C * dx1 + S * dx0
+					yG = yGc + C * dy1 + S * dy0
+					self.alongpGs.append((xG, yG))
+			self.alongpGs.append(grid.GconvertH(math.mix(self.pHs[j], self.pHs[j+1], 0.5)))
+		self.alongpGs.append(grid.GconvertH(math.mix(self.pHs[-2], self.pHs[-1], 0.6)))
+		d = 0
+		self.alongds = [d]
+		for j in range(1, len(self.alongpGs)):
+			d += math.distance(self.alongpGs[j-1], self.alongpGs[j])
+			self.alongds.append(d)
 	def nexts(self):
 		for pH in grid.HadjsH(self.pHs[-1]):
 			if pH in self.pHs:
@@ -216,12 +244,13 @@ class Tube:
 			self.dirs.pop()
 			return -1
 		return 0
-	def pHalong(self, d):
-		n, f = divmod(d, 1)
-		n = int(n)
-		if not 0 <= n < len(self.pHs) - 1:
-			return None
-		return math.mix(self.pHs[n], self.pHs[n + 1], f)
+	def pGalong(self, d):
+		if not self.alongpGs: return None
+		if d < 0: return 
+		j = bisect.bisect(self.alongds, d) - 1
+		if not 0 <= j < len(self.alongpGs) - 1: return None
+		return math.interp(d, self.alongds[j], self.alongpGs[j],
+			self.alongds[j+1], self.alongpGs[j+1])
 	def flip(self):
 		self.supplier, self.consumer = self.consumer, self.supplier
 		self.pHs = list(reversed(self.pHs))
@@ -243,6 +272,8 @@ class Tube:
 		color = self.getcolor()
 		if mix is not None:
 			color = math.imix(color, mix, 0.2)
+		if not self.supplied:
+			color = math.imix((0, 0, 0), color, 0.5)
 		if self.dirs:
 			pH = math.mix(self.pHs[0], self.pHs[1], 0.5)
 			graphics.drawdockatH(pH, self.dirs[0], outline = outline)
@@ -250,7 +281,7 @@ class Tube:
 			pH = math.mix(self.pHs[-2], self.pHs[-1], 0.5)
 			graphics.drawdockatH(pH, (self.dirs[-1] + 3) % 6, outline = outline)
 		elif self.dirs:
-			graphics.drawbuildatH(self.pHs[-1], self.dirs[-1], outline = outline)
+			graphics.drawbuildatH(self.pHs[-1], color, self.dirs[-1], outline = outline)
 		for j in range(len(self.dirs) - 1):
 			graphics.drawtubeatH(self.pHs[j+1], color, self.dirs[j], self.dirs[j+1], outline = outline)
 	def drawglow(self):
@@ -265,15 +296,19 @@ class Tube:
 			obj.draw()
 		graphics.renderqueue()
 	def drawcarry(self):
-		if self.carry and self.supplied:
-			d = self.supplier.t * 3 % 3
-			while True:
-				pH = self.pHalong(d)
-				if pH is None: break
-				pD = view.DconvertG(grid.GconvertH(pH), zG = 0.15)
-				strength = hud.factor(self.carry, "tube")
-				graphics.drawsymbolat(self.carry, pD, 0.4, strength)
-				d += 3
+		if not self.carry:
+			return
+		speed = 3 if self.supplied else 1
+		symbol = "X" if not self.supplied and self.supplier.t % 1 < 0.5 else self.carry
+		strength = hud.factor(self.carry, "tube")
+		d = self.supplier.t * speed % 3
+		size = 0.4 * (view.VscaleG / 40) ** -0.4
+		while True:
+			pG = self.pGalong(d)
+			if pG is None: break
+			pD = view.DconvertG(pG, zG = render.rtube)
+			graphics.drawsymbolat(symbol, pD, size, strength)
+			d += 3
 	def draw_old(self, glow = False):
 		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]
 		color = settings.colorcodes.get(self.carry, (160, 160, 160))

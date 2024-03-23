@@ -11,6 +11,17 @@ def loadimg(filename):
 def drawsymbol(symbol):
 	img = pygame.Surface((400, 400)).convert_alpha()
 	img.fill((0, 0, 0, 0))
+	if symbol == "X":
+		w = 400
+		def drawx(b, t, color):
+			a, c, e = t, w // 2, w - t
+			d, p, q = e - b, c - b + t, c + b - t
+			ps = [(c, p), (d, a), (e, b), (d, c), (e, q), (d, e),
+				(c, q), (b, e), (a, d), (p, c), (a, b), (b, a)]
+			pygame.draw.polygon(img, color, ps)
+		drawx(100, 0, (0, 0, 0))
+		drawx(100, 18, (255, 255, 255))
+		return img
 	if symbol == "R":
 		pygame.draw.circle(img, (0, 0, 0), (200, 200), 126)
 		pygame.draw.circle(img, (255, 255, 255), (200, 200), 96)
@@ -115,7 +126,7 @@ def bubbleimg(size, flip = False):
 
 # flip = True for supply, flip = False for demand
 def drawbubbleatH(pH, symbols, flip):
-	hD = view.DscaleG(0.4)
+	hD = view.DscaleG(0.4 * (view.VscaleG / 40) ** -0.4)
 	d = -1 if flip else 1
 	xD, yD = view.DconvertG(grid.GconvertH(pH), zG = 0.3)
 	xD += d * int(0 * hD)
@@ -145,10 +156,10 @@ def drawdockatG(pG, jbeta, outline = False):
 	fname = f"dock-{jbeta}" + ("-outline" if outline else "")
 	drawimgat(img0(fname, scale = scale, mask = (120, 100, 80)), view.DconvertG(pG))
 
-def drawbuildatG(pG, jbeta, outline = False):
+def drawbuildatG(pG, mask, jbeta, outline = False):
 	scale = pview.f * view.VscaleG / 400
 	fname = f"build-{jbeta}" + ("-outline" if outline else "")
-	drawimgat(img0(fname, scale = scale), view.DconvertG(pG))
+	drawimgat(img0(fname, scale = scale, mask = mask), view.DconvertG(pG))
 
 def drawrockatG(pG):
 	j = int(math.fuzzrange(0, 10, 2100, *pG))
@@ -164,8 +175,8 @@ def drawtubeatH(pH, mask, jbeta0, jbeta1, outline = False):
 def drawdockatH(pH, jbeta, outline = False):
 	drawdockatG(grid.GconvertH(pH), jbeta, outline)
 
-def drawbuildatH(pH, jbeta, outline = False):
-	drawbuildatG(grid.GconvertH(pH), jbeta, outline)
+def drawbuildatH(pH, mask, jbeta, outline = False):
+	drawbuildatG(grid.GconvertH(pH), mask, jbeta, outline)
 
 def drawrockatH(pH):
 	drawrockatG(grid.GconvertH(pH))

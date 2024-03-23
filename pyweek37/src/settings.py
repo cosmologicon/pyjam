@@ -1,6 +1,6 @@
 import pygame, pickle, os.path
 
-gamename = "Hardscrabble"
+gamename = "Planet Hardscrabble"
 savefile = "save-{mode}.pkl"
 settingsfile = "settings.pkl"
 autosave_seconds = 5
@@ -49,10 +49,12 @@ PALETTES = {
 		"B": [0xff, 0xb0, 0x00],
 	},
 }
+Xcolor = [100, 0, 0]
 
 def resolvepalette(palette_):
 	return palette_ or palette
 def getcolor(colorname, palette = None):
+	if colorname == "X": return Xcolor
 	return PALETTES[resolvepalette(palette)].get(colorname, (40, 40, 40))
 
 

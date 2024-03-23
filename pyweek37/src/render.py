@@ -128,7 +128,7 @@ def rendercity(scale):
 
 def pstraight(ftheta, a, beta):
 	theta = math.tau * ftheta
-	x, y, z = rtube, 2/3 * grid.s * 1.01 * math.mix(-1, 1, a), 0
+	x, y, z = rtube, 2/3 * grid.s * 1.002 * math.mix(-1, 1, a), 0
 	x, z = math.R(-theta, (x, z))
 	z += rtube
 	x, y = math.R(-beta, (x, y))
@@ -136,7 +136,7 @@ def pstraight(ftheta, a, beta):
 
 def pnormstraight(ftheta, a, beta):
 	theta = math.tau * ftheta
-	x, y, z = rtube, 2/3 * grid.s * 1.01 * math.mix(-1, 1, a), 0
+	x, y, z = rtube, 2/3 * grid.s * 1.002 * math.mix(-1, 1, a), 0
 	nx, ny, nz = 1, 0, 0
 	x, z = math.R(-theta, (x, z))
 	nx, nz = math.R(-theta, (nx, nz))
@@ -148,7 +148,7 @@ def pnormstraight(ftheta, a, beta):
 # d = -1 left turn, d = 1 right turn
 def pturn(ftheta, fphi, beta, d):
 	theta = math.tau * ftheta
-	phi = math.tau / 6 * (fphi * 1.02 - 0.01)
+	phi = math.tau / 6 * (fphi * 1.004 - 0.002)
 	x, y, z = -d + rtube * math.cos(theta), 0, rtube * math.sin(theta)
 	x, y = math.R(-d * phi, (x, y))
 	x += d
@@ -159,7 +159,7 @@ def pturn(ftheta, fphi, beta, d):
 
 def pnormturn(ftheta, fphi, beta, d):
 	theta = math.tau * ftheta
-	phi = math.tau / 6 * (fphi * 1.02 - 0.01)
+	phi = math.tau / 6 * (fphi * 1.004 - 0.002)
 	x, y, z = -d + rtube * math.cos(theta), 0, rtube * math.sin(theta)
 	nx, ny, nz = math.cos(theta), 0, math.sin(theta)
 	x, y = math.R(-d * phi, (x, y))

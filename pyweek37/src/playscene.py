@@ -10,9 +10,9 @@ def init():
 	global building
 	building = None
 	state.load()
-	generate.phase1()
-	generate.phase2()
-	generate.phase3()
+#	generate.phase1()
+#	generate.phase2()
+#	generate.phase3()
 	control.init()
 	control.selected = None
 	hud.init()
@@ -150,7 +150,8 @@ def draw():
 
 	marquee = quest.marquee()
 	if marquee:
-		ptext.draw(marquee, width = T(800), midbottom = T(640, 690),
+		ptext.draw(marquee, width = T(600), midbottom = T(640, 690),
+			fontname = "OdibeeSans",
 			fontsize = T(40), shade = 1, owidth = 1)
 
 	if settings.expandinfo:
