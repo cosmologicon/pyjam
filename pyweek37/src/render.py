@@ -1,6 +1,10 @@
 import pygame, math
 from . import view, pview, maff, grid
 
+scale = 100
+w0 = int(round(scale / 20))
+kscale = 2
+
 def minus(p0, p1):
 	x0, y0, z0 = p0
 	x1, y1, z1 = p1
@@ -17,9 +21,12 @@ def trinormal(pGs):
 
 light = math.norm((-1, 1, 1))
 
+def lightnorm(normG):
+	a = math.dot(normG, light)
+	return math.interp(a, -1, 0.2, 1, 1)
+
 def trilight(pGs):
-	a = math.dot(trinormal(pGs), light)
-	return math.interp(a, -1, 0, 1, 1)
+	return lightnorm(trinormal(pGs))
 
 def setcamera():
 	global camera
@@ -28,14 +35,15 @@ def setcamera():
 	camx, camy = math.R(-view.tilt, (camx, camy))
 	camera = camx, camy, camz
 
-def cull(pGs):
-	return math.dot(trinormal(pGs), camera) > 0
+def cullnorm(normG):
+	return math.dot(normG, camera) > 0
+def culltri(pGs):
+	return cullnorm(trinormal(pGs))
 
 def rendertri(surf, pGs, color0):
-	if not cull(pGs): return
+	if not culltri(pGs): return
 	pDs = [view.DconvertG(pG[:2], pG[2]) for pG in pGs]
-	alpha = math.interp(trilight(pGs), 0, 0.4, 1, 1)
-	color = math.mix((0, 0, 0), color0, alpha)
+	color = math.mix((0, 0, 0), color0, trilight(pGs))
 	pygame.draw.polygon(surf, color, pDs)
 	
 	
@@ -44,12 +52,18 @@ def renderquad(surf, pGs, color0):
 	rendertri(surf, (p1, p0, p2), color0)
 	rendertri(surf, (p1, p2, p3), color0)
 
+def renderpoint(surf, pG, normG, color0):
+	if not cullnorm(normG): return
+	pD = view.DconvertG(pG[:2], pG[2])
+	color = math.mix((0, 0, 0), color0, lightnorm(normG))
+	surf.set_at(pD, color)
+	
+
 Rdome = 0.6
 Rphi0 = 0.1
 rtube = 0.14
 rframe = 0.04
 wframe = 0.02
-archcolor = (100, 90, 80)
 
 def pdome(ftheta, fphi):
 	theta = math.mix(0, math.tau, ftheta)
@@ -118,6 +132,18 @@ def pstraight(ftheta, a, beta):
 	z += rtube
 	x, y = math.R(-beta, (x, y))
 	return x, y, z
+
+def pnormstraight(ftheta, a, beta):
+	theta = math.tau * ftheta
+	x, y, z = rtube, 2/3 * grid.s * 1.01 * math.mix(-1, 1, a), 0
+	nx, ny, nz = 1, 0, 0
+	x, z = math.R(-theta, (x, z))
+	nx, nz = math.R(-theta, (nx, nz))
+	z += rtube
+	x, y = math.R(-beta, (x, y))
+	nx, ny = math.R(-beta, (nx, ny))
+	return (x, y, z), (nx, ny, nz)
+
 # d = -1 left turn, d = 1 right turn
 def pturn(ftheta, fphi, beta, d):
 	theta = math.tau * ftheta
@@ -129,6 +155,21 @@ def pturn(ftheta, fphi, beta, d):
 	z += rtube
 	x, y = math.R(-beta, (x, y))
 	return x, y, z
+
+def pnormturn(ftheta, fphi, beta, d):
+	theta = math.tau * ftheta
+	phi = math.tau / 6 * (fphi * 1.02 - 0.01)
+	x, y, z = -d + rtube * math.cos(theta), 0, rtube * math.sin(theta)
+	nx, ny, nz = math.cos(theta), 0, math.sin(theta)
+	x, y = math.R(-d * phi, (x, y))
+	nx, ny = math.R(-d * phi, (nx, ny))
+	x += d
+	y -= 2/3 * grid.s
+	z += rtube
+	x, y = math.R(-beta, (x, y))
+	nx, ny = math.R(-beta, (nx, ny))
+	return (x, y, z), (nx, ny, nz)
+
 
 def parch(f):
 	f = math.clamp(f, 0, 1)
@@ -175,6 +216,37 @@ def renderstraight(scale, beta):
 			renderquad(surf, pGs, color)
 	return surf
 
+def renderstraight(scale, beta, amax = 1, drawback = False):
+	view.VscaleG = scale
+	view.xG0, view.yG0 = 0, 0
+	pview.center = scale, scale
+	surf = pygame.Surface((2 * scale, 2 * scale)).convert_alpha()
+	surf.fill((0, 0, 0, 0))
+	ntheta = kscale * scale
+	na = kscale * scale
+	if drawback:
+		for jtheta in range(ntheta):
+			ftheta = jtheta / ntheta
+			for ja in range(na + 1):
+				a = ja / na
+				if a > amax: continue
+				color = (50, 50, 50)
+				pG, (nx, ny, nz) = pnormstraight(ftheta, a, beta)
+				renderpoint(surf, pG, (-nx, -ny, -nz), color)
+	for jtheta in range(ntheta):
+		ftheta = jtheta / ntheta
+		for ja in range(na + 1):
+			a = ja / na
+			if a > amax: continue
+			color = (255, 255, 255)
+			jstripe = gamma(ftheta) - 2 * a
+			if jstripe % 1 > 0.5:
+				color = math.imix((0, 0, 0), color, 0.7)
+			pG, normG = pnormstraight(ftheta, a, beta)
+			renderpoint(surf, pG, normG, color)
+	return surf
+
+
 def renderturn(scale, beta, d):
 	view.VscaleG = scale
 	view.xG0, view.yG0 = 0, 0
@@ -206,6 +278,27 @@ def renderturn(scale, beta, d):
 				renderquad(surf, pGs, color)
 	return surf
 
+def renderturn(scale, beta, d):
+	view.VscaleG = scale
+	view.xG0, view.yG0 = 0, 0
+	pview.center = scale, scale
+	ntheta = kscale * scale
+	nphi = kscale * scale
+	surf = pygame.Surface((2 * scale, 2 * scale)).convert_alpha()
+	surf.fill((0, 0, 0, 0))
+	for jtheta in range(ntheta):
+		ftheta = jtheta / ntheta
+		print(beta, d, jtheta, ntheta, ftheta)
+		for jphi in range(nphi + 1):
+			fphi = jphi / nphi
+			color = (255, 255, 255)
+			jstripe = gamma(ftheta) + 2 * fphi + 0.5
+			if jstripe % 1 > 0.5:
+				color = math.imix((0, 0, 0), color, 0.7)
+			pG, normG = pnormturn(ftheta, fphi, beta, d)
+			renderpoint(surf, pG, normG, color)
+	return surf
+
 
 def pdock(farch, a, beta):
 	x, z = parch(farch)
@@ -226,12 +319,13 @@ def renderdock(scale, beta):
 		farch1 = (jarch + 1) / narch
 		ps = [(farch, a) for farch in (farch0, farch1) for a in (0, 1)]
 		pGs = [pdock(farch, a, beta) for farch, a in ps]
-		renderquad(surf, pGs, archcolor)
+		renderquad(surf, pGs, (255, 255, 255))
 		pGs = [(0, 0, 0), pdock(farch1, 0, beta), pdock(farch0, 0, beta)]
-		rendertri(surf, pGs, archcolor)
+		rendertri(surf, pGs, (255, 255, 255))
 	return surf
 
 def shave(img0, fname):
+	print("shave", fname)
 	w0, h0 = img0.get_size()
 	ps = [(x, y) for x in range(w0) for y in range(h0) if img0.get_at((x, y))[3]]
 	xs, ys = zip(*ps)
@@ -244,28 +338,42 @@ def shave(img0, fname):
 	img.blit(img0, (w // 2 - w0 // 2, h // 2 - h0 // 2))
 	pygame.image.save(img, f"img/{fname}.png")
 
+
+def glowify(img, w = w0):
+	offsets = set((round(x), round(y)) for x, y in math.CSround(int(math.tau * w * 2), w))
+	glowimg = img.copy()
+	glowimg.fill((255, 255, 255, 0))
+	for offset in offsets:
+		glowimg.blit(img, offset, None, pygame.BLEND_RGBA_MAX)
+	return glowimg
+
+def glowshave(img0, fname):
+	shave(img0, fname)
+	shave(glowify(img0), f"{fname}-outline")
+
 if __name__ == "__main__":
 	pygame.init()
-	pview.set_mode((800, 800))
+	pview.set_mode((2 * scale, 2 * scale))
 	setcamera()
-	if False:
-		shave(rendercity(400), "dome")
+	if True:
+		glowshave(renderdome(scale), "dome")
 		for jbeta in range(6):
 			beta = jbeta * math.tau / 6
-			shave(renderstraight(400, beta), f"tube-{jbeta}-{jbeta}")
+			glowshave(renderstraight(scale, beta), f"tube-{jbeta}-{jbeta}")
 			# The turns take 7 hours to render at full resolution.
 			jbetaL = (jbeta - 1) % 6
-			shave(renderturn(400, beta, -1), f"tube-{jbeta}-{jbetaL}")
+			glowshave(renderturn(scale, beta, -1), f"tube-{jbeta}-{jbetaL}")
 			jbetaR = (jbeta + 1) % 6
-			shave(renderturn(400, beta, 1), f"tube-{jbeta}-{jbetaR}")
-			shave(renderdock(400, beta), f"dock-{jbeta}")
+			glowshave(renderturn(scale, beta, 1), f"tube-{jbeta}-{jbetaR}")
+			glowshave(renderdock(scale, beta), f"dock-{jbeta}")
+			glowshave(renderstraight(scale, beta, amax = 0.4, drawback = True), f"build-{jbeta}")
 	if True:
 		while not any(event.type in (pygame.QUIT, pygame.KEYDOWN) for event in pygame.event.get()):
 			pview.fill((60, 30, 0))
 			view.tip = math.cycle(pygame.time.get_ticks() * 0.0002)
 			view.tilt = pygame.time.get_ticks() * 0.0001
 			setcamera()
-			img = rendercity(400)
+			img = rendercity(scale)
 			pview.screen.blit(img, (0, 0))
 			pygame.display.flip()
 

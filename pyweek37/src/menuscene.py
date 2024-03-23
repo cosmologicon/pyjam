@@ -8,7 +8,7 @@ class self:
 def init():
 	self.t = 0
 	control.init()
-	texts = ["Tutorial", "Easy Mode", "Hard Mode"]
+	texts = ["tutorial", "easy", "hard"]
 	rectVs = [pygame.Rect(0, 0, 500, 100) for text in texts]
 	for j, rectV in enumerate(rectVs):
 		rectV.center = 1000, 200 + 130 * j
@@ -21,9 +21,9 @@ def think(dt):
 	self.t += dt
 	if not self.done:
 		self.selected = None
-		for rectV, text in self.boxes:
+		for rectV, name in self.boxes:
 			if T(rectV).collidepoint(control.posD):
-				self.selected = text
+				self.selected = name
 		if self.selected is not None and control.click:
 			self.done = True
 	else:
@@ -39,7 +39,12 @@ def think(dt):
 			view.tip = 0.7
 			scene.scene.init()
 
-def drawbox(rectV, text):
+def drawbox(rectV, name):
+	text = {
+		"tutorial": "Tutorial",
+		"easy": "Easy Mode",
+		"hard": "Hard Mode",
+	}[name]
 	sizeD = T(rectV.h * 0.8)
 	pygame.draw.rect(pview.screen, (255, 255, 255), T(rectV), width = T(3),
 		border_radius = T(10))
@@ -55,8 +60,8 @@ def draw():
 	img = pygame.transform.smoothscale(img, T(600, 600))
 	pview.screen.blit(img, img.get_rect(center = T(500, 420)))
 	
-	for rectV, text in self.boxes:
-		drawbox(rectV, text)
+	for rectV, name in self.boxes:
+		drawbox(rectV, name)
 	ptext.draw(settings.gamename, center = T(400, 100), width = T(600), fontsize = T(100),
 		shade = 1, owidth = 1)
 	ptext.draw("by Christopher Night\nmusic by Kevin MacLeod",

@@ -4,36 +4,41 @@ from . import ptext, pview, view, settings, grid
 
 @cache
 def loadimg(filename):
-	return pygame.image.load(filename)
+	return pygame.transform.scale2x(pygame.transform.scale2x(pygame.image.load(filename)))
 
 @cache
 def drawsymbol(symbol):
 	img = pygame.Surface((400, 400)).convert_alpha()
 	img.fill((0, 0, 0, 0))
 	if symbol == "R":
-		pygame.draw.circle(img, (0, 0, 0), (200, 200), 140)
-		pygame.draw.circle(img, (255, 255, 255), (200, 200), 140 - 14)
+		pygame.draw.circle(img, (0, 0, 0), (200, 200), 126)
+		pygame.draw.circle(img, (255, 255, 255), (200, 200), 96)
+#		cs = [(max(r, g, b), a) for x in range(400) for y in range(400) for r, g, b, a in [img.get_at((x, y))]]
+#		print(symbol, sum(r > 0 and a > 0 for r, a in cs), sum(a > 0 for r, a in cs))
 		return img
 	if symbol == "O":
-		rs = [140] * 4
+		rs = [157] * 4
 	if symbol == "Y":
-		rs = [180] * 3
+		rs = [196] * 3
 	if symbol == "G":
-		rs = [180, 90] * 4
+		rs = [196, 90] * 4
 	if symbol == "B":
-		rs = [200, 100] * 5
+		rs = [184, 92] * 5
 	theta0 = 1/8 if symbol == "O" else 1/4
 	thetas = [(jtheta / len(rs) - theta0) * math.tau for jtheta in range(len(rs))]
 	center = (200, 230) if symbol == "Y" else (200, 200)
 	ps = [pview.I(math.CS(theta, r, center = center)) for theta, r in zip(thetas, rs)]
 	pygame.draw.polygon(img, (0, 0, 0), ps)
-	dr = 18 if symbol == "O" else 24
-	ps = [pview.I(math.CS(theta, r - dr, center = center)) for theta, r in zip(thetas, rs)]
+	dr = 0.24
+	ps = [pview.I(math.CS(theta, r * (1 - dr), center = center)) for theta, r in zip(thetas, rs)]
 	pygame.draw.polygon(img, (255, 255, 255), ps)
+#	cs = [(max(r, g, b), a) for x in range(400) for y in range(400) for r, g, b, a in [img.get_at((x, y))]]
+#	print(symbol, sum(r > 0 and a > 0 for r, a in cs), sum(a > 0 for r, a in cs))
 	return img
 
 @cache
-def img0(iname, scale = 1, mask = None, smooth = False):
+def img0(iname, scale = 1, mask = None, smooth = True):
+	if "outline" in iname: mask = None
 	if scale != 1:
 		img = img0(iname, mask = mask)
 		w, h = img.get_size()
@@ -81,7 +86,7 @@ def drawcircleH(pH, color, scaleG):
 def drawsymbolatD(symbol, pD, sizeD, strength = 1, palette = None, immediate = False):
 	color = math.imix((0, 0, 0), settings.getcolor(symbol, palette), strength)
 	scale = sizeD / 400
-	img = img0(f"symbol-{symbol}", scale = scale, mask = color)
+	img = img0(f"symbol-{symbol}", scale = scale, mask = color, smooth = True)
 	drawimgat(img, pD, immediate)
 
 def drawsymbolat(symbol, pD, sizeG, strength = 1, palette = None):
@@ -124,27 +129,37 @@ def drawbubbleatH(pH, symbols, flip):
 		drawsymbolatD(symbol, (xD, yD), int(1 * hD), strength, immediate = True)
 		xD -= d * int(0.8 * hD)
 
-def drawdomeatG(pG):
+def drawdomeatG(pG, color, outline = False):
 	scale = pview.f * view.VscaleG / 400
-	drawimgat(img0("dome", scale = scale, mask = (80, 100, 100)), view.DconvertG(pG))
+	fname = "dome" + ("-outline" if outline else "")
+	drawimgat(img0(fname, scale = scale, mask = color), view.DconvertG(pG))
 
-def drawtubeatG(pG, mask, jbeta0, jbeta1):
+def drawtubeatG(pG, mask, jbeta0, jbeta1, outline = False):
 	scale = pview.f * view.VscaleG / 400
-	drawimgat(img0(f"tube-{jbeta0}-{jbeta1}", scale = scale, mask = mask), view.DconvertG(pG))
+	fname = f"tube-{jbeta0}-{jbeta1}" + ("-outline" if outline else "")
+	drawimgat(img0(fname, scale = scale, mask = mask), view.DconvertG(pG))
 
-def drawdockatG(pG, jbeta):
+def drawdockatG(pG, jbeta, outline = False):
 	scale = pview.f * view.VscaleG / 400
-	drawimgat(img0(f"dock-{jbeta}", scale = scale), view.DconvertG(pG))
+	fname = f"dock-{jbeta}" + ("-outline" if outline else "")
+	drawimgat(img0(fname, scale = scale, mask = (120, 100, 80)), view.DconvertG(pG))
 
+def drawbuildatG(pG, jbeta, outline = False):
+	scale = pview.f * view.VscaleG / 400
+	fname = f"build-{jbeta}" + ("-outline" if outline else "")
+	drawimgat(img0(fname, scale = scale), view.DconvertG(pG))
 	
-def drawdomeatH(pH):
-	drawdomeatG(grid.GconvertH(pH))
+def drawdomeatH(pH, color, outline = False):
+	drawdomeatG(grid.GconvertH(pH), color, outline)
 
-def drawtubeatH(pH, mask, jbeta0, jbeta1):
-	drawtubeatG(grid.GconvertH(pH), mask, jbeta0, jbeta1)
+def drawtubeatH(pH, mask, jbeta0, jbeta1, outline = False):
+	drawtubeatG(grid.GconvertH(pH), mask, jbeta0, jbeta1, outline)
 
-def drawdockatH(pH, jbeta):
-	drawdockatG(grid.GconvertH(pH), jbeta)
+def drawdockatH(pH, jbeta, outline = False):
+	drawdockatG(grid.GconvertH(pH), jbeta, outline)
+
+def drawbuildatH(pH, jbeta, outline = False):
+	drawbuildatG(grid.GconvertH(pH), jbeta, outline)
 
 @cache
 def cloudimg(sizeD):

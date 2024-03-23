@@ -60,10 +60,14 @@ class TutorialQuest(Quest):
 
 class EasyQuest(Quest):
 	nsteps = 4
+	def __init__(self):
+		Quest.__init__(self)
+		view.VscaleG = 70
+		view.xG0, view.yG0 = 0, 0
+		generate.ezphase1()
 	def check(self):
 		if self.step == 0:
 			self.advance()
-			generate.ezphase1()
 		if self.step == 1 and state.allsupplied():
 			self.advance()
 			generate.ezphase2()
@@ -73,14 +77,27 @@ class EasyQuest(Quest):
 		if self.step == 3 and state.allsupplied():
 			self.advance()
 	
+class HardQuest(Quest):
+	nsteps = 4
+	def __init__(self):
+		Quest.__init__(self)
+		view.VscaleG = 70
+		view.xG0, view.yG0 = 0, 0
+		generate.phase1()
+	def check(self):
+		if self.step == 0:
+			self.advance()
+		if self.step == 1 and state.allsupplied():
+			self.advance()
+			generate.phase2()
+		if self.step == 2 and state.allsupplied():
+			self.advance()
+			generate.phase3()
+		if self.step == 3 and state.allsupplied():
+			self.advance()
+	
 
 quests = []
-def inittutorial():
-	quests.append(TutorialQuest())
-def initeasy():
-	quests.append(EasyQuest())
-def inithard():
-	quests.append(HardQuest())
 
 def think(dt):
 	global quests

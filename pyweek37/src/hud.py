@@ -27,7 +27,7 @@ class FilterBox:
 			color = math.imix(color, (0, 0, 0), 0.6)
 		pygame.draw.rect(pview.screen, color, pview.T(self.rectV))
 		if self.ctype is None:
-			graphics.drawsymbolatD(self.symbol, pview.T(self.rectV.center), pview.T(50),
+			graphics.drawsymbolatD(self.symbol, pview.T(self.rectV.center), pview.T(35),
 				immediate = True)
 
 	def within(self, pD):
@@ -150,6 +150,7 @@ def init():
 		rectV = rectV.move(0, dy)
 	self.selected = None
 	self.f = { None: 1 }
+	self.lastsave = 0  # No idea why I'm tracking this here. It has to be somewhere.
 
 def think(dt):
 	self.t += dt
@@ -175,6 +176,9 @@ def think(dt):
 			self.f[key] = math.approach(self.f[key], ftarget, df)
 			if self.f[key] == self.f[None]:
 				del self.f[key]
+	if self.lastsave + settings.autosave_seconds < self.t:
+		state.save()
+		self.lastsave = self.t
 	
 
 # 0: disabled. 1: enabled.

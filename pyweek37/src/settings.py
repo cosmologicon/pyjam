@@ -1,9 +1,9 @@
 import pygame, pickle, os.path
 
 gamename = "Space Age Tube"
-savefile = "savefile.pkl"
+savefile = "save-{mode}.pkl"
 settingsfile = "settings.pkl"
-
+autosave_seconds = 5
 
 minfps, maxfps = 10, 120
 
@@ -61,17 +61,23 @@ def getcolor(colorname, palette = None):
 showdemand = "dim"
 showsupply = "dim"
 
+expandinfo = True
+
+minzoom, maxzoom = 32, 160
+# Evenly log-spaced.
+zooms = [round(minzoom * (maxzoom / minzoom) ** (j/20), 2) for j in range(21)]
+
 def save():
-	obj = height, fullscreen, forceres, palette, showdemand, showsupply
+	obj = height, fullscreen, forceres, palette, showdemand, showsupply, expandinfo
 	pickle.dump(obj, open(settingsfile, "wb"))
 
 # Do I actually need this to be a function?
 def load():
-	global height, fullscreen, forceres, palette, showdemand, showsupply
+	global height, fullscreen, forceres, palette, showdemand, showsupply, expandinfo
 	if not os.path.exists(settingsfile):
 		return
 	obj = pickle.load(open(settingsfile, "rb"))
-	height, fullscreen, forceres, palette, showdemand, showsupply = obj
+	height, fullscreen, forceres, palette, showdemand, showsupply, expandinfo = obj
 load()
 
 

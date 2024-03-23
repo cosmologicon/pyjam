@@ -22,13 +22,23 @@ def scootD(dx, dy):
 	xG0 += dx / VscaleG
 	yG0 -= dy / VscaleG
 
-def zoom(dz, pDanchor = None):
+def zoomto(scale):
+	global VscaleG
+	VscaleG = min(settings.zooms, key = lambda zoom: abs(math.log(scale / zoom)))
+
+def zoomstep(d = 1, pDanchor = None):
+	if d >= 0:
+		j = sum(zoom <= VscaleG for zoom in settings.zooms) + d
+	else:
+		j = sum(zoom < VscaleG for zoom in settings.zooms) + d
+	zoom(settings.zooms[math.clamp(j, 0, len(settings.zooms) - 1)], pDanchor)
+
+def zoom(scale, pDanchor = None):
 	global xG0, yG0, VscaleG
-	if dz == 0: return
 	xV0, yV0 = pview.center
 	xVanchor, yVanchor = VconvertD(pDanchor or pview.center)
 	oldVscaleG = VscaleG
-	VscaleG *= 1.2 ** dz
+	VscaleG = scale
 	VscaleG = math.clamp(VscaleG, 10, 200)
 	# xG(xVanchor) = xG0 + (xVanchor - xV0) / VscaleG is a constant
 	# oldxG0 + (xVanchor - xV0) / oldVscaleG = xG0 + (xVanchor - xV0) / VscaleG0

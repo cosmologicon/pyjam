@@ -1,4 +1,4 @@
-import random, pygame, math
+import random, pygame, math, os.path, pickle
 from collections import defaultdict, Counter
 from functools import cache
 from . import settings, grid, view, pview, ptext, graphics, hud
@@ -73,8 +73,11 @@ class Planet:
 		return False
 	def think(self, dt):
 		self.t += dt
-	def draw(self, glow = False):
-		graphics.drawdomeatH(self.pH)
+	def draw(self, outline = False):
+		color = (160, 200, 240)
+		if not self.supplied:
+			color = math.imix((30, 30, 30), color, 0.4)
+		graphics.drawdomeatH(self.pH, color, outline = outline)
 #		pygame.draw.circle(pview.screen, (255, 0, 255), view.DconvertG(grid.GconvertH(self.pH)), 3)
 	def drawbubbles(self):
 		symbols = []
@@ -195,21 +198,24 @@ class Tube:
 	# Click interface. Either add to the end or remove the end.
 	def tryclick(self, pH):
 		if self.trybuild(pH):
-			return True
-		if len(self.pHs) > 1 and pH == self.pHs[-1]:
+			return 1
+		if pH == self.pHs[-1]:
 			self.pHs.pop()
-			self.dirs.pop()
-			return True
-		return False
+			if self.dirs:
+				self.dirs.pop()
+			if not self.pHs:
+				self.supplier = None
+			return -1
+		return 0
 	# Drag interface. Either add to the end or back up 1.
 	def trydrag(self, pH):
 		if self.trybuild(pH):
-			return True
+			return 1
 		if len(self.pHs) > 1 and pH == self.pHs[-2]:
 			self.pHs.pop()
 			self.dirs.pop()
-			return True
-		return False
+			return -1
+		return 0
 	def pHalong(self, d):
 		n, f = divmod(d, 1)
 		n = int(n)
@@ -230,19 +236,34 @@ class Tube:
 	# What resource, if any, do I supply to this planet?
 	def supplyto(self, planet):
 		return self.carry if planet is self.consumer and self.supplied and self.carry else None
-	def draw(self, glow = False):
+	def getcolor(self):
+		return tuple(settings.getcolor(self.carry) if self.carry else (180, 180, 180))
+	def draw(self, mix = None, outline = False):
 		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]
-		color = settings.getcolor(self.carry) if self.carry else [180, 180, 180]
-		mix = (255, 255, 255) if glow else (0, 0, 0)
-		color = math.imix(color, mix, 0.2)
+		color = self.getcolor()
+		if mix is not None:
+			color = math.imix(color, mix, 0.2)
 		if self.dirs:
 			pH = math.mix(self.pHs[0], self.pHs[1], 0.5)
-			graphics.drawdockatH(pH, self.dirs[0])
-		if self.dirs:
+			graphics.drawdockatH(pH, self.dirs[0], outline = outline)
+		if self.consumer:
 			pH = math.mix(self.pHs[-2], self.pHs[-1], 0.5)
-			graphics.drawdockatH(pH, (self.dirs[-1] + 3) % 6)
+			graphics.drawdockatH(pH, (self.dirs[-1] + 3) % 6, outline = outline)
+		elif self.dirs:
+			graphics.drawbuildatH(self.pHs[-1], self.dirs[-1], outline = outline)
 		for j in range(len(self.dirs) - 1):
-			graphics.drawtubeatH(self.pHs[j+1], color, self.dirs[j], self.dirs[j+1])
+			graphics.drawtubeatH(self.pHs[j+1], color, self.dirs[j], self.dirs[j+1], outline = outline)
+	def drawglow(self):
+		objs = [self.supplier, self]
+		if self.consumer:
+			objs.append(self.consumer)
+		graphics.renderqueue()
+		for obj in objs:
+			obj.draw(outline = True)
+		graphics.renderqueue()
+		for obj in objs:
+			obj.draw()
+		graphics.renderqueue()
 	def drawcarry(self):
 		if self.carry and self.supplied:
 			d = self.supplier.t * 3 % 3
@@ -309,12 +330,37 @@ def resolvenetwork():
 					newsuppliers.append(tube.consumer)
 		suppliers = newsuppliers
 
+def aimcamera():
+	from . import view
+	if not visible:
+		view.xG, view.yG = 0, 0
+		view.zoomto(40)
+		return
+	xGs, yGs = zip(*[grid.GconvertH(pG) for pG in visible])
+	view.xG, view.yG = sum(xGs) / len(xGs), sum(yGs) / len(yGs)
+	# The scale that would fit everything to the screen.
+	scale = pview.s0 / math.hypot(max(xGs) - min(xGs), max(yGs) - min(yGs))
+	print(view.xG, view.yG, scale)
+	# Bias toward medium values.
+	scale = 40 * (scale / 40) ** 0.7
+	view.zoomto(scale)
+	
 
-board = { pH: None for pH in grid.Hrect(40) }
-visible = set()
-tubes = []
-planets = []
-rocks = []
+def init():
+	from . import quest
+	global board, visible, tubes, planets, rocks
+	board = { pH: None for pH in grid.Hrect(20) }
+	visible = set()
+	tubes = []
+	planets = []
+	rocks = []
+	if level == "tutorial":
+		quest.quests.append(quest.TutorialQuest())
+	if level == "easy":
+		quest.quests.append(quest.EasyQuest())
+	if level == "hard":
+		quest.quests.append(quest.HardQuest())
+	aimcamera()
 
 
 def setvisibility(R):
@@ -382,6 +428,31 @@ def objat(pH):
 	if pH not in visible:
 		return None
 	return board.get(pH)
+
+def toobj():
+	from . import quest
+	return board, visible, tubes, planets, rocks, quest.quests
+
+def fromobj(obj):
+	from . import quest
+	global board, visible, tubes, planets, rocks
+	board, visible, tubes, planets, rocks, quest.quests = obj
+
+def savename():
+	return settings.savefile.format(mode = level)
+
+def save():
+	pickle.dump(toobj(), open(savename(), "wb"))
+
+def load():
+	if os.path.exists(savename()):
+		fromobj(pickle.load(open(savename(), "rb")))
+		aimcamera()
+	else:
+		init()
+
+
+
 
 
 

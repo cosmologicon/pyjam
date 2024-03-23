@@ -1,6 +1,6 @@
 import pygame, math, random
 from collections import Counter
-from . import control, view, grid, state, settings, hud, generate, quest, graphics
+from . import control, view, grid, state, settings, hud, generate, quest, graphics, sound
 from . import pview, ptext
 from .pview import T
 
@@ -9,12 +9,7 @@ from .pview import T
 def init():
 	global building
 	building = None
-	if state.level == "Tutorial":
-		quest.inittutorial()
-	elif state.level == "Easy Mode":
-		quest.initeasy()
-	elif state.level == "Hard Mode":
-		quest.inithard()
+	state.load()
 	control.init()
 	control.selected = None
 	hud.init()
@@ -25,36 +20,65 @@ def think(dt):
 	hud.think(dt)
 	if control.click:
 		if building is not None:
-			building.tryclick(pHcursor)
-			if building.built:
-				state.addtube(building)
-				building = None
+			if len(building.pHs) == 1 and state.planetat(pHcursor) not in [None, building.supplier]:
+				building = state.Tube(pHcursor)
+				sound.play("start")
+			else:
+				dlen = building.tryclick(pHcursor)
+				if not building.supplier:
+					sound.play("cancel")
+					building = None
+				elif building.built:
+					sound.play("complete")
+					state.addtube(building)
+					building = None
+				elif dlen > 0:
+					sound.play("buildup")
+				elif dlen < 0:
+					sound.play("builddown")
+				else:
+					sound.play("no")
 		else:
 			control.selected = state.objat(pHcursor)
-	if control.mclick:
-		if state.planetat(pHcursor) and building is None:
-			building = state.Tube(pHcursor)
-			control.selected = None
+			if isinstance(control.selected, state.Planet):
+				building = state.Tube(pHcursor)
+				control.selected = None
+				sound.play("start")
+			elif isinstance(control.selected, state.Tube):
+				sound.play("select")
+			else:
+				control.selected = None
+				sound.play("click")
+			
 	if control.dragfrom is not None and building is None:
 		dragfromH = grid.HnearestG(view.GconvertD(control.dragfrom))
 		if state.planetat(dragfromH):
 			building = state.Tube(dragfromH)
+			sound.play("start")
 			control.selected = None
 	if any(control.dragD) and building is not None:
-		building.trydrag(pHcursor)
+		dlen = building.trydrag(pHcursor)
 		if building.built:
+			sound.play("complete")
 			state.addtube(building)
 			building = None
+		elif dlen > 0:
+			sound.play("buildup")
+		elif dlen < 0:
+			sound.play("builddown")
+		
 	if building is not None and "remove" in control.kdowns:
+		sound.play("cancel")
 		building = None
 	if control.rclick:
 		building = None
 		control.selected = None
+
+	if pygame.K_TAB in control.kdowns:
+		settings.expandinfo = not settings.expandinfo
+		settings.save()
+
 	if isinstance(control.selected, state.Tube):
-		if pygame.K_TAB in control.kdowns:
-			control.selected.flip()
-		if pygame.K_LSHIFT in control.kdowns:
-			control.selected.togglecarry()
 		if "remove" in control.kdowns:
 			state.removetube(control.selected)
 			control.selected = None
@@ -62,7 +86,10 @@ def think(dt):
 	dy = 600 * (control.kpressed["down"] - control.kpressed["up"]) * dt
 	view.scootD(dx, dy)
 	view.scootD(-control.mdragD[0], -control.mdragD[1])
-	view.zoom(control.dwheel, control.posD)
+	if control.dwheel > 0:
+		view.zoomstep(1, control.posD)
+	if control.dwheel < 0:
+		view.zoomstep(-1, control.posD)
 	for tube in state.tubes:
 		tube.think(dt)
 	for planet in state.planets:
@@ -95,15 +122,17 @@ def draw():
 	graphics.fog(dmax)
 
 	for rock in state.rocks:
-		rock.draw(glow = rock is control.selected)
+		rock.draw()
 	for tube in state.tubes:
-		tube.draw(glow = tube is control.selected)
+		tube.draw()
 	for planet in state.planets:
-		planet.draw(glow = planet is control.selected)
-#		graphics.outlineH(planet.pH)
-	if building is not None:
-		building.draw(glow = True)
+		planet.draw()
 	graphics.renderqueue()
+
+	if building is not None:
+		building.drawglow()
+	if control.selected is not None:
+		control.selected.drawglow()
 
 	for tube in state.tubes:
 		tube.drawcarry()
@@ -122,13 +151,16 @@ def draw():
 		ptext.draw(marquee, width = T(800), midbottom = T(640, 690),
 			fontsize = T(40), shade = 1, owidth = 1)
 
-	lines = [
-		"Tab: switch selected tube flow",
-		"Shift: switch selected tube item",
-		"Left click: select planet or tube, continue tube",
-		"Middle click: start tube at planet",
-		"Right click: cancel tube",
-	]
+	if settings.expandinfo:
+		lines = [
+			"Left click or drag: build conduit",
+			"Right drag or WASD: pan",
+			"Scroll wheel or 1/2: zoom",
+			"Backspace: delete conduit",
+			"Tab: hide controls",
+		]
+	else:
+		lines = ["Tab: expand controls"]
 	if control.selected is not None:
 		lines = control.selected.info() + lines
 	ptext.draw("\n".join(lines), bottomright = pview.bottomright, fontsize = T(25),
