@@ -127,6 +127,7 @@ class EasyQuest(Quest):
 			self.advance()
 		if self.step == 2 and state.allsupplied():
 			sound.play("advance")
+			self.advance()
 			self.load(2)
 
 		if self.step == 3 and state.numunsupplied() < 8:
@@ -135,6 +136,7 @@ class EasyQuest(Quest):
 			self.advance()
 		if self.step == 5 and state.allsupplied():
 			sound.play("advance")
+			self.advance()
 			self.load(3)
 
 		if self.step == 6 and state.numunsupplied() < 12:
@@ -151,23 +153,23 @@ class EasyQuest(Quest):
 		if self.tstep > 15:
 			return
 		if self.step == 1:
-			return "Welcome to planet Hardscrabble. Dialog #1."
+			return "Planet Hardscrabble, Class Q marginally habitable. 10 billion hectares of windswept wasteland."
 		if self.step == 2:
-			return "Welcome to planet Hardscrabble. Dialog #2."
+			return "Nothing grows here. Nothing lives here but 70 million inhabitants crammed into aging, spartan, domed habitats, cut off from one another by kilometers of tundra."
 		if self.step == 3:
-			return "Welcome to planet Hardscrabble. Dialog #3."
+			return "Traveling from one habitat to another was miserable and dangerous. Only the truly motivated - or desperate - ever made the journey."
 		if self.step == 4:
-			return "Welcome to planet Hardscrabble. Dialog #4."
+			return "But everything changed with a revolutionary new invention: the tube!"
 		if self.step == 5:
-			return "Welcome to planet Hardscrabble. Dialog #5."
+			return "Our greatest engineers developed an easy-to-deploy high-speed conduit to share resources between the habitats."
 		if self.step == 6:
-			return "Welcome to planet Hardscrabble. Dialog #6."
+			return "Getting resources from one place to another allowed rapid progress, with more habitats coming online every year!"
 		if self.step == 7:
-			return "Welcome to planet Hardscrabble. Dialog #7."
+			return "But just as important as moving resources was moving people. With easy travel between habitats, our culture developed alongside our technology."
 		if self.step == 8:
-			return "Welcome to planet Hardscrabble. Dialog #8."
+			return "I see bright things in the future for Planet Hardscrabble. Hey, we'll have to change that name!"
 		if self.step == 9:
-			return "Thank you for playing. Press Esc to quit."
+			return "What do you think about: Planet Tubetopia? Thank you for playing. Press Esc to quit."
 
 class HardQuest(EasyQuest):
 	def load(self, phase):

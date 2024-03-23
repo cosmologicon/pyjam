@@ -23,6 +23,8 @@ keys = {
 	"fullscreen": [pygame.K_F11],
 	"screenshot": [pygame.K_F12],
 	"quit": [pygame.K_ESCAPE],
+	"zoomin": [pygame.K_1],
+	"zoomout": [pygame.K_2],
 }
 
 size0 = 1280, 720

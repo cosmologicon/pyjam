@@ -262,14 +262,19 @@ class Tube:
 	def initializecarry(self):
 		self.carry = self.supplier.firstexport(self.consumer)
 	def togglecarry(self):
-		cancarry = [""] + sorted(set(self.supplier.exports))
+		cancarry = [""] + list(settings.colors)
 		self.carry = cycle_opts(self.carry, cancarry)
 		resolvenetwork()
 	# What resource, if any, do I supply to this planet?
 	def supplyto(self, planet):
 		return self.carry if planet is self.consumer and self.supplied and self.carry else None
 	def getcolor(self):
-		return tuple(settings.getcolor(self.carry) if self.carry else (180, 180, 180))
+		color = tuple(settings.getcolor(self.carry) if self.carry else (180, 180, 180))
+		factor = hud.factor(self.carry, "tube")
+		if factor < 1:
+			color = math.imix((40, 40, 40), color, factor)
+		return color
+
 	def draw(self, mix = None, outline = False):
 		pDs = [view.DconvertG(grid.GconvertH(pH)) for pH in self.pHs]
 		color = self.getcolor()

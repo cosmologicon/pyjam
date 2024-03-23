@@ -49,16 +49,17 @@ class Firework:
 			dt = self.t - t
 			if dt < 1:
 				color = math.imix((50, 50, 50), (255, 255, 255), math.fuzz(dt, *pH))
-				h = math.mix(0.4, 3, (dt / 1) ** 0.7)
-				self.drawpoint(pH, 0, h, color, 0.06)
+				h = math.mix(0.4, 5, (dt / 1) ** 0.4)
+				self.drawpoint(pH, 0, h, color, 0.12)
 			elif dt < 3:
-				r = 1.5 * math.interp(dt, 1, 0, 3, 1) ** 0.5
-				h = 3 - 0.3 * (dt - 1.5) ** 2
+				r = 2.5 * math.interp(dt, 1, 0, 3, 1) ** 0.5
+				h = 5 - 0.5 * (dt - 1.5) ** 2
 				color = settings.getcolor(symbol)
+				color = math.imix(color, (255, 255, 255), 0.5)
 				sparks = symbolsparks(pH, symbol)
 				nsparks = int(math.interp(dt, 2.5, 1, 3, 0) * len(sparks))
 				for dx, dz in sparks[:nsparks]:
-					self.drawpoint(pH, r * dx, h + r * dz * 1.4, color, 0.02)
+					self.drawpoint(pH, r * dx, h + r * dz * 1.4, color, 0.04)
 
 
 def init():
@@ -110,7 +111,8 @@ def think(dt):
 				control.selected = None
 				sound.play("start")
 			elif isinstance(control.selected, state.Tube):
-				sound.play("select")
+#				sound.play("select")
+				sound.play("click")
 			else:
 				control.selected = None
 				sound.play("click")
@@ -124,7 +126,8 @@ def think(dt):
 	if any(control.dragD) and building is not None:
 		dlen = building.trydrag(pHcursor)
 		if building.built:
-			sound.play("complete")
+#			sound.play("complete")
+			sound.play("buildup")
 			state.addtube(building)
 			building = None
 		elif dlen > 0:
@@ -152,8 +155,12 @@ def think(dt):
 	view.scootD((dx - control.rdragD[0], dy - control.rdragD[1]))
 	if control.dwheel > 0:
 		view.zoomstep(1, control.posD)
+	if "zoomin" in control.kdowns:
+		view.zoomstep(1)
 	if control.dwheel < 0:
 		view.zoomstep(-1, control.posD)
+	if "zoomout" in control.kdowns:
+		view.zoomstep(-1)
 	for tube in state.tubes:
 		tube.think(dt)
 	for planet in state.planets:
@@ -170,7 +177,7 @@ def think(dt):
 
 def draw():
 	graphics.drawground()
-	pygame.draw.circle(pview.screen, (255, 200, 128), control.posD, 3)
+#	pygame.draw.circle(pview.screen, (255, 200, 128), control.posD, 3)
 
 	pHcursor = grid.HnearestG(view.GconvertD(control.posD))
 	if False:
