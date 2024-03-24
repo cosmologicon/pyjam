@@ -37,8 +37,6 @@ def scootD(dpD):
 	dxG, dyG = VscaleD * dxD / VscaleG, -VscaleD * dyD / VscaleG
 	dyG /= math.cos(tip)
 	dxG, dyG = math.R(-tilt, (dxG, dyG))
-	xG0 += dxG / 3.5
-	yG0 += dyG / 3.5
 	xG0 = math.clamp(xG0 + dxG, state.minxG, state.maxxG)
 	yG0 = math.clamp(yG0 + dyG, state.minyG, state.maxyG)
 
