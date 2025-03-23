@@ -46,7 +46,7 @@ if False:
 
 if True:
     for x, y in tofill:
-        n = int(20 - math.hypot(x, y))
+        n = int(math.interp(math.hypot(x, y), 2, 1, 15, 20))
         wind[(x, y)] = random.choice(list(ds) + [STILL] * n)
 
 
@@ -58,8 +58,8 @@ def draw():
                 continue
             ps = [view.worldtoscreen((x + dx, y + dy)) for dx, dy in dxys]
             pygame.draw.polygon(pview.screen, (255, 255, 255), ps)
-            ptext.draw(wnames[wind[(x, y)]], center = view.worldtoscreen((x, y)),
-                color = (220, 220, 255), fontsize = view.sizetoscreen(0.3))
+#            ptext.draw(wnames[wind[(x, y)]], center = view.worldtoscreen((x, y)),
+#                color = (220, 220, 255), fontsize = view.sizetoscreen(0.3))
 
 
 

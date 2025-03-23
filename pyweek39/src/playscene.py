@@ -1,6 +1,6 @@
 
-import pygame, math
-from . import view, pview, grid, thing, ptext
+import pygame, math, random
+from . import view, pview, grid, thing, ptext, state
 from .pview import T
 
 
@@ -9,20 +9,18 @@ class self:
 
 def init():
     self.t = 0
-    self.home = thing.Home()
-    self.you = thing.You((0, 0))
-    self.gettables = [thing.Copper((2, 2))]
-    self.maxsteps = 10
-    self.maxengine = 2
-    self.bank = 0
     self.haul = 0
     self.engineon = False
+    for x, y in grid.wind:
+        d = math.interp(math.hypot(x, y), 1, 0, 10, 0.4)
+        if grid.wind[(x, y)] == grid.STILL and random.random() < d:
+            state.gettables.append(thing.Copper((x, y)))
     returnhome()
 
 def returnhome():
-    self.steps = self.maxsteps
-    self.engine = self.maxengine
-    self.bank += self.haul
+    self.steps = state.maxsteps
+    self.engine = state.maxengine
+    state.bank += self.haul
     self.haul = 0
 
 def getmove(kdowns):
@@ -43,25 +41,28 @@ def trymove(move, engineon):
     if move not in grid.ds:
         return False
 
-    if self.you.target == (0, 0):
-        self.you.move(move)
+    if state.you.target == (0, 0):
+        state.you.move(move)
         return True
-    if move == self.you.windat():
-        self.you.move(move)
+    if move == state.you.windat():
+        state.you.move(move)
         return True
     if engineon:
         self.engine -= 1
-        grid.wind[self.you.target] = move
-        self.you.move(move)
+        grid.wind[state.you.target] = move
+        state.you.move(move)
         return True
-    if self.you.windat() == grid.STILL:
-        self.you.move(move)
+    if state.you.windat() == grid.STILL:
+        state.you.move(move)
         self.steps -= 1
         return True
     return False
 
+def athome():
+    return state.you.target in [home.pos for home in state.homes]
+
 def canengine():
-    return self.you.target != self.home.pos and self.engine > 0
+    return not athome() and self.engine > 0
 
 
 def think(dt, kdowns):
@@ -74,30 +75,32 @@ def think(dt, kdowns):
     move = getmove(kdowns)
     if trymove(move, self.engineon):
         self.engineon = False
-        for obj in self.gettables:
-            if self.you.target == obj.pos:
+        for obj in state.gettables:
+            if state.you.target == obj.pos:
                 obj.collect()
                 self.haul += obj.value
-        if self.you.target == self.home.pos:
+        if athome():
             returnhome()
-    self.you.think(dt)
-    view.camera.target = self.you.pos
+            state.save()
+    state.you.think(dt)
+    view.camera.target = state.you.pos
     view.think(dt)
-    self.gettables = [obj for obj in self.gettables if obj.alive]
+    state.gettables = [obj for obj in state.gettables if obj.alive]
 
 def draw():
     pview.fill((200, 200, 240))
     grid.draw()
-    self.home.draw()
-    self.you.draw(self.engineon)
-    for obj in self.gettables:
+    for home in state.homes:
+        home.draw()
+    state.you.draw(self.engineon)
+    for obj in state.gettables:
         obj.draw()
     
     text = "\n".join([
-        f"Provisions: {self.steps}/{self.maxsteps}",
-        f"Engine: {self.engine}/{self.maxengine}",
+        f"Provisions: {self.steps}/{state.maxsteps}",
+        f"Engine: {self.engine}/{state.maxengine}",
         f"Current haul: {self.haul}",
-        f"Bank: {self.bank}",
+        f"Bank: {state.bank}",
     ])
     ptext.draw(text, bottomleft = T(10, 710), fontsize = T(40), owidth = 0.5)
 

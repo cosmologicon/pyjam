@@ -1,6 +1,7 @@
 import pygame
 
 gamename = "Downstream"
+savegame = "save.pkl"
 
 resolution = 1280, 720
 heights = 360, 480, 720, 1080

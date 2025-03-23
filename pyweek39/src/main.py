@@ -1,11 +1,12 @@
 import pygame
 from . import settings, view
-from . import scene, playscene
+from . import scene, playscene, state
 
 pygame.init()
 
 scene.current = playscene
 scene.current.init()
+state.load()
 
 view.init()
 clock = pygame.time.Clock()
