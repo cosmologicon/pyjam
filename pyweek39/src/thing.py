@@ -6,31 +6,51 @@ class Thing:
     def __init__(self, pos):
         self.pos = pos
         self.t = 0
+        self.alive = True
     
     def think(self, dt):
         self.t += dt
 
+    def drawcircleat(self, color, size):
+        pygame.draw.circle(pview.screen, color, view.worldtoscreen(self.pos), view.sizetoscreen(size))
+        
+
+class Home(Thing):
+    def __init__(self):
+        Thing.__init__(self, (0, 0))
+
+    def draw(self):
+        self.drawcircleat((100, 100, 255), 0.5)
+        
 
 class You(Thing):
     def __init__(self, pos):
         Thing.__init__(self, pos)
         self.target = self.pos
 
-    def move(self, kdowns):
-        if "right" in kdowns:
-            self.target = math.vplus(self.target, grid.E)
-        if "left" in kdowns:
-            self.target = math.vplus(self.target, grid.W)
-        if "up" in kdowns:
-            self.target = math.vplus(self.target, grid.N)
-        if "down" in kdowns:
-            self.target = math.vplus(self.target, grid.S)
+    def move(self, dpos):
+        self.target = math.vplus(self.target, dpos)
 
     def think(self, dt):
         if self.target != self.pos:
             self.pos = math.softapproach(self.pos, self.target, 10 * dt, dymin = 0.01)
 
+
     def draw(self):
         pygame.draw.circle(pview.screen, (255, 100, 100), view.worldtoscreen(self.pos), view.sizetoscreen(0.25))
+
+    def windat(self):
+        return grid.wind[self.target]
+
+class Gettable(Thing):
+    def draw(self):
+        self.drawcircleat(self.color, 0.1)
+
+    def collect(self):
+        self.alive = False
+
+class Copper(Gettable):
+    color = "#B87333"
+
 
 

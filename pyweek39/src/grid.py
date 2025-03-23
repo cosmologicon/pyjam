@@ -1,4 +1,4 @@
-import random, pygame
+import random, pygame, math
 from . import view, pview, ptext
 
 # +x = East, +y = North
@@ -19,12 +19,36 @@ R = 10
 
 wind = {}
 
-for x in range(-R, R + 1):
-    for y in range(-R, R + 1):
-        if (x, y) == (0, 0):
-            wind[(x, y)] = STILL
+wind[(0, 0)] = STILL
+tofill = [(x, y) for x in range(-R, R + 1) for y in range(-R, R + 1)]
+tofill.remove((0, 0))
+
+if False:
+    steps = { (0, 0): 0 }
+
+    while tofill:
+        p0 = random.choice(tofill)
+        if not any(math.vplus(p0, d) in tofill for d in ds):
+            dchoices = [(d, math.vplus(p0, d)) for d in ds]
+            dchoices = [(d, p1) for d, p1 in dchoices if p1 in steps]
+            d, p1 = max(dchoices, key = lambda dp1: steps[dp1[1]])
         else:
-            wind[(x, y)] = random.choice(ds)
+            d = random.choice(ds)
+            p1 = math.vplus(p0, d)
+            if p1 not in steps:
+                continue
+            if len(wind) > 1 + steps[p1] ** 2:
+                continue
+        if p1 in wind:
+            steps[p0] = steps[p1] + 1
+            wind[p0] = d
+            tofill.remove(p0)
+
+if True:
+    for x, y in tofill:
+        n = int(20 - math.hypot(x, y))
+        wind[(x, y)] = random.choice(list(ds) + [STILL] * n)
+
 
 def draw():
     for x in range(-R, R + 1):
@@ -35,7 +59,7 @@ def draw():
             ps = [view.worldtoscreen((x + dx, y + dy)) for dx, dy in dxys]
             pygame.draw.polygon(pview.screen, (255, 255, 255), ps)
             ptext.draw(wnames[wind[(x, y)]], center = view.worldtoscreen((x, y)),
-                color = "black", fontsize = view.sizetoscreen(0.2))
+                color = (220, 220, 255), fontsize = view.sizetoscreen(0.3))
 
 
 
