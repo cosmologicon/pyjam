@@ -1,6 +1,10 @@
 import pickle, os
 from . import grid, playscene, settings, thing
 
+stepcosts = { n: n for n in range(100) }
+enginecosts = { n: 10 * n for n in range(100) }
+
+
 def init():
     global homes, you, gettables, maxsteps, maxengine, bank
     homes = [thing.Home()]

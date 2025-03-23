@@ -69,9 +69,9 @@ def canengine():
     return not athome() and self.engine > 0
 
 def think(dt, kdowns):
+    from . import scene, reloadscene, shopscene
     self.t += dt
     if "quit" in kdowns:
-        from . import scene, reloadscene
         reloadscene.init()
         scene.current = reloadscene
     if "engine" in kdowns:
@@ -89,6 +89,8 @@ def think(dt, kdowns):
         if athome():
             returnhome()
             state.save()
+            shopscene.init()
+            scene.current = shopscene
     state.you.think(dt)
     view.camera.target = state.you.pos
     view.think(dt)
