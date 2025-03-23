@@ -8,7 +8,7 @@ def init():
 
 class camera:
     x0, y0 = 0, 0
-    scale = 30
+    scale = 60
 
 def worldtoscreen(p):
     x, y = p
@@ -16,4 +16,6 @@ def worldtoscreen(p):
     py = pview.centery0 - camera.scale * y
     return pview.T(px, py)
 
+def sizetoscreen(r):
+    return pview.T(camera.scale * r)
 

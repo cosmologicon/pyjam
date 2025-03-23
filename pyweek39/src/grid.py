@@ -35,7 +35,7 @@ def draw():
             ps = [view.worldtoscreen((x + dx, y + dy)) for dx, dy in dxys]
             pygame.draw.polygon(pview.screen, (255, 255, 255), ps)
             ptext.draw(wnames[wind[(x, y)]], center = view.worldtoscreen((x, y)),
-                color = "black", fontsize = 10)
+                color = "black", fontsize = view.sizetoscreen(0.2))
 
 
 
