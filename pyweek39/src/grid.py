@@ -46,7 +46,7 @@ if False:
 
 if True:
     for x, y in tofill:
-        n = int(math.interp(math.hypot(x, y), 2, 1, 15, 20))
+        n = int(math.interp(math.hypot(x, y), 2, 20, 15, 4))
         wind[(x, y)] = random.choice(list(ds) + [STILL] * n)
 
 

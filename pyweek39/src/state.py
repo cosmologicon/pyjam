@@ -1,12 +1,14 @@
 import pickle, os
 from . import grid, playscene, settings, thing
 
-homes = [thing.Home()]
-you = thing.You((0, 0))
-gettables = []
-maxsteps = 10
-maxengine = 2
-bank = 0
+def init():
+    global homes, you, gettables, maxsteps, maxengine, bank
+    homes = [thing.Home()]
+    you = thing.You((0, 0))
+    gettables = []
+    maxsteps = 10
+    maxengine = 2
+    bank = 0
 
 
 def getstate():

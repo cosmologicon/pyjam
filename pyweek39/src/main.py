@@ -21,8 +21,6 @@ while playing:
             for kname, values in settings.keys.items():
                 if event.key in values:
                     kdowns.add(kname)
-    if "quit" in kdowns:
-        playing = False
             
     current = scene.current
     current.think(dt, kdowns)

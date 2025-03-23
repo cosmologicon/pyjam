@@ -8,6 +8,7 @@ class self:
     pass
 
 def init():
+    state.init()
     self.t = 0
     self.haul = 0
     self.engineon = False
@@ -53,9 +54,12 @@ def trymove(move, engineon):
         state.you.move(move)
         return True
     if state.you.windat() == grid.STILL:
+        if self.steps <= 0:
+            return False
         state.you.move(move)
         self.steps -= 1
         return True
+    # Trying to move against the wind.
     return False
 
 def athome():
@@ -64,9 +68,12 @@ def athome():
 def canengine():
     return not athome() and self.engine > 0
 
-
 def think(dt, kdowns):
     self.t += dt
+    if "quit" in kdowns:
+        from . import scene, reloadscene
+        reloadscene.init()
+        scene.current = reloadscene
     if "engine" in kdowns:
         if canengine():
             self.engineon = not self.engineon
@@ -103,5 +110,8 @@ def draw():
         f"Bank: {state.bank}",
     ])
     ptext.draw(text, bottomleft = T(10, 710), fontsize = T(40), owidth = 0.5)
+    if self.steps <= 3:
+        text = "OUT OF FUEL\nESC: QUIT TO LAST SAVE" if self.steps == 0 else "LOW FUEL"
+        ptext.draw(text, midbottom = T(640, 700), fontsize = T(60), owidth = 0.5, shade = 1, color = "red")
 
 
