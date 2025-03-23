@@ -36,8 +36,11 @@ class You(Thing):
             self.pos = math.softapproach(self.pos, self.target, 10 * dt, dymin = 0.01)
 
 
-    def draw(self):
-        pygame.draw.circle(pview.screen, (255, 100, 100), view.worldtoscreen(self.pos), view.sizetoscreen(0.25))
+    def draw(self, engineon):
+        color = 200, 50, 50
+        if engineon:
+            color = math.imix(color, (255, 255, 255), 0.5)
+        self.drawcircleat(color, 0.25)
 
     def windat(self):
         return grid.wind[self.target]
@@ -51,6 +54,7 @@ class Gettable(Thing):
 
 class Copper(Gettable):
     color = "#B87333"
+    value = 1
 
 
 

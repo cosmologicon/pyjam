@@ -13,5 +13,6 @@ keys = {
     "right": [pygame.K_RIGHT, pygame.K_d, pygame.K_e],
     "down": [pygame.K_DOWN, pygame.K_s, pygame.K_o],
     "quit": [pygame.K_ESCAPE],
+    "engine": [pygame.K_SPACE, pygame.K_RETURN],
 }
 
