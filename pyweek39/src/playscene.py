@@ -1,6 +1,6 @@
 
 import pygame
-from . import pview
+from . import pview, grid
 
 
 class self:
@@ -14,4 +14,5 @@ def think(dt, kdowns):
 
 def draw():
     pview.fill((200, 200, 240))
+    grid.draw()
 
