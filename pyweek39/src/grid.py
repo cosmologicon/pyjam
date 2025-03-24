@@ -18,8 +18,13 @@ wnames = { N: "N", S: "S", E: "E", W: "W" }
 R = 10
 
 wind = {}
+strength = {}
 
-wind[(0, 0)] = STILL
+def setwind(pos, w, s = 1):
+    wind[pos] = w
+    strength[pos] = 0 if w is STILL else s
+setwind((0, 0), STILL)
+
 tofill = [(x, y) for x in range(-R, R + 1) for y in range(-R, R + 1)]
 tofill.remove((0, 0))
 
@@ -47,7 +52,9 @@ if False:
 if True:
     for x, y in tofill:
         n = int(math.interp(math.hypot(x, y), 2, 20, 15, 4))
-        wind[(x, y)] = random.choice(list(ds) + [STILL] * n)
+        w = random.choice(list(ds) + [STILL] * n)
+        s = int(math.interp(math.hypot(x, y), 0, 1, 10, 3) + random.random())
+        setwind((x, y), w, s)
 
 
 def draw():
@@ -57,7 +64,12 @@ def draw():
             if not dxys:
                 continue
             ps = [view.worldtoscreen((x + dx, y + dy)) for dx, dy in dxys]
-            pygame.draw.polygon(pview.screen, (255, 255, 255), ps)
+            color = {
+                1: (200, 200, 255),
+                2: (240, 240, 240),
+                3: (255, 200, 200),
+            }[strength[(x, y)]]
+            pygame.draw.polygon(pview.screen, color, ps)
 #            ptext.draw(wnames[wind[(x, y)]], center = view.worldtoscreen((x, y)),
 #                color = (220, 220, 255), fontsize = view.sizetoscreen(0.3))
 

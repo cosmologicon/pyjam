@@ -16,11 +16,11 @@ def init():
 
 
 def getstate():
-    return grid.wind, homes, you, gettables, maxsteps, maxengine, bank
+    return grid.wind, grid.strength, homes, you, gettables, maxsteps, maxengine, bank
 
 def setstate(obj):
     global homes, you, gettables, maxsteps, maxengine, bank
-    grid.wind, homes, you, gettables, maxsteps, maxengine, bank = obj
+    grid.wind, grid.strength, homes, you, gettables, maxsteps, maxengine, bank = obj
 
 def reset():
     if os.path.exists(settings.savegame):

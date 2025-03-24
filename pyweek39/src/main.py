@@ -1,6 +1,6 @@
 import pygame
-from . import settings, view
-from . import scene, playscene, state
+from . import settings, view, ptext, state, pview
+from . import scene, playscene
 
 pygame.init()
 
@@ -21,11 +21,11 @@ while playing:
             for kname, values in settings.keys.items():
                 if event.key in values:
                     kdowns.add(kname)
-            
     current = scene.current
     current.think(dt, kdowns)
     current.draw()
 
+    ptext.draw(f"{clock.get_fps():.1f}fps", bottomright = pview.T(1270, 710), fontsize = pview.T(30), owidth = 1)
     pygame.display.flip()
 
 

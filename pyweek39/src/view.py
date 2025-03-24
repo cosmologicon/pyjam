@@ -8,7 +8,7 @@ def init():
 
 class camera:
     x0, y0 = 0, 0
-    scale = 80
+    scale = 60
     target = 0, 0
 
 def worldtoscreen(p):

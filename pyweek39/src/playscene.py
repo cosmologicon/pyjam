@@ -1,6 +1,6 @@
 
 import pygame, math, random
-from . import view, pview, grid, thing, ptext, state
+from . import view, pview, grid, thing, ptext, state, sound
 from .pview import T
 
 
@@ -50,8 +50,10 @@ def trymove(move, engineon):
         return True
     if engineon:
         self.engine -= 1
-        grid.wind[state.you.target] = move
+        grid.setwind(state.you.target, move)
         state.you.move(move)
+        sound.play("useengine")
+        self.engineon = False
         return True
     if state.you.windat() == grid.STILL:
         if self.steps <= 0:
@@ -75,10 +77,22 @@ def think(dt, kdowns):
         reloadscene.init()
         scene.current = reloadscene
     if "engine" in kdowns:
-        if canengine():
-            self.engineon = not self.engineon
-        else:
+        if self.engineon:
+            self.engine -= 1
+            grid.setwind(state.you.target, grid.STILL)
+            sound.play("useengine")
             self.engineon = False
+        else:
+            if athome():
+                pass
+            elif self.engine == 0:
+                sound.play("no")
+            elif grid.strength[state.you.target] > 1:
+                sound.play("no")
+                print("wind too strong")
+            else:
+                self.engineon = True
+                sound.play("engineon")
     move = getmove(kdowns)
     if trymove(move, self.engineon):
         self.engineon = False
@@ -97,7 +111,7 @@ def think(dt, kdowns):
     state.gettables = [obj for obj in state.gettables if obj.alive]
 
 def draw():
-    pview.fill((200, 200, 240))
+    pview.fill((100, 100, 120))
     grid.draw()
     for home in state.homes:
         home.draw()
