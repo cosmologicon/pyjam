@@ -31,6 +31,16 @@ class You(Thing):
     def move(self, dpos):
         self.target = math.vplus(self.target, dpos)
 
+    def flow(self):
+        self.start = self.target
+        nstep = 0
+        while grid.wind[self.target] != grid.STILL:
+            self.target = math.vplus(self.target, grid.wind[self.target])
+            nstep += 1
+            if self.target == self.start:
+                break
+        return nstep
+
     def think(self, dt):
         if self.target != self.pos:
             self.pos = math.softapproach(self.pos, self.target, 10 * dt, dymin = 0.01)

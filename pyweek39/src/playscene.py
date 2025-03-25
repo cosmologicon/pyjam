@@ -97,6 +97,10 @@ def think(dt, kdowns):
             else:
                 self.engineon = True
                 sound.play("engineon")
+    if "flow" in kdowns:
+        self.engineon = False
+        if state.you.flow() == 0:
+            sound.play("no")
     move = getmove(kdowns)
     if trymove(move, self.engineon):
         self.engineon = False
