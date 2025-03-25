@@ -63,7 +63,7 @@ def draw():
     texts = [
         "Done",
         f"Upgrade max fuel: {state.maxsteps} (${state.stepcosts[state.maxsteps]})",
-        f"Upgrade turnbine: {state.maxengine} (${state.enginecosts[state.maxengine]})",
+        f"Upgrade turbine: {state.maxengine} (${state.enginecosts[state.maxengine]})",
     ]
     ptext.draw(f"Bank: ${state.bank}", topleft = T(50, 50), fontsize = T(60), color = "white", owidth = 1)
     for jopt in range(self.nopts):

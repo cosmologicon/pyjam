@@ -14,8 +14,8 @@ def think(dt, kdowns):
     if self.t > 0.7 and scene.current is not playscene:
         playscene.init()
         state.load()
+        playscene.self.fuel = state.maxfuel
         scene.current = playscene
-       
 
 def draw():
     pview.fill((40, 20, 20))

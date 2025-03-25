@@ -23,10 +23,12 @@ def init():
     returnhome()
 
 def returnhome():
-    self.steps = state.maxsteps
-    self.engine = state.maxengine
     state.bank += self.haul
     self.haul = 0
+    while state.bank >= state.fuelcosts[state.maxfuel]:
+        state.bank -= state.fuelcosts[state.maxfuel]
+        state.maxfuel += 1
+    self.fuel = state.maxfuel
 
 def getmove(kdowns):
     d = (0, 0)
@@ -39,6 +41,9 @@ def getmove(kdowns):
     if "down" in kdowns:
         d = math.vplus(d, grid.S)
     return d
+
+def turbinefuelatyou():
+    return state.turbinefuel[grid.strength[state.you.target]]
 
 def trymove(move, engineon):
     if move == grid.STILL:
@@ -53,26 +58,23 @@ def trymove(move, engineon):
         state.you.move(move)
         return True
     if engineon:
-        self.engine -= 1
+        self.fuel -= turbinefuelatyou()
         grid.setwind(state.you.target, move)
         state.you.move(move)
         sound.play("useengine")
         self.engineon = False
         return True
     if state.you.windat() == grid.STILL:
-        if self.steps <= 0:
+        if self.fuel <= 0:
             return False
         state.you.move(move)
-        self.steps -= 1
+        self.fuel -= 1
         return True
     # Trying to move against the wind.
     return False
 
 def athome():
     return state.you.target in [home.pos for home in state.homes]
-
-def canengine():
-    return not athome() and self.engine > 0
 
 def think(dt, kdowns):
     from . import scene, reloadscene, shopscene
@@ -82,16 +84,16 @@ def think(dt, kdowns):
         scene.current = reloadscene
     if "engine" in kdowns:
         if self.engineon:
-            self.engine -= 1
+            self.fuel -= turbinefuelatyou()
             grid.setwind(state.you.target, grid.STILL)
             sound.play("useengine")
             self.engineon = False
         else:
             if athome():
                 pass
-            elif self.engine == 0:
+            elif self.fuel < turbinefuelatyou():
                 sound.play("no")
-            elif grid.strength.get(state.you.target, 0) > 1:
+            elif grid.strength.get(state.you.target, 0) > state.maxturbine:
                 sound.play("no")
                 print("wind too strong")
             else:
@@ -101,6 +103,11 @@ def think(dt, kdowns):
         self.engineon = False
         if state.you.flow() == 0:
             sound.play("no")
+        else:
+            if athome():
+                returnhome()
+                state.save()
+
     move = getmove(kdowns)
     if trymove(move, self.engineon):
         self.engineon = False
@@ -111,8 +118,6 @@ def think(dt, kdowns):
         if athome():
             returnhome()
             state.save()
-            shopscene.init()
-            scene.current = shopscene
     state.you.think(dt)
     view.camera.target = state.you.pos
     view.think(dt)
@@ -128,14 +133,14 @@ def draw():
         obj.draw()
     
     text = "\n".join([
-        f"Provisions: {self.steps}/{state.maxsteps}",
-        f"Engine: {self.engine}/{state.maxengine}",
-        f"Current haul: {self.haul}",
-        f"Bank: {state.bank}",
+        f"Fuel: {self.fuel}/{state.maxfuel}",
+        f"Current haul: ${self.haul}",
+        f"Bank: ${state.bank}",
+        f"Next upgrade: ${state.fuelcosts[state.maxfuel]}",
     ])
     ptext.draw(text, bottomleft = T(10, 710), fontsize = T(40), owidth = 0.5)
-    if self.steps <= 3:
-        text = "OUT OF FUEL\nESC: QUIT TO LAST SAVE" if self.steps == 0 else "LOW FUEL"
+    if self.fuel <= 3:
+        text = "OUT OF FUEL\nESC: QUIT TO LAST SAVE" if self.fuel == 0 else "LOW FUEL"
         ptext.draw(text, midbottom = T(640, 700), fontsize = T(60), owidth = 0.5, shade = 1, color = "red")
 
 

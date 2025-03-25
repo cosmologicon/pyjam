@@ -16,12 +16,12 @@ arrowds[E] = rot(arrowds[S])
 arrowds[STILL] = []
 wnames = { N: "N", S: "S", E: "E", W: "W" }
 
-R = 40
+R = 25
 grid = [(x, y) for x in range(-R, R + 1) for y in range(-R, R + 1)]
 gridset = set(grid)
 
 wind = { p: STILL for p in gridset }
-strength = {}
+strength = { p: 0 for p in gridset }
 gettables = {}
 
 def setwind(pos, w, s = 1):
@@ -58,20 +58,38 @@ def adjs(p):
 
 cset = set(gridset)
 cset.remove(ORIGIN)
+if True:
+    for x in [-1, 1]:
+        for y in [-1, 1]:
+            gettables[(x, y)] = 1
+            cset -= set(adjs((x, y)))
+
 while cset:
     p = random.choice(list(cset))
-    gettables[p] = int(math.interp(math.hypot(*p), 7, 1, R, 4) + random.random())
+    gettables[p] = int(math.interp(math.hypot(*p), 3, 1, 20, 4) + random.random())
     cset -= set(adjs(p))
 
 tofill = set(gridset)
 tofill.remove(ORIGIN)
 tofill -= set(gettables)
-            
+
+if False:
+    for x, y in tofill:
+        n = int(math.interp(math.hypot(x, y), 2, 40, 40, 4))
+        w = random.choice(list(ds) + [STILL] * n)
+        s = int(math.interp(math.hypot(x, y), 0, 1, R, 3) + random.random())
+        setwind((x, y), w, s)
+
 for x, y in tofill:
-    n = int(math.interp(math.hypot(x, y), 2, 40, 40, 4))
-    w = random.choice(list(ds) + [STILL] * n)
-    s = int(math.interp(math.hypot(x, y), 0, 1, R, 3) + random.random())
-    setwind((x, y), w, s)
+    f = math.interp(math.hypot(x, y), 1, 0, 2, 0.5)
+    if random.random() < f:
+        w = random.choice(ds)
+        s = int(math.interp(math.hypot(x, y), 4, 1, 25, 3) + random.random())
+        setwind((x, y), w, s)
+    else:
+        setwind((x, y), STILL)
+
+
 
 
 def draw():
