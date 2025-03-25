@@ -56,8 +56,10 @@ class You(Thing):
         return grid.wind[self.target]
 
 class Gettable(Thing):
+    size = 0.1
+    value = 0
     def draw(self):
-        self.drawcircleat(self.color, 0.1)
+        self.drawcircleat(self.color, self.size)
 
     def collect(self):
         self.alive = False
@@ -78,5 +80,8 @@ class Jewel(Gettable):
     color = "purple"
     value = 12
 
+class Artifact(Gettable):
+    color = "black"
+    size = 0.3
 
 

@@ -12,6 +12,7 @@ def init():
     marquee.init()
     self.t = 0
     self.haul = 0
+    self.hart = 0
     self.engineon = False
     for p in grid.gettables:
         cls = {
@@ -21,18 +22,24 @@ def init():
             4: thing.Jewel,
         }[grid.gettables[p]]
         state.gettables.append(cls(p))
+    for p in grid.artifacts:
+        state.gettables.append(thing.Artifact(p))
     returnhome()
 
 def returnhome():
     message = ""
     if self.haul > 0:
         message = f"+${self.haul}"
-    state.bank += self.haul
-    self.haul = 0
+        state.bank += self.haul
+        self.haul = 0
     while state.bank >= state.fuelcosts[state.maxfuel]:
         state.bank -= state.fuelcosts[state.maxfuel]
         state.maxfuel += 1
         message = "Fuel tank upgraded!"
+    if self.hart > 0:
+        message = "Artifact retrieved!"
+        state.artifacts += self.hart
+        self.hart = 0
     self.fuel = state.maxfuel
     if message:
         marquee.addline(message)
@@ -121,7 +128,10 @@ def think(dt, kdowns):
         for obj in state.gettables:
             if state.you.target == obj.pos:
                 obj.collect()
-                self.haul += obj.value
+                if obj.value:
+                    self.haul += obj.value
+                elif isinstance(obj, thing.Artifact):
+                    self.hart += 1
         if athome():
             returnhome()
             state.save()

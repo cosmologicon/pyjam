@@ -4,6 +4,7 @@ from . import view, pview, ptext
 # +x = East, +y = North
 
 ds = N, S, E, W = (0, 1), (0, -1), (1, 0), (-1, 0)
+d2s = NE, NW, SE, SW = [math.vplus(d0, d1) for d0, d1 in [(N, E), (N, W), (S, E), (S, W)]]
 STILL = (0, 0)
 ORIGIN = (0, 0)
 
@@ -23,6 +24,9 @@ gridset = set(grid)
 wind = { p: STILL for p in gridset }
 strength = { p: 0 for p in gridset }
 gettables = {}
+
+R0, R1 = 20, 24
+artifacts = [math.vtimes(d, R0) for d in ds] + [math.vtimes(d, R1) for d in d2s]
 
 def setwind(pos, w, s = 1):
     wind[pos] = w
@@ -58,6 +62,8 @@ def adjs(p):
 
 cset = set(gridset)
 cset.remove(ORIGIN)
+for p in artifacts:
+    cset -= set(adjs(p))
 if True:
     for x in [-1, 1]:
         for y in [-1, 1]:
@@ -72,6 +78,7 @@ while cset:
 tofill = set(gridset)
 tofill.remove(ORIGIN)
 tofill -= set(gettables)
+tofill -= set(artifacts)
 
 if False:
     for x, y in tofill:

@@ -52,6 +52,8 @@ def dot(v0, v1):
 
 def vplus(v0, v1):
     return tuple(a + b for a, b in zip(v0, v1))
+def vtimes(v0, a):
+    return tuple(x * a for x in v0)
 
 # Normalize with optional length
 def normalize(v, r = 1):
