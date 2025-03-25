@@ -22,6 +22,9 @@ while playing:
                 if event.key in values:
                     kdowns.add(kname)
     current = scene.current
+    if "quit" in kdowns and current.canquit():
+        kdowns.remove("quit")
+        playing = False
     current.think(dt, kdowns)
     current.draw()
 

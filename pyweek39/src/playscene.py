@@ -26,6 +26,9 @@ def init():
         state.gettables.append(thing.Artifact(p))
     returnhome()
 
+def canquit():
+    return state.you.target in [home.pos for home in state.homes]
+
 def returnhome():
     message = ""
     if self.haul > 0:
@@ -94,8 +97,11 @@ def think(dt, kdowns):
     from . import scene, reloadscene, shopscene
     self.t += dt
     if "quit" in kdowns:
-        reloadscene.init()
-        scene.current = reloadscene
+        init()
+        state.load()
+        self.fuel = state.maxfuel
+        marquee.addline("Game reloaded")
+        return
     if "engine" in kdowns:
         if self.engineon:
             self.fuel -= turbinefuelatyou()
