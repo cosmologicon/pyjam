@@ -12,10 +12,14 @@ def init():
     self.t = 0
     self.haul = 0
     self.engineon = False
-    for x, y in grid.wind:
-        d = math.interp(math.hypot(x, y), 1, 0, 10, 0.4)
-        if grid.wind[(x, y)] == grid.STILL and random.random() < d:
-            state.gettables.append(thing.Copper((x, y)))
+    for p in grid.gettables:
+        cls = {
+            1: thing.Copper,
+            2: thing.Silver,
+            3: thing.Gold,
+            4: thing.Jewel,
+        }[grid.gettables[p]]
+        state.gettables.append(cls(p))
     returnhome()
 
 def returnhome():
@@ -87,7 +91,7 @@ def think(dt, kdowns):
                 pass
             elif self.engine == 0:
                 sound.play("no")
-            elif grid.strength[state.you.target] > 1:
+            elif grid.strength.get(state.you.target, 0) > 1:
                 sound.play("no")
                 print("wind too strong")
             else:

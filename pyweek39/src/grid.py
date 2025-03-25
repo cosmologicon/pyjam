@@ -5,6 +5,7 @@ from . import view, pview, ptext
 
 ds = N, S, E, W = (0, 1), (0, -1), (1, 0), (-1, 0)
 STILL = (0, 0)
+ORIGIN = (0, 0)
 
 def rot(ps):
     return [(-y, x) for x, y in ps]
@@ -15,18 +16,18 @@ arrowds[E] = rot(arrowds[S])
 arrowds[STILL] = []
 wnames = { N: "N", S: "S", E: "E", W: "W" }
 
-R = 10
+R = 40
+grid = [(x, y) for x in range(-R, R + 1) for y in range(-R, R + 1)]
+gridset = set(grid)
 
-wind = {}
+wind = { p: STILL for p in gridset }
 strength = {}
+gettables = {}
 
 def setwind(pos, w, s = 1):
     wind[pos] = w
     strength[pos] = 0 if w is STILL else s
-setwind((0, 0), STILL)
-
-tofill = [(x, y) for x in range(-R, R + 1) for y in range(-R, R + 1)]
-tofill.remove((0, 0))
+setwind(ORIGIN, STILL)
 
 if False:
     steps = { (0, 0): 0 }
@@ -49,12 +50,28 @@ if False:
             wind[p0] = d
             tofill.remove(p0)
 
-if True:
-    for x, y in tofill:
-        n = int(math.interp(math.hypot(x, y), 2, 20, 15, 4))
-        w = random.choice(list(ds) + [STILL] * n)
-        s = int(math.interp(math.hypot(x, y), 0, 1, 10, 3) + random.random())
-        setwind((x, y), w, s)
+def adjs(p):
+    x, y = p
+    for dx in (-1, 0, 1):
+        for dy in (-1, 0, 1):
+            yield x + dx, y + dy
+
+cset = set(gridset)
+cset.remove(ORIGIN)
+while cset:
+    p = random.choice(list(cset))
+    gettables[p] = int(math.interp(math.hypot(*p), 7, 1, R, 4) + random.random())
+    cset -= set(adjs(p))
+
+tofill = set(gridset)
+tofill.remove(ORIGIN)
+tofill -= set(gettables)
+            
+for x, y in tofill:
+    n = int(math.interp(math.hypot(x, y), 2, 40, 40, 4))
+    w = random.choice(list(ds) + [STILL] * n)
+    s = int(math.interp(math.hypot(x, y), 0, 1, R, 3) + random.random())
+    setwind((x, y), w, s)
 
 
 def draw():

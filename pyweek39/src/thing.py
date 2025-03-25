@@ -56,5 +56,17 @@ class Copper(Gettable):
     color = "#B87333"
     value = 1
 
+class Silver(Gettable):
+    color = "silver"
+    value = 5
+
+class Gold(Gettable):
+    color = "gold"
+    value = 10
+
+class Jewel(Gettable):
+    color = "purple"
+    value = 20
+
 
 
