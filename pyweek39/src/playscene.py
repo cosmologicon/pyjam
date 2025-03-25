@@ -1,6 +1,6 @@
 
 import pygame, math, random
-from . import view, pview, grid, thing, ptext, state, sound
+from . import view, pview, grid, thing, ptext, state, sound, marquee
 from .pview import T
 
 
@@ -9,6 +9,7 @@ class self:
 
 def init():
     state.init()
+    marquee.init()
     self.t = 0
     self.haul = 0
     self.engineon = False
@@ -23,12 +24,18 @@ def init():
     returnhome()
 
 def returnhome():
+    message = ""
+    if self.haul > 0:
+        message = f"+${self.haul}"
     state.bank += self.haul
     self.haul = 0
     while state.bank >= state.fuelcosts[state.maxfuel]:
         state.bank -= state.fuelcosts[state.maxfuel]
         state.maxfuel += 1
+        message = "Fuel tank upgraded!"
     self.fuel = state.maxfuel
+    if message:
+        marquee.addline(message)
 
 def getmove(kdowns):
     d = (0, 0)
@@ -121,6 +128,7 @@ def think(dt, kdowns):
     state.you.think(dt)
     view.camera.target = state.you.pos
     view.think(dt)
+    marquee.think(dt)
     state.gettables = [obj for obj in state.gettables if obj.alive]
 
 def draw():
@@ -139,6 +147,8 @@ def draw():
         f"Next upgrade: ${state.fuelcosts[state.maxfuel]}",
     ])
     ptext.draw(text, bottomleft = T(10, 710), fontsize = T(40), owidth = 0.5)
+    marquee.draw()
+
     if self.fuel <= 3:
         text = "OUT OF FUEL\nESC: QUIT TO LAST SAVE" if self.fuel == 0 else "LOW FUEL"
         ptext.draw(text, midbottom = T(640, 700), fontsize = T(60), owidth = 0.5, shade = 1, color = "red")

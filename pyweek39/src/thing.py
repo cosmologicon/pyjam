@@ -68,15 +68,15 @@ class Copper(Gettable):
 
 class Silver(Gettable):
     color = "silver"
-    value = 5
+    value = 3
 
 class Gold(Gettable):
     color = "gold"
-    value = 10
+    value = 6
 
 class Jewel(Gettable):
     color = "purple"
-    value = 20
+    value = 12
 
 
 

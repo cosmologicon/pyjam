@@ -9,7 +9,7 @@ def init():
     maxfuel = 8
     bank = 0
 
-fuelcosts = [0] * 6 + [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000]
+fuelcosts = [0] * 6 + [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144]
 turbinefuel = [3, 3, 6, 12]
 maxturbine = 3
 
