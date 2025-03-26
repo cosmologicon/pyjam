@@ -100,8 +100,14 @@ for x, y in tofill:
 
 
 def draw():
-    for x in range(-R, R + 1):
-        for y in range(-R, R + 1):
+    x0, y0, x1, y1 = view.bounds()
+    x0 = max(int(x0 - 0.5), -R)
+    y0 = max(int(y0 - 0.5), -R)
+    x1 = min(int(x1 + 0.5), R)
+    y1 = min(int(y1 + 0.5), R)
+
+    for x in range(x0, x1 + 1):
+        for y in range(y0, y1 + 1):
             dxys = arrowds[wind[(x, y)]]
             if not dxys:
                 continue
