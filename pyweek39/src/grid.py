@@ -1,5 +1,7 @@
 import random, pygame, math
+from functools import lru_cache
 from . import view, pview, ptext
+from .pview import T
 
 # +x = East, +y = North
 
@@ -96,8 +98,111 @@ for x, y in tofill:
     else:
         setwind((x, y), STILL)
 
+@lru_cache(1)
+def windstrip0(w):
+    w *= 4
+    surf0 = pygame.Surface((w, w)).convert_alpha()
+    surf0.fill((255, 255, 255, 0))
+    x0, x1, x2 = pview.I(0.0 * w, 0.5 * w, 1.0 * w)
+    y0, y1, dy = pview.I(0.1 * w, 0.3 * w, 0.3 * w)
+    for sy in [-w, w-w//2, 0, w//2, w]:
+        ps = [
+            (x0, y1 + dy), (x1, y1), (x2, y1 + dy),
+            (x2, y0 + dy), (x1, y0), (x0, y0 + dy),
+        ]
+        ps = [(x, y + sy) for x, y in ps]
+        pygame.draw.polygon(surf0, (255, 255, 255, 255), ps)
+    surf = pygame.Surface((w, 2 * w)).convert_alpha()
+    surf.fill((255, 255, 255, 0))
+    surf.blit(surf0, (0, 0))
+    surf.blit(surf0, (0, w))
+    w = int(w / 4)
+    return pygame.transform.smoothscale(surf, (w, 2 * w))
+
+def mask(surf, color):
+    msurf = surf.copy()
+    msurf.fill(color)
+    msurf.blit(surf, (0, 0), None, pygame.BLEND_RGBA_MULT)
+    return msurf
+
+@lru_cache(10)
+def windstrip(strength, w):
+    if strength == 1:
+        return mask(windstrip0(w), (200, 200, 255, 255))
+    if strength == 2:
+        surf0 = windstrip0(w)
+        surf = pygame.Surface((2 * w, 2 * w)).convert_alpha()
+        surf.fill((0, 0, 0, 0))
+        d = int(w * 0.2)
+        surf.blit(surf0, (d, 0), (0, 0, w - d, 2 * w))
+        surf.blit(surf0, (w, 0), (d, 0, w - d, 2 * w))
+        return pygame.transform.smoothscale(surf, (w, 2 * w))
+    if strength == 3:
+        surf0 = windstrip0(w)
+        surf = pygame.Surface((3 * w, 2 * w)).convert_alpha()
+        surf.fill((0, 0, 0, 0))
+        d = int(w * 0.3)
+        xc = int(w * 1.5)
+        s = int(w * 0.5) + d
+        a = int(w * 0.5) - d
+        x1 = xc - d
+        x0 = x1 - s
+        x2 = xc + d
+        surf.blit(surf0, (x0, 0), (0, 0, s, 2 * w))
+        surf.blit(surf0, (x1, 0), (a, 0, 2 * d, 2 * w))
+        surf.blit(surf0, (x2, 0), (a, 0, s, 2 * w))
+        surf = pygame.transform.smoothscale(surf, (w, 2 * w))
+        return mask(surf, (255, 200, 200, 255))
+        
+
+@lru_cache(1)
+def fadetile(w):
+    surf = pygame.Surface((w, w)).convert_alpha()
+    for x in range(w):
+        for y in range(w):
+            dx = ((w - 1) / 2 - x) / (w - 1) * 2 * 1.7
+            dy = ((w - 1) / 2 - y) / (w - 1) * 2 * 1.4
+            alpha = 0.2 * (1 - dx ** 6 - dy ** 6)
+            color = 255, 255, 255, math.imix(0, 255, alpha)
+            surf.set_at((x, y), color)
+    return surf
 
 
+@lru_cache(1000)
+def windtile0(strength, w, f, d):
+    if d == W:
+        return pygame.transform.rotate(windtile0(strength, w, f, N), 90)
+    if d == S:
+        return pygame.transform.rotate(windtile0(strength, w, f, N), 180)
+    if d == E:
+        return pygame.transform.rotate(windtile0(strength, w, f, N), 270)
+    surf = fadetile(w).copy()
+    y = pview.I(w * f)
+    surf.blit(windstrip(strength, w), (0, -y), None, pygame.BLEND_RGBA_MULT)
+    return surf
+
+def windtile(strength, f, d):
+    w = T(view.camera.scale)
+    f = int(f % 1 * 32) / 32
+    return windtile0(strength, w, f, d)
+
+def drawtile(x, y):
+    if wind[(x, y)] == STILL: return
+    f = pygame.time.get_ticks() * 0.001 * 0.5 * strength[(x, y)] + math.fuzz(123, x, y)
+    tile = windtile(strength[(x, y)], f, wind[(x, y)])
+    pview.screen.blit(tile, tile.get_rect(center = view.worldtoscreen((x, y))))
+
+def drawarrow(x, y):
+    dxys = arrowds[wind[(x, y)]]
+    if not dxys:
+        return
+    ps = [view.worldtoscreen((x + dx, y + dy)) for dx, dy in dxys]
+    color = {
+        1: (200, 200, 255),
+        2: (240, 240, 240),
+        3: (255, 200, 200),
+    }[strength[(x, y)]]
+    pygame.draw.polygon(pview.screen, color, ps)
 
 def draw():
     x0, y0, x1, y1 = view.bounds()
@@ -108,16 +213,10 @@ def draw():
 
     for x in range(x0, x1 + 1):
         for y in range(y0, y1 + 1):
-            dxys = arrowds[wind[(x, y)]]
-            if not dxys:
-                continue
-            ps = [view.worldtoscreen((x + dx, y + dy)) for dx, dy in dxys]
-            color = {
-                1: (200, 200, 255),
-                2: (240, 240, 240),
-                3: (255, 200, 200),
-            }[strength[(x, y)]]
-            pygame.draw.polygon(pview.screen, color, ps)
+            if wind[(x, y)] == STILL: continue
+#            drawarrow(x, y)
+            drawtile(x, y)
+
 #            ptext.draw(wnames[wind[(x, y)]], center = view.worldtoscreen((x, y)),
 #                color = (220, 220, 255), fontsize = view.sizetoscreen(0.3))
 
