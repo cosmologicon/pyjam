@@ -54,6 +54,8 @@ def vplus(v0, v1):
     return tuple(a + b for a, b in zip(v0, v1))
 def vtimes(v0, a):
     return tuple(x * a for x in v0)
+def vminus(v0, v1):
+    return vplus(v0, vtimes(v1, -1))
 
 # Normalize with optional length
 def normalize(v, r = 1):

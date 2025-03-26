@@ -26,6 +26,10 @@ def screentoworld(p):
 def sizetoscreen(r):
     return pview.T(camera.scale * r)
 
+def snapto(pos):
+    camera.x0, camera.y0 = pos
+    camera.target = pos
+
 def think(dt):
     camera.x0, camera.y0 = math.softapproach((camera.x0, camera.y0), camera.target, 1.0 * dt, dymin = 1 / camera.scale)
 

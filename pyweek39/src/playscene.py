@@ -27,7 +27,7 @@ def init():
     returnhome()
 
 def canquit():
-    return state.you.target in [home.pos for home in state.homes]
+    return state.you.pos in [home.pos for home in state.homes]
 
 def returnhome():
     message = ""
@@ -60,7 +60,10 @@ def getmove(kdowns):
     return d
 
 def turbinefuelatyou():
-    return state.turbinefuel[grid.strength[state.you.target]]
+    return state.turbinefuel[grid.strength[state.you.pos]]
+
+def worldat(pos, dpos = (0, 0)):
+    return math.vplus(pos, dpos) in grid.gridset
 
 def trymove(move, engineon):
     if move == grid.STILL:
@@ -68,15 +71,19 @@ def trymove(move, engineon):
     if move not in grid.ds:
         return False
 
-    if state.you.target == (0, 0):
+    if state.you.pos == (0, 0):
         state.you.move(move)
         return True
+    if not worldat(state.you.pos, move):
+        sound.play("no")
+        return
+
     if move == state.you.windat():
         state.you.move(move)
         return True
     if engineon:
         self.fuel -= turbinefuelatyou()
-        grid.setwind(state.you.target, move)
+        grid.setwind(state.you.pos, move)
         state.you.move(move)
         sound.play("useengine")
         self.engineon = False
@@ -91,7 +98,7 @@ def trymove(move, engineon):
     return False
 
 def athome():
-    return state.you.target in [home.pos for home in state.homes]
+    return state.you.pos in [home.pos for home in state.homes]
 
 def think(dt, kdowns):
     from . import scene, reloadscene, shopscene
@@ -100,12 +107,14 @@ def think(dt, kdowns):
         init()
         state.load()
         self.fuel = state.maxfuel
+        state.you.snapto()
+        view.snapto(state.you.pos)
         marquee.addline("Game reloaded")
         return
     if "engine" in kdowns:
         if self.engineon:
             self.fuel -= turbinefuelatyou()
-            grid.setwind(state.you.target, grid.STILL)
+            grid.setwind(state.you.pos, grid.STILL)
             sound.play("useengine")
             self.engineon = False
         else:
@@ -113,7 +122,7 @@ def think(dt, kdowns):
                 pass
             elif self.fuel < turbinefuelatyou():
                 sound.play("no")
-            elif grid.strength.get(state.you.target, 0) > state.maxturbine:
+            elif grid.strength.get(state.you.pos, 0) > state.maxturbine:
                 sound.play("no")
                 print("wind too strong")
             else:
@@ -132,7 +141,7 @@ def think(dt, kdowns):
     if trymove(move, self.engineon):
         self.engineon = False
         for obj in state.gettables:
-            if state.you.target == obj.pos:
+            if state.you.pos == obj.pos:
                 obj.collect()
                 if obj.value:
                     self.haul += obj.value

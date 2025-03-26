@@ -11,8 +11,11 @@ class Thing:
     def think(self, dt):
         self.t += dt
 
+    def drawpos(self):
+        return self.pos
+
     def drawcircleat(self, color, size):
-        pygame.draw.circle(pview.screen, color, view.worldtoscreen(self.pos), view.sizetoscreen(size))
+        pygame.draw.circle(pview.screen, color, view.worldtoscreen(self.drawpos()), view.sizetoscreen(size))
         
 
 class Home(Thing):
@@ -26,25 +29,41 @@ class Home(Thing):
 class You(Thing):
     def __init__(self, pos):
         Thing.__init__(self, pos)
-        self.target = self.pos
+        self.targets = [pos]
+        self.marker = pos
+
+    def drawpos(self):
+        return self.marker
 
     def move(self, dpos):
-        self.target = math.vplus(self.target, dpos)
+        self.pos = math.vplus(self.pos, dpos)
+        self.targets.append(self.pos)
+
+    def snapto(self, pos = None):
+        self.targets = [self.pos]
+        self.marker = self.pos
 
     def flow(self):
-        self.start = self.target
+        self.start = self.pos
         nstep = 0
-        while grid.wind[self.target] != grid.STILL:
-            self.target = math.vplus(self.target, grid.wind[self.target])
+        while grid.wind[self.pos] != grid.STILL:
+            self.move(grid.wind[self.pos])
             nstep += 1
-            if self.target == self.start:
+            if self.pos == self.start:
                 break
         return nstep
 
     def think(self, dt):
-        if self.target != self.pos:
-            self.pos = math.softapproach(self.pos, self.target, 10 * dt, dymin = 0.01)
-
+        if len(self.targets) > 1 or self.marker != self.pos:
+            pathlen = math.distance(self.marker, self.targets[0]) + len(self.targets) - 1
+            pathlen = math.softapproach(pathlen, 0, 10 * dt, dymin = 0.01)
+            n, f = divmod(pathlen, 1)
+            pfrom = self.marker
+            while len(self.targets) > n + 1:
+                pfrom = self.targets.pop(0)
+            target = self.targets[0]
+            dp = math.vminus(pfrom, target)
+            self.marker = math.vplus(target, math.norm(dp, f))
 
     def draw(self, engineon):
         color = 200, 50, 50
@@ -53,7 +72,7 @@ class You(Thing):
         self.drawcircleat(color, 0.25)
 
     def windat(self):
-        return grid.wind[self.target]
+        return grid.wind[self.pos]
 
 class Gettable(Thing):
     size = 0.1

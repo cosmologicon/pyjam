@@ -31,4 +31,5 @@ def save():
 def load():
     if os.path.exists(settings.savegame):
         setstate(pickle.load(open(settings.savegame, "rb")))
+        you.snapto()
 
