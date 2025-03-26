@@ -72,9 +72,41 @@ if True:
             gettables[(x, y)] = 1
             cset -= set(adjs((x, y)))
 
+
+def random_weighted(dist, n0 = 0):
+    values = []
+    for level, weight in enumerate(dist, n0):
+        values += [level] * weight
+    return random.choice(values)
+
+
+def gettable_at(p):
+    n = int(math.interp(math.hypot(*p), 0, 0, 30, 5) + random.random())
+    dist = {
+        0: [1, 0, 0, 0],
+        1: [1, 1, 0, 0],
+        2: [2, 3, 1, 0],
+        3: [2, 6, 6, 0],
+        4: [0, 3, 6, 1],
+        5: [0, 0, 1, 1],
+    }[n]
+    return random_weighted(dist, 1)
+
+def strength_at(p):
+    n = int(math.interp(math.hypot(x, y), 0, 0, 30, 4) + random.random())
+    dist = {
+        0: [1, 0, 0],
+        1: [1, 1, 0],
+        2: [1, 4, 0],
+        3: [1, 4, 1],
+        4: [1, 3, 3],
+    }[n]
+    return random_weighted(dist, 1)
+
+
 while cset:
     p = random.choice(list(cset))
-    gettables[p] = int(math.interp(math.hypot(*p), 3, 1, 20, 4) + random.random())
+    gettables[p] = gettable_at(p)
     cset -= set(adjs(p))
 
 tofill = set(gridset)
@@ -93,7 +125,7 @@ for x, y in tofill:
     f = math.interp(math.hypot(x, y), 1, 0, 2, 0.5)
     if random.random() < f:
         w = random.choice(ds)
-        s = int(math.interp(math.hypot(x, y), 4, 1, 25, 3) + random.random())
+        s = strength_at((x, y))
         setwind((x, y), w, s)
     else:
         setwind((x, y), STILL)
@@ -162,7 +194,7 @@ def fadetile(w):
         for y in range(w):
             dx = ((w - 1) / 2 - x) / (w - 1) * 2 * 1.7
             dy = ((w - 1) / 2 - y) / (w - 1) * 2 * 1.4
-            alpha = 0.2 * (1 - dx ** 6 - dy ** 6)
+            alpha = 0.2 * (1 - dx ** 4 - dy ** 4)
             color = 255, 255, 255, math.imix(0, 255, alpha)
             surf.set_at((x, y), color)
     return surf

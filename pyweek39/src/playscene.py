@@ -152,6 +152,8 @@ def think(dt, kdowns):
             returnhome()
             state.save()
     state.you.think(dt)
+    if "zoom" in kdowns:
+        view.zoomswap()
     view.camera.target = state.you.marker
     view.think(dt)
     marquee.think(dt)

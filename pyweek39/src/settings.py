@@ -16,5 +16,7 @@ keys = {
     "flow": [pygame.K_TAB],
     "quit": [pygame.K_ESCAPE],
     "turbine": [pygame.K_SPACE, pygame.K_RETURN],
+    
+    "zoom": [pygame.K_2],
 }
 

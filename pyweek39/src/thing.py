@@ -75,7 +75,7 @@ class You(Thing):
         return grid.wind[self.pos]
 
 class Gettable(Thing):
-    size = 0.1
+    size = 0.2
     value = 0
     def draw(self):
         self.drawcircleat(self.color, self.size)

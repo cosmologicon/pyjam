@@ -8,8 +8,9 @@ def init():
 
 class camera:
     x0, y0 = 0, 0
-    scale = 80
+    scale = 100
     target = 0, 0
+    starget = 100
 
 def worldtoscreen(p):
     x, y = p
@@ -30,8 +31,12 @@ def snapto(pos):
     camera.x0, camera.y0 = pos
     camera.target = pos
 
+def zoomswap():
+    camera.starget = 100 if camera.starget == 14 else 14
+
 def think(dt):
     camera.x0, camera.y0 = math.softapproach((camera.x0, camera.y0), camera.target, 2.0 * dt, dymin = 1 / camera.scale)
+    camera.scale = math.approachL(camera.scale, camera.starget, 8 * dt)
 
 def bounds():
     x0, y0 = screentoworld(pview.bottomleft)
