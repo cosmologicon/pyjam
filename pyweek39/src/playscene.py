@@ -1,6 +1,6 @@
 
 import pygame, math, random
-from . import view, pview, grid, thing, ptext, state, sound, marquee
+from . import view, pview, grid, thing, ptext, state, sound, marquee, hud
 from .pview import T
 
 
@@ -10,10 +10,11 @@ class self:
 def init():
     state.init()
     marquee.init()
+    hud.init(self)
     self.t = 0
     self.haul = 0
     self.hart = 0
-    self.engineon = False
+    self.turbineon = False
     for p in grid.gettables:
         cls = {
             1: thing.Copper,
@@ -65,7 +66,7 @@ def turbinefuelatyou():
 def worldat(pos, dpos = (0, 0)):
     return math.vplus(pos, dpos) in grid.gridset
 
-def trymove(move, engineon):
+def trymove(move, turbineon):
     if move == grid.STILL:
         return False
     if move not in grid.ds:
@@ -81,12 +82,12 @@ def trymove(move, engineon):
     if move == state.you.windat():
         state.you.move(move)
         return True
-    if engineon:
+    if turbineon:
         self.fuel -= turbinefuelatyou()
         grid.setwind(state.you.pos, move)
         state.you.move(move)
         sound.play("useengine")
-        self.engineon = False
+        self.turbineon = False
         return True
     if state.you.windat() == grid.STILL:
         if self.fuel <= 0:
@@ -111,12 +112,12 @@ def think(dt, kdowns):
         view.snapto(state.you.pos)
         marquee.addline("Game reloaded")
         return
-    if "engine" in kdowns:
-        if self.engineon:
+    if "turbine" in kdowns:
+        if self.turbineon:
             self.fuel -= turbinefuelatyou()
             grid.setwind(state.you.pos, grid.STILL)
-            sound.play("useengine")
-            self.engineon = False
+            sound.play("useturbine")
+            self.turbineon = False
         else:
             if athome():
                 pass
@@ -126,10 +127,10 @@ def think(dt, kdowns):
                 sound.play("no")
                 print("wind too strong")
             else:
-                self.engineon = True
-                sound.play("engineon")
+                self.turbineon = True
+                sound.play("turbineon")
     if "flow" in kdowns:
-        self.engineon = False
+        self.turbineon = False
         if state.you.flow() == 0:
             sound.play("no")
         else:
@@ -138,8 +139,8 @@ def think(dt, kdowns):
                 state.save()
 
     move = getmove(kdowns)
-    if trymove(move, self.engineon):
-        self.engineon = False
+    if trymove(move, self.turbineon):
+        self.turbineon = False
         for obj in state.gettables:
             if state.you.pos == obj.pos:
                 obj.collect()
@@ -151,9 +152,10 @@ def think(dt, kdowns):
             returnhome()
             state.save()
     state.you.think(dt)
-    view.camera.target = state.you.pos
+    view.camera.target = state.you.marker
     view.think(dt)
     marquee.think(dt)
+    hud.think(dt)
     state.gettables = [obj for obj in state.gettables if obj.alive]
 
 def draw():
@@ -161,19 +163,13 @@ def draw():
     grid.draw()
     for home in state.homes:
         home.draw()
-    state.you.draw(self.engineon)
+    state.you.draw(self.turbineon)
     for obj in state.gettables:
         obj.draw()
-    
-    text = "\n".join([
-        f"Fuel: {self.fuel}/{state.maxfuel}",
-        f"Current haul: ${self.haul}",
-        f"Bank: ${state.bank}",
-        f"Next upgrade: ${state.fuelcosts[state.maxfuel]}",
-    ])
-    ptext.draw(text, bottomleft = T(10, 710), fontsize = T(40), owidth = 0.5)
-    marquee.draw()
 
+    hud.draw()
+    marquee.draw()
+    
     if self.fuel <= 3:
         text = "OUT OF FUEL\nESC: QUIT TO LAST SAVE" if self.fuel == 0 else "LOW FUEL"
         ptext.draw(text, midbottom = T(640, 700), fontsize = T(60), owidth = 0.5, shade = 1, color = "red")

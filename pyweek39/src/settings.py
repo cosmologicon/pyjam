@@ -15,6 +15,6 @@ keys = {
     "down": [pygame.K_DOWN, pygame.K_s, pygame.K_o],
     "flow": [pygame.K_TAB],
     "quit": [pygame.K_ESCAPE],
-    "engine": [pygame.K_SPACE, pygame.K_RETURN],
+    "turbine": [pygame.K_SPACE, pygame.K_RETURN],
 }
 

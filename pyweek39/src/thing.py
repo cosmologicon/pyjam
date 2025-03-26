@@ -56,7 +56,7 @@ class You(Thing):
     def think(self, dt):
         if len(self.targets) > 1 or self.marker != self.pos:
             pathlen = math.distance(self.marker, self.targets[0]) + len(self.targets) - 1
-            pathlen = math.softapproach(pathlen, 0, 10 * dt, dymin = 0.01)
+            pathlen = math.softapproach(pathlen, 0, 10 * dt, dxmax = 40 * dt, dymin = 0.01)
             n, f = divmod(pathlen, 1)
             pfrom = self.marker
             while len(self.targets) > n + 1:

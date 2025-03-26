@@ -31,7 +31,7 @@ def snapto(pos):
     camera.target = pos
 
 def think(dt):
-    camera.x0, camera.y0 = math.softapproach((camera.x0, camera.y0), camera.target, 1.0 * dt, dymin = 1 / camera.scale)
+    camera.x0, camera.y0 = math.softapproach((camera.x0, camera.y0), camera.target, 2.0 * dt, dymin = 1 / camera.scale)
 
 def bounds():
     x0, y0 = screentoworld(pview.bottomleft)

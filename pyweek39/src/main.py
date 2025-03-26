@@ -2,11 +2,13 @@ import pygame
 from . import settings, view, ptext, state, pview
 from . import scene, playscene
 
+ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 pygame.init()
 
 scene.current = playscene
 scene.current.init()
 state.load()
+playscene.returnhome()
 
 view.init()
 clock = pygame.time.Clock()
