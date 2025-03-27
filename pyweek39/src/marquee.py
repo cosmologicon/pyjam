@@ -33,10 +33,13 @@ class ReturnLine(Line):
 class BurnLine(Line):
     fontsize = 25
     fontname = "Notable"
-    T0 = 0.6
+    T0 = 1.0
     p0 = 640, 280
     dp = 0, -40
-    
+
+class LowBurnLine(BurnLine):
+    p0 = 640, 440
+
 linecounts = {}
 
 
@@ -47,12 +50,12 @@ def init():
 def addreturnline(text):
     self.lines.append(ReturnLine(text))
 
-def addburnline(text, n, textid=""):
+def addburnline(text, n, textid="", low=False):
     key = text, textid
     linecounts[key] = linecounts.get(key, 0) + 1
     if linecounts[key] >= n:
         return
-    self.lines.append(BurnLine(text))
+    self.lines.append(LowBurnLine(text) if low else BurnLine(text))
 
 def think(dt):
     self.t += dt

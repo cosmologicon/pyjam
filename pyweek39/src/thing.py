@@ -1,5 +1,5 @@
 import math, pygame
-from . import view, pview, grid
+from . import view, pview, grid, state
 
 
 class Thing:
@@ -31,6 +31,12 @@ class You(Thing):
         Thing.__init__(self, pos)
         self.targets = [pos]
         self.marker = pos
+        self.tilt = (0, 0)
+        self.rotoromega = 0
+        self.rotortheta = 0
+
+    def athome(self):
+        return self.pos in [home.pos for home in state.homes]
 
     def drawpos(self):
         return self.marker
@@ -42,6 +48,8 @@ class You(Thing):
     def snapto(self, pos = None):
         self.targets = [self.pos]
         self.marker = self.pos
+        self.tilt = (0, 0)
+        self.rotoromega = 0
 
     def flow(self):
         self.start = self.pos
@@ -64,12 +72,33 @@ class You(Thing):
             target = self.targets[0]
             dp = math.vminus(pfrom, target)
             self.marker = math.vplus(target, math.norm(dp, f))
+        tilt = math.vminus(self.pos, self.drawpos())
+        self.tilt = math.mix(self.tilt, tilt, 10 * dt)
+        omega = 0 if self.athome() else 3
+        self.rotoromega = math.approach(self.rotoromega, omega, 5 * dt)
+        self.rotortheta += self.rotoromega * dt
 
-    def draw(self, engineon):
+    def draw0(self, engineon):
         color = 200, 50, 50
         if engineon:
             color = math.imix(color, (255, 255, 255), 0.5)
         self.drawcircleat(color, 0.25)
+
+    def draw(self, engineon):
+        p0 = math.vminus(self.drawpos(), math.vtimes(self.tilt, 0.5))
+        for dx in [-0.5, 0.5]:
+            for dy in [-0.5, 0.5]:
+                protor = math.vplus(p0, (dx, dy))
+                theta = self.rotortheta + math.tau * math.fuzz(dx, dy)
+                if dx == dy:
+                    theta = -theta
+                dps = math.CSround(2, r = 0.3, jtheta0 = theta / 2)
+                ps = [view.worldtoscreen(math.vplus(protor, dp)) for dp in dps]
+                pygame.draw.line(pview.screen, (150, 150, 150), *ps, view.sizetoscreen(0.02))
+                pygame.draw.circle(pview.screen, (200, 200, 200), view.worldtoscreen(protor), view.sizetoscreen(0.05))
+        p = view.worldtoscreen(self.drawpos())
+        r = view.sizetoscreen(0.3)
+        pygame.draw.circle(pview.screen, (200, 50, 50), p, r)
 
     def windat(self):
         return grid.wind[self.pos]

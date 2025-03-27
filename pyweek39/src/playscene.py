@@ -22,10 +22,11 @@ def init():
             3: thing.Gold,
             4: thing.Jewel,
         }[grid.gettables[p]]
-        state.gettables.append(cls(p))
+        state.addgettable(cls(p))
     for p in grid.artifacts:
-        state.gettables.append(thing.Artifact(p))
+        state.addgettable(thing.Artifact(p))
     returnhome()
+    state.softsave()
 
 def canquit():
     return state.you.pos in [home.pos for home in state.homes]
@@ -76,6 +77,7 @@ def trymove(move, turbineon):
         state.you.move(move)
         return True
     if not worldat(state.you.pos, move):
+        marquee.addburnline("OUT OF BOUNDS", 10)
         sound.play("no")
         return
 
@@ -92,16 +94,15 @@ def trymove(move, turbineon):
         return True
     if state.you.windat() == grid.STILL:
         if self.fuel <= 0:
+            marquee.addburnline("OUT OF FUEL", 5)
             return False
         state.you.move(move)
         self.fuel -= 1
         marquee.addburnline("-1 FUEL", 20)
         return True
     # Trying to move against the wind.
+    marquee.addburnline("MUST FOLLOW WIND", 5)
     return False
-
-def athome():
-    return state.you.pos in [home.pos for home in state.homes]
 
 def think(dt, kdowns):
     from . import scene, reloadscene, shopscene
@@ -122,36 +123,41 @@ def think(dt, kdowns):
             sound.play("useturbine")
             self.turbineon = False
         else:
-            if athome():
+            if state.you.athome():
                 pass
-            elif self.fuel < turbinefuelatyou():
-                sound.play("no")
             elif grid.strength.get(state.you.pos, 0) > state.maxturbine:
+                marquee.addburnline("WIND TOO STRONG", 20, state.maxturbine)
                 sound.play("no")
-                print("wind too strong")
+            elif self.fuel < turbinefuelatyou():
+                marquee.addburnline(f"-{turbinefuelatyou()} FUEL", 5)
+                sound.play("no")
             else:
                 self.turbineon = True
                 sound.play("turbineon")
     if "flow" in kdowns:
         self.turbineon = False
         if state.you.flow() == 0:
+            marquee.addburnline(f"NO WIND", 5)
             sound.play("no")
         else:
-            if athome():
+            if state.you.athome():
                 returnhome()
                 state.save()
 
     move = getmove(kdowns)
     if trymove(move, self.turbineon):
         self.turbineon = False
-        for obj in state.gettables:
-            if state.you.pos == obj.pos:
-                obj.collect()
-                if obj.value:
-                    self.haul += obj.value
-                elif isinstance(obj, thing.Artifact):
-                    self.hart += 1
-        if athome():
+        if state.you.pos in state.gettables:
+            obj = state.gettables[state.you.pos]
+            obj.collect()
+            if obj.value:
+                self.haul += obj.value
+                marquee.addburnline(f"+${obj.value}", 5, low = True)
+            elif isinstance(obj, thing.Artifact):
+                marquee.addburnline("ARTIFACT RETRIEVED", 10)
+                self.hart += 1
+            del state.gettables[state.you.pos]
+        if state.you.athome():
             returnhome()
             state.save()
     state.you.think(dt)
@@ -161,15 +167,15 @@ def think(dt, kdowns):
     view.think(dt)
     marquee.think(dt)
     hud.think(dt)
-    state.gettables = [obj for obj in state.gettables if obj.alive]
 
 def draw():
     ocean.draw()
     for home in state.homes:
         home.draw()
     state.you.draw(self.turbineon)
-    for obj in state.gettables:
-        obj.draw()
+    for pos, obj in state.gettables.items():
+        if view.onscreen(pos):
+            obj.draw()
     grid.draw()
 #    ocean.drawstars()
 

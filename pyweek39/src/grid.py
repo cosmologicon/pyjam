@@ -35,26 +35,6 @@ def setwind(pos, w, s = 1):
     strength[pos] = 0 if w is STILL else s
 setwind(ORIGIN, STILL)
 
-if False:
-    steps = { (0, 0): 0 }
-
-    while tofill:
-        p0 = random.choice(tofill)
-        if not any(math.vplus(p0, d) in tofill for d in ds):
-            dchoices = [(d, math.vplus(p0, d)) for d in ds]
-            dchoices = [(d, p1) for d, p1 in dchoices if p1 in steps]
-            d, p1 = max(dchoices, key = lambda dp1: steps[dp1[1]])
-        else:
-            d = random.choice(ds)
-            p1 = math.vplus(p0, d)
-            if p1 not in steps:
-                continue
-            if len(wind) > 1 + steps[p1] ** 2:
-                continue
-        if p1 in wind:
-            steps[p0] = steps[p1] + 1
-            wind[p0] = d
-            tofill.remove(p0)
 
 def adjs(p):
     x, y = p
@@ -114,12 +94,6 @@ tofill.remove(ORIGIN)
 tofill -= set(gettables)
 tofill -= set(artifacts)
 
-if False:
-    for x, y in tofill:
-        n = int(math.interp(math.hypot(x, y), 2, 40, 40, 4))
-        w = random.choice(list(ds) + [STILL] * n)
-        s = int(math.interp(math.hypot(x, y), 0, 1, R, 3) + random.random())
-        setwind((x, y), w, s)
 
 for x, y in tofill:
     f = math.interp(math.hypot(x, y), 1, 0, 2, 0.5)
@@ -129,6 +103,8 @@ for x, y in tofill:
         setwind((x, y), w, s)
     else:
         setwind((x, y), STILL)
+
+setwind((0, 1), E)
 
 @lru_cache(1)
 def windstrip0(w):
@@ -160,7 +136,7 @@ def mask(surf, color):
 @lru_cache(10)
 def windstrip(strength, w):
     if strength == 1:
-        return mask(windstrip0(w), (200, 200, 255, 255))
+        return mask(windstrip0(w), (140, 140, 255, 255))
     if strength == 2:
         surf0 = windstrip0(w)
         surf = pygame.Surface((2 * w, 2 * w)).convert_alpha()
@@ -184,7 +160,7 @@ def windstrip(strength, w):
         surf.blit(surf0, (x1, 0), (a, 0, 2 * d, 2 * w))
         surf.blit(surf0, (x2, 0), (a, 0, s, 2 * w))
         surf = pygame.transform.smoothscale(surf, (w, 2 * w))
-        return mask(surf, (255, 200, 200, 255))
+        return mask(surf, (255, 160, 160, 255))
         
 
 @lru_cache(1)
@@ -230,7 +206,7 @@ def drawarrow(x, y):
         return
     ps = [view.worldtoscreen((x + dx, y + dy)) for dx, dy in dxys]
     color = {
-        1: (120, 120, 255),
+        1: (200, 200, 255),
         2: (240, 240, 240),
         3: (255, 200, 200),
     }[strength[(x, y)]]
@@ -249,8 +225,8 @@ def draw():
 #            drawarrow(x, y)
             drawtile(x, y)
 
-#            ptext.draw(wnames[wind[(x, y)]], center = view.worldtoscreen((x, y)),
-#                color = (220, 220, 255), fontsize = view.sizetoscreen(0.3))
+            ptext.draw(wnames[wind[(x, y)]], center = view.worldtoscreen((x, y)),
+                color = (220, 220, 255), fontsize = view.sizetoscreen(0.3))
 
 
 

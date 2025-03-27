@@ -55,6 +55,18 @@ def draw():
     ])
     ptext.draw(text, bottomleft = T(10, 710), fontsize = T(40), owidth = 0.5)
 
+
+    
+    text = "\n".join([
+        "CONTROLS",
+        "Arrows: move",
+        "Space: use turbine",
+        "Esc: last save / quit",
+        "Tab: follow wind",
+    ])
+    ptext.draw(text, midbottom = T(1170, 710), fontsize = T(20), fontname = "Notable",
+        shade = 1, shadow = (1, 1), owidth = 0.5)
+
     rect = pygame.Rect(T(0, 0, 20, 20 + Hgauge * self.fuellevel / Ngauge))
     rect.midbottom = T(100, pview.centery0 + Hgauge / 2 + 20)
     pygame.draw.rect(pview.screen, (120, 20, 100), rect)

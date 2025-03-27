@@ -5,10 +5,13 @@ def init():
     global homes, you, gettables, maxfuel, bank, artifacts
     homes = [thing.Home()]
     you = thing.You((0, 0))
-    gettables = []
+    gettables = {}
     maxfuel = 8
     bank = 0
     artifacts = 0
+
+def addgettable(obj):
+    gettables[obj.pos] = obj
 
 fuelcosts = [0] * 6 + [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765, 10946, 17711]
 turbinefuel = [3, 3, 6, 12]
@@ -32,4 +35,8 @@ def load():
     if os.path.exists(settings.savegame):
         setstate(pickle.load(open(settings.savegame, "rb")))
         you.snapto()
+
+def softsave():
+    if not os.path.exists(settings.savegame):
+        save()
 
