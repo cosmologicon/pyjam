@@ -3,7 +3,7 @@ from . import pview, settings
 
 class camera:
     x0, y0 = 0, 0
-    scale = 100
+    scale = 200
     target = 0, 0
     starget = 100
     vrect = None
@@ -42,7 +42,7 @@ def snapto(pos):
     camera.target = pos
 
 def zoomswap():
-    camera.starget = 100 if camera.starget == 14 else 14
+    camera.starget = 200 if camera.starget == 14 else 14
 
 
 def bounds():

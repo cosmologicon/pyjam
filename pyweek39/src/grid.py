@@ -225,8 +225,8 @@ def draw():
 #            drawarrow(x, y)
             drawtile(x, y)
 
-            ptext.draw(wnames[wind[(x, y)]], center = view.worldtoscreen((x, y)),
-                color = (220, 220, 255), fontsize = view.sizetoscreen(0.3))
+#            ptext.draw(wnames[wind[(x, y)]], center = view.worldtoscreen((x, y)),
+#                color = (220, 220, 255), fontsize = view.sizetoscreen(0.3))
 
 
 

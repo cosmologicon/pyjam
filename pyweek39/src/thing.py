@@ -1,5 +1,5 @@
 import math, pygame
-from . import view, pview, grid, state
+from . import view, pview, grid, state, graphics
 
 
 class Thing:
@@ -73,9 +73,11 @@ class You(Thing):
             dp = math.vminus(pfrom, target)
             self.marker = math.vplus(target, math.norm(dp, f))
         tilt = math.vminus(self.pos, self.drawpos())
+        if math.length(tilt) > 0.1:
+            tilt = math.norm(tilt, 0.1)
         self.tilt = math.mix(self.tilt, tilt, 10 * dt)
-        omega = 0 if self.athome() else 3
-        self.rotoromega = math.approach(self.rotoromega, omega, 5 * dt)
+        omega = 0 if self.athome() else 1.5
+        self.rotoromega = math.approach(self.rotoromega, omega, 1 * dt)
         self.rotortheta += self.rotoromega * dt
 
     def draw0(self, engineon):
@@ -86,19 +88,20 @@ class You(Thing):
 
     def draw(self, engineon):
         p0 = math.vminus(self.drawpos(), math.vtimes(self.tilt, 0.5))
-        for dx in [-0.5, 0.5]:
-            for dy in [-0.5, 0.5]:
+        p0 = self.drawpos()
+        for d in grid.ds:
+            f = 0.2 * self.rotortheta + math.fuzz(*d)
+            if d in (grid.N, grid.S):
+                f = -f
+            p = math.vplus(self.drawpos(), math.vtimes(d, 0.25))
+            graphics.drawgear(p, f)
+        for dx in [-0.4, 0.4]:
+            for dy in [-0.4, 0.4]:
                 protor = math.vplus(p0, (dx, dy))
-                theta = self.rotortheta + math.tau * math.fuzz(dx, dy)
-                if dx == dy:
-                    theta = -theta
-                dps = math.CSround(2, r = 0.3, jtheta0 = theta / 2)
-                ps = [view.worldtoscreen(math.vplus(protor, dp)) for dp in dps]
-                pygame.draw.line(pview.screen, (150, 150, 150), *ps, view.sizetoscreen(0.02))
-                pygame.draw.circle(pview.screen, (200, 200, 200), view.worldtoscreen(protor), view.sizetoscreen(0.05))
-        p = view.worldtoscreen(self.drawpos())
-        r = view.sizetoscreen(0.3)
-        pygame.draw.circle(pview.screen, (200, 50, 50), p, r)
+                f = self.rotortheta + math.fuzz(dx, dy)
+                swap = dx == dy
+                graphics.drawrotor(protor, f, swap)
+        graphics.drawdome(self.drawpos())
 
     def windat(self):
         return grid.wind[self.pos]

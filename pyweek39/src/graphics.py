@@ -1,0 +1,72 @@
+import pygame, os.path
+from functools import lru_cache, cache
+from . import view, pview
+
+@cache
+def loadimg(imgname):
+    filename = os.path.join("img", f"{imgname}.png")
+    return pygame.image.load(filename).convert_alpha()
+
+
+Nwing = 5
+
+@cache
+def rotorimg0(f):
+    img0 = loadimg("wing")
+    surf = img0.copy()
+    surf.fill((0, 0, 0, 0))
+    anchor = surf.get_rect().center
+    dtheta = 360 / Nwing
+    for jwing in range(Nwing):
+        theta = -dtheta * (jwing + f)
+        img = pygame.transform.rotozoom(img0, theta, 1)
+        surf.blit(img, img.get_rect(center = anchor))
+    return surf
+
+@lru_cache(200)
+def rotorimg(w, f, flip = False):
+    if flip:
+        return pygame.transform.flip(rotorimg(w, f), True, False)
+    img = pygame.transform.smoothscale(rotorimg0(f), (w, w))
+    return img
+
+@cache
+def gearimg0(f):
+    img0 = loadimg("gear")
+    surf = img0.copy()
+    surf.fill((0, 0, 0, 0))
+    anchor = surf.get_rect().center
+    dtheta = 360 / 4
+    img = pygame.transform.rotozoom(img0, dtheta * f, 1)
+    surf.blit(img, img.get_rect(center = anchor))
+    return surf
+
+@lru_cache(200)
+def gearimg(w, f):
+    img = pygame.transform.smoothscale(gearimg0(f), (w, w))
+    return img
+
+@lru_cache(20)
+def domeimg(w):
+    return pygame.transform.smoothscale(loadimg("dome"), (w, w))
+
+
+def drawimgat(img, p):
+    anchor = view.worldtoscreen(p)
+    pview.screen.blit(img, img.get_rect(center = anchor))
+
+def drawrotor(p, f, flip = False):
+    w = view.sizetoscreen(0.7)
+    f = int(f % 1 * 16) / 16
+    drawimgat(rotorimg(w, f, flip), p)
+
+def drawgear(p, f):
+    w = view.sizetoscreen(0.5)
+    f = int(f % 1 * 32) / 32
+    drawimgat(gearimg(w, f), p)
+
+def drawdome(p):
+    w = view.sizetoscreen(0.85)
+    drawimgat(domeimg(w), p)
+
+

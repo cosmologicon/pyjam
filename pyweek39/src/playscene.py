@@ -104,6 +104,22 @@ def trymove(move, turbineon):
     marquee.addburnline("MUST FOLLOW WIND", 5)
     return False
 
+def checkarrive():
+    if state.you.pos in state.gettables:
+        obj = state.gettables[state.you.pos]
+        obj.collect()
+        if obj.value:
+            self.haul += obj.value
+            marquee.addburnline(f"+${obj.value}", 5, low = True)
+        elif isinstance(obj, thing.Artifact):
+            marquee.addburnline("GOT ARTIFACT", 10)
+            self.hart += 1
+        del state.gettables[state.you.pos]
+    if state.you.athome():
+        returnhome()
+        state.save()
+
+
 def think(dt, kdowns):
     from . import scene, reloadscene, shopscene
     self.t += dt
@@ -140,26 +156,12 @@ def think(dt, kdowns):
             marquee.addburnline(f"NO WIND", 5)
             sound.play("no")
         else:
-            if state.you.athome():
-                returnhome()
-                state.save()
+            checkarrive()
 
     move = getmove(kdowns)
     if trymove(move, self.turbineon):
         self.turbineon = False
-        if state.you.pos in state.gettables:
-            obj = state.gettables[state.you.pos]
-            obj.collect()
-            if obj.value:
-                self.haul += obj.value
-                marquee.addburnline(f"+${obj.value}", 5, low = True)
-            elif isinstance(obj, thing.Artifact):
-                marquee.addburnline("ARTIFACT RETRIEVED", 10)
-                self.hart += 1
-            del state.gettables[state.you.pos]
-        if state.you.athome():
-            returnhome()
-            state.save()
+        checkarrive()
     state.you.think(dt)
     if "zoom" in kdowns:
         view.zoomswap()
