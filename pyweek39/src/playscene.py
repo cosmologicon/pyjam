@@ -1,6 +1,6 @@
 
 import pygame, math, random
-from . import view, pview, grid, thing, ptext, state, sound, marquee, hud
+from . import view, pview, grid, thing, ptext, state, sound, marquee, hud, ocean
 from .pview import T
 
 
@@ -161,13 +161,14 @@ def think(dt, kdowns):
     state.gettables = [obj for obj in state.gettables if obj.alive]
 
 def draw():
-    pview.fill((100, 100, 120))
-    grid.draw()
+    ocean.draw()
     for home in state.homes:
         home.draw()
     state.you.draw(self.turbineon)
     for obj in state.gettables:
         obj.draw()
+    grid.draw()
+#    ocean.drawstars()
 
     hud.draw()
     marquee.draw()
