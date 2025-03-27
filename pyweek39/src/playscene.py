@@ -46,7 +46,7 @@ def returnhome():
         self.hart = 0
     self.fuel = state.maxfuel
     if message:
-        marquee.addline(message)
+        marquee.addreturnline(message)
 
 def getmove(kdowns):
     d = (0, 0)
@@ -83,6 +83,7 @@ def trymove(move, turbineon):
         state.you.move(move)
         return True
     if turbineon:
+        marquee.addburnline(f"-{turbinefuelatyou()} FUEL", 5)
         self.fuel -= turbinefuelatyou()
         grid.setwind(state.you.pos, move)
         state.you.move(move)
@@ -94,6 +95,7 @@ def trymove(move, turbineon):
             return False
         state.you.move(move)
         self.fuel -= 1
+        marquee.addburnline("-1 FUEL", 20)
         return True
     # Trying to move against the wind.
     return False
@@ -110,10 +112,11 @@ def think(dt, kdowns):
         self.fuel = state.maxfuel
         state.you.snapto()
         view.snapto(state.you.pos)
-        marquee.addline("Game reloaded")
+        marquee.addreturnline("Game reloaded")
         return
     if "turbine" in kdowns:
         if self.turbineon:
+            marquee.addburnline(f"-{turbinefuelatyou()} FUEL", 5)
             self.fuel -= turbinefuelatyou()
             grid.setwind(state.you.pos, grid.STILL)
             sound.play("useturbine")
@@ -176,5 +179,6 @@ def draw():
     if self.fuel <= 3:
         text = "OUT OF FUEL\nESC: QUIT TO LAST SAVE" if self.fuel == 0 else "LOW FUEL"
         ptext.draw(text, midbottom = T(640, 700), fontsize = T(60), owidth = 0.5, shade = 1, color = "red")
+
 
 

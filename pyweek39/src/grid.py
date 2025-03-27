@@ -230,7 +230,7 @@ def drawarrow(x, y):
         return
     ps = [view.worldtoscreen((x + dx, y + dy)) for dx, dy in dxys]
     color = {
-        1: (200, 200, 255),
+        1: (120, 120, 255),
         2: (240, 240, 240),
         3: (255, 200, 200),
     }[strength[(x, y)]]

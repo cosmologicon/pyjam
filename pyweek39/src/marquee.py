@@ -6,12 +6,10 @@ class self:
     ...
 
 class Line:
-    def __init__(self, text, T0, p0, dp):
+    def __init__(self, text):
         self.text = text
-        self.T0 = T0
         self.t = 0
-        self.p0 = p0
-        self.p1 = math.vplus(p0, dp)
+        self.p1 = math.vplus(self.p0, self.dp)
         self.f = 0
         self.alive = True
     def think(self, dt):
@@ -21,16 +19,40 @@ class Line:
     def draw(self):
         pos = T(math.mix(self.p0, self.p1, self.f))
         alpha = math.interp(self.f, 0.5, 1, 1, 0)
-        ptext.draw(self.text, center = pos, fontsize = T(50), owidth = 0.5, shade = 1)
+        ptext.draw(self.text, center = pos, fontsize = T(self.fontsize), fontname = self.fontname,
+            owidth = 0.5, shade = 1)
 
+class ReturnLine(Line):
+    fontsize = 50
+    fontname = "Rye"
+    T0 = 1.0
+    p0 = 640, 640
+    dp = 0, -30
+    
+
+class BurnLine(Line):
+    fontsize = 25
+    fontname = "Notable"
+    T0 = 0.6
+    p0 = 640, 280
+    dp = 0, -40
+    
+linecounts = {}
 
 
 def init():
     self.t = 0
     self.lines = []
 
-def addline(text):
-    self.lines.append(Line(text, 1, (640, 640), (0, -30)))
+def addreturnline(text):
+    self.lines.append(ReturnLine(text))
+
+def addburnline(text, n, textid=""):
+    key = text, textid
+    linecounts[key] = linecounts.get(key, 0) + 1
+    if linecounts[key] >= n:
+        return
+    self.lines.append(BurnLine(text))
 
 def think(dt):
     self.t += dt
