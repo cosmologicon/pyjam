@@ -12,6 +12,7 @@ def init():
     marquee.init()
     hud.init(self)
     self.t = 0
+    self.levelt = 0
     self.haul = 0
     self.hart = 0
     self.turbineon = False
@@ -41,6 +42,7 @@ def returnhome():
         state.bank -= state.fuelcosts[state.maxfuel]
         state.maxfuel += 1
         message = "Fuel tank upgraded!"
+        self.levelt = 0
     if self.hart > 0:
         message = "Artifact retrieved!"
         state.artifacts += self.hart
@@ -67,6 +69,13 @@ def turbinefuelatyou():
 def worldat(pos, dpos = (0, 0)):
     return math.vplus(pos, dpos) in grid.gridset
 
+def burn(dfuel):
+    if self.fuel > 0 and self.fuel - dfuel <= 0:
+        sound.play("nofuel")
+    elif self.fuel > 3 and self.fuel - dfuel <= 3:
+        sound.play("lowfuel")
+    self.fuel -= dfuel
+
 def trymove(move, turbineon):
     if move == grid.STILL:
         return False
@@ -86,7 +95,7 @@ def trymove(move, turbineon):
         return True
     if turbineon:
         marquee.addburnline(f"-{turbinefuelatyou()} FUEL", 5)
-        self.fuel -= turbinefuelatyou()
+        burn(turbinefuelatyou())
         grid.setwind(state.you.pos, move)
         state.you.move(move)
         sound.play("useengine")
@@ -97,11 +106,11 @@ def trymove(move, turbineon):
             marquee.addburnline("OUT OF FUEL", 5)
             return False
         state.you.move(move)
-        self.fuel -= 1
+        burn(1)
         marquee.addburnline("-1 FUEL", 20)
         return True
     # Trying to move against the wind.
-    marquee.addburnline("MUST FOLLOW WIND", 5)
+    marquee.addburnline("MUST MOVE DOWNSTREAM", 5)
     return False
 
 def checkarrive():
@@ -123,6 +132,7 @@ def checkarrive():
 def think(dt, kdowns):
     from . import scene, reloadscene, shopscene
     self.t += dt
+    self.levelt += dt
     if "quit" in kdowns:
         init()
         state.load()
@@ -134,7 +144,7 @@ def think(dt, kdowns):
     if "turbine" in kdowns:
         if self.turbineon:
             marquee.addburnline(f"-{turbinefuelatyou()} FUEL", 5)
-            self.fuel -= turbinefuelatyou()
+            burn(turbinefuelatyou())
             grid.setwind(state.you.pos, grid.STILL)
             sound.play("useturbine")
             self.turbineon = False
@@ -166,23 +176,47 @@ def think(dt, kdowns):
     if "zoom" in kdowns:
         view.zoomswap()
     view.camera.target = state.you.marker
+    view.camera.starget = int(140 * 0.95 ** (state.maxfuel - 6))
     view.think(dt)
     marquee.think(dt)
     hud.think(dt)
+
+levelhelptext = {
+    6: "Arrow keys or WASD: move.\nCollect treasure and return to base to upgrade fuel tank.",
+    7: "In windy areas, you must move downstream, but it requires no fuel to do so.",
+    8: "In windy areas, you must move downstream, but it requires no fuel to do so.",
+    9: "Turbine: Press Space or Enter, then a direction. Create or redirect windy areas.",
+    10: "Press Space twice to turn a windy area into a calm area.",
+    11: "Press Tab on a windy area to flow downstream.",
+    12: "Artifacts are due north, south, east, and west of home.",
+    13: "Collect 1 artifact to upgrade turbine.",
+}
 
 def draw():
     ocean.draw()
     for home in state.homes:
         home.draw()
-    state.you.draw(self.turbineon)
+    state.you.draw(self.turbineon, self.fuel)
     for pos, obj in state.gettables.items():
         if view.onscreen(pos):
             obj.draw()
     grid.draw()
 #    ocean.drawstars()
 
+    if False:
+        if math.fuzz(int(self.t)) < 0.1:
+            f = self.t % 1
+            if 0 < f < 0.1 or 0.2 < f < 0.3:
+                pview.fill((255, 255, 255, 128))
+
     hud.draw()
     marquee.draw()
+
+    if state.maxfuel in levelhelptext:
+        alpha = math.dsmoothfade(self.levelt, 0, 60, 0.4)
+        if alpha > 0:
+            ptext.draw(levelhelptext[state.maxfuel], midtop = T(640, 10), fontname = "Rye", fontsize = T(50),
+                width = T(1000), owidth = 0.5, shadow = (1, 1), shade = 1, color = (200, 200, 255), alpha = alpha)
     
     if self.fuel <= 3:
         text = "OUT OF FUEL\nESC: QUIT TO LAST SAVE" if self.fuel == 0 else "LOW FUEL"

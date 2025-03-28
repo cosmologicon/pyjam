@@ -86,7 +86,14 @@ class You(Thing):
             color = math.imix(color, (255, 255, 255), 0.5)
         self.drawcircleat(color, 0.25)
 
-    def draw(self, engineon):
+    def domecolor(self, fuel):
+        if fuel > 3:
+            return 180, 30, 150
+        if fuel > 0:
+            return 200, 20, 50
+        return 80, 80, 80
+
+    def draw(self, engineon, fuel):
         p0 = math.vminus(self.drawpos(), math.vtimes(self.tilt, 0.5))
         p0 = self.drawpos()
         for d in grid.ds:
@@ -101,7 +108,8 @@ class You(Thing):
                 f = self.rotortheta + math.fuzz(dx, dy)
                 swap = dx == dy
                 graphics.drawrotor(protor, f, swap)
-        graphics.drawdome(self.drawpos())
+        graphics.drawbody(self.drawpos())
+        graphics.drawdome(self.drawpos(), self.domecolor(fuel))
 
     def windat(self):
         return grid.wind[self.pos]

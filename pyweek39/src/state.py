@@ -6,7 +6,7 @@ def init():
     homes = [thing.Home()]
     you = thing.You((0, 0))
     gettables = {}
-    maxfuel = 8
+    maxfuel = 6
     bank = 0
     artifacts = 0
 

@@ -7,6 +7,12 @@ def loadimg(imgname):
     filename = os.path.join("img", f"{imgname}.png")
     return pygame.image.load(filename).convert_alpha()
 
+def mask(surf, color):
+    msurf = surf.copy()
+    msurf.fill(color)
+    msurf.blit(surf, (0, 0), None, pygame.BLEND_RGBA_MULT)
+    return msurf
+
 
 Nwing = 5
 
@@ -47,8 +53,14 @@ def gearimg(w, f):
     return img
 
 @lru_cache(20)
-def domeimg(w):
+def domeimg(w, color=None):
+    if color is not None:
+        return mask(domeimg(w), color)
     return pygame.transform.smoothscale(loadimg("dome"), (w, w))
+
+@lru_cache(20)
+def bodyimg(w):
+    return pygame.transform.smoothscale(loadimg("body"), (w, w))
 
 
 def drawimgat(img, p):
@@ -65,8 +77,12 @@ def drawgear(p, f):
     f = int(f % 1 * 32) / 32
     drawimgat(gearimg(w, f), p)
 
-def drawdome(p):
+def drawbody(p):
     w = view.sizetoscreen(0.85)
-    drawimgat(domeimg(w), p)
+    drawimgat(bodyimg(w), p)
+
+def drawdome(p, color):
+    w = view.sizetoscreen(0.4)
+    drawimgat(domeimg(w, color), p)
 
 

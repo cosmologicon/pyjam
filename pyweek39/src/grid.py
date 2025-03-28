@@ -1,6 +1,6 @@
 import random, pygame, math
 from functools import lru_cache
-from . import view, pview, ptext
+from . import view, pview, ptext, graphics
 from .pview import T
 
 # +x = East, +y = North
@@ -127,16 +127,10 @@ def windstrip0(w):
     w = int(w / 4)
     return pygame.transform.smoothscale(surf, (w, 2 * w))
 
-def mask(surf, color):
-    msurf = surf.copy()
-    msurf.fill(color)
-    msurf.blit(surf, (0, 0), None, pygame.BLEND_RGBA_MULT)
-    return msurf
-
 @lru_cache(10)
 def windstrip(strength, w):
     if strength == 1:
-        return mask(windstrip0(w), (140, 140, 255, 255))
+        return graphics.mask(windstrip0(w), (140, 140, 255, 255))
     if strength == 2:
         surf0 = windstrip0(w)
         surf = pygame.Surface((2 * w, 2 * w)).convert_alpha()
@@ -160,7 +154,7 @@ def windstrip(strength, w):
         surf.blit(surf0, (x1, 0), (a, 0, 2 * d, 2 * w))
         surf.blit(surf0, (x2, 0), (a, 0, s, 2 * w))
         surf = pygame.transform.smoothscale(surf, (w, 2 * w))
-        return mask(surf, (255, 160, 160, 255))
+        return graphics.mask(surf, (255, 160, 160, 255))
         
 
 @lru_cache(1)

@@ -15,7 +15,7 @@ def init():
 
 def think(dt):
     camera.x0, camera.y0 = math.softapproach((camera.x0, camera.y0), camera.target, 2.0 * dt, dymin = 1 / camera.scale)
-    camera.scale = math.approachL(camera.scale, camera.starget, 8 * dt)
+    camera.scale = math.softapproachL(camera.scale, camera.starget, 8 * dt, dymin = 0.001)
     camera.vrect = pview.rect.inflate(pview.T(camera.scale / 2, camera.scale / 2))
 
 
