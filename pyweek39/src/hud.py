@@ -49,23 +49,22 @@ def gauge_img(maxfuel, f):
 
 def draw():
     text = "\n".join([
-        f"Current haul: ${self.playscene.haul}",
-        f"Bank: ${state.bank}",
-        f"Next upgrade: ${state.fuelcosts[state.maxfuel]}",
+        f"Current nimbite haul: {self.playscene.haul}",
+        f"Fuel tank upgrade: {state.bank}/{state.fuelcosts[state.maxfuel]}",
     ])
-    ptext.draw(text, bottomleft = T(10, 710), fontsize = T(40), owidth = 0.5)
+    ptext.draw(text, topright = T(1270, 10), fontsize = T(20))
 
 
     
     text = "\n".join([
         "CONTROLS",
+        "F1: help",
         "Arrows: move",
-        "Space: use turbine",
-        "Esc: last save / quit",
-        "Tab: follow wind",
+        "Space: turbine",
+        "Esc: quit",
+        "Tab: flow",
     ])
-    ptext.draw(text, midbottom = T(1170, 710), fontsize = T(20), fontname = "Notable",
-        shade = 1, shadow = (1, 1), owidth = 0.5)
+    ptext.draw(text, bottomright = T(1270, 710), fontsize = T(20), fontname = "Notable")
 
     rect = pygame.Rect(T(0, 0, 20, 20 + Hgauge * self.fuellevel / Ngauge))
     rect.midbottom = T(100, pview.centery0 + Hgauge / 2 + 20)

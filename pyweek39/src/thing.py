@@ -130,10 +130,31 @@ def hexps(v0, va, size):
     return [(y * size, z * size) for x, y, z in sorted(ps)]
 
 
+def drawgettable(pos, color, size, highres, *seed):
+    t = 0.001 * pygame.time.get_ticks() + 1000 * math.fuzz(1, *seed)
+    if math.fuzz(2, *seed) < 0.5:
+        t = -t
+    dpos = math.CS(20 * t, r = 0.02 * math.sin(0.2 * t))
+    pos = math.vplus(pos, dpos)
+    if highres:
+        def coord(j):
+            return math.sin(math.fuzz(1, j, *seed) * math.tau + (0.5 * math.fuzz(2, j, *seed) + 0.5) * t)
+        v0 = coord(1), coord(2), coord(3)
+        va = coord(4), coord(5), coord(6)
+        for d in hexps(v0, va, 0.36 * size):
+            graphics.drawdome(math.vplus(pos, d), color, 0.6 * size)
+    else:
+        graphics.drawdome(pos, color, size)
+    
+
+
 class Gettable(Thing):
-    size = 0.2
+    size = 0.5
     value = 0
     def draw(self):
+        highres = view.camera.scale > 30
+        drawgettable(self.drawpos(), self.color, self.size, highres, *self.pos)
+        return
         pos = self.drawpos()
         t = 0.001 * pygame.time.get_ticks() + 1000 * math.fuzz(1, *self.pos)
         if math.fuzz(2, *self.pos) < 0.5:
@@ -171,6 +192,6 @@ class Jewel(Gettable):
 
 class Artifact(Gettable):
     color = "black"
-    size = 0.3
+    size = 0.7
 
 

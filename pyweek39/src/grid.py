@@ -38,8 +38,8 @@ setwind(ORIGIN, STILL)
 
 def adjs(p):
     x, y = p
-    for dx in (-1, 0, 1):
-        for dy in (-1, 0, 1):
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
             yield x + dx, y + dy
 
 cset = set(gridset)
@@ -93,6 +93,11 @@ tofill = set(gridset)
 tofill.remove(ORIGIN)
 tofill -= set(gettables)
 tofill -= set(artifacts)
+
+for artifact in artifacts[-4:]:
+    tofill -= set(adjs(artifact))
+    for p, w in zip(adjs(artifact), [S, S, S, W, STILL, E, N, N, N]):
+        setwind(p, w, 3)
 
 
 for x, y in tofill:
@@ -182,15 +187,14 @@ def windtile0(strength, w, f, d):
     surf.blit(windstrip(strength, w), (0, -y), None, pygame.BLEND_RGBA_MULT)
     return surf
 
-def windtile(strength, f, d, size = 1):
-    w = view.sizetoscreen(size)
+def windtile(strength, w, f, d):
     f = int(f % 1 * 32) / 32
     return windtile0(strength, w, f, d)
 
 def drawtile(x, y):
     if wind[(x, y)] == STILL: return
     f = pygame.time.get_ticks() * 0.001 * 0.5 * strength[(x, y)] + math.fuzz(123, x, y)
-    tile = windtile(strength[(x, y)], f, wind[(x, y)])
+    tile = windtile(strength[(x, y)], view.sizetoscreen(1), f, wind[(x, y)])
     pview.screen.blit(tile, tile.get_rect(center = view.worldtoscreen((x, y))))
 
 def drawarrow(x, y):
@@ -224,8 +228,7 @@ def draw():
 def drawoverlay(d, f):
     w = T(800)
     alpha = math.imix(0, 255, math.dfade(f, 0, 1, 0.3))
-    f = int(f % 1 * 32) / 32
-    tile = graphics.mask(windtile0(1, w, f, d), (255, 255, 255, alpha))
+    tile = graphics.mask(windtile(1, w, f, d), (255, 255, 255, alpha))
     pview.screen.blit(tile, tile.get_rect(center = pview.center))
     
 def cacheres():

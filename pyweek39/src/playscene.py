@@ -134,7 +134,7 @@ def checkarrive():
 
 
 def think(dt, kdowns):
-    from . import scene, reloadscene, shopscene
+    from . import scene, reloadscene, shopscene, howtoscene
     self.t += dt
     self.levelt += dt
     if self.overlay is not None:
@@ -149,6 +149,9 @@ def think(dt, kdowns):
         view.snapto(state.you.pos)
         marquee.addreturnline("Game reloaded")
         return
+    if "howto" in kdowns:
+        howtoscene.init()
+        scene.current = howtoscene
     if "turbine" in kdowns:
         if self.turbineon:
             marquee.addburnline(f"-{turbinefuelatyou()} FUEL", 5)
@@ -224,8 +227,8 @@ def draw():
     if state.maxfuel in levelhelptext:
         alpha = math.dsmoothfade(self.levelt, 0, 60, 0.4)
         if alpha > 0:
-            ptext.draw(levelhelptext[state.maxfuel], midtop = T(640, 10), fontname = "Rye", fontsize = T(50),
-                width = T(1000), owidth = 0.5, shadow = (1, 1), shade = 1, color = (200, 200, 255), alpha = alpha)
+            ptext.draw(levelhelptext[state.maxfuel], midtop = T(640, 10), fontsize = T(25),
+                width = T(700), color = (200, 200, 255), alpha = alpha)
     
     if self.fuel <= 3:
         text = "OUT OF FUEL\nESC: QUIT TO LAST SAVE" if self.fuel == 0 else "LOW FUEL"

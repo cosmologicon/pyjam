@@ -1,12 +1,16 @@
 import pygame
 from . import settings, view, ptext, state, pview
-from . import scene, playscene
+from . import scene, playscene, howtoscene
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
+ptext.DEFAULT_FONT_NAME = "Rye"
+ptext.DEFAULT_OUTLINE_WIDTH = 0.5
+ptext.DEFAULT_SHADOW_OFFSET = 1, 1
 pygame.init()
 
 scene.current = playscene
-scene.current.init()
+howtoscene.init()
+playscene.init()
 state.load()
 playscene.returnhome()
 
