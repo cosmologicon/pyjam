@@ -112,7 +112,7 @@ for x, y in tofill:
 setwind((0, 1), E)
 
 @lru_cache(100)
-def windstrip0(w):
+def old_windstrip0(w):
     w *= 4
     surf0 = pygame.Surface((w, w)).convert_alpha()
     surf0.fill((255, 255, 255, 0))
@@ -133,11 +133,11 @@ def windstrip0(w):
     return pygame.transform.smoothscale(surf, (w, 2 * w))
 
 @lru_cache(1000)
-def windstrip(strength, w):
+def old_windstrip(strength, w):
     if strength == 1:
-        return graphics.mask(windstrip0(w), (140, 140, 255, 255))
+        return graphics.mask(old_windstrip0(w), (140, 140, 255, 255))
     if strength == 2:
-        surf0 = windstrip0(w)
+        surf0 = old_windstrip0(w)
         surf = pygame.Surface((2 * w, 2 * w)).convert_alpha()
         surf.fill((0, 0, 0, 0))
         d = int(w * 0.2)
@@ -145,7 +145,7 @@ def windstrip(strength, w):
         surf.blit(surf0, (w, 0), (d, 0, w - d, 2 * w))
         return pygame.transform.smoothscale(surf, (w, 2 * w))
     if strength == 3:
-        surf0 = windstrip0(w)
+        surf0 = old_windstrip0(w)
         surf = pygame.Surface((3 * w, 2 * w)).convert_alpha()
         surf.fill((0, 0, 0, 0))
         d = int(w * 0.3)
@@ -160,6 +160,34 @@ def windstrip(strength, w):
         surf.blit(surf0, (x2, 0), (a, 0, s, 2 * w))
         surf = pygame.transform.smoothscale(surf, (w, 2 * w))
         return graphics.mask(surf, (255, 160, 160, 255))
+
+@cache
+def windstrip0(strength):
+    w = 800
+    color = {
+        1: (140, 140, 255, 255),
+        2: (255, 255, 255, 255),
+        3: (255, 160, 160, 255),
+    }[strength]
+    surf = pygame.Surface((w, 2 * w)).convert_alpha()
+    surf.fill(color[:3] + (0,))
+    arrowspec = {
+        1: [(1, 0.6)],
+        2: [(0.3, -0.3), (1, 0.6)],
+        3: [(0.2, 0.5), (0.4, 0.2), (1, 1.5)],
+    }[strength]
+    rowps = [pview.I(w/2 * (1 - x), w/2 * y) for x, y in reversed(arrowspec)] + [pview.I(w/2, 0)] + [pview.I(w/2 * (1 + x), w/2 * y) for x, y in arrowspec]
+    poly0ps = rowps + [pview.I(x, y + w/4) for x, y in reversed(rowps)]
+    for jdy in range(-2, 6):
+        dy = int(jdy * w / 2)
+        polyps = [(x, y + dy) for x, y in poly0ps]
+        pygame.draw.polygon(surf, color, polyps)
+    return surf
+
+@cache
+def windstrip(strength, w):
+    return pygame.transform.smoothscale(windstrip0(strength), (w, 2 * w))
+
         
 
 @lru_cache(100)

@@ -65,7 +65,8 @@ def draw():
     view.camera.scale = 100
     gtypes = thing.Copper, thing.Silver, thing.Gold, thing.Jewel, thing.Artifact
     for j, gtype in enumerate(gtypes):
-        thing.drawgettable((4, 1.2 - j), gtype.color, gtype.size, True, j)
+        method = thing.drawartifact if gtype is thing.Artifact else thing.drawgettable
+        method((4, 1.2 - j), gtype.color, gtype.size, True, j)
         text = "Artifact" if gtype is thing.Artifact else f"{gtype.value} Nimbite"
         color = "white" if gtype is thing.Artifact else gtype.color
         ptext.draw(text, center = T(1170, 240 + 100 * j), fontsize = T(24), color = color)

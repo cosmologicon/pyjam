@@ -145,7 +145,11 @@ def drawgettable(pos, color, size, highres, *seed):
             graphics.drawdome(math.vplus(pos, d), color, 0.6 * size)
     else:
         graphics.drawdome(pos, color, size)
-    
+
+def drawartifact(pos, color, size, highres, *seed):    
+    if highres:
+        drawgettable(pos, "white", size * 1.15, highres, *seed)
+    drawgettable(pos, color, size, highres, *seed)
 
 
 class Gettable(Thing):
@@ -154,22 +158,6 @@ class Gettable(Thing):
     def draw(self):
         highres = view.camera.scale > 30
         drawgettable(self.drawpos(), self.color, self.size, highres, *self.pos)
-        return
-        pos = self.drawpos()
-        t = 0.001 * pygame.time.get_ticks() + 1000 * math.fuzz(1, *self.pos)
-        if math.fuzz(2, *self.pos) < 0.5:
-            t = -t
-        dpos = math.CS(20 * t, r = 0.02 * math.sin(0.2 * t))
-        pos = math.vplus(pos, dpos)
-        if view.camera.scale > 30:
-            def coord(j):
-                return math.sin(math.fuzz(1, j, *self.pos) * math.tau + (0.5 * math.fuzz(2, j, *self.pos) + 0.5) * t)
-            v0 = coord(1), coord(2), coord(3)
-            va = coord(4), coord(5), coord(6)
-            for d in hexps(v0, va, 0.18):
-                graphics.drawdome(math.vplus(pos, d), self.color, 0.3)
-        else:
-            graphics.drawdome(pos, self.color, 0.5)
 
     def collect(self):
         self.alive = False
@@ -177,21 +165,30 @@ class Gettable(Thing):
 class Copper(Gettable):
     color = "#B87333"
     value = 1
+    size = 0.3
 
 class Silver(Gettable):
     color = "silver"
     value = 3
+    size = 0.4
 
 class Gold(Gettable):
     color = "gold"
     value = 6
+    size = 0.5
 
 class Jewel(Gettable):
     color = "purple"
     value = 12
+    size = 0.6
 
 class Artifact(Gettable):
     color = "black"
     size = 0.7
+
+    def draw(self):
+        highres = view.camera.scale > 30
+        drawartifact(self.drawpos(), self.color, self.size, highres, *self.pos)
+
 
 
