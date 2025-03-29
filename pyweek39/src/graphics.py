@@ -81,8 +81,8 @@ def drawbody(p):
     w = view.sizetoscreen(0.85)
     drawimgat(bodyimg(w), p)
 
-def drawdome(p, color):
-    w = view.sizetoscreen(0.4)
+def drawdome(p, color, size = 0.4):
+    w = view.sizetoscreen(size)
     drawimgat(domeimg(w, color), p)
 
 def cacheres():

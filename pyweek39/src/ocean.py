@@ -54,8 +54,8 @@ def draw():
         otexture = texture(T(w), j)
         t = 0.001 * pygame.time.get_ticks()
         cx, cy = math.CS(0.01 * t, r = 100)
-        x0 = (-0.5 * (view.camera.x0 + dx * t + cx) * view.camera.scale)
-        y0 = (0.5 * (view.camera.y0 + dy * t + cy) * view.camera.scale)
+        x0 = (-0.5 * (view.camera.cx0 + dx * t + cx) * view.camera.cscale)
+        y0 = (0.5 * (view.camera.cy0 + dy * t + cy) * view.camera.cscale)
         for p in xytilerange(otexture.get_size(), T(x0, y0), pview.rect):
             pview.screen.blit(otexture, p)
 

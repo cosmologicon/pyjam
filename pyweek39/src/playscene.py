@@ -37,7 +37,7 @@ def canquit():
 def returnhome():
     message = ""
     if self.haul > 0:
-        message = f"+${self.haul}"
+        message = f"+{self.haul} Nimbite"
         state.bank += self.haul
         self.haul = 0
     while state.bank >= state.fuelcosts[state.maxfuel]:
@@ -123,7 +123,7 @@ def checkarrive():
         obj.collect()
         if obj.value:
             self.haul += obj.value
-            marquee.addburnline(f"+${obj.value}", 5, low = True)
+            marquee.addburnline(f"+{obj.value} NIMBITE", 5, low = True)
         elif isinstance(obj, thing.Artifact):
             marquee.addburnline("GOT ARTIFACT", 10)
             self.hart += 1
@@ -184,13 +184,12 @@ def think(dt, kdowns):
     if "zoom" in kdowns:
         view.zoomswap()
     view.camera.target = state.you.marker
-    view.camera.starget = int(140 * 0.95 ** (state.maxfuel - 6))
     view.think(dt)
     marquee.think(dt)
     hud.think(dt)
 
 levelhelptext = {
-    6: "Arrow keys or WASD: move.\nCollect treasure and return to base to upgrade fuel tank.",
+    6: "Arrow keys or WASD: move.\nCollect nimbite gas and return to Anyport to upgrade fuel tank.",
     7: "In windy areas, you must move downstream, but it requires no fuel to do so.",
     8: "In windy areas, you must move downstream, but it requires no fuel to do so.",
     9: "Turbine: Press Space or Enter, then a direction. Create or redirect windy areas.",

@@ -127,9 +127,8 @@ def windstrip0(w):
     w = int(w / 4)
     return pygame.transform.smoothscale(surf, (w, 2 * w))
 
-@lru_cache(100)
+@lru_cache(1000)
 def windstrip(strength, w):
-    print(strength, w)
     if strength == 1:
         return graphics.mask(windstrip0(w), (140, 140, 255, 255))
     if strength == 2:

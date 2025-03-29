@@ -49,6 +49,11 @@ def distance(v0, v1):
 	return math.sqrt(sum((a0 - a1) ** 2 for a0, a1 in zip(v0, v1)))
 def dot(v0, v1):
 	return sum(a * b for a, b in zip(v0, v1))
+def cross(v0, v1):
+    x0, y0, z0 = v0
+    x1, y1, z1 = v1
+    return (y0 * z1 - z0 * y1, z0 * x1 - x0 * z1, x0 * y1 - y0 * x1)
+
 
 def vplus(v0, v1):
     return tuple(a + b for a, b in zip(v0, v1))
@@ -63,7 +68,7 @@ def normalize(v, r = 1):
 	if l == 0:
 		return [r] + [0] * (len(v) - 1)
 	f = r / l
-	return [a * f for a in v]
+	return tuple(a * f for a in v)
 norm = normalize
 
 # Equal to smoothstep(0, 1, x)

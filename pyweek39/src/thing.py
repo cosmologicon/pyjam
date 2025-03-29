@@ -122,11 +122,33 @@ class You(Thing):
     def windat(self):
         return grid.wind[self.pos]
 
+def hexps(v0, va, size):
+    d0 = math.norm(v0)
+    d1 = math.norm(math.cross(v0, va))
+    d2 = math.cross(d0, d1)
+    ps = [d0, d1, d2, math.vtimes(d0, -1), math.vtimes(d1, -1), math.vtimes(d2, -1)]
+    return [(y * size, z * size) for x, y, z in sorted(ps)]
+
+
 class Gettable(Thing):
     size = 0.2
     value = 0
     def draw(self):
-        self.drawcircleat(self.color, self.size)
+        pos = self.drawpos()
+        t = 0.001 * pygame.time.get_ticks() + 1000 * math.fuzz(1, *self.pos)
+        if math.fuzz(2, *self.pos) < 0.5:
+            t = -t
+        dpos = math.CS(20 * t, r = 0.02 * math.sin(0.2 * t))
+        pos = math.vplus(pos, dpos)
+        if view.camera.scale > 30:
+            def coord(j):
+                return math.sin(math.fuzz(1, j, *self.pos) * math.tau + (0.5 * math.fuzz(2, j, *self.pos) + 0.5) * t)
+            v0 = coord(1), coord(2), coord(3)
+            va = coord(4), coord(5), coord(6)
+            for d in hexps(v0, va, 0.18):
+                graphics.drawdome(math.vplus(pos, d), self.color, 0.3)
+        else:
+            graphics.drawdome(pos, self.color, 0.5)
 
     def collect(self):
         self.alive = False
