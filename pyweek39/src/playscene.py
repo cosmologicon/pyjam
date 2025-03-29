@@ -149,9 +149,15 @@ def checkarrive():
         refueling = state.artifacts >= 5
         if obj.value:
             self.haul += obj.value
-            marquee.addburnline(f"+{obj.value} NIMBITE", 5, low = True)
             if refueling:
-                refuel(obj.value)
+                if state.artifacts < 7:
+                    refuelamt = { 1: 1, 3: 2, 6: 3, 12: 4}[obj.value]
+                else:
+                    refuelamt = obj.value
+                marquee.addburnline(f"+{obj.value} NIMBITE\n+{refuelamt} FUEL", 5, low = True)
+                refuel(refuelamt)
+            else:
+                marquee.addburnline(f"+{obj.value} NIMBITE", 5, low = True)
         elif isinstance(obj, thing.Artifact):
             marquee.addburnline("GOT ARTIFACT", 10)
             self.hart += 1
@@ -233,14 +239,15 @@ levelhelptext = {
     9: "Turbine: Press Space or Enter, then a direction. Create or redirect windy areas.",
     10: "Press Space twice to turn a windy area into a calm area.",
     11: "Press Tab on a windy area to flow downstream.",
-    12: "Artifacts are due north, south, east, and west of home.",
+    12: "The first 4 artifacts are due north, south, east, and west of Anyport.",
     13: "Collect 1 artifact to upgrade turbine.",
 }
 artifactinfo = {
-    1: "1 Artifact collected\nTurbine upgraded to level 2.",
-    2: "2 Artifacts collected\nMap unlocked. Press 2 to toggle.\nMap is visible while at Anyport.",
-    3: "3 Artifacts collected\nTurbine upgraded to level 3.",
-    5: "5 Artifacts collected\nCollecting nimbite refuels you.",
+    1: "1 Artifact collected\nTurbine upgraded to level 2",
+    2: "2 Artifacts collected\nMap unlocked. Press 2 to toggle.\nMap is visible while at Anyport",
+    3: "3 Artifacts collected\nTurbine upgraded to level 3",
+    5: "5 Artifacts collected\nCollecting nimbite refuels you",
+    7: "7 Artifacts collected\nNimbite refuel upgraded",
     8: "8 Artifacts collected\nUnlimited fuel!\nTHE END\nThank you for playing!",
 }
 
@@ -266,18 +273,21 @@ def draw():
         hud.draw()
     marquee.draw()
 
-    if state.maxfuel in levelhelptext:
+
+    ainfodrawn = False
+    if state.artifacts in artifactinfo:
+        alpha = math.dsmoothfade(self.ainfot, 0, 60, 0.4)
+        if alpha > 0:
+            ainfodrawn = True
+            ptext.draw(artifactinfo[state.artifacts], midtop = T(640, 10), fontsize = T(25), fontname = "Notable",
+                width = T(700), owidth = 1.5, color = "black", ocolor = "white", shadow = None, alpha = alpha)
+
+    if state.maxfuel in levelhelptext and not ainfodrawn:
         alpha = math.dsmoothfade(self.levelt, 0, 60, 0.4)
         if alpha > 0:
             ptext.draw(levelhelptext[state.maxfuel], midtop = T(640, 10), fontsize = T(25),
                 width = T(700), color = (200, 200, 255), alpha = alpha)
 
-    if state.artifacts in artifactinfo:
-        alpha = math.dsmoothfade(self.levelt, 0, 60, 0.4)
-        if alpha > 0:
-            ptext.draw(levelhelptext[state.maxfuel], midtop = T(640, 10), fontsize = T(25),
-                width = T(700), color = (200, 200, 255), alpha = alpha)
-    
     if self.fuel <= 3:
         if self.fuel == 0:
             if state.maxfuel <= 12:

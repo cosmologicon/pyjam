@@ -24,7 +24,7 @@ def drawplate(text, center):
 
 
 Hgauge = 520
-Ngauge = 20
+Ngauge = 24
 
 @lru_cache(1)
 def gauge_img(maxfuel, f):

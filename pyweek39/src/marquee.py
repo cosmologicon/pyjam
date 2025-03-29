@@ -25,17 +25,17 @@ class Line:
 class ReturnLine(Line):
     fontsize = 50
     fontname = "Rye"
-    T0 = 1.0
+    T0 = 2.0
     p0 = 640, 640
-    dp = 0, -30
+    dp = 0, -60
     
 
 class BurnLine(Line):
     fontsize = 25
     fontname = "Notable"
-    T0 = 1.0
+    T0 = 1.4
     p0 = 640, 280
-    dp = 0, -40
+    dp = 0, -60
 
 class LowBurnLine(BurnLine):
     p0 = 640, 440

@@ -52,16 +52,19 @@ if True:
             gettables[(x, y)] = 1
             cset -= set(adjs((x, y)))
 
+def fuzzchoice(values, *seed):
+    j = int(math.fuzz(*seed) * len(values))
+    return values[j]
 
-def random_weighted(dist, n0 = 0):
+
+def random_weighted(dist, n0, *seed):
     values = []
     for level, weight in enumerate(dist, n0):
         values += [level] * weight
-    return random.choice(values)
-
+    return fuzzchoice(values, *seed)
 
 def gettable_at(p):
-    n = int(math.interp(math.hypot(*p), 0, 0, 30, 5) + random.random())
+    n = int(math.interp(math.hypot(*p), 0, 0, 30, 5) + math.fuzz(*p))
     dist = {
         0: [1, 0, 0, 0],
         1: [1, 1, 0, 0],
@@ -70,10 +73,10 @@ def gettable_at(p):
         4: [0, 3, 6, 1],
         5: [0, 0, 1, 1],
     }[n]
-    return random_weighted(dist, 1)
+    return random_weighted(dist, 1, 7.1, *p)
 
 def strength_at(p):
-    n = int(math.interp(math.hypot(x, y), 0, 0, 30, 4) + random.random())
+    n = int(math.interp(math.hypot(x, y), 0, 0, 30, 4) + math.fuzz(*p))
     dist = {
         0: [1, 0, 0],
         1: [1, 1, 0],
@@ -81,11 +84,11 @@ def strength_at(p):
         3: [1, 4, 1],
         4: [1, 3, 3],
     }[n]
-    return random_weighted(dist, 1)
+    return random_weighted(dist, 1, 7.3, *p)
 
 
 while cset:
-    p = random.choice(list(cset))
+    p = fuzzchoice(list(cset), 123.4, len(cset))
     gettables[p] = gettable_at(p)
     cset -= set(adjs(p))
 
@@ -102,8 +105,8 @@ for artifact in artifacts[-4:]:
 
 for x, y in tofill:
     f = math.interp(math.hypot(x, y), 1, 0, 2, 0.5)
-    if random.random() < f:
-        w = random.choice(ds)
+    if math.fuzz(345, x, y) < f:
+        w = fuzzchoice(ds, x, y)
         s = strength_at((x, y))
         setwind((x, y), w, s)
     else:
