@@ -1,5 +1,5 @@
 import pygame
-from . import settings, view, ptext, state, pview
+from . import settings, view, ptext, state, pview, sound
 from . import scene, playscene, howtoscene, titlescene
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
@@ -13,6 +13,7 @@ scene.current = titlescene
 titlescene.init()
 howtoscene.init()
 playscene.init()
+sound.init()
 state.load()
 playscene.returnhome()
 

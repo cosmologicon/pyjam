@@ -6,6 +6,9 @@ savegame = "save.pkl"
 resolution = 1280, 720
 heights = 360, 480, 720, 1080
 
+sfxvol = 0.6
+musicvol = 0.6
+
 minfps, maxfps = 5, 120
 
 lightning = True

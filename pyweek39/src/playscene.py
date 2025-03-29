@@ -29,30 +29,36 @@ def init():
         state.addgettable(cls(p))
     for p in grid.artifacts:
         state.addgettable(thing.Artifact(p))
-    returnhome()
+    returnhome(False)
     state.softsave()
 
 def canquit():
     return state.you.pos in [home.pos for home in state.homes]
 
-def returnhome():
+def returnhome(playsound = True):
     message = ""
+    sname = None
     if self.haul > 0:
         message = f"+{self.haul} Nimbite"
         state.bank += self.haul
         self.haul = 0
+        sname = "bank"
     while state.bank >= state.fuelcosts[state.maxfuel]:
         state.bank -= state.fuelcosts[state.maxfuel]
         state.maxfuel += 1
         message = "Fuel tank upgraded!"
+        sname = "upgrade"
         self.levelt = 0
     if self.hart > 0:
         message = "Artifact retrieved!"
         state.artifacts += self.hart
         self.hart = 0
+        sname = "upgrade"
     self.fuel = state.maxfuel
     if message:
         marquee.addreturnline(message)
+    if sname:
+        sound.play("sname")
 
 def getmove(kdowns):
     d = (0, 0)
@@ -86,6 +92,7 @@ def trymove(move, turbineon):
         return False
 
     if state.you.pos == (0, 0):
+        sound.play("move")
         state.you.move(move)
         return True
     if not worldat(state.you.pos, move):
@@ -94,6 +101,7 @@ def trymove(move, turbineon):
         return
 
     if move == state.you.windat():
+        sound.play("move")
         state.you.move(move)
         return True
     if turbineon:
@@ -101,7 +109,7 @@ def trymove(move, turbineon):
         burn(turbinefuelatyou())
         grid.setwind(state.you.pos, move)
         state.you.move(move)
-        sound.play("useengine")
+        sound.play("useturbine")
         self.turbineon = False
         self.foverlay = 0
         self.overlay = move
@@ -109,19 +117,23 @@ def trymove(move, turbineon):
     if state.you.windat() == grid.STILL:
         if self.fuel <= 0:
             marquee.addburnline("OUT OF FUEL", 5)
+            sound.play("no")
             return False
+        sound.play("move")
         state.you.move(move)
         burn(1)
         marquee.addburnline("-1 FUEL", 20)
         return True
     # Trying to move against the wind.
     marquee.addburnline("MUST MOVE DOWNSTREAM", 5)
+    sound.play("no")
     return False
 
 def checkarrive():
     if state.you.pos in state.gettables:
         obj = state.gettables[state.you.pos]
         obj.collect()
+        sound.play("get")
         if obj.value:
             self.haul += obj.value
             marquee.addburnline(f"+{obj.value} NIMBITE", 5, low = True)
@@ -149,6 +161,7 @@ def think(dt, kdowns):
         state.you.snapto()
         view.snapto(state.you.pos)
         marquee.addreturnline("Game reloaded")
+        sound.play("reload")
         return
     if "howto" in kdowns:
         howtoscene.init()
@@ -180,6 +193,7 @@ def think(dt, kdowns):
             sound.play("no")
         else:
             checkarrive()
+            sound.play("flow")
 
     move = getmove(kdowns)
     if trymove(move, self.turbineon):

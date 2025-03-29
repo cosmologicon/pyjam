@@ -1,5 +1,5 @@
 import math
-from . import ocean, pview, ptext, settings, graphics, grid
+from . import ocean, pview, ptext, settings, graphics, grid, sound
 from .pview import T
 
 class self:
@@ -14,6 +14,7 @@ def init():
 def finish():
     from . import playscene, scene
     scene.current = playscene
+    sound.play("begin")
 
 def think(dt, kdowns):
     if not self.loaded:
