@@ -45,17 +45,8 @@ def gauge_img(maxfuel, f):
         ptext.draw(f"{n}", surf = surf, fontname = "Rye", fontsize = T(fontsize), owidth = 1,
             midleft = T(64, y))
     return surf
-    
 
-def draw():
-    text = "\n".join([
-        f"Current nimbite haul: {self.playscene.haul}",
-        f"Fuel tank upgrade: {state.bank}/{state.fuelcosts[state.maxfuel]}",
-    ])
-    ptext.draw(text, topright = T(1270, 10), fontsize = T(20))
-
-
-    
+def drawcontrols():
     text = "\n".join([
         "CONTROLS",
         "F1: help",
@@ -65,7 +56,25 @@ def draw():
         "Tab: flow",
     ])
     ptext.draw(text, bottomright = T(1270, 710), fontsize = T(20), fontname = "Notable")
+    
 
+
+def drawunlimited():
+    text = "\n".join([
+        f"Current nimbite haul: {self.playscene.haul}",
+        f"Total nimbite collected: {state.totalbank}",
+    ])
+    ptext.draw(text, topright = T(1270, 10), fontsize = T(20))
+    drawcontrols()        
+
+def draw():
+    text = "\n".join([
+        f"Current nimbite haul: {self.playscene.haul}",
+        f"Fuel tank upgrade: {state.bank}/{state.fuelcosts[state.maxfuel]}",
+    ])
+    ptext.draw(text, topright = T(1270, 10), fontsize = T(20))
+    
+    drawcontrols()
     rect = pygame.Rect(T(0, 0, 20, 20 + Hgauge * self.fuellevel / Ngauge))
     rect.midbottom = T(100, pview.centery0 + Hgauge / 2 + 20)
     pygame.draw.rect(pview.screen, (120, 20, 100), rect)

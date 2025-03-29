@@ -55,7 +55,7 @@ def draw():
 
     text = " ".join([
         "Collect nimbite gas and bring it back to Anyport to upgrade the fuel tank.",
-        "Collect artifacts and bring them back to Anyport to upgrade the turbine.",
+        "Collect artifacts and bring them back to Anyport for other upgrades.",
         "The first 4 artifacts can be found directly North, South, East, and West of Anyport.",
     ])
     ptext.draw(text, topleft = T(600, 100), width = T(400), fontsize = T(22), color = (200, 200, 240))

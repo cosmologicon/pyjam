@@ -13,6 +13,7 @@ def init():
     hud.init(self)
     self.t = 0
     self.levelt = 0
+    self.ainfot = 0
     self.haul = 0
     self.hart = 0
     self.turbineon = False
@@ -41,24 +42,27 @@ def returnhome(playsound = True):
     if self.haul > 0:
         message = f"+{self.haul} Nimbite"
         state.bank += self.haul
+        state.totalbank += self.haul
         self.haul = 0
         sname = "bank"
-    while state.bank >= state.fuelcosts[state.maxfuel]:
-        state.bank -= state.fuelcosts[state.maxfuel]
-        state.maxfuel += 1
-        message = "Fuel tank upgraded!"
-        sname = "upgrade"
-        self.levelt = 0
+    if not unlimitedfuel():
+        while state.bank >= state.fuelcosts[state.maxfuel]:
+            state.bank -= state.fuelcosts[state.maxfuel]
+            state.maxfuel += 1
+            message = "Fuel tank upgraded!"
+            sname = "upgrade"
+            self.levelt = 0
     if self.hart > 0:
         message = "Artifact retrieved!"
         state.artifacts += self.hart
         self.hart = 0
         sname = "upgrade"
+        self.ainfot = 0
     self.fuel = state.maxfuel
     if message:
         marquee.addreturnline(message)
     if sname:
-        sound.play("sname")
+        sound.play(sname)
 
 def getmove(kdowns):
     d = (0, 0)
@@ -78,12 +82,20 @@ def turbinefuelatyou():
 def worldat(pos, dpos = (0, 0)):
     return math.vplus(pos, dpos) in grid.gridset
 
+def unlimitedfuel():
+    return state.artifacts >= 8
+
 def burn(dfuel):
+    if unlimitedfuel():
+        return
     if self.fuel > 0 and self.fuel - dfuel <= 0:
         sound.play("nofuel")
     elif self.fuel > 3 and self.fuel - dfuel <= 3:
         sound.play("lowfuel")
     self.fuel -= dfuel
+
+def refuel(dfuel):
+    self.fuel = min(self.fuel + dfuel, state.maxfuel)
 
 def trymove(move, turbineon):
     if move == grid.STILL:
@@ -134,12 +146,17 @@ def checkarrive():
         obj = state.gettables[state.you.pos]
         obj.collect()
         sound.play("get")
+        refueling = state.artifacts >= 5
         if obj.value:
             self.haul += obj.value
             marquee.addburnline(f"+{obj.value} NIMBITE", 5, low = True)
+            if refueling:
+                refuel(obj.value)
         elif isinstance(obj, thing.Artifact):
             marquee.addburnline("GOT ARTIFACT", 10)
             self.hart += 1
+            if refueling:
+                refuel(1000)
         del state.gettables[state.you.pos]
     if state.you.athome():
         returnhome()
@@ -150,6 +167,7 @@ def think(dt, kdowns):
     from . import scene, reloadscene, shopscene, howtoscene
     self.t += dt
     self.levelt += dt
+    self.ainfot += dt
     if self.overlay is not None:
         self.foverlay += 2.0 * dt
         if self.foverlay >= 1:
@@ -218,6 +236,13 @@ levelhelptext = {
     12: "Artifacts are due north, south, east, and west of home.",
     13: "Collect 1 artifact to upgrade turbine.",
 }
+artifactinfo = {
+    1: "1 Artifact collected\nTurbine upgraded to level 2.",
+    2: "2 Artifacts collected\nMap unlocked. Press 2 to toggle.\nMap is visible while at Anyport.",
+    3: "3 Artifacts collected\nTurbine upgraded to level 3.",
+    5: "5 Artifacts collected\nCollecting nimbite refuels you.",
+    8: "8 Artifacts collected\nUnlimited fuel!\nTHE END\nThank you for playing!",
+}
 
 def draw():
     ocean.draw()
@@ -235,10 +260,19 @@ def draw():
     flightning = math.interp(math.length(state.you.pos), 18, 0, 40, 0.3)
     graphics.drawlightning(flightning)
 
-    hud.draw()
+    if unlimitedfuel():
+        hud.drawunlimited()
+    else:
+        hud.draw()
     marquee.draw()
 
     if state.maxfuel in levelhelptext:
+        alpha = math.dsmoothfade(self.levelt, 0, 60, 0.4)
+        if alpha > 0:
+            ptext.draw(levelhelptext[state.maxfuel], midtop = T(640, 10), fontsize = T(25),
+                width = T(700), color = (200, 200, 255), alpha = alpha)
+
+    if state.artifacts in artifactinfo:
         alpha = math.dsmoothfade(self.levelt, 0, 60, 0.4)
         if alpha > 0:
             ptext.draw(levelhelptext[state.maxfuel], midtop = T(640, 10), fontsize = T(25),
