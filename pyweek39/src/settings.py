@@ -15,10 +15,10 @@ musicvol = 0.8
 minfps, maxfps = 5, 120
 
 # Shows the FPS counter
-DEBUG = False
+DEBUG = True
 
 # Set to False to disable the lightning effect.
-lightning = True
+lightning = False
 
 # Add alternate keys to the corresponding list as desired.
 keys = {

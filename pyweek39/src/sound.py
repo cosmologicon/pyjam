@@ -23,6 +23,8 @@ def getvolume(sname):
 
 
 def play(sname):
+    if sname == "move":
+        return
     s = loadfile(sname)
     if s is None:
         return

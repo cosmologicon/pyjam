@@ -1,6 +1,6 @@
 
 import pygame, math, random
-from . import view, pview, grid, thing, ptext, state, sound, marquee, hud, ocean, graphics
+from . import view, pview, grid, thing, ptext, state, sound, marquee, hud, ocean, graphics, settings
 from .pview import T
 
 
