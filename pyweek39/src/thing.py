@@ -34,6 +34,7 @@ class You(Thing):
         self.tilt = (0, 0)
         self.rotoromega = 0
         self.rotortheta = 0
+        self.glow = 0
 
     def athome(self):
         return self.pos in [home.pos for home in state.homes]
@@ -61,7 +62,7 @@ class You(Thing):
                 break
         return nstep
 
-    def think(self, dt):
+    def think(self, dt, turbineon):
         if len(self.targets) > 1 or self.marker != self.pos:
             pathlen = math.distance(self.marker, self.targets[0]) + len(self.targets) - 1
             pathlen = math.softapproach(pathlen, 0, 10 * dt, dxmax = 40 * dt, dymin = 0.01)
@@ -76,9 +77,15 @@ class You(Thing):
         if math.length(tilt) > 0.1:
             tilt = math.norm(tilt, 0.1)
         self.tilt = math.mix(self.tilt, tilt, 10 * dt)
-        omega = 0 if self.athome() else 1.5
+        if self.athome():
+            omega = 0
+        elif turbineon:
+            omega = 4
+        else:
+            omega = 1.5
         self.rotoromega = math.approach(self.rotoromega, omega, 1 * dt)
         self.rotortheta += self.rotoromega * dt
+        self.glow = math.approach(self.glow, (1 if turbineon else 0), 6 * dt)
 
     def draw0(self, engineon):
         color = 200, 50, 50
@@ -93,7 +100,7 @@ class You(Thing):
             return 200, 20, 50
         return 80, 80, 80
 
-    def draw(self, engineon, fuel):
+    def draw(self, turbineon, fuel):
         p0 = math.vminus(self.drawpos(), math.vtimes(self.tilt, 0.5))
         p0 = self.drawpos()
         for d in grid.ds:
@@ -109,7 +116,8 @@ class You(Thing):
                 swap = dx == dy
                 graphics.drawrotor(protor, f, swap)
         graphics.drawbody(self.drawpos())
-        graphics.drawdome(self.drawpos(), self.domecolor(fuel))
+        color = math.imix(self.domecolor(fuel), (240, 240, 240), self.glow)
+        graphics.drawdome(self.drawpos(), color)
 
     def windat(self):
         return grid.wind[self.pos]

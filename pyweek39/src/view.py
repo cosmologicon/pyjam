@@ -8,9 +8,15 @@ class camera:
     starget = 100
     vrect = None
 
+def cacheres():
+    from . import grid
+    grid.cacheres()
+
+
 def init():
     pview.set_mode(size0 = settings.resolution)
     pygame.display.set_caption(settings.gamename)
+    cacheres()
     think(0)
 
 def think(dt):

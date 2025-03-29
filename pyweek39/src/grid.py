@@ -1,5 +1,5 @@
 import random, pygame, math
-from functools import lru_cache
+from functools import lru_cache, cache
 from . import view, pview, ptext, graphics
 from .pview import T
 
@@ -112,7 +112,7 @@ def windstrip0(w):
     surf0 = pygame.Surface((w, w)).convert_alpha()
     surf0.fill((255, 255, 255, 0))
     x0, x1, x2 = pview.I(0.0 * w, 0.5 * w, 1.0 * w)
-    y0, y1, dy = pview.I(0.1 * w, 0.3 * w, 0.3 * w)
+    y0, y1, dy = pview.I(0.1 * w, 0.35 * w, 0.3 * w)
     for sy in [-w, w-w//2, 0, w//2, w]:
         ps = [
             (x0, y1 + dy), (x1, y1), (x2, y1 + dy),
@@ -127,8 +127,9 @@ def windstrip0(w):
     w = int(w / 4)
     return pygame.transform.smoothscale(surf, (w, 2 * w))
 
-@lru_cache(10)
+@lru_cache(100)
 def windstrip(strength, w):
+    print(strength, w)
     if strength == 1:
         return graphics.mask(windstrip0(w), (140, 140, 255, 255))
     if strength == 2:
@@ -157,18 +158,17 @@ def windstrip(strength, w):
         return graphics.mask(surf, (255, 160, 160, 255))
         
 
-@lru_cache(1)
+@cache
 def fadetile(w):
     surf = pygame.Surface((w, w)).convert_alpha()
     for x in range(w):
         for y in range(w):
-            dx = ((w - 1) / 2 - x) / (w - 1) * 2 * 1.7
-            dy = ((w - 1) / 2 - y) / (w - 1) * 2 * 1.4
+            dx = ((w - 1) / 2 - x) / (w - 1) * 2 * 1.5
+            dy = ((w - 1) / 2 - y) / (w - 1) * 2 * 1.2
             alpha = 0.2 * (1 - dx ** 4 - dy ** 4)
             color = 255, 255, 255, math.imix(0, 255, alpha)
             surf.set_at((x, y), color)
     return surf
-
 
 @lru_cache(1000)
 def windtile0(strength, w, f, d):
@@ -183,8 +183,8 @@ def windtile0(strength, w, f, d):
     surf.blit(windstrip(strength, w), (0, -y), None, pygame.BLEND_RGBA_MULT)
     return surf
 
-def windtile(strength, f, d):
-    w = T(view.camera.scale)
+def windtile(strength, f, d, size = 1):
+    w = view.sizetoscreen(size)
     f = int(f % 1 * 32) / 32
     return windtile0(strength, w, f, d)
 
@@ -222,6 +222,14 @@ def draw():
 #            ptext.draw(wnames[wind[(x, y)]], center = view.worldtoscreen((x, y)),
 #                color = (220, 220, 255), fontsize = view.sizetoscreen(0.3))
 
-
-
+def drawoverlay(d, f):
+    w = T(800)
+    alpha = math.imix(0, 255, math.dfade(f, 0, 1, 0.3))
+    f = int(f % 1 * 32) / 32
+    tile = graphics.mask(windtile0(1, w, f, d), (255, 255, 255, alpha))
+    pview.screen.blit(tile, tile.get_rect(center = pview.center))
+    
+def cacheres():
+    fadetile(T(800))
+    windstrip(1, T(800))
 

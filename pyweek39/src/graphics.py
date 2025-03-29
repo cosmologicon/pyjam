@@ -69,7 +69,7 @@ def drawimgat(img, p):
 
 def drawrotor(p, f, flip = False):
     w = view.sizetoscreen(0.7)
-    f = int(f % 1 * 16) / 16
+    f = int(f % 1 * 32) / 32
     drawimgat(rotorimg(w, f, flip), p)
 
 def drawgear(p, f):
@@ -84,5 +84,11 @@ def drawbody(p):
 def drawdome(p, color):
     w = view.sizetoscreen(0.4)
     drawimgat(domeimg(w, color), p)
+
+def cacheres():
+    for jf in range(16):
+        rotorimg0(jf / 16)
+    for jf in range(32):
+        gearimg0(jf / 32)
 
 

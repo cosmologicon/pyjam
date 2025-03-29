@@ -16,6 +16,8 @@ def init():
     self.haul = 0
     self.hart = 0
     self.turbineon = False
+    self.overlay = None
+    self.foverlay = 0
     for p in grid.gettables:
         cls = {
             1: thing.Copper,
@@ -100,6 +102,8 @@ def trymove(move, turbineon):
         state.you.move(move)
         sound.play("useengine")
         self.turbineon = False
+        self.foverlay = 0
+        self.overlay = move
         return True
     if state.you.windat() == grid.STILL:
         if self.fuel <= 0:
@@ -133,6 +137,10 @@ def think(dt, kdowns):
     from . import scene, reloadscene, shopscene
     self.t += dt
     self.levelt += dt
+    if self.overlay is not None:
+        self.foverlay += 2.0 * dt
+        if self.foverlay >= 1:
+            self.overlay = None
     if "quit" in kdowns:
         init()
         state.load()
@@ -172,7 +180,7 @@ def think(dt, kdowns):
     if trymove(move, self.turbineon):
         self.turbineon = False
         checkarrive()
-    state.you.think(dt)
+    state.you.think(dt, self.turbineon)
     if "zoom" in kdowns:
         view.zoomswap()
     view.camera.target = state.you.marker
@@ -202,6 +210,8 @@ def draw():
             obj.draw()
     grid.draw()
 #    ocean.drawstars()
+    if self.overlay is not None:
+        grid.drawoverlay(self.overlay, self.foverlay)
 
     if False:
         if math.fuzz(int(self.t)) < 0.1:
