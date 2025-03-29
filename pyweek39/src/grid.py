@@ -111,7 +111,7 @@ for x, y in tofill:
 
 setwind((0, 1), E)
 
-@lru_cache(1)
+@lru_cache(100)
 def windstrip0(w):
     w *= 4
     surf0 = pygame.Surface((w, w)).convert_alpha()

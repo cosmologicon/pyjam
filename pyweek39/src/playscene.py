@@ -1,6 +1,6 @@
 
 import pygame, math, random
-from . import view, pview, grid, thing, ptext, state, sound, marquee, hud, ocean
+from . import view, pview, grid, thing, ptext, state, sound, marquee, hud, ocean, graphics
 from .pview import T
 
 
@@ -218,11 +218,8 @@ def draw():
     if self.overlay is not None:
         grid.drawoverlay(self.overlay, self.foverlay)
 
-    if False:
-        if math.fuzz(int(self.t)) < 0.1:
-            f = self.t % 1
-            if 0 < f < 0.1 or 0.2 < f < 0.3:
-                pview.fill((255, 255, 255, 128))
+    flightning = math.interp(math.length(state.you.pos), 18, 0, 40, 0.3)
+    graphics.drawlightning(flightning)
 
     hud.draw()
     marquee.draw()

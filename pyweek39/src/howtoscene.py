@@ -40,7 +40,7 @@ def draw():
         "\n\nThe game auto-saves whenever you return to Anyport.",
         "Press Esc at any time to reload the last save. Press Esc again to quit the game.",
     ])
-    ptext.draw(text, topleft = T(40, 100), width = T(500), fontsize = T(20), color = (200, 200, 240))
+    ptext.draw(text, topleft = T(40, 100), width = T(520), fontsize = T(20), color = (200, 200, 240))
 
 
     for strength in (1, 2, 3):
@@ -58,7 +58,7 @@ def draw():
         "Collect artifacts and bring them back to Anyport to upgrade the turbine.",
         "The first 4 artifacts can be found directly North, South, East, and West of Anyport.",
     ])
-    ptext.draw(text, topleft = T(580, 100), width = T(400), fontsize = T(22), color = (200, 200, 240))
+    ptext.draw(text, topleft = T(600, 100), width = T(400), fontsize = T(22), color = (200, 200, 240))
 
     view.camera.x0 = 0
     view.camera.y0 = 0

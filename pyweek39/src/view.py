@@ -15,7 +15,7 @@ class camera:
 def cacheres():
     from . import grid, graphics
     grid.cacheres()
-    graphics.cacheres()
+#    graphics.cacheres()
 
 
 def init():
@@ -23,6 +23,17 @@ def init():
     pygame.display.set_caption(settings.gamename)
     cacheres()
     think(0)
+
+def cycleres():
+    pview.cycle_height(settings.heights)
+    cacheres()
+
+def toggle_fullscreen():
+    pview.toggle_fullscreen()
+    cacheres()
+
+def screenshot():
+    pview.screenshot()
 
 def think(dt):
     camera.starget = int(140 * 0.95 ** (state.maxfuel - 6))

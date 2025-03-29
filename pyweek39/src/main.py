@@ -1,14 +1,16 @@
 import pygame
 from . import settings, view, ptext, state, pview
-from . import scene, playscene, howtoscene
+from . import scene, playscene, howtoscene, titlescene
 
 ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
 ptext.DEFAULT_FONT_NAME = "Rye"
 ptext.DEFAULT_OUTLINE_WIDTH = 0.5
 ptext.DEFAULT_SHADOW_OFFSET = 1, 1
+ptext.DEFAULT_SHADE = 1
 pygame.init()
 
-scene.current = playscene
+scene.current = titlescene
+titlescene.init()
 howtoscene.init()
 playscene.init()
 state.load()
@@ -27,6 +29,12 @@ while playing:
             for kname, values in settings.keys.items():
                 if event.key in values:
                     kdowns.add(kname)
+    if "cycleres" in kdowns:
+        view.cycleres()
+    if "fullscreen" in kdowns:
+        view.toggle_fullscreen()
+    if "screenshot" in kdowns:
+        view.screenshot()
     current = scene.current
     if "quit" in kdowns and current.canquit():
         kdowns.remove("quit")

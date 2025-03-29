@@ -1,6 +1,6 @@
-import pygame, os.path
+import pygame, os.path, math
 from functools import lru_cache, cache
-from . import view, pview
+from . import view, pview, settings
 
 @cache
 def loadimg(imgname):
@@ -85,10 +85,32 @@ def drawdome(p, color, size = 0.4):
     w = view.sizetoscreen(size)
     drawimgat(domeimg(w, color), p)
 
+
+def drawlightning(f0):
+    if not settings.lightning:
+        return
+    t = 0.001 * pygame.time.get_ticks()
+    if math.fuzz(int(t)) < f0:
+        f = t % 1
+        if 0 < f < 0.1 or 0.2 < f < 0.3:
+            pview.fill((255, 255, 255, 4))
+
 def cacheres():
     for jf in range(32):
         rotorimg0(jf / 32)
+        yield
     for jf in range(32):
         gearimg0(jf / 32)
+        yield
 
+todo = cacheres()
+def killtime(dt):
+    global todo
+    tend = pygame.time.get_ticks() + 1000 * dt
+    while todo is not None and pygame.time.get_ticks() <= tend:
+        try:
+            next(todo)
+        except StopIteration:
+            todo = None
+    return todo is not None
 
