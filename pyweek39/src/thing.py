@@ -65,7 +65,7 @@ class You(Thing):
     def think(self, dt, turbineon):
         if len(self.targets) > 1 or self.marker != self.pos:
             pathlen = math.distance(self.marker, self.targets[0]) + len(self.targets) - 1
-            pathlen = math.softapproach(pathlen, 0, 10 * dt, dxmax = 40 * dt, dymin = 0.01)
+            pathlen = math.softapproach(pathlen, 0, 8 * dt, dxmax = 24 * dt, dymin = 0.01)
             n, f = divmod(pathlen, 1)
             pfrom = self.marker
             while len(self.targets) > n + 1:
@@ -77,7 +77,7 @@ class You(Thing):
         if math.length(tilt) > 0.1:
             tilt = math.norm(tilt, 0.1)
         self.tilt = math.mix(self.tilt, tilt, 10 * dt)
-        if self.athome():
+        if self.drawpos() == (0, 0):
             omega = 0
         elif turbineon:
             omega = 4

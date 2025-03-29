@@ -13,8 +13,9 @@ class camera:
     vrect = None
 
 def cacheres():
-    from . import grid
+    from . import grid, graphics
     grid.cacheres()
+    graphics.cacheres()
 
 
 def init():
@@ -25,7 +26,7 @@ def init():
 
 def think(dt):
     camera.starget = int(140 * 0.95 ** (state.maxfuel - 6))
-    camera.cx0, camera.cy0 = math.softapproach((camera.cx0, camera.cy0), camera.target, 2.0 * dt, dymin = 1 / camera.cscale)
+    camera.cx0, camera.cy0 = math.softapproach((camera.cx0, camera.cy0), camera.target, 4.0 * dt, dymin = 1 / camera.cscale)
     camera.cscale = math.softapproachL(camera.cscale, camera.starget, 8 * dt, dymin = 0.001)
     camera.zfactor = math.softapproach(camera.zfactor, (1 if camera.zoom else 0), 6.0 * dt, dymin = 0.001)
     

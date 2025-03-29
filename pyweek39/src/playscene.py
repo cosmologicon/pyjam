@@ -18,6 +18,7 @@ def init():
     self.turbineon = False
     self.overlay = None
     self.foverlay = 0
+    self.zoom = True
     for p in grid.gettables:
         cls = {
             1: thing.Copper,
@@ -160,6 +161,7 @@ def think(dt, kdowns):
             sound.play("useturbine")
             self.turbineon = False
         else:
+            state.maxturbine = [1, 2, 2, 3, 3, 3, 3, 3, 3][state.artifacts]
             if state.you.athome():
                 pass
             elif grid.strength.get(state.you.pos, 0) > state.maxturbine:
@@ -184,8 +186,9 @@ def think(dt, kdowns):
         self.turbineon = False
         checkarrive()
     state.you.think(dt, self.turbineon)
-    if "zoom" in kdowns:
-        view.zoomswap()
+    if "zoom" in kdowns and state.artifacts >= 2:
+        self.zoom = not self.zoom
+    view.camera.zoom = not(state.artifacts >= 2 and state.you.athome() and self.zoom)
     view.camera.target = state.you.marker
     view.think(dt)
     marquee.think(dt)
@@ -231,8 +234,14 @@ def draw():
                 width = T(700), color = (200, 200, 255), alpha = alpha)
     
     if self.fuel <= 3:
-        text = "OUT OF FUEL\nESC: QUIT TO LAST SAVE" if self.fuel == 0 else "LOW FUEL"
-        ptext.draw(text, midbottom = T(640, 700), fontsize = T(60), owidth = 0.5, shade = 1, color = "red")
+        if self.fuel == 0:
+            if state.maxfuel <= 12:
+                text = "OUT OF FUEL\nESC: QUIT TO LAST SAVE"
+            else:
+                text = "OUT OF FUEL"
+        else:
+            text = "LOW FUEL"
+        ptext.draw(text, midbottom = T(640, 700), fontsize = T(30), color = "#ff7f7f")
 
 
 

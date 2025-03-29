@@ -1,6 +1,6 @@
 import pygame, math, random
 from functools import lru_cache
-from . import view, pview
+from . import view, pview, state
 from .pview import T
 
 @lru_cache(100)

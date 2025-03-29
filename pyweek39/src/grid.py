@@ -96,7 +96,7 @@ tofill -= set(artifacts)
 
 for artifact in artifacts[-4:]:
     tofill -= set(adjs(artifact))
-    for p, w in zip(adjs(artifact), [S, S, S, W, STILL, E, N, N, N]):
+    for p, w in zip(adjs(artifact), [E, E, E, N, STILL, S, W, W, W]):
         setwind(p, w, 3)
 
 
@@ -162,8 +162,10 @@ def windstrip(strength, w):
         return graphics.mask(surf, (255, 160, 160, 255))
         
 
-@cache
+@lru_cache(100)
 def fadetile(w):
+    if w != 100:
+        return pygame.transform.smoothscale(fadetile(100), (w, w))
     surf = pygame.Surface((w, w)).convert_alpha()
     for x in range(w):
         for y in range(w):
@@ -230,7 +232,7 @@ def drawoverlay(d, f):
     alpha = math.imix(0, 255, math.dfade(f, 0, 1, 0.3))
     tile = graphics.mask(windtile(1, w, f, d), (255, 255, 255, alpha))
     pview.screen.blit(tile, tile.get_rect(center = pview.center))
-    
+
 def cacheres():
     fadetile(T(800))
     windstrip(1, T(800))

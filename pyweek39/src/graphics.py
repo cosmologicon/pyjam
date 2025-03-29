@@ -86,8 +86,8 @@ def drawdome(p, color, size = 0.4):
     drawimgat(domeimg(w, color), p)
 
 def cacheres():
-    for jf in range(16):
-        rotorimg0(jf / 16)
+    for jf in range(32):
+        rotorimg0(jf / 32)
     for jf in range(32):
         gearimg0(jf / 32)
 
