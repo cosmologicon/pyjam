@@ -30,7 +30,7 @@ def draw():
     graphics.drawhome((0, 0))
 
     ocean.drawstars()
-    graphics.drawlightning(0.5)
+    graphics.drawlightning(0.2)
     ptext.draw(settings.gamename, center = T(640, 120), fontsize = T(140))
     ptext.draw("by Christopher Night\nPyWeek 39\nMusic by Kevin MacLeod",
         center = T(240, 500), fontsize = T(30))

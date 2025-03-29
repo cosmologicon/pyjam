@@ -191,6 +191,8 @@ def think(dt, kdowns):
         marquee.addreturnline("Game reloaded")
         sound.play("reload")
         return
+    if settings.DEBUG and "cheat" in kdowns:
+        refuel(100)
     if "howto" in kdowns:
         howtoscene.init()
         scene.current = howtoscene

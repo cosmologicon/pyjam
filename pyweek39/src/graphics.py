@@ -118,7 +118,7 @@ def drawlightning(f0):
     if math.fuzz(int(t)) < f0:
         f = t % 1
         if 0 < f < 0.1 or 0.2 < f < 0.3:
-            pview.fill((255, 255, 255, 4))
+            pview.fill((255, 255, 255, 6))
 
 def cacheres():
     for jf in range(32):

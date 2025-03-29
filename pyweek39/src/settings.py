@@ -3,18 +3,24 @@ import pygame
 gamename = "Anyport"
 savegame = "save.pkl"
 
-resolution = 1280, 720
+resolution = 1280, 720  # DO NOT CHANGE
+
+# If you want a different resolution, add it to this list and press F10 in the game.
 heights = 360, 480, 720, 1080
 
+# Set between 0 and 1. 0 to disable sound.
 sfxvol = 0.8
 musicvol = 0.8
 
 minfps, maxfps = 5, 120
 
+# Shows the FPS counter
 DEBUG = False
 
+# Set to False to disable the lightning effect.
 lightning = True
 
+# Add alternate keys to the corresponding list as desired.
 keys = {
     "up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],
     "left": [pygame.K_LEFT, pygame.K_a],
