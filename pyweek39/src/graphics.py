@@ -63,6 +63,15 @@ def bodyimg(w):
     return pygame.transform.smoothscale(loadimg("body"), (w, w))
 
 
+@lru_cache(20)
+def homeimg(w):
+    return pygame.transform.smoothscale(mask(loadimg("home"), (100, 100, 100, 255)), (w, w))
+
+@lru_cache(1000)
+def waveimg(w, alpha):
+    return mask(pygame.transform.smoothscale(loadimg("wave"), (w, w)), (255, 255, 255, alpha))
+
+
 def drawimgat(img, p):
     anchor = view.worldtoscreen(p)
     pview.screen.blit(img, img.get_rect(center = anchor))
@@ -84,6 +93,18 @@ def drawbody(p):
 def drawdome(p, color, size = 0.4):
     w = view.sizetoscreen(size)
     drawimgat(domeimg(w, color), p)
+
+def drawhome0(p, w0):
+    t = pygame.time.get_ticks() * 0.001 + 1234.56
+    for af in (0.1, 0.1123):
+        f = t * af % 1
+        alpha = math.imix(10, 0, f)
+        w = pview.I(w0 * math.mix(1, 1.8, f))
+        drawimgat(waveimg(w, alpha), p)
+    drawimgat(homeimg(w0), p)
+
+def drawhome(p):
+    drawhome0(p, view.sizetoscreen(1.4))
 
 
 def drawlightning(f0):

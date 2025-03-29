@@ -23,7 +23,7 @@ class Home(Thing):
         Thing.__init__(self, (0, 0))
 
     def draw(self):
-        self.drawcircleat((100, 100, 255), 0.5)
+        graphics.drawhome(self.drawpos())
         
 
 class You(Thing):

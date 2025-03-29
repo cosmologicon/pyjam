@@ -1,5 +1,5 @@
 import math
-from . import ocean, pview, ptext, settings, graphics, grid, sound
+from . import ocean, pview, ptext, settings, graphics, grid, sound, view
 from .pview import T
 
 class self:
@@ -24,14 +24,19 @@ def think(dt, kdowns):
 
 def draw():
     ocean.draw()
+    view.camera.x0 = 0
+    view.camera.y0 = 0
+    view.camera.scale = 200
+    graphics.drawhome((0, 0))
+
     ocean.drawstars()
     graphics.drawlightning(0.5)
-    ptext.draw(settings.gamename, center = T(640, 200), fontsize = T(140))
+    ptext.draw(settings.gamename, center = T(640, 120), fontsize = T(140))
     ptext.draw("by Christopher Night\nPyWeek 39\nMusic by Kevin MacLeod",
-        center = T(200, 500), fontsize = T(30))
+        center = T(240, 500), fontsize = T(30))
 
     ptext.draw("F10: change resolution\nF11: toggle fullscreen",
-        center = T(1000, 500), fontsize = T(24))
+        center = T(1280 - 240, 500), fontsize = T(24))
 
     if self.loaded:
         text = "Press Space to begin"
