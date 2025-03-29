@@ -43,7 +43,8 @@ while playing:
     current.think(dt, kdowns)
     current.draw()
 
-    ptext.draw(f"{clock.get_fps():.1f}fps", midright = pview.T(1270, 360), fontsize = pview.T(30), owidth = 1)
+    if settings.DEBUG:
+        ptext.draw(f"{clock.get_fps():.1f}fps", midright = pview.T(1270, 360), fontsize = pview.T(30), owidth = 1)
     pygame.display.flip()
 
 

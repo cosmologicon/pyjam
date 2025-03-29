@@ -53,13 +53,14 @@ class You(Thing):
         self.rotoromega = 0
 
     def flow(self):
-        self.start = self.pos
+        visited = set([self.pos])
         nstep = 0
         while grid.wind[self.pos] != grid.STILL:
             self.move(grid.wind[self.pos])
             nstep += 1
-            if self.pos == self.start:
+            if self.pos in visited:
                 break
+            visited.add(self.pos)
         return nstep
 
     def think(self, dt, turbineon):

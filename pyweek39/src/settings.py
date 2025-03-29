@@ -11,6 +11,8 @@ musicvol = 0.8
 
 minfps, maxfps = 5, 120
 
+DEBUG = False
+
 lightning = True
 
 keys = {

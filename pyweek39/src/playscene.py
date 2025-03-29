@@ -179,7 +179,11 @@ def think(dt, kdowns):
         if self.foverlay >= 1:
             self.overlay = None
     if "quit" in kdowns:
-        init()
+        self.turbineon = False
+        self.haul = 0
+        self.hart = 0
+        self.turbineon = False
+        self.overlay = None
         state.load()
         self.fuel = state.maxfuel
         state.you.snapto()
@@ -279,8 +283,8 @@ def draw():
         alpha = math.dsmoothfade(self.ainfot, 0, 60, 0.4)
         if alpha > 0:
             ainfodrawn = True
-            ptext.draw(artifactinfo[state.artifacts], midtop = T(640, 10), fontsize = T(25), fontname = "Notable",
-                width = T(700), owidth = 1.5, color = "black", ocolor = "white", shadow = None, alpha = alpha)
+            ptext.draw(artifactinfo[state.artifacts], midtop = T(640, 10), fontsize = T(40), fontname = "Jockey",
+                width = T(700), owidth = 0.8, color = "black", ocolor = "white", shadow = None, alpha = alpha, lineheight = 0.75)
 
     if state.maxfuel in levelhelptext and not ainfodrawn:
         alpha = math.dsmoothfade(self.levelt, 0, 60, 0.4)

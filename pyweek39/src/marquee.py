@@ -31,8 +31,8 @@ class ReturnLine(Line):
     
 
 class BurnLine(Line):
-    fontsize = 25
-    fontname = "Notable"
+    fontsize = 40
+    fontname = "Jockey"
     T0 = 1.4
     p0 = 640, 280
     dp = 0, -60

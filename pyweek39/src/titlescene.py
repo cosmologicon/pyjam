@@ -36,7 +36,7 @@ def draw():
         center = T(240, 500), fontsize = T(30))
 
     ptext.draw("F10: change resolution\nF11: toggle fullscreen",
-        center = T(1280 - 240, 500), fontsize = T(24))
+        center = T(1280 - 240, 500), fontsize = T(32), fontname = "Jockey", lineheight = 0.7)
 
     if self.loaded:
         text = "Press Space to begin"

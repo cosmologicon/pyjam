@@ -17,6 +17,10 @@ def mask(surf, color):
 Nwing = 5
 
 @cache
+def bladeimg0(theta):
+    return pygame.transform.rotozoom(loadimg("wing"), theta, 1)
+
+@cache
 def rotorimg0(f):
     img0 = loadimg("wing")
     surf = img0.copy()
@@ -24,8 +28,8 @@ def rotorimg0(f):
     anchor = surf.get_rect().center
     dtheta = 360 / Nwing
     for jwing in range(Nwing):
-        theta = -dtheta * (jwing + f)
-        img = pygame.transform.rotozoom(img0, theta, 1)
+        theta = int(-dtheta * (jwing + f)) % 360
+        img = bladeimg0(theta)
         surf.blit(img, img.get_rect(center = anchor))
     return surf
 
@@ -118,8 +122,15 @@ def drawlightning(f0):
 
 def cacheres():
     for jf in range(32):
-        rotorimg0(jf / 32)
+        f = jf / 32
+        dtheta = 360 / Nwing
+        for jwing in range(Nwing):
+            theta = int(-dtheta * (jwing + f)) % 360
+            bladeimg0(theta)
+            yield
+        rotorimg0(f)
         yield
+    bladeimg0.cache_clear()
     for jf in range(32):
         gearimg0(jf / 32)
         yield

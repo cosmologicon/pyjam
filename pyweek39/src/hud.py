@@ -47,15 +47,18 @@ def gauge_img(maxfuel, f):
     return surf
 
 def drawcontrols():
-    text = "\n".join([
+    lines = [
         "CONTROLS",
-        "F1: help",
+        "1: help",
+        "2: toggle map",
         "Arrows: move",
+        "Tab: flow",
         "Space: turbine",
         "Esc: quit",
-        "Tab: flow",
-    ])
-    ptext.draw(text, bottomright = T(1270, 710), fontsize = T(20), fontname = "Notable")
+    ]
+    if state.artifacts < 2:
+        lines.remove("2: toggle map")
+    ptext.draw("\n".join(lines), bottomright = T(1270, 710), fontsize = T(30), fontname = "Jockey", lineheight = 0.7)
     
 
 

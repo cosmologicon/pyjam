@@ -17,6 +17,7 @@ def loadfile(sname):
 
 def getvolume(sname):
     f = {
+        "get": 0.5
     }.get(sname, 1.0)
     return f * settings.sfxvol ** 1.8
 
