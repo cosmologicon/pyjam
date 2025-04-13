@@ -22,6 +22,7 @@ Code for my Python game jam entries (PyWeek).
 * PyWeek 36 (`unmatter`): The Mystery of the Unmatter.
 * PyWeek 37 (`hardscrabble`): Planet Hardscrabble.
 * PyWeek 38: [TRIATOR BOT 9000 (TB9)](https://pyweek.org/e/MultversFactory/) along with DR0ID.
+* PyWeek 39 (`anyport`): Anyport.
 
 ## Setup process
 
