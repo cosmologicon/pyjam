@@ -12,7 +12,7 @@ PxscaleG = 1.0
 
 class camera:
 	xP0 = 0
-	yP0 = 20
+	yP0 = 4
 	SscaleP = 50
 
 

@@ -1,6 +1,6 @@
 import pygame
 from . import pview
-from . import view, grid, control
+from . import view, grid, control, graphics
 from .pview import T
 
 def think(dt):
@@ -31,5 +31,6 @@ def draw():
 		drawedge((0.5 + yG, yG), (0.5 + yG, 10))
 #	pygame.draw.circle(pview.screen, (100, 100, 100), view.VconvertG(control.Gcursor()), view.VscaleP(0.1))
 	drawsegment(*control.Gsegment(), lit = True)
+	graphics.drawlight()
 
 
