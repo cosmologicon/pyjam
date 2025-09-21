@@ -1,23 +1,26 @@
 import random
 
+# All coordinates in this module are G (grid) coordinates
+
+
 class Node:
-	def __init__(self, pG, parent = None):
-		self.pG = pG
+	def __init__(self, p, parent = None):
+		self.p = p
 		self.parent = parent
 		self.children = []
 
 	def branches(self):
-		xG, yG = self.pG
-		return [(xG, yG + 1), (xG + 1, yG + 1)]
+		x, y = self.p
+		return [(x, y + 1), (x + 1, y + 1)]
 
 class Grid:
 	def __init__(self):
 		self.nodes = {}
 		self.addnode((0, 0))
 
-	def addnode(self, pG, parent = None):
-		node = Node(pG, parent)
-		self.nodes[pG] = node
+	def addnode(self, p, parent = None):
+		node = Node(p, parent)
+		self.nodes[p] = node
 		if parent is not None:
 			parent.children.append(node)
 
@@ -30,9 +33,19 @@ class Grid:
 			self.addnode(branch, parent)
 			break
 
+	def canaddsegment(self, segment):
+		p0, p1 = segment
+		if p1 in self.nodes: return False
+		if p0 not in self.nodes: return False
+		return p1 in self.nodes[p0].branches()
+
+	def addsegment(self, segment):
+		p0, p1 = segment
+		self.addnode(p1, self.nodes[p0])
+
 
 grid = Grid()
-for _ in range(1000):
+for _ in range(10):
 	grid.addrandomnode()
 
 
@@ -40,5 +53,11 @@ def segments():
 	for node in grid.nodes.values():
 		parent = node.parent
 		if parent is not None:
-			yield parent.pG, node.pG
+			yield parent.p, node.p
+
+def canaddsegment(segment):
+	return grid.canaddsegment(segment)
+
+def addsegment(segment):
+	return grid.addsegment(segment)
 

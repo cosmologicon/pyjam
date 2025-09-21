@@ -1,13 +1,13 @@
-import pygame
+import pygame, math
 from . import pview
 from . import settings
 
 # xG, yG: grid coordinates. yG is the level, xG is the space from the left. Grid point at integers. Not rectilinear.
-# xP, yP: play coordinates. yP = yG.
+# xP, yP: play coordinates. yP = yG. Rectilinear with equal-sized unit vectors.
 # xS, yS: scaled coordinates. Maps to pview.size0.
 # xV, yV: view coordinates. Maps to pview.size
 
-PxscaleG = 1.4
+PxscaleG = 1.0
 
 
 class camera:
@@ -24,17 +24,69 @@ def PconvertG(pG):
 	xG, yG = pG
 	return PxscaleG * (xG - 0.5 * yG), yG
 
-VconvertS = pview.T
+def GconvertP(pP):
+	xP, yP = pP
+	return (xP + 0.5 * yP) / PxscaleG, yP
 
-def VconvertP(pP):
+def SconvertP(pP):
 	xP, yP = pP
 	xS = pview.centerx0 + camera.SscaleP * (xP - camera.xP0)
 	yS = pview.centery0 - camera.SscaleP * (yP - camera.yP0)
-	return VconvertS((xS, yS))
+	return xS, yS
+
+def PconvertS(pS):
+	xS, yS = pS
+	xP = camera.xP0 + (xS - pview.centerx0) / camera.SscaleP
+	yP = camera.yP0 - (yS - pview.centery0) / camera.SscaleP
+	return xP, yP
+
+VconvertS = pview.T
+
+def VconvertP(pP):
+	return VconvertS(SconvertP(pP))
 
 def VconvertG(pG):
 	return VconvertP(PconvertG(pG))
 
 def VscaleP(aP):
 	return VconvertS(camera.SscaleP * aP)
+
+def SscaleV(aV):
+	return aV / pview.f
+def SconvertV(pV):
+	xV, yV = pV
+	return SscaleV(xV), SscaleV(yV)
+
+def PscaleV(aV):
+	return SscaleV(aV) / camera.SscaleP
+def PconvertV(pV):
+	return PconvertS(SconvertV(pV))
+
+def GnearestG(pG):
+	xG, yG = pG
+	return int(round(xG)), int(round(yG))
+
+def GnearestP(pP):
+	return GnearestG(GconvertP(pP))
+
+def GnearestsegmentG(pG):
+	xG, yG = pG
+	yG0 = int(yG)
+	yG1 = yG0 + 1
+	xproj = xG - PxscaleG * (yG - yG0)
+	xG0 = int(round(xproj))
+	xG1 = xG0 + (1 if xproj > xG0 else 0)
+	return (xG0, yG0), (xG1, yG1)
+
+def GnearestsegmentP(pP):
+	return GnearestsegmentG(GconvertP(pP))
+	
+
+def scootV(dV):
+	dxV, dyV = dV
+	camera.xP0 -= PscaleV(dxV)
+	camera.yP0 += PscaleV(dyV)
+
+def zoom(dz, anchor = None):
+	camera.SscaleP *= math.exp(0.1 * dz)
 
