@@ -7,6 +7,7 @@ class Control:
 		self.clock = pygame.time.Clock()
 		self.dts = []
 #		self.t0 = 0.001 * pygame.time.get_ticks()
+		self.tool = None
 		pygame.mouse.get_rel()
 
 	def tick(self):
@@ -22,6 +23,12 @@ class Control:
 				view.zoom(event.y, self.mposP)
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				self.onclick()
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
+				self.tool = None
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
+				self.tool = "office"
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_3:
+				self.tool = "spire"
 				
 		button0, button1, button2 = pygame.mouse.get_pressed(3)
 		dxV, dyV = pygame.mouse.get_rel()
@@ -34,8 +41,13 @@ class Control:
 
 	def onclick(self):
 		segment = self.Gsegment()
-		if grid.canaddsegment(segment):
-			grid.addsegment(segment)
+		p0, p1 = segment
+		if self.tool is None:
+			if grid.canaddsegment(segment):
+				grid.addsegment(segment)
+		if self.tool in ["office", "spire"]:
+			grid.addstructure(self.tool, p0)
+		
 
 def init():
 	global control
@@ -61,6 +73,6 @@ def infotext():
 	fps = control.clock.get_fps()
 	xP, yP = control.mposP
 	xG, yG = Gcursor()
-	return f"{fps:.1f}fps  P:[{xP:.1f},{yP:.1f}]  G:[{xG},{yG}]"
+	return f"{fps:.1f}fps  P:[{xP:.1f},{yP:.1f}]  G:[{xG},{yG}]  tool:{control.tool}"
 
 

@@ -1,7 +1,7 @@
 gamename = "Skyscraper City"
 
-size0 = 800, 800
-heights = 400, 600, 800, 1000, 1200
+size0 = 1280, 720
+heights = 360, 540, 720, 1080
 
 minfps, maxfps = 5, 120
 

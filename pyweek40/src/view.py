@@ -87,6 +87,13 @@ def scootV(dV):
 	camera.xP0 -= PscaleV(dxV)
 	camera.yP0 += PscaleV(dyV)
 
-def zoom(dz, anchor = None):
+def zoom(dz, anchorP = None):
+	scale0 = camera.SscaleP
 	camera.SscaleP *= math.exp(0.1 * dz)
+	camera.SscaleP = math.clamp(camera.SscaleP, 10, 100)
+	if anchorP is not None:
+		axP, ayP = anchorP
+		camera.xP0 += (axP - camera.xP0) * (1 / scale0 - 1 / camera.SscaleP)
+
+
 
