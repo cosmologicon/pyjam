@@ -1,5 +1,7 @@
 import pygame
+from . import ptext
 from . import settings, view, play
+from .pview import T
 
 view.init()
 
@@ -16,6 +18,7 @@ while playing:
 	
 	play.think(dt)
 	play.draw()
+	ptext.draw(f"{clock.get_fps():.1f}fps", bottomleft = T(10, 790), fontsize = T(30))
 	pygame.display.flip()
 
 

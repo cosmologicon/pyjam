@@ -7,17 +7,18 @@ from . import settings
 # xS, yS: scaled coordinates. Maps to pview.size0.
 # xV, yV: view coordinates. Maps to pview.size
 
-PxscaleG = 0.8
+PxscaleG = 1.4
 
 
 class camera:
 	xP0 = 0
-	yP0 = 3
-	SscaleP = 80
+	yP0 = 20
+	SscaleP = 50
 
 
 def init():
 	pview.set_mode(settings.size0)
+	pygame.display.set_caption(settings.gamename)
 
 def PconvertG(pG):
 	xG, yG = pG
@@ -34,4 +35,6 @@ def VconvertP(pP):
 def VconvertG(pG):
 	return VconvertP(PconvertG(pG))
 
+def VscaleP(aP):
+	return VconvertS(camera.SscaleP * aP)
 
