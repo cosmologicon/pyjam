@@ -15,21 +15,10 @@ def think(dt):
 def drawedge(pG0, pG1):
 	pygame.draw.line(pview.screen, (100, 50, 50), view.VconvertG(pG0), view.VconvertG(pG1), 1) 
 
-def drawsegment(pG0, pG1, lit = False):
-	xV0, yV0 = view.VconvertG(pG0)
-	xV1, yV1 = view.VconvertG(pG1)
-	dV = view.VscaleP(0.22)
-	ps = [(xV0 - dV, yV0), (xV1 - dV, yV1), (xV1 + dV, yV1), (xV0 + dV, yV0)]
-	if lit:
-		pygame.draw.polygon(pview.screen, (160, 80, 80), ps, T(2))
-	else:
-		pygame.draw.polygon(pview.screen, (80, 40, 40), ps, 0)
-
-
 def draw():
 	pview.fill((0, 0, 40))
 	for pG0, pG1 in grid.segments():
-		drawsegment(pG0, pG1)
+		graphics.drawsegment(pG0, pG1)
 	drawedge((-0.5, 0), (-0.5, 10))
 	drawedge((0.5, 0), (10.5, 10))
 	for yG in range(10):
@@ -38,7 +27,7 @@ def draw():
 #	pygame.draw.circle(pview.screen, (100, 100, 100), view.VconvertG(control.Gcursor()), view.VscaleP(0.1))
 	for obj in state.things:
 		obj.draw()
-	drawsegment(*control.Gsegment(), lit = True)
+	graphics.drawsegment(*control.Gsegment(), lit = True)
 #	graphics.drawlight()
 
 
