@@ -1,5 +1,5 @@
 import pygame
-from . import settings, view, grid
+from . import settings, view, grid, state
 
 class Control:
 	def __init__(self):
@@ -9,11 +9,15 @@ class Control:
 #		self.t0 = 0.001 * pygame.time.get_ticks()
 		self.tool = None
 		pygame.mouse.get_rel()
+		self.Gcursor = (0, 0)
+		self.Gsegment = (0, 0), (0, 1)
 
 	def tick(self):
 		dt = min(0.001 * self.clock.tick(settings.maxfps), 1 / settings.minfps)
 		self.mposV = pygame.mouse.get_pos()
 		self.mposP = view.PconvertV(self.mposV)
+		self.Gcursor = view.GnearestP(self.mposP)
+		self.Gsegment = view.GnearestsegmentP(self.mposP)
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				self.playing = False
@@ -23,6 +27,10 @@ class Control:
 				view.zoom(event.y, self.mposP)
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				self.onclick()
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
+				state.grow()
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE:
+				self.tool = "remove"
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
 				self.tool = None
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
@@ -36,15 +44,13 @@ class Control:
 			view.scootV((dxV, dyV))
 		self.dts.append(dt)
 
-	def Gsegment(self):
-		return view.GnearestsegmentP(self.mposP)
-
 	def onclick(self):
-		segment = self.Gsegment()
+		segment = self.Gsegment
 		p0, p1 = segment
 		if self.tool is None:
-			if grid.canaddsegment(segment):
-				grid.addsegment(segment)
+			grid.addsegment(segment)
+		if self.tool == "remove":
+			grid.removeat(self.Gcursor)
 		if self.tool in ["office", "spire"]:
 			grid.addstructure(self.tool, p0)
 		
@@ -64,15 +70,22 @@ def dts():
 	control.dts = []
 
 def Gcursor():
-	return view.GnearestP(control.mposP)
+	return control.Gcursor
 
 def Gsegment():
-	return control.Gsegment()
+	return control.Gsegment
 
 def infotext():
 	fps = control.clock.get_fps()
 	xP, yP = control.mposP
 	xG, yG = Gcursor()
-	return f"{fps:.1f}fps  P:[{xP:.1f},{yP:.1f}]  G:[{xG},{yG}]  tool:{control.tool}"
+	return "\n".join([
+		f"Tab: grow (${state.growcost()})",
+		f"1: segment",
+		f"2: office",
+		f"3: spire",
+		f"Money: ${state.money}",
+		f"{fps:.1f}fps  P:[{xP:.1f},{yP:.1f}]  G:[{xG},{yG}]  tool:{control.tool}"
+	])
 
 

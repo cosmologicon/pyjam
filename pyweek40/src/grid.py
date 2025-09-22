@@ -1,4 +1,5 @@
 import random
+from . import state
 
 # All coordinates in this module are G (grid) coordinates
 
@@ -6,6 +7,7 @@ import random
 class Node:
 	def __init__(self, p, parent = None):
 		self.p = p
+		self.ps = [p]
 		self.parent = parent
 		self.children = []
 
@@ -59,8 +61,8 @@ stypes = {
 class Grid:
 	def __init__(self):
 		self.nodes = {}
-		self.addnode((0, 0))
 		self.structures = []
+		self.addnode((0, 0))
 
 	def addnode(self, p, parent = None):
 		node = Node(p, parent)
@@ -68,12 +70,31 @@ class Grid:
 		if parent is not None:
 			parent.children.append(node)
 
-	def addstructure(self, structure):
+	# Returns the structure on True.
+	def canaddstructure(self, stypename, p0):
+		if p0 not in self.nodes:
+			return False
+		parent = self.nodes[p0]
+		if not parent.canextend():
+			return False
+		stype = stypes[stypename]
+		structure = stype(parent)
+		if any(p in self.nodes for p in structure.ps):
+			return False
+		if not all(state.inbounds(p) for p in structure.ps):
+			return False
+		return structure
+
+	def addstructure(self, stypename, p0):
+		structure = self.canaddstructure(stypename, p0)
+		if not structure:
+			return False
 		for p in structure.ps:
 			self.nodes[p] = structure
 		if structure.parent is not None:
 			structure.parent.children.append(structure)
 		self.structures.append(structure)
+		return structure
 
 	def addrandomnode(self):
 		while True:
@@ -88,40 +109,48 @@ class Grid:
 		p0, p1 = segment
 		if p1 in self.nodes: return False
 		if p0 not in self.nodes: return False
+		if not state.inbounds(p1): return False
 		return p1 in self.nodes[p0].branches()
 
 	def addsegment(self, segment):
+		if not self.canaddsegment(segment):
+			return False
 		p0, p1 = segment
 		self.addnode(p1, self.nodes[p0])
+		return True
+
+	def removeat(self, p):
+		if p not in self.nodes:
+			return False
+		x, y = p
+		if x in [0, y]:  # Don't remove leftmost or rightmost branch.
+			return False
+		obj = self.nodes[p]
+		if obj.parent is not None:
+			obj.parent.children.remove(obj)
+		if isinstance(obj, Structure):
+			self.structures.remove(obj)
+		for p in obj.ps:
+			del self.nodes[p]
+		return True
+
 
 
 grid = Grid()
-for _ in range(10):
-	grid.addrandomnode()
-
 
 def segments():
 	for node in grid.nodes.values():
 		yield from node.segments()
-
-def canaddsegment(segment):
-	return grid.canaddsegment(segment)
 
 def addsegment(segment):
 	return grid.addsegment(segment)
 
 # Return False on failure
 def addstructure(stypename, p0):
-	if p0 not in grid.nodes:
-		return False
-	parent = grid.nodes[p0]
-	if not parent.canextend():
-		return False
-	stype = stypes[stypename]
-	structure = stype(parent)
-	if any(p in grid.nodes for p in structure.ps):
-		return False
-	grid.addstructure(structure)
+	grid.addstructure(stypename, p0)
+
+def removeat(p):
+	return grid.removeat(p)
 
 
 

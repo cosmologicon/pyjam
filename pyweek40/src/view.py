@@ -73,13 +73,18 @@ def GnearestsegmentG(pG):
 	xG, yG = pG
 	yG0 = int(yG)
 	yG1 = yG0 + 1
-	xproj = xG - PxscaleG * (yG - yG0)
+	xproj = xG - 0.5 * (yG - yG0)
 	xG0 = int(round(xproj))
 	xG1 = xG0 + (1 if xproj > xG0 else 0)
 	return (xG0, yG0), (xG1, yG1)
 
+print(GnearestsegmentG((-0.2, 0.4)))  # Should be (0, 0), (0, 1)
+#exit()
+
 def GnearestsegmentP(pP):
 	return GnearestsegmentG(GconvertP(pP))
+
+
 	
 
 def scootV(dV):
