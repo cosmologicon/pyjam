@@ -1,5 +1,5 @@
-import random
-from . import state
+import random, math
+from . import state, effects
 
 # All coordinates in this module are G (grid) coordinates
 
@@ -31,11 +31,16 @@ def adjs(ps):
 
 class Structure:
 	dps = []
+	Tincome = 0
+	income = 0
 	def __init__(self, parent):
 		x0, y0 = parent.p
 		self.ps = [(x0 + dx, y0 + dy) for dx, dy in self.dps]
+		self.p0 = math.vavg(self.ps)
 		self.segs = list(adjs([parent.p] + self.ps))
 		self.parent = parent
+		self.t = 0
+		self.taccum = 0
 
 	def branches(self):
 		return []
@@ -46,7 +51,22 @@ class Structure:
 	def canextend(self):
 		return False
 
+	def getincome(self):
+		state.earn(self.income)
+		effects.addinfo(self.p0, f"+${self.income}")
+
+	def think(self, dt):
+		self.t += dt
+		self.taccum += dt
+		if self.Tincome:
+			while self.taccum >= self.Tincome:
+				self.taccum -= self.Tincome
+				self.getincome()
+		
+
 class Office(Structure):
+	Tincome = 5
+	income = 1
 	dps = [(0, 1), (1, 1), (1, 2)]
 
 class Spire(Structure):
@@ -152,5 +172,8 @@ def addstructure(stypename, p0):
 def removeat(p):
 	return grid.removeat(p)
 
+def think(dt):
+	for obj in grid.structures:
+		obj.think(dt)
 
 

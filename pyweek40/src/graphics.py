@@ -40,11 +40,6 @@ def drawlight():
 		drawray(x0 - w + dx(j, 1), x0 + w + dx(j, 2), 4 + dalpha(j, 3))
 		drawmask(surf)
 
-def vtplus(v0, dv, f = 1):
-	x0, y0 = v0
-	dx, dy = dv
-	return x0 + dx * f, y0 + dy * f
-
 def bezier(p0, p1, p2, p3, t):
 	p01 = math.mix(p0, p1, t)
 	p12 = math.mix(p1, p2, t)
@@ -54,7 +49,7 @@ def bezier(p0, p1, p2, p3, t):
 	return math.mix(p012, p123, t)
 
 def dbezier(p0, dp0, p1, dp1, t):
-	return bezier(p0, vtplus(p0, dp0), vtplus(p1, dp1, -1), p1, t)
+	return bezier(p0, math.vtplus(p0, dp0), math.vtplus(p1, dp1, -1), p1, t)
 
 def drawsegment(pG0, pG1, lit = False):
 	if lit:

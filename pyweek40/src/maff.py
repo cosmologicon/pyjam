@@ -173,16 +173,17 @@ def R(theta, v = None):
 			return C * x - S * y, S * x + C * y
 		return R
 
-# Deterministic pseudorandom
-def fuzz(*args):
-	a = 0.12
-	for x in args:
-		a += x + 3.45
-		a *= 6.78
-	return 91011.12 * math.sin(a) % 1
+# ADDED. TODO: add to repo
+def vavg(vs):
+	xs, ys = zip(*vs)
+	return sum(xs) / len(vs), sum(ys) / len(vs)
 
-def fuzzrange(a, b, *args):
-	return mix(a, b, fuzz(*args))
+def vtplus(v0, dv, f = 1):
+	x0, y0 = v0
+	dx, dy = dv
+	return x0 + dx * f, y0 + dy * f
+
+
 
 
 # Add to math module

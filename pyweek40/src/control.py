@@ -1,4 +1,5 @@
 import pygame
+from . import pview
 from . import settings, view, grid, state
 
 class Control:
@@ -23,6 +24,12 @@ class Control:
 				self.playing = False
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 				self.playing = False
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_F10:
+				pview.cycle_heights(settings.heights)
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
+				pview.toggle_fullscreen()
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
+				pview.screenshot()
 			if event.type == pygame.MOUSEWHEEL:
 				view.zoom(event.y, self.mposP)
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -49,10 +56,12 @@ class Control:
 		p0, p1 = segment
 		if self.tool is None:
 			grid.addsegment(segment)
+			state.spend("segment")
 		if self.tool == "remove":
 			grid.removeat(self.Gcursor)
 		if self.tool in ["office", "spire"]:
 			grid.addstructure(self.tool, p0)
+			state.spend(self.tool)
 		
 
 def init():
@@ -85,6 +94,8 @@ def infotext():
 		f"2: office",
 		f"3: spire",
 		f"Money: ${state.money}",
+		f"F10: change screen size",
+		f"F11: toggle fullscreen",
 		f"{fps:.1f}fps  P:[{xP:.1f},{yP:.1f}]  G:[{xG},{yG}]  tool:{control.tool}"
 	])
 

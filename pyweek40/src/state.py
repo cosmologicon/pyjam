@@ -7,14 +7,20 @@ costs = {
 
 maxheight = 0
 money = 100
+maxmoney = 100
 things = []
 
-def spend(amount):
+def spend(costtype):
 	global money
+	amount = costs[costtype]
 	if money < amount:
 		return False
 	money -= amount
 	return True
+
+def earn(amount):
+	global money
+	money = min(money + amount, maxmoney)
 
 def growcost():
 	return maxheight
