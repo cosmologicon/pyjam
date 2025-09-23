@@ -1,5 +1,5 @@
 import random, math
-from . import state, effects
+from . import state, effects, graphics
 
 # All coordinates in this module are G (grid) coordinates
 
@@ -46,7 +46,7 @@ class Structure:
 		return []
 
 	def segments(self):
-		return self.segs
+		return []
 
 	def canextend(self):
 		return False
@@ -62,6 +62,9 @@ class Structure:
 			while self.taccum >= self.Tincome:
 				self.taccum -= self.Tincome
 				self.getincome()
+
+	def draw(self):
+		graphics.drawstructure(self.parent.p, self.ps)
 		
 
 class Office(Structure):
@@ -175,5 +178,11 @@ def removeat(p):
 def think(dt):
 	for obj in grid.structures:
 		obj.think(dt)
+
+def draw():
+	for pG0, pG1 in segments():
+		graphics.drawsegment(pG0, pG1)
+	for obj in grid.structures:
+		obj.draw()
 
 

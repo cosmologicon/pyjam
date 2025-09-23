@@ -1,4 +1,5 @@
 from functools import lru_cache, cache
+from collections import defaultdict
 import pygame, math
 from . import pview, fuzz
 from . import view
@@ -68,6 +69,75 @@ def drawsegment(pG0, pG1, lit = False):
 		rPs = [fuzz.uniform(0.12, 0.2, j, *pG0, *pG1) for j in range(21)]
 		for pV, rP in zip(pVs, rPs):
 			pygame.draw.circle(pview.screen, (80, 40, 40), pV, view.VscaleP(rP))
+
+HscaleG = 4
+def HconvertG(pG):
+	xG, yG = pG
+	return HscaleG * xG, HscaleG * yG
+def GconvertH(pH):
+	xH, yH = pH
+	return xH / HscaleG, yH / HscaleG
+def PconvertH(pH):
+	return view.PconvertG(GconvertH(pH))
+
+@lru_cache(1000)
+def PstructurepartsG(pG0, pGs):
+	xG0, yG0 = pG0
+	xGs_by_yG = defaultdict(list)
+	xGs_by_yG[yG0].append(xG0)
+	for xG, yG in pGs:
+		xGs_by_yG[yG].append(xG)
+	yGs = sorted(xGs_by_yG)
+	pHouts = []
+	for yGlo in yGs[:-1]:
+		yGhi = yGlo + 1
+		xGlomin = min(xGs_by_yG[yGlo])
+		xGlomax = max(xGs_by_yG[yGlo])
+		xGhimin = min(xGs_by_yG[yGhi])
+		xGhimax = max(xGs_by_yG[yGhi])
+		for dH in range(HscaleG):
+			f, g = HscaleG - dH, dH
+			yH = f * yGlo + g * yGhi
+			xHmin = f * xGlomin + g * xGhimin
+			xHmax = f * xGlomax + g * xGhimax
+			for xH in range(xHmin, xHmax + 4):
+				pHouts.append((xH - 1.5, yH))
+	yGmax = max(yGs)
+	assert len(xGs_by_yG[yGmax]) == 1
+	xHmin = HscaleG * xG0
+	yHmin = HscaleG * yG0
+	yHmax = HscaleG * yGmax
+	xHmax = HscaleG * xGs_by_yG[yGmax][0]
+	pHouts += [(xHmin + dxH, yHmin - 2) for dxH in (-1.5, -0.5)]
+	pHouts += [(xHmin + dxH, yHmin - 1) for dxH in (-1.5, -0.5, 0.5)]
+	pHouts += [(xHmax + dxH, yHmax) for dxH in (-1.5, -0.5, 0.5, 1.5)]
+	pHouts += [(xHmax + dxH, yHmax + 1) for dxH in (-0.5, 0.5, 1.5)]
+	pHsegs = []
+	for pH in pHouts:
+		pHbelows = [math.vtplus(pH, dpH) for dpH in [(-1, -1), (0, -1)]]
+		pHbelows = [pHbelow for pHbelow in pHbelows if pHbelow in pHouts]
+		if pHbelows:
+			pHbelow = fuzz.choice(pHbelows, *pH)
+			pHsegs.append((pHbelow, pH))
+	pPsegs = [(PconvertH(pH0), PconvertH(pH1)) for pH0, pH1 in pHsegs]
+	pPouts = []
+	def dP(pP):
+		dP0 = 1 / HscaleG
+		wP = 0.4 / HscaleG
+		return fuzz.uniform(-wP, wP, 0, *pP), dP0 + fuzz.uniform(-wP, wP, 1, *pP)
+	for pP0, pP1 in pPsegs:
+		for jt in range(20):
+			pPouts.append(dbezier(pP0, dP(pP0), pP1, dP(pP1), jt / 19))
+	return [(pP, 0.05) for pP in pPouts]
+	
+
+def drawstructure(pG0, pGs):
+	for pP, rP in PstructurepartsG(pG0, tuple(pGs)):
+		pV = view.VconvertP(pP)
+		rV = view.VscaleP(rP)
+		pygame.draw.circle(pview.screen, (70, 60, 40), pV, rV)
+
+
 
 
 

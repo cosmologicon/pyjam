@@ -10,9 +10,15 @@ money = 100
 maxmoney = 100
 things = []
 
+def getcost(costtype):
+	if costtype == "grow":
+		return growcost()
+	else:
+		return costs[costtype]
+
 def spend(costtype):
 	global money
-	amount = costs[costtype]
+	amount = getcost(costtype)
 	if money < amount:
 		return False
 	money -= amount
@@ -35,7 +41,7 @@ def growto(h):
 			grid.addsegment(seg)
 
 def grow():
-	if not spend(growcost()):
+	if not spend("grow"):
 		return False
 	growto(maxheight + 1)
 
