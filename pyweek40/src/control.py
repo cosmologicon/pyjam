@@ -44,6 +44,8 @@ class Control:
 				self.tool = "office"
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_3:
 				self.tool = "spire"
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_4:
+				grid.spawnshopper()
 				
 		button0, button1, button2 = pygame.mouse.get_pressed(3)
 		dxV, dyV = pygame.mouse.get_rel()
@@ -93,6 +95,7 @@ def infotext():
 		f"1: segment",
 		f"2: office",
 		f"3: spire",
+		f"4: spawn shopper",
 		f"Money: ${state.money}",
 		f"F10: change screen size",
 		f"F11: toggle fullscreen",

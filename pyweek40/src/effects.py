@@ -2,9 +2,8 @@ import pygame, math
 from . import view, ptext
 
 class Info:
-	def __init__(self, pG, text):
-		self.pG = pG
-		self.pP = view.PconvertG(pG)
+	def __init__(self, pP, text):
+		self.pP = pP
 		self.text = text
 		self.t = 0
 		self.T = 1
@@ -24,8 +23,11 @@ class Info:
 
 effects = []
 
-def addinfo(pG, text):
-	effects.append(Info(pG, text))
+def addinfoP(pP, text):
+	effects.append(Info(pP, text))
+
+def addinfoG(pG, text):
+	addinfoP(view.PconvertG(pG), text)
 
 def think(dt):
 	for obj in effects:

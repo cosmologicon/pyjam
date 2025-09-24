@@ -1,5 +1,5 @@
 import random, math
-from . import state, effects, graphics
+from . import state, effects, graphics, thing
 
 # All coordinates in this module are G (grid) coordinates
 
@@ -34,11 +34,12 @@ class Structure:
 	Tincome = 0
 	income = 0
 	def __init__(self, parent):
+		self.parent = parent
 		x0, y0 = parent.p
 		self.ps = [(x0 + dx, y0 + dy) for dx, dy in self.dps]
 		self.p0 = math.vavg(self.ps)
-		self.segs = list(adjs([parent.p] + self.ps))
-		self.parent = parent
+		self.pbase = parent.p
+		self.segs = list(adjs([self.pbase] + self.ps))
 		self.t = 0
 		self.taccum = 0
 
@@ -53,7 +54,7 @@ class Structure:
 
 	def getincome(self):
 		state.earn(self.income)
-		effects.addinfo(self.p0, f"+${self.income}")
+		effects.addinfoG(self.p0, f"+${self.income}")
 
 	def think(self, dt):
 		self.t += dt
@@ -64,16 +65,18 @@ class Structure:
 				self.getincome()
 
 	def draw(self):
-		graphics.drawstructure(self.parent.p, self.ps)
-		
+		graphics.drawstructure(self.pbase, self.ps, self.text)
 
 class Office(Structure):
 	Tincome = 5
 	income = 1
+	text = "office"
 	dps = [(0, 1), (1, 1), (1, 2)]
 
 class Spire(Structure):
+	text = "spire"
 	dps = [(0, 1), (1, 1), (1, 2), (1, 3), (2, 3), (2, 4)]
+
 
 stypes = {
 	"office": Office,
@@ -86,12 +89,43 @@ class Grid:
 		self.nodes = {}
 		self.structures = []
 		self.addnode((0, 0))
+		self.resetcache()
+
+	def resetcache(self):
+		self.LCAcache = {}
+		self.stepcache = {}
+
+	def LCA(self, p0, p1):
+		if p0 == p1: return p0
+		key = p0, p1
+		if key not in self.LCAcache:
+			x0, y0 = p0
+			x1, y1 = p1
+			if y0 >= y1:
+				p0 = self.nodes[p0].parent.p
+			if y1 >= y0:
+				p1 = self.nodes[p1].parent.p
+			self.LCAcache[key] = self.LCA(p0, p1)
+		return self.LCAcache[key]
+
+	def stepto(self, p0, p1):
+		if p0 == p1: return None
+		key = p0, p1
+		if key not in self.stepcache:
+			pmin = self.LCA(p0, p1)
+			if p1 == pmin:
+				self.stepcache[key] = self.nodes[p0].parent.p
+			else:
+				p1p = self.nodes[p1].parent.p
+				self.stepcache[key] = self.stepto(p0, p1p) or p1
+		return self.stepcache[key]
 
 	def addnode(self, p, parent = None):
 		node = Node(p, parent)
 		self.nodes[p] = node
 		if parent is not None:
 			parent.children.append(node)
+		self.resetcache()
 
 	# Returns the structure on True.
 	def canaddstructure(self, stypename, p0):
@@ -117,6 +151,7 @@ class Grid:
 		if structure.parent is not None:
 			structure.parent.children.append(structure)
 		self.structures.append(structure)
+		self.resetcache()
 		return structure
 
 	def addrandomnode(self):
@@ -142,12 +177,16 @@ class Grid:
 		self.addnode(p1, self.nodes[p0])
 		return True
 
-	def removeat(self, p):
+	def canremoveat(self, p):
 		if p not in self.nodes:
 			return False
 		x, y = p
 		if x in [0, y]:  # Don't remove leftmost or rightmost branch.
 			return False
+		return True
+
+	def removeat(self, p):
+		if not self.canremoveat(p): return False
 		obj = self.nodes[p]
 		if obj.parent is not None:
 			obj.parent.children.remove(obj)
@@ -155,6 +194,7 @@ class Grid:
 			self.structures.remove(obj)
 		for p in obj.ps:
 			del self.nodes[p]
+		self.resetcache()
 		return True
 
 
@@ -174,6 +214,16 @@ def addstructure(stypename, p0):
 
 def removeat(p):
 	return grid.removeat(p)
+
+def stepto(p0, p1):
+	return grid.stepto(p0, p1)
+
+def spawnshopper():
+	spires = [obj for obj in grid.structures if isinstance(obj, Spire)]
+	offices = [obj for obj in grid.structures if isinstance(obj, Office)]
+	if not spires or not offices: return
+	state.things.append(thing.Shopper(random.choice(offices), random.choice(spires)))
+
 
 def think(dt):
 	for obj in grid.structures:

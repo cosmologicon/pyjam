@@ -1,7 +1,7 @@
 from functools import lru_cache, cache
 from collections import defaultdict
 import pygame, math
-from . import pview, fuzz
+from . import pview, fuzz, ptext
 from . import view
 from .pview import T
 
@@ -131,12 +131,13 @@ def PstructurepartsG(pG0, pGs):
 	return [(pP, 0.05) for pP in pPouts]
 	
 
-def drawstructure(pG0, pGs):
+def drawstructure(pG0, pGs, text):
 	for pP, rP in PstructurepartsG(pG0, tuple(pGs)):
 		pV = view.VconvertP(pP)
 		rV = view.VscaleP(rP)
 		pygame.draw.circle(pview.screen, (70, 60, 40), pV, rV)
-
+	ptext.draw(text, center = view.VconvertG(pG0), fontsize = view.VscaleP(0.5),
+		owidth = 1)
 
 
 
