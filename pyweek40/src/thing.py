@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, grid, pview, effects, state
+from . import view, grid, pview, effects, state, fuzz, graphics
 from .pview import T
 
 class Tenant:
@@ -9,15 +9,25 @@ class Tenant:
 		self.targetP = None
 		self.home = None
 		self.alive = True
+		self.t = 0
+		self.seed = random.random()
+		self.point = 0
+		self.flip = False
 
 	def think(self, dt):
+		self.t += dt
+		self.point = math.softapproach(self.point, 0, 1 * dt)
 		v = 4
 		if self.targetP is not None:
-			self.pP = math.approach(self.pP, self.targetP, v * dt)
+			self.pP = math.softapproach(self.pP, self.targetP, v * dt, dymin = 0.01)
 			if self.pP == self.targetP:
 				self.targetP = None
 		if self.targetP is None and random.random() < dt:
 			self.targetP = self.selecttarget()
+			if self.targetP is not None and self.targetP != self.pP:
+				dxP, dyP = math.vminus(self.targetP, self.pP)
+				self.point = math.degrees(math.atan2(dyP, abs(dxP))) * (1 if dxP > 0 else -1)
+				self.flip = dxP < 0
 
 	def selecttarget(self):
 		if not self.alive: return None
@@ -26,11 +36,20 @@ class Tenant:
 		structure = random.choice(structures)
 		pG = random.choice(structure.ps)
 		return view.PconvertG(pG)
-	
+
+	def offsetP(self):
+		omega0 = fuzz.uniform(2, 3, 0, self.seed)
+		omega1 = fuzz.uniform(2, 3, 1, self.seed)
+		phi0 = fuzz.uniform(0, math.tau, 2, self.seed)
+		phi1 = fuzz.uniform(0, math.tau, 3, self.seed)
+		dxP = 0.2 * math.sin(omega0 * self.t + phi0)
+		dyP = 0.2 * math.sin(omega1 * self.t + phi1)
+		return dxP, dyP
+
 	def draw(self):
-		pV = view.VconvertP(self.pP)
-		rV = view.VscaleP(0.1)
-		pygame.draw.circle(pview.screen, self.color, pV, rV)
+		pP = math.vtplus(self.pP, self.offsetP())
+		angle = self.point + 10 * math.sin(2 * self.t)
+		graphics.drawimgP(pP, "fish", scaleP = 0.3, angle = angle, flip_x = self.flip, color = self.color)
 
 class Shopper(Tenant):
 	color = 200, 100, 100

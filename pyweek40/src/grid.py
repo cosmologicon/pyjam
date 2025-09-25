@@ -65,17 +65,19 @@ class Structure:
 				self.getincome()
 
 	def draw(self):
-		graphics.drawstructure(self.pbase, self.ps, self.text)
+		graphics.drawstructure(self.pbase, self.ps, self.text, self.color)
 
 class Office(Structure):
 	Tincome = 5
 	income = 1
 	text = "office"
 	dps = [(0, 1), (1, 1), (1, 2)]
+	color = (70, 60, 40)
 
 class Spire(Structure):
 	text = "spire"
 	dps = [(0, 1), (1, 1), (1, 2), (1, 3), (2, 3), (2, 4)]
+	color = (70, 40, 70)
 
 
 stypes = {

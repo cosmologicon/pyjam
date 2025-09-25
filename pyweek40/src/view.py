@@ -51,6 +51,9 @@ def VconvertG(pG):
 def VscaleP(aP):
 	return VconvertS(camera.SscaleP * aP)
 
+def VscaleP_continuous(aP):
+	return pview.f * camera.SscaleP * aP
+
 def SscaleV(aV):
 	return aV / pview.f
 def SconvertV(pV):
@@ -78,8 +81,7 @@ def GnearestsegmentG(pG):
 	xG1 = xG0 + (1 if xproj > xG0 else 0)
 	return (xG0, yG0), (xG1, yG1)
 
-print(GnearestsegmentG((-0.2, 0.4)))  # Should be (0, 0), (0, 1)
-#exit()
+assert GnearestsegmentG((-0.2, 0.4)) == ((0, 0), (0, 1))
 
 def GnearestsegmentP(pP):
 	return GnearestsegmentG(GconvertP(pP))

@@ -183,6 +183,8 @@ def vtplus(v0, dv, f = 1):
 	dx, dy = dv
 	return x0 + dx * f, y0 + dy * f
 
+def vminus(v0, dv):
+	return vtplus(v0, dv, -1)
 
 
 

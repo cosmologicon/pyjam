@@ -1,10 +1,9 @@
 from functools import lru_cache, cache
 from collections import defaultdict
-import pygame, math
+import pygame, math, os.path
 from . import pview, fuzz, ptext
 from . import view
 from .pview import T
-
 
 def drawmask(mask, special_flags = 0):
 	pview.screen.blit(mask, (0, 0), special_flags = special_flags)
@@ -15,6 +14,40 @@ def ssurf0(size):
 
 def ssurf():
 	return ssurf0(pview.size)
+
+@cache
+def loadimg(imgname):
+	return pygame.image.load(os.path.join("img", f"{imgname}.png"))
+
+@lru_cache(100)
+def getimg0(imgname, scale = 1, angle = 0, flip_x = False, color = None):
+	if scale != 1 or angle != 0:
+		img = getimg0(imgname, flip_x = flip_x, color = color)
+		w, h = img.get_size()
+		scale /= (math.hypot(w, h) / 2)
+		return pygame.transform.rotozoom(img, angle, scale)
+	if flip_x:
+		img = getimg0(imgname, color = color)
+		return pygame.transform.flip(img, flip_x, False)
+	if color is not None:
+		img = getimg0(imgname)
+		surf = img.copy()
+		surf.fill(color)
+		surf.blit(img, (0, 0), special_flags = pygame.BLEND_RGBA_MULT)
+		return surf
+	return loadimg(imgname)
+	
+
+def getimg(imgname, scale, angle = 0, flip_x = False, color = None):
+	scale = math.exp(round(math.log(scale) * 10) / 10)
+	angle = round(angle / 5) * 5 % 360
+	return getimg0(imgname, scale, angle, flip_x, color)
+
+def drawimgP(pP, imgname, scaleP, angle = 0, flip_x = False, color = None):
+	scaleV = view.VscaleP_continuous(scaleP)
+	img = getimg(imgname, scaleV, angle, flip_x, color)
+	pview.screen.blit(img, img.get_rect(center = view.VconvertP(pP)))
+
 
 def drawlight():
 	surf = ssurf()
@@ -100,18 +133,17 @@ def PstructurepartsG(pG0, pGs):
 			yH = f * yGlo + g * yGhi
 			xHmin = f * xGlomin + g * xGhimin
 			xHmax = f * xGlomax + g * xGhimax
-			for xH in range(xHmin, xHmax + 4):
-				pHouts.append((xH - 1.5, yH))
+			for xH in range(xHmin, xHmax + 3):
+				pHouts.append((xH - 1, yH))
 	yGmax = max(yGs)
 	assert len(xGs_by_yG[yGmax]) == 1
 	xHmin = HscaleG * xG0
 	yHmin = HscaleG * yG0
 	yHmax = HscaleG * yGmax
 	xHmax = HscaleG * xGs_by_yG[yGmax][0]
-	pHouts += [(xHmin + dxH, yHmin - 2) for dxH in (-1.5, -0.5)]
-	pHouts += [(xHmin + dxH, yHmin - 1) for dxH in (-1.5, -0.5, 0.5)]
-	pHouts += [(xHmax + dxH, yHmax) for dxH in (-1.5, -0.5, 0.5, 1.5)]
-	pHouts += [(xHmax + dxH, yHmax + 1) for dxH in (-0.5, 0.5, 1.5)]
+	pHouts += [(xHmin + dxH, yHmin - 1) for dxH in (-1, 0)]
+	pHouts += [(xHmax + dxH, yHmax) for dxH in (-1, 0, 1)]
+	pHouts += [(xHmax + dxH, yHmax + 1) for dxH in (0, 1)]
 	pHsegs = []
 	for pH in pHouts:
 		pHbelows = [math.vtplus(pH, dpH) for dpH in [(-1, -1), (0, -1)]]
@@ -131,11 +163,11 @@ def PstructurepartsG(pG0, pGs):
 	return [(pP, 0.05) for pP in pPouts]
 	
 
-def drawstructure(pG0, pGs, text):
+def drawstructure(pG0, pGs, text, color):
 	for pP, rP in PstructurepartsG(pG0, tuple(pGs)):
 		pV = view.VconvertP(pP)
 		rV = view.VscaleP(rP)
-		pygame.draw.circle(pview.screen, (70, 60, 40), pV, rV)
+		pygame.draw.circle(pview.screen, color, pV, rV)
 	ptext.draw(text, center = view.VconvertG(pG0), fontsize = view.VscaleP(0.5),
 		owidth = 1)
 
