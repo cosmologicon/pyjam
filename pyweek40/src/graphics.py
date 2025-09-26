@@ -1,12 +1,19 @@
 from functools import lru_cache, cache
 from collections import defaultdict
-import pygame, math, os.path
+import pygame, math, os.path, random
 from . import pview, fuzz, ptext
 from . import view
 from .pview import T
 
 def drawmask(mask, special_flags = 0):
 	pview.screen.blit(mask, (0, 0), special_flags = special_flags)
+
+def shadeimg(surf, color):
+	shade = surf.copy()
+	shade.fill(color)
+	shade.blit(surf, (0, 0), special_flags = pygame.BLEND_RGBA_MULT)
+	return shade
+
 
 @lru_cache(1)
 def ssurf0(size):
@@ -30,17 +37,13 @@ def getimg0(imgname, scale = 1, angle = 0, flip_x = False, color = None):
 		img = getimg0(imgname, color = color)
 		return pygame.transform.flip(img, flip_x, False)
 	if color is not None:
-		img = getimg0(imgname)
-		surf = img.copy()
-		surf.fill(color)
-		surf.blit(img, (0, 0), special_flags = pygame.BLEND_RGBA_MULT)
-		return surf
+		return shadeimg(getimg0(imgname), color)
 	return loadimg(imgname)
 	
 
 def getimg(imgname, scale, angle = 0, flip_x = False, color = None):
 	scale = math.exp(round(math.log(scale) * 10) / 10)
-	angle = round(angle / 5) * 5 % 360
+	angle = round(angle / 2) * 2 % 360
 	return getimg0(imgname, scale, angle, flip_x, color)
 
 def drawimgP(pP, imgname, scaleP, angle = 0, flip_x = False, color = None):
@@ -82,8 +85,87 @@ def bezier(p0, p1, p2, p3, t):
 	p123 = math.mix(p12, p23, t)
 	return math.mix(p012, p123, t)
 
+@lru_cache(100000)
 def dbezier(p0, dp0, p1, dp1, t):
 	return bezier(p0, math.vtplus(p0, dp0), math.vtplus(p1, dp1, -1), p1, t)
+
+Nsegspec = 20
+@lru_cache(10000)
+def segmentspec(pG0, pG1, color0, color1):
+	spec = []
+	pP0 = view.PconvertG(pG0)
+	pP1 = view.PconvertG(pG1)
+	dp0, dp1 = [(fuzz.uniform(-0.3, 0.3, 1, *pG), fuzz.uniform(0.7, 1.3, 2, *pG)) for pG in (pG0, pG1)]
+	ts = [j / Nsegspec for j in range(Nsegspec + 1)]
+	for t in ts:
+		pP = dbezier(pP0, dp0, pP1, dp1, t)
+		rP = fuzz.uniform(0.12, 0.2, t, *pG0, *pG1)
+		color = math.imix(color0, color1, t)
+		spec.append((pP, rP, color))
+	return spec
+
+def minmaxrange(values, ws):
+	minrange = min(value - w for value, w in zip(values, ws))
+	maxrange = max(value + w for value, w in zip(values, ws))
+	return minrange, maxrange
+
+@lru_cache(1000)
+def sphereimg(r, color = None):
+	if color is not None:
+		return shadeimg(sphereimg(r), color)
+	surf = pygame.Surface((2 * r, 2 * r)).convert_alpha()
+	for px in range(2 * r):
+		x = (px - r + 0.5) / r
+		for py in range(2 * r):
+			y = (py - r + 0.5) / r
+			d = math.hypot(x, y)
+			if d > 1:
+				pixel = 0, 0, 0, 0
+			else:
+				z = 1 - math.sqrt(d)
+				a = math.interp(math.dot((x, y, z), (1, -1, 1)), 0, 0.7, 1, 1)
+				pixel = math.imix((0, 0, 0, 255), (255, 255, 255, 255), a)
+			surf.set_at((px, py), pixel)
+	return surf
+
+
+@lru_cache(1000)
+def specsurf0(spec, SscaleP):
+	pPs, rPs, colors = zip(*spec)
+	pVs = [(view.VscaleP(xP), -view.VscaleP(yP)) for xP, yP in pPs]
+	rVs = [view.VscaleP(rP) for rP in rPs]
+	xVs, yVs = zip(*pVs)
+	xVmin, xVmax = minmaxrange(xVs, rVs)
+	yVmin, yVmax = minmaxrange(yVs, rVs)
+	surf = pygame.Surface((xVmax - xVmin, yVmax - yVmin)).convert_alpha()
+	surf.fill((0, 0, 0, 0))
+	offset = xVmin, yVmin
+	for pV, rV, color in zip(pVs, rVs, colors):
+		sphere = sphereimg(rV, color)
+		center = math.vminus(pV, offset)
+		surf.blit(sphere, sphere.get_rect(center = center), special_flags = pygame.BLEND_RGBA_MAX)
+#		pygame.draw.circle(surf, color, math.vminus(pV, offset), rV)
+	return surf, offset
+
+def specsurf(spec):
+	pP0 = spec[0][0]
+	spec = tuple(tuple(a) for a in spec)
+	surf, offset = specsurf0(spec, view.camera.SscaleP)
+	offset = math.vtplus(offset, view.VconvertP((0, 0)))
+	return surf, offset
+
+def segsurf(pG0, pG1, color0, color1):
+	return specsurf(segmentspec(pG0, pG1, color0, color1))
+
+@lru_cache(10000)
+def nodecolor(pG):
+	gray = fuzz.randint(15, 35, 0, *pG)
+	dr = fuzz.randint(40, 80, 1, *pG)
+	dg = fuzz.randint(0, 20, 2, *pG)
+	db = fuzz.randint(0, 20, 3, *pG)
+	return gray + dr, gray + dg, gray + db
+
+
 
 def drawsegment(pG0, pG1, lit = False):
 	if lit:
@@ -93,15 +175,8 @@ def drawsegment(pG0, pG1, lit = False):
 		ps = [(xV0 - dV, yV0), (xV1 - dV, yV1), (xV1 + dV, yV1), (xV0 + dV, yV0)]
 		pygame.draw.polygon(pview.screen, (160, 80, 80), ps, T(2))
 	else:
-		pP0 = view.PconvertG(pG0)
-		pP1 = view.PconvertG(pG1)
-		dp0, dp1 = [(fuzz.uniform(-0.3, 0.3, 1, *pG), fuzz.uniform(0.7, 1.3, 2, *pG)) for pG in (pG0, pG1)]
-		ts = [j / 20 for j in range(21)]
-		pPs = [dbezier(pP0, dp0, pP1, dp1, t) for t in ts]
-		pVs = [view.VconvertP(pP) for pP in pPs]
-		rPs = [fuzz.uniform(0.12, 0.2, j, *pG0, *pG1) for j in range(21)]
-		for pV, rP in zip(pVs, rPs):
-			pygame.draw.circle(pview.screen, (80, 40, 40), pV, view.VscaleP(rP))
+		surf, offset = segsurf(pG0, pG1, nodecolor(pG0), nodecolor(pG1))
+		pview.screen.blit(surf, offset)
 
 HscaleG = 4
 def HconvertG(pG):
@@ -114,7 +189,7 @@ def PconvertH(pH):
 	return view.PconvertG(GconvertH(pH))
 
 @lru_cache(1000)
-def PstructurepartsG(pG0, pGs):
+def PstructurepartsG(pG0, pGs, color):
 	xG0, yG0 = pG0
 	xGs_by_yG = defaultdict(list)
 	xGs_by_yG[yG0].append(xG0)
@@ -160,14 +235,19 @@ def PstructurepartsG(pG0, pGs):
 	for pP0, pP1 in pPsegs:
 		for jt in range(20):
 			pPouts.append(dbezier(pP0, dP(pP0), pP1, dP(pP1), jt / 19))
-	return [(pP, 0.05) for pP in pPouts]
-	
+	return [(pP, 0.05, color) for pP in pPouts]
 
-def drawstructure(pG0, pGs, text, color):
-	for pP, rP in PstructurepartsG(pG0, tuple(pGs)):
-		pV = view.VconvertP(pP)
-		rV = view.VscaleP(rP)
-		pygame.draw.circle(pview.screen, color, pV, rV)
+def structuresurf(pG0, pGs, color):
+	return specsurf(PstructurepartsG(pG0, tuple(pGs), color))
+
+def drawstructure(pG0, pGs, text, color0):
+	if False:
+		for pP, rP, color in PstructurepartsG(pG0, tuple(pGs), color0):
+			pV = view.VconvertP(pP)
+			rV = view.VscaleP(rP)
+			pygame.draw.circle(pview.screen, color, pV, rV)
+	surf, offset = structuresurf(pG0, pGs, color0)
+	pview.screen.blit(surf, offset)
 	ptext.draw(text, center = view.VconvertG(pG0), fontsize = view.VscaleP(0.5),
 		owidth = 1)
 
