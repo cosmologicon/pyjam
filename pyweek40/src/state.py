@@ -5,10 +5,17 @@ costs = {
 	"spire": 20,
 }
 
+level = 0
 maxheight = 0
+maxheights = [6, 9, 12, 15, 18]
+growcosts = [10, 20, 50, 100, 200]
 money = 100
-maxmoney = 100
+maxmoney = 10000
 things = []
+
+
+def init():
+	growto(0)
 
 def getcost(costtype):
 	if costtype == "grow":
@@ -29,13 +36,15 @@ def earn(amount):
 	money = min(money + amount, maxmoney)
 
 def growcost():
-	return maxheight
+	return growcosts[level]
 
-def growto(h):
-	global maxheight
-	from . import grid
-	maxheight = h
-	for y in range(0, h):
+def growto(newlevel):
+	global maxheight, level
+	from . import grid, view
+	level = newlevel
+	maxheight = maxheights[newlevel]
+	view.setceiling(maxheight)
+	for y in range(0, maxheight):
 		segs = ((0, y), (0, y + 1)), ((y, y), (y + 1, y + 1))
 		for seg in segs:
 			grid.addsegment(seg)
@@ -43,7 +52,7 @@ def growto(h):
 def grow():
 	if not spend("grow"):
 		return False
-	growto(maxheight + 1)
+	growto(level + 1)
 
 def inbounds(pG):
 	xG, yG = pG

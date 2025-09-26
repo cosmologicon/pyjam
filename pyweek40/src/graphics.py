@@ -241,16 +241,9 @@ def structuresurf(pG0, pGs, color):
 	return specsurf(PstructurepartsG(pG0, tuple(pGs), color))
 
 def drawstructure(pG0, pGs, text, color0):
-	if False:
-		for pP, rP, color in PstructurepartsG(pG0, tuple(pGs), color0):
-			pV = view.VconvertP(pP)
-			rV = view.VscaleP(rP)
-			pygame.draw.circle(pview.screen, color, pV, rV)
 	surf, offset = structuresurf(pG0, pGs, color0)
 	pview.screen.blit(surf, offset)
 	ptext.draw(text, center = view.VconvertG(pG0), fontsize = view.VscaleP(0.5),
 		owidth = 1)
-
-
 
 

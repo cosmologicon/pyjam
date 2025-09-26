@@ -13,7 +13,38 @@ PxscaleG = 1.0
 class camera:
 	xP0 = 0
 	yP0 = 4
-	SscaleP = 50
+	SscaleP = 70
+	minzoom = 60
+	maxzoom = 100
+	ceilingP = 9.5
+	floorP = -2
+	wallP = 10
+
+def setceiling(h):
+	newceiling = h + 0.5
+	if h <= 12:
+		camera.yP0 += newceiling - camera.ceilingP
+	camera.ceilingP = newceiling
+	camera.floorP = 0
+	camera.wallP = newceiling * 0.5
+	camera.minzoom = min(100, 640 / h)
+	camera.maxzoom = 100
+	camera.SscaleP = math.clamp(camera.SscaleP, camera.minzoom, camera.maxzoom)
+	enforce()
+
+def enforce():
+	xSmid, ySmid = pview.center
+	xPmax = camera.wallP - xSmid / camera.SscaleP
+	if xPmax <= 0:
+		camera.xP0 = 0
+	else:
+		camera.xP0 = math.clamp(camera.xP0, -xPmax, xPmax)
+	yPmin = camera.floorP + ySmid / camera.SscaleP
+	yPmax = camera.ceilingP - ySmid / camera.SscaleP
+	if yPmin > yPmax:
+		camera.yP0 = yPmax
+	else:
+		camera.yP0 = math.clamp(camera.yP0, yPmin, yPmax)
 
 
 def init():
@@ -87,20 +118,19 @@ def GnearestsegmentP(pP):
 	return GnearestsegmentG(GconvertP(pP))
 
 
-	
-
 def scootV(dV):
 	dxV, dyV = dV
 	camera.xP0 -= PscaleV(dxV)
 	camera.yP0 += PscaleV(dyV)
+	enforce()
 
 def zoom(dz, anchorP = None):
 	scale0 = camera.SscaleP
 	camera.SscaleP *= math.exp(0.1 * dz)
-	camera.SscaleP = math.clamp(camera.SscaleP, 10, 100)
+	camera.SscaleP = math.clamp(camera.SscaleP, camera.minzoom, camera.maxzoom)
 	if anchorP is not None:
 		axP, ayP = anchorP
 		camera.xP0 += (axP - camera.xP0) * (1 / scale0 - 1 / camera.SscaleP)
-
+	enforce()
 
 

@@ -5,14 +5,15 @@ from .pview import T
 
 
 def init():
-	state.growto(9)
-	grid.addsegment(((0, 1), (1, 2)))
-	grid.addstructure("office", (1, 2))
-	grid.addsegment(((0, 3), (1, 4)))
-	grid.addstructure("spire", (1, 4))
-	grid.addsegment(((3, 3), (3, 4)))
-	grid.addsegment(((3, 4), (3, 5)))
-	grid.addstructure("spire", (3, 5))
+	state.init()
+	if False:
+		grid.addsegment(((0, 1), (1, 2)))
+		grid.addstructure("office", (1, 2))
+		grid.addsegment(((0, 3), (1, 4)))
+		grid.addstructure("spire", (1, 4))
+		grid.addsegment(((3, 3), (3, 4)))
+		grid.addsegment(((3, 4), (3, 5)))
+		grid.addstructure("spire", (3, 5))
 #	for x in range(-5, 6):
 #		state.things.append(thing.Tenant((x, 0)))
 
