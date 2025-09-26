@@ -51,6 +51,46 @@ def drawimgP(pP, imgname, scaleP, angle = 0, flip_x = False, color = None):
 	img = getimg(imgname, scaleV, angle, flip_x, color)
 	pview.screen.blit(img, img.get_rect(center = view.VconvertP(pP)))
 
+colorbands = [
+	(0, (30, 30, 0)),
+	(2, (20, 20, 10)),
+	(4, (0, 0, 0)),
+	(6, (0, 0, 0)),
+	(10, (0, 0, 50)),
+]
+
+
+def colorat(yP):
+	ymin, colormin = colorbands[0]
+	ymax, colormax = colorbands[-1]
+	if yP <= ymin: return colormin
+	if yP >= ymax: return colormax
+	j = next(j for j, (y, color) in enumerate(colorbands) if yP <= y)
+	y0, color0 = colorbands[j - 1]
+	y1, color1 = colorbands[j]
+	a = math.interp(yP, y0, 0, y1, 1)
+	return math.imix(color0, color1, a)
+
+@lru_cache(1)
+def backdrop(size, yP0, VscaleP):
+	w, h = size
+	wsub = w // 200
+	hsub = h // 10
+	fw = (w - 1) / (wsub - 1)
+	fh = (h - 1) / (hsub - 1)
+	surf = pygame.Surface((wsub, hsub)).convert_alpha()
+	for ysub in range(hsub):
+		yV = fh * ysub
+		yP = yP0 - (yV - h // 2) / VscaleP
+		color0 = colorat(yP)
+		for xsub in range(wsub):
+			color = [math.imix(c, 0, random.uniform(0, 0.2)) for c in color0]
+			surf.set_at((xsub, ysub), color)
+	return pygame.transform.smoothscale(surf, pview.size)
+
+def drawbackdrop():
+	pview.screen.blit(backdrop(pview.size, view.camera.yP0, pview.f * view.camera.SscaleP), (0, 0))
+
 
 def drawlight():
 	surf = ssurf()

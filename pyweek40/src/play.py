@@ -28,7 +28,7 @@ def drawedge(pG0, pG1):
 	pygame.draw.line(pview.screen, (100, 50, 50), view.VconvertG(pG0), view.VconvertG(pG1), 1) 
 
 def draw():
-	pview.fill((0, 0, 40))
+	graphics.drawbackdrop()
 	grid.draw()
 	if False:
 		drawedge((-0.5, 0), (-0.5, 10))

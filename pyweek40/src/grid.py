@@ -11,6 +11,9 @@ class Node:
 		self.parent = parent
 		self.children = []
 
+	def isleaf(self):
+		return not self.children
+
 	def branches(self):
 		x, y = self.p
 		return [(x, y + 1), (x + 1, y + 1)]
@@ -42,6 +45,9 @@ class Structure:
 		self.segs = list(adjs([self.pbase] + self.ps))
 		self.t = 0
 		self.taccum = 0
+
+	def isleaf():
+		return True
 
 	def branches(self):
 		return []
@@ -184,6 +190,8 @@ class Grid:
 			return False
 		x, y = p
 		if x in [0, y]:  # Don't remove leftmost or rightmost branch.
+			return False
+		if not self.nodes[p].isleaf():
 			return False
 		return True
 
