@@ -3,6 +3,8 @@ costs = {
 	"segment": 1,
 	"office": 10,
 	"spire": 20,
+	"residence1": 1,
+	"vending1": 1,
 }
 
 level = 0

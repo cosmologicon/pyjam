@@ -9,10 +9,12 @@ class Info:
 		self.t = 0
 		self.T = 1
 		self.f = 0
+		self.alive = True
 	
 	def think(self, dt):
 		self.t += dt
-		self.f = self.t / self.T
+		self.f = math.clamp(self.t / self.T, 0, 1)
+		self.alive = self.f < 1
 
 	def draw(self):
 		f = self.f ** 0.4

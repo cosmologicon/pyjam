@@ -73,6 +73,61 @@ class Structure:
 	def draw(self):
 		graphics.drawstructure(self.pbase, self.ps, self.text, self.color)
 
+class Residence(Structure):
+	text = "residence"
+	color = (70, 60, 40)
+	def __init__(self, parent):
+		Structure.__init__(self, parent)
+		self.residents = []
+		for _ in range(self.occupancy):
+			obj = thing.Shopper(self)
+			state.things.append(obj)
+			self.residents.append(obj)
+
+	def nearestshop(self):
+		shops = [obj for obj in grid.structures if isinstance(obj, Vending)]
+		if not shops: return None
+		random.shuffle(shops)
+		return min(shops, key = lambda shop: grid.distancebetween(self.pbase, shop.pbase))
+
+
+class Vending(Structure):
+	text = "vending"
+	color = (70, 40, 70)
+	def __init__(self, parent):
+		Structure.__init__(self, parent)
+		self.queue = []
+		self.tstock = 0
+		self.fstock = 0
+
+	def think(self, dt):
+		Structure.think(self, dt)
+		self.tstock = math.approach(self.tstock, self.Tstock, dt)
+		self.fstock = self.tstock / self.Tstock
+		if self.fstock == 1 and self.queue:
+			shopper = self.queue.pop(0)
+			shopper.fulfill()
+			self.tstock = 0
+
+	def arrive(self, shopper):
+		self.queue.append(shopper)
+
+	def draw(self):
+		Structure.draw(self)
+		graphics.drawprogress(self.p0, self.fstock)
+
+class Residence1(Residence):
+	dps = [(0, 1), (1, 1), (1, 2)]
+	occupancy = 1
+
+class Vending1(Vending):
+	dps = [(0, 1), (1, 1), (1, 2)]
+	Tstock = 15
+
+
+
+
+
 class Office(Structure):
 	Tincome = 5
 	income = 1
@@ -89,6 +144,8 @@ class Spire(Structure):
 stypes = {
 	"office": Office,
 	"spire": Spire,
+	"residence1": Residence1,
+	"vending1": Vending1,
 }
 
 
@@ -115,6 +172,12 @@ class Grid:
 				p1 = self.nodes[p1].parent.p
 			self.LCAcache[key] = self.LCA(p0, p1)
 		return self.LCAcache[key]
+
+	def distancebetween(self, p0, p1):
+		x0, y0 = p0
+		x1, y1 = p1
+		x, y = self.LCA(p0, p1)
+		return abs(y0 - y) + abs(y1 - y)
 
 	def stepto(self, p0, p1):
 		if p0 == p1: return None

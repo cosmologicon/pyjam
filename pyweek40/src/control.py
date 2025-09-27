@@ -41,11 +41,9 @@ class Control:
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
 				self.tool = None
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
-				self.tool = "office"
+				self.tool = "residence1"
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_3:
-				self.tool = "spire"
-			if event.type == pygame.KEYDOWN and event.key == pygame.K_4:
-				grid.spawnshopper()
+				self.tool = "vending1"
 				
 		button0, button1, button2 = pygame.mouse.get_pressed(3)
 		dxV, dyV = pygame.mouse.get_rel()
@@ -63,7 +61,7 @@ class Control:
 				effects.addburstsegment(obj)
 		if self.tool == "remove":
 			grid.removeat(self.Gcursor)
-		if self.tool in ["office", "spire"]:
+		if self.tool in ["office", "spire", "residence1", "vending1"]:
 			grid.addstructure(self.tool, p0)
 			state.spend(self.tool)
 		

@@ -6,9 +6,11 @@ from .pview import T
 
 def init():
 	state.init()
+	grid.addsegment(((0, 1), (1, 2)))
+	grid.addstructure("residence1", (1, 2))
+	grid.addsegment(((0, 3), (1, 4)))
+	grid.addstructure("vending1", (1, 4))
 	if False:
-		grid.addsegment(((0, 1), (1, 2)))
-		grid.addstructure("office", (1, 2))
 		grid.addsegment(((0, 3), (1, 4)))
 		grid.addstructure("spire", (1, 4))
 		grid.addsegment(((3, 3), (3, 4)))

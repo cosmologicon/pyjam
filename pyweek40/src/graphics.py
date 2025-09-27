@@ -286,4 +286,10 @@ def drawstructure(pG0, pGs, text, color0):
 	ptext.draw(text, center = view.VconvertG(pG0), fontsize = view.VscaleP(0.5),
 		owidth = 1)
 
+def drawprogress(pG, fstock):
+	pV = view.VconvertG(pG)
+	text = f"{int(100 * fstock)}%"
+	ptext.draw(text, center = pV, fontsize = view.VscaleP(0.3), owidth = 1)
+
+
 

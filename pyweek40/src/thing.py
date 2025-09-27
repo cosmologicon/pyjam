@@ -7,12 +7,15 @@ class Tenant:
 	def __init__(self, pP):
 		self.pP = pP
 		self.targetP = None
-		self.home = None
 		self.alive = True
 		self.t = 0
 		self.seed = random.random()
 		self.point = 0
 		self.flip = False
+		self.omega0 = fuzz.uniform(2, 3, 0, self.seed)
+		self.omega1 = fuzz.uniform(2, 3, 1, self.seed)
+		self.phi0 = fuzz.uniform(0, math.tau, 2, self.seed)
+		self.phi1 = fuzz.uniform(0, math.tau, 3, self.seed)
 
 	def think(self, dt):
 		self.t += dt
@@ -22,12 +25,15 @@ class Tenant:
 			self.pP = math.softapproach(self.pP, self.targetP, v * dt, dymin = 0.01)
 			if self.pP == self.targetP:
 				self.targetP = None
-		if self.targetP is None and random.random() < dt:
-			self.targetP = self.selecttarget()
-			if self.targetP is not None and self.targetP != self.pP:
-				dxP, dyP = math.vminus(self.targetP, self.pP)
-				self.point = math.degrees(math.atan2(dyP, abs(dxP))) * (1 if dxP > 0 else -1)
-				self.flip = dxP < 0
+		if self.targetP is None: # and random.random() < dt:
+			self.settarget(self.selecttarget())
+
+	def settarget(self, targetP):
+		self.targetP = targetP
+		if self.targetP is not None and self.targetP != self.pP:
+			dxP, dyP = math.vminus(self.targetP, self.pP)
+			self.point = math.degrees(math.atan2(dyP, abs(dxP))) * (1 if dxP > 0 else -1)
+			self.flip = dxP < 0
 
 	def selecttarget(self):
 		if not self.alive: return None
@@ -38,12 +44,8 @@ class Tenant:
 		return view.PconvertG(pG)
 
 	def offsetP(self):
-		omega0 = fuzz.uniform(2, 3, 0, self.seed)
-		omega1 = fuzz.uniform(2, 3, 1, self.seed)
-		phi0 = fuzz.uniform(0, math.tau, 2, self.seed)
-		phi1 = fuzz.uniform(0, math.tau, 3, self.seed)
-		dxP = 0.2 * math.sin(omega0 * self.t + phi0)
-		dyP = 0.2 * math.sin(omega1 * self.t + phi1)
+		dxP = 0.2 * math.sin(self.omega0 * self.t + self.phi0)
+		dyP = 0.2 * math.sin(self.omega1 * self.t + self.phi1)
 		return dxP, dyP
 
 	def draw(self):
@@ -51,30 +53,58 @@ class Tenant:
 		angle = self.point + 10 * math.sin(2 * self.t)
 		graphics.drawimgP(pP, "fish", scaleP = 0.3, angle = angle, flip_x = self.flip, color = self.color)
 
+
 class Shopper(Tenant):
 	color = 200, 100, 100
 	amount = 10
-	def __init__(self, spawner, destination):
-		Tenant.__init__(self, view.PconvertG(spawner.p0))
-		self.destination = destination
-		self.targetP = view.PconvertG(spawner.pbase)
+	def __init__(self, home):
+		Tenant.__init__(self, view.PconvertG(home.p0))
+		self.home = home
+		self.destination = None
+		self.arrived = False
+		self.targetP = view.PconvertG(self.home.pbase)
 
 	def arrive(self):
-		if not self.alive: return
-		self.alive = False
+		self.arrived = True
+		self.destination.arrive(self)
+
+	def fulfill(self):
 		effects.addinfoP(self.pP, f"+${self.amount}")
 		state.earn(self.amount)
-		
+		self.settargetG(self.destination.pbase)
+		self.destination = None
+		self.arrived = False
+
+	def settargetG(self, targetG):
+		self.settarget(view.PconvertG(targetG))
 
 	def selecttarget(self):
+		targetG = self.selecttargetG()
+		return view.PconvertG(targetG) if targetG is not None else None
+
+	def selecttargetG(self):
 		pG = view.GnearestP(self.pP)
-		if self.pP == view.PconvertG(self.destination.p0):
-			self.arrive()
-			return None
-		elif pG == self.destination.pbase:
-			return view.PconvertG(self.destination.p0)
+		if self.arrived:
+			return random.choice(self.destination.ps)
+		if self.destination is None:
+			if pG in self.home.ps:
+				if random.random() < 1 and self.home.nearestshop():
+					self.destination = self.home.nearestshop()
+					return self.selecttargetG()
+				else:
+					return random.choice(self.home.ps)
+			elif pG == self.home.pbase:
+				return random.choice(self.home.ps)
+			else:
+				return grid.stepto(pG, self.home.pbase)
 		else:
-			return view.PconvertG(grid.stepto(pG, self.destination.pbase))
+			if pG in self.destination.ps:
+				self.arrive()
+				return self.selecttargetG()
+			elif pG == self.destination.pbase:
+				return random.choice(self.destination.ps)
+			else:
+				return grid.stepto(pG, self.destination.pbase)
 			
 
 
