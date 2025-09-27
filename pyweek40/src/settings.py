@@ -1,4 +1,4 @@
-gamename = "Skyscraper City"
+gamename = "Airscraper"
 
 size0 = 1280, 720
 heights = 360, 540, 720, 1080
