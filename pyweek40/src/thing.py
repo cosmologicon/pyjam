@@ -30,9 +30,12 @@ class Tenant:
 		self.flip = False
 		self.flail = Lissajous(0.2, 2, 3, self.seed)
 		self.color = random.choice([
-			(240, 200, 160),
-			(160, 240, 160),
 			(240, 160, 160),
+			(240, 200, 160),
+			(240, 240, 160),
+			(160, 240, 160),
+			(120, 240, 240),
+			(160, 160, 240),
 		])
 		self.imgname = "fish-0"
 
@@ -44,7 +47,7 @@ class Tenant:
 			self.pP = math.softapproach(self.pP, self.targetP, v * dt, dymin = 0.01)
 			if self.pP == self.targetP:
 				self.targetP = None
-		if self.targetP is None: # and random.random() < dt:
+		if self.targetP is None and 0.1 * random.random() < dt:
 			self.settarget(self.selecttarget())
 		if 0.4 * random.random() < dt:
 			effects.addbreathbubbleP(self.pP)
@@ -67,15 +70,17 @@ class Tenant:
 	def draw(self):
 		pP = math.vtplus(self.pP, self.flail(self.t))
 		angle = self.point + 10 * math.sin(2 * self.t)
-		graphics.drawimgP(pP, self.imgname, scaleP = 0.3, angle = angle, flip_x = self.flip, color = self.color)
+		color = self.color
+		graphics.drawimgP(pP, self.imgname, scaleP = 0.3, angle = angle, flip_x = self.flip, color = color)
 
 
 class Shopper(Tenant):
 	color = 200, 100, 100
 	amount = 10
-	def __init__(self, home):
+	def __init__(self, home, inert):
 		Tenant.__init__(self, view.PconvertG(home.p0))
 		self.home = home
+		self.inert = inert
 		self.destination = None
 		self.arrived = False
 		self.targetP = view.PconvertG(self.home.pbase)
@@ -106,7 +111,7 @@ class Shopper(Tenant):
 			return randomp(self.destination.ps)
 		if self.destination is None:
 			if pG in self.home.ps:
-				if random.random() < 1 and self.home.nearestshop():
+				if not self.inert and random.random() < 1 and self.home.nearestshop():
 					self.destination = self.home.nearestshop()
 					return self.selecttargetG()
 				else:
@@ -127,8 +132,9 @@ class Shopper(Tenant):
 class Vendor:
 	color = 160, 60, 140
 	scaleP = 0.6
-	def __init__(self, home):
+	def __init__(self, home, inert):
 		self.home = home
+		self.inert = inert
 		self.pP = view.PconvertG(home.p0)
 		self.alive = True
 		self.t = 0
@@ -138,18 +144,22 @@ class Vendor:
 		self.puff = Oscillator(0.1, 2, 3, 202, self.seed)
 		self.imgname = "puff-0"
 
+	def drawp(self):
+		return math.vtplus(self.pP, self.flail(self.t))
+
+
 	def think(self, dt):
 		self.t += dt
 		if 0.4 * random.random() < dt:
-			effects.addbreathbubbleP(self.pP)
+			effects.addbreathbubbleP(math.vtplus(self.drawp(), (0, 1), 0.4))
 
 	def draw(self):
-		pP = math.vtplus(self.pP, self.flail(self.t))
 		scaleP = self.scaleP * math.exp(self.puff(self.t))
-		scaleP *= math.mix(0.4, 1, self.home.fstock)
+		if not self.inert:
+			scaleP *= math.mix(0.4, 1, self.home.fstock)
 		angle = self.rock(self.t)
-		text = f"{int(self.home.fstock * 100)}%"
-		graphics.drawimgtextP(pP, self.imgname, text, scaleP = scaleP, angle = angle, color = self.color)
+		text = "" if self.inert else f"{int(self.home.fstock * 100)}%"
+		graphics.drawimgtextP(self.drawp(), self.imgname, text, scaleP = scaleP, angle = angle, color = self.color)
 
 
 

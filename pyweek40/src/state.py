@@ -5,12 +5,17 @@ costs = {
 	"spire": 20,
 	"residence1": 10,
 	"vending1": 10,
+	"residence2": 100,
+	"vending2": 100,
+	"residence3": 500,
+	"vending3": 500,
 }
 
 level = 0
 maxheight = 0
-maxheights = [6, 9, 12, 15, 18]
+maxheights = [6, 10, 15, 21, 28]
 growcosts = [30, 60, 100, 100, 200]
+growcosts = [0, 0, 0, 0, 0]
 growpops = [2, 5, 10, 20]
 money = 30
 maxmoney = 30

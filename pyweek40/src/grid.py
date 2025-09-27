@@ -38,6 +38,8 @@ def adjsof(p, ps):
 			yield (x1, y1)
 		if x0 in (x1, x1 + 1) and y0 == y1 + 1:
 			yield (x1, y1)
+		if x1 in (x0 - 1, x0 + 1) and y0 == y1:
+			yield (x1, y1)
 
 
 
@@ -79,8 +81,11 @@ class Structure:
 				self.taccum -= self.Tincome
 				self.getincome()
 
-	def draw(self, shade = None):
-		graphics.drawstructure(self.pbase, self.ps, self.text, self.color, shade)
+	def draw(self, shade = None, glow = False):
+		color = self.color
+		if glow:
+			color = math.imix(color, (255, 255, 255), 0.5)
+		graphics.drawstructure(self.pbase, self.ps, self.text, color, shade)
 
 class Residence(Structure):
 	text = "residence"
@@ -89,9 +94,9 @@ class Residence(Structure):
 		Structure.__init__(self, parent)
 		self.residents = []
 
-	def place(self):
+	def place(self, inert = False):
 		for _ in range(self.occupancy):
-			obj = thing.Shopper(self)
+			obj = thing.Shopper(self, inert = inert)
 			state.things.append(obj)
 			self.residents.append(obj)
 
@@ -112,9 +117,9 @@ class Vending(Structure):
 		self.fstock = 0
 		self.vendors = []
 
-	def place(self):
+	def place(self, inert = False):
 		for _ in range(self.nvendor):
-			obj = thing.Vendor(self)
+			obj = thing.Vendor(self, inert)
 			state.things.append(obj)
 			self.vendors.append(obj)
 
@@ -130,8 +135,8 @@ class Vending(Structure):
 	def arrive(self, shopper):
 		self.queue.append(shopper)
 
-	def draw(self, shade = None):
-		Structure.draw(self, shade)
+	def draw(self, shade = None, glow = False):
+		Structure.draw(self, shade = shade, glow = glow)
 #		graphics.drawprogress(self.p0, self.fstock)
 
 class Residence1(Residence):
@@ -140,7 +145,25 @@ class Residence1(Residence):
 
 class Vending1(Vending):
 	dps = [(0, 1), (1, 1), (1, 2)]
-	Tstock = 15
+	Tstock = 20
+	nvendor = 1
+
+class Residence2(Residence):
+	dps = [(0, 1), (1, 1), (0, 2), (1, 2), (1, 3)]
+	occupancy = 3
+
+class Vending2(Vending):
+	dps = [(0, 1), (1, 1), (1, 2), (2, 2), (2, 3)]
+	Tstock = 5
+	nvendor = 1
+
+class Residence3(Residence):
+	dps = [(0, 1), (1, 1), (1, 2), (1, 3), (2, 3), (2, 4), (2, 5), (3, 5), (3, 6)]
+	occupancy = 10
+
+class Vending3(Vending):
+	dps = [(-1, 1), (0, 1), (1, 1), (2, 1), (0, 2), (1, 2), (2, 2), (1, 3), (2, 3), (2, 4)]
+	Tstock = 1
 	nvendor = 1
 
 
@@ -165,6 +188,10 @@ stypes = {
 	"spire": Spire,
 	"residence1": Residence1,
 	"vending1": Vending1,
+	"residence2": Residence2,
+	"vending2": Vending2,
+	"residence3": Residence3,
+	"vending3": Vending3,
 }
 
 

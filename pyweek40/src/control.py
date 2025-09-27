@@ -40,6 +40,33 @@ class GrowButton(Button):
 		self.text = f"pop: {state.getpop()}"
 		Button.draw(self)
 
+selectorsegments = {
+	"residence1": ((-3, 0), (-3, 1)),
+	"residence2": ((-6, 0), (-6, 1)),
+	"residence3": ((-10, 0), (-10, 1)),
+	"vending1": ((3, 0), (4, 1)),
+	"vending2": ((6, 0), (7, 1)),
+	"vending3": ((10, 0), (11, 1)),
+}
+
+class Selector:
+	def __init__(self, stype):
+		self.stype = stype
+		self.segment = selectorsegments[stype]
+		p0, p1 = self.segment
+		node0 = grid.Node(p0)
+		self.parent = grid.Node(p1, node0)
+		self.structure = grid.stypes[stype](self.parent)
+		self.structure.place(inert = True)
+		self.selected = False
+	
+	def draw(self):
+		graphics.drawsegment(*self.segment)
+		self.structure.draw(glow = self.selected)
+
+	def withinG(self, pG):
+		return pG == self.structure.pbase or pG in self.structure.ps
+
 class Control:
 	def __init__(self):
 		self.playing = True
@@ -50,6 +77,14 @@ class Control:
 		pygame.mouse.get_rel()
 		self.Gcursor = (0, 0)
 		self.Gsegment = (0, 0), (0, 1)
+		self.selectors = [
+			Selector("residence1"),
+			Selector("vending1"),
+			Selector("residence2"),
+			Selector("vending2"),
+			Selector("residence3"),
+			Selector("vending3"),
+		]
 
 	def tick(self):
 		dt = min(0.001 * self.clock.tick(settings.maxfps), 1 / settings.minfps)
@@ -94,6 +129,10 @@ class Control:
 			if button.active and button.withinV(self.mposV):
 				self.clickbutton(button)
 				return
+		for selector in self.selectors:
+			if selector.withinG(self.Gcursor):
+				self.clickselector(selector)
+				return
 		segment = self.Gsegment
 		p0, p1 = segment
 		if self.tool is None:
@@ -111,14 +150,28 @@ class Control:
 				self.tool = None
 				for button in buttons:
 					button.selected = False
+				for selector in self.selectors:
+					selector.selected = False
 
 	def clickbutton(self, button):
 		if button.selected:
-			button.selected = False
+			for button in buttons:
+				button.selected = False
 			self.tool = None
 		else:
+			for button in buttons:
+				button.selected = False
 			button.selected = True
 			self.tool = button.text
+
+	def clickselector(self, selector):
+		isselected = selector.selected
+		for obj in self.selectors:
+			obj.selected = False
+		self.tool = None
+		if not isselected:
+			selector.selected = True
+			self.tool = selector.stype
 
 	def drawcursor(self):
 		if self.tool is None:
@@ -140,13 +193,17 @@ def init():
 	global control, buttons
 	control = Control()
 	buttons = [
-		Button("residence1", pygame.Rect(500, 600, 100, 100), True),
-		Button("vending1", pygame.Rect(800, 600, 100, 100), True),
-		GrowButton(pygame.Rect(100, 600, 100, 100)),
+#		Button("residence1", pygame.Rect(500, 600, 100, 100), True),
+#		Button("vending1", pygame.Rect(800, 600, 100, 100), True),
+#		GrowButton(pygame.Rect(100, 600, 100, 100)),
 	]
 
 def tick():
 	control.tick()
+
+def drawselectors():
+	for obj in control.selectors:
+		obj.draw()
 
 def drawhud():
 	for obj in buttons:

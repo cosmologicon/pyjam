@@ -7,9 +7,9 @@ from .pview import T
 def init():
 	state.init()
 	grid.addsegment(((0, 1), (1, 2)))
-	grid.addstructure("residence1", (1, 2))
+	grid.addstructure("residence2", (1, 2))
 	grid.addsegment(((0, 3), (1, 4)))
-	grid.addstructure("vending1", (1, 4))
+	grid.addstructure("vending2", (1, 4))
 	if False:
 		grid.addsegment(((0, 3), (1, 4)))
 		grid.addstructure("spire", (1, 4))
@@ -32,6 +32,7 @@ def drawedge(pG0, pG1):
 def draw():
 	graphics.drawbackdrop()
 	grid.draw()
+	control.drawselectors()
 	if False:
 		drawedge((-0.5, 0), (-0.5, 10))
 		drawedge((0.5, 0), (10.5, 10))
