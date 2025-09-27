@@ -23,6 +23,10 @@ def getcost(costtype):
 	else:
 		return costs[costtype]
 
+def canspend(costtype):
+	amount = getcost(costtype)
+	return money >= amount
+
 def spend(costtype):
 	global money
 	amount = getcost(costtype)

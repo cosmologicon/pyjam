@@ -134,6 +134,7 @@ class Grid:
 		if parent is not None:
 			parent.children.append(node)
 		self.resetcache()
+		return node
 
 	# Returns the structure on True.
 	def canaddstructure(self, stypename, p0):
@@ -180,10 +181,9 @@ class Grid:
 
 	def addsegment(self, segment):
 		if not self.canaddsegment(segment):
-			return False
+			return None
 		p0, p1 = segment
-		self.addnode(p1, self.nodes[p0])
-		return True
+		return self.addnode(p1, self.nodes[p0])
 
 	def canremoveat(self, p):
 		if p not in self.nodes:
@@ -214,6 +214,9 @@ grid = Grid()
 def segments():
 	for node in grid.nodes.values():
 		yield from node.segments()
+
+def canaddsegment(segment):
+	return grid.canaddsegment(segment)
 
 def addsegment(segment):
 	return grid.addsegment(segment)

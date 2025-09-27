@@ -1,6 +1,6 @@
-import pygame
+import pygame, math
 from . import pview
-from . import settings, view, grid, state
+from . import settings, view, grid, state, effects
 
 class Control:
 	def __init__(self):
@@ -57,8 +57,10 @@ class Control:
 		segment = self.Gsegment
 		p0, p1 = segment
 		if self.tool is None:
-			grid.addsegment(segment)
-			state.spend("segment")
+			if state.canspend("segment") and grid.canaddsegment(segment):
+				obj = grid.addsegment(segment)
+				state.spend("segment")
+				effects.addburstsegment(obj)
 		if self.tool == "remove":
 			grid.removeat(self.Gcursor)
 		if self.tool in ["office", "spire"]:
