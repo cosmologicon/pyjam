@@ -1,6 +1,26 @@
 import pygame, math
 from . import pview
-from . import settings, view, grid, state, effects
+from . import settings, view, grid, state, effects, ptext, graphics
+from .pview import T
+
+class Button:
+	def __init__(self, text, boxS, active = False):
+		self.boxS = boxS
+		self.text = text
+		self.active = active
+		self.selected = False
+
+	def withinV(self, pV):
+		return view.VconvertS(self.boxS).collidepoint(pV)
+	
+	def draw(self):
+		if not self.active:
+			return
+		boxV = view.VconvertS(self.boxS)
+		color = (140, 140, 140) if self.selected else (60, 60, 60)
+		pygame.draw.rect(pview.screen, color, boxV)
+		ptext.draw(self.text, fontsize = T(40), center = boxV.center, owidth = 1)
+		
 
 class Control:
 	def __init__(self):
@@ -52,6 +72,10 @@ class Control:
 		self.dts.append(dt)
 
 	def onclick(self):
+		for button in buttons:
+			if button.active and button.withinV(self.mposV):
+				self.clickbutton(button)
+				return
 		segment = self.Gsegment
 		p0, p1 = segment
 		if self.tool is None:
@@ -62,16 +86,55 @@ class Control:
 		if self.tool == "remove":
 			grid.removeat(self.Gcursor)
 		if self.tool in ["office", "spire", "residence1", "vending1"]:
-			grid.addstructure(self.tool, p0)
-			state.spend(self.tool)
-		
+			if state.canspend(self.tool) and grid.canaddstructure(self.tool, self.Gcursor):
+				obj = grid.addstructure(self.tool, self.Gcursor)
+				effects.addburststructure(obj)
+				state.spend(self.tool)
+				self.tool = None
+				for button in buttons:
+					button.selected = False
+
+	def clickbutton(self, button):
+		if button.selected:
+			button.selected = False
+			self.tool = None
+		else:
+			button.selected = True
+			self.tool = button.text
+
+	def drawcursor(self):
+		if self.tool is None:
+#			parent = grid.canextend(self.Gcursor)
+#			print(self.Gcursor, parent)
+			if grid.canaddsegment(self.Gsegment):
+				shade = (255, 255, 255, 140) if grid.canaddsegment(self.Gsegment) else (255, 50, 50, 140)
+				graphics.drawsegment(*self.Gsegment, shade = shade)
+		elif self.tool == "remove":
+			pass
+		elif self.tool.startswith("residence") or self.tool.startswith("vending"):
+			parent = grid.canextend(self.Gcursor)
+			if parent:
+				obj = grid.structurefrom(self.tool, parent)
+				shade = (255, 255, 255, 140) if grid.canaddstructure(self.tool, self.Gcursor) else (255, 50, 50, 140)
+				obj.draw(shade = shade)
 
 def init():
-	global control
+	global control, buttons
 	control = Control()
+	buttons = [
+		Button("residence1", pygame.Rect(500, 600, 100, 100), True),
+		Button("vending1", pygame.Rect(800, 600, 100, 100), True),
+	]
 
 def tick():
 	control.tick()
+
+def drawhud():
+	for obj in buttons:
+		obj.draw()
+
+def drawcursor():
+	control.drawcursor()
 
 def playing():
 	return control.playing

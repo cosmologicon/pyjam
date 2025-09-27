@@ -50,7 +50,7 @@ class Bubble:
 		if not self.alive: return
 		pV = view.VconvertP(self.pP)
 		rV = view.VscaleP(self.rP)
-		pygame.draw.circle(pview.screen, (120, 120, 240), pV, rV, T(1))
+		pygame.draw.circle(pview.screen, (80, 80, 120), pV, rV, T(1))
 
 class Burst:
 	def __init__(self, pP, size = 10):
@@ -85,6 +85,10 @@ def addburstG(pG, size = 10):
 def addburstsegment(segment):
 	for a in (0, 0.25, 0.5, 0.75, 1):
 		addburstG(math.mix(segment.p, segment.parent.p, a), 10)
+
+def addburststructure(structure):
+	for p in structure.ps + [structure.pbase]:
+		addburstG(p, 30)
 
 def think(dt):
 	global effects

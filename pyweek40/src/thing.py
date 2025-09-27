@@ -84,17 +84,19 @@ class Shopper(Tenant):
 
 	def selecttargetG(self):
 		pG = view.GnearestP(self.pP)
+		def randomp(ps):
+			return random.choice(list(grid.adjsof(pG, ps)))
 		if self.arrived:
-			return random.choice(self.destination.ps)
+			return randomp(self.destination.ps)
 		if self.destination is None:
 			if pG in self.home.ps:
 				if random.random() < 1 and self.home.nearestshop():
 					self.destination = self.home.nearestshop()
 					return self.selecttargetG()
 				else:
-					return random.choice(self.home.ps)
+					return randomp(self.home.ps)
 			elif pG == self.home.pbase:
-				return random.choice(self.home.ps)
+				return randomp(self.home.ps)
 			else:
 				return grid.stepto(pG, self.home.pbase)
 		else:
@@ -102,7 +104,7 @@ class Shopper(Tenant):
 				self.arrive()
 				return self.selecttargetG()
 			elif pG == self.destination.pbase:
-				return random.choice(self.destination.ps)
+				return randomp(self.destination.ps)
 			else:
 				return grid.stepto(pG, self.destination.pbase)
 			

@@ -42,7 +42,9 @@ def draw():
 	for obj in state.things:
 		obj.draw()
 	effects.draw()
-	graphics.drawsegment(*control.Gsegment(), lit = True)
+	control.drawhud()
+	control.drawcursor()
+#	graphics.drawsegment(*control.Gsegment(), lit = True)
 #	graphics.drawlight()
 
 

@@ -170,7 +170,10 @@ def sphereimg(r, color = None):
 
 
 @lru_cache(1000)
-def specsurf0(spec, SscaleP):
+def specsurf0(spec, SscaleP, shade = None):
+	if shade is not None:
+		surf, offset = specsurf0(spec, SscaleP)
+		return shadeimg(surf, shade), offset
 	pPs, rPs, colors = zip(*spec)
 	pVs = [(view.VscaleP(xP), -view.VscaleP(yP)) for xP, yP in pPs]
 	rVs = [view.VscaleP(rP) for rP in rPs]
@@ -187,15 +190,15 @@ def specsurf0(spec, SscaleP):
 #		pygame.draw.circle(surf, color, math.vminus(pV, offset), rV)
 	return surf, offset
 
-def specsurf(spec):
+def specsurf(spec, shade = None):
 	pP0 = spec[0][0]
 	spec = tuple(tuple(a) for a in spec)
-	surf, offset = specsurf0(spec, view.camera.SscaleP)
+	surf, offset = specsurf0(spec, view.camera.SscaleP, shade)
 	offset = math.vtplus(offset, view.VconvertP((0, 0)))
 	return surf, offset
 
-def segsurf(pG0, pG1, color0, color1):
-	return specsurf(segmentspec(pG0, pG1, color0, color1))
+def segsurf(pG0, pG1, color0, color1, shade = None):
+	return specsurf(segmentspec(pG0, pG1, color0, color1), shade = shade)
 
 @lru_cache(10000)
 def nodecolor(pG):
@@ -207,16 +210,9 @@ def nodecolor(pG):
 
 
 
-def drawsegment(pG0, pG1, lit = False):
-	if lit:
-		xV0, yV0 = view.VconvertG(pG0)
-		xV1, yV1 = view.VconvertG(pG1)
-		dV = view.VscaleP(0.22)
-		ps = [(xV0 - dV, yV0), (xV1 - dV, yV1), (xV1 + dV, yV1), (xV0 + dV, yV0)]
-		pygame.draw.polygon(pview.screen, (160, 80, 80), ps, T(2))
-	else:
-		surf, offset = segsurf(pG0, pG1, nodecolor(pG0), nodecolor(pG1))
-		pview.screen.blit(surf, offset)
+def drawsegment(pG0, pG1, shade = None, special_flags = 0):
+	surf, offset = segsurf(pG0, pG1, nodecolor(pG0), nodecolor(pG1), shade = shade)
+	pview.screen.blit(surf, offset, special_flags = special_flags)
 
 HscaleG = 4
 def HconvertG(pG):
@@ -277,11 +273,11 @@ def PstructurepartsG(pG0, pGs, color):
 			pPouts.append(dbezier(pP0, dP(pP0), pP1, dP(pP1), jt / 19))
 	return [(pP, 0.05, color) for pP in pPouts]
 
-def structuresurf(pG0, pGs, color):
-	return specsurf(PstructurepartsG(pG0, tuple(pGs), color))
+def structuresurf(pG0, pGs, color, shade = None):
+	return specsurf(PstructurepartsG(pG0, tuple(pGs), color), shade)
 
-def drawstructure(pG0, pGs, text, color0):
-	surf, offset = structuresurf(pG0, pGs, color0)
+def drawstructure(pG0, pGs, text, color0, shade = None):
+	surf, offset = structuresurf(pG0, pGs, color0, shade)
 	pview.screen.blit(surf, offset)
 	ptext.draw(text, center = view.VconvertG(pG0), fontsize = view.VscaleP(0.5),
 		owidth = 1)

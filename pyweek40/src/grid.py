@@ -1,4 +1,4 @@
-import random, math
+import random, math, pygame
 from . import state, effects, graphics, thing
 
 # All coordinates in this module are G (grid) coordinates
@@ -30,6 +30,15 @@ def adjs(ps):
 		for x1, y1 in sorted(ps):
 			if x1 in (x0, x0 + 1) and y1 == y0 + 1:
 				yield (x0, y0), (x1, y1)
+
+def adjsof(p, ps):
+	x0, y0 = p
+	for x1, y1 in sorted(ps):
+		if x1 in (x0, x0 + 1) and y1 == y0 + 1:
+			yield (x1, y1)
+		if x0 in (x1, x1 + 1) and y0 == y1 + 1:
+			yield (x1, y1)
+
 
 
 class Structure:
@@ -70,8 +79,8 @@ class Structure:
 				self.taccum -= self.Tincome
 				self.getincome()
 
-	def draw(self):
-		graphics.drawstructure(self.pbase, self.ps, self.text, self.color)
+	def draw(self, shade = None):
+		graphics.drawstructure(self.pbase, self.ps, self.text, self.color, shade)
 
 class Residence(Structure):
 	text = "residence"
@@ -79,10 +88,13 @@ class Residence(Structure):
 	def __init__(self, parent):
 		Structure.__init__(self, parent)
 		self.residents = []
+
+	def place(self):
 		for _ in range(self.occupancy):
 			obj = thing.Shopper(self)
 			state.things.append(obj)
 			self.residents.append(obj)
+			print(obj, self.residents)
 
 	def nearestshop(self):
 		shops = [obj for obj in grid.structures if isinstance(obj, Vending)]
@@ -99,6 +111,9 @@ class Vending(Structure):
 		self.queue = []
 		self.tstock = 0
 		self.fstock = 0
+
+	def place(self):
+		pass
 
 	def think(self, dt):
 		Structure.think(self, dt)
@@ -199,15 +214,23 @@ class Grid:
 		self.resetcache()
 		return node
 
-	# Returns the structure on True.
-	def canaddstructure(self, stypename, p0):
-		if p0 not in self.nodes:
+	def canextend(self, p):
+		if p not in self.nodes:
 			return False
-		parent = self.nodes[p0]
+		parent = self.nodes[p]
 		if not parent.canextend():
 			return False
+		return parent
+
+	def structurefrom(self, stypename, parent):
 		stype = stypes[stypename]
-		structure = stype(parent)
+		return stype(parent)
+
+	# Returns the structure on True.
+	def canaddstructure(self, stypename, p0):
+		parent = self.canextend(p0)
+		if not parent: return False
+		structure = self.structurefrom(stypename, parent)
 		if any(p in self.nodes for p in structure.ps):
 			return False
 		if not all(state.inbounds(p) for p in structure.ps):
@@ -224,6 +247,7 @@ class Grid:
 			structure.parent.children.append(structure)
 		self.structures.append(structure)
 		self.resetcache()
+		structure.place()
 		return structure
 
 	def addrandomnode(self):
@@ -278,15 +302,26 @@ def segments():
 	for node in grid.nodes.values():
 		yield from node.segments()
 
+def canextend(p):
+	return grid.canextend(p)
+
 def canaddsegment(segment):
 	return grid.canaddsegment(segment)
 
 def addsegment(segment):
 	return grid.addsegment(segment)
 
+def structurefrom(stypename, parent):
+	return grid.structurefrom(stypename, parent)
+
+def canaddstructure(stypename, p0):
+	return grid.canaddstructure(stypename, p0)
+
+
 # Return False on failure
 def addstructure(stypename, p0):
-	grid.addstructure(stypename, p0)
+	return grid.addstructure(stypename, p0)
+	
 
 def removeat(p):
 	return grid.removeat(p)
@@ -307,7 +342,7 @@ def think(dt):
 
 def draw():
 	for pG0, pG1 in segments():
-		graphics.drawsegment(pG0, pG1)
+		graphics.drawsegment(pG0, pG1, special_flags = pygame.BLEND_RGB_MAX)
 	for obj in grid.structures:
 		obj.draw()
 
