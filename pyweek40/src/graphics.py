@@ -27,12 +27,16 @@ def loadimg(imgname):
 	return pygame.image.load(os.path.join("img", f"{imgname}.png"))
 
 @lru_cache(100)
-def getimg0(imgname, scale = 1, angle = 0, flip_x = False, color = None):
+def getimg0(imgname, scale = 1, angle = 0, flip_x = False, color = None, text = None):
 	if scale != 1 or angle != 0:
-		img = getimg0(imgname, flip_x = flip_x, color = color)
+		img = getimg0(imgname, flip_x = flip_x, color = color, text = text)
 		w, h = img.get_size()
 		scale /= (math.hypot(w, h) / 2)
 		return pygame.transform.rotozoom(img, angle, scale)
+	if text is not None:
+		img = getimg0(imgname, flip_x = flip_x, color = color).copy()
+		ptext.draw(text, fontsize = 150, center = img.get_rect().center, surf = img, owidth = 1)
+		return img
 	if flip_x:
 		img = getimg0(imgname, color = color)
 		return pygame.transform.flip(img, flip_x, False)
@@ -41,14 +45,19 @@ def getimg0(imgname, scale = 1, angle = 0, flip_x = False, color = None):
 	return loadimg(imgname)
 	
 
-def getimg(imgname, scale, angle = 0, flip_x = False, color = None):
-	scale = math.exp(round(math.log(scale) * 10) / 10)
-	angle = round(angle / 2) * 2 % 360
-	return getimg0(imgname, scale, angle, flip_x, color)
+def getimg(imgname, scale, angle = 0, flip_x = False, color = None, text = None):
+	scale = math.exp(round(math.log(scale) * 100) / 100)
+	angle = round(angle / 2) * 2  % 360
+	return getimg0(imgname, scale, angle, flip_x, color, text)
 
 def drawimgP(pP, imgname, scaleP, angle = 0, flip_x = False, color = None):
 	scaleV = view.VscaleP_continuous(scaleP)
 	img = getimg(imgname, scaleV, angle, flip_x, color)
+	pview.screen.blit(img, img.get_rect(center = view.VconvertP(pP)))
+
+def drawimgtextP(pP, imgname, text, scaleP, angle = 0, flip_x = False, color = None):
+	scaleV = view.VscaleP_continuous(scaleP)
+	img = getimg(imgname, scaleV, angle, flip_x, color, text)
 	pview.screen.blit(img, img.get_rect(center = view.VconvertP(pP)))
 
 colorbands = [
@@ -139,6 +148,8 @@ def segmentspec(pG0, pG1, color0, color1):
 	ts = [j / Nsegspec for j in range(Nsegspec + 1)]
 	for t in ts:
 		pP = dbezier(pP0, dp0, pP1, dp1, t)
+		dp = fuzz.uniform(-1, 1, 0.123, *pP), fuzz.uniform(-1, 1, 0.234, *pP)
+		pP = math.vtplus(pP, dp, 0.04)
 		rP = fuzz.uniform(0.12, 0.2, t, *pG0, *pG1)
 		color = math.imix(color0, color1, t)
 		spec.append((pP, rP, color))
@@ -163,7 +174,7 @@ def sphereimg(r, color = None):
 				pixel = 0, 0, 0, 0
 			else:
 				z = 1 - math.sqrt(d)
-				a = math.interp(math.dot((x, y, z), (1, -1, 1)), 0, 0.7, 1, 1)
+				a = math.interp(math.dot((x, y, z), (0.4, -0.4, 2)), 0, 0.7, 1, 1)
 				pixel = math.imix((0, 0, 0, 255), (255, 255, 255, 255), a)
 			surf.set_at((px, py), pixel)
 	return surf
@@ -278,9 +289,9 @@ def structuresurf(pG0, pGs, color, shade = None):
 
 def drawstructure(pG0, pGs, text, color0, shade = None):
 	surf, offset = structuresurf(pG0, pGs, color0, shade)
-	pview.screen.blit(surf, offset)
-	ptext.draw(text, center = view.VconvertG(pG0), fontsize = view.VscaleP(0.5),
-		owidth = 1)
+	pview.screen.blit(surf, offset, special_flags = pygame.BLEND_RGB_MAX)
+#	ptext.draw(text, center = view.VconvertG(pG0), fontsize = view.VscaleP(0.5),
+#		owidth = 1)
 
 def drawprogress(pG, fstock):
 	pV = view.VconvertG(pG)

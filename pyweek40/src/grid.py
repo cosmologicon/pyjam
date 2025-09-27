@@ -94,7 +94,6 @@ class Residence(Structure):
 			obj = thing.Shopper(self)
 			state.things.append(obj)
 			self.residents.append(obj)
-			print(obj, self.residents)
 
 	def nearestshop(self):
 		shops = [obj for obj in grid.structures if isinstance(obj, Vending)]
@@ -111,9 +110,13 @@ class Vending(Structure):
 		self.queue = []
 		self.tstock = 0
 		self.fstock = 0
+		self.vendors = []
 
 	def place(self):
-		pass
+		for _ in range(self.nvendor):
+			obj = thing.Vendor(self)
+			state.things.append(obj)
+			self.vendors.append(obj)
 
 	def think(self, dt):
 		Structure.think(self, dt)
@@ -127,9 +130,9 @@ class Vending(Structure):
 	def arrive(self, shopper):
 		self.queue.append(shopper)
 
-	def draw(self):
-		Structure.draw(self)
-		graphics.drawprogress(self.p0, self.fstock)
+	def draw(self, shade = None):
+		Structure.draw(self, shade)
+#		graphics.drawprogress(self.p0, self.fstock)
 
 class Residence1(Residence):
 	dps = [(0, 1), (1, 1), (1, 2)]
@@ -138,6 +141,7 @@ class Residence1(Residence):
 class Vending1(Vending):
 	dps = [(0, 1), (1, 1), (1, 2)]
 	Tstock = 15
+	nvendor = 1
 
 
 

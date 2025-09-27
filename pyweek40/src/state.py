@@ -3,16 +3,17 @@ costs = {
 	"segment": 1,
 	"office": 10,
 	"spire": 20,
-	"residence1": 1,
-	"vending1": 1,
+	"residence1": 10,
+	"vending1": 10,
 }
 
 level = 0
 maxheight = 0
 maxheights = [6, 9, 12, 15, 18]
-growcosts = [10, 20, 50, 100, 200]
-money = 100
-maxmoney = 10000
+growcosts = [30, 60, 100, 100, 200]
+growpops = [2, 5, 10, 20]
+money = 30
+maxmoney = 30
 things = []
 
 
@@ -44,6 +45,9 @@ def earn(amount):
 def growcost():
 	return growcosts[level]
 
+def growpop():
+	return growpops[level]
+
 def growto(newlevel):
 	global maxheight, level
 	from . import grid, view
@@ -55,7 +59,15 @@ def growto(newlevel):
 		for seg in segs:
 			grid.addsegment(seg)
 
+def getpop():
+	return len(things)
+
+def cangrow():
+	return getpop() >= growpop() and canspend("grow")
+
 def grow():
+	if not cangrow():
+		return False
 	if not spend("grow"):
 		return False
 	growto(level + 1)

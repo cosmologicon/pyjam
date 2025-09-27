@@ -2,6 +2,22 @@ import pygame, math, random
 from . import view, grid, pview, effects, state, fuzz, graphics
 from .pview import T
 
+class Oscillator:
+	def __init__(self, A, omega0, omega1, *seed):
+		self.A = A
+		self.omega = fuzz.uniform(omega0, omega1, 0, *seed)
+		self.phi = fuzz.uniform(0, math.tau, 1, *seed)
+	def __call__(self, t):
+		return self.A * math.sin(self.omega * t + self.phi)
+
+class Lissajous:
+	def __init__(self, A, omega0, omega1, *seed):
+		self.dx = Oscillator(A, omega0, omega1, 100, *seed)
+		self.dy = Oscillator(A, omega0, omega1, 101, *seed)
+	def __call__(self, t):
+		return self.dx(t), self.dy(t)
+
+
 class Tenant:
 	color = 0, 80, 40
 	def __init__(self, pP):
@@ -12,10 +28,13 @@ class Tenant:
 		self.seed = random.random()
 		self.point = 0
 		self.flip = False
-		self.omega0 = fuzz.uniform(2, 3, 0, self.seed)
-		self.omega1 = fuzz.uniform(2, 3, 1, self.seed)
-		self.phi0 = fuzz.uniform(0, math.tau, 2, self.seed)
-		self.phi1 = fuzz.uniform(0, math.tau, 3, self.seed)
+		self.flail = Lissajous(0.2, 2, 3, self.seed)
+		self.color = random.choice([
+			(240, 200, 160),
+			(160, 240, 160),
+			(240, 160, 160),
+		])
+		self.imgname = "fish-0"
 
 	def think(self, dt):
 		self.t += dt
@@ -27,6 +46,8 @@ class Tenant:
 				self.targetP = None
 		if self.targetP is None: # and random.random() < dt:
 			self.settarget(self.selecttarget())
+		if 0.4 * random.random() < dt:
+			effects.addbreathbubbleP(self.pP)
 
 	def settarget(self, targetP):
 		self.targetP = targetP
@@ -43,15 +64,10 @@ class Tenant:
 		pG = random.choice(structure.ps)
 		return view.PconvertG(pG)
 
-	def offsetP(self):
-		dxP = 0.2 * math.sin(self.omega0 * self.t + self.phi0)
-		dyP = 0.2 * math.sin(self.omega1 * self.t + self.phi1)
-		return dxP, dyP
-
 	def draw(self):
-		pP = math.vtplus(self.pP, self.offsetP())
+		pP = math.vtplus(self.pP, self.flail(self.t))
 		angle = self.point + 10 * math.sin(2 * self.t)
-		graphics.drawimgP(pP, "fish", scaleP = 0.3, angle = angle, flip_x = self.flip, color = self.color)
+		graphics.drawimgP(pP, self.imgname, scaleP = 0.3, angle = angle, flip_x = self.flip, color = self.color)
 
 
 class Shopper(Tenant):
@@ -108,6 +124,32 @@ class Shopper(Tenant):
 			else:
 				return grid.stepto(pG, self.destination.pbase)
 			
+class Vendor:
+	color = 160, 60, 140
+	scaleP = 0.6
+	def __init__(self, home):
+		self.home = home
+		self.pP = view.PconvertG(home.p0)
+		self.alive = True
+		self.t = 0
+		self.seed = random.random()
+		self.flail = Lissajous(0.1, 2, 3, 200, self.seed)
+		self.rock = Oscillator(10, 2, 3, 201, self.seed)
+		self.puff = Oscillator(0.1, 2, 3, 202, self.seed)
+		self.imgname = "puff-0"
+
+	def think(self, dt):
+		self.t += dt
+		if 0.4 * random.random() < dt:
+			effects.addbreathbubbleP(self.pP)
+
+	def draw(self):
+		pP = math.vtplus(self.pP, self.flail(self.t))
+		scaleP = self.scaleP * math.exp(self.puff(self.t))
+		scaleP *= math.mix(0.4, 1, self.home.fstock)
+		angle = self.rock(self.t)
+		text = f"{int(self.home.fstock * 100)}%"
+		graphics.drawimgtextP(pP, self.imgname, text, scaleP = scaleP, angle = angle, color = self.color)
 
 
 

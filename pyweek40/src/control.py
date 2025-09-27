@@ -12,15 +12,33 @@ class Button:
 
 	def withinV(self, pV):
 		return view.VconvertS(self.boxS).collidepoint(pV)
+
+	def afford(self):
+		return state.getcost(self.text)
 	
 	def draw(self):
 		if not self.active:
 			return
 		boxV = view.VconvertS(self.boxS)
-		color = (140, 140, 140) if self.selected else (60, 60, 60)
+		color = (60, 60, 60)
+		if self.selected:
+			color = math.imix(color, (255, 255, 255), 0.5)
+		if not self.afford():
+			color = math.imix(color, (0, 0, 0), 0.5)
 		pygame.draw.rect(pview.screen, color, boxV)
 		ptext.draw(self.text, fontsize = T(40), center = boxV.center, owidth = 1)
-		
+
+
+class GrowButton(Button):
+	def __init__(self, boxS):
+		Button.__init__(self, "pop: 0", boxS, active = True)
+
+	def afford(self):
+		return state.cangrow()
+
+	def draw(self):
+		self.text = f"pop: {state.getpop()}"
+		Button.draw(self)
 
 class Control:
 	def __init__(self):
@@ -124,6 +142,7 @@ def init():
 	buttons = [
 		Button("residence1", pygame.Rect(500, 600, 100, 100), True),
 		Button("vending1", pygame.Rect(800, 600, 100, 100), True),
+		GrowButton(pygame.Rect(100, 600, 100, 100)),
 	]
 
 def tick():

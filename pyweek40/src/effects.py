@@ -28,8 +28,8 @@ def gaussian2d(mu = (0, 0), sigma = 1):
 	return random.gauss(x, sigma), random.gauss(y, sigma)
 
 class Bubble:
-	def __init__(self, pP):
-		self.vP = gaussian2d(sigma = 0.8)
+	def __init__(self, pP, vP0 = 0.8):
+		self.vP = gaussian2d(sigma = vP0)
 		self.pP = math.vtplus(pP, self.vP, 0.2)
 		self.t = 0
 		self.T = random.uniform(0.5, 1)
@@ -89,6 +89,9 @@ def addburstsegment(segment):
 def addburststructure(structure):
 	for p in structure.ps + [structure.pbase]:
 		addburstG(p, 30)
+
+def addbreathbubbleP(pP):
+	effects.append(Bubble(pP, 0))
 
 def think(dt):
 	global effects
