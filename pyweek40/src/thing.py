@@ -1,5 +1,5 @@
 import pygame, math, random
-from . import view, grid, pview, effects, state, fuzz, graphics
+from . import view, grid, pview, effects, state, fuzz, graphics, sound
 from .pview import T
 
 class Oscillator:
@@ -76,7 +76,7 @@ class Tenant:
 
 class Shopper(Tenant):
 	color = 200, 100, 100
-	amount = 10
+	amount = 5
 	def __init__(self, home, inert):
 		Tenant.__init__(self, view.PconvertG(home.p0))
 		self.home = home
@@ -112,6 +112,7 @@ class Shopper(Tenant):
 		self.settargetG(self.destination.pbase)
 		self.destination = None
 		self.arrived = False
+		sound.play("buy")
 
 	def settargetG(self, targetG):
 		self.settarget(view.PconvertG(targetG))
@@ -122,6 +123,9 @@ class Shopper(Tenant):
 
 	def selecttargetG(self):
 		pG = view.GnearestP(self.pP)
+		if not self.inert and pG not in grid.grid.nodes:
+			self.pP = 0, 0
+			return None
 		def randomp(ps):
 			return random.choice(list(grid.adjsof(pG, ps)))
 		if self.arrived:
@@ -148,7 +152,6 @@ class Shopper(Tenant):
 			
 class Vendor:
 	color = 160, 60, 140
-	scaleP = 0.6
 	def __init__(self, home, inert):
 		self.home = home
 		self.inert = inert
@@ -161,6 +164,7 @@ class Vendor:
 		self.puff = Oscillator(0.1, 2, 3, 202, self.seed)
 		self.imgname = "puff-0"
 		self.pop = False
+		self.scaleP = 0.4 * (6 / self.home.Tstock) ** 0.3
 
 	def drawp(self):
 		return math.vtplus(self.pP, self.flail(self.t))
@@ -174,7 +178,7 @@ class Vendor:
 	def draw(self):
 		scaleP = self.scaleP * math.exp(self.puff(self.t))
 		if not self.inert:
-			scaleP *= math.mix(0.4, 1, self.home.fstock)
+			scaleP *= math.mix(0.6, 1, self.home.fstock)
 		angle = self.rock(self.t)
 		text = "" if self.inert else f"{int(self.home.fstock * 100)}%"
 		graphics.drawimgtextP(self.drawp(), self.imgname, text, scaleP = scaleP, angle = angle, color = self.color)

@@ -110,6 +110,8 @@ class Residence(Structure):
 		random.shuffle(shops)
 		return min(shops, key = lambda shop: grid.distancebetween(self.pbase, shop.pbase))
 
+	def getinfo(self):
+		return f"+{self.occupancy} pop"
 
 class Vending(Structure):
 	text = "vending"
@@ -151,6 +153,10 @@ class Vending(Structure):
 		Structure.draw(self, shade = shade, glow = glow)
 #		graphics.drawprogress(self.p0, self.fstock)
 
+	def getinfo(self):
+		n = int(round(60 / self.Tstock))
+		return f"{n}/minute"
+
 class Residence1(Residence):
 	dps = [(0, 1), (1, 1), (1, 2)]
 	occupancy = 1
@@ -174,7 +180,7 @@ class Residence3(Residence):
 	occupancy = 10
 
 class Vending3(Vending):
-	dps = [(-1, 1), (0, 1), (1, 1), (2, 1), (0, 2), (1, 2), (2, 2), (1, 3), (2, 3), (2, 4)]
+	dps = [(0, 1), (1, 1), (0, 2), (1, 2), (2, 2), (1, 3), (2, 3), (2, 4)]
 	Tstock = 0.6
 	nvendor = 1
 
@@ -353,6 +359,10 @@ grid = Grid()
 def segments():
 	for node in grid.nodes.values():
 		yield from node.segments()
+
+def gridspot(segment):
+	p0, p1 = segment
+	return p0 in grid.nodes and segment not in list(segments())
 
 def canextend(p):
 	return grid.canextend(p)

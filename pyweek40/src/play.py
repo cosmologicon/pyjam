@@ -52,14 +52,32 @@ def draw():
 	if control.halted():
 		pview.fill((255, 0, 0, 40))
 	message = {
-		0: ["Click to extend\nthe tower", (4, 2)],
-		1: ["Click on the coral\nshop then click\nwhere to place it", (-4, 2)],
-		2: ["Add a condo\nso the shop\ngets customers", (4, 2)],
-		3: ["Fish travel from\nhome to the\nnearest shop and\nback, following\nthe coral", (-6.5, 4)],
-		5: ["Airscraper\nby Christopher Night\nMusic by Kevin MacLeod", (-12, 7)],
-	}.get(state.level)
-	if message is not None:
-		text, pP = message
+		0: [
+			["Click to extend\nthe tower", (4, 2)],
+		],
+		1: [
+			["Click on the coral\nshop then click\nwhere to place it", (-4, 2)],
+		],
+		2: [
+			["Add a condo\nso the shop\ngets customers", (4.5, 4)],
+		],
+		3: [
+			["Fish travel from\nhome to the\nnearest shop and\nback, following\nthe coral", (-6.5, 4)],
+			["Each transaction\ngets you $5", (6.5, 5)],
+		],
+		4: [
+			["Larger shops\nwill restock faster", (-6.5, 6.5)],
+			["Tip: place shops first\nFish will leave for the\nnearest shop once\nthey move in", (8, 6.5)],
+		],
+		5: [
+			["Airscraper\nby Christopher Night\nMusic by Kevin MacLeod", (-6.6, 6)],
+			["Get a population\nof 30 to beat\nthe game", (10, 9)],
+		],
+		6: [
+			["The end!\nthank you for playing", (9, 9)],
+		],
+	}.get(state.level, [])
+	for text, pP in message:
 		t = 0.001 * pygame.time.get_ticks()
 		pP = math.vtplus(pP, (0, 0.1), math.sin(t))
 		pV = view.VconvertP(pP)
@@ -68,6 +86,8 @@ def draw():
 			color = (50, 50, 150), ocolor = (0, 0, 20), owidth = 1)
 
 #	graphics.drawsegment(*control.Gsegment(), lit = True)
-#	graphics.drawlight()
+	h = 720 / view.camera.SscaleP
+	nray = int(round(math.interp(h ** 0.5, 10 ** 0.5, 0, 30 ** 0.5, 10)))
+	graphics.drawlight(nray)
 
 

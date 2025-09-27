@@ -20,8 +20,8 @@ class Info:
 		f = self.f ** 0.4
 		pP = math.vtplus(self.pP, (0, 1), f)
 		alpha = math.smoothinterp(f, 0.8, 1, 1, 0)
-		ptext.draw(self.text, center = view.VconvertP(pP), fontsize = view.VscaleP(0.8),
-			owidth = 1, alpha = alpha)
+		ptext.draw(self.text, center = view.VconvertP(pP), fontsize = view.VscaleP(0.6),
+			color = (100, 200, 200), shade = 1, owidth = 1, alpha = alpha)
 
 def gaussian2d(mu = (0, 0), sigma = 1):
 	x, y = mu

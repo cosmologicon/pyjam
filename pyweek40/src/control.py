@@ -1,6 +1,6 @@
 import pygame, math
 from . import pview
-from . import settings, view, grid, state, effects, ptext, graphics
+from . import settings, view, grid, state, effects, ptext, graphics, sound
 from .pview import T
 
 class Button:
@@ -71,6 +71,12 @@ class Selector:
 
 	def unlocked(self):
 		return state.unlocked(self.stype)
+
+	def getinfo(self):
+		name = selectornames[self.stype]
+		cost = state.getcost(self.stype)
+		info = self.structure.getinfo()
+		return f"{name} ${cost}\n{info}"
 	
 	def draw(self):
 		graphics.drawsegment(*self.segment)
@@ -78,10 +84,7 @@ class Selector:
 		p0, p1 = self.segment
 		pP = math.vtplus(view.PconvertG(p1), (0, -1.2))
 		pV = view.VconvertP(pP)
-		name = selectornames[self.stype]
-		cost = state.getcost(self.stype)
-		text = f"{name} ${cost}"
-		ptext.draw(text, center = pV, fontsize = view.VscaleP(0.5),
+		ptext.draw(self.getinfo(), center = pV, fontsize = view.VscaleP(0.5),
 			fontname = "Felipa", color = "gray", owidth = 1)
 
 	def withinG(self, pG):
@@ -120,17 +123,23 @@ class Control:
 				view.zoom(event.y, self.mposP)
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				self.onclick()
-			if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
-				state.grow(force = True)
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE:
 				self.tool = None if self.tool == "remove" else "remove"
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
-				self.tool = None
+				view.zoom(-1)
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
-				self.tool = "residence1"
-			if event.type == pygame.KEYDOWN and event.key == pygame.K_3:
-				self.tool = "vending1"
-				
+				view.zoom(1)
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_F2:
+				state.earn(10000000)
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_F3:
+				state.grow(force = True)
+
+		kp = pygame.key.get_pressed()
+		dx = (kp[pygame.K_RIGHT]) - (kp[pygame.K_LEFT])
+		dy = (kp[pygame.K_UP]) - (kp[pygame.K_DOWN])
+		if dx or dy:
+			view.scootV((-1000 * dx * dt, 1000 * dy * dt))
+
 		button0, button1, button2 = pygame.mouse.get_pressed(3)
 		dxV, dyV = pygame.mouse.get_rel()
 		if button2:
@@ -157,16 +166,34 @@ class Control:
 				obj = grid.addsegment(segment)
 				state.spend("segment")
 				effects.addburstsegment(obj)
+				sound.play("build")
+				cost = state.getcost("segment")
+				effects.addinfoP(self.mposP, f"-${cost}")
+			else:
+				sound.play("no")
 		elif self.tool == "remove":
 			if grid.canremoveat(self.Gcursor):
 				grid.removeat(self.Gcursor)
+				sound.play("build")
 			else:
 				self.tool = None
 		elif self.tool.startswith("residence") or self.tool.startswith("vending"):
-			if state.canspend(self.tool) and grid.canaddstructure(self.tool, self.Gcursor):
-				obj = grid.addstructure(self.tool, self.Gcursor)
-				effects.addburststructure(obj)
-				state.spend(self.tool)
+			if self.Gcursor in grid.grid.nodes:
+				if state.canspend(self.tool) and grid.canaddstructure(self.tool, self.Gcursor):
+					obj = grid.addstructure(self.tool, self.Gcursor)
+					effects.addburststructure(obj)
+					state.spend(self.tool)
+					cost = state.getcost(self.tool)
+					effects.addinfoP(self.mposP, f"-${cost}")
+					self.tool = None
+					for button in buttons:
+						button.selected = False
+					for selector in self.selectors.values():
+						selector.selected = False
+					sound.play("build")
+				else:
+					sound.play("no")
+			else:
 				self.tool = None
 				for button in buttons:
 					button.selected = False
@@ -197,7 +224,7 @@ class Control:
 		if self.tool is None:
 #			parent = grid.canextend(self.Gcursor)
 #			print(self.Gcursor, parent)
-			if grid.canaddsegment(self.Gsegment):
+			if grid.gridspot(self.Gsegment):
 				shade = (255, 255, 255, 140) if grid.canaddsegment(self.Gsegment) else (255, 50, 50, 140)
 				graphics.drawsegment(*self.Gsegment, shade = shade)
 		elif self.tool == "remove":
@@ -251,7 +278,7 @@ def halted():
 	return control.tool == "remove"
 
 def infotext():
-	return "Left Click: Place   Scroll wheel: zoom   Right drag: pan   Backspace: demolish   Esc: quit"
+	return "Left Click: Place   Scroll wheel or 1/2: zoom   Right drag or arrows: pan   Backspace: demolish   Esc: quit"
 	fps = control.clock.get_fps()
 	xP, yP = control.mposP
 	xG, yG = Gcursor()

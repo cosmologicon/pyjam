@@ -1,3 +1,4 @@
+from . import sound
 
 costs = {
 	"remove": 0,
@@ -8,8 +9,8 @@ costs = {
 	"vending1": 10,
 	"residence2": 30,
 	"vending2": 30,
-	"residence3": 100,
-	"vending3": 100,
+	"residence3": 200,
+	"vending3": 200,
 }
 
 unlocks = {
@@ -23,11 +24,12 @@ unlocks = {
 
 level = 0
 maxheight = 0
-maxheights = [5, 5, 6, 9, 12, 16]
+maxheights = [5, 5, 6, 9, 12, 20, 30]
 growcosts = [30, 60, 100, 100, 200]
 growcosts = [0, 0, 0, 0, 0, 0, 0]
 growpops = [0, 2, 5, 10, 20, 30]
-money = 30
+money0 = 100
+money = money0
 maxmoneys = [30, 60, 100, 100, 200]
 maxmoneys = [1000000] * 100
 maxmoney = maxmoneys[0]
@@ -79,6 +81,7 @@ def growto(newlevel):
 		segs = ((0, y), (0, y + 1)), ((y, y), (y + 1, y + 1))
 		for seg in segs:
 			grid.addsegment(seg)
+	sound.play("grow")
 
 def getpop():
 	return sum(obj.pop for obj in things)
@@ -86,7 +89,7 @@ def getpop():
 def cangrow():
 	from . import grid
 	if level == 0:
-		return money < 30
+		return money < money0
 	if level == 1:
 		return len(grid.grid.structures) > 0
 	if level == 2:

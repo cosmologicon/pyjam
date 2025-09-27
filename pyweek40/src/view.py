@@ -26,7 +26,7 @@ def setceiling(h):
 		camera.yP0 += newceiling - camera.ceilingP
 	camera.ceilingP = newceiling
 	camera.floorP = -2
-	camera.wallP = newceiling * 0.5
+	camera.wallP = newceiling * 1.0
 	camera.minzoom = min(100, 640 / h)
 	camera.maxzoom = 100
 	camera.SscaleP = math.clamp(camera.SscaleP, camera.minzoom, camera.maxzoom)

@@ -26,7 +26,7 @@ def ssurf():
 def loadimg(imgname):
 	return pygame.image.load(os.path.join("img", f"{imgname}.png"))
 
-@lru_cache(100)
+@lru_cache(1000)
 def getimg0(imgname, scale = 1, angle = 0, flip_x = False, color = None, text = None):
 	if scale != 1 or angle != 0:
 		img = getimg0(imgname, flip_x = flip_x, color = color, text = text)
@@ -101,7 +101,8 @@ def drawbackdrop():
 	pview.screen.blit(backdrop(pview.size, view.camera.yP0, pview.f * view.camera.SscaleP), (0, 0))
 
 
-def drawlight():
+def drawlight(nray):
+	if nray == 0: return
 	surf = ssurf()
 	t = 0.001 * pygame.time.get_ticks() + 1000
 
@@ -114,13 +115,13 @@ def drawlight():
 	rskew = int(0.1 * pview.h)
 	def drawray(x0, x1, alpha):
 		ps = [(x0 + rskew, 0), (x1 + rskew, 0), (x1 - rskew, pview.h), (x0 - rskew, pview.h)]
-		ps = [pview.T(p) for p in ps]
+		ps = [pview.I(p) for p in ps]
 		pygame.draw.polygon(surf, (255, 255, 255, alpha), ps, 0)
 	
 	w0, w1 = T(300, 400)
 	x0min, x0max = -w1, pview.w + w1
 	x0min, x0max = 0, pview.w
-	for j in range(6):
+	for j in range(nray):
 		surf.fill((255, 255, 255, 0))
 		x0 = math.imix(x0min, x0max, j * math.phi % 1) + dx(j, 0)
 		w = fuzz.uniform(w0, w1, 876, j)
@@ -186,9 +187,14 @@ def specsurf0(spec, VscaleP, shade = None):
 	if shade is not None:
 		surf, offset = specsurf0(spec, VscaleP)
 		return shadeimg(surf, shade), offset
+	if VscaleP < 100:
+		img0, (dx0, dy0) = specsurf0(spec, 100)
+		w0, h0 = img0.get_size()
+		w, h, dx, dy = [pview.I(VscaleP / 100 * a) for a in (w0, h0, dx0, dy0)]
+		return pygame.transform.smoothscale(img0, (w, h)), (dx, dy)
 	pPs, rPs, colors = zip(*spec)
-	pVs = [(view.VscaleP(xP), -view.VscaleP(yP)) for xP, yP in pPs]
-	rVs = [view.VscaleP(rP) for rP in rPs]
+	pVs = [(pview.I(VscaleP * xP), -pview.I(VscaleP * yP)) for xP, yP in pPs]
+	rVs = [pview.I(VscaleP * rP) for rP in rPs]
 	xVs, yVs = zip(*pVs)
 	xVmin, xVmax = minmaxrange(xVs, rVs)
 	yVmin, yVmax = minmaxrange(yVs, rVs)
@@ -315,7 +321,7 @@ def structuresurf(pG0, pGs, color, shade = None, glow = False):
 
 def drawstructure(pG0, pGs, text, color0, shade = None, glow = False):
 	if not view.onscreenG(pG0) and not any(view.onscreenG(pG) for pG in pGs): return
-	surf, offset = structuresurf(pG0, pGs, color0, shade, glow)
+	surf, offset = structuresurf(pG0, tuple(pGs), color0, shade, glow)
 	pview.screen.blit(surf, offset, special_flags = pygame.BLEND_RGB_MAX)
 #	ptext.draw(text, center = view.VconvertG(pG0), fontsize = view.VscaleP(0.5),
 #		owidth = 1)
