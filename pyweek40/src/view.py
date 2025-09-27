@@ -25,7 +25,7 @@ def setceiling(h):
 	if h <= 12:
 		camera.yP0 += newceiling - camera.ceilingP
 	camera.ceilingP = newceiling
-	camera.floorP = 0
+	camera.floorP = -2
 	camera.wallP = newceiling * 0.5
 	camera.minzoom = min(100, 640 / h)
 	camera.maxzoom = 100
@@ -33,7 +33,7 @@ def setceiling(h):
 	enforce()
 
 def enforce():
-	xSmid, ySmid = pview.center
+	xSmid, ySmid = pview.center0
 	xPmax = camera.wallP - xSmid / camera.SscaleP
 	if xPmax <= 0:
 		camera.xP0 = 0
@@ -117,6 +117,14 @@ assert GnearestsegmentG((-0.2, 0.4)) == ((0, 0), (0, 1))
 def GnearestsegmentP(pP):
 	return GnearestsegmentG(GconvertP(pP))
 
+def onscreenP(pP):
+	xS, yS = SconvertP(pP)
+	dS = camera.SscaleP * 1.0
+	return -dS <= xS <= pview.w0 + dS and -dS <= yS <= pview.h0 + dS
+	
+
+def onscreenG(pG):
+	return onscreenP(PconvertG(pG))
 
 def scootV(dV):
 	dxV, dyV = dV

@@ -56,8 +56,9 @@ class Structure:
 		self.segs = list(adjs([self.pbase] + self.ps))
 		self.t = 0
 		self.taccum = 0
+		self.alive = False
 
-	def isleaf():
+	def isleaf(self):
 		return True
 
 	def branches(self):
@@ -82,23 +83,26 @@ class Structure:
 				self.getincome()
 
 	def draw(self, shade = None, glow = False):
-		color = self.color
-		if glow:
-			color = math.imix(color, (255, 255, 255), 0.5)
-		graphics.drawstructure(self.pbase, self.ps, self.text, color, shade)
+		graphics.drawstructure(self.pbase, self.ps, self.text, self.color, shade, glow)
 
 class Residence(Structure):
 	text = "residence"
-	color = (70, 60, 40)
+	color = None
 	def __init__(self, parent):
 		Structure.__init__(self, parent)
 		self.residents = []
 
 	def place(self, inert = False):
+		self.alive = True
 		for _ in range(self.occupancy):
 			obj = thing.Shopper(self, inert = inert)
 			state.things.append(obj)
 			self.residents.append(obj)
+
+	def close(self):
+		self.alive = False
+		for obj in self.residents:
+			obj.alive = False
 
 	def nearestshop(self):
 		shops = [obj for obj in grid.structures if isinstance(obj, Vending)]
@@ -118,10 +122,18 @@ class Vending(Structure):
 		self.vendors = []
 
 	def place(self, inert = False):
+		self.alive = True
 		for _ in range(self.nvendor):
 			obj = thing.Vendor(self, inert)
 			state.things.append(obj)
 			self.vendors.append(obj)
+
+	def close(self):
+		self.alive = False
+		for obj in self.vendors:
+			obj.alive = False
+		for obj in self.queue:
+			obj.forcehome(self.pbase)
 
 	def think(self, dt):
 		Structure.think(self, dt)
@@ -145,7 +157,7 @@ class Residence1(Residence):
 
 class Vending1(Vending):
 	dps = [(0, 1), (1, 1), (1, 2)]
-	Tstock = 20
+	Tstock = 6
 	nvendor = 1
 
 class Residence2(Residence):
@@ -154,7 +166,7 @@ class Residence2(Residence):
 
 class Vending2(Vending):
 	dps = [(0, 1), (1, 1), (1, 2), (2, 2), (2, 3)]
-	Tstock = 5
+	Tstock = 2
 	nvendor = 1
 
 class Residence3(Residence):
@@ -163,7 +175,7 @@ class Residence3(Residence):
 
 class Vending3(Vending):
 	dps = [(-1, 1), (0, 1), (1, 1), (2, 1), (0, 2), (1, 2), (2, 2), (1, 3), (2, 3), (2, 4)]
-	Tstock = 1
+	Tstock = 0.6
 	nvendor = 1
 
 
@@ -253,6 +265,14 @@ class Grid:
 			return False
 		return parent
 
+	def nodeat(self, p):
+		if p not in self.nodes:
+			return None
+		obj = self.nodes[p]
+		if not isinstance(obj, Node):
+			return None
+		return obj
+
 	def structurefrom(self, stypename, parent):
 		stype = stypes[stypename]
 		return stype(parent)
@@ -320,6 +340,7 @@ class Grid:
 			obj.parent.children.remove(obj)
 		if isinstance(obj, Structure):
 			self.structures.remove(obj)
+			obj.close()
 		for p in obj.ps:
 			del self.nodes[p]
 		self.resetcache()
@@ -352,7 +373,9 @@ def canaddstructure(stypename, p0):
 # Return False on failure
 def addstructure(stypename, p0):
 	return grid.addstructure(stypename, p0)
-	
+
+def canremoveat(p):
+	return grid.canremoveat(p)	
 
 def removeat(p):
 	return grid.removeat(p)

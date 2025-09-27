@@ -49,6 +49,15 @@ selectorsegments = {
 	"vending3": ((10, 0), (11, 1)),
 }
 
+selectornames = {
+	"residence1": "Condo",
+	"residence2": "Triplex",
+	"residence3": "Shoal",
+	"vending1": "Shop",
+	"vending2": "Market",
+	"vending3": "Emporium",
+}
+
 class Selector:
 	def __init__(self, stype):
 		self.stype = stype
@@ -59,10 +68,21 @@ class Selector:
 		self.structure = grid.stypes[stype](self.parent)
 		self.structure.place(inert = True)
 		self.selected = False
+
+	def unlocked(self):
+		return state.unlocked(self.stype)
 	
 	def draw(self):
 		graphics.drawsegment(*self.segment)
 		self.structure.draw(glow = self.selected)
+		p0, p1 = self.segment
+		pP = math.vtplus(view.PconvertG(p1), (0, -1.2))
+		pV = view.VconvertP(pP)
+		name = selectornames[self.stype]
+		cost = state.getcost(self.stype)
+		text = f"{name} ${cost}"
+		ptext.draw(text, center = pV, fontsize = view.VscaleP(0.5),
+			fontname = "Felipa", color = "gray", owidth = 1)
 
 	def withinG(self, pG):
 		return pG == self.structure.pbase or pG in self.structure.ps
@@ -77,14 +97,7 @@ class Control:
 		pygame.mouse.get_rel()
 		self.Gcursor = (0, 0)
 		self.Gsegment = (0, 0), (0, 1)
-		self.selectors = [
-			Selector("residence1"),
-			Selector("vending1"),
-			Selector("residence2"),
-			Selector("vending2"),
-			Selector("residence3"),
-			Selector("vending3"),
-		]
+		self.selectors = {}
 
 	def tick(self):
 		dt = min(0.001 * self.clock.tick(settings.maxfps), 1 / settings.minfps)
@@ -98,7 +111,7 @@ class Control:
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 				self.playing = False
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_F10:
-				pview.cycle_heights(settings.heights)
+				pview.cycle_height(settings.heights)
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
 				pview.toggle_fullscreen()
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
@@ -108,9 +121,9 @@ class Control:
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 				self.onclick()
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
-				state.grow()
+				state.grow(force = True)
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSPACE:
-				self.tool = "remove"
+				self.tool = None if self.tool == "remove" else "remove"
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
 				self.tool = None
 			if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
@@ -123,13 +136,17 @@ class Control:
 		if button2:
 			view.scootV((dxV, dyV))
 		self.dts.append(dt)
+		for stype in selectorsegments:
+			if stype not in self.selectors and state.unlocked(stype):
+				self.selectors[stype] = Selector(stype)
+
 
 	def onclick(self):
 		for button in buttons:
 			if button.active and button.withinV(self.mposV):
 				self.clickbutton(button)
 				return
-		for selector in self.selectors:
+		for selector in self.selectors.values():
 			if selector.withinG(self.Gcursor):
 				self.clickselector(selector)
 				return
@@ -140,9 +157,12 @@ class Control:
 				obj = grid.addsegment(segment)
 				state.spend("segment")
 				effects.addburstsegment(obj)
-		if self.tool == "remove":
-			grid.removeat(self.Gcursor)
-		if self.tool in ["office", "spire", "residence1", "vending1"]:
+		elif self.tool == "remove":
+			if grid.canremoveat(self.Gcursor):
+				grid.removeat(self.Gcursor)
+			else:
+				self.tool = None
+		elif self.tool.startswith("residence") or self.tool.startswith("vending"):
 			if state.canspend(self.tool) and grid.canaddstructure(self.tool, self.Gcursor):
 				obj = grid.addstructure(self.tool, self.Gcursor)
 				effects.addburststructure(obj)
@@ -150,7 +170,7 @@ class Control:
 				self.tool = None
 				for button in buttons:
 					button.selected = False
-				for selector in self.selectors:
+				for selector in self.selectors.values():
 					selector.selected = False
 
 	def clickbutton(self, button):
@@ -166,7 +186,7 @@ class Control:
 
 	def clickselector(self, selector):
 		isselected = selector.selected
-		for obj in self.selectors:
+		for obj in self.selectors.values():
 			obj.selected = False
 		self.tool = None
 		if not isselected:
@@ -181,9 +201,10 @@ class Control:
 				shade = (255, 255, 255, 140) if grid.canaddsegment(self.Gsegment) else (255, 50, 50, 140)
 				graphics.drawsegment(*self.Gsegment, shade = shade)
 		elif self.tool == "remove":
-			pass
+			if grid.canremoveat(self.Gcursor):
+				graphics.drawimgP(view.PconvertG(self.Gcursor), "x", 0.2)
 		elif self.tool.startswith("residence") or self.tool.startswith("vending"):
-			parent = grid.canextend(self.Gcursor)
+			parent = grid.grid.nodeat(self.Gcursor)
 			if parent:
 				obj = grid.structurefrom(self.tool, parent)
 				shade = (255, 255, 255, 140) if grid.canaddstructure(self.tool, self.Gcursor) else (255, 50, 50, 140)
@@ -193,6 +214,7 @@ def init():
 	global control, buttons
 	control = Control()
 	buttons = [
+#		Button("remove", pygame.Rect(20, 660, 100, 40), True)
 #		Button("residence1", pygame.Rect(500, 600, 100, 100), True),
 #		Button("vending1", pygame.Rect(800, 600, 100, 100), True),
 #		GrowButton(pygame.Rect(100, 600, 100, 100)),
@@ -202,7 +224,7 @@ def tick():
 	control.tick()
 
 def drawselectors():
-	for obj in control.selectors:
+	for obj in control.selectors.values():
 		obj.draw()
 
 def drawhud():
@@ -225,7 +247,11 @@ def Gcursor():
 def Gsegment():
 	return control.Gsegment
 
+def halted():
+	return control.tool == "remove"
+
 def infotext():
+	return "Left Click: Place   Scroll wheel: zoom   Right drag: pan   Backspace: demolish   Esc: quit"
 	fps = control.clock.get_fps()
 	xP, yP = control.mposP
 	xG, yG = Gcursor()
@@ -235,10 +261,16 @@ def infotext():
 		f"2: office",
 		f"3: spire",
 		f"4: spawn shopper",
-		f"Money: ${state.money}",
+		f"Money: ${state.money}/{state.maxmoney}",
 		f"F10: change screen size",
 		f"F11: toggle fullscreen",
 		f"{fps:.1f}fps  P:[{xP:.1f},{yP:.1f}]  G:[{xG},{yG}]  tool:{control.tool}"
 	])
 
+def drawinfo():
+	ptext.draw(infotext(), bottomleft = T(10, 715), fontsize = T(26), owidth = 1,
+		color = (120, 120, 200), shade = 1)
+	text = f"Funds: ${state.money}   Population: {state.getpop()}"
+	ptext.draw(text, bottomright = T(1270, 715), fontsize = T(26), owidth = 1,
+		color = (120, 120, 200), shade = 1)
 

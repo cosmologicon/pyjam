@@ -117,9 +117,10 @@ def drawlight():
 		ps = [pview.T(p) for p in ps]
 		pygame.draw.polygon(surf, (255, 255, 255, alpha), ps, 0)
 	
-	w0, w1 = T(600, 1000)
+	w0, w1 = T(300, 400)
 	x0min, x0max = -w1, pview.w + w1
-	for j in range(10):
+	x0min, x0max = 0, pview.w
+	for j in range(6):
 		surf.fill((255, 255, 255, 0))
 		x0 = math.imix(x0min, x0max, j * math.phi % 1) + dx(j, 0)
 		w = fuzz.uniform(w0, w1, 876, j)
@@ -181,9 +182,9 @@ def sphereimg(r, color = None):
 
 
 @lru_cache(1000)
-def specsurf0(spec, SscaleP, shade = None):
+def specsurf0(spec, VscaleP, shade = None):
 	if shade is not None:
-		surf, offset = specsurf0(spec, SscaleP)
+		surf, offset = specsurf0(spec, VscaleP)
 		return shadeimg(surf, shade), offset
 	pPs, rPs, colors = zip(*spec)
 	pVs = [(view.VscaleP(xP), -view.VscaleP(yP)) for xP, yP in pPs]
@@ -204,7 +205,7 @@ def specsurf0(spec, SscaleP, shade = None):
 def specsurf(spec, shade = None):
 	pP0 = spec[0][0]
 	spec = tuple(tuple(a) for a in spec)
-	surf, offset = specsurf0(spec, view.camera.SscaleP, shade)
+	surf, offset = specsurf0(spec, pview.f * view.camera.SscaleP, shade)
 	offset = math.vtplus(offset, view.VconvertP((0, 0)))
 	return surf, offset
 
@@ -213,15 +214,16 @@ def segsurf(pG0, pG1, color0, color1, shade = None):
 
 @lru_cache(10000)
 def nodecolor(pG):
-	gray = fuzz.randint(15, 35, 0, *pG)
-	dr = fuzz.randint(40, 80, 1, *pG)
-	dg = fuzz.randint(0, 20, 2, *pG)
-	db = fuzz.randint(0, 20, 3, *pG)
+	gray = 20 + fuzz.randint(0, 20, 0, *pG)
+	dr = 60 + fuzz.randint(0, 10, 1, *pG)
+	dg = 30 + fuzz.randint(0, 10, 2, *pG)
+	db = 0 + fuzz.randint(0, 10, 3, *pG)
 	return gray + dr, gray + dg, gray + db
 
 
 
 def drawsegment(pG0, pG1, shade = None, special_flags = 0):
+	if not view.onscreenG(pG0) and not view.onscreenG(pG1): return
 	surf, offset = segsurf(pG0, pG1, nodecolor(pG0), nodecolor(pG1), shade = shade)
 	pview.screen.blit(surf, offset, special_flags = special_flags)
 
@@ -235,8 +237,24 @@ def GconvertH(pH):
 def PconvertH(pH):
 	return view.PconvertG(GconvertH(pH))
 
+rainbows = [
+	(160, 80, 80),
+	(160, 160, 80),
+	(100, 100, 160),
+]
+
+def coralcolor(color0, *seed):
+	if color0 is None:
+		color0 = fuzz.choice(rainbows, 0.234, *seed)
+	a = fuzz.uniform(0, 0.2, 0.2341, *seed)
+	b = fuzz.uniform(0, 0.2, 0.2342, *seed)
+	color = math.imix(color0, (0, 0, 0), a)
+	color = math.imix(color, (255, 255, 255), b)
+	return color
+	
+
 @lru_cache(1000)
-def PstructurepartsG(pG0, pGs, color):
+def PstructurepartsG(pG0, pGs, color, glow):
 	xG0, yG0 = pG0
 	xGs_by_yG = defaultdict(list)
 	xGs_by_yG[yG0].append(xG0)
@@ -280,15 +298,24 @@ def PstructurepartsG(pG0, pGs, color):
 		wP = 0.4 / HscaleG
 		return fuzz.uniform(-wP, wP, 0, *pP), dP0 + fuzz.uniform(-wP, wP, 1, *pP)
 	for pP0, pP1 in pPsegs:
+		color0 = coralcolor(color, *pP0)
+		color1 = coralcolor(color, *pP1)
 		for jt in range(20):
-			pPouts.append(dbezier(pP0, dP(pP0), pP1, dP(pP1), jt / 19))
-	return [(pP, 0.05, color) for pP in pPouts]
+			a = jt / 19
+			pP = dbezier(pP0, dP(pP0), pP1, dP(pP1), a)
+			rP = 0.05
+			c = math.imix(color0, color1, a)
+			if glow:
+				c = math.imix(c, (255, 255, 255), 0.5)
+			pPouts.append((pP, rP, c))
+	return pPouts
 
-def structuresurf(pG0, pGs, color, shade = None):
-	return specsurf(PstructurepartsG(pG0, tuple(pGs), color), shade)
+def structuresurf(pG0, pGs, color, shade = None, glow = False):
+	return specsurf(PstructurepartsG(pG0, tuple(pGs), color, glow), shade)
 
-def drawstructure(pG0, pGs, text, color0, shade = None):
-	surf, offset = structuresurf(pG0, pGs, color0, shade)
+def drawstructure(pG0, pGs, text, color0, shade = None, glow = False):
+	if not view.onscreenG(pG0) and not any(view.onscreenG(pG) for pG in pGs): return
+	surf, offset = structuresurf(pG0, pGs, color0, shade, glow)
 	pview.screen.blit(surf, offset, special_flags = pygame.BLEND_RGB_MAX)
 #	ptext.draw(text, center = view.VconvertG(pG0), fontsize = view.VscaleP(0.5),
 #		owidth = 1)

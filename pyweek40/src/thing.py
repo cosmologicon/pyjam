@@ -84,6 +84,23 @@ class Shopper(Tenant):
 		self.destination = None
 		self.arrived = False
 		self.targetP = view.PconvertG(self.home.pbase)
+		self.pop = not self.inert
+
+	def forcehome(self, pG):
+		self.pP = view.PconvertG(pG)
+		self.targetP = None
+		self.destination = None
+		self.arrived = False
+
+	def think(self, dt):
+		Tenant.think(self, dt)
+		if self.destination is not None and not self.destination.alive:
+			pG = view.GnearestP(self.pP)
+			if pG in self.destination.ps:
+				pG = self.destination.pbase
+			elif pG not in grid.grid.nodes:
+				pG = 0, 0
+			self.forcehome(pG)
 
 	def arrive(self):
 		self.arrived = True
@@ -143,6 +160,7 @@ class Vendor:
 		self.rock = Oscillator(10, 2, 3, 201, self.seed)
 		self.puff = Oscillator(0.1, 2, 3, 202, self.seed)
 		self.imgname = "puff-0"
+		self.pop = False
 
 	def drawp(self):
 		return math.vtplus(self.pP, self.flail(self.t))

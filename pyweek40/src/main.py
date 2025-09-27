@@ -1,7 +1,10 @@
 import pygame
 from . import ptext
-from . import settings, view, play, control
+from . import settings, view, play, control, ptext
 from .pview import T
+
+ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
+ptext.DEFAULT_FONT_NAME = "JockeyOne"
 
 view.init()
 play.init()
@@ -12,7 +15,7 @@ while control.playing():
 	for dt in control.dts():
 		play.think(dt)
 	play.draw()
-	ptext.draw(control.infotext(), bottomleft = T(10, 710), fontsize = T(30))
+	control.drawinfo()
 	pygame.display.flip()
 
 
