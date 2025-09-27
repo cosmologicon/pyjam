@@ -1,4 +1,4 @@
-Game Title
+Airscraper
 ==========
 
 Entry in PyWeek 40  <http://www.pyweek.org/40/>
@@ -10,7 +10,8 @@ License: see LICENSE.txt
 Game Info
 ---------
 
-How it fits the theme:
+How it fits the theme: you create an underwater skyscraper out of coral
+and create a city-like ecosystem that fish can live and shop in.
 
 Requirements
 ------------
@@ -30,3 +31,12 @@ Open a terminal / console and "cd" to the game directory and run:
 
 Controls
 --------
+
+* Left click: extend the tower. Select structures and place them on the tower.
+* Scroll wheel or 1/2: zoom
+* Right drag or arrows: pan
+* Backspace: enter demolish mode. Click on the structure or part of the tower
+  you want to remove. It must not have anything built off it.
+* Esc: quit. Your game is not saved.
+
+
