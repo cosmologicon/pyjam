@@ -8,7 +8,7 @@ def init():
 class camera:
 	xG0 = 0
 	yG0 = 0
-	WscaleG = 10
+	WscaleG = 14
 
 
 def VconvertG(posG):
