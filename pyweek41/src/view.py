@@ -20,6 +20,9 @@ class camera:
 	yG0 = 0
 	WscaleG = 14
 
+def VsmoothscaleG(rG):
+	VscaleG = pview.f
+	return VscaleG * camera.WscaleG * rG
 
 def VconvertG(posG):
 	xG, yG = posG

@@ -1,18 +1,23 @@
-import pygame, math
-from . import view, control, world
+import pygame, math, random
+from . import view, control, world, graphics
 from . import fuzz, pview, ptext
 from .pview import T
 
-def shrinkline(p0, p1, dpmax, fmin = 0.1):
+def shrinkline(p0, p1, dp0, dp1, fmax = 0.3):
 	d = math.distance(p0, p1)
-	f = min(dpmax / d, fmin)
-	return math.mix(p0, p1, f), math.mix(p0, p1, 1 - f)
+	f0 = min(dp0 / d, fmax)
+	f1 = min(dp1 / d, fmax)
+	return math.mix(p0, p1, f0), math.mix(p0, p1, 1 - f1)
 
 # https://www.reddit.com/r/algorithms/comments/9moad4/comment/e7gvsjv/
 def cross(p0, p1):
 	x0, y0 = p0
 	x1, y1 = p1
 	return x0 * y1 - x1 * y0
+def vplus(p0, p1, f = 1):
+	x0, y0 = p0
+	x1, y1 = p1
+	return x0 + x1 * f, y0 + y1 * f
 def vminus(p0, p1):
 	x0, y0 = p0
 	x1, y1 = p1
@@ -24,7 +29,7 @@ def linecross(seg0, seg1):
 	pA, pB = seg0
 	pC, pD = seg1
 	return orient(pC, pD, pA) * orient(pC, pD, pB) < 0 and orient(pA, pB, pC) * orient(pA, pB, pD) < 0
-	
+
 
 class Star:
 	def __init__(self, pos, mag):
@@ -53,13 +58,23 @@ class Star:
 				return link
 		return None
 
+	def rG(self):
+		return 0.2 * math.interp(self.mag, 0, 3, 6, 1)
+
 	def draw(self):
-		pV = view.VconvertG(self.pos)
-		rV = pview.T(5) if self is control.cursor else pview.T(2)
+		pV0 = view.VconvertG(self.pos)
+		pV = math.CS(random.uniform(0, math.tau), r = random.uniform(0, 0.6), center = pV0)
+		pV = pV0
+		rV = view.VsmoothscaleG(self.rG() * (2 if self is control.cursor else 1))
 		color = (255, 255, 255) if self is control.cursor else (200, 200, 200)
-		pygame.draw.circle(pview.screen, color, pV, rV)
-		color = (128, 128, 128) if self.ok() else (255, 200, 200)
-		ptext.draw(f"{self.N}", midbottom = pV, fontsize = T(20), color=color, owidth=1)
+		color = math.interpI(random.uniform(0, 0.2), 0, color, 1, (0, 0, 0))
+		graphics.drawstarV(pV, rV, color)
+		color = (120, 120, 120) if self.ok() else (200, 255, 200)
+		pVtext = view.VconvertG(vplus(self.pos, (0, 0.3)))
+		alpha = math.interp(math.distance(self.pos, control.mouseG), 0, 1, 15, 0)
+		if not self.ok():
+			alpha = 1
+		ptext.draw(f"{self.N}", midbottom = pVtext, fontsize = T(20), color=color, owidth=1, alpha=alpha)
 
 # Pseudo-star used by the control module while dragging.
 class Cursor:
@@ -99,7 +114,7 @@ class Link:
 			crosser.crossers.remove(self)
 	
 	def draw(self):
-		p0, p1 = shrinkline(self.star0.pos, self.star1.pos, 0.3)
-		color = (80, 80, 160) if self.ok() else (160, 80, 80)
+		p0, p1 = shrinkline(self.star0.pos, self.star1.pos, 1.5 * self.star0.rG(), 1.5 * self.star1.rG())
+		color = (40, 40, 80) if self.ok() else (160, 80, 80)
 		pygame.draw.aaline(pview.screen, color, view.VconvertG(p0), view.VconvertG(p1), 1)
 

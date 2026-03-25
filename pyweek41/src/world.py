@@ -1,4 +1,4 @@
-import itertools
+import itertools, math
 from . import fuzz
 from . import thing
 
@@ -26,6 +26,12 @@ def generate(*seed):
 		if len(stars0) > Nstar:
 			break
 
+if False:
+	def generate():
+		for n in range(200):
+			x, y = math.CS(n * math.phyllo, 4 * math.sqrt(n))
+			stars0.append(thing.Star((x, y), 1))
+
 def advanceto(mag):
 	global maglimit
 	maglimit = mag
@@ -36,8 +42,14 @@ def advanceto(mag):
 		else:
 			break
 
+def advance():
+	advanceto(maglimit + 1)
+
 def placelink(link):
 	global score
 	link.place()
 	score = sum(star.ok() for star in stars)
+	if score >= 0.9 * len(stars):
+		advance()
+		score = sum(star.ok() for star in stars)
 
