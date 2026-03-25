@@ -1,35 +1,7 @@
 import pygame, math, random
-from . import view, control, world, graphics
+from . import view, control, world, graphics, effect, geometry
 from . import fuzz, pview, ptext
 from .pview import T
-
-def shrinkline(p0, p1, dp0, dp1, fmax = 0.3):
-	d = math.distance(p0, p1)
-	f0 = min(dp0 / d, fmax)
-	f1 = min(dp1 / d, fmax)
-	return math.mix(p0, p1, f0), math.mix(p0, p1, 1 - f1)
-
-# https://www.reddit.com/r/algorithms/comments/9moad4/comment/e7gvsjv/
-def cross(p0, p1):
-	x0, y0 = p0
-	x1, y1 = p1
-	return x0 * y1 - x1 * y0
-def vplus(p0, p1, f = 1):
-	x0, y0 = p0
-	x1, y1 = p1
-	return x0 + x1 * f, y0 + y1 * f
-def vminus(p0, p1):
-	x0, y0 = p0
-	x1, y1 = p1
-	return x0 - x1, y0 - y1
-def orient(p0, p1, p2):
-	return cross(vminus(p1, p0), vminus(p2, p0))
-# Does the line segment (pA, pB) cross the line segment (pC, pD)
-def linecross(seg0, seg1):
-	pA, pB = seg0
-	pC, pD = seg1
-	return orient(pC, pD, pA) * orient(pC, pD, pB) < 0 and orient(pA, pB, pC) * orient(pA, pB, pD) < 0
-
 
 class Star:
 	def __init__(self, pos, mag):
@@ -37,11 +9,21 @@ class Star:
 		self.mag = mag
 		self.links = []
 		self.N = fuzz.choice([1, 2, 3, 4], 0.567, *pos)
+		self.chimed = False
 
 	def ok(self):
-		if not all(link.ok() for link in self.links): return False
-		if self.N != len(self.links): return False
+		if not all(link.ok() for link in self.links):
+			self.chimed = False
+			return False
+		if self.N != len(self.links):
+			self.chimed = False
+			return False
+		if not self.chimed:
+			self.chimed = True
+			effect.Chime(self.pos)
+		self.chimed = True
 		return True
+
 
 	def distanceto(self, pG):
 		return math.distance(self.pos, pG)
@@ -66,11 +48,11 @@ class Star:
 		pV = math.CS(random.uniform(0, math.tau), r = random.uniform(0, 0.6), center = pV0)
 		pV = pV0
 		rV = view.VsmoothscaleG(self.rG() * (2 if self is control.cursor else 1))
-		color = (255, 255, 255) if self is control.cursor else (200, 200, 200)
+		color = (255, 255, 255)
 		color = math.interpI(random.uniform(0, 0.2), 0, color, 1, (0, 0, 0))
 		graphics.drawstarV(pV, rV, color)
 		color = (120, 120, 120) if self.ok() else (200, 255, 200)
-		pVtext = view.VconvertG(vplus(self.pos, (0, 0.3)))
+		pVtext = view.VconvertG(geometry.vplus(self.pos, (0, 0.3)))
 		alpha = math.interp(math.distance(self.pos, control.mouseG), 0, 1, 15, 0)
 		if not self.ok():
 			alpha = 1
@@ -102,9 +84,11 @@ class Link:
 		self.star1.addlink(self)
 		for crosser in self.crossers:
 			crosser.crossers.append(self)
+		if self.ok():
+			effect.Strum(*self.ps)
 
 	def cross(self, link):
-		return linecross(self.ps, link.ps)
+		return geometry.linecross(self.ps, link.ps)
 
 	def unplace(self):
 		world.links.remove(self)
@@ -114,7 +98,7 @@ class Link:
 			crosser.crossers.remove(self)
 	
 	def draw(self):
-		p0, p1 = shrinkline(self.star0.pos, self.star1.pos, 1.5 * self.star0.rG(), 1.5 * self.star1.rG())
+		p0, p1 = geometry.shrinkline(self.star0.pos, self.star1.pos, 1.5 * self.star0.rG(), 1.5 * self.star1.rG())
 		color = (40, 40, 80) if self.ok() else (160, 80, 80)
 		pygame.draw.aaline(pview.screen, color, view.VconvertG(p0), view.VconvertG(p1), 1)
 

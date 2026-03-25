@@ -2,6 +2,20 @@ import pygame, math
 from functools import cache
 from . import pview
 
+@cache
+def img0(fname):
+	return pygame.image.load(f"img/{fname}.png").convert_alpha()
+
+@cache
+def backgroundimg(size):
+	img = img0("background")
+	if size == img.get_size():
+		return img
+	return pygame.transform.smoothscale(img, size)
+
+def drawbackground():
+	pview.screen.blit(backgroundimg(pview.size), (0, 0))
+
 Fstar = 8
 
 @cache

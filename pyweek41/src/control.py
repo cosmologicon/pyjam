@@ -7,7 +7,7 @@ mouseG = [0, 0]
 cursor = None  # Star currently being pointed to, if any.
 anchor = None  # Star selected
 
-def think():
+def think(dt):
 	global playing, mouseV, mouseG, cursor, anchor
 	ldown = False
 	for event in pygame.event.get():
@@ -23,6 +23,8 @@ def think():
 			view.toggle_fullscreen()
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
 			view.screenshot()
+		if event.type == pygame.KEYDOWN and event.key == pygame.K_F2:
+			world.advance()
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 			ldown = True
 	mouseV = pygame.mouse.get_pos()

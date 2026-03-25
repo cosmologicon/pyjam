@@ -11,6 +11,8 @@ links = []
 maglimit = 0
 score = 0
 
+effects = []
+
 
 def generate(*seed):
 	d = 20
