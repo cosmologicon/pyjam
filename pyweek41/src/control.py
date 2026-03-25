@@ -17,6 +17,12 @@ def think():
 			playing = False
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
 			world.advanceto(world.maglimit + 1)
+		if event.type == pygame.KEYDOWN and event.key == pygame.K_F10:
+			view.change_res()
+		if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
+			view.toggle_fullscreen()
+		if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
+			view.screenshot()
 		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
 			ldown = True
 	mouseV = pygame.mouse.get_pos()
@@ -39,6 +45,6 @@ def think():
 				link0.unplace()
 			else:
 				link = thing.Link(anchor, cursor)
-				link.place()
+				world.placelink(link)
 			anchor = None
 

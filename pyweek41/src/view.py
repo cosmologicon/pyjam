@@ -5,6 +5,16 @@ def init():
 	pview.set_mode(settings.size)
 	pygame.display.set_caption(settings.gamename)
 
+def change_res():
+	pview.cycle_height(settings.heights)
+
+def toggle_fullscreen():
+	pview.toggle_fullscreen()
+
+def screenshot():
+	pview.screenshot()
+
+
 class camera:
 	xG0 = 0
 	yG0 = 0

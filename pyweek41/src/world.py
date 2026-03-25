@@ -9,6 +9,7 @@ stars0 = []
 stars = []
 links = []
 maglimit = 0
+score = 0
 
 
 def generate(*seed):
@@ -35,4 +36,8 @@ def advanceto(mag):
 		else:
 			break
 
+def placelink(link):
+	global score
+	link.place()
+	score = sum(star.ok() for star in stars)
 
