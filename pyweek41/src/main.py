@@ -1,6 +1,9 @@
 from . import settings, view, pview, ptext, play, control
 import pygame
 
+ptext.FONT_NAME_TEMPLATE = "fonts/%s.ttf"
+ptext.DEFAULT_FONT_NAME = "Quantico"
+
 view.init()
 play.init()
 clock = pygame.time.Clock()
