@@ -1,4 +1,4 @@
-from . import settings, view, pview, play, control
+from . import settings, view, pview, ptext, play, control
 import pygame
 
 view.init()
@@ -9,5 +9,6 @@ while control.playing:
 	control.think(dt)
 	play.think(dt)
 	play.draw()
+	ptext.draw(f"{clock.get_fps():.1f}fps", bottomright = pview.T(1280, 720), fontsize = pview.T(20))
 	pygame.display.flip()
 

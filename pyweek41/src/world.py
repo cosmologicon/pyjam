@@ -47,7 +47,7 @@ def advanceto(mag):
 			break
 
 def advance():
-	advanceto(maglimit + 1)
+	advanceto(maglimit + 0.2)
 
 def placelink(link):
 	global score

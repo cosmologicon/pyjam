@@ -15,8 +15,6 @@ def think(dt):
 			playing = False
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
 			playing = False
-		if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
-			world.advanceto(world.maglimit + 1)
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_F10:
 			view.change_res()
 		if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
