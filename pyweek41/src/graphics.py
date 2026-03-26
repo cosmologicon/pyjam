@@ -7,14 +7,17 @@ def img0(fname):
 	return pygame.image.load(f"img/{fname}.png").convert_alpha()
 
 @cache
-def backgroundimg(size):
-	img = img0("background")
+def scaledimg(imgname, size):
+	img = img0(imgname)
 	if size == img.get_size():
 		return img
 	return pygame.transform.smoothscale(img, size)
 
 def drawbackground():
-	pview.screen.blit(backgroundimg(pview.size), (0, 0))
+	pview.screen.blit(scaledimg("background", pview.size), (0, 0))
+
+def drawtreeline():
+	pview.screen.blit(scaledimg("treeline", pview.size), (0, 0))
 
 Fstar = 8
 

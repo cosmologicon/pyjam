@@ -24,7 +24,9 @@ def generate(*seed):
 			d *= 0.99
 			continue
 		mag = (len(stars0) / Nstar) ** 0.5 * 6
-		stars0.append(thing.Star(pos, mag))
+		cls = fuzz.choice([thing.Star, thing.NoadjStar, thing.BalancedStar], n, 0.345, *seed)
+		N = fuzz.choice([1, 2, 3, 4], n, 0.567, *seed)
+		stars0.append(cls(pos, mag, N))
 		if len(stars0) > Nstar:
 			break
 
