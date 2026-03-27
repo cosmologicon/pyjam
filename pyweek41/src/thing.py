@@ -92,12 +92,6 @@ class BalancedStar(Star):
 		Star.removelink(self, link)
 		self.setbalanced()
 
-	
-# Pseudo-star used by the control module while dragging.
-class Cursor:
-	def __init__(self, pos):
-		self.pos = pos
-
 class Link:
 	def __init__(self, star0, star1):
 		self.star0 = star0
@@ -142,4 +136,27 @@ class Link:
 		p0, p1 = geometry.shrinkline(self.star0.pos, self.star1.pos, 1.5 * self.star0.rG(), 1.5 * self.star1.rG())
 		color = (40, 40, 80) if self.ok() else (160, 80, 80)
 		pygame.draw.aaline(pview.screen, color, view.VconvertG(p0), view.VconvertG(p1), 1)
+
+# Pseudo-star used by the control module while dragging.
+class CursorStar:
+	noadj = False
+	def __init__(self, pos):
+		self.pos = pos
+
+class CursorLink(Link):
+	def __init__(self, star0, cursor):
+		Link.__init__(self, star0, cursor)
+		self.setcrossers()
+
+	def draw(self):
+		rG = 1.5 * self.star0.rG()
+		p0, p1 = geometry.shrinkline(self.star0.pos, self.star1.pos, rG, 0)
+		color = (40, 40, 80) if self.ok() else (160, 80, 80)
+		color = math.mixI(color, (255, 255, 255), 0.6)
+		pygame.draw.aaline(pview.screen, color, view.VconvertG(p0), view.VconvertG(p1), 1)
+		if math.distance(self.star0.pos, self.star1.pos) > rG:
+			pygame.draw.circle(pview.screen, color, view.VconvertG(self.star0.pos), view.VscaleG(rG), 1)
+
+
+
 

@@ -1,5 +1,5 @@
 import math, random
-from . import world, thing, graphics, quest
+from . import world, thing, graphics, quest, control
 from . import fuzz, ptext, pview
 from .pview import T
 
@@ -25,6 +25,7 @@ def draw():
 	for obj in world.effects:
 		obj.draw()
 	graphics.drawtreeline()
+	control.draw()
 	quest.draw()
 
 
