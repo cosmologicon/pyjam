@@ -128,6 +128,7 @@ def resolvecon():
 		cons = noncon
 	for con in cons:
 		conok = sum(stars[p].islone for p in con) <= 1
+		print(conok, cons)
 		for pos in con:
 			stars[pos].conok = conok
 

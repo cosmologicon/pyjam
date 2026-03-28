@@ -78,6 +78,21 @@ class LoneStar(Star):
 		Star.__init__(self, pos, mag, N)
 		assert self.N == 4
 		self.label = "X"
+
+	def ok(self):
+		if not self.conok:
+			return self.setchimed(False)
+		return Star.ok(self)
+
+	def draw(self):
+		Star.draw(self)
+		if self.conok:
+			return False
+		for dt in (0, 1/3, 2/3):
+			t = (pygame.time.get_ticks() * 0.001 * 1 + dt) % 1
+			d = 2 * t ** 0.5
+			color = math.interpI(t, 0, (255, 100, 100), 1, (0, 0, 0))
+			pygame.draw.circle(pview.screen, color, view.VconvertG(self.pos), view.VscaleG(d), 1)
 		
 
 class BalancedStar(Star):
@@ -85,6 +100,7 @@ class BalancedStar(Star):
 	def __init__(self, pos, mag, N):
 		Star.__init__(self, pos, mag, N)
 		self.balanced = True
+		self.badpairs = []
 		self.maxcos = math.cos(math.tau / (N + 1))
 		assert self.N == 3
 		self.label = "Y"
@@ -94,12 +110,16 @@ class BalancedStar(Star):
 			return self.setchimed(False)
 		return Star.ok(self)
 
-	def setbalanced(self):
-		self.balanced = True
+	def unbalancedlinkpairs(self):
+		pairs = []
 		dps = [math.norm(geometry.vminus(star.pos, self.pos)) for star in self.adjs]
 		for dp0, dp1 in itertools.combinations(dps, 2):
 			if math.dot(dp0, dp1) > self.maxcos:
-				self.balanced = False
+				yield dp0, dp1
+
+	def setbalanced(self):
+		self.badpairs = list(self.unbalancedlinkpairs())
+		self.balanced = not self.badpairs
 		
 
 	def addlink(self, link):
@@ -109,6 +129,18 @@ class BalancedStar(Star):
 	def removelink(self, link):
 		Star.removelink(self, link)
 		self.setbalanced()
+
+	def draw(self):
+		Star.draw(self)
+		for dp0, dp1 in self.badpairs:
+			for dt in (0, 1/3, 2/3):
+				t = (pygame.time.get_ticks() * 0.001 * 2 + dt) % 1
+				d = 3 * t ** 0.5
+				p0 = geometry.vplus(self.pos, dp0, d)
+				p1 = geometry.vplus(self.pos, dp1, d)
+				color = math.interpI(t, 0, (255, 100, 100), 1, (0, 0, 0))
+				pygame.draw.aaline(pview.screen, color, view.VconvertG(p0), view.VconvertG(p1), 1)
+			
 
 class Link:
 	def __init__(self, star0, star1):
