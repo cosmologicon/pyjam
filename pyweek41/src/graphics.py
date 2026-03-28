@@ -3,12 +3,12 @@ from functools import cache, lru_cache
 from . import pview, fuzz, geometry, world
 
 @cache
-def img0(fname):
-	return pygame.image.load(f"img/{fname}.png").convert_alpha()
+def img0(fname, extension = "png"):
+	return pygame.image.load(f"img/{fname}.{extension}").convert_alpha()
 
 @cache
-def scaledimg(imgname, size):
-	img = img0(imgname)
+def scaledimg(imgname, size, extension = "png"):
+	img = img0(imgname, extension)
 	if size == img.get_size():
 		return img
 	return pygame.transform.smoothscale(img, size)
@@ -21,7 +21,7 @@ def mask(img, color):
 	return img
 
 def drawbackground():
-	pview.screen.blit(scaledimg("background", pview.size), (0, 0))
+	pview.screen.blit(scaledimg("background", pview.size, extension = "jpg"), (0, 0))
 
 @cache
 def sparklers(size):
@@ -47,9 +47,9 @@ def drawsparkle():
 	if True:
 		pview.screen.blit(sparklerimg(pview.size), (0, 0))
 		ps = sparklers(pview.size)
-		for n in range(len(ps) // 30):
+		for n in range(len(ps) // 20):
 			x, y, c = random.choice(ps)
-			c = int(c * random.uniform(1.2, 1.8))
+			c = int(c * random.uniform(1.6, 2.4))
 			pview.screen.set_at((x, y), (c, c, c))
 	elif False:
 		for y in range(pview.h):

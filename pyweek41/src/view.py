@@ -1,4 +1,4 @@
-from . import settings, pview
+from . import settings, pview, graphics
 import pygame
 
 def init():
@@ -7,9 +7,11 @@ def init():
 
 def change_res():
 	pview.cycle_height(settings.heights)
+	graphics.dellinkimg()
 
 def toggle_fullscreen():
 	pview.toggle_fullscreen()
+	graphics.dellinkimg()
 
 def screenshot():
 	pview.screenshot()

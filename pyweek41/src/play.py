@@ -1,5 +1,5 @@
 import math, random
-from . import world, thing, graphics, quest, control, sound
+from . import world, thing, graphics, quest, control, sound, settings
 from . import fuzz, ptext, pview
 from .pview import T
 
@@ -16,16 +16,26 @@ def think(dt):
 	world.sky = math.approach(world.sky, world.maglimit, 0.2 * dt)
 	quest.think(dt)
 
-def draw():
+def draw(capture = False):
 	graphics.drawback(world.sky)
 	graphics.drawlinks()
 	for star in world.stars.values():
 		star.draw()
 	graphics.coverstars(world.sky)
-	for obj in world.effects:
-		obj.draw()
+	if not capture:
+		for obj in world.effects:
+			obj.draw()
 	graphics.drawtreeline()
-	control.draw()
-	quest.draw()
+	if not capture:
+		control.draw()
+		quest.draw()
+	alpha = math.interp(world.sky, 1, 0.3, 1.5, 0)
+	if alpha > 0:
+		ptext.ALPHA_RESOLUTION = 256
+		ptext.draw(settings.gamename, center = T(200, 100), angle = 10, alpha = alpha,
+			color = "#ffafff", owidth = 0.3, shade = 1, shadow = (0.3, 0.3),
+			fontsize = T(80), fontname = "Quintessential")
+		ptext.ALPHA_RESOLUTION = 16
+		
 
 

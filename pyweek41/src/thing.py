@@ -40,7 +40,11 @@ class Star:
 	def addlink(self, link):
 		self.links.append(link)
 		self.adjs = [link.other(self) for link in self.links]
-	
+
+	def removealllinks(self):
+		for link in list(self.links):
+			link.unplace()
+
 	def removelink(self, link):
 		self.links.remove(link)
 		self.adjs = [link.other(self) for link in self.links]
@@ -57,6 +61,8 @@ class Star:
 		return 0.2 * math.interp(self.mag, 0, 3, 6, 1)
 
 	def draw(self):
+		if world.sky < self.mag:
+			return
 		pV0 = view.VconvertG(self.pos)
 		pV = math.CS(random.uniform(0, math.tau), r = random.uniform(0, 0.6), center = pV0)
 		pV = pV0

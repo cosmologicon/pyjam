@@ -1,6 +1,6 @@
 import itertools, math, pygame, os, pickle
 from . import fuzz, pview
-from . import thing, graphics, view, settings, sound
+from . import thing, graphics, view, settings, sound, quest
 
 W, H = 40, 20
 Nstar = 100
@@ -123,10 +123,12 @@ def resolvecon():
 				noncon.append(con)
 		noncon.append(ps)
 		cons = noncon
+	for star in stars.values():
+		star.conok = True
 	for con in cons:
-		conok = sum(stars[p].islone for p in con) <= 1
-		for pos in con:
-			stars[pos].conok = conok
+		if sum(stars[p].islone for p in con) > 1:
+			for pos in con:
+				stars[pos].conok = False
 
 startable = [
 	("1", thing.Star, 1),
@@ -167,7 +169,7 @@ def dumpstars():
 	print(sorted(lines))
 
 def save():
-	obj = stars0, stars, links, maglimit, score
+	obj = stars0, stars, links, maglimit, quest.self.done
 	pickle.dump(obj, open(settings.savename, "wb"))
 
 def load():
@@ -175,8 +177,10 @@ def load():
 	if not os.path.exists(settings.savename):
 		return
 	obj = pickle.load(open(settings.savename, "rb"))
-	stars0, stars, links, maglimit, score = obj
+	stars0, stars, links, maglimit, quest.self.done = obj
+	setscore()
 	sky = maglimit
+	checkadvance()
 
 def reset():
 	if os.path.exists(settings.savename):

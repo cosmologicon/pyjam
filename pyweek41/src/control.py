@@ -83,6 +83,13 @@ def think(dt):
 			world.removestar(cursor)
 		else:
 			world.addstar(mouseG)
+	if rdown and not settings.editor:
+		if cursor is None:
+			anchor = None
+			mouseV0 = None
+			dragging = False
+		elif anchor is None:
+			cursor.removealllinks()
 	if wheel != 0 and settings.editor and cursor is not None:
 		world.cyclestar(cursor, wheel)
 
@@ -112,6 +119,7 @@ def draw():
 		lines = [
 			"Tab: hide controls/info",
 			"Click and drag: link or unlink stars",
+			"Right click on star: remove all links",
 			"Numbers indicate how many links a star needs",
 			"Y: 3 links, spaced apart (no acute angles)",
 			"X: 4 links, max one X per constellation",
