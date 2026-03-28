@@ -1,4 +1,4 @@
-import itertools, math, pygame
+import itertools, math, pygame, os, pickle
 from . import fuzz, pview
 from . import thing, graphics, view, settings, sound
 
@@ -165,4 +165,21 @@ def dumpstars():
 	for pos, star in stars.items():
 		lines.append((star.mag, pos, star.label))
 	print(sorted(lines))
+
+def save():
+	obj = stars0, stars, links, maglimit, score
+	pickle.dump(obj, open(settings.savename, "wb"))
+
+def load():
+	global stars0, stars, links, maglimit, score, sky
+	if not os.path.exists(settings.savename):
+		return
+	obj = pickle.load(open(settings.savename, "rb"))
+	stars0, stars, links, maglimit, score = obj
+	sky = maglimit
+
+def reset():
+	if os.path.exists(settings.savename):
+		os.remove(settings.savename)
+
 

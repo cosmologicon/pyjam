@@ -8,6 +8,10 @@ view.init()
 play.init()
 pygame.mixer.init()
 sound.playmusic()
+if settings.reset:
+	world.reset()
+else:
+	world.load()
 clock = pygame.time.Clock()
 while control.playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)

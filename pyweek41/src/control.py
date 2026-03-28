@@ -127,7 +127,8 @@ def draw():
 		]
 #	if settings.editor:
 #		lines.append(f"{clock.get_fps():.1f}fps")
-	ptext.draw("\n".join(lines), bottomright = pview.T(1276, 716), fontsize = pview.T(18))
+	color = math.interpI(world.sky, 1, (255, 255, 255), 5, (80, 40, 40))
+	ptext.draw("\n".join(lines), bottomright = pview.T(1276, 716), fontsize = pview.T(18), color = color)
 
 
 

@@ -178,6 +178,7 @@ class Link:
 		if self.ok():
 			effect.Strum(*self.shrinkline())
 		world.resolvecon()
+		world.save()
 
 	def cross(self, link):
 		return geometry.linecross(self.ps, link.ps)
@@ -192,6 +193,7 @@ class Link:
 			world.resolvecon()
 			world.setscore()
 		graphics.dellinkimg()
+		world.save()
 	
 	def draw(self):
 		p0, p1 = self.shrinkline()
