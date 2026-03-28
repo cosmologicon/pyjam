@@ -1,5 +1,5 @@
 import math, pygame
-from . import view, pview, world, geometry
+from . import view, pview, world, geometry, sound
 
 class Effect:
 	T = 1
@@ -16,6 +16,7 @@ class Chime(Effect):
 	T = 0.5
 	def __init__(self, pos):
 		Effect.__init__(self)
+		sound.playchime()
 		self.pos = pos
 	def think(self, dt):
 		Effect.think(self, dt)
@@ -35,6 +36,7 @@ class Strum(Effect):
 		self.ps = [pos0, pos1]
 		dx, dy = math.norm(geometry.vminus(pos1, pos0))
 		self.dpos = -dy, dx
+		sound.playstrum()
 	def think(self, dt):
 		Effect.think(self, dt)
 	def draw(self):

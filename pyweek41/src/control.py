@@ -1,5 +1,5 @@
 import pygame, math
-from . import view, world, thing
+from . import view, world, thing, settings
 
 playing = True
 mouseV0 = [0, 0]
@@ -13,6 +13,8 @@ def think(dt):
 	global playing, mouseV, mouseG, cursor, anchor, mouseV0, dragging
 	ldown = False
 	lup = False
+	rdown = False
+	wheel = 0
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			playing = False
@@ -30,13 +32,19 @@ def think(dt):
 			ldown = True
 		if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
 			lup = True
+		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+			rdown = True
+		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:
+			wheel += 1
+		if event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:
+			wheel -= 1
 	mouseV = pygame.mouse.get_pos()
 	mouseG = view.GconvertV(mouseV)
-	nearest = min(world.stars, key = lambda star: star.distanceto(mouseG))
-	if nearest.distanceto(mouseG) < 2:
-		cursor = nearest
-	else:
-		cursor = None
+	cursor = None
+	if world.stars:
+		nearest = min(world.stars.values(), key = lambda star: star.distanceto(mouseG))
+		if nearest.distanceto(mouseG) < 2:
+			cursor = nearest
 	if ldown:
 		if cursor is None:
 			anchor = None
@@ -60,6 +68,13 @@ def think(dt):
 			else:
 				raise ValueError
 		dragging = False
+	if rdown and settings.editor:
+		if cursor is not None:
+			world.removestar(cursor)
+		else:
+			world.addstar(mouseG)
+	if wheel != 0 and settings.editor and cursor is not None:
+		world.cyclestar(cursor, wheel)
 
 def addlink():
 	global anchor, dragging, mouseV0

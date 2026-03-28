@@ -6,12 +6,15 @@ from .pview import T
 class Star:
 	color = 255, 255, 255
 	noadj = False
+	islone = False
 	def __init__(self, pos, mag, N):
 		self.pos = pos
 		self.mag = mag
 		self.links = []
 		self.N = N
 		self.chimed = False
+		self.label = f"{self.N}"
+		self.conok = True
 
 	def ok(self):
 		if not all(link.ok() for link in self.links):
@@ -44,6 +47,7 @@ class Star:
 		return None
 
 	def rG(self):
+		return 0.3 * math.interp(self.mag, 0, 1.4, 6, 1)
 		return 0.2 * math.interp(self.mag, 0, 3, 6, 1)
 
 	def draw(self):
@@ -51,25 +55,36 @@ class Star:
 		pV = math.CS(random.uniform(0, math.tau), r = random.uniform(0, 0.6), center = pV0)
 		pV = pV0
 		rV = view.VsmoothscaleG(self.rG() * (2 if self is control.cursor else 1))
-		color = math.interpI(random.uniform(0, 0.2), 0, self.color, 1, (0, 0, 0))
-		graphics.drawstarV(pV, rV, color)
-		color = (120, 120, 120) if self.ok() else (200, 255, 200)
+		graphics.drawstarV(pV, rV, self.color)
+		hcolor = (120, 120, 120) if self.ok() else (255, 255, 255)
+		color = math.mixI(self.color, hcolor, 0.5)
 		pVtext = view.VconvertG(geometry.vplus(self.pos, (0, 0.3)))
-		alpha = math.interp(math.distance(self.pos, control.mouseG), 0, 1, 15, 0)
+		alpha = math.interp(math.distance(self.pos, control.mouseG), 0, 1, 10, 0)
 		if not self.ok():
 			alpha = 1
-		ptext.draw(f"{self.N}", midbottom = pVtext, fontsize = T(20), color=color, owidth=1, alpha=alpha)
+		ptext.draw(self.label, midbottom = pVtext, fontsize = T(20), color=color, owidth=1, alpha=alpha)
 
 class NoadjStar(Star):
 	color = 255, 100, 100
 	noadj = True
 
+class LoneStar(Star):
+	color = 255, 100, 100
+	islone = True
+	def __init__(self, pos, mag, N):
+		Star.__init__(self, pos, mag, N)
+		assert self.N == 4
+		self.label = "X"
+		
+
 class BalancedStar(Star):
-	color = 100, 255, 100
+	color = 255, 255, 0
 	def __init__(self, pos, mag, N):
 		Star.__init__(self, pos, mag, N)
 		self.balanced = True
 		self.maxcos = math.cos(math.tau / (N + 1))
+		assert self.N == 3
+		self.label = "Y"
 
 	def ok(self):
 		if not self.balanced:
@@ -121,6 +136,7 @@ class Link:
 			crosser.crossers.append(self)
 		if self.ok():
 			effect.Strum(*self.ps)
+		world.resolvecon()
 
 	def cross(self, link):
 		return geometry.linecross(self.ps, link.ps)
@@ -131,11 +147,13 @@ class Link:
 		self.star1.removelink(self)
 		for crosser in self.crossers:
 			crosser.crossers.remove(self)
+		world.resolvecon()
 	
 	def draw(self):
 		p0, p1 = geometry.shrinkline(self.star0.pos, self.star1.pos, 1.5 * self.star0.rG(), 1.5 * self.star1.rG())
 		color = (40, 40, 80) if self.ok() else (160, 80, 80)
-		pygame.draw.aaline(pview.screen, color, view.VconvertG(p0), view.VconvertG(p1), 1)
+		graphics.drawlinkV(view.VconvertG(p0), view.VconvertG(p1), view.VscaleG(0.06), color)
+#		pygame.draw.aaline(pview.screen, color, view.VconvertG(p0), view.VconvertG(p1), 1)
 
 # Pseudo-star used by the control module while dragging.
 class CursorStar:
