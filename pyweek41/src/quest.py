@@ -57,7 +57,7 @@ def draw():
 		ptext.draw(self.text, midbottom = T(640, 710), fontsize = T(30), fontname = "Quintessential",
 			color = "#7f7faf", shade = 1, owidth = 1, alpha = self.alpha)
 
-	text = f"Magnitude visible: {world.sky:.1f}\nStars linked: {world.score}/{len(world.stars)}"
-	ptext.draw(text, bottomleft = T(0, 720), owidth = 1, fontsize = T(20), color = "#afafaf")
+	text = f"Magnitude visible: {world.sky:.1f}\nStars correct: {world.score}/{len(world.stars)}"
+	ptext.draw(text, bottomleft = T(0, 720), owidth = 1, fontsize = T(20), color = "#ffafff")
 
 

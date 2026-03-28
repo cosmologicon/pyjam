@@ -30,7 +30,7 @@ class Star:
 
 	def setchimed(self, chimed):
 		if chimed and not self.chimed:
-			effect.Chime(self.pos)
+			effect.Chime(self.pos, self.label, self.color)
 		self.chimed = chimed
 		return self.chimed
 
@@ -52,6 +52,7 @@ class Star:
 		return None
 
 	def rG(self):
+		return 0.3 * math.interp(self.mag, 0, 3, 6, 1)
 		return 0.3 * math.interp(self.mag, 0, 1.4, 6, 1)
 		return 0.2 * math.interp(self.mag, 0, 3, 6, 1)
 
@@ -59,7 +60,7 @@ class Star:
 		pV0 = view.VconvertG(self.pos)
 		pV = math.CS(random.uniform(0, math.tau), r = random.uniform(0, 0.6), center = pV0)
 		pV = pV0
-		rV = view.VsmoothscaleG(self.rG() * (2 if self is control.cursor else 1))
+		rV = view.VsmoothscaleG(self.rG())
 		graphics.drawstarV(pV, rV, self.color)
 		hcolor = (120, 120, 120) if self.ok() else (255, 255, 255)
 		color = math.mixI(self.color, hcolor, 0.5)
@@ -67,13 +68,14 @@ class Star:
 		alpha = math.interp(math.distance(self.pos, control.mouseG), 0, 1, 10, 0)
 		if not self.ok():
 			alpha = 1
-		ptext.draw(self.label, midbottom = pVtext, fontsize = T(20), color=color, owidth=1, alpha=alpha)
+		fontsize = T(32 if self is control.cursor else 20)
+		ptext.draw(self.label, midbottom = pVtext, fontsize = fontsize, color=color, owidth=1, alpha=alpha)
 		if settings.editor and self.mag < world.sky - world.dadvance:
 			
 			pygame.draw.circle(pview.screen, (255, 200, 100), pV0, view.VscaleG(self.rG() * 2), 1)
 
 class LoneStar(Star):
-	colorset = [(255, 160, 160)]
+	colorset = [(255, 180, 180)]
 	islone = True
 	def __init__(self, pos, mag, N):
 		Star.__init__(self, pos, mag, N)
@@ -97,7 +99,7 @@ class LoneStar(Star):
 		
 
 class BalancedStar(Star):
-	colorset = [(255, 255, 100)]
+	colorset = [(255, 255, 130)]
 	def __init__(self, pos, mag, N):
 		Star.__init__(self, pos, mag, N)
 		self.balanced = True
@@ -163,6 +165,9 @@ class Link:
 		if star is self.star1: return self.star0
 		return None
 
+	def shrinkline(self):
+		return geometry.shrinkline(self.star0.pos, self.star1.pos, 1.5 * self.star0.rG(), 1.5 * self.star1.rG())
+
 	def place(self):
 		self.setcrossers()
 		world.links.append(self)
@@ -171,7 +176,7 @@ class Link:
 		for crosser in self.crossers:
 			crosser.crossers.append(self)
 		if self.ok():
-			effect.Strum(*self.ps)
+			effect.Strum(*self.shrinkline())
 		world.resolvecon()
 
 	def cross(self, link):
@@ -186,9 +191,10 @@ class Link:
 		if resolve:
 			world.resolvecon()
 			world.setscore()
+		graphics.dellinkimg()
 	
 	def draw(self):
-		p0, p1 = geometry.shrinkline(self.star0.pos, self.star1.pos, 1.5 * self.star0.rG(), 1.5 * self.star1.rG())
+		p0, p1 = self.shrinkline()
 		color = (40, 40, 80) if self.ok() else (160, 80, 80)
 		graphics.drawlinkV(view.VconvertG(p0), view.VconvertG(p1), view.VscaleG(0.06), color)
 #		pygame.draw.aaline(pview.screen, color, view.VconvertG(p0), view.VconvertG(p1), 1)

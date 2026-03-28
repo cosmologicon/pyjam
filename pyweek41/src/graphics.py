@@ -1,6 +1,6 @@
 import pygame, math, random
 from functools import cache, lru_cache
-from . import pview, fuzz, geometry
+from . import pview, fuzz, geometry, world
 
 @cache
 def img0(fname):
@@ -131,14 +131,43 @@ def drawstarV(pV, rV, color0):
 	color = math.interpI(random.uniform(0, 0.2), 0, color0, 1, (0, 0, 0))
 	drawat(starimg(rV, color), pV)
 
+linkimg = None
+
+def linkcolor(color0):
+	f = math.interp(world.sky, 1, 0.5, 6, 0)
+	return math.mixI(color0, (255, 255, 255), f)
+
 def drawlinkV(pV0, pV1, wV, color0):
 	dx, dy = math.I(math.norm(geometry.vminus(pV1, pV0), wV))
 	dp = -dy, dx
 	ps = [geometry.vplus(pV0, dp), geometry.vplus(pV1, dp),
 		geometry.vminus(pV1, dp), geometry.vminus(pV0, dp)]
-	pygame.draw.polygon(pview.screen, color0, ps, 0)
+	pygame.draw.polygon(linkimg, linkcolor(color0), ps, 0)
 
+def drawlinks():
+	global linkimg
+	if linkimg is None:
+		linkimg = pview.screen.copy().convert_alpha()
+		linkimg.fill((0, 0, 0, 0))
+		for link in world.links:
+			link.draw()
+	pview.screen.blit(linkimg, (0, 0))
 
+def dellinkimg():
+	global linkimg
+	linkimg = None
 
+def drawstrum(pVs, color0, alpha):
+	xs, ys = zip(*pVs)
+	x0, y0 = min(xs), min(ys)
+	xs = [x - x0 for x in xs]
+	ys = [y - y0 for y in ys]
+	w, h = max(xs) + 1, max(ys) + 1
+	pVs = list(zip(xs, ys))
+	img = pygame.Surface((w, h)).convert_alpha()
+	img.fill((0, 0, 0, 0))
+	color = list(linkcolor(color0)) + [math.mixI(0, 255, alpha)]
+	pygame.draw.polygon(img, color, pVs)
+	pview.screen.blit(img, (x0, y0))
 
 

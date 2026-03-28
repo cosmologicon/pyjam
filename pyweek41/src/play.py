@@ -18,8 +18,7 @@ def think(dt):
 
 def draw():
 	graphics.drawback(world.sky)
-	for link in world.links:
-		link.draw()
+	graphics.drawlinks()
 	for star in world.stars.values():
 		star.draw()
 	graphics.coverstars(world.sky)
