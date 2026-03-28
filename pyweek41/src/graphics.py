@@ -113,10 +113,14 @@ def starimg0(r, color, n):
 def roundcolor(color):
 	return tuple(math.clamp(int(round(c / 4)) * 4, 0, 255) for c in color)
 
+maxn = 0
 def starimg(r, color):
+	global maxn
 	r = round(r * Fstar) / Fstar
 	color = roundcolor(color)
-	n = random.randint(0, 39)
+	n = random.randint(0, maxn)
+	if n == maxn and maxn < 29:
+		maxn += 1
 	return starimg0(r, color, n)
 
 def drawat(img, pV):

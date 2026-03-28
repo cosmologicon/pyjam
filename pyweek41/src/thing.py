@@ -1,5 +1,5 @@
 import pygame, math, random, itertools
-from . import view, control, world, graphics, effect, geometry
+from . import view, control, world, graphics, effect, geometry, settings
 from . import fuzz, pview, ptext
 from .pview import T
 
@@ -63,6 +63,9 @@ class Star:
 		if not self.ok():
 			alpha = 1
 		ptext.draw(self.label, midbottom = pVtext, fontsize = T(20), color=color, owidth=1, alpha=alpha)
+		if settings.editor and self.mag < world.sky - world.dadvance:
+			
+			pygame.draw.circle(pview.screen, (255, 200, 100), pV0, view.VscaleG(self.rG() * 2), 1)
 
 class NoadjStar(Star):
 	color = 255, 100, 100
@@ -141,13 +144,15 @@ class Link:
 	def cross(self, link):
 		return geometry.linecross(self.ps, link.ps)
 
-	def unplace(self):
+	def unplace(self, resolve = True):
 		world.links.remove(self)
 		self.star0.removelink(self)
 		self.star1.removelink(self)
 		for crosser in self.crossers:
 			crosser.crossers.remove(self)
-		world.resolvecon()
+		if resolve:
+			world.resolvecon()
+			world.setscore()
 	
 	def draw(self):
 		p0, p1 = geometry.shrinkline(self.star0.pos, self.star1.pos, 1.5 * self.star0.rG(), 1.5 * self.star1.rG())
@@ -168,6 +173,8 @@ class CursorLink(Link):
 
 	def draw(self):
 		rG = 1.5 * self.star0.rG()
+		if math.distance(self.star0.pos, self.star1.pos) < rG:
+			return
 		p0, p1 = geometry.shrinkline(self.star0.pos, self.star1.pos, rG, 0)
 		color = (40, 40, 80) if self.ok() else (160, 80, 80)
 		color = math.mixI(color, (255, 255, 255), 0.6)
