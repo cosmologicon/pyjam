@@ -47,7 +47,7 @@ def drawsparkle():
 	if True:
 		pview.screen.blit(sparklerimg(pview.size), (0, 0))
 		ps = sparklers(pview.size)
-		for n in range(len(ps) // 60):
+		for n in range(len(ps) // 30):
 			x, y, c = random.choice(ps)
 			c = int(c * random.uniform(1.2, 1.8))
 			pview.screen.set_at((x, y), (c, c, c))
@@ -121,7 +121,6 @@ def starimg(r, color):
 	n = random.randint(0, maxn)
 	if n == maxn and maxn < 29 and random.random() < 0.1:
 		maxn += 1
-		print(maxn)
 	return starimg0(r, color, n)
 
 def drawat(img, pV):

@@ -6,7 +6,7 @@ from .pview import T
 def init():
 	world.generate()
 	world.advanceto(1)
-	world.sky = 0
+	world.sky = 1
 	quest.init()
 
 def think(dt):

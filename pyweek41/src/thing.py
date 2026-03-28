@@ -4,7 +4,11 @@ from . import fuzz, pview, ptext
 from .pview import T
 
 class Star:
-	color = 255, 255, 255
+	colorset = [
+		(255, 255, 255),
+		(220, 220, 255),
+		(180, 230, 255),
+	]
 	noadj = False
 	islone = False
 	def __init__(self, pos, mag, N):
@@ -15,6 +19,7 @@ class Star:
 		self.chimed = False
 		self.label = f"{self.N}"
 		self.conok = True
+		self.color = fuzz.choice(self.colorset, 432, *pos)
 
 	def ok(self):
 		if not all(link.ok() for link in self.links):
@@ -67,12 +72,8 @@ class Star:
 			
 			pygame.draw.circle(pview.screen, (255, 200, 100), pV0, view.VscaleG(self.rG() * 2), 1)
 
-class NoadjStar(Star):
-	color = 255, 100, 100
-	noadj = True
-
 class LoneStar(Star):
-	color = 255, 100, 100
+	colorset = [(255, 160, 160)]
 	islone = True
 	def __init__(self, pos, mag, N):
 		Star.__init__(self, pos, mag, N)
@@ -96,7 +97,7 @@ class LoneStar(Star):
 		
 
 class BalancedStar(Star):
-	color = 255, 255, 0
+	colorset = [(255, 255, 100)]
 	def __init__(self, pos, mag, N):
 		Star.__init__(self, pos, mag, N)
 		self.balanced = True

@@ -40,6 +40,7 @@ def playmusic():
 cnames = ["chime-C", "chime-D", "chime-E", "chime-G", "chime-A"]
 
 def playchime():
+	return
 	play("chime-C")
 	return
 	for delay in (0, random.uniform(0.3, 0.6)):

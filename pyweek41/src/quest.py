@@ -10,40 +10,51 @@ def init():
 	self.dstage = 0
 	self.alpha = 0
 	self.done = set()
+	self.text = None
 
 def do(task):
 	self.done.add(task)
 
 def think(dt):
-	if self.stage == 0 and len(world.links) > 0:
-		self.stage += 1
-	if self.stage == 1 and world.sky > 1:
-		self.stage += 1
+	if len(world.links) > 0:
+		do("link")
 
-
-	if self.stage == self.dstage:
+	text = gettext()
+	if text is not None and text == self.text:
 		self.alpha = math.approach(self.alpha, 1, dt)
 	else:
 		self.alpha = math.approach(self.alpha, 0, dt)
-		if self.alpha == 0:
-			self.dstage = self.stage
+	if text is not None and self.alpha == 0:
+		self.text = text
+
+def gettext():
+	if world.sky <= 1:
+		if "link" not in self.done:
+			return "Click and drag to link stars."
+		else:
+			return "Numbers indicate how many links each star must have."
+	if world.sky <= 1.5:
+		if "remove" not in self.done:
+			return "Click and drag on an existing link to remove it."
+		else:
+			return "Numbers indicate how many links each star must have."
+	if world.sky <= 2.0:
+		return None
+	if world.sky <= 2.5:
+		return "Stars labeled Y must have three links that are spaced out.\nNo two links may form an acute angle (<90°) at a Y star."
+	if world.sky <= 3.0:
+		return "Stars labeled Y must have three links that are spaced out.\nNo two links may form an acute angle (<90°) at a Y star."
+	if world.sky <= 3.5:
+		return "Stars labeled X must have four links and cannot be connected.\nNo constellation can have more than one X star."
+	if world.sky <= 5.5:
+		return None
+	if world.sky <= 6.0:
+		return "The End. Thank you for playing."
+
 
 def draw():
-	text = None
-	if self.dstage == 0:
-		text = "Click and drag to link stars."
-	if self.dstage == 1:
-		text = "Numbers indicate how many links each star should have."
-	if self.dstage == 2:
-		text = "Click and drag on an existing link to remove it.\nNumbers indicate how many links each star should have."
-	if self.dstage == 3:
-		text = "Stars labeled Y must have three links that are spaced out.\nNo two links may form an acute angle (<90) at a Y star."
-	if self.dstage == 4:
-		text = "Stars labeled X must have four links.\nNo constellation can have more than one X star."
-	if self.dstage == 5:
-		text = "Stars labeled Z must have five links.\nEach link must go to a star with a different label."
-	if text is not None:
-		ptext.draw(text, midbottom = T(640, 710), fontsize = T(30), fontname = "Quintessential",
+	if self.text is not None:
+		ptext.draw(self.text, midbottom = T(640, 710), fontsize = T(30), fontname = "Quintessential",
 			color = "#7f7faf", shade = 1, owidth = 1, alpha = self.alpha)
 
 	text = f"Magnitude visible: {world.sky:.1f}\nStars linked: {world.score}/{len(world.stars)}"
