@@ -20,7 +20,7 @@ def draw(capture = False):
 	graphics.drawback(world.sky)
 	graphics.drawlinks()
 	for star in world.stars.values():
-		star.draw()
+		star.draw(capture)
 	graphics.coverstars(world.sky)
 	if not capture:
 		for obj in world.effects:

@@ -30,6 +30,7 @@ def think(dt):
 		drawtext("Thank you for playing!", 1)
 		pygame.display.flip()
 		view.screenshot()
+		world.save()
 
 
 def gettext():

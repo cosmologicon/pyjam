@@ -60,7 +60,7 @@ class Star:
 		return 0.3 * math.interp(self.mag, 0, 1.4, 6, 1)
 		return 0.2 * math.interp(self.mag, 0, 3, 6, 1)
 
-	def draw(self):
+	def draw(self, capture = False):
 		if world.sky < self.mag:
 			return
 		pV0 = view.VconvertG(self.pos)
@@ -74,10 +74,11 @@ class Star:
 		alpha = math.interp(math.distance(self.pos, control.mouseG), 0, 1, 10, 0)
 		if not self.ok():
 			alpha = 1
+		if capture and self.ok():
+			alpha = 0
 		fontsize = T(32 if self is control.cursor else 20)
 		ptext.draw(self.label, midbottom = pVtext, fontsize = fontsize, color=color, owidth=1, alpha=alpha)
 		if settings.editor and self.mag < world.sky - world.dadvance:
-			
 			pygame.draw.circle(pview.screen, (255, 200, 100), pV0, view.VscaleG(self.rG() * 2), 1)
 
 class LoneStar(Star):
@@ -93,8 +94,8 @@ class LoneStar(Star):
 			return self.setchimed(False)
 		return Star.ok(self)
 
-	def draw(self):
-		Star.draw(self)
+	def draw(self, capture = False):
+		Star.draw(self, capture)
 		if self.conok:
 			return False
 		for dt in (0, 1/3, 2/3):
@@ -139,8 +140,8 @@ class BalancedStar(Star):
 		Star.removelink(self, link)
 		self.setbalanced()
 
-	def draw(self):
-		Star.draw(self)
+	def draw(self, capture = False):
+		Star.draw(self, capture)
 		for dp0, dp1 in self.badpairs:
 			for dt in (0, 1/3, 2/3):
 				t = (pygame.time.get_ticks() * 0.001 * 2 + dt) % 1
