@@ -68,7 +68,7 @@ def drawtreeline():
 
 @lru_cache(1)
 def backimg(size, sky):
-	img = scaledimg("background", size).copy()
+	img = scaledimg("background", size, extension = "jpg").copy()
 	dark = img.copy()
 	dark.fill((0, 0, 0, math.interpI(sky, 3, 255, 6, 0)))
 	img.blit(dark, (0, 0))

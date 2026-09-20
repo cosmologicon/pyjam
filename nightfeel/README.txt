@@ -14,11 +14,14 @@ A simple puzzle game about the feeling of watching the stars come out after
 sunset on a moonless night. Join visible stars together to create
 constellations. You'll need to remake them when more stars appear.
 
-The last stage is magnitude 5.5 (60 stars). If you complete it a screenshot
-should appear in this directory with your solution.
+I recommend reaching at least magnitude 3.5 (17 stars) and trying it for a
+few minutes before rating. The last stage is magnitude 5.5 (60 stars). If you
+complete it a screenshot should appear in this directory with your solution.
 
 This game turned out harder than I expected. Once you understand the rules,
 feel free to skip ahead with F2 if you're stuck!
+
+Progress is saved automatically. Delete savegame.pkl to reset.
 
 Rules
 -----
