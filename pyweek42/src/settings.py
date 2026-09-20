@@ -1,0 +1,2 @@
+gamename = "Skellington"
+
