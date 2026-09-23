@@ -11,6 +11,7 @@ forceres = False
 minfps, maxfps = 5, 120
 dt0 = 0.008
 
+DEBUG = True
 
 controls = {
 	"quit": [pygame.K_ESCAPE],

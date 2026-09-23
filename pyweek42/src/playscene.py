@@ -5,7 +5,7 @@ from .pview import T
 class self: pass
 
 def init():
-	self.you = thing.You((100, 100))
+	self.you = thing.You((0, 0))
 
 def control(kpressed):
 	dx = int("right" in kpressed) - int("left" in kpressed)

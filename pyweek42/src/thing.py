@@ -1,30 +1,19 @@
+# Unless otherwise noted, all positions and distances in this module are game (G) coodinates.
+
 import math, pygame
-from . import pview, graphics
+from . import pview, graphics, view, settings, geometry
 from .pview import T
 
-# B (baseline) coordinates: baseline pixels. +x is right. +y is down. (0, 0) is upper left of screen.
-# G (game) coordinates. +x is right. +y is down.
-# Angle convention: Like a clock. 0 = up (-y). tau/4 = right (+x).
-
-def angletoward(pos):
-	x, y = pos
-	if (x, y) == (0, 0): return 0
-	return math.atan2(x, -y)
-	
-
-def pgangle(A):
-	return math.degrees(-A)
-
-
 class You:
+	imgscale = 0.025
 	def __init__(self, pos):
+		self.r = 1
 		self.x, self.y = pos
-		self.speed = 300
+		self.speed = 10
 		self.Aface = 0
 		self.Amove = None
 		self.swing = 0
 		self.twalk = 0
-		self.walkframes = [0, 1, 2, 1, 0, 3, 4, 3]
 
 	def control(self, dx, dy):
 		if dx or dy:
@@ -32,7 +21,7 @@ class You:
 		self.vx = self.speed * dx
 		self.vy = self.speed * dy
 		if self.vx or self.vy:
-			self.Amove = angletoward((self.vx, self.vy))
+			self.Amove = geometry.angletoward((self.vx, self.vy))
 		else:
 			self.Amove = None
 
@@ -46,12 +35,17 @@ class You:
 		else:
 			self.twalk = 0
 			self.swing = math.approach(self.swing, 0, 5 * dt)
-			
+
+	def currentimg(self):			
+		jswing = int(round(self.swing * 2))
+		frame = { -2: 4, -1: 3, 0: 0, 1: 1, 2: 2 }[jswing]
+		return f"walk-{frame}"
 
 	def draw(self):
-		angle = pgangle(self.Aface)
-		swing = int(round(self.swing * 2))
-		frame = { -2: 4, -1: 3, 0: 0, 1: 1, 2: 2 }[swing]
-		graphics.drawimgB(f"walk-{frame}", (self.x, self.y), 0.7, angle)
-		graphics.drawcircleB((self.x, self.y), 50, (255, 200, 100))
+		posB = view.BconvertG((self.x, self.y))
+		angle = geometry.pgangle(self.Aface)
+		scaleB = view.BscaleG(self.imgscale * self.r)
+		graphics.drawimgB(self.currentimg(), posB, scaleB, angle)
+		if settings.DEBUG:
+			graphics.drawcircleB(posB, view.BscaleG(self.r), (255, 200, 100))
 

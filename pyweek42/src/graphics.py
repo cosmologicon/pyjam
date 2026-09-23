@@ -7,9 +7,8 @@ from .pview import T
 def baseimg(fname):
 	return pygame.image.load(os.path.join("img", f"{fname}.png")).convert_alpha()
 
-@cache
+@lru_cache(10000)
 def img0(fname, scale = 1, angle = 0, mask = None):
-	print(fname, scale, angle, mask)
 	if scale != 1 or angle != 0:
 		return pygame.transform.rotozoom(img0(fname, mask = mask), angle, scale)
 	if mask is not None:
