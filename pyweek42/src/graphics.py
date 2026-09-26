@@ -39,5 +39,5 @@ def drawrectG(posG, sizeG, color = (255, 255, 255)):
 	wG, hG = sizeG
 	sizeB = view.BscaleG(wG), view.BscaleG(hG)
 	rect = pygame.Rect(T(view.BconvertG(posG)), sizeB)
-	pygame.draw.rect(pview.screen, color, rect)
+	pygame.draw.rect(pview.screen, color, rect, T(1))
 

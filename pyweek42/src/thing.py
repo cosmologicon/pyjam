@@ -56,16 +56,22 @@ class Hazardous(enco.Component):
 		return self.intersectsyou(you)
 
 class Stationary(enco.Component):
+	def __init__(self):
+		self.alive = True
+
 	def think(self, dt):
 		pass
 
 class ConstantVelocity(enco.Component):
+	def __init__(self):
+		self.alive = True
+
 	def think(self, dt):
 		x, y = self.pos
 		x += self.vx * dt
 		y += self.vy * dt
 		self.pos = x, y
-
+		# TODO: not alive when offscreen
 
 
 class Circular(enco.Component):
@@ -104,6 +110,28 @@ class RectangleHazard:
 
 @Hazardous()
 @ConstantVelocity()
+@Circular()
+class FlareHazard:
+	color = 255, 0, 0
+	def __init__(self, pos, r, vel):
+		self.pos = pos
+		self.r = r
+		self.vx, self.vy = vel
+
+class Lifetime(enco.Component):
+	def __init__(self, T):
+		self.T = T
+		self.f = 0
+		self.t = 0
+		self.alive = True
+
+	def think(self, dt):
+		self.t = math.approach(self.t, self.T, dt)
+		self.f = self.t / self.T
+		self.alive = self.t < self.T
+
+@Hazardous()
+@ConstantVelocity()
 @Rectangular()
 class BoltHazard:
 	color = 255, 0, 0
@@ -112,6 +140,38 @@ class BoltHazard:
 		self.size = size
 		self.vx, self.vy = vel
 
+@Lifetime(1)
+@Circular()
+class FlareSpawner:
+	color = 255, 0, 0
+	def __init__(self, pos, rmax, vel):
+		self.pos = pos
+		self.rmax = rmax
+		self.vel = vel
+		self.r = 0
+
+	def spawn(self):
+		flare = FlareHazard(self.pos, self.rmax, self.vel)
+		state.hazards.append(flare)
 	
+	def think(self, dt):
+		self.r = self.rmax * self.f
+	
+	
+class TopSalvo5:
+	def __init__(self, t0):
+		self.alive = True
+		self.xs = [-3, 6, 0, -6, 3]
+		self.t = -t0
+		
+	def think(self, dt):
+		self.t += dt
+		while self.t >= 0 and self.xs:
+			x = self.xs.pop(0)
+			spawner = FlareSpawner((x, -8), 2, (0, 20))
+			state.spawners.append(spawner)
+			self.t -= 0.5
+		self.alive = bool(self.xs)
+		
 
 
