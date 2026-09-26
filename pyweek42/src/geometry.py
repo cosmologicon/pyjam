@@ -13,4 +13,9 @@ def pgangle(A):
 	return math.degrees(-A)
 
 
+def vecadd(v0, v1):
+	x0, y0 = v0
+	x1, y1 = v1
+	return x0 + x1, y0 + y1
+
 

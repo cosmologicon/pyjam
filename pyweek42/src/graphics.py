@@ -1,6 +1,6 @@
 import pygame, os
 from functools import cache, lru_cache
-from . import pview
+from . import pview, view
 from .pview import T
 
 @cache
@@ -26,8 +26,13 @@ def drawimgB(fname, posB, scaleB, angle = 0, mask = None):
 	surf = img(fname, scale, angle, mask)
 	pview.screen.blit(surf, surf.get_rect(center = T(posB)))
 
+def drawimgG(fname, posG, scaleG, angle = 0, mask = None):
+	drawimgB(fname, view.BconvertG(posG), view.BscaleG(scaleG), angle, mask)
+
 def drawcircleB(posB, rB, color = (255, 255, 255)):
 	pygame.draw.circle(pview.screen, color, T(posB), T(rB), 1)
 
+def drawcircleG(posG, rG, color = (255, 255, 255)):
+	drawcircleB(view.BconvertG(posG), view.BscaleG(rG), color)
 
 

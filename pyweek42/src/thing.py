@@ -8,12 +8,15 @@ class You:
 	imgscale = 0.025
 	def __init__(self, pos):
 		self.r = 1
-		self.x, self.y = pos
+		self.pos = pos
 		self.speed = 10
 		self.Aface = 0
 		self.Amove = None
 		self.swing = 0
 		self.twalk = 0
+
+	def scoot(self, dpos):
+		self.pos = geometry.vecadd(self.pos, dpos)
 
 	def control(self, dx, dy):
 		if dx or dy:
@@ -26,8 +29,7 @@ class You:
 			self.Amove = None
 
 	def think(self, dt):
-		self.x += self.vx * dt
-		self.y += self.vy * dt
+		self.scoot((self.vx * dt, self.vy * dt))
 		if self.Amove is not None:
 			self.Aface = math.approachA(self.Aface, self.Amove, 10 * dt)
 			self.twalk += dt
@@ -42,10 +44,21 @@ class You:
 		return f"walk-{frame}"
 
 	def draw(self):
-		posB = view.BconvertG((self.x, self.y))
 		angle = geometry.pgangle(self.Aface)
-		scaleB = view.BscaleG(self.imgscale * self.r)
-		graphics.drawimgB(self.currentimg(), posB, scaleB, angle)
+		scale = self.imgscale * self.r
+		graphics.drawimgG(self.currentimg(), self.pos, scale, angle)
 		if settings.DEBUG:
-			graphics.drawcircleB(posB, view.BscaleG(self.r), (255, 200, 100))
+			graphics.drawcircleG(self.pos, self.r, (255, 200, 100))
+
+
+class CircleHazard:
+	def __init__(self, pos, r):
+		self.pos = pos
+		self.r = r
+
+	def hitsyou(self, you):
+		return math.distance(self.pos, you.pos) < self.r + you.r
+
+	def draw(self):
+		graphics.drawcircleG(self.pos, self.r, (255, 0, 0))
 
