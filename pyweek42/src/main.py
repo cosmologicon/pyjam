@@ -1,7 +1,9 @@
 import pygame
-from . import settings, view, pview, playscene, ptext, state
+from . import settings, view, pview, playscene, ptext, state, sound
 
+pygame.init()
 view.init()
+sound.init()
 playscene.init()
 
 playing = True
@@ -9,6 +11,7 @@ clock = pygame.time.Clock()
 dtaccum = 0
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
+	sound.think(dt)
 	
 	kdowns = set()
 	for event in pygame.event.get():

@@ -50,19 +50,25 @@ class Device:
 			self.charge = math.approach(self.charge, 0, dt / self.tdischarge)
 			if self.charge == 0:
 				self.discharging = False
-
-	def tfactor(self):
-		if self.charging:
-			return 1.5
-		if self.discharging:
-			return 0.5
-		return 1
 device = Device()
 
 def activate():
 	device.activate()
 def tfactor():
-	return device.tfactor()
+	if device.charging:
+		return 1.3
+	if device.discharging:
+		return 0.7
+	return 1
 def youfactor():
-	return 1 / device.tfactor()
+	return 1 / tfactor() ** 2
+def musicfactor():
+	if device.charging:
+		return 1.0
+	if device.discharging:
+		return 0.5
+	return 0.7
+
+
+
 
