@@ -1,14 +1,12 @@
 import pygame
-from . import pview, thing, state, settings
+from . import pview, thing, state, settings, hud
 from .pview import T
 
 class self: pass
 
 def init():
 	state.you = thing.You((0, 0))
-#	state.hazards = [thing.CircleHazard((3, 1), 2), thing.RectangleHazard((-4, 2), (2, 2))]
-	state.spawners = []
-	state.salvos = []
+	state.load_stage()
 
 def control(kpressed, kdowns):
 	dx = int("right" in kpressed) - int("left" in kpressed)
@@ -20,6 +18,7 @@ def control(kpressed, kdowns):
 		state.activate()
 
 def think(dt):
+	state.think(dt)
 	state.you.think(dt)
 	for obj in state.salvos:
 		obj.think(dt)
@@ -45,4 +44,5 @@ def draw():
 		obj.draw()
 	if state.ouch:
 		pview.fill((255, 0, 0, 60))
+	hud.draw()
 

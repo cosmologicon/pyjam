@@ -41,7 +41,7 @@ def init():
 	music_channel = pygame.mixer.Channel(1)
 	music_channel.play(segs[state.musicfactor()][0])
 
-curr_segment = 0
+curr_segment = 1
 queued_factor = None
 
 def think(dt):

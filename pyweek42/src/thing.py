@@ -76,11 +76,22 @@ class ConstantVelocity(enco.Component):
 
 
 class Circular(enco.Component):
+	imgscale = 0.011
+	def __init__(self):
+		self.tspin = 0
+
+	def think(self, dt):
+		self.tspin += dt
+
 	def intersectsyou(self, you):
 		return math.distance(self.pos, you.pos) < self.r + you.r
 
 	def draw(self):
-		graphics.drawcircleG(self.pos, self.r, self.color)
+		angle = 400 * self.tspin
+		graphics.drawimgG("hazard", self.pos, self.imgscale * self.r, angle = angle)
+		if settings.DEBUG:
+			graphics.drawcircleG(self.pos, self.r, self.color)
+
 
 class Rectangular(enco.Component):
 	def intersectsyou(self, you):
@@ -153,6 +164,7 @@ class FlareSpawner:
 
 	def spawn(self):
 		flare = FlareHazard(self.pos, self.rmax, self.vel)
+		flare.tspin = self.tspin
 		state.hazards.append(flare)
 	
 	def think(self, dt):
@@ -160,10 +172,10 @@ class FlareSpawner:
 	
 	
 class TopSalvo5:
-	def __init__(self):
+	def __init__(self, t):
 		self.alive = True
 		self.xs = [-3, 6, 0, -6, 3]
-		self.t = 0
+		self.t = -t
 		
 	def think(self, dt):
 		self.t += dt
@@ -174,5 +186,20 @@ class TopSalvo5:
 			self.t -= 0.5
 		self.alive = bool(self.xs)
 		
+	
+class CrossSalvo:
+	def __init__(self, t):
+		self.alive = True
+		self.t = -t
+		
+	def think(self, dt):
+		self.t += dt
+		if self.alive and self.t >= 0:
+			dx, dy = math.norm((8, 5))
+			spawner = FlareSpawner((12 * dx, -12 * dy), 2, (-20 * dx, 20 * dy))
+			state.spawners.append(spawner)
+			spawner = FlareSpawner((-12 * dx, -12 * dy), 2, (20 * dx, 20 * dy))
+			state.spawners.append(spawner)
+			self.alive = False
 
 

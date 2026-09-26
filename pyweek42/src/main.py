@@ -1,16 +1,17 @@
 import pygame
-from . import settings, view, pview, playscene, ptext, state, sound, hud
+from . import settings, view, pview, playscene, ptext, state, sound, hud, endscene
 
 ptext.DEFAULT_FONT_NAME = "font/Asimovian.ttf"
 pygame.init()
 view.init()
 sound.init()
-playscene.init()
 hud.init()
 
 playing = True
 clock = pygame.time.Clock()
 dtaccum = 0
+scene = playscene
+playscene.init()
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	sound.think(dt)
@@ -32,22 +33,29 @@ while playing:
 	kpressed0 = pygame.key.get_pressed()
 	kpressed = set(k for k, keys in settings.controls.items() if any(kpressed0[key] for key in keys))
 
-	playscene.control(kpressed, kdowns)
+	scene.control(kpressed, kdowns)
 	dtaccum += dt * state.tfactor()
 	while dtaccum >= settings.dt0:
 		dtaccum -= settings.dt0
-		playscene.think(settings.dt0)
+		scene.think(settings.dt0)
 	
-	playscene.draw()
-	hud.draw()
+	scene.draw()
 	if settings.DEBUG:
 		text = "\n".join([
+			f"stage {state.current_stage}",
+			f"tstage {state.tstage:.1f}",
 			f"tfactor: {state.tfactor()}",
 			f"{clock.get_fps():.1f}fps",
 		])
 		ptext.draw(text, bottomleft = pview.bottomleft, fontsize = pview.T(35),
 			owidth = 1)
 	pygame.display.flip()
+
+	if scene is playscene and state.won:
+		scene = endscene
+		endscene.init()
+	if scene is endscene and endscene.done:
+		playing = False
 	
 	
 

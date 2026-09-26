@@ -1,10 +1,42 @@
 import math
-from . import graphics
+from . import graphics, stage
 
+current_stage = 0
+tstage = 0
 you = None
 hazards = []
 spawners = []
 salvos = []
+won = False
+
+def load_stage():
+	global tstage
+	tstage = 0
+	del hazards[:]
+	del spawners[:]
+	del salvos[:]
+	from . import thing
+	for t, stype in stage.stages[current_stage]["salvos"]:
+		sclass = {
+			"top5": thing.TopSalvo5,
+			"cross": thing.CrossSalvo,
+		}[stype]
+		salvos.append(sclass(t))
+
+def advance():
+	global current_stage, tstage, won
+	current_stage += 1
+	if current_stage in stage.stages:
+		load_stage()
+	else:
+		won = True
+
+def think(dt):
+	global tstage
+	tstage += dt
+	if tstage >= stage.stages[current_stage]["t"]:
+		advance()
+		
 
 room_rect = -8, -5, 16, 10
 
@@ -30,7 +62,7 @@ class Device:
 	def __init__(self):
 		self.charging = False
 		self.discharging = False
-		self.charge = 0
+		self.charge = 1
 
 	def can_activate(self):
 		return not self.charging and not self.discharging
@@ -55,6 +87,10 @@ device = Device()
 
 def activate():
 	device.activate()
+def deactivate():
+	device.charge = 0
+	device.charging = False
+	device.discharging = False
 def tfactor():
 	if device.charging:
 		return 1.4
