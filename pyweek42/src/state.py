@@ -8,6 +8,7 @@ salvos = []
 
 room_rect = -8, -5, 16, 10
 
+
 def room_bounds():
 	x, y, w, h = room_rect
 	return (x, x + w), (y, y + h)
@@ -56,9 +57,9 @@ def activate():
 	device.activate()
 def tfactor():
 	if device.charging:
-		return 1.3
+		return 1.4
 	if device.discharging:
-		return 0.7
+		return 0.6
 	return 1
 def youfactor():
 	return 1 / tfactor() ** 2

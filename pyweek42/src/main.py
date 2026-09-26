@@ -1,10 +1,12 @@
 import pygame
-from . import settings, view, pview, playscene, ptext, state, sound
+from . import settings, view, pview, playscene, ptext, state, sound, hud
 
+ptext.DEFAULT_FONT_NAME = "font/Asimovian.ttf"
 pygame.init()
 view.init()
 sound.init()
 playscene.init()
+hud.init()
 
 playing = True
 clock = pygame.time.Clock()
@@ -12,6 +14,7 @@ dtaccum = 0
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	sound.think(dt)
+	hud.think(dt)
 	
 	kdowns = set()
 	for event in pygame.event.get():
@@ -36,6 +39,7 @@ while playing:
 		playscene.think(settings.dt0)
 	
 	playscene.draw()
+	hud.draw()
 	if settings.DEBUG:
 		text = "\n".join([
 			f"tfactor: {state.tfactor()}",
