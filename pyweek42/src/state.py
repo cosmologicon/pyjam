@@ -23,7 +23,46 @@ def constrain_to_room(pos, r = 0):
 	return math.clamp(x, x0 + r, x1 - r), math.clamp(y, y0 + r, y1 - r)
 
 
+class Device:
+	tcharge = 3
+	tdischarge = 2
+	def __init__(self):
+		self.charging = False
+		self.discharging = False
+		self.charge = 0
 
-	
-	
+	def can_activate(self):
+		return not self.charging and not self.discharging
+
+	def activate(self):
+		if not self.can_activate(): return False
+		if self.charge == 0:
+			self.charging = True
+		else:
+			self.discharging = True
+
+	def think(self, dt):
+		if self.charging:
+			self.charge = math.approach(self.charge, 1, dt / self.tcharge)
+			if self.charge == 1:
+				self.charging = False
+		if self.discharging:
+			self.charge = math.approach(self.charge, 0, dt / self.tdischarge)
+			if self.charge == 0:
+				self.discharging = False
+
+	def tfactor(self):
+		if self.charging:
+			return 1.5
+		if self.discharging:
+			return 0.5
+		return 1
+device = Device()
+
+def activate():
+	device.activate()
+def tfactor():
+	return device.tfactor()
+def youfactor():
+	return 1 / device.tfactor()
 

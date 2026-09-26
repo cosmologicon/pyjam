@@ -19,6 +19,8 @@ controls = {
 	"right": [pygame.K_RIGHT, pygame.K_d, pygame.K_e],
 	"up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],
 	"down": [pygame.K_DOWN, pygame.K_s, pygame.K_o],
+	"act": [pygame.K_SPACE, pygame.K_RETURN],
+	"spawn": [pygame.K_1],
 	"resolution": [pygame.K_F10],
 	"fullscreen": [pygame.K_F11],
 	"screenshot": [pygame.K_F12],

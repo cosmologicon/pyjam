@@ -1,5 +1,5 @@
 import pygame
-from . import settings, view, pview, playscene, ptext
+from . import settings, view, pview, playscene, ptext, state
 
 view.init()
 playscene.init()
@@ -26,8 +26,8 @@ while playing:
 	kpressed0 = pygame.key.get_pressed()
 	kpressed = set(k for k, keys in settings.controls.items() if any(kpressed0[key] for key in keys))
 
-	playscene.control(kpressed)	
-	dtaccum += dt
+	playscene.control(kpressed, kdowns)
+	dtaccum += dt * state.tfactor()
 	while dtaccum >= settings.dt0:
 		dtaccum -= settings.dt0
 		playscene.think(settings.dt0)
@@ -35,6 +35,7 @@ while playing:
 	playscene.draw()
 	if settings.DEBUG:
 		text = "\n".join([
+			f"tfactor: {state.tfactor()}",
 			f"{clock.get_fps():.1f}fps",
 		])
 		ptext.draw(text, bottomleft = pview.bottomleft, fontsize = pview.T(35),

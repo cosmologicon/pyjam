@@ -30,6 +30,7 @@ class You:
 			self.Amove = None
 
 	def think(self, dt):
+		dt *= state.youfactor()
 		self.scoot((self.vx * dt, self.vy * dt))
 		if self.Amove is not None:
 			self.Aface = math.approachA(self.Aface, self.Amove, 10 * dt)
@@ -159,10 +160,10 @@ class FlareSpawner:
 	
 	
 class TopSalvo5:
-	def __init__(self, t0):
+	def __init__(self):
 		self.alive = True
 		self.xs = [-3, 6, 0, -6, 3]
-		self.t = -t0
+		self.t = 0
 		
 	def think(self, dt):
 		self.t += dt
