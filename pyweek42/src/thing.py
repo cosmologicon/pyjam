@@ -1,7 +1,7 @@
 # Unless otherwise noted, all positions and distances in this module are game (G) coodinates.
 
 import math, pygame
-from . import pview, graphics, view, settings, geometry
+from . import pview, graphics, view, settings, geometry, enco, state
 from .pview import T
 
 class You:
@@ -17,6 +17,7 @@ class You:
 
 	def scoot(self, dpos):
 		self.pos = geometry.vecadd(self.pos, dpos)
+		self.pos = state.constrain_to_room(self.pos, self.r)
 
 	def control(self, dx, dy):
 		if dx or dy:
@@ -50,15 +51,67 @@ class You:
 		if settings.DEBUG:
 			graphics.drawcircleG(self.pos, self.r, (255, 200, 100))
 
+class Hazardous(enco.Component):
+	def hitsyou(self, you):
+		return self.intersectsyou(you)
 
+class Stationary(enco.Component):
+	def think(self, dt):
+		pass
+
+class ConstantVelocity(enco.Component):
+	def think(self, dt):
+		x, y = self.pos
+		x += self.vx * dt
+		y += self.vy * dt
+		self.pos = x, y
+
+
+
+class Circular(enco.Component):
+	def intersectsyou(self, you):
+		return math.distance(self.pos, you.pos) < self.r + you.r
+
+	def draw(self):
+		graphics.drawcircleG(self.pos, self.r, self.color)
+
+class Rectangular(enco.Component):
+	def intersectsyou(self, you):
+		return geometry.intersectrectcircle(self.pos, self.size, you.pos, you.r)
+
+	def draw(self):
+		graphics.drawrectG(self.pos, self.size, self.color)
+
+
+@Hazardous()
+@Stationary()
+@Circular()
 class CircleHazard:
+	color = 255, 0, 0
 	def __init__(self, pos, r):
 		self.pos = pos
 		self.r = r
 
-	def hitsyou(self, you):
-		return math.distance(self.pos, you.pos) < self.r + you.r
 
-	def draw(self):
-		graphics.drawcircleG(self.pos, self.r, (255, 0, 0))
+@Hazardous()
+@Stationary()
+@Rectangular()
+class RectangleHazard:
+	color = 255, 0, 0
+	def __init__(self, pos, size):
+		self.pos = pos
+		self.size = size
+
+@Hazardous()
+@ConstantVelocity()
+@Rectangular()
+class BoltHazard:
+	color = 255, 0, 0
+	def __init__(self, pos, size, vel):
+		self.pos = pos
+		self.size = size
+		self.vx, self.vy = vel
+
+	
+
 
