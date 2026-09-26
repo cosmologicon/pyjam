@@ -1,13 +1,14 @@
 import math
 from . import graphics, stage
 
-current_stage = 0
+current_stage = 1
 tstage = 0
 you = None
 hazards = []
 spawners = []
 salvos = []
 won = False
+health = 3
 
 def load_stage():
 	global tstage
@@ -17,15 +18,30 @@ def load_stage():
 	del salvos[:]
 	from . import thing
 	for t, stype in stage.stages[current_stage]["salvos"]:
+		flipH, flipV = False, False
+		if stype.startswith("H"):
+			flipH = True
+			stype = stype[1:]
+		if stype.startswith("V"):
+			flipV = True
+			stype = stype[1:]
 		sclass = {
 			"top5": thing.TopSalvo5,
-			"cross": thing.CrossSalvo,
+			"x": thing.XSalvo,
+			"sweepr": thing.SweepSalvoR,
+			"sweepd": thing.SweepSalvoD,
+			"rlr": thing.SalvoRLR,
+			"mega": thing.MegaSalvo,
+			"z": thing.SalvoZ,
+			"edges": thing.SalvoEdges,
 		}[stype]
-		salvos.append(sclass(t))
+		salvos.append(sclass(t, flipH, flipV))
+	print(salvos)
 
 def advance():
-	global current_stage, tstage, won
+	global current_stage, tstage, won, health
 	current_stage += 1
+	health = math.approach(health, 3, 1)
 	if current_stage in stage.stages:
 		load_stage()
 	else:
@@ -37,6 +53,9 @@ def think(dt):
 	if tstage >= stage.stages[current_stage]["t"]:
 		advance()
 		
+def hurt():
+	global health
+	health -= 1
 
 room_rect = -8, -5, 16, 10
 
@@ -48,7 +67,7 @@ def room_bounds():
 
 def draw_room():
 	x, y, w, h = room_rect
-	graphics.drawrectG((x, y), (w, h), (0, 60, 60))
+	graphics.drawrectG((x, y), (w, h), (10, 30, 30), fill = True)
 
 def constrain_to_room(pos, r = 0):
 	x, y = pos
@@ -93,12 +112,16 @@ def deactivate():
 	device.discharging = False
 def tfactor():
 	if device.charging:
-		return 1.4
+		return 1
 	if device.discharging:
-		return 0.6
-	return 1
+		return 0.4
+	return 0.7
 def youfactor():
-	return 1 / tfactor() ** 2
+	if device.charging:
+		return 0.8
+	if device.discharging:
+		return 1.6
+	return 1.2
 def musicfactor():
 	if device.charging:
 		return 1.0

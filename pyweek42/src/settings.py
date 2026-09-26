@@ -1,6 +1,6 @@
 import pygame
 
-gamename = "Borrowed Time"
+gamename = "Timestealer"
 
 size0 = 1280, 720
 height = 720
@@ -11,7 +11,7 @@ forceres = False
 minfps, maxfps = 5, 120
 dt0 = 0.008
 
-DEBUG = True
+DEBUG = False
 
 controls = {
 	"quit": [pygame.K_ESCAPE],
@@ -20,6 +20,7 @@ controls = {
 	"up": [pygame.K_UP, pygame.K_w, pygame.K_COMMA],
 	"down": [pygame.K_DOWN, pygame.K_s, pygame.K_o],
 	"act": [pygame.K_SPACE, pygame.K_RETURN],
+	"skip": [pygame.K_F1],
 	"spawn": [pygame.K_1],
 	"resolution": [pygame.K_F10],
 	"fullscreen": [pygame.K_F11],

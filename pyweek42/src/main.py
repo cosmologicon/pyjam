@@ -1,17 +1,17 @@
 import pygame
-from . import settings, view, pview, playscene, ptext, state, sound, hud, endscene
+from . import settings, view, pview, playscene, ptext, state, sound, hud, endscene, diescene, titlescene
 
 ptext.DEFAULT_FONT_NAME = "font/Asimovian.ttf"
 pygame.init()
 view.init()
 sound.init()
 hud.init()
+titlescene.init()
 
 playing = True
 clock = pygame.time.Clock()
 dtaccum = 0
-scene = playscene
-playscene.init()
+scene = titlescene
 while playing:
 	dt = min(0.001 * clock.tick(settings.maxfps), 1 / settings.minfps)
 	sound.think(dt)
@@ -51,11 +51,20 @@ while playing:
 			owidth = 1)
 	pygame.display.flip()
 
+	if scene is titlescene and titlescene.done:
+		scene = playscene
+		playscene.init()
 	if scene is playscene and state.won:
 		scene = endscene
 		endscene.init()
+	if scene is playscene and state.health == 0:
+		scene = diescene
+		diescene.init()
 	if scene is endscene and endscene.done:
 		playing = False
+	if scene is diescene and diescene.done:
+		scene = playscene
+		playscene.init()
 	
 	
 

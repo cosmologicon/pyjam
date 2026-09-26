@@ -35,9 +35,9 @@ def drawcircleB(posB, rB, color = (255, 255, 255)):
 def drawcircleG(posG, rG, color = (255, 255, 255)):
 	drawcircleB(view.BconvertG(posG), view.BscaleG(rG), color)
 
-def drawrectG(posG, sizeG, color = (255, 255, 255)):
+def drawrectG(posG, sizeG, color = (255, 255, 255), fill = False):
 	wG, hG = sizeG
 	sizeB = view.BscaleG(wG), view.BscaleG(hG)
 	rect = pygame.Rect(T(view.BconvertG(posG)), sizeB)
-	pygame.draw.rect(pview.screen, color, rect, T(1))
+	pygame.draw.rect(pview.screen, color, rect, (0 if fill else T(1)))
 
