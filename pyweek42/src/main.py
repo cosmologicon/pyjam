@@ -1,7 +1,7 @@
-import pygame
+import pygame, os.path
 from . import settings, view, pview, playscene, ptext, state, sound, hud, endscene, diescene, titlescene
 
-ptext.DEFAULT_FONT_NAME = "font/Asimovian.ttf"
+ptext.DEFAULT_FONT_NAME = os.path.join("font", "Asimovian.ttf")
 pygame.init()
 view.init()
 sound.init()
